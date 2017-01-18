@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    {% include "head" %}
+  </head>
+  
+  <body>
+    {% include "header" %}
+    
+    <div id="container" class="js-close-any" canvas="container">
+      <div id="wrapper">
+        <div class="row">
+            <h2 class="title">I care most about...</h2>
+        </div>
+        
+        <!--<form>-->
+          <div id="user-causes" class="row">
+            <div class="medium-8 small-centered columns">
+              <input type="radio" id="user-cause-1" name="user-cause-[]" value="" class="hidden styled-radio"/>
+                <label for="user-cause-1" class="half-margin-top button round secondary small">Equality</label>
+              <input type="radio" id="user-cause-2" name="user-cause-[]" value="" class="hidden styled-radio"/>
+                <label for="user-cause-2" class="half-margin-top button round secondary small">Education</label>
+              <input type="radio" id="user-cause-3" name="user-cause-[]" value="" class="hidden styled-radio"/>
+                <label for="user-cause-3" class="half-margin-top button round secondary small">Nature</label>
+              <input type="radio" id="user-cause-4" name="user-cause-[]" value="" class="hidden styled-radio"/>
+                <label for="user-cause-4" class="half-margin-top button round secondary small">Health</label>
+              <input type="radio" id="user-cause-5" name="user-cause-[]" value="" class="hidden styled-radio"/>
+                <label for="user-cause-5" class="half-margin-top button round secondary small">Innovation</label>
+
+              <div class="inline">
+                <input type="radio" id="user-cause-other" name="user-cause-[]" value="" class="hidden styled-radio"/>
+                <label for="user-cause-other" class="half-margin-top half-margin-right button round secondary small">Other:</label>
+                <input type="text" id="other-cause" class="inline" />
+              </div>
+            </div>
+          </div>
+
+          <div class="row half-margin-top">
+            <div class="small-10 medium-8 small-centered columns">
+              <label>We will help you find organizations who share your mission.</label>
+              <a href="verify-identity"><button class="one-margin-top button round">Save account</button></a>
+              <!--<input type="submit" class="one-margin-top button round" value="Save account"/>-->
+            </div>
+          </div>
+        <!--</form>-->
+
+        <div id="demo-box" class="modal center small-12 medium-9 large-7 small-centered columns">
+          <div class="row center">
+            <div class="small-11 small-centered columns">
+              <h2 class="popup-title">This is a demo.</h2>
+              <p>Come see what we're working on. Most buttons will work, but don't bother entering information, as data is not yet being saved.</p>
+              <p class="three-halves-margin-bottom">If you have any questions or would like to get involved, click "Contact us" at the bottom of each page.</p>
+              <a class="signup-box_open demo-box_close"><button class="button round">Okay</button></a>
+            </div>
+          </div>
+        </div>
+        
+        <div id="push"></div>
+    
+      <!-- wrapper div-->
+      </div>
+      
+      {% include "footer" %}
+            
+    <!--container div -->
+    </div>
+    
+    <div id="bottom-stripe" class="full-width"></div>
+    
+    <div off-canvas="menu right shift" id="menu">
+      {% include "menu" %}
+    </div>
+  
+    <div id="-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h3 class="popup-title"></h3>
+      </div>
+      
+      <div class="row">
+        <div class="small-centered medium-10 columns">
+          
+          <p></p>
+          
+          <button class="tax-id-popup_close button round">Okay</button>
+          <a><button class="button round secondary"></button></a>
+        </div>
+      </div>
+    </div>
+    
+    
+    <script type="text/javascript">
+      $(document).ready(function(){
+        $('#demo-box').popup({
+          autoopen: 'true',
+          vertical: 'top',
+          transition: 'all 0.75s',
+          scrolllock: true,
+        });
+      });
+    </script>
+
+    <script type="text/javascript">
+      $(document).ready(function(){
+        $("#other-cause").click(function() {
+          $("#user-cause-other").prop("checked", true);
+        });
+        
+        $("#user-cause-other").click(function(){
+          $("#other-cause").focus();
+        });
+      });
+    </script>
+    
+    <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
+  </body>
+</html>

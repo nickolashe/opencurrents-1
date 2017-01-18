@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    {% include "head" %}
+  </head>
+  
+  <body>
+    {% include "header" %}
+    
+    <div id="container" class="js-close-any" canvas="container">
+      <div id="wrapper">
+        <div class="row">
+            <h2 class="title inline">Verify identity</h2><a class="why-verify-popup_open half-margin-left">Why?</a>
+            <p>Choose how you would like to confirm your identity:</p>
+        </div>
+
+        <!--<form>-->
+          <div class="row one-margin-bottom">
+            <div class="small-10 medium-5 small-centered columns">
+              <select>
+                <option value="passport">Passport ID number</option>
+                <option value="bank">Connect bank account</option>
+                <option value="ssn">Social security number</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="row one-margin-bottom">
+            <div class="medium-9 small-centered columns">
+              <p>Full legal name:</p>
+              
+              <div class="input-left small-4 columns">
+                <input type="text" name="first-name" placeholder="First name" class="inline" />
+              </div>
+              
+              <div class="input-middle small-4 columns">
+                <input type="text" name="middle-name" placeholder="Middle (optional)" class="inline" />
+              </div>
+              
+              <div class="input-right small-4 columns">
+                <input type="text" name="last-name" placeholder="Last name" class="inline" />
+              </div>
+            </div>
+          </div>
+          
+          <div id="bank-details" class="box row hidden">
+            <div class="medium-6 small-centered columns">
+              <span>Routing number: </span>
+              <input type="number" id="routing-number" name="routing-number" placeholder="123456789" class="inline-input"/>
+              <p>Account number:<input type="number" id="bank-account-number" name="bank-account-number" placeholder="123456789" class="inline-input"/></p>
+            </div>
+          </div>
+          
+          <div id="passport-details" class="box row one-margin-bottom">
+            <div class="medium-6 small-centered columns">
+              <span>Passport ID: </span>
+              <input type="number" id="passport-id" name="passport-id" class="inline-input" placeholder="123456789"/>
+            </div>
+          </div>
+          
+          <div id="ssn-details" class="box row hidden one-margin-bottom">
+            <div class="medium-6 small-centered columns">
+              <span>SSN:</span>
+              <input type="text" id="social-security-number" name="social-security-number" class="inline-input" placeholder="123-45-6789" />
+            </div>
+          </div>
+          
+          <div class="row">
+            <!--<input type="submit" class="button round" value="Verify">-->
+            <a href="user-home"><button class="button round">Verify</button></a>
+            <button class="skip-notify-popup_open button secondary round">Skip</button>
+          </div>
+        <!--</form>-->
+        
+      <div id="push"></div>
+    
+      </div>
+      {% include "footer" %}
+            
+    <!--container div -->
+    </div>
+    
+    <div id="bottom-stripe" class="full-width"></div>
+    
+    <div off-canvas="menu right shift" id="menu">
+      {% include "menu" %}
+    </div>
+    
+    <div id="why-verify-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h3 class="popup-title">Why we verify identity</h3>
+      </div>
+    </div>
+
+    <div id="skip-notify-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h3 class="popup-title">Are you sure?</h3>
+        <p class="three-halves-margin-bottom">Please note that identity verification is required before Currents will be added to your account.</p>
+        <button class="skip-notify-popup_close button round">Go back</button>
+        <a href="user-home"><button class="button round secondary">Skip for now</button></a>
+      </div>
+    </div>
+    
+    <script type="text/javascript">
+      $(document).ready(function(){
+
+        $('#social-security-number').mask('000-00-0000');
+
+        $("select").change(function() {
+          var id = $(this).val();
+          if (id == "bank") {
+            $(".box").not("#bank-details").hide();
+            $("#bank-details").show();
+          } else if (id == "passport") {
+            $(".box").not("#passport-details").hide();
+            $("#passport-details").show();
+          } else if (id == "ssn"){
+            $(".box").not("#ssn-details").hide();
+            $("#ssn-details").show();
+          }
+          else {
+            $(".box").hide();
+          }
+        });
+        
+        $('#why-verify-popup, #skip-notify-popup').popup({
+          vertical: 'top',
+          transition: 'all 0.75s',
+          scrolllock: true,
+        });
+      });
+    </script>
+    
+    <script>
+      ( function ( $ ) {
+        // Initialize Slidebars
+        var controller = new slidebars();
+        controller.init();
+      } ) ( jQuery );
+    </script>
+
+    <script>
+      // Initialize Slidebars
+      var controller = new slidebars();
+      controller.init();
+
+      // Toggle Slidebars
+      $( '.toggle-menu' ).on( 'click', function ( event ) {
+        // Stop default action and bubbling
+        event.stopPropagation();
+        event.preventDefault();
+
+        // Toggle the Slidebar with id 'id-1'
+        controller.toggle( 'menu' );
+        
+        // Close any
+        $( document ).on( 'click', '.js-close-any', function ( event ) {
+          if ( controller.getActiveSlidebar() ) {
+            event.preventDefault();
+            event.stopPropagation();
+            controller.close();
+          }
+        } );
+      } );
+    </script>
+  </body>
+</html>
