@@ -1,13 +1,15 @@
+{% load staticfiles %}
+
 <!DOCTYPE html>
 <html>
   <head>
-    {% include "head" %}
+    {% include "head.html" %}
   </head>
   
   <body id="home">
     <div class="row center">
       <div class="small-centered small-12 medium-9 columns">
-        <img id="home-logo" src="/img/oc-logo-blue.png"/>
+        <img id="home-logo" src="{% static "img/oc-logo-blue.png" %}"/>
       </div>
     </div>
 
