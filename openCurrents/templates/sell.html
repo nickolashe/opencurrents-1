@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    {% include "head" %}
+  </head>
+  
+  <body>
+    {% include "header" %}
+    
+    <div id="container" class="js-close-any" canvas="container">
+      <div id="wrapper">
+        <div class="row half-margin-bottom">
+          <div class="small-12 medium-6 small-centered columns">
+            <h3 class="title-sub">Sell to:</h3>
+            <input type="email" name="buyer-email" class="center" placeholder="Buyer email"/>
+          </div>
+        </div>
+        
+        <div class="row">
+          <div class="small-6 medium-5 medium-offset-2 columns">
+            <input id="custom-name" type="text" placeholder="Custom item"/>
+          </div>
+          
+          <div class="currency-input small-3 medium-2 columns">
+            <img class="current-placeholder" src="img/symbol.svg"/>
+            
+            <input id="custom-price" class="current-price" type="number" placeholder="0"/>
+          </div>
+          
+          <div class="small-3 medium-1 columns end">
+            <button id="add-product" class="button round small secondary">Add</button>
+          </div>
+        </div>
+
+        <div id="require-price" class="row hidden">
+          <p class="alert no-margin-bottom">Price required</p>
+        </div>
+        
+        <div id="products">
+          <div id="product-row-1" class="row left">
+            <div class="small-9 medium-7 medium-offset-2 columns">
+              <input id="product-quantity-1" name="product-quantity" type="number" class="product-quantity" value="0" placeholder="0"/><span class="half-margin-left">x</span>
+              <button id="product-name-1" class="product-name three-qtr-margin-top half-margin-right button round small">Product name</button>
+            </div>
+            
+            <div class="currency-input small-3 medium-2 columns end">
+              <img class="current-placeholder three-qtr-margin-top" src="img/symbol.svg"/>
+              
+              <input id="product-price-1" type="number" class="hidden-input current-price three-qtr-margin-top" placeholder="0" disabled>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="small-12 medium-8 medium-offset-2 columns">
+          <hr class="half-margin-bottom half-margin-top"/>
+          </div>
+        </div>
+
+        <div class="left row">
+          <div class="small-offset-7 small-2 columns">
+            <h6 class="half-margin-top">Total:</h6>
+          </div>
+
+          <div class="currency-input small-3 medium-2 columns end">
+            <img class="current-placeholder" src="img/symbol.svg"/>
+            <input id="product-price-1" type="number" class="hidden-input current-price" placeholder="0" disabled>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="small-offset-6 small-6 medium-5 columns">
+            <input type="submit" class="button round secondary small" value="Confirm sale"/>
+          </div>
+        </div>
+        
+        <div id="push"></div>
+    
+      <!-- wrapper div-->
+      </div>
+      
+      {% include "footer" %}
+            
+    <!--container div -->
+    </div>
+    
+    <div id="bottom-stripe" class="full-width"></div>
+    
+    <div off-canvas="menu right shift" id="menu">
+      {% include "menu" %}
+    </div>
+  
+    <div id="-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h3 class="popup-title"></h3>
+      </div>
+      
+      <div class="row">
+        <div class="small-centered medium-10 columns">
+          
+          <p></p>
+          
+          <button class="tax-id-popup_close button round">Okay</button>
+          <a><button class="button round secondary"></button></a>
+        </div>
+      </div>
+    </div>
+    
+    <script type="text/javascript">
+      $(document).ready(function(){
+        // num needs to = number of products defined by user in inventory.ejs
+        var num = 10;
+        var name;
+        var price;
+
+        $('#add-product').click(function() {
+          if ($('#custom-price').val() > 0) {
+
+            num ++;
+
+            if ($('#custom-name').val() == '') {
+              name = 'Custom item';
+            } else {
+              name = $('#custom-name').val();
+            }
+
+            price = $('#custom-price').val();
+
+            $('#products').prepend('<div id="product-row-'+num+'" class="row left"><div class="small-9 medium-7 medium-offset-2 columns"><input id="product-quantity-'+num+'" name="product-quantity" type="number" class="product-quantity inline" value="1" placeholder="0"/><span class="half-margin-left">x </span><button id="product-name-'+num+'" class="product-name three-qtr-margin-top button round small">'+name+'</button></div><div class="currency-input small-3 medium-2 columns end"><img class="current-placeholder three-qtr-margin-top" src="img/symbol.svg"/><input id="product-price-'+num+'" type="number" class="hidden-input current-price three-qtr-margin-top" placeholder="0" value="'+price+'"" disabled></div></div>');
+
+            $('#custom-price').val('');
+            $('#require-price').hide();
+          } else {
+            $('#require-price').show();
+          }
+        });
+
+        $('#products').on('click', '.product-name', function(){
+          var id = /\d+(?=\D*$)/.exec($(this).attr('id'));
+
+          var value = parseInt(document.getElementById('product-quantity-'+id+'').value, 10);
+              value = isNaN(value) ? 0 : value;
+              value++;
+              document.getElementById('product-quantity-'+id+'').value = value;
+        });
+      });
+    </script>
+    
+    <script type="text/javascript">
+      $(document).ready(function(){
+        $('#change-email').popup({
+          vertical: 'top',
+          transition: 'all 0.75s',
+          scrolllock: true,
+        });
+      });
+    </script>
+    
+    <script>
+      ( function ( $ ) {
+        // Initialize Slidebars
+        var controller = new slidebars();
+        controller.init();
+      } ) ( jQuery );
+    </script>
+
+    <script>
+      // Initialize Slidebars
+      var controller = new slidebars();
+      controller.init();
+
+      // Toggle Slidebars
+      $( '.toggle-menu' ).on( 'click', function ( event ) {
+        // Stop default action and bubbling
+        event.stopPropagation();
+        event.preventDefault();
+
+        // Toggle the Slidebar with id 'id-1'
+        controller.toggle( 'menu' );
+        
+        // Close any
+        $( document ).on( 'click', '.js-close-any', function ( event ) {
+          if ( controller.getActiveSlidebar() ) {
+            event.preventDefault();
+            event.stopPropagation();
+            controller.close();
+          }
+        } );
+      } );
+    </script>
+  </body>
+</html>

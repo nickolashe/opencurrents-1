@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    {% include "head" %}
+  </head>
+  
+  <body>
+    {% include "header" %}
+    
+    <div id="container" class="js-close-any" canvas="container">
+      <div id="wrapper">
+        <div class="row">
+            <h3 class="title">Invite friends, get Currents</h3>
+        </div>
+        
+        <div class="row one-margin-bottom center">
+          <div class="small-12 medium-8 small-centered columns">
+            <p>Earn 1 Current for each friend you invite who verifies their identity. (Note: Identity verification is not yet available on openCurrents. Your earned Currents will be recorded as "pending" until identity verification is enabled.)</p>
+
+            <h5 class="one-margin-bottom">Pending:<svg class="h5-symbol" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" viewBox="0 0 140 140.13137">
+                <g transform="translate(-396.62 -884.72)" stroke="#888888" fill="none">
+                  <circle cx="466.69" transform="scale(1,-1)" cy="-954.78" r="0" stroke-width="11" />
+                  <g transform="translate(11.475)">
+                    <path d="m509.65 149.95a64.066 64.066 0 0 1 -42.959 16.538 64.066 64.066 0 0 1 -64.066 -64.066 64.066 64.066 0 0 1 64.066 -64.066 64.066 64.066 0 0 1 42.961 16.539" transform="translate(0 852.36)" stroke-width="12"/>
+                    <circle stroke-width="11" cy="954.78" cx="466.69" r="34.558" />
+                  </g>
+                </g>
+              </svg>0</h5>
+
+            <p class="no-margin-bottom">Share your referral link to get credit:</p>
+            <p class="half-margin-top half-margin-bottom">
+              <span id="ref-link"><strong><a href="">www.opencurrents.com/referral-id</a></strong></span><button id="copy-link" data-text-swap="Copied" data-clipboard-target="ref-link" class="one-margin-left one-margin-top button round small secondary">Copy link</button>
+            </p>
+
+            <h6>Help me introduce openCurrents to...</h6>
+              <!--<select>
+                <option id="social-org">a social organization</option>
+                <option id="business">a business</option>
+                <option id="individual">an individual</option>
+              </select>-->
+            
+
+            <!--<div id="org-intro">
+              
+            </div>
+
+            <div id="business-intro">
+              
+            </div>
+
+            <div id="individual-intro">
+              
+            </div>-->
+
+            <ul id="talking-points" class="accordion" data-accordion data-allow-all-closed="true">
+              <li class="accordion-item" data-accordion-item>  
+                <a href="#" class="accordion-title">an individual</a>
+                <div class="accordion-content" data-tab-content>
+                  <p>openCurrents is an alternative currency. Anyone can create and earn 1 Current for each hour donated to a nonprofit or social business.</p>
+                  <p>1 Current has a suggested initial value of $10. The website will connect you to businesses who accept Currents for a discount on your purchase.</p> 
+                  <p>You can also earn Currents by inviting individuals or organizations to participate.</p>
+                </div>
+              </li>
+
+              <li class="accordion-item" data-accordion-item>
+                <a href="#" class="accordion-title">a social organization</a>
+                <div class="accordion-content" data-tab-content>
+                  <p>openCurrents is an alternative currency. Volunteers create and earn 1 Current for each hour donated to a nonprofit or social business.</p>
+                  <p>This means that it's free to pay volunteers with Currents. You just need to approve hours recorded by volunteers once a week and abide by community ground rules.</p>
+                  <p>1 Current has a suggested initial value of $10. The website will connect volunteers with businesses who accept Currents for a discount.</p>
+                </div>
+              </li>
+
+              <li class="accordion-item" data-accordion-item>  
+                <a href="#" class="accordion-title">a business</a>
+                <div class="accordion-content" data-tab-content>
+                  <p>openCurrents is an alternative currency that allows anyone to receive 1 Current for each hour donated to a nonprofit or social business.</p>
+                  <p>Currents will gain value as more people use them. Businesses accepting Currents will be able to use them or sell them at a later date for a profit.</p>
+                  <p>1 Current has a suggested inital value of $10. Businesses who agree to accept Currents will be promoted to their target audience.</p>
+                </div>
+              </li>              
+            </ul>
+          </div>
+        </div>
+
+        <div class="row">
+          <a href="community" class="button round">Attend a meeting</a>
+          <a href="causes" class="button round secondary">See the demo</a>
+        </div>
+
+        <div id="push"></div>
+    
+      <!-- wrapper div-->
+      </div>
+      
+      {% include "footer" %}
+            
+    <!--container div -->
+    </div>
+    
+    <div id="bottom-stripe" class="full-width"></div>
+    
+    <div off-canvas="menu right shift" id="menu">
+      {% include "menu" %}
+    </div>
+  
+    <div id="-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h3 class="popup-title"></h3>
+      </div>
+      
+      <div class="row">
+        <div class="small-centered medium-10 columns">
+          
+          <p></p>
+          
+          <button class="tax-id-popup_close button round">Okay</button>
+          <a><button class="button round secondary"></button></a>
+        </div>
+      </div>
+    </div>
+    
+    <script src="js/ZeroClipboard.min.js" type="text/javascript"></script>
+    <script src="js/copy.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+      var elem = new Foundation.Accordion($("#talking-points"));
+    </script>
+
+    <script type="text/javascript">
+      $(document).ready(function(){
+        $('#').popup({
+          vertical: 'top',
+          transition: 'all 0.75s',
+          scrolllock: true,
+        });
+      });
+    </script>
+    
+    <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
+  </body>
+</html>
