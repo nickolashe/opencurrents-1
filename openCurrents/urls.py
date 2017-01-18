@@ -20,7 +20,6 @@ urlpatterns = [
 	url(r'^nominate$', views.NominateView.as_view(), name='nominate'),
 	url(r'^nomination-confirmed$', views.NominationConfirmedView.as_view(), name='nomination-confirmed'),
 	url(r'^nomination-email$', views.NominationEmailView.as_view(), name='nomination-email'),
-	url(r'^org-account$', views.OrgAccountView.as_view(), name='org-account'),
 	url(r'^org-signup$', views.OrgSignupView.as_view(), name='org-signup'),
 	url(r'^request-currents$', views.RequestCurrentsView.as_view(), name='request-currents'),
 	url(r'^sell$', views.SellView.as_view(), name='sell'),
