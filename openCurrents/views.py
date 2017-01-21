@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.db import IntegrityError
 
 from openCurrents import config
-from openCurrents.models import Token
+from openCurrents.models import Account, Token
 from openCurrents.forms import UserSignupForm, EmailVerificationForm
 
 from datetime import datetime, timedelta
@@ -21,6 +21,9 @@ logger.setLevel(logging.DEBUG)
 class HomeView(TemplateView):
     template_name = 'home.html'
 
+class InviteView(TemplateView):
+    template_name = 'home.html'
+
 class ConfirmAccountView(TemplateView):
     template_name = 'confirm-account.html'
 
@@ -32,6 +35,16 @@ class LoginView(TemplateView):
 
 class InviteFriendsView(TemplateView):
     template_name = 'invite-friends.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(InviteFriendsView, self).get_context_data(**kwargs)
+        try:
+            account = Account.objects.get(user__username=referrer)
+            context['balance_pending'] = account.pending
+        except:
+            context['balance_pending'] = 0
+
+        return context
 
 class ApproveHoursView(TemplateView):
     template_name = 'approve-hours.html'
@@ -100,7 +113,7 @@ class VolunteerRequestsView(TemplateView):
     template_name = 'volunteer-requests.html'
 
 
-def process_signup(request):
+def process_signup(request, referrer):
     form = UserSignupForm(request.POST)
 
     # valid form data received
@@ -114,7 +127,7 @@ def process_signup(request):
         user = None
         try:
             user = User(
-                username=user_email.split('@')[0],
+                username=user_email,
                 email=user_email,
                 first_name=user_firstname,
                 last_name=user_lastname
@@ -133,6 +146,16 @@ def process_signup(request):
             token_type='signup',
             date_expires=one_week_from_now
         )
+
+        if referrer:
+            try:
+                token_record.referrer = User.objects.get(username=referrer)
+            except Exception as e:
+                error_msg = 'unable to locate / assign referrer: %s (%s)'
+                logger.error(error_msg, e.message, type(e))
+        else:
+            logger.info('no referrer provided')
+
         token_record.save()
 
         # send verification email
@@ -197,6 +220,13 @@ def process_email_confirmation(request, user_email):
                 status_msg= error_msg % user_email
             )
 
+        if user.has_usable_password():
+            logger.warning('user %s has already been verified', user_email)
+            return redirect(
+                'openCurrents:invite-friends',
+                referrer=user.username
+            )
+
         # second, make sure the verification token and user email match
         token_record = None
         token = form.cleaned_data['verification_token']
@@ -213,16 +243,64 @@ def process_email_confirmation(request, user_email):
                 status_msg = error_msg % user_email
             )
 
+        if token_record.is_verified:
+            logger.warning('token for %s has already been verified', user_email)
+            return redirect(
+                'openCurrents:invite-friends',
+                referrer=user.username
+            )
+
         # mark the verification record as verified
         token_record.is_verified = True
         token_record.save()
 
+        # set user password (changed the user to one with password now)
         user_password = form.cleaned_data['user_password']
         user.set_password(user_password)
         user.save()
 
-        logger.info('user %s has been verified', user_email)
-        return redirect('openCurrents:invite-friends')
+        # create user account
+        user_account = Account(user=user)
+        user_account.save()
+
+        # add credit to the referrer
+        if token_record.referrer:
+            referrer_account = Account.objects.get(
+                user=token_record.referrer
+            )
+            referrer_account.pending += 1
+            referrer_account.save()
+
+        logger.info('verification of user %s is complete', user_email)
+
+        # send verification email
+        try:
+            sendTransactionalEmail(
+                'invite-friends',
+                None,
+                [
+                    {
+                        'name': 'FIRSTNAME',
+                        'content': user.first_name
+                    },
+                    {
+                        'name': 'REFERRER',
+                        'content': user.username
+                    }
+                ],
+                user.email
+            )
+        except Exception as e:
+            logger.error(
+                'unable to send transactional email: %s (%s)',
+                e.message,
+                type(e)
+            )
+
+        return redirect(
+            'openCurrents:invite-friends',
+            referrer=user.username
+        )
 
     else:
         logger.error(

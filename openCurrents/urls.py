@@ -4,11 +4,12 @@ from openCurrents import views
 urlpatterns = [
     # template views
     url(r'^$', views.HomeView.as_view(), name='root'),
-    url(r'^home/(?P<ref_code>[\w\.\+\-]*)$', views.HomeView.as_view(), name='home'),
+    url(r'^home/(?P<referrer>[\w\.@\+\-]*)$', views.HomeView.as_view(), name='home'),
+    url(r'^invite/(?P<referrer>[\w\.@\+\-]*)$', views.HomeView.as_view(), name='invite'),
     url(r'^confirm-account/(?P<email>[\w\.@\+\-]+)/(?P<token>\w{8}-\w{4}-\w{4}-\w{4}-\w{12})/$', views.ConfirmAccountView.as_view(), name='confirm-account'),
     url(r'^community$', views.CommunityView.as_view(), name='community'),
     url(r'^login$', views.LoginView.as_view(), name='login'),
-    url(r'^invite-friends$', views.InviteFriendsView.as_view(), name='invite-friends'),
+    url(r'^invite-friends/(?P<referrer>[\w\.@\+\-]*)$', views.InviteFriendsView.as_view(), name='invite-friends'),
     url(r'^approve-hours$', views.ApproveHoursView.as_view(), name='approve-hours'),
 	url(r'^causes$', views.CausesView.as_view(), name='causes'),
 	url(r'^edit-hours$', views.EditHoursView.as_view(), name='edit-hours'),
@@ -24,7 +25,7 @@ urlpatterns = [
 	url(r'^org-signup$', views.OrgSignupView.as_view(), name='org-signup'),
 	url(r'^request-currents$', views.RequestCurrentsView.as_view(), name='request-currents'),
 	url(r'^sell$', views.SellView.as_view(), name='sell'),
-	url(r'^signup$', views.SignupView.as_view(), name='signup'),
+	url(r'^signup/$', views.SignupView.as_view(), name='signup'),
 	url(r'^tell-your-boss$', views.TellYourBossView.as_view(), name='tell-your-boss'),
 	url(r'^user-home$', views.UserHomeView.as_view(), name='user-home'),
 	url(r'^verify-identity$', views.VerifyIdentityView.as_view(), name='verify-identity'),
@@ -32,7 +33,7 @@ urlpatterns = [
 	url(r'^volunteer-requests$', views.VolunteerRequestsView.as_view(), name='volunteer-requests'),
 
     # functional views
-    url(r'^process_signup/$', views.process_signup, name='process_signup'),
+    url(r'^process_signup/(?P<referrer>[\w\.@\+\-]*)$', views.process_signup, name='process_signup'),
     url(r'^process_email_confirmation/(?P<user_email>[\w\.@\+\-]+)/$', views.process_email_confirmation, name='process_email_confirmation')
 
 ]

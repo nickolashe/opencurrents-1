@@ -21,7 +21,7 @@
           </div>
         {% endif %}
 
-        <form method="post" action="{% url 'openCurrents:process_signup' %}">
+        <form method="post" action="{% url 'openCurrents:process_signup' referrer='' %}">
           {% csrf_token %}
           <div class="row one-margin-top">
             <div class="small-12 medium-8 small-centered columns">

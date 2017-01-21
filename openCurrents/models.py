@@ -10,10 +10,14 @@ def one_week_from_now():
 class Account(models.Model):
     user = models.OneToOneField(User)
     amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    pending = models.DecimalField(max_digits=12, decimal_places=2, default=0)
 
     # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)
     date_updated = models.DateTimeField('date last updated', auto_now=True)
+
+    def __unicode__(self):
+        return ' '.join([self.user.username, '\'s account'])
 
 
 # verification tokens
@@ -22,7 +26,14 @@ class Token(models.Model):
     is_verified = models.BooleanField(default=False)
     token = models.UUIDField(default=uuid4)
     token_type = models.CharField(max_length=20)
+    referrer = models.ForeignKey(User, null=True)
     date_expires = models.DateTimeField(
         'date invite token expires',
         default=one_week_from_now
     )
+
+    def __unicode__(self):
+        return ' '.join([
+            'Verification token for',
+            self.email
+        ])
