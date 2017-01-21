@@ -39,7 +39,7 @@ class InviteFriendsView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(InviteFriendsView, self).get_context_data(**kwargs)
         try:
-            account = Account.objects.get(user__username=referrer)
+            account = Account.objects.get(user__username=context['referrer'])
             context['balance_pending'] = account.pending
         except:
             context['balance_pending'] = 0
