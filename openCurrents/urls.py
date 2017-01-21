@@ -4,13 +4,13 @@ from openCurrents import views
 urlpatterns = [
     # template views
     url(r'^$', views.HomeView.as_view(), name='root'),
-    url(r'^home$', views.HomeView.as_view(), name='home'),
-    url(r'^confirm-account$', views.ConfirmAccountView.as_view(), name='confirm-account'),
+    url(r'^home/(?P<ref_code>[\w\.\+\-]*)$', views.HomeView.as_view(), name='home'),
+    url(r'^confirm-account/(?P<email>[\w\.@\+\-]+)/(?P<token>\w{8}-\w{4}-\w{4}-\w{4}-\w{12})/$', views.ConfirmAccountView.as_view(), name='confirm-account'),
     url(r'^community$', views.CommunityView.as_view(), name='community'),
     url(r'^login$', views.LoginView.as_view(), name='login'),
     url(r'^invite-friends$', views.InviteFriendsView.as_view(), name='invite-friends'),
     url(r'^approve-hours$', views.ApproveHoursView.as_view(), name='approve-hours'),
-	url(r'^causes$', views.CausesView.as_view(), name='causes'), 
+	url(r'^causes$', views.CausesView.as_view(), name='causes'),
 	url(r'^edit-hours$', views.EditHoursView.as_view(), name='edit-hours'),
 	url(r'^faq$', views.FaqView.as_view(), name='faq'),
 	url(r'^find-orgs$', views.FindOrgsView.as_view(), name='find-orgs'),
@@ -31,7 +31,9 @@ urlpatterns = [
 	url(r'^volunteer-requests$', views.VolunteerRequestsView.as_view(), name='volunteer-requests'),
 
     # functional views
-    #url(r'^assign_credit_to_user/$', views.assign_credit_to_user, name='assign_credit_to_user')
+    url(r'^process_signup/$', views.process_signup, name='process_signup'),
+    url(r'^process_email_confirmation/(?P<user_email>[\w\.@\+\-]+)/$', views.process_email_confirmation, name='process_email_confirmation')
+
 ]
 
 #handler404 = 'openCurrents.views.return_404'
