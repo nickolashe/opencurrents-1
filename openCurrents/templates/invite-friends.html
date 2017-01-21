@@ -5,16 +5,16 @@
   <head>
     {% include "head.html" %}
   </head>
-  
+
   <body>
     {% include "header.html" %}
-    
+
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
         <div class="row">
             <h3 class="title">Invite friends, get Currents</h3>
         </div>
-        
+
         <div class="row one-margin-bottom center">
           <div class="small-12 medium-8 small-centered columns">
             <p>Earn 1 Current for each friend you invite who verifies their identity. (Note: Identity verification is not yet available on openCurrents. Your earned Currents will be recorded as "pending" until identity verification is enabled.)</p>
@@ -27,11 +27,11 @@
                     <circle stroke-width="11" cy="954.78" cx="466.69" r="34.558" />
                   </g>
                 </g>
-              </svg>0</h5>
+              </svg>{{balance_pending}}</h5>
 
             <p class="no-margin-bottom">Share your referral link to get credit:</p>
             <p class="half-margin-top half-margin-bottom">
-              <span id="ref-link"><strong><a href="">www.opencurrents.com/referral-id</a></strong></span><button id="copy-link" data-text-swap="Copied" data-clipboard-target="ref-link" class="one-margin-left one-margin-top button round small secondary">Copy link</button>
+              <span id="ref-link"><strong><a href="{% url 'openCurrents:invite' referrer=referrer %}">www.opencurrents.com/invite/{{referrer}}</a></strong></span><button id="copy-link" data-text-swap="Copied" data-clipboard-target="ref-link" class="one-margin-left one-margin-top button round small secondary">Copy link</button>
             </p>
 
             <h6>Help me introduce openCurrents to...</h6>
@@ -40,26 +40,26 @@
                 <option id="business">a business</option>
                 <option id="individual">an individual</option>
               </select>-->
-            
+
 
             <!--<div id="org-intro">
-              
+
             </div>
 
             <div id="business-intro">
-              
+
             </div>
 
             <div id="individual-intro">
-              
+
             </div>-->
 
             <ul id="talking-points" class="accordion" data-accordion data-allow-all-closed="true">
-              <li class="accordion-item" data-accordion-item>  
+              <li class="accordion-item" data-accordion-item>
                 <a href="#" class="accordion-title">an individual</a>
                 <div class="accordion-content" data-tab-content>
                   <p>openCurrents is an alternative currency. Anyone can create and earn 1 Current for each hour donated to a nonprofit or social business.</p>
-                  <p>1 Current has a suggested initial value of $10. The website will connect you to businesses who accept Currents for a discount on your purchase.</p> 
+                  <p>1 Current has a suggested initial value of $10. The website will connect you to businesses who accept Currents for a discount on your purchase.</p>
                   <p>You can also earn Currents by inviting individuals or organizations to participate.</p>
                 </div>
               </li>
@@ -73,14 +73,14 @@
                 </div>
               </li>
 
-              <li class="accordion-item" data-accordion-item>  
+              <li class="accordion-item" data-accordion-item>
                 <a href="#" class="accordion-title">a business</a>
                 <div class="accordion-content" data-tab-content>
                   <p>openCurrents is an alternative currency that allows anyone to receive 1 Current for each hour donated to a nonprofit or social business.</p>
                   <p>Currents will gain value as more people use them. Businesses accepting Currents will be able to use them or sell them at a later date for a profit.</p>
                   <p>1 Current has a suggested inital value of $10. Businesses who agree to accept Currents will be promoted to their target audience.</p>
                 </div>
-              </li>              
+              </li>
             </ul>
           </div>
         </div>
@@ -91,37 +91,37 @@
         </div>
 
         <div id="push"></div>
-    
+
       <!-- wrapper div-->
       </div>
-      
+
       {% include "footer.html" %}
-            
+
     <!--container div -->
     </div>
-    
+
     <div id="bottom-stripe" class="full-width"></div>
-    
+
     <div off-canvas="menu right shift" id="menu">
       {% include "menu.html" %}
     </div>
-  
+
     <div id="-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
         <h3 class="popup-title"></h3>
       </div>
-      
+
       <div class="row">
         <div class="small-centered medium-10 columns">
-          
+
           <p></p>
-          
+
           <button class="tax-id-popup_close button round">Okay</button>
           <a><button class="button round secondary"></button></a>
         </div>
       </div>
     </div>
-    
+
     <script src="{% static "js/ZeroClipboard.min.js" %}" type="text/javascript"></script>
     <script src="{% static "js/copy.js" %}" type="text/javascript"></script>
 
@@ -138,7 +138,7 @@
         });
       });
     </script>
-    
+
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
   </body>
 </html>
