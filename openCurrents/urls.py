@@ -17,6 +17,7 @@ urlpatterns = [
 	url(r'^give-currents$', views.GiveCurrentsView.as_view(), name='give-currents'),
 	url(r'^hours-approved$', views.HoursApprovedView.as_view(), name='hours-approved'),
 	url(r'^inventory$', views.InventoryView.as_view(), name='inventory'),
+	url(r'^mission$', views.MissionView.as_view(), name='mission'),
 	url(r'^nominate$', views.NominateView.as_view(), name='nominate'),
 	url(r'^nomination-confirmed$', views.NominationConfirmedView.as_view(), name='nomination-confirmed'),
 	url(r'^nomination-email$', views.NominationEmailView.as_view(), name='nomination-email'),
