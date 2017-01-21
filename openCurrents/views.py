@@ -57,6 +57,9 @@ class HoursApprovedView(TemplateView):
 class InventoryView(TemplateView):
     template_name = 'Inventory.html'
 
+class MissionView(TemplateView):
+    template_name = 'mission.html'
+
 class NominateView(TemplateView):
     template_name = 'nominate.html'
 
