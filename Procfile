@@ -1,1 +1,1 @@
-web: gunicorn oc:openCurrents
+web: gunicorn openCurrents:app
