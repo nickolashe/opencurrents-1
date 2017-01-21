@@ -114,6 +114,7 @@ USE_L10N = True
 
 USE_TZ = True
 
+STATIC_URL = '/static/'
 
 # Update database configuration with $DATABASE_URL.
 import dj_database_url
