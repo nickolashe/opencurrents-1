@@ -1,1 +1,1 @@
-web: gunicorn openCurrents:app
+web: gunicorn oc.wsgi
