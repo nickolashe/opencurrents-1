@@ -185,7 +185,11 @@ def process_signup(request, referrer):
                 e.message,
                 type(e)
             )
-        return redirect('openCurrents:community')
+        return redirect(
+            'openCurrents:confirm-account',
+            email=user_email,
+            token=token
+        )
 
     # fail with form validation error
     else:
