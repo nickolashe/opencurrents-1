@@ -1,1 +1,1 @@
-web: python oc/manage.py collectstatic --noinput; gunicorn oc.wsgi
+web: gunicorn oc.wsgi
