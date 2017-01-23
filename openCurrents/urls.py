@@ -6,6 +6,7 @@ urlpatterns = [
     url(r'^$', views.HomeView.as_view(), name='root'),
     url(r'^home/(?P<referrer>[\w\.@\+\-]*)$', views.HomeView.as_view(), name='home'),
     url(r'^invite/(?P<referrer>[\w\.@\+\-]*)$', views.HomeView.as_view(), name='invite'),
+    url(r'^confirm-account/(?P<email>[\w\.@\+\-]+)/$', views.ConfirmAccountView.as_view(), name='confirm-account'),
     url(r'^confirm-account/(?P<email>[\w\.@\+\-]+)/(?P<token>\w{8}-\w{4}-\w{4}-\w{4}-\w{12})/$', views.ConfirmAccountView.as_view(), name='confirm-account'),
     url(r'^community$', views.CommunityView.as_view(), name='community'),
     url(r'^login$', views.LoginView.as_view(), name='login'),

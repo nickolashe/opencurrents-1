@@ -3,9 +3,9 @@
 <header id="header" class="full-width js-close-any" canvas>
   <div class="row full-width">
     <div class="input-right small-10 medium-9 medium-offset-1 columns">
-      <a href="home"><img id="header-logo" src="{% static "img/oc-header-blue.png" %}" /></a>
+      <a href="{% url 'openCurrents:home' referrer='' %}"><img id="header-logo" src="{% static "img/oc-header-blue.png" %}" /></a>
     </div>
-    
+
     <div id="header-menu" class="small-2 columns right end">
         <a class="aqua toggle-menu"><i class="fa fa-lg fa-bars"></i></a>
     </div>
