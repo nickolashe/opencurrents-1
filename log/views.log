@@ -37,3 +37,10 @@ Traceback (most recent call last):
   File "/usr/local/lib/python2.7/site-packages/django/urls/resolvers.py", line 392, in _reverse_with_prefix
     (lookup_view_s, args, kwargs, len(patterns), patterns)
 NoReverseMatch: Reverse for 'signup' with arguments '()' and keyword arguments '{'status_msg': "user_lastname: [u'This field is required.']"}' not found. 1 pattern(s) tried: ['signup/$']
+INFO:openCurrents.views:user dannypernik@gmail.com is signing up
+INFO:openCurrents.views:user dannypernik@gmail.com already exists
+INFO:openCurrents.views:user dannypernik@gmail.com already verified
+INFO:openCurrents.views:user drpernik@gmail.com is signing up
+INFO:openCurrents.views:no referrer provided
+DEBUG:requests.packages.urllib3.connectionpool:Starting new HTTPS connection (1): mandrillapp.com
+DEBUG:requests.packages.urllib3.connectionpool:https://mandrillapp.com:443 "POST /api/1.0/messages/send-template.json HTTP/1.1" 200 None

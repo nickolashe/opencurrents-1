@@ -333,7 +333,6 @@ def sendTransactionalEmail(template_name, template_content, merge_vars, recipien
             'email': recipient_email,
             'type': 'to'
         }],
-        'subject': 'Join openCurrents community',
         'global_merge_vars': merge_vars
     }
 
