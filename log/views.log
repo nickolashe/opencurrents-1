@@ -17,3 +17,23 @@ DEBUG:requests.packages.urllib3.connectionpool:Starting new HTTPS connection (1)
 DEBUG:requests.packages.urllib3.connectionpool:https://mandrillapp.com:443 "POST /api/1.0/messages/send-template.json HTTP/1.1" 200 None
 WARNING:django.request:Not Found: /confirm-account
 WARNING:django.request:Not Found: /favicon.ico
+ERROR:openCurrents.views:Invalid signup request: {'user_lastname': [ValidationError([u'This field is required.'])], 'user_firstname': [ValidationError([u'This field is required.'])], 'user_email': [ValidationError([u'This field is required.'])]}
+ERROR:django.request:Internal Server Error: /process_signup/
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/site-packages/django/core/handlers/exception.py", line 39, in inner
+    response = get_response(request)
+  File "/usr/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 187, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/usr/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 185, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/danny/code/oc/openCurrents/views.py", line 207, in process_signup
+    return redirect('openCurrents:signup', status_msg=errors[0])
+  File "/usr/local/lib/python2.7/site-packages/django/shortcuts.py", line 56, in redirect
+    return redirect_class(resolve_url(to, *args, **kwargs))
+  File "/usr/local/lib/python2.7/site-packages/django/shortcuts.py", line 147, in resolve_url
+    return reverse(to, args=args, kwargs=kwargs)
+  File "/usr/local/lib/python2.7/site-packages/django/urls/base.py", line 91, in reverse
+    return force_text(iri_to_uri(resolver._reverse_with_prefix(view, prefix, *args, **kwargs)))
+  File "/usr/local/lib/python2.7/site-packages/django/urls/resolvers.py", line 392, in _reverse_with_prefix
+    (lookup_view_s, args, kwargs, len(patterns), patterns)
+NoReverseMatch: Reverse for 'signup' with arguments '()' and keyword arguments '{'status_msg': "user_lastname: [u'This field is required.']"}' not found. 1 pattern(s) tried: ['signup/$']
