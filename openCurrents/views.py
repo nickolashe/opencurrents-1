@@ -136,6 +136,10 @@ def process_signup(request, referrer):
         except IntegrityError:
             logger.info('user %s already exists', user_email)
 
+            if User.objects.get(email=user_email).has_usable_password():
+                logger.info('user %s already verified', user_email)
+                return redirect('openCurrents:invite-friends', referrer=user_email)
+
         # generate and save token
         token = uuid.uuid4()
         one_week_from_now = datetime.now() + timedelta(days=7)
@@ -187,8 +191,7 @@ def process_signup(request, referrer):
             )
         return redirect(
             'openCurrents:confirm-account',
-            email=user_email,
-            token=token
+            email=user_email
         )
 
     # fail with form validation error

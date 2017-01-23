@@ -26,7 +26,7 @@
           <div class="row center half-margin-bottom">
             <div class="medium-6 small-centered columns">
               <p class="inline">Verification code: </p>
-              <input readonly id="verify-email" name="verification_token" class="inline-input" value="{{token}}" />
+              <input type="text" {% if token %} readonly {% endif %} id="verify-email" name="verification_token" class="inline-input" value="{{token}}" />
             </div>
           </div>
 
