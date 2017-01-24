@@ -267,16 +267,24 @@ def process_email_confirmation(request, user_email):
         user.save()
 
         # create user account
-        user_account = Account(user=user)
+        user_account = Account(user=user, amount=1)
         user_account.save()
 
         # add credit to the referrer
         if token_record.referrer:
-            referrer_account = Account.objects.get(
-                user=token_record.referrer
-            )
-            referrer_account.pending += 1
-            referrer_account.save()
+            try:
+                referrer_account = Account.objects.get(
+                    user=token_record.referrer
+                )
+                referrer_account.pending += 1
+                referrer_account.save()
+            except Exception as e:
+                logger.error(
+                    'unable to locate referrer %s account: %s (%s)',
+                    token_record.referrer,
+                    e.message,
+                    type(e)
+                )
 
         logger.info('verification of user %s is complete', user_email)
 
