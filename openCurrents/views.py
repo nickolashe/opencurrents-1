@@ -267,7 +267,7 @@ def process_email_confirmation(request, user_email):
         user.save()
 
         # create user account
-        user_account = Account(user=user, amount=1)
+        user_account = Account(user=user, pending=1)
         user_account.save()
 
         # add credit to the referrer
