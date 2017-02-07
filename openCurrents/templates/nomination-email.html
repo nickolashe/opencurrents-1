@@ -37,7 +37,7 @@
 
           <div class="row">
             <!--<input type="submit" value="Send email" class="button round"/>-->
-            <a href="nomination-confirmed"><button class="button round">Send email</button></a>
+            <a href="{% url 'openCurrents:nomination-confirmed' %}"><button class="button round">Send email</button></a>
             <button id="copy-text" data-text-swap="Copied" data-clipboard-target="nominate-text" class="half-margin-left button round small secondary">Copy text</button>
           </div>
         <!--</form>-->
