@@ -90,9 +90,13 @@
                   <option value="unregistered">not registered</option>
                 </select>
               </div>
+
+              <div class="row one-margin-bottom">
+                <span>Organization website:</span><input type="text" id="org-website" name="org-website" class="inline-input center no-margin-bottom" placeholder="www.organization.org"/>
+              </div>
                           
               <div id="org-email-div">
-                <span>Organization email:</span><input type="email" id="org-email" class="inline-input half-margin-top no-margin-bottom" placeholder="your-name@organization.org"/>
+                <span>Organization email:</span><input type="email" id="org-email" name="org-email" class="inline-input center no-margin-bottom" placeholder="your-name@organization.org"/>
                 <p class="one-margin-top"><a class="no-org-email-popup_open">I don't have an organization email address</a></p>
               </div>
               
@@ -108,15 +112,12 @@
             <div class="medium-8 large-7 small-centered columns">
               
               <div id="tax-id-div" class="one-margin-bottom">
-                <span>Tax ID (optional):</span>
+                <span>Tax ID:</span>
                 <input type="text" id="tax-id" class="inline-input no-margin-bottom" placeholder="12-3456789"/>
                 <label class="inline-input"><a class="no-tax-id-popup_open">I don't know this</a></label>
               </div>
               
               <div id="org-checks" class="row">
-                <div id="registered-check" class="checkbox">
-                  <label class="left" for="tax-id-check"><input type="checkbox" value="tax-id-check" id="tax-id-check" class="" />I understand that organizations without a Tax ID may exchange goods and services with openCurrents, but they cannot issue currency to volunteers. <a class="tax-id-popup_open">Why?</a></label>
-                </div>
                 
                 <div id="leader-check" class="checkbox">
                   <label class="left" for="leader-approval"><input type="checkbox" value="leader-approval" id="leader-approval" />

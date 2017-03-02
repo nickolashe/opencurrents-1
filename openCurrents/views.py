@@ -109,8 +109,20 @@ class VerifyIdentityView(TemplateView):
 class VolunteerHoursView(TemplateView):
     template_name = 'volunteer-hours.html'
 
+class VolunteeringView(TemplateView):
+    template_name = 'volunteering.html'
+
 class VolunteerRequestsView(TemplateView):
     template_name = 'volunteer-requests.html'
+
+class ProfileView(TemplateView):
+    template_name = 'profile.html'
+
+class EditProfileView(TemplateView):
+    template_name = 'edit-profile.html'
+
+class BlogView(TemplateView):
+    template_name = 'Blog.html'
 
 
 def process_signup(request, referrer):

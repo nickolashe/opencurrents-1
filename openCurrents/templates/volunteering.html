@@ -1,0 +1,157 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    {% include "head.html" %}
+
+    <script type="text/javascript" src="{% static 'js/jquery.timepicker.min.js' %}"></script>
+    <link href="{% static 'css/jquery.timepicker.css' %}" rel="stylesheet" type="text/css">
+  </head>
+  
+  <body>
+    {% include "header.html" %}
+    
+    <div id="container" class="js-close-any" canvas="container">
+      <div id="wrapper">
+        <div class="row">
+            <h3 class="title-sub">Volunteering for</h3>
+            <h5 class="subtitle">Organization name</h5>
+        </div>
+
+        <div class="row one-margin-top center">
+          <div class="small-6 medium-5 medium-offset-1 columns">
+            <h5 class="half-margin-bottom">Start time</h5>
+            <h6 class="one-margin-bottom">4:28am</h6>
+          </div>
+
+          <div id="duration-div" class="small-6 medium-5 columns end">
+            <h5 class="half-margin-bottom">Duration</h5>
+            <h6><span id="minutes"></span>:<span id="seconds"></span></h6>
+          </div>
+
+          <div id="end-time-div" class="hidden small-6 medium-5 columns end">
+            <h5 class="half-margin-bottom">End time</h5>
+            <input type="text" id="end-time" name="end-time" />
+          </div>
+        </div>
+
+        <div class="row one-margin-top one-margin-bottom center">
+          <div class="small-12 medium-8 small-centered columns">
+            <input name="volunteer-description" class="center" type="text" placeholder="Description of work" />
+          </div>
+        </div>
+
+        <div id="clock-out-div" class="row">
+          <button id="set-end-time" class="button round secondary">Set End time</button>
+          <button type="submit" class="button round">Clock out</button>
+        </div>
+
+        <div id="cancel-end-div" class="row hidden">
+          <button id="cancel-end-time" class="button round secondary">Cancel end time</button>
+          <button type="submit" class="button round">Confirm hours</button>
+        </div>
+
+
+        
+        <div id="push"></div>
+    
+      <!-- wrapper div-->
+      </div>
+      
+      {% include "footer.html" %}
+            
+    <!--container div -->
+    </div>
+    
+    <div id="bottom-stripe" class="full-width"></div>
+    
+    <div off-canvas="menu right shift" id="menu">
+      {% include "menu.html" %}
+    </div>
+  
+    <div id="-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h3 class="popup-title"></h3>
+      </div>
+      
+      <div class="row">
+        <div class="small-centered medium-10 columns">
+          
+          <p></p>
+          
+          <button class="tax-id-popup_close button round">Okay</button>
+          <a><button class="button round secondary"></button></a>
+        </div>
+      </div>
+    </div>
+    
+    
+    <script type="text/javascript">
+      $(document).ready(function(){
+        $('#').popup({
+          vertical: 'top',
+          transition: 'all 0.75s',
+          scrolllock: true,
+        });
+      });
+    </script>
+
+    <script type="text/javascript">
+      $('#set-end-time').click(function(){
+        $('#duration-div').fadeOut(777, function(){
+          $('#end-time-div').fadeIn(777);
+        });
+
+        $('#clock-out-div').fadeOut(777, function(){
+          $('#cancel-end-div').fadeIn(777);
+        });
+      });
+
+      $('#cancel-end-time').click(function(){
+        $('#end-time-div').fadeOut(777, function(){
+          $('#duration-div').fadeIn(777);
+        });
+
+        $('#cancel-end-div').fadeOut(777, function(){
+          $('#clock-out-div').fadeIn(777);
+        });
+      });
+    </script>
+
+    <script type="text/javascript">
+      $('#end-time').timepicker({
+        step: 15,
+      });
+    </script>
+
+    <script type="text/javascript">
+      var minutesLabel = document.getElementById("minutes");
+      var secondsLabel = document.getElementById("seconds");
+      var totalSeconds = 0;
+      setInterval(setTime, 1000);
+
+      function setTime()
+      {
+          ++totalSeconds;
+          secondsLabel.innerHTML = pad(totalSeconds%60);
+          minutesLabel.innerHTML = pad(parseInt(totalSeconds/60));
+      }
+
+      function pad(val)
+      {
+          var valString = val + "";
+          if(valString.length < 2)
+          {
+              return "0" + valString;
+          }
+          else
+          {
+              return valString;
+          }
+      }
+    </script>
+    
+    <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
+  </body>
+</html>

@@ -1,0 +1,77 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    {% include "head.html" %}
+  </head>
+  
+  <body>
+    {% include "header.html" %}
+    
+    <div id="container" class="js-close-any" canvas="container">
+      <div id="wrapper">
+        <div class="row three-margin-top">
+          <div class="small-7 medium-5 medium-offset-1 columns">
+            <h4 class="left">Community blog</h4>
+          </div>
+
+          <div class="right small-5 columns end">
+            <button class="button round small">Write an article</button>
+          </div>
+        </div>
+        
+        <div class="row one-margin-bottom center">
+          <div class="small-12 medium-10 small-centered columns">
+            <img src="{% static 'img/natgeo14.jpg' %}" class="blog-img" />
+            <img src="{% static 'img/natgeo14.jpg' %}" class="blog-img" />
+            <img src="{% static 'img/natgeo14.jpg' %}" class="blog-img" />
+          </div>
+        </div>
+        
+        <div id="push"></div>
+    
+      <!-- wrapper div-->
+      </div>
+      
+      {% include "footer.html" %}
+            
+    <!--container div -->
+    </div>
+    
+    <div id="bottom-stripe" class="full-width"></div>
+    
+    <div off-canvas="menu right shift" id="menu">
+      {% include "menu.html" %}
+    </div>
+  
+    <div id="-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h3 class="popup-title"></h3>
+      </div>
+      
+      <div class="row">
+        <div class="small-centered medium-10 columns">
+          
+          <p></p>
+          
+          <button class="tax-id-popup_close button round">Okay</button>
+          <a><button class="button round secondary"></button></a>
+        </div>
+      </div>
+    </div>
+    
+    
+    <script type="text/javascript">
+      $(document).ready(function(){
+        $('#').popup({
+          vertical: 'top',
+          transition: 'all 0.75s',
+          scrolllock: true,
+        });
+      });
+    </script>
+    
+    <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
+  </body>
+</html>

@@ -32,7 +32,11 @@ urlpatterns = [
 	url(r'^user-home$', views.UserHomeView.as_view(), name='user-home'),
 	url(r'^verify-identity$', views.VerifyIdentityView.as_view(), name='verify-identity'),
 	url(r'^volunteer-hours$', views.VolunteerHoursView.as_view(), name='volunteer-hours'),
+	url(r'^volunteering$', views.VolunteeringView.as_view(), name='volunteering'),
 	url(r'^volunteer-requests$', views.VolunteerRequestsView.as_view(), name='volunteer-requests'),
+	url(r'^profile$', views.ProfileView.as_view(), name='profile'),
+	url(r'^edit-profile$', views.EditProfileView.as_view(), name='edit-profile'),
+	url(r'^blog$', views.BlogView.as_view(), name='blog'),
 
     # functional views
     url(r'^process_signup/(?P<referrer>[\w\.@\+\-]*)$', views.process_signup, name='process_signup'),
