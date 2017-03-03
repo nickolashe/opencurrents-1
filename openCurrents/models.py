@@ -37,3 +37,39 @@ class Token(models.Model):
             'Verification token for',
             self.email
         ])
+
+# org model
+class Org(models.Model):
+    name = models.CharField(max_length=100)
+    website = models.CharField(max_length=100, unique=True)
+    email = models.EmailField(null=True)
+    status = models.CharField(max_length=50)
+    mission = models.CharField(max_length=4096, null=True)
+    reason = models.CharField(max_length=4096, null=True)
+    users = models.ManyToManyField(User, through='OrgUser')
+
+    def __unicode__(self):
+        return ' '.join([
+            str(self.status),
+            str(self.name)
+        ])
+
+
+# user-org affiliations
+class OrgUser(models.Model):
+    user = models.ForeignKey(User)
+    org = models.ForeignKey(Org)
+    affiliation = models.CharField(max_length=50)
+
+    class Meta:
+        unique_together = ('user', 'org')
+
+    def __unicode__(self):
+        return ' '.join([
+            'User',
+            self.user.email,
+            'is',
+            str(self.affiliation),
+            'at',
+            self.org.name
+        ])

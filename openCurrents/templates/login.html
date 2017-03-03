@@ -5,44 +5,53 @@
   <head>
     {% include "head.html" %}
   </head>
-  
+
   <body>
     {% include "header.html" %}
-    
+
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
         <div class="row">
             <h2 class="title">Log in</h2>
         </div>
-        
+
+        {% if status_msg %}
         <div class="row half-margin-top">
-          <div class="small-12 medium-6 small-centered columns">    
-            <input type="email" name="email" class="center" placeholder="Email address"/>
-            <input type="password" name="email" class="center" placeholder="Password"/>
-            <!--<div class="checkbox center">
-              <label id="remember-label" class="lead"><input type="checkbox" name="remember-checkbox" id="remember-checkbox" />Remember my email address</label>
-            </div>-->
-          </div>
+          {{status_msg}}
         </div>
-        <div class="row center one-margin-top">
-          <button type="submit" class="button round">Enter</button>
-        </div>
-          
+        {% endif %}
+
+        <form method="post" action="{% url "openCurrents:process_login" %}">
+          {% csrf_token %}
+            <div class="row half-margin-top">
+              <div class="small-12 medium-6 small-centered columns">
+                <input type="email" name="user_email" class="center" placeholder="Email address"/>
+                <input type="password" name="user_password" class="center" placeholder="Password"/>
+                <!--<div class="checkbox center">
+                  <label id="remember-label" class="lead"><input type="checkbox" name="remember-checkbox" id="remember-checkbox" />Remember my email address</label>
+                </div>-->
+              </div>
+            </div>
+            <div class="row center one-margin-top">
+              <button type="submit" class="button round">Enter</button>
+            </div>
+        </form>
+
         <div id="push"></div>
-    
+
       </div>
-    
+
         {% include "footer.html" %}
-              
+
       <!--container div -->
       </div>
-      
+
       <div id="bottom-stripe" class="full-width"></div>
-      
+
       <div off-canvas="menu right shift" id="menu">
         {% include "menu.html" %}
       </div>
-  
+
     <script>
       ( function ( $ ) {
         // Initialize Slidebars
@@ -64,7 +73,7 @@
 
         // Toggle the Slidebar with id 'id-1'
         controller.toggle( 'menu' );
-        
+
         // Close any
         $( document ).on( 'click', '.js-close-any', function ( event ) {
           if ( controller.getActiveSlidebar() ) {

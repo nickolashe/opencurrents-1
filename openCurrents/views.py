@@ -1,11 +1,23 @@
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.shortcuts import render, redirect
 from django.views.generic import View, TemplateView
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 
 from openCurrents import config
-from openCurrents.models import Account, Token
-from openCurrents.forms import UserSignupForm, EmailVerificationForm
+from openCurrents.models import \
+    Account, \
+    Org, \
+    OrgUser, \
+    Token
+
+from openCurrents.forms import \
+    UserSignupForm, \
+    UserLoginForm, \
+    EmailVerificationForm, \
+    OrgSignupForm
 
 from datetime import datetime, timedelta
 
@@ -33,7 +45,7 @@ class CommunityView(TemplateView):
 class LoginView(TemplateView):
     template_name = 'login.html'
 
-class InviteFriendsView(TemplateView):
+class InviteFriendsView(LoginRequiredMixin, TemplateView):
     template_name = 'invite-friends.html'
 
     def get_context_data(self, **kwargs):
@@ -85,7 +97,7 @@ class NominationEmailView(TemplateView):
 class OrgHomeView(TemplateView):
     template_name = 'org-home.html'
 
-class OrgSignupView(TemplateView):
+class OrgSignupView(LoginRequiredMixin, TemplateView):
     template_name = 'org-signup.html'
 
 class RequestCurrentsView(TemplateView):
@@ -100,7 +112,7 @@ class SignupView(TemplateView):
 class OrgApprovalView(TemplateView):
     template_name = 'org-approval.html'
 
-class UserHomeView(TemplateView):
+class UserHomeView(LoginRequiredMixin, TemplateView):
     template_name = 'user-home.html'
 
 class VerifyIdentityView(TemplateView):
@@ -222,6 +234,37 @@ def process_signup(request, referrer):
         return redirect('openCurrents:signup', status_msg=errors[0])
 
 
+def process_login(request):
+    form = UserLoginForm(request.POST)
+
+    # valid form data received
+    if form.is_valid():
+        user_name = form.cleaned_data['user_email']
+        user_password = form.cleaned_data['user_password']
+        user = authenticate(
+            username=user_name,
+            password=user_password
+        )
+        if user is not None and user.is_active:
+            login(request, user)
+            return redirect('openCurrents:user-home')
+        else:
+            return redirect('openCurrents:login', status_msg='Invalid login/password')
+    else:
+        logger.error(
+            'Invalid login: %s',
+            form.errors.as_data()
+        )
+
+        # just report the first validation error
+        errors = [
+            '%s: %s' % (field, error)
+            for field, le in form.errors.as_data().iteritems()
+            for error in le
+        ]
+        return redirect('openCurrents:login', status_msg=errors[0])
+
+
 def process_email_confirmation(request, user_email):
     form = EmailVerificationForm(request.POST)
 
@@ -241,10 +284,7 @@ def process_email_confirmation(request, user_email):
 
         if user.has_usable_password():
             logger.warning('user %s has already been verified', user_email)
-            return redirect(
-                'openCurrents:invite-friends',
-                referrer=user.username
-            )
+            return redirect('openCurrents:user-home')
 
         # second, make sure the verification token and user email match
         token_record = None
@@ -264,10 +304,7 @@ def process_email_confirmation(request, user_email):
 
         if token_record.is_verified:
             logger.warning('token for %s has already been verified', user_email)
-            return redirect(
-                'openCurrents:invite-friends',
-                referrer=user.username
-            )
+            return redirect('openCurrents:user-home')
 
         # mark the verification record as verified
         token_record.is_verified = True
@@ -324,14 +361,12 @@ def process_email_confirmation(request, user_email):
                 type(e)
             )
 
-        return redirect(
-            'openCurrents:invite-friends',
-            referrer=user.username
-        )
+        login(request, user)
+        return redirect('openCurrents:user-home')
 
     else:
         logger.error(
-            'Invalid confirm email request: %s',
+            'Invalid email confirmation request: %s',
             form.errors.as_data()
         )
 
@@ -341,7 +376,81 @@ def process_email_confirmation(request, user_email):
             for field, le in form.errors.as_data().iteritems()
             for error in le
         ]
-        return redirect('openCurrents:home', status_msg=errors[0])
+        return redirect('openCurrents:confirm-account', status_msg=errors[0])
+
+
+@login_required
+def process_org_signup(request):
+    form = OrgSignupForm(request.POST)
+
+    # valid form data received
+    if form.is_valid():
+        form_data = form.cleaned_data
+        org = Org(
+            name=form_data['org_name'],
+            email=form_data['org_email'],
+            website=form_data['org_website'],
+            status=form_data['org_status'],
+            mission=form_data['org_mission'],
+            reason=form_data['org_reason']
+        )
+        try:
+            org.save()
+        except IntegrityError:
+            logger.info('org at %s already exists', form_data['org_website'])
+            existing = Org.objects.get(website=form_data['org_website'])
+            if not existing.email and org.email:
+                existing.email = org.email
+            if not existing.mission and org.mission:
+                existing.mission = org.mission
+            if not existing.reason and org.reason:
+                existing.reason = org.reason
+            existing.save()
+
+        org = Org.objects.get(website=form_data['org_website'])
+        org_user = OrgUser(
+            org=org,
+            user=request.user,
+            affiliation=form_data['user_affiliation']
+        )
+        try:
+            org_user.save()
+        except IntegrityError:
+            logger.info(
+                'user %s is already affiliated with org %s',
+                request.user.email,
+                org.name
+            )
+
+        logger.info(
+            'Successfully created / updated org %s nominated by %s',
+            org.name,
+            request.user.email
+        )
+        return redirect(
+            'openCurrents:user-home',
+            status_msg='Thank you for nominating %s to openCurrents!' % org.name
+        )
+
+    else:
+        logger.error(
+            'Invalid org signup request: %s',
+            form.errors.as_data()
+        )
+
+        # just report the first validation error
+        errors = [
+            '%s: %s' % (field, error)
+            for field, le in form.errors.as_data().iteritems()
+            for error in le
+        ]
+        return redirect('openCurrents:org-signup', status_msg=errors[0])
+
+
+@login_required
+def process_logout(request):
+    logout(request)
+    return redirect('openCurrents:login')
 
 
 def sendTransactionalEmail(template_name, template_content, merge_vars, recipient_email):
