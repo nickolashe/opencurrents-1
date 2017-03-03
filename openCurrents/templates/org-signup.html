@@ -16,18 +16,31 @@
         If org-type = nonprofit || business && org-user-type = leader, direct to /ground-rules. If org-type = nonprofit || business && org-user-type = employee, direct to /tell-your-boss -->
         <form id="org-signup-form">
           <div class="row">
-            <h2 class="title">Organization signup</h2>
+            <h3 class="title">Pilot organization application</h3>
           </div>
           
           <div id="org-signup-1">
-            <div class="row half-margin-bottom center">
+            <div class="row half-margin-bottom half-margin-top center">
               <div class="small-12 medium-6 small-centered columns">
                 <input type="text" class="center" name="org-name" placeholder="Organization name"/>
               </div>
             </div>
+
+            <div class="row one-margin-bottom left">
+              <div class="medium-6 small-centered columns">
+                <span>Organization website:</span><input type="text" id="org-website" name="org-website" class="inline-input center no-margin-bottom" placeholder="www.organization.org"/>
+              </div>
+            </div>
+
+            <div id="org-email-div" class="row three-halves-margin-bottom left">
+              <div class="medium-6 small-centered columns">
+                <span>Org email (optional):</span><input type="email" id="org-email" name="org-email" class="inline-input center no-margin-bottom" placeholder="name@organization.org"/>
+                <!--<p class="one-margin-top"><a class="no-org-email-popup_open">I don't have an organization email address</a></p>-->
+              </div>
+            </div>
             
-            <div class="row">
-              <div class="medium-8 small-centered columns">
+            <div class="row one-margin-bottom left">
+              <div class="medium-6 small-centered columns">
                 <div class="no-margin-bottom">
                   <span>I am</span>
                   
@@ -40,6 +53,30 @@
                   
                   <span class="inline">this organization.</span>
                 </div>
+              </div>
+            </div>
+
+            <div class="row left">
+              <div class="medium-6 small-centered columns"> 
+                <div id="org-type-div">
+                  <span>This organization is</span>
+                  <select id="org-type">
+                    <option value="nonprofit">a registered nonprofit</option>
+                    <option value="business">a registered business</option>
+                    <option value="unregistered">not registered</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="medium-8 small-centered columns">
+
+                <p class="left no-margin-bottom three-halves-margin-top">Organization's social mission:</p>
+                <textarea rows="2"></textarea>
+
+                <p class="left no-margin-bottom three-halves-margin-top">What makes this organization a great pilot project for openCurrents?</p>
+                <textarea rows="2"></textarea>
               </div>
             </div>
             
@@ -66,71 +103,38 @@
             </div>-->
             
             <div class="row">
-              <div class="relative medium-8 small-centered columns">
+              <div class="relative medium-6 small-centered columns">
                 <div id="nominate" class="hidden half-margin-top medium-10 small-centered columns">
                   <label class="one-margin-bottom">An organization account may only be created by an employee or founder. Please nominate this organization instead.</label>
                   <a href="{% url 'openCurrents:nominate' %}" class="button round">Nominate</a>
                 </div>
                 
-                <div id="org-signup-next" class="one-margin-top">
-                  <button class="button round">Next</button>
+                <div class="one-margin-top">
+                  <button type="submit" class="button round">Submit application</button>
                 </div>              
               </div>
             </div>
           </div>
           
           <!-- Hidden until org-signup-next-2 is clicked -->
-          <div id="org-signup-2" class="row hidden">
-            <div class="medium-8 small-centered columns"> 
-              <div id="org-type-div">
-                <span>This organization is</span>
-                <select id="org-type">
-                  <option value="nonprofit">a registered nonprofit</option>
-                  <option value="business">a registered business</option>
-                  <option value="unregistered">not registered</option>
-                </select>
-              </div>
+          <div id="org-signup-2" class="row hidden half-margin-top">
+            
 
-              <div class="row one-margin-bottom">
-                <span>Organization website:</span><input type="text" id="org-website" name="org-website" class="inline-input center no-margin-bottom" placeholder="www.organization.org"/>
-              </div>
+            <div id="org-buttons-2" class="row one-margin-top">
+              <button id="org-signup-back" class="button round secondary">Back</button>
+              <button id="org-signup-next-2" class="button round">Next</button>
+            </div>
+          </div>
+              
                           
-              <div id="org-email-div">
-                <span>Organization email:</span><input type="email" id="org-email" name="org-email" class="inline-input center no-margin-bottom" placeholder="your-name@organization.org"/>
-                <p class="one-margin-top"><a class="no-org-email-popup_open">I don't have an organization email address</a></p>
-              </div>
               
-              <div id="org-buttons-2" class="row three-halves-margin-top">
-                <button id="org-signup-back" class="button round secondary">Back</button>
-                <button id="org-signup-next-2" class="button round">Next</button>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Hidden until org-signup-next-2 clicked -->
-          <div id="org-signup-3" class="row hidden">
-            <div class="medium-8 large-7 small-centered columns">
+
+              <!--<div id="leader-check" class="checkbox">
+                <label class="left" for="leader-approval"><input type="checkbox" value="leader-approval" id="leader-approval" />
+                I understand that the lead decision-maker of this organization must agree to the <a class="ground-rules-popup_open">openCurrents Ground Rules</a> before this account is active.</label>
+              </div>-->
               
-              <div id="tax-id-div" class="one-margin-bottom">
-                <span>Tax ID:</span>
-                <input type="text" id="tax-id" class="inline-input no-margin-bottom" placeholder="12-3456789"/>
-                <label class="inline-input"><a class="no-tax-id-popup_open">I don't know this</a></label>
-              </div>
               
-              <div id="org-checks" class="row">
-                
-                <div id="leader-check" class="checkbox">
-                  <label class="left" for="leader-approval"><input type="checkbox" value="leader-approval" id="leader-approval" />
-                  I understand that the lead decision-maker of this organization must agree to the <a class="ground-rules-popup_open">openCurrents Ground Rules</a> before this account is active.</label>
-                </div>
-              </div>
-              
-              <div class="row one-margin-top">
-                <button id="org-signup-back-2" class="button round secondary">Back</button>
-                <input id="org-create" type="submit" class="button round" value="Create account"/>
-              </div> 
-            </div>
-          </div>
         </form>
         
         <div id="push"></div>
@@ -149,17 +153,6 @@
       {% include "menu.html" %}
     </div>
     
-    <div id="tax-id-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <div class="row">
-        <div class="center small-centered columns">
-          <h3 class="popup-title">Why do I need a Tax ID?</h3>
-          <p class="left three-halves-margin-bottom">In order to ensure transparency and accountability of the currency creation process, an organization is required to provide a Tax ID in order to issue Currents to volunteers.</p>
-          <p class="left">However, anyone may offer goods or services in exchange for Currents. An Organization account will allow you to promote your offering in the openCurrents Marketplace.</p> 
-          <button class="tax-id-popup_close button round">Okay</button>
-        </div>
-      </div>
-    </div>
-    
     <div id="ground-rules-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row">
         <div class="center small-centered columns">
@@ -173,15 +166,14 @@
       </div>
     </div>
     
-    <div id="no-tax-id-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <h3 class="popup-title">Unknown Tax ID</h3>
-      <p></p>
-      
-    </div>
-    
     <div id="no-org-email-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <h3 class="popup-title">No organization email</h3>
-      <p></p>
+      <h3 class="popup-title">Get in touch</h3>
+      <p class="">Let us know your circumstances and we'll see how you can 
+      <div class="row">
+        <div class="small-12 medium-9 small-centered columns">
+          <input type="text" >
+        </div>
+      </div>
       
     </div>
 
@@ -189,7 +181,7 @@
     <script type="text/javascript">
       $(document).ready(function(){
         
-        $("#org-user-type").change(function() {
+      /*  $("#org-user-type").change(function() {
           var id = $(this).val();
           if (id == "employee") {
             $("#nominate").hide();
@@ -226,7 +218,7 @@
             $("#org-signup-next-2").show();
             $("#org-create").detach().insertAfter("#org-signup-back-2");
           }
-        });
+        }); */
         
         $("#org-signup-next").click(function() {
           $("#org-signup-1").hide();

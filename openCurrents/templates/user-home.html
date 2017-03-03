@@ -12,39 +12,40 @@
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
         <div class="row">
-          <h3 class="title">Welcome to openCurrents</h3>
+          <h3 class="title-sub">Welcome to openCurrents</h3>
+          <h6 class="subtitle">Thank you for being a part of the solution.</h6>
         </div>
         <div class="row half-margin-bottom">
           <div class="small-12 medium-8 medium-centered columns">
-            <h6 class="subtitle">Thank you for being a part of the solution.<br class="hide-for-small-only"> Here are some ways to get started:</h6>
+            <h6>Here are some ways to get started:</h6>
           </div>
         </div>
 
-        <div class="row">
+        <!--<div class="row">
           <div class="small-12 medium-8 small-centered columns">
             <a href="{% url 'openCurrents:find-orgs' %}"><button class="button round half-margin-bottom">Volunteer</button></a>
             <p class="grey">with a participating organization to start earning Currents</p>
           </div>
-        </div>
+        </div>-->
 
-        <div class="row">
+        <div class="row one-margin-bottom">
           <div class="small-12 medium-8 small-centered columns">
-            <a href="{% url 'openCurrents:invite-friends' %}"><button class="button round half-margin-bottom">Invite friends</button></a>
-            <p class="grey">and earn 1 Current when they verify identity</p>
+            <a href="{% url 'openCurrents:invite-friends' referrer=request.user.email %}"><button class="button round half-margin-bottom">Invite friends</button></a>
+            <p class="grey">to earn bonus Currents</p>
           </div>
         </div>
         
-        <div class="row">
+        <!--<div class="row">
           <div class="small-12 medium-8 small-centered columns">
             <a href="{% url 'openCurrents:nominate' %}"><button class="button round half-margin-bottom">Nominate an organization</button></a>
             <p class="grey">and earn 3 Currents when they activate an account</p>
           </div>
-        </div>
+        </div>-->
 
         <div class="row">
           <div class="small-12 medium-8 small-centered columns">
-            <a href="{% url 'openCurrents:org-signup' %}"><button class="button round half-margin-bottom">Create organization account</button></a>
-            <p class="grey">if you are its leader or employee</p>
+            <a href="{% url 'openCurrents:org-signup' %}"><button class="button round half-margin-bottom">Organization signup</button></a>
+            <p class="grey">to apply as a pilot organization</p>
           </div>
         </div>
         

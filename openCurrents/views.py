@@ -97,8 +97,8 @@ class SellView(TemplateView):
 class SignupView(TemplateView):
     template_name = 'signup.html'
 
-class TellYourBossView(TemplateView):
-    template_name = 'tell-your-boss.html'
+class OrgApprovalView(TemplateView):
+    template_name = 'org-approval.html'
 
 class UserHomeView(TemplateView):
     template_name = 'user-home.html'
