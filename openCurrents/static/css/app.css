@@ -62,6 +62,8 @@ h1, h2, h3, h4, h5, h6 {
   color: #888888;
 }
 
+
+
 /* Lead text for non-small screens */
 @media screen and (min-width: 40em) {
   .lead {
@@ -306,11 +308,6 @@ label {
 
 .is-active > .accordion-title::before {
   content: '';
-}
-
-/* Lead text for small screens */
-.lead {
-  font-size: 100%;
 }
 
 /* Align large checkboxes on non-small screens */   
@@ -742,12 +739,6 @@ a.list-group-item {
   color: #ffffff;
   min-height: 100vh;
 }
-
-#home p {
-  font-size: 125%;
-  line-height: 1.6;
-}
-
 
 /* small home */
 #home-logo {
