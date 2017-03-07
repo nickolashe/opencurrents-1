@@ -474,12 +474,14 @@ label {
   float: left;
   display: inline-block;
   margin-top: 0.75rem;
-  padding-right: 10px; 
 }
 
 .input-sizer {
   display: block;
-  overflow: hidden; }
+  overflow: hidden; 
+  padding-right: 9px;
+
+}
 
 /* small header */
 
@@ -812,7 +814,7 @@ a.list-group-item {
 
 /* org-signup */
 
-#org-type {
+#org-status {
   width: 190px;
   margin-left: 0.25rem;
 }
@@ -821,20 +823,19 @@ a.list-group-item {
   width: 111px;
 }
 
-#org-user-type {
+#user-affiliation {
   width: 146px;
   margin-left: 0.25rem;
   margin-right: 0.25rem;
-  padding-left: 0.125rem;
 }
 
-#org-website {
-  width: 195px;
+/*#org-website {
+  width: 182px;
 }
 
 #org-email {
-  width: 212px;
-}
+  width: 205px;
+}*/
 
 #tax-id {
   width: 111px;

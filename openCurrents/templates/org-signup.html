@@ -35,23 +35,24 @@
 
             <div class="row one-margin-bottom left">
               <div class="medium-6 small-centered columns">
-                <span>Organization website:</span><input type="text" id="org-website" name="org_website" class="inline-input center no-margin-bottom" placeholder="www.organization.org"/>
+                <span class="fit-left">Organization website:</span>
+                <span class="input-sizer"><input type="text" id="org-website" name="org_website" class="inline-input center no-margin-bottom" placeholder="www.organization.org"/></span>
               </div>
             </div>
 
             <div id="org-email-div" class="row three-halves-margin-bottom left">
               <div class="medium-6 small-centered columns">
-                <span>Org email (optional):</span><input type="email" id="org-email" name="org_email" class="inline-input center no-margin-bottom" placeholder="name@organization.org"/>
+                <span class="fit-left">Org email (optional):</span>
+                <span class="input-sizer"><input type="email" id="org-email" name="org_email" class="inline-input center no-margin-bottom" placeholder="name@organization.org"/></span>
                 <!--<p class="one-margin-top"><a class="no-org-email-popup_open">I don't have an organization email address</a></p>-->
               </div>
             </div>
 
-            <div class="row one-margin-bottom left">
+            <div class="row half-margin-bottom left">
               <div class="medium-6 small-centered columns">
-                <div class="no-margin-bottom">
                   <span>I am</span>
 
-                  <select name="user_affiliation">
+                  <select id="user-affiliation" name="user_affiliation">
                     <option value="employee">employed by</option>
                     <option value="leader">the leader of</option>
                     <option value="volunteer">a volunteer for</option>
@@ -59,7 +60,6 @@
                   </select>
 
                   <span class="inline">this organization.</span>
-                </div>
               </div>
             </div>
 
@@ -67,7 +67,7 @@
               <div class="medium-6 small-centered columns">
                 <div id="org-type-div">
                   <span>This organization is</span>
-                  <select name="org_status">
+                  <select id="org-status" name="org_status">
                     <option value="nonprofit">a registered nonprofit</option>
                     <option value="business">a registered business</option>
                     <option value="unregistered">not registered</option>
