@@ -162,7 +162,12 @@ def process_signup(request, referrer):
 
             if User.objects.get(email=user_email).has_usable_password():
                 logger.info('user %s already verified', user_email)
-                return redirect('openCurrents:invite-friends', referrer=user_email)
+                return redirect(
+                    'openCurrents:signup',
+                    status_msg='User with this email already exists'
+                )
+            else:
+                logger.info('user %s has not been verified', user_email)
 
         # generate and save token
         token = uuid.uuid4()
