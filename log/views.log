@@ -1,0 +1,155 @@
+views.logERROR:openCurrents.views:Invalid signup request: {'user_lastname': [ValidationError([u'This field is required.'])], 'user_firstname': [ValidationError([u'This field is required.'])], 'user_email': [ValidationError([u'This field is required.'])]}
+ERROR:django.request:Internal Server Error: /process_signup/
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/site-packages/django/core/handlers/exception.py", line 39, in inner
+    response = get_response(request)
+  File "/usr/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 187, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/usr/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 185, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/danny/code/oc/openCurrents/views.py", line 210, in process_signup
+    return redirect('openCurrents:signup', status_msg=errors[0])
+  File "/usr/local/lib/python2.7/site-packages/django/shortcuts.py", line 56, in redirect
+    return redirect_class(resolve_url(to, *args, **kwargs))
+  File "/usr/local/lib/python2.7/site-packages/django/shortcuts.py", line 147, in resolve_url
+    return reverse(to, args=args, kwargs=kwargs)
+  File "/usr/local/lib/python2.7/site-packages/django/urls/base.py", line 91, in reverse
+    return force_text(iri_to_uri(resolver._reverse_with_prefix(view, prefix, *args, **kwargs)))
+  File "/usr/local/lib/python2.7/site-packages/django/urls/resolvers.py", line 392, in _reverse_with_prefix
+    (lookup_view_s, args, kwargs, len(patterns), patterns)
+NoReverseMatch: Reverse for 'signup' with arguments '()' and keyword arguments '{'status_msg': "user_lastname: [u'This field is required.']"}' not found. 1 pattern(s) tried: ['signup/(?P<status_msg>[\\w\\s\\.@\\+\\-]*)$']
+INFO:openCurrents.views:user daj@fhj.com is signing up
+INFO:openCurrents.views:no referrer provided
+DEBUG:requests.packages.urllib3.connectionpool:Starting new HTTPS connection (1): mandrillapp.com
+DEBUG:requests.packages.urllib3.connectionpool:https://mandrillapp.com:443 "POST /api/1.0/messages/send-template.json HTTP/1.1" 200 None
+ERROR:django.request:Internal Server Error: /confirm-account/daj@fhj.com/
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/site-packages/django/core/handlers/exception.py", line 39, in inner
+    response = get_response(request)
+  File "/usr/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 217, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/usr/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 215, in _get_response
+    response = response.render()
+  File "/usr/local/lib/python2.7/site-packages/django/template/response.py", line 109, in render
+    self.content = self.rendered_content
+  File "/usr/local/lib/python2.7/site-packages/django/template/response.py", line 86, in rendered_content
+    content = template.render(context, self._request)
+  File "/usr/local/lib/python2.7/site-packages/django/template/backends/django.py", line 66, in render
+    return self.template.render(context)
+  File "/usr/local/lib/python2.7/site-packages/django/template/base.py", line 208, in render
+    return self._render(context)
+  File "/usr/local/lib/python2.7/site-packages/django/template/base.py", line 199, in _render
+    return self.nodelist.render(context)
+  File "/usr/local/lib/python2.7/site-packages/django/template/base.py", line 994, in render
+    bit = node.render_annotated(context)
+  File "/usr/local/lib/python2.7/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+  File "/usr/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 210, in render
+    return template.render(context)
+  File "/usr/local/lib/python2.7/site-packages/django/template/base.py", line 210, in render
+    return self._render(context)
+  File "/usr/local/lib/python2.7/site-packages/django/template/base.py", line 199, in _render
+    return self.nodelist.render(context)
+  File "/usr/local/lib/python2.7/site-packages/django/template/base.py", line 994, in render
+    bit = node.render_annotated(context)
+  File "/usr/local/lib/python2.7/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+  File "/usr/local/lib/python2.7/site-packages/django/template/defaulttags.py", line 439, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "/usr/local/lib/python2.7/site-packages/django/urls/base.py", line 91, in reverse
+    return force_text(iri_to_uri(resolver._reverse_with_prefix(view, prefix, *args, **kwargs)))
+  File "/usr/local/lib/python2.7/site-packages/django/urls/resolvers.py", line 392, in _reverse_with_prefix
+    (lookup_view_s, args, kwargs, len(patterns), patterns)
+NoReverseMatch: Reverse for 'give-currents' with arguments '()' and keyword arguments '{}' not found. 0 pattern(s) tried: []
+ERROR:django.request:Internal Server Error: /invite-friends/danny@opencurrents.com
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/site-packages/django/core/handlers/exception.py", line 39, in inner
+    response = get_response(request)
+  File "/usr/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 217, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/usr/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 215, in _get_response
+    response = response.render()
+  File "/usr/local/lib/python2.7/site-packages/django/template/response.py", line 109, in render
+    self.content = self.rendered_content
+  File "/usr/local/lib/python2.7/site-packages/django/template/response.py", line 86, in rendered_content
+    content = template.render(context, self._request)
+  File "/usr/local/lib/python2.7/site-packages/django/template/backends/django.py", line 66, in render
+    return self.template.render(context)
+  File "/usr/local/lib/python2.7/site-packages/django/template/base.py", line 208, in render
+    return self._render(context)
+  File "/usr/local/lib/python2.7/site-packages/django/template/base.py", line 199, in _render
+    return self.nodelist.render(context)
+  File "/usr/local/lib/python2.7/site-packages/django/template/base.py", line 994, in render
+    bit = node.render_annotated(context)
+  File "/usr/local/lib/python2.7/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+  File "/usr/local/lib/python2.7/site-packages/django/template/defaulttags.py", line 439, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "/usr/local/lib/python2.7/site-packages/django/urls/base.py", line 91, in reverse
+    return force_text(iri_to_uri(resolver._reverse_with_prefix(view, prefix, *args, **kwargs)))
+  File "/usr/local/lib/python2.7/site-packages/django/urls/resolvers.py", line 392, in _reverse_with_prefix
+    (lookup_view_s, args, kwargs, len(patterns), patterns)
+NoReverseMatch: Reverse for 'community' with arguments '()' and keyword arguments '{}' not found. 0 pattern(s) tried: []
+WARNING:django.request:Not Found: /js/atc.min.js
+WARNING:django.request:Not Found: /js/atc.min.js
+WARNING:django.request:Not Found: /js/atc.min.js
+WARNING:django.request:Not Found: /js/atc.min.js
+WARNING:django.request:Not Found: /js/atc.min.js
+WARNING:django.request:Not Found: /img/equality.png
+WARNING:django.request:Not Found: /img/equality.png
+WARNING:django.request:Not Found: /img/symbol.svg
+WARNING:django.request:Not Found: /img/symbol.svg
+WARNING:django.request:Not Found: /img/symbol.svg
+WARNING:django.request:Not Found: /img/symbol.svg
+WARNING:django.request:Not Found: /img/symbol.svg
+WARNING:django.request:Not Found: /img/symbol.svg
+WARNING:django.request:Not Found: /img/symbol.svg
+WARNING:django.request:Not Found: /blog
+WARNING:django.request:Not Found: /favicon.ico
+WARNING:django.request:Not Found: /volunteering
+WARNING:django.request:Not Found: /edit-profile
+WARNING:django.request:Not Found: /js/ZeroClipboard.min.js
+WARNING:django.request:Not Found: /js/copy.js
+WARNING:django.request:Not Found: /js/ZeroClipboard.min.js
+WARNING:django.request:Not Found: /js/copy.js
+WARNING:django.request:Not Found: /js/ZeroClipboard.min.js
+WARNING:django.request:Not Found: /js/copy.js
+WARNING:django.request:Not Found: /js/ZeroClipboard.min.js
+WARNING:django.request:Not Found: /js/copy.js
+WARNING:django.request:Not Found: /org-signupo
+WARNING:django.request:Not Found: /favicon.ico
+WARNING:django.request:Not Found: /]
+ERROR:django.request:Internal Server Error: /user-home
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/site-packages/django/core/handlers/exception.py", line 39, in inner
+    response = get_response(request)
+  File "/usr/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 217, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/usr/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 215, in _get_response
+    response = response.render()
+  File "/usr/local/lib/python2.7/site-packages/django/template/response.py", line 109, in render
+    self.content = self.rendered_content
+  File "/usr/local/lib/python2.7/site-packages/django/template/response.py", line 86, in rendered_content
+    content = template.render(context, self._request)
+  File "/usr/local/lib/python2.7/site-packages/django/template/backends/django.py", line 66, in render
+    return self.template.render(context)
+  File "/usr/local/lib/python2.7/site-packages/django/template/base.py", line 208, in render
+    return self._render(context)
+  File "/usr/local/lib/python2.7/site-packages/django/template/base.py", line 199, in _render
+    return self.nodelist.render(context)
+  File "/usr/local/lib/python2.7/site-packages/django/template/base.py", line 994, in render
+    bit = node.render_annotated(context)
+  File "/usr/local/lib/python2.7/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+  File "/usr/local/lib/python2.7/site-packages/django/template/defaulttags.py", line 439, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "/usr/local/lib/python2.7/site-packages/django/urls/base.py", line 91, in reverse
+    return force_text(iri_to_uri(resolver._reverse_with_prefix(view, prefix, *args, **kwargs)))
+  File "/usr/local/lib/python2.7/site-packages/django/urls/resolvers.py", line 392, in _reverse_with_prefix
+    (lookup_view_s, args, kwargs, len(patterns), patterns)
+NoReverseMatch: Reverse for 'invite-friends' with arguments '()' and keyword arguments '{}' not found. 1 pattern(s) tried: ['invite-friends/(?P<referrer>[\\w\\.@\\+\\-]*)$']
+ERROR:openCurrents.views:Invalid signup request: {'user_lastname': [ValidationError([u'This field is required.'])], 'user_firstname': [ValidationError([u'This field is required.'])], 'user_email': [ValidationError([u'This field is required.'])]}
+ERROR:openCurrents.views:Invalid signup request: {'user_lastname': [ValidationError([u'This field is required.'])]}
+WARNING:django.request:Not Found: /accounts/login/
+WARNING:django.request:Not Found: /accounts/login/
+WARNING:django.request:Not Found: /accounts/login/
