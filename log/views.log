@@ -153,3 +153,52 @@ ERROR:openCurrents.views:Invalid signup request: {'user_lastname': [ValidationEr
 WARNING:django.request:Not Found: /accounts/login/
 WARNING:django.request:Not Found: /accounts/login/
 WARNING:django.request:Not Found: /accounts/login/
+WARNING:django.request:Not Found: /accounts/login/
+ERROR:django.request:Internal Server Error: /process_login/
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/site-packages/django/core/handlers/exception.py", line 39, in inner
+    response = get_response(request)
+  File "/usr/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 187, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/usr/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 185, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/danny/code/oc/openCurrents/views.py", line 251, in process_login
+    password=user_password
+  File "/usr/local/lib/python2.7/site-packages/django/contrib/auth/__init__.py", line 74, in authenticate
+    user = backend.authenticate(**credentials)
+  File "/usr/local/lib/python2.7/site-packages/django/contrib/auth/backends.py", line 17, in authenticate
+    user = UserModel._default_manager.get_by_natural_key(username)
+  File "/usr/local/lib/python2.7/site-packages/django/contrib/auth/base_user.py", line 48, in get_by_natural_key
+    return self.get(**{self.model.USERNAME_FIELD: username})
+  File "/usr/local/lib/python2.7/site-packages/django/db/models/manager.py", line 85, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "/usr/local/lib/python2.7/site-packages/django/db/models/query.py", line 379, in get
+    num = len(clone)
+  File "/usr/local/lib/python2.7/site-packages/django/db/models/query.py", line 238, in __len__
+    self._fetch_all()
+  File "/usr/local/lib/python2.7/site-packages/django/db/models/query.py", line 1087, in _fetch_all
+    self._result_cache = list(self.iterator())
+  File "/usr/local/lib/python2.7/site-packages/django/db/models/query.py", line 54, in __iter__
+    results = compiler.execute_sql()
+  File "/usr/local/lib/python2.7/site-packages/django/db/models/sql/compiler.py", line 835, in execute_sql
+    cursor.execute(sql, params)
+  File "/usr/local/lib/python2.7/site-packages/django/db/backends/utils.py", line 79, in execute
+    return super(CursorDebugWrapper, self).execute(sql, params)
+  File "/usr/local/lib/python2.7/site-packages/django/db/backends/utils.py", line 64, in execute
+    return self.cursor.execute(sql, params)
+  File "/usr/local/lib/python2.7/site-packages/django/db/utils.py", line 94, in __exit__
+    six.reraise(dj_exc_type, dj_exc_value, traceback)
+  File "/usr/local/lib/python2.7/site-packages/django/db/backends/utils.py", line 64, in execute
+    return self.cursor.execute(sql, params)
+  File "/usr/local/lib/python2.7/site-packages/django/db/backends/sqlite3/base.py", line 337, in execute
+    return Database.Cursor.execute(self, query, params)
+OperationalError: no such table: auth_user
+WARNING:django.request:Not Found: /accounts/login/
+WARNING:django.request:Not Found: /accounts/login/
+WARNING:django.request:Not Found: /accounts/login/
+WARNING:django.request:Not Found: /favicon.ico
+WARNING:django.request:Not Found: /accounts/login/
+WARNING:django.request:Not Found: /img/equality.png
+WARNING:django.request:Not Found: /img/equality.png
+WARNING:django.request:Not Found: /view-profile
+WARNING:django.request:Not Found: /accounts/login/

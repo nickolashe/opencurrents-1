@@ -1,3 +1,5 @@
+{% load staticfiles %}
+
 <!DOCTYPE html>
 <html>
   <head>
@@ -15,7 +17,7 @@
         
         <div class="row one-margin-bottom">
           <div class="left small-7 medium-5 medium-offset-2 columns">
-            <a href="edit-hours" title="View hours recorded">Firstname Lastname</a>
+            <a href="{% url 'openCurrents:edit-hours' %}" title="View hours recorded">Firstname Lastname</a>
           </div>
 
           <div class="right small-5 medium-3 columns end">
@@ -45,7 +47,7 @@
         <!-- change input names and ids, and label for, for each volunteer -->
         <div class="row one-margin-bottom">
           <div class="left small-7 medium-5 medium-offset-2 columns">
-            <a href="edit-hours" title="View hours recorded">Firstname Lastname</a>
+            <a href="{% url 'openCurrents:edit-hours' %}" title="View hours recorded">Firstname Lastname</a>
           </div>
 
           <div class="right small-5 medium-3 columns end">

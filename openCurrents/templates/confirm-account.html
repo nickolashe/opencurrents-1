@@ -1,51 +1,55 @@
+{% load staticfiles %}
+
 <!DOCTYPE html>
 <html>
   <head>
     {% include "head.html" %}
   </head>
-  
+
   <body>
     {% include "header.html" %}
-    
+
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
         <div class="row">
             <h2 class="title">Confirm account</h2>
         </div>
-        
+
         <div class="row center half-margin-bottom">
           <div class="small-12 medium-6 small-centered columns">
-            <p class="small">To verify your account, enter the 6-digit code sent to <strong>email@address.com</strong> or click the link in the email.</p>
-          </div>
-        </div>
-        
-        <div class="row center half-margin-bottom">
-          <div class="medium-6 small-centered columns">
-            <p class="inline">Verification code: </p>
-            <input id="verify-email" name="verify-email" class="inline-input" type="number" placeholder="123456" />
+            <p class="small">To verify your account, enter the code sent to {{email}} or click the link in the email.</p>
           </div>
         </div>
 
-        <div class="row no-margin-bottom">
-          <p class="half-margin-bottom">Also, choose a password:</p>
-
-          <div class="input-left small-6 medium-3 medium-offset-3 columns">
-            <input type="password" placeholder="Set password" class="half-margin-bottom"/>
+        <form method="post" action="{% url 'openCurrents:process_email_confirmation' user_email=email %}">
+          {% csrf_token %}
+          <div class="row center half-margin-bottom">
+            <div class="medium-6 small-centered columns">
+              <p class="inline">Verification code: </p>
+              <input type="text" {% if token %} readonly {% endif %} id="verify-email" name="verification_token" class="inline-input" value="{{token}}" />
+            </div>
           </div>
-          <div class="input-right small-6 medium-3 columns end">
-            <input type="password" placeholder="Verify password" class="half-margin-bottom"/>
-          </div>
-        </div>
 
-        <label class="one-margin-bottom">10+ chars including UPPER, lower, 123, %#@!</label>
-        
-        <div class="row center">
-          <!--<input type="submit" class="button round" value="Confirm"/>-->
-          <a href="causes"><button class="button round">Confirm</button></a>
-          <button class="resend-email_open button round secondary">Resend email</button>
-          <p class="">or <a class="change-email_open">change email address</a></p>
-        </div>
-        
+          <div class="row no-margin-bottom">
+            <p class="half-margin-bottom">Also, choose a password:</p>
+
+            <div class="input-left small-6 medium-3 medium-offset-3 columns">
+              <input type="password" name='user_password' placeholder="Set password" class="half-margin-bottom"/>
+            </div>
+            <div class="input-right small-6 medium-3 columns end">
+              <input type="password" name='user_password_confirm' placeholder="Verify password" class="half-margin-bottom"/>
+            </div>
+          </div>
+
+          <label class="one-margin-bottom">10+ chars including UPPER, lower, 123, %#@!</label>
+
+          <div class="row center">
+            <input type="submit" class="button round" value="Confirm"/>
+            <button class="resend-email_open button round secondary">Resend email</button>
+            <p class="">or <a class="change-email_open">change email address</a></p>
+          </div>
+        </form>
+
         <div id="change-email" class="modal center small-12 medium-9 large-7 small-centered columns">
           <div class="row">
             <div class="center small-centered medium-10 columns">
@@ -62,28 +66,28 @@
             <div class="center small-centered medium-10 columns">
               <h3 class="one-margin-bottom">Email verification sent</h3>
               <p>It may take a few minutes for the email to arrive. If you still don't see it, check your Spam folder.</p>
-              <button class="resend-email_close button round">Okay</button> 
+              <button class="resend-email_close button round">Okay</button>
             </div>
           </div>
         </div>
-        
+
         <div id="push"></div>
-    
+
       </div>
-      
+
       {% include "footer.html" %}
-            
+
     <!--container div -->
     </div>
-    
+
     <div id="bottom-stripe" class="full-width"></div>
-    
+
     <div off-canvas="menu right shift" id="menu">
       {% include "menu.html" %}
     </div>
-  
-    
-    
+
+
+
     <script type="text/javascript">
       $(document).ready(function(){
         $('#change-email, #resend-email').popup({
@@ -93,7 +97,7 @@
         });
       });
     </script>
-    
+
     <script>
       ( function ( $ ) {
         // Initialize Slidebars
@@ -115,7 +119,7 @@
 
         // Toggle the Slidebar with id 'id-1'
         controller.toggle( 'menu' );
-        
+
         // Close any
         $( document ).on( 'click', '.js-close-any', function ( event ) {
           if ( controller.getActiveSlidebar() ) {

@@ -1,12 +1,14 @@
+{% load staticfiles %}
+
 <!DOCTYPE html>
 <html>
   <head>
     {% include "head.html" %}
 
-    <script type="text/javascript" src="js/jquery.timepicker.min.js"></script>
-    <script type="text/javascript" src="js/jquery-ui-datepicker.js"></script>
-    <link href="css/jquery.timepicker.css" rel="stylesheet" type="text/css">
-    <link href="css/jquery-ui-datepicker.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="{% static 'js/jquery.timepicker.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jquery-ui-datepicker.js' %}"></script>
+    <link href="{% static 'css/jquery.timepicker.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/jquery-ui-datepicker.css' %}" rel="stylesheet" type="text/css">
   </head>
   
   <body>
@@ -16,11 +18,12 @@
       <div id="wrapper">
         <div class="row">
           <h3 class="title">Record volunteer hours</h3>
+          <!--<h5 class="subtitle">for <span id="date"></span></h5>-->
         </div>
         
         <div class="row center">
           <div class="left medium-9 small-centered columns">
-            <div class="small-12 medium-8 columns">
+            <div class="medium-8 columns">
               <label for="user-orgs" class="inline">Volunteering for:</label>
               
               <select id="user-orgs">
@@ -30,7 +33,7 @@
               </select>
             </div>
             
-            <div class="center input-middle small-12 medium-4 columns">
+            <div class="center input-middle medium-4 columns">
               <div class="hide-for-small-only three-halves-margin-top">
               </div>
               
@@ -38,6 +41,11 @@
             </div>
           </div>
         </div>
+
+        <!--<div class="row center one-margin-top">
+          <button type="submit" class="button round">Clock in</button>
+        </div>-->
+
         
         <div class="row">
           <div class="left medium-9 small-centered columns">
@@ -56,14 +64,18 @@
               <input type="text" id="end-time" name="" value="12:00:00"/>
             </div>
             
-            <div class="small-12 columns">
+            <div class="half-margin-top small-12 columns">
               <input type="text" name="" placeholder="Description of work"/>
             </div>
+
+            <!--<div class="medium-4 columns">
+              <h6 id="minutes" class="inline">00</h6><h6 class="inline">:</h6><h6 id="seconds" class="inline">00</h6>
+            </div>-->
           </div>
         </div>
         
         <div class="row half-margin-top">
-          <input type="submit" id="" class="button round" value="Submit"/>
+          <input type="submit" id="" class="button round" value="Save"/>
         </div>
         
       <div id="push"></div>
@@ -104,7 +116,7 @@
 
         <div class="row center one-margin-top">
           <button id="add-org" type="submit" class="add-org-popup_close button round">Request approval</button>
-          <a href="nominate" class="button round secondary">Nominate new org</a>
+          <a href="{% url 'openCurrents:nominate' %}" class="button round secondary">Nominate new org</a>
         </div>
       <!--</form>-->
     </div>
@@ -116,6 +128,8 @@
 
         $('#volunteer-date').datepicker({ 
           dateFormat: 'yy-mm-dd',
+          minDate: -1,
+          maxDate: 0,
         }).datepicker("setDate", new Date());
         
         $('#start-time, #end-time').timepicker({
@@ -128,6 +142,42 @@
           scrolllock: true,
         });
       });
+    </script>
+
+    <!--<script type="text/javascript">
+      var minutesLabel = document.getElementById("minutes");
+      var secondsLabel = document.getElementById("seconds");
+      var totalSeconds = 0;
+      setInterval(setTime, 1000);
+
+      function setTime()
+      {
+          ++totalSeconds;
+          secondsLabel.innerHTML = pad(totalSeconds%60);
+          minutesLabel.innerHTML = pad(parseInt(totalSeconds/60));
+      }
+
+      function pad(val)
+      {
+          var valString = val + "";
+          if(valString.length < 2)
+          {
+              return "0" + valString;
+          }
+          else
+          {
+              return valString;
+          }
+      }
+    </script>-->
+
+    <script type="text/javascript">
+      var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      var n = new Date();
+      var y = n.getFullYear();
+      var m = n.getMonth();
+      var d = n.getDate();
+      document.getElementById("date").innerHTML = d + " " + months[m] + " " + y;
     </script>
 
     <script>

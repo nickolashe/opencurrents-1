@@ -1,3 +1,5 @@
+{% load staticfiles %}
+
 <!DOCTYPE html>
 <html>
   <head>
@@ -16,11 +18,11 @@
 
             <p class="no-margin-bottom">Share your referral link to get credit:</p>
             <p class="half-margin-bottom">
-              <span id="ref-link"><strong><a href="">www.opencurrents.com/referral-id</a></strong></span><button id="copy-link" data-text-swap="Copied" data-clipboard-target="ref-link" class="one-margin-left one-margin-top button round small secondary">Copy link</button>
+              <span id="ref-link"><strong><a href="">www.opencurrents.com/invite/{{referrer}}</a></strong></span><button id="copy-link" data-text-swap="Copied" data-clipboard-target="ref-link" class="one-margin-left one-margin-top button round small secondary">Copy link</button>
             </p>
 
             <p>or send an email:</p>
-            <a href="nomination-email"><button class="button round">Preview email</button></a>
+            <a href="{% url 'openCurrents:nomination-email' %}"><button class="button round">Preview email</button></a>
           </div>
         </div>
 

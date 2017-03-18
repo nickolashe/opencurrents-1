@@ -1,3 +1,5 @@
+{% load staticfiles %}
+
 <!DOCTYPE html>
 <html>
   <head>
@@ -23,7 +25,7 @@
                   <p>Monday<span>3 hrs</span></p>
                   <p>Wednesday<span>2 hrs</span></p>
                   <p>Thursday<span>4 hrs</span></p>
-                  <p class="center"><a href="edit-hours" class="button round tiny secondary">View details</a></p>
+                  <p class="center"><a href="{% url 'openCurrents:edit-hours' %}" class="button round tiny secondary">View details</a></p>
                 </div>
               </li>
 
@@ -33,7 +35,7 @@
                   <p>Monday<span>3 hrs</span></p>
                   <p>Wednesday<span>2 hrs</span></p>
                   <p>Thursday<span>4 hrs</span></p>
-                  <p class="center"><a href="edit-hours" class="button round tiny secondary">View details</a></p>
+                  <p class="center"><a href="{% url 'openCurrents:edit-hours' %}" class="button round tiny secondary">View details</a></p>
                 </div>
               </li>
 
@@ -43,7 +45,7 @@
                   <p>Monday<span>3 hrs</span></p>
                   <p>Wednesday<span>2 hrs</span></p>
                   <p>Thursday<span>4 hrs</span></p>
-                  <p class="center"><a href="edit-hours" class="button round tiny secondary">View details</a></p>
+                  <p class="center"><a href="{% url 'openCurrents:edit-hours' %}" class="button round tiny secondary">View details</a></p>
                 </div>
               </li>
             </ul>

@@ -1,3 +1,5 @@
+{% load staticfiles %}
+
 <!DOCTYPE html>
 <html>
   <head>
@@ -67,7 +69,7 @@
           
           <div class="row">
             <!--<input type="submit" class="button round" value="Verify">-->
-            <a href="user-home"><button class="button round">Verify</button></a>
+            <a href="{% url 'openCurrents:user-home' %}"><button class="button round">Verify</button></a>
             <button class="skip-notify-popup_open button secondary round">Skip</button>
           </div>
         <!--</form>-->
@@ -97,7 +99,7 @@
         <h3 class="popup-title">Are you sure?</h3>
         <p class="three-halves-margin-bottom">Please note that identity verification is required before Currents will be added to your account.</p>
         <button class="skip-notify-popup_close button round">Go back</button>
-        <a href="user-home"><button class="button round secondary">Skip for now</button></a>
+        <a href="{% url 'openCurrents:user-home' %}"><button class="button round secondary">Skip for now</button></a>
       </div>
     </div>
     

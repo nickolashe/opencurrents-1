@@ -1,3 +1,5 @@
+{% load staticfiles %}
+
 <!DOCTYPE html>
 <html>
   <head>
@@ -29,13 +31,13 @@
           <div class="row half-margin-bottom">
             <div class="medium-8 small-centered columns">
 
-              <textarea id="nominate-text" rows="7">Hi, I thought you might like to know about openCurrents, which gives nonprofits and social businesses a new way to compensate volunteers and low-paid staff at no cost to the organization. It's an alternative currency that gives 1 Current to volunteers for every hour donated. Employees making under $10/hour can also earn Currents for their time.&#013;&#010;&#013;&#010;If you'd like to learn more about the opportunity, please click the link below. Just so you know, I will receive 2 Currents if your organization joins.&#013;&#010;&#013;&#010;https://www.opencurrents.com/referral-link&#013;&#010;&#013;&#010;Best,&#013;&#010;[FIRST_NAME]</textarea>
+              <textarea id="nominate-text" rows="7">Hi, I thought you might like to know about openCurrents, which gives nonprofits and social businesses a new way to reward volunteers for their time. It's an alternative currency that gives 1 Current to volunteers for every hour donated. Employees making under $10/hour can also earn Currents for their time.&#013;&#010;&#013;&#010;If you'd like to learn more about the opportunity, please click the link below. Just so you know, I will receive 2 Currents if your organization joins.&#013;&#010;&#013;&#010;www.opencurrents.com/invite/{{referrer}}&#013;&#010;&#013;&#010;Best,&#013;&#010;[FIRST_NAME]</textarea>
             </div>
           </div>
 
           <div class="row">
             <!--<input type="submit" value="Send email" class="button round"/>-->
-            <a href="nomination-confirmed"><button class="button round">Send email</button></a>
+            <a href="{% url 'openCurrents:nomination-confirmed' %}"><button class="button round">Send email</button></a>
             <button id="copy-text" data-text-swap="Copied" data-clipboard-target="nominate-text" class="half-margin-left button round small secondary">Copy text</button>
           </div>
         <!--</form>-->

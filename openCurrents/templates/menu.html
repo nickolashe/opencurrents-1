@@ -1,34 +1,45 @@
-<a class="list-group-item" href="">
-  <i class="half-margin-right fa-fw fa fa-user"></i>
-  My account
-</a>
+{% if request.user.is_authenticated %}
+  <a class="list-group-item" href="{% url 'openCurrents:user-home' %}">
+    <i class="half-margin-right fa-fw fa fa-user"></i>
+    My account
+  </a>
 
-<a class="list-group-item" href="give-currents">
-  <i class="half-margin-right fa-fw fa fa-long-arrow-right"></i>
-  Give Currents
-</a>
+<!--  <a class="list-group-item" href="{% url 'openCurrents:give-currents' %}">
+    <i class="half-margin-right fa-fw fa fa-long-arrow-right"></i>
+    Give Currents
+  </a>
 
-<a class="list-group-item" href="request-currents">
-  <i class="half-margin-right fa-fw fa fa-long-arrow-left"></i>
-  Request Currents
-</a>
+  <a class="list-group-item" href="{% url 'openCurrents:request-currents' %}">
+    <i class="half-margin-right fa-fw fa fa-long-arrow-left"></i>
+    Request Currents
+  </a>-->
 
-<a class="list-group-item" href="org-signup">
-  <i class="half-margin-right fa-fw fa fa-heartbeat"></i>
-  Enroll your nonprofit
-</a>
+  <a class="list-group-item" href="{% url 'openCurrents:org-signup' %}">
+    <i class="half-margin-right fa-fw fa fa-heartbeat"></i>
+    Organization signup
+  </a>
 
-<a class="list-group-item" href="">
-  <i class="half-margin-right fa-fw fa fa-gears"></i>
-  How it works
-</a>
+<!--  <a class="list-group-item" href="">
+    <i class="half-margin-right fa-fw fa fa-gears"></i>
+    How it works
+  </a>
 
-<a class="list-group-item" href="">
-  <i class="half-margin-right fa-fw fa fa-star"></i>
-  Our values
-</a>
+  <a class="list-group-item" href="">
+    <i class="half-margin-right fa-fw fa fa-star"></i>
+    Our values
+  </a>-->
 
-<a class="list-group-item" href="">
-  <i class="half-margin-right fa-fw fa fa-sign-out"></i>
-  Log out
-</a>
+  <a class="list-group-item" href="{% url 'openCurrents:process_logout' %}">
+    <i class="half-margin-right fa-fw fa fa-sign-out"></i>
+    Log out
+  </a>
+{% else %}
+  <a class="list-group-item" href="{% url 'openCurrents:home' %}">
+    <i class="half-margin-right fa-fw fa fa-home"></i>
+    Home
+  </a>
+  <a class="list-group-item" href="{% url 'openCurrents:login' %}">
+    <i class="half-margin-right fa-fw fa fa-sign-in"></i>
+    Log in
+  </a>
+{% endif %}
