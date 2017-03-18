@@ -742,6 +742,12 @@ a.list-group-item {
   min-height: 100vh;
 }
 
+#home-quote {
+  font-family: 'Alegreya Sans SC', sans-serif;
+  font-weight: 300;
+  margin-top: 2rem;
+}
+
 /* small home */
 #home-logo {
   width: 533px;
