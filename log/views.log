@@ -202,3 +202,4 @@ WARNING:django.request:Not Found: /img/equality.png
 WARNING:django.request:Not Found: /img/equality.png
 WARNING:django.request:Not Found: /view-profile
 WARNING:django.request:Not Found: /accounts/login/
+WARNING:django.request:Not Found: /accounts/login/
