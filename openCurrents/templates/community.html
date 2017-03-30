@@ -14,18 +14,20 @@
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
         <div class="row">
-            <h3 class="title-sub">Community meeting #2</h3>
-            <h5 class="no-margin-bottom">Saturday, Feb 4th from 2-4pm CST</h5>
-            <h5 class="half-margin-bottom">at 6305 Back Bay Ln in Austin, TX and online</h5>
+            <h4 class="title-sub">Community meeting</h4>
+            <h5 class="subtitle">and 24 hour hackathon</h5>
+            <h6 class="no-margin-bottom">from 12:00pm CST on Saturday, Apr 1</h6>
+            <h6 class="no-margin-bottom">to 12:00pm on Sunday, Apr 2</h6>
+            <h6 class="half-margin-bottom">at <a href="https://goo.gl/maps/vSV9fxSdxqA2" target='_blank'>Chicon Collective</a> in Austin, TX and online</h6>
               
               <span class="addtocalendar one-margin-bottom">
                 <var class="atc_event">
-                  <var class="atc_date_start">2017-02-04 14:00:00</var>
-                  <var class="atc_date_end">2017-02-04 16:00:00</var>
+                  <var class="atc_date_start">2017-04-01 12:00:00</var>
+                  <var class="atc_date_end">2017-04-02 12:00:00</var>
                   <var class="atc_timezone">America/Chicago</var>
-                  <var class="atc_title">openCurrents Community Meeting #2</var>
-                  <var class="atc_description">Help us choose the direction of the openCurrents alternative currency project. If you are outside Austin, join our Skype call here: https://join.skype.com/uLMke1hpFHMW</var>
-                  <var class="atc_location">6305 Back Bay Ln, Austin, TX 78739</var>
+                  <var class="atc_title">openCurrents Community Meeting and 24-hour Hackathon</var>
+                  <var class="atc_description">Help us grow openCurrents. Everyone is welcome. Provide input at the Community meeting from 12 to 2pm on Saturday, and stick around to put the plan into action if you can. If you are outside Austin, email danny@opencurrents.com to join by Skype call.</var>
+                  <var class="atc_location">301 Chicon St, Austin, TX 78702</var>
                   <var class="atc_organizer">Danny Pernik</var>
                   <var class="atc_organizer_email">danny@opencurrents.com</var>
                 </var>
@@ -34,10 +36,35 @@
         </div>
         
         <div class="row one-margin-bottom center">
-          <div class="small-12 medium-8 small-centered columns">
-            <p>openCurrents is a community-led currency. Come help us determine the direction of this project. You'll get paid 2 Currents for your time - these will be the first Currents to exist!</p>
-            <p>We will start with an open Q&A, then vote to answer <a href="https://workflowy.com/s/lTPnvlIBlE" target="_blank">open questions</a> about how to implement the currency.</p>
-            <p>If you are outside Austin, <a href="https://join.skype.com/uLMke1hpFHMW">join our Skype group</a>.</p>
+          <div class="small-12 medium-6 small-centered columns">
+            <p>Help us grow openCurrents. All are welcome.</p>
+            <p class="left"><strong>Agenda</strong></p>
+            <ul class="left">
+              <li>12:00 to 2:00pm - Community meeting
+                <ul>
+                  <li>Introductions</li>
+                  <li>Project update</li>
+                  <li>Q&A discussion</li>
+                  <li>What needs to be done</li>
+                  <li>Form teams, take action</li>
+                </ul>
+              </li>
+
+              <li>2:00 Saturday to 10:00am Sunday - Take action
+                <ul>
+                  <li>Give as little or as much time as you wish</li>
+                  <li>Technical and non-technical expertise welcome</li>
+                  <li>Earn Currents for your time</li>
+                </ul>
+              </li>
+
+              <li>10:00 to 12:00pm Sunday - Show and tell</li>
+                <ul>
+                  <li>Share your progress with the group!</li>
+                </ul>
+              </li>
+            </ul>
+            <p>If you are outside Austin, <a href="mailto:danny@opencurrents.com?subject=Community%20meeting%20video%20call">email us</a> to join our group Skype call.</p>
           </div>
         </div>
 
@@ -89,7 +116,7 @@
       if (window.ifaddtocalendar == undefined) { window.ifaddtocalendar = 1;
           var d = document, s = d.createElement('script'), g = 'getElementsByTagName';
           s.type = 'text/javascript';s.charset = 'UTF-8';s.async = true;
-          s.src = "{% static "js/atc.min.js" %}";
+          s.src = "{% static 'js/atc.min.js' %}";
           var h = d[g]('body')[0];h.appendChild(s); }})();
     </script>
 

@@ -12,7 +12,7 @@
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
         {% if status_msg %}
-        <div class="row half-margin-top">
+        <div class="alert row half-margin-top">
           {{status_msg}}
         </div>
         {% endif %}
@@ -41,6 +41,7 @@
           </div>
         </div>
 
+
         <!--<div class="row">
           <div class="small-12 medium-8 small-centered columns">
             <a href="{% url 'openCurrents:nominate' %}"><button class="button round half-margin-bottom">Nominate an organization</button></a>
@@ -52,6 +53,13 @@
           <div class="small-12 medium-8 small-centered columns">
             <a href="{% url 'openCurrents:org-signup' %}"><button class="button round half-margin-bottom">Organization signup</button></a>
             <p class="grey">to apply as a pilot organization</p>
+          </div>
+        </div>
+
+        <div class="row one-margin-bottom">
+          <div class="small-12 medium-8 small-centered columns">
+            <a href="{% url 'openCurrents:community' %}"><button class="button round half-margin-bottom">Community meeting</button></a>
+            <p class="grey">to move openCurrents forward</p>
           </div>
         </div>
 
