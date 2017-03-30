@@ -740,11 +740,12 @@ a.list-group-item {
   background-color: #42bdea;
   color: #ffffff;
   min-height: 100vh;
-  background: url(/static/img/wheelbarrow.png) no-repeat center center fixed; 
+  background-color: #64bbe5;
+  /*background: url(/static/img/wheelbarrow.png) no-repeat center center fixed; 
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
-  background-size: cover;
+  background-size: cover;*/
 }
 
 #home-quote {
@@ -785,6 +786,16 @@ a.list-group-item {
   font-weight: bold;
 }
 
+#home .home-link:active {
+  color: #ffffff;
+  font-weight: normal;
+}
+
+#home .home-link:focus {
+  color: #ffffff;
+  font-weight: normal;
+}
+
 .icon-box {
   margin: 1rem 0.5rem 0;
 }
@@ -823,6 +834,13 @@ a.list-group-item {
   position: absolute;
   bottom: 133px;
   left: 155px;
+}
+
+#arrow-5 {
+  height: 15px;
+  position: absolute;
+  top: 144px;
+  left: 88px;
 }
 
 #arrow-down {
