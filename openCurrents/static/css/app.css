@@ -740,6 +740,11 @@ a.list-group-item {
   background-color: #42bdea;
   color: #ffffff;
   min-height: 100vh;
+  background: url(/static/img/wheelbarrow.png) no-repeat center center fixed; 
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
 }
 
 #home-quote {
@@ -763,6 +768,21 @@ a.list-group-item {
 #home-symbol {
   margin-right: 0.375rem;
   height: 2rem;
+}
+
+#home .button:hover {
+  background-color: #42bdea;
+  border-color: #42bdea;
+}
+
+#home .button:focus {
+  background-color: #42bdea;
+  border-color: #42bdea;
+}
+
+#home a:hover {
+  color: #ffffff;
+  font-weight: bold;
 }
 
 .icon-box {
@@ -839,7 +859,7 @@ a.list-group-item {
 /* non-small home */
 @media screen and (min-width: 40em) {
   #home-logo {
-    margin-top: 7rem;
+    margin-top: 6rem;
   }
 
   .icon-box {
