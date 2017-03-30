@@ -741,11 +741,11 @@ a.list-group-item {
   color: #ffffff;
   min-height: 100vh;
   background-color: #64bbe5;
-  /*background: url(/static/img/wheelbarrow.png) no-repeat center center fixed; 
+  background: url(/static/img/wheelbarrow.png) no-repeat center center fixed; 
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
-  background-size: cover;*/
+  background-size: cover;
 }
 
 #home-quote {
