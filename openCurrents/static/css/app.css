@@ -780,7 +780,7 @@ a.list-group-item {
   border-color: #42bdea;
 }
 
-#home a:hover {
+#home .home-link:hover {
   color: #ffffff;
   font-weight: bold;
 }
