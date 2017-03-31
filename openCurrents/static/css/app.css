@@ -781,6 +781,10 @@ a.list-group-item {
   border-color: #42bdea;
 }
 
+.home-link {
+  font-size: 1.125rem;
+}
+
 #home .home-link:hover {
   color: #ffffff;
   font-weight: bold;
@@ -845,7 +849,13 @@ a.list-group-item {
 
 #arrow-down {
   height: 10px;
-  margin: 0.5rem auto 1.5rem;
+  margin: 0.5rem auto 1rem;
+}
+
+#arrow-up {
+  position: absolute;
+  top: 211px;
+  left: 16px;
 }
 
 .benefit-icon {
