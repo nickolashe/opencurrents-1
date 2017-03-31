@@ -740,7 +740,8 @@ a.list-group-item {
   background-color: #42bdea;
   color: #ffffff;
   min-height: 100vh;
-  background: url(/static/img/wheelbarrow.png) no-repeat center center fixed; 
+  background-color: #64bbe5;
+  background: url(/static/img/wheelbarrow-blur.png) no-repeat center center fixed; 
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
@@ -780,9 +781,23 @@ a.list-group-item {
   border-color: #42bdea;
 }
 
+.home-link {
+  font-size: 1.125rem;
+}
+
 #home .home-link:hover {
   color: #ffffff;
   font-weight: bold;
+}
+
+#home .home-link:active {
+  color: #ffffff;
+  font-weight: normal;
+}
+
+#home .home-link:focus {
+  color: #ffffff;
+  font-weight: normal;
 }
 
 .icon-box {
@@ -825,9 +840,22 @@ a.list-group-item {
   left: 155px;
 }
 
+#arrow-5 {
+  height: 15px;
+  position: absolute;
+  top: 144px;
+  left: 88px;
+}
+
 #arrow-down {
   height: 10px;
-  margin: 0.5rem auto 1.5rem;
+  margin: 0.5rem auto 1rem;
+}
+
+#arrow-up {
+  position: absolute;
+  top: 211px;
+  left: 16px;
 }
 
 .benefit-icon {

@@ -85,22 +85,16 @@
               <div class="left medium-4 columns">
                 <div class="icon-box center hide-for-small-only">
                   <div class="intro-icon button clear">
-                    <svg id="home-symbol" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" viewBox="0 0 140 140.13137">
-                                <g transform="translate(-396.62 -884.72)" stroke="#ffffff" fill="none">
-                                  <circle cx="466.69" transform="scale(1,-1)" cy="-954.78" r="0" stroke-width="11" />
-                                  <g transform="translate(11.475)">
-                                    <path d="m509.65 149.95a64.066 64.066 0 0 1 -42.959 16.538 64.066 64.066 0 0 1 -64.066 -64.066 64.066 64.066 0 0 1 64.066 -64.066 64.066 64.066 0 0 1 42.961 16.539" transform="translate(0 852.36)" stroke-width="12"/>
-                                    <circle stroke-width="11" cy="954.78" cx="466.69" r="34.558" />
-                                  </g>
-                                </g>
-                              </svg>
+                    <i class="fa fa-2x fa-users"></i>
                   </div>
-                  <p class="white half-margin-bottom">Volunteers receive Currents</p>
+                  <p class="white half-margin-bottom">Community accepts Currents</p>
                 </div>
               </div>
 
+              <img id="arrow-5" class="hide-for-small-only" src="{% static "img/arrow-5.png" %}"/>
+
               <div class="center medium-4 columns">
-                <button class="signup-box_open hide-for-small-only three-margin-top button round large clear">I'm in!</button>
+                <!--<button class="signup-box_open hide-for-small-only three-margin-top button round large clear">I'm in!</button>-->
               </div>
 
 
@@ -119,11 +113,19 @@
             <img id="arrow-down" class="show-for-small-only" src="{% static "img/arrow-down.png" %}">
 
             <div class="row">
-              <div class="icon-box">
+              <div class="icon-box center">
                 <div class="intro-icon button clear">
-                  <i class="fa fa-2x fa-users"></i>
+                  <svg id="home-symbol" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" viewBox="0 0 140 140.13137">
+                              <g transform="translate(-396.62 -884.72)" stroke="#ffffff" fill="none">
+                                <circle cx="466.69" transform="scale(1,-1)" cy="-954.78" r="0" stroke-width="11" />
+                                <g transform="translate(11.475)">
+                                  <path d="m509.65 149.95a64.066 64.066 0 0 1 -42.959 16.538 64.066 64.066 0 0 1 -64.066 -64.066 64.066 64.066 0 0 1 64.066 -64.066 64.066 64.066 0 0 1 42.961 16.539" transform="translate(0 852.36)" stroke-width="12"/>
+                                  <circle stroke-width="11" cy="954.78" cx="466.69" r="34.558" />
+                                </g>
+                              </g>
+                            </svg>
                 </div>
-                <p class="white half-margin-bottom">Hours become <br class="hide-for-small-only">public data</p>
+                <p class="white half-margin-bottom">Volunteers receive Currents</p>
               </div>
             </div>
 
@@ -131,21 +133,14 @@
 
             <div class="icon-box center show-for-small-only">
               <div class="intro-icon button clear">
-                <svg id="home-symbol" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" viewBox="0 0 140 140.13137">
-                            <g transform="translate(-396.62 -884.72)" stroke="#ffffff" fill="none">
-                              <circle cx="466.69" transform="scale(1,-1)" cy="-954.78" r="0" stroke-width="11" />
-                              <g transform="translate(11.475)">
-                                <path d="m509.65 149.95a64.066 64.066 0 0 1 -42.959 16.538 64.066 64.066 0 0 1 -64.066 -64.066 64.066 64.066 0 0 1 64.066 -64.066 64.066 64.066 0 0 1 42.961 16.539" transform="translate(0 852.36)" stroke-width="12"/>
-                                <circle stroke-width="11" cy="954.78" cx="466.69" r="34.558" />
-                              </g>
-                            </g>
-                          </svg>
+                <i class="fa fa-2x fa-users"></i>
               </div>
-              <p class="white half-margin-bottom">Volunteers receive Currents</p>
+              <p class="white half-margin-bottom">Community accepts Currents</p>
             </div>
 
-
             <img id="arrow-4" class="hide-for-small-only" src="{% static "img/arrow-4.png" %}"/>
+
+            <img id="arrow-up" class="show-for-small-only" src="{% static "img/arrow-up.png" %}"/>
           </div>
 
 
@@ -169,7 +164,7 @@
       <div class="row center">
         <div class="medium-8 small-centered columns">
           <h4 class="white half-margin-bottom no-margin-top">Who benefits?</h4>
-          <p class="lead">In short: anyone who participates</p>
+          <p class="lead">Everyone.</p>
           <p class="show-for-small-only no-margin-bottom">Select an icon to learn more:</p>
         </div>
       </div>
@@ -207,11 +202,11 @@
         <div id="benefit-box" class="row">
           <p id="benefit-0" class="benefit-info three-margin-top center">Select an icon to learn more.</p>
 
-          <p id="benefit-1" class="benefit-info two-margin-top center hidden">Volunteers can spend earned Currents with participating businesses or can "give twice" by donating Currents back to organizations.</p>
+          <p id="benefit-1" class="benefit-info two-margin-top center hidden">Volunteers can exchange earned Currents with participating businesses or can "give twice" by donating Currents back to organizations.</p>
 
-          <p id="benefit-2" class="benefit-info two-margin-top center hidden">Currents can help social organizations recruit quality volunteers and raise additional funds.</p>
+          <p id="benefit-2" class="benefit-info two-margin-top center hidden">openCurrents helps social organizations recruit quality, committed volunteers and raise additional funds.</p>
 
-          <p id="benefit-3" class="benefit-info two-margin-top center hidden">By accepting Currents, businesses become a supporter of every organization issuing Currents. They can meaningfully engage their target audience and even stand to profit as Currents become more valuable.</p>
+          <p id="benefit-3" class="benefit-info two-margin-top center hidden">By accepting Currents, businesses become a supporter of every organization issuing Currents. They can meaningfully engage their target audience and may even earn a return as Currents become more valuable.</p>
         </div>
       </div>
 
@@ -254,17 +249,16 @@
             </div>
           </a>
           <div class="accordion-content" data-tab-content>
-            By accepting Currents, businesses become a supporter of every organization issuing Currents. They can meaningfully engage their target audience and even stand to profit as Currents become more valuable.
+            By accepting Currents, businesses become a supporter of every organization issuing Currents. They can meaningfully engage their target audience and may even earn a return as Currents become more valuable.
           </div>
         </li>
       </ul>
 
       <div class="row one-margin-top two-margin-bottom">
         <div class="one-margin-bottom center small-centered medium-8 columns">
-          <button class="signup-box_open clear button large round">I want openCurrents</button>
-          <a href="mailto:team@opencurrents.com?subject=Learning%20more%20about%20openCurrents" target="_blank" class="white home-link"><p class="no-margin-bottom">I have a question or suggestion<i class="half-margin-left fa fa-angle-right"></i></a></p>
-          <!--<a id="intro-button-4" href="#intro-5-1" class="white"><p class="no-margin-bottom lead">Advantage #3<i class="half-margin-left fa fa-angle-right"></i></p></a>-->
-          </div>
+          <button class="signup-box_open clear button large round">I accept openCurrents</button>
+          <a href="javascript:void(Tawk_API.toggle())" class="home-link white"><p class="no-margin-bottom">I want to join the team<i class="half-margin-left fa fa-angle-right"></i></p></a>
+          <!--<a id="intro-button-4" href="#intro-5-1" class="white home-link"><p class="no-margin-bottom lead">Our mission<i class="half-margin-left fa fa-angle-right"></i></p></a>-->
         </div>
       </div>
     </div>
@@ -273,10 +267,10 @@
       <div id="intro-5-1">
         <div class="row center">
           <div class="medium-8 small-centered columns">
-            <h4 class="white one-margin-bottom half-margin-top">Advantage #3: Timing</h4>
-            <p class="lead">The World Wide Web was born on August 6th, 1991. We have barely scratched the surface of what we are collectively capable of. Discontent with the status quo is as great as it’s ever been.</p>
-            <p class="lead"><a class="white underline" href="https://en.wikiquote.org/wiki/Victor_Hugo" target="_blank">Nothing is more powerful than an idea whose time has come.</a></p>
-            <p class="lead">The time has come. Are you ready?</p>
+            <h4 class="white one-margin-bottom half-margin-top">Our mission</h4>
+            <p class="lead">Empower community to meet collective needs.</p>
+            <p class="lead"></p>
+            <p class="lead"></p>
           </div>
         </div>
 
@@ -285,7 +279,7 @@
             <a class="signup-box_open"><button class="clear button large round hide-for-small-only">Yes, I'm ready for openCurrents</button></a>
             <a class="signup-box_open"><button class="clear button round show-for-small-only">Yes, I'm ready for openCurrents</button></a>
             <div class="medium-10 medium-offset-1 columns end">
-              <a href="#intro-5-2" class="white"><p class="no-margin-bottom lead">What about Bitcoin?</p><i class="fa fa-lg fa-angle-down"></i></a>
+              <a href="#intro-5-2" class="white"><p class="no-margin-bottom lead">Our values</p><i class="fa fa-lg fa-angle-down"></i></a>
             </div>
           </div>
         </div>
@@ -334,7 +328,7 @@
             <a class="signup-box_open"><button class="clear button large round hide-for-small-only">I'm ready for a new solution</button></a>
             <a class="signup-box_open"><button class="clear button round show-for-small-only">I'm ready for a new solution</button></a>
             <div class="two-margin-bottom medium-10 medium-offset-1 columns end">
-              <a href="mailto:dannypernik@gmail.com?subject=Learning%20more%20about%20openCurrents&cc=nickoshestopalov@gmail.com" class="home-link white"><p class="no-margin-bottom">I have a question or suggestion<i class="half-margin-left fa fa-angle-right"></i></a></p>
+              <a href="href="javascript:void(Tawk_API.toggle())"" class="home-link white"><p class="no-margin-bottom">I have a question or suggestion<i class="half-margin-left fa fa-angle-right"></i></a></p>
             </div>
           </div>
         </div>
@@ -440,13 +434,6 @@
         $('#home-logo').animate({width: "280px", height: "42px", marginTop: '3rem'}, 1555);
         $('#home-tagline').fadeOut(777)
         $('#intro-1').fadeOut(777, function(){
-          $('#intro-3').fadeIn(777);
-        });
-      });
-
-      $('#intro-button-2').click(function(){
-        $("html, body").animate({ scrollTop: 0 }, "slow");
-        $('#intro-2').fadeOut(777, function(){
           $('#intro-3').fadeIn(777);
         });
       });
