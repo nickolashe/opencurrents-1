@@ -740,12 +740,6 @@ a.list-group-item {
   background-color: #42bdea;
   color: #ffffff;
   min-height: 100vh;
-  background-color: #64bbe5;
-  background: url(/static/img/wheelbarrow-blur.png) no-repeat center center fixed; 
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
 }
 
 #home-quote {
@@ -772,13 +766,13 @@ a.list-group-item {
 }
 
 #home .button:hover {
-  background-color: #42bdea;
-  border-color: #42bdea;
+  background-color: #1f4975;
+  border-color: #1f4975;
 }
 
 #home .button:focus {
-  background-color: #42bdea;
-  border-color: #42bdea;
+  background-color: #1f4975;
+  border-color: #1f4975;
 }
 
 .home-link {
@@ -798,6 +792,14 @@ a.list-group-item {
 #home .home-link:focus {
   color: #ffffff;
   font-weight: normal;
+}
+
+#back-button {
+  position: fixed;
+  left: 22px;
+  top: 22px;
+  height: 22px;
+  cursor: pointer;
 }
 
 .icon-box {
@@ -858,6 +860,24 @@ a.list-group-item {
   left: 16px;
 }
 
+#everyone-box {
+  background: none;
+}
+
+#everyone-box .accordion-title {
+  border: none;
+  background: none;
+  padding: 0.5rem;
+}
+
+#everyone-box .accordion-content {
+  background: none;
+  color: #ffffff;
+  text-align: center;
+  border: none;
+  padding-top: 0px;
+}
+
 .benefit-icon {
   width: 77px;
   height: 77px;
@@ -884,10 +904,38 @@ a.list-group-item {
   padding-top: 0px;
 }
 
+#mission-box {
+  width: 277px;
+  margin: auto;
+}
+
 /* non-small home */
 @media screen and (min-width: 40em) {
+  #home {
+    background: url(/static/img/wheelbarrow-blur.png) no-repeat center center fixed; 
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+  }
+
   #home-logo {
     margin-top: 6rem;
+    width: 444px;
+  }
+
+  #home-tagline {
+    width: 444px;
+  }
+
+  #home .button:hover {
+    background-color: #42bdea;
+    border-color: #42bdea;
+  }
+
+  #home .button:focus {
+    background-color: #42bdea;
+    border-color: #42bdea;
   }
 
   .icon-box {
@@ -901,8 +949,18 @@ a.list-group-item {
     position: relative;
   }
 
+  #benefits-div {
+    width: 640px;
+    margin: auto;
+  }
+
   #benefit-box {
     height: 123px;
+    width: 488px;
+  }
+
+  #mission-box {
+    width: 417px;
   }
 }
 
