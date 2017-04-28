@@ -40,10 +40,9 @@ class Token(models.Model):
 
 # org model
 class Org(models.Model):
-    name = models.CharField(max_length=100)
-    website = models.CharField(max_length=100, unique=True)
-    email = models.EmailField(null=True)
-    status = models.CharField(max_length=50)
+    name = models.CharField(max_length=100, unique=True)
+    website = models.CharField(max_length=100, unique=True, null=True)
+    status = models.CharField(max_length=50, null=True)
     mission = models.CharField(max_length=4096, null=True)
     reason = models.CharField(max_length=4096, null=True)
     users = models.ManyToManyField(User, through='OrgUser')
@@ -59,7 +58,7 @@ class Org(models.Model):
 class OrgUser(models.Model):
     user = models.ForeignKey(User)
     org = models.ForeignKey(Org)
-    affiliation = models.CharField(max_length=50)
+    affiliation = models.CharField(max_length=50, null=True)
 
     class Meta:
         unique_together = ('user', 'org')

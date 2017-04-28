@@ -39,6 +39,19 @@ class InviteView(TemplateView):
 class ConfirmAccountView(TemplateView):
     template_name = 'confirm-account.html'
 
+    # def get_context_data(self, **kwargs):
+    #     context = super(ConfirmAccountView, self).get_context_data(**kwargs)
+    #     org_name = None
+    #     try:
+    #         org_user = OrgUser.objects.get(user__email=context['email'])
+    #         if org_user:
+    #             org_name = org_user.org.name
+    #             context['org_name'] = org_name
+    #     except:
+    #         logger.info('User %s has no org association', context['email'])
+    #
+    #     return context
+
 class CommunityView(TemplateView):
     template_name = 'community.html'
 
@@ -145,6 +158,8 @@ def process_signup(request, referrer):
         user_firstname = form.cleaned_data['user_firstname']
         user_lastname = form.cleaned_data['user_lastname']
         user_email = form.cleaned_data['user_email']
+        org_name = form.cleaned_data.get('org_name', '')
+
         logger.info('user %s is signing up', user_email)
 
         # try saving the user without password at this point
@@ -160,7 +175,8 @@ def process_signup(request, referrer):
         except IntegrityError:
             logger.info('user %s already exists', user_email)
 
-            if User.objects.get(email=user_email).has_usable_password():
+            user = User.objects.get(email=user_email)
+            if user.has_usable_password():
                 logger.info('user %s already verified', user_email)
                 return redirect(
                     'openCurrents:signup',
@@ -190,6 +206,22 @@ def process_signup(request, referrer):
             logger.info('no referrer provided')
 
         token_record.save()
+
+        # user org
+        if org_name:
+            org = None
+            try:
+                org = Org(name=org_name)
+                org.save()
+
+                org_user = OrgUser(
+                    user=user,
+                    org=org
+                )
+                org_user.save()
+            except IntegrityError:
+                logger.info('org %s already exists', org_name)
+
 
         # send verification email
         try:
@@ -232,7 +264,7 @@ def process_signup(request, referrer):
 
         # just report the first validation error
         errors = [
-            '%s: %s' % (field, error)
+            '%s: %s' % (field, error.messages[0])
             for field, le in form.errors.as_data().iteritems()
             for error in le
         ]
@@ -263,7 +295,7 @@ def process_login(request):
 
         # just report the first validation error
         errors = [
-            '%s: %s' % (field, error)
+            '%s: %s' % (field, error.messages[0])
             for field, le in form.errors.as_data().iteritems()
             for error in le
         ]
@@ -367,7 +399,15 @@ def process_email_confirmation(request, user_email):
             )
 
         login(request, user)
-        return redirect('openCurrents:user-home')
+
+        try:
+            org_user = OrgUser.objects.get(user=user)
+            org_name = org_user.org.name
+            return redirect('openCurrents:org-signup', org_name=org_name)
+
+        except:
+            logger.info('No org association')
+            return redirect('openCurrents:user-home')
 
     else:
         logger.error(
@@ -377,11 +417,15 @@ def process_email_confirmation(request, user_email):
 
         # just report the first validation error
         errors = [
-            '%s: %s' % (field, error)
+            '%s: %s' % (field, error.messages[0])
             for field, le in form.errors.as_data().iteritems()
             for error in le
         ]
-        return redirect('openCurrents:confirm-account', status_msg=errors[0])
+        return redirect(
+            'openCurrents:confirm-account',
+            email=user_email,
+            status_msg=errors[0]
+        )
 
 
 @login_required
@@ -393,7 +437,6 @@ def process_org_signup(request):
         form_data = form.cleaned_data
         org = Org(
             name=form_data['org_name'],
-            email=form_data['org_email'],
             website=form_data['org_website'],
             status=form_data['org_status'],
             mission=form_data['org_mission'],
@@ -402,14 +445,14 @@ def process_org_signup(request):
         try:
             org.save()
         except IntegrityError:
-            logger.info('org at %s already exists', form_data['org_website'])
-            existing = Org.objects.get(website=form_data['org_website'])
-            if not existing.email and org.email:
-                existing.email = org.email
-            if not existing.mission and org.mission:
-                existing.mission = org.mission
-            if not existing.reason and org.reason:
-                existing.reason = org.reason
+            logger.info('org at %s already exists', form_data['org_name'])
+            existing = Org.objects.get(name=form_data['org_name'])
+            existing.website = form_data['org_website']
+            existing.status = form_data['org_status']
+            if not existing.mission:
+                existing.mission = form_data['org_mission']
+            if not existing.reason:
+                existing.reason = form_data['org_reason']
             existing.save()
 
         org = Org.objects.get(website=form_data['org_website'])
@@ -426,6 +469,12 @@ def process_org_signup(request):
                 request.user.email,
                 org.name
             )
+            org_user = OrgUser.objects.get(
+                org=org,
+                user=request.user
+            )
+            org_user.affiliation=form_data['user_affiliation']
+            org_user.save()
 
         logger.info(
             'Successfully created / updated org %s nominated by %s',
@@ -445,7 +494,7 @@ def process_org_signup(request):
 
         # just report the first validation error
         errors = [
-            '%s: %s' % (field, error)
+            '%s: %s' % (field, error.messages[0])
             for field, le in form.errors.as_data().iteritems()
             for error in le
         ]
