@@ -13,6 +13,7 @@ class UserSignupForm(forms.Form):
     user_firstname = forms.CharField()
     user_lastname = forms.CharField()
     user_email = forms.EmailField()
+    org_name = forms.CharField(required=False, min_length=2)
 
 
 class UserLoginForm(forms.Form):
@@ -38,7 +39,6 @@ class EmailVerificationForm(forms.Form):
 class OrgSignupForm(forms.Form):
     org_name = forms.CharField(min_length=1)
     org_website = forms.CharField(min_length=1)
-    org_email = forms.EmailField(required=False)
     user_affiliation = forms.ChoiceField(
         choices = [
             ('employee', 'employee'),

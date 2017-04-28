@@ -4,11 +4,12 @@ from openCurrents import views
 urlpatterns = [
     # template views
     url(r'^$', views.HomeView.as_view(), name='root'),
-    url(r'^home/$', views.HomeView.as_view(), name='home'),    
+    url(r'^home/$', views.HomeView.as_view(), name='home'),
     url(r'^home/(?P<referrer>[\w\.@\+\-]*)$', views.HomeView.as_view(), name='home'),
     url(r'^home/(?P<referrer>[\w\.@\+\-]*)/(?P<status_msg>.*)/$', views.HomeView.as_view(), name='home'),
     url(r'^invite/(?P<referrer>[\w\.@\+\-]*)$', views.HomeView.as_view(), name='invite'),
     url(r'^confirm-account/(?P<email>[\w\.@\+\-]+)/$', views.ConfirmAccountView.as_view(), name='confirm-account'),
+    url(r'^confirm-account/(?P<email>[\w\.@\+\-]+)/(?P<status_msg>.*)/$', views.ConfirmAccountView.as_view(), name='confirm-account'),
     url(r'^confirm-account/(?P<email>[\w\.@\+\-]+)/(?P<token>\w{8}-\w{4}-\w{4}-\w{4}-\w{12})/$', views.ConfirmAccountView.as_view(), name='confirm-account'),
     url(r'^community$', views.CommunityView.as_view(), name='community'),
     url(r'^login/$', views.LoginView.as_view(), name='login'),
@@ -27,7 +28,8 @@ urlpatterns = [
 	url(r'^nomination-confirmed$', views.NominationConfirmedView.as_view(), name='nomination-confirmed'),
 	url(r'^nomination-email$', views.NominationEmailView.as_view(), name='nomination-email'),
 	url(r'^org-signup/$', views.OrgSignupView.as_view(), name='org-signup'),
-	url(r'^org-signup/(?P<status_msg>.*)/$', views.OrgSignupView.as_view(), name='org-signup'),
+    url(r'^org-signup/(?P<org_name>.*)/$', views.OrgSignupView.as_view(), name='org-signup'),
+	url(r'^org-signup/(?P<org_name>.*)/(?P<status_msg>.*)/$', views.OrgSignupView.as_view(), name='org-signup'),
 	url(r'^request-currents$', views.RequestCurrentsView.as_view(), name='request-currents'),
 	url(r'^sell$', views.SellView.as_view(), name='sell'),
 	url(r'^signup/$', views.SignupView.as_view(), name='signup'),

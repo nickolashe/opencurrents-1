@@ -73,8 +73,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .button {
-  margin-left: 0.25rem;
-  margin-right: 0.25rem;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
   font-size: 1rem;
 }
 
@@ -333,6 +333,14 @@ label {
 
 .no-margin-top {
     margin-top: 0;
+}
+
+.qtr-margin-top {
+  margin-top: 0.25rem;
+}
+
+.qtr-margin-bottom {
+  margin-bottom: 0.25rem;
 }
 
 .half-margin-bottom {
@@ -734,6 +742,14 @@ a.list-group-item {
 
 /* home */
 
+#home-quote {
+  font-family: 'Alegreya Sans SC', sans-serif;
+  font-weight: 300;
+  margin-top: 2rem;
+}
+
+/* small home */
+
 #home {
   display: block;
   overflow: visible;
@@ -742,13 +758,6 @@ a.list-group-item {
   min-height: 100vh;
 }
 
-#home-quote {
-  font-family: 'Alegreya Sans SC', sans-serif;
-  font-weight: 300;
-  margin-top: 2rem;
-}
-
-/* small home */
 #home-logo {
   width: 533px;
   margin-bottom: 1rem;
@@ -812,6 +821,7 @@ a.list-group-item {
   padding: 21px 0;
   border-radius: 99px;
   border: 1px solid #ffffff;
+  cursor: default;
 }
 
 #arrow-1 {
@@ -905,12 +915,14 @@ a.list-group-item {
 }
 
 #mission-box {
-  width: 277px;
+  max-width: 433px;
   margin: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
 }
 
 /* non-small home */
-@media screen and (min-width: 40em) {
+@media screen and (min-width: 42em) {
   #home {
     background: url(/static/img/wheelbarrow-blur.png) no-repeat center center fixed; 
     -webkit-background-size: cover;
@@ -920,7 +932,7 @@ a.list-group-item {
   }
 
   #home-logo {
-    margin-top: 6rem;
+    margin-top: 8rem;
     width: 444px;
   }
 
@@ -936,6 +948,16 @@ a.list-group-item {
   #home .button:focus {
     background-color: #42bdea;
     border-color: #42bdea;
+  }
+
+  #signup-box .button:hover {
+    background-color: #1f4975;
+    border-color: #1f4975;
+  }
+
+  #signup-box .button:focus {
+    background-color: #1f4975;
+    border-color: #1f4975;
   }
 
   .icon-box {
@@ -955,12 +977,12 @@ a.list-group-item {
   }
 
   #benefit-box {
-    height: 123px;
+    height: 99px;
     width: 488px;
   }
 
   #mission-box {
-    width: 417px;
+    width: 433px;
   }
 }
 
