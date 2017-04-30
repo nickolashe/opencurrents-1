@@ -21,6 +21,14 @@
           </div>
         </div>
 
+        {% if status_msg %}
+          <div class="row center half-margin-bottom">
+            <div class="small-12 medium-6 small-centered columns">
+              <p class="alert small">{{status_msg}}</p>
+            </div>
+          </div>
+        {% endif %}
+
         <form method="post" action="{% url 'openCurrents:process_email_confirmation' user_email=email %}">
           {% csrf_token %}
           <div class="row center half-margin-bottom">
