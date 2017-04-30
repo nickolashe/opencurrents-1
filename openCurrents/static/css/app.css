@@ -870,6 +870,10 @@ a.list-group-item {
   left: 16px;
 }
 
+#how-it-works-small {
+  max-width: 400px;
+}
+
 #everyone-box {
   background: none;
 }
