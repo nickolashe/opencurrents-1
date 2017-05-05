@@ -805,9 +805,8 @@ a.list-group-item {
 
 #back-button {
   position: fixed;
-  left: 22px;
-  top: 22px;
-  height: 22px;
+  left: 55px;
+  top: 55px;
   cursor: pointer;
 }
 
