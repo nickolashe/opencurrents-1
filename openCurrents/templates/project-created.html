@@ -18,12 +18,16 @@
         {% endif %}
         
         <div class="row">
-            <h3 class="title"></h3>
+          <h3 class="title-sub">Done!</h3>
+          <h6 class="subtitle">Your project is now live.</h6>
         </div>
         
         <div class="row one-margin-bottom center">
           <div class="small-12 medium-8 small-centered columns">
-            
+            <p>Volunteers are now able to see your project and register to help.</p>
+
+            <p>You are the default volunteer coordinator. You can change this by inviting another coordinator to the project</p>
+            <button class="invite-coordinator-popup_open button round small secondary">Invite coordinator</button>
           </div>
         </div>
         
@@ -43,15 +47,16 @@
       {% include "menu.html" %}
     </div>
   
-    <div id="-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+    <div id="invite-coordinator-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
-        <h3 class="popup-title"></h3>
+        <h3 class="popup-title">Invite coordinator</h3>
       </div>
       
       <div class="row">
         <div class="small-centered medium-10 columns">
           
-          <p></p>
+          <input type="text" name="coordinator-name" placeholder="First name" />
+          <input type="text" name="coordinator-email" placeholder="Email">
           
           <button class="tax-id-popup_close button round">Okay</button>
           <a><button class="button round secondary"></button></a>

@@ -41,6 +41,8 @@
         <div class="input-middle small-12 medium-8 small-centered columns">
           <button class="signup-box_open button round large clear">Sign me up</button>
           <button id="intro-button-1" href="#intro-2" class="white button round clear large">Tell me more</button>
+
+          <a class="home-link white" href="{% url 'openCurrents:login' %}"><p class="no-margin-bottom">Log in<i class="half-margin-left fa fa-angle-right"></i></p></a>
         </div>
       </div>
     </div>
@@ -65,22 +67,26 @@
       <div class="row center three-halves-margin-top two-margin-bottom">
         <button class="signup-box_open clear button round large">Sign me up</button>
         <button id="intro-button-2" class="clear button round large">Tell me more</button>
+
+        <a class="home-link white" href="{% url 'openCurrents:login' %}"><p class="no-margin-bottom">Log in<i class="half-margin-left fa fa-angle-right"></i></p></a>
       </div>
     </div>
 
     <div id="intro-3" class="hidden home-screen center">
       <div class="row center">
         <div class="medium-11 small-centered columns">
-          <h4 class="white">How it works</h4>
-          <h6 class="white no-margin-top one-margin-bottom">Give 1 hour to a social organization to create and earn 1 Current.</h6>
+          <h3 class="qtr-margin-top white">How it works</h3>
+          <h5 class="white one-margin-top one-margin-bottom">Give 1 hour to a social organization<br class="hide-for-small-only"> to create and earn 1 Current.</h5>
         </div>
       </div>
 
-      <img id="how-it-works-small" class="show-for-small-only" src="{% static "img/small-diagram.png" %}"/>
+      <p class="two-margin-top two-margin-bottom lead"><a id="show-diagram" class="white home-link">Show diagram<i class="half-margin-left fa fa-lg fa-angle-down"></i></a></p>
+
+      <img id="how-it-works-small" class="hidden diagram-div show-for-small-only" src="{% static "img/small-diagram.png" %}"/>
 
       <div class="row center">
         <div class="small-centered columns">
-          <div class="diagram-div hide-for-small-only">
+          <div class="hidden diagram-div hide-for-small-only">
             <div class="row">
               <div class="icon-box">
                 <div class="intro-icon button clear">
@@ -179,6 +185,8 @@
       <div class="row center three-halves-margin-top two-margin-bottom">
         <button class="signup-box_open clear large button round">Sign me up</button>
         <button id="intro-button-3" class="clear button round large">Tell me more</button>
+
+        <a class="home-link white" href="{% url 'openCurrents:login' %}"><p class="no-margin-bottom">Log in<i class="half-margin-left fa fa-angle-right"></i></p></a>
       </div>
     </div>
 
@@ -562,6 +570,14 @@
 
       $('#signup-type-1').click(function(){
         $('#org-signup-name').slideUp();
+      });
+    </script>
+
+    <script type="text/javascript">
+      $('#show-diagram').click(function(){
+        $(this).parent().fadeOut(777, function(){
+          $('.diagram-div').fadeIn(777);
+        });
       });
     </script>
 

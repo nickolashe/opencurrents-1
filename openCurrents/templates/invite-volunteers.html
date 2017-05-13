@@ -18,13 +18,30 @@
         {% endif %}
         
         <div class="row">
-            <h3 class="title"></h3>
+          <h3 class="title">Invite volunteers</h3>
         </div>
         
         <div class="row one-margin-bottom center">
           <div class="small-12 medium-8 small-centered columns">
-            
+            <div id="vol-invites-box" class="row">
+              <div class="small-6 columns">
+                <input type="text" name="vol-name-1" id="vol-name-1" placeholder="First name (optional)" />
+              </div>
+
+              <div class="small-6 columns">
+                <input type="text" name="vol-email-1" id="vol-email-1" placeholder="Email" />
+              </div>
+            </div>
+
+            <div class="row">
+              <a id="add-volunteer">Add volunteer</a>
+              <p class="one-margin-top">or add multiple emails separated by spaces, new lines, or commas</p>
+              <textarea name="bulk-emails" placeholder="email@yahoo.com, address@yippee.do" rows="3"></textarea>
+            </div>
           </div>
+
+          <button class="one-margin-top button round">Send invites</button>
+          <p><a href="{% url 'openCurrents:project-created' %}">Skip for now</a></p>
         </div>
         
         <div id="push"></div>
@@ -66,6 +83,16 @@
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: true,
+        });
+
+        var vols = 1;
+
+        $('#add-volunteer').click(function() {
+
+          vols ++;
+
+          $('#vol-invites-box').append('<div class="hidden small-6 columns"><input type="text" name="vol-name-'+vols+'" id="vol-name-'+vols+'" placeholder="First name (optional)" /></div><div class="hidden small-6 columns"><input type="text" name="vol-email-'+vols+'" id="vol-email-'+vols+'" placeholder="Email" /></div>');
+          $('#vol-invites-box .hidden').slideDown();
         });
       });
     </script>

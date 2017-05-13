@@ -12,13 +12,47 @@
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
         <div class="row center three-margin-top">
-          <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="round" />
-          <h4 class="inline">Danny Pernik</h4>
+          
+          <!--<div class="medium-5 medium-offset-1 columns">
+            <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="round" /> -->
+            <h4 class="three-halves-margin-bottom">Danny Pernik</h4>
+
+            <h6 class="inline">My Currents: </h6>
+            <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
+            <h6 class="inline">0</h6>
+            <div class="qtr-margin-top">
+              <button class="button small round">Earn Currents</button>
+            </div>
+          <!--</div>
+
+          <div class="center half-margin-top medium-5 columns end">
+
+          </div>-->
         </div>
         
-        <div class="row three-margin-top one-margin-bottom">
-          <div class="left small-11 medium-8 small-centered columns">
-            <h5 class="fit-left">I care about</h5>
+        <div class="row one-margin-top one-margin-bottom">
+          <div class="medium-8 small-centered columns">
+          Which kind of activities would you like to see in your feed?
+          </div>
+        </div>
+
+        <div class="row one-margin-bottom">
+          <div class="left medium-8 small-centered columns">
+            <div id="user-feed">
+              <div class="feed-item">
+                <strong>Jacob Jacobs</strong> joined openCurrents!
+              </div>
+
+              <div class="feed-item">
+                <strong>Keep Austin Beautiful</strong> created a project: <strong>Let's clean up Lady Bird Lake</strong>!
+              </div>
+
+              <div class="feed-item">
+                <strong>Keep Austin Beautiful</strong> issued 2 Currents to <strong>Jacob Jacobs</strong>. 
+              </div>
+            </div>
+
+            <!-- <h5 class="fit-left">I care about</h5>
             <span class="input-sizer"><input name="offer-text" type="text" class="profile-text" value="showing people their power"/></span>
 
             <div class="tag-block">
@@ -29,12 +63,12 @@
             <span class="input-sizer"><input name="offer-text" type="text" class="profile-text" /></span>
 
             <h5 class="fit-left">I am looking for</h5>
-            <span class="input-sizer"><input name="offer-text" type="text" class="profile-text" /></span>
+            <span class="input-sizer"><input name="offer-text" type="text" class="profile-text" /></span> -->
 
-            <h5 class="one-margin-top one-margin-bottom">My badges</h5>
+            <!--<h5 class="one-margin-top one-margin-bottom">My badges</h5>
 
             <h5 class="one-margin-top one-margin-bottom">My hours given</h5>
-
+            -->
           </div>
         </div>
         
