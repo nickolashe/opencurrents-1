@@ -143,6 +143,9 @@ class VolunteerRequestsView(TemplateView):
 class ProfileView(TemplateView):
     template_name = 'profile.html'
 
+class AdminProfileView(TemplateView):
+    template_name = 'admin-profile.html'
+
 class EditProfileView(TemplateView):
     template_name = 'edit-profile.html'
 

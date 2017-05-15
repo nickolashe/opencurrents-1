@@ -622,24 +622,22 @@ a.list-group-item {
 /* Small titles */
 .title {
   margin-top: 2rem;
-  margin-bottom: 1rem;
   text-align: center;
 }
 
 .title-sub {
   margin-top: 2rem;
-  margin-bottom: 0rem;
   text-align: center;
 }
 
 /* non-small titles */
 @media screen and (min-width: 42em) {
   .title {
-    margin-top: 2.25rem;
+    margin-top: 3rem;
   }
 
   .title-sub {
-    margin-top: 2.25rem;
+    margin-top: 3rem;
   }
 }
 
@@ -1324,4 +1322,10 @@ i:hover ~ .addtocalendar {
   background: transparent;
   box-shadow: none;
   border-bottom: 1px solid #555555;
+}
+
+/* admin-profile */
+
+#project-list {
+  font-size: 0.875rem;
 }
