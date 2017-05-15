@@ -58,15 +58,15 @@
           </div>
         </div>
         
-        <div class="row one-margin-bottom center">
-          <div class="small-8 medium-4 small-centered columns">
+        <div class="row half-margin-bottom center">
+          <div id="location-box" class="small-8 medium-4 small-centered columns">
             <h6 class="fit-left navy">at</h6>
-            <span class="input-sizer"><input name="project-location" id="project-location" type="text" class="center" placeholder="location" size="50"/></span>
-
-            <a id="add-location">Add another location</a>
+            <span class="input-sizer"><input name="project-location-1" id="project-location-1" type="text" class="center" placeholder="location"/></span>
           </div>
         </div>
         
+        <a id="add-location">Add another location</a>
+
         <div class="one-margin-top row left">
           <div class="small-12 medium-6 small-centered columns">
             <h6 class="navy">Additional details</h6>
@@ -145,15 +145,20 @@
     </script>
 
     <script type="text/javascript">
+      var id = 1;
+
       $('#add-location').click(function(){
-        $('');
+        id ++;
+
+        $('#project-box').append('<input name="project-location-'+id+'" id="project-location-'+id+'" type="text" class="hidden center" placeholder="location"/>');
+        $('#project-box .hidden').slideDown();
       });
     </script>
 
     <script type="text/javascript">
       function initialize() {
 
-      var input = document.getElementById('project-location');
+      var input = document.getElementById('project-location-'+id+'');
       var autocomplete = new google.maps.places.Autocomplete(input);
       }
 

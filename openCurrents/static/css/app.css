@@ -1,9 +1,3 @@
-/* Fix for scroll with Slidebars */
-
-body, html {
-  overflow-y: visible !important;
-}
-
 body {
   color: #1f4975;
 }
