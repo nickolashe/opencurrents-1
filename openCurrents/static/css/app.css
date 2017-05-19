@@ -188,7 +188,7 @@ input[type='checkbox'] {
 }
 
 input[type='checkbox']:checked {
-  background-color: #42bdea;
+  background-color: #1f4975;
 }
 
 select {
@@ -438,6 +438,14 @@ label {
 
 .left {
   text-align: left;
+}
+
+.small-text {
+  font-size: 0.875rem;
+}
+
+.large-text {
+  font-size: 1.125rem;
 }
 
 .block {
@@ -1321,5 +1329,9 @@ i:hover ~ .addtocalendar {
 /* admin-profile */
 
 #project-list {
+  font-size: 0.875rem;
+}
+
+#live-project-list {
   font-size: 0.875rem;
 }

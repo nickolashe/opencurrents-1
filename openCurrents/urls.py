@@ -49,6 +49,7 @@ urlpatterns = [
 	url(r'^project-details$', views.ProjectDetailsView.as_view(), name='project-details'),
 	url(r'^invite-volunteers$', views.InviteVolunteersView.as_view(), name='invite-volunteers'),
 	url(r'^project-created$', views.ProjectCreatedView.as_view(), name='project-created'),
+	url(r'^live-dashboard$', views.LiveDashboardView.as_view(), name='live-dashboard'),
 
 
     # functional views
