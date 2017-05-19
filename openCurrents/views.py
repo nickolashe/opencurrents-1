@@ -143,11 +143,29 @@ class VolunteerRequestsView(TemplateView):
 class ProfileView(TemplateView):
     template_name = 'profile.html'
 
+class AdminProfileView(TemplateView):
+    template_name = 'admin-profile.html'
+
 class EditProfileView(TemplateView):
     template_name = 'edit-profile.html'
 
 class BlogView(TemplateView):
     template_name = 'Blog.html'
+
+class CreateProjectView(TemplateView):
+    template_name = 'create-project.html'
+
+class ProjectDetailsView(TemplateView):
+    template_name = 'project-details.html'
+
+class InviteVolunteersView(TemplateView):
+    template_name = 'invite-volunteers.html'
+
+class ProjectCreatedView(TemplateView):
+    template_name = 'project-created.html'
+
+class LiveDashboardView(TemplateView):
+    template_name = 'live-dashboard.html'
 
 
 def process_signup(request, referrer):

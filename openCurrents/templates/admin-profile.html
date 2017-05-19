@@ -15,14 +15,27 @@
           
           <!--<div class="medium-5 medium-offset-1 columns">
             <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="round" /> -->
-            <h4 class="title three-halves-margin-bottom">Danny Pernik</h4>
-
-            <h6 class="inline">My Currents: </h6>
-            <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
-            <h6 class="inline">0</h6>
-            <div class="qtr-margin-top">
-              <button class="button small round">Earn Currents</button>
+            <h4 class="title">Linda McCoy</h4>
+            <h6 class="three-halves-margin-bottom">Keep Austin Beautiful</h6>
+            
+            <div class="medium-5 medium-offset-1 columns">
+              <h6 class="inline">My Currents: </h6>
+              <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
+              <h6 class="inline">0</h6>
+              <div class="qtr-margin-top">
+                <button class="button small round">Earn Currents</button>
+              </div>
             </div>
+
+            <div class="medium-5 columns end">
+              <h6 class="inline">Currents issued:</h6>
+              <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
+              <h6 class="inline">0</h6>
+              <div class="qtr-margin-top">
+                <button class="button small round">Create project</button>
+              </div>
+            </div>
+
           <!--</div>
 
           <div class="center half-margin-top medium-5 columns end">
@@ -30,9 +43,53 @@
           </div>-->
         </div>
 
+        <div id="live-project-list" class="row one-margin-top">
+          <div class="medium-8 small-centered columns">
+            <h6 class="half-margin-bottom">Projects happening now (if any)</h6>
+
+            <div class="row one-margin-top one-margin-bottom">
+              <div class="left small-8 columns">
+                <strong>Let's install a rain garden!</strong> on May 27 at 9:00am to 12:00pm at 1203 Springdale Rd
+              </div>
+
+              <div class="right small-4 columns">
+                <button class="button round small secondary">Live dashboard</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="project-list" class="row one-margin-top">
+          <div class="medium-8 small-centered columns">
+            <h6 class="half-margin-bottom">Our upcoming projects</h6>
+            <button class="button round small secondary">Preview live dashboard</button> (if no live projects)
+
+            <div class="row one-margin-bottom">
+              <div class="left small-9 columns">
+                <strong>Let's restore Bunn Creek Nature Preserve!</strong> on June 3 at 8:30am to 12:00pm at 1200 St. Edwards Drive
+              </div>
+
+              <div class="right small-3 columns">
+                <button class="button round small secondary">Edit</button>
+              </div>
+            </div>
+
+            <div class="row one-margin-bottom">
+              <div class="left small-9 columns">
+                <strong>Let's clean up Lady Bird Lake!</strong> on June 10 at 10:00am at **multiple locations**
+              </div>
+
+              <div class="right small-3 columns">
+                <button class="button round small secondary">Edit</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
         <div class="row one-margin-bottom">
           <div class="left medium-8 small-centered columns">
-            <h6 class="center one-margin-top half-margin-bottom">Community activity</h6>
+            <h6 class="center half-margin-bottom">Community activity</h6>
             <div id="user-feed">
               <div class="feed-item">
                 <strong>Jacob Jacobs</strong> joined openCurrents!

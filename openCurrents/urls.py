@@ -42,8 +42,15 @@ urlpatterns = [
 	url(r'^volunteering$', views.VolunteeringView.as_view(), name='volunteering'),
 	url(r'^volunteer-requests$', views.VolunteerRequestsView.as_view(), name='volunteer-requests'),
 	url(r'^profile$', views.ProfileView.as_view(), name='profile'),
+	url(r'^admin-profile$', views.AdminProfileView.as_view(), name='admin-profile'),
 	url(r'^edit-profile$', views.EditProfileView.as_view(), name='edit-profile'),
 	url(r'^blog$', views.BlogView.as_view(), name='blog'),
+	url(r'^create-project$', views.CreateProjectView.as_view(), name='create-project'),
+	url(r'^project-details$', views.ProjectDetailsView.as_view(), name='project-details'),
+	url(r'^invite-volunteers$', views.InviteVolunteersView.as_view(), name='invite-volunteers'),
+	url(r'^project-created$', views.ProjectCreatedView.as_view(), name='project-created'),
+	url(r'^live-dashboard$', views.LiveDashboardView.as_view(), name='live-dashboard'),
+
 
     # functional views
     url(r'^process_login/$', views.process_login, name='process_login'),
