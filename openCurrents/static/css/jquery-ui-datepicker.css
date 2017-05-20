@@ -1,7 +1,7 @@
 /*! jQuery UI - v1.12.1 - 2016-11-08
 * http://jqueryui.com
 * Includes: core.css, datepicker.css, theme.css
-* To view and modify this theme, visit http://jqueryui.com/themeroller/?scope=&folderName=custom-theme&bgImgOpacityError=&bgImgOpacityHighlight=&bgImgOpacityActive=&bgImgOpacityHover=&bgImgOpacityDefault=&bgImgOpacityContent=&bgImgOpacityHeader=&cornerRadiusShadow=8px&offsetLeftShadow=0px&offsetTopShadow=0px&thicknessShadow=5px&opacityShadow=30&bgImgOpacityShadow=0&bgTextureShadow=flat&bgColorShadow=%23666666&opacityOverlay=30&bgImgOpacityOverlay=0&bgTextureOverlay=flat&bgColorOverlay=%23aaaaaa&iconColorError=%23cc0000&fcError=%235f3f3f&borderColorError=%23f1a899&bgTextureError=flat&bgColorError=%23fddfdf&iconColorHighlight=%23777620&fcHighlight=%23ffffff&borderColorHighlight=%2342bdea&bgTextureHighlight=flat&bgColorHighlight=%2342bdea&iconColorActive=%23ffffff&fcActive=%23ffffff&borderColorActive=%23003eff&bgTextureActive=flat&bgColorActive=%23007fff&iconColorHover=%23555555&fcHover=%232b2b2b&borderColorHover=%23cccccc&bgTextureHover=flat&bgColorHover=%23ededed&iconColorDefault=%23777777&fcDefault=%23454545&borderColorDefault=%23c5c5c5&bgTextureDefault=flat&bgColorDefault=%23f6f6f6&iconColorContent=%23444444&fcContent=%23333333&borderColorContent=%23dddddd&bgTextureContent=flat&bgColorContent=%23ffffff&iconColorHeader=%23ffffff&fcHeader=%23333333&borderColorHeader=%2342bdea&bgTextureHeader=flat&bgColorHeader=%2342bdea&cornerRadius=3px&fwDefault=normal&fsDefault=1em&ffDefault=Arial%2CHelvetica%2Csans-serif
+* To view and modify this theme, visit http://jqueryui.com/themeroller/?scope=&folderName=custom-theme&bgImgOpacityError=&bgImgOpacityHighlight=&bgImgOpacityActive=&bgImgOpacityHover=&bgImgOpacityDefault=&bgImgOpacityContent=&bgImgOpacityHeader=&cornerRadiusShadow=8px&offsetLeftShadow=0px&offsetTopShadow=0px&thicknessShadow=5px&opacityShadow=30&bgImgOpacityShadow=0&bgTextureShadow=flat&bgColorShadow=%23666666&opacityOverlay=30&bgImgOpacityOverlay=0&bgTextureOverlay=flat&bgColorOverlay=%23aaaaaa&iconColorError=%23cc0000&fcError=%235f3f3f&borderColorError=%23f1a899&bgTextureError=flat&bgColorError=%23fddfdf&iconColorHighlight=%23777620&fcHighlight=%23ffffff&borderColorHighlight=%2318a5d9&bgTextureHighlight=flat&bgColorHighlight=%2318a5d9&iconColorActive=%23ffffff&fcActive=%23ffffff&borderColorActive=%23003eff&bgTextureActive=flat&bgColorActive=%23007fff&iconColorHover=%23555555&fcHover=%232b2b2b&borderColorHover=%23cccccc&bgTextureHover=flat&bgColorHover=%23ededed&iconColorDefault=%23777777&fcDefault=%23454545&borderColorDefault=%23c5c5c5&bgTextureDefault=flat&bgColorDefault=%23f6f6f6&iconColorContent=%23444444&fcContent=%23333333&borderColorContent=%23dddddd&bgTextureContent=flat&bgColorContent=%23ffffff&iconColorHeader=%23ffffff&fcHeader=%23333333&borderColorHeader=%2318a5d9&bgTextureHeader=flat&bgColorHeader=%2318a5d9&cornerRadius=3px&fwDefault=normal&fsDefault=1em&ffDefault=Arial%2CHelvetica%2Csans-serif
 * Copyright jQuery Foundation and other contributors; Licensed MIT */
 
 /* Layout helpers
@@ -298,8 +298,8 @@
 	color: #333333;
 }
 .ui-widget-header {
-	border: 1px solid #42bdea;
-	background: #42bdea;
+	border: 1px solid #18a5d9;
+	background: #18a5d9;
 	color: #ffffff;
 	font-weight: bold;
 }
@@ -389,13 +389,13 @@ a.ui-button:active,
 .ui-state-highlight,
 .ui-widget-content .ui-state-highlight,
 .ui-widget-header .ui-state-highlight {
-	border: 1px solid #42bdea;
-	background: #42bdea;
+	border: 1px solid #18a5d9;
+	background: #18a5d9;
 	color: #ffffff;
 }
 .ui-state-checked {
-	border: 1px solid #42bdea;
-	background: #42bdea;
+	border: 1px solid #18a5d9;
+	background: #18a5d9;
 }
 .ui-state-highlight a,
 .ui-widget-content .ui-state-highlight a,
