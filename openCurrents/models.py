@@ -18,6 +18,8 @@ class Org(models.Model):
     mission = models.CharField(max_length=4096, null=True)
     reason = models.CharField(max_length=4096, null=True)
     users = models.ManyToManyField(User, through='OrgUser')
+
+    # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)
     date_updated = models.DateTimeField('date updated', auto_now=True)
 
@@ -33,6 +35,8 @@ class OrgUser(models.Model):
     user = models.ForeignKey(User)
     org = models.ForeignKey(Org)
     affiliation = models.CharField(max_length=50, null=True)
+
+    # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)
     date_updated = models.DateTimeField('date updated', auto_now=True)
 
@@ -66,6 +70,8 @@ class Account(models.Model):
 class Project(models.Model):
     name = models.CharField(max_length=1024)
     org = models.ForeignKey(Org)
+
+    # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)
     date_updated = models.DateTimeField('date updated', auto_now=True)
 
@@ -73,16 +79,22 @@ class Project(models.Model):
 class Event(models.Model):
     project = models.ForeignKey(Project)
     location = models.CharField(max_length=1024)
+
+    # start / end timestamps of the event
     date_start = models.DateTimeField('start date')
     date_end = models.DateTimeField('end date')
+
+    # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)
     date_updated = models.DateTimeField('date updated', auto_now=True)
 
 
 class UserEventRegistration(models.Model):
-    event = models.ForeignKey(Event)
     user = models.ForeignKey(User)
-    confirmed = models.BooleanField(default=False)
+    event = models.ForeignKey(Event)
+    is_confirmed = models.BooleanField(default=False)
+
+    # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)
     date_updated = models.DateTimeField('date updated', auto_now=True)
 
@@ -90,9 +102,13 @@ class UserEventRegistration(models.Model):
 class UserTimeLog(models.Model):
     user = models.ForeignKey(User)
     event = models.ForeignKey(Event)
+    is_verified = models.BooleanField(default=False)
+
+    # start / end timestamps of the contributed time
     date_start = models.DateTimeField('start time')
     date_end = models.DateTimeField('end time')
-    verified = models.BooleanField(default=False)
+
+    # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)
     date_updated = models.DateTimeField('date updated', auto_now=True)
 
@@ -103,11 +119,17 @@ class Token(models.Model):
     is_verified = models.BooleanField(default=False)
     token = models.UUIDField(default=uuid4)
     token_type = models.CharField(max_length=20)
+
+    # referring user
     referrer = models.ForeignKey(User, null=True)
+
+    # token expiration timestamp
     date_expires = models.DateTimeField(
         'date invite token expires',
         default=one_week_from_now
     )
+
+    # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)
     date_updated = models.DateTimeField('date updated', auto_now=True)
 
