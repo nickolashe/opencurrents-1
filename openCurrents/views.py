@@ -17,7 +17,8 @@ from openCurrents.forms import \
     UserSignupForm, \
     UserLoginForm, \
     EmailVerificationForm, \
-    OrgSignupForm
+    OrgSignupForm, \
+    ProjectCreateForm
 
 from datetime import datetime, timedelta
 
@@ -154,6 +155,12 @@ class BlogView(TemplateView):
 
 class CreateProjectView(TemplateView):
     template_name = 'create-project.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(CreateProjectView, self).get_context_data(**kwargs)
+        context['form'] = ProjectCreateForm()
+
+        return context
 
 class ProjectDetailsView(TemplateView):
     template_name = 'project-details.html'

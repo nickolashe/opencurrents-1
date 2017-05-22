@@ -70,15 +70,28 @@ class Account(models.Model):
 class Project(models.Model):
     name = models.CharField(max_length=1024)
     org = models.ForeignKey(Org)
+    description = models.CharField(max_length=8192)
+    location = models.CharField(max_length=1024)
+
+    # coordinator contact info
+    coordinator_firstname = models.CharField(max_length=128)
+    coordinator_email = models.EmailField()
 
     # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)
     date_updated = models.DateTimeField('date updated', auto_now=True)
 
+    def __unicode__(self):
+        return ' '.join([
+            'Project',
+            self.name,
+            'by',
+            self.org.name
+        ])
+
 
 class Event(models.Model):
     project = models.ForeignKey(Project)
-    location = models.CharField(max_length=1024)
 
     # start / end timestamps of the event
     date_start = models.DateTimeField('start date')
@@ -88,6 +101,17 @@ class Event(models.Model):
     date_created = models.DateTimeField('date created', auto_now_add=True)
     date_updated = models.DateTimeField('date updated', auto_now=True)
 
+    def __unicode__(self):
+        return ' '.join([
+            'Event',
+            self.project.name,
+            'by',
+            self.project.org.name,
+            'happening at',
+            self.location,
+            'on',
+            self.date_start
+        ])
 
 class UserEventRegistration(models.Model):
     user = models.ForeignKey(User)
@@ -97,6 +121,13 @@ class UserEventRegistration(models.Model):
     # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)
     date_updated = models.DateTimeField('date updated', auto_now=True)
+
+    def __unicode__(self):
+        return ' '.join([
+            self.user.username,
+            'is registered for',
+            self.event.project.name
+        ])
 
 
 class UserTimeLog(models.Model):
@@ -111,6 +142,17 @@ class UserTimeLog(models.Model):
     # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)
     date_updated = models.DateTimeField('date updated', auto_now=True)
+
+    def __unicode__(self):
+        return ' '.join([
+            self.user.username,
+            'contributed time at',
+            self.event.project.name,
+            'from',
+            str(self.date_start),
+            'to',
+            str(self.date_end)
+        ])
 
 
 # verification tokens
@@ -136,5 +178,8 @@ class Token(models.Model):
     def __unicode__(self):
         return ' '.join([
             'Verification token for',
-            self.email
+            self.email,
+            'expiring on',
+            str(self.date_expires),
+            '(%sverified)' % (self.verified if '' else 'not yet')
         ])

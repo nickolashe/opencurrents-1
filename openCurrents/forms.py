@@ -1,6 +1,9 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext as _
+from django.forms import ModelForm
+
+from openCurrents.models import Project
 
 import logging
 
@@ -62,3 +65,20 @@ class OrgSignupForm(forms.Form):
 
     def clean_org_status(self):
         return str(self.cleaned_data['org_status'])
+
+
+class ProjectCreateForm(ModelForm):
+    class Meta:
+        model = Project
+        fields = ['name', 'description', 'location', 'coordinator_firstname', 'coordinator_email']
+        labels = {
+            'name': 'Let\'s...',
+            'description': 'Project description',
+            'location': 'at'
+        }
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': '4'}),
+            'location': forms.TextInput(attrs={'id': 'project-location'}),
+            'coordinator_firstname': forms.TextInput(attrs={'placeholder': 'Coordinator Firstname'}),
+            'coordinator_email': forms.TextInput(attrs={'placeholder': 'Coordinator Email'})
+        }
