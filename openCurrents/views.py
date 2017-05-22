@@ -164,6 +164,9 @@ class InviteVolunteersView(TemplateView):
 class ProjectCreatedView(TemplateView):
     template_name = 'project-created.html'
 
+class LiveDashboardView(TemplateView):
+    template_name = 'live-dashboard.html'
+
 
 def process_signup(request, referrer):
     form = UserSignupForm(request.POST)

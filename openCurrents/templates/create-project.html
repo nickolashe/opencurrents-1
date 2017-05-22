@@ -27,7 +27,7 @@
             <h3 class="title">Create project</h3>
         </div>
         
-        <div class="row one-margin-top one-margin-bottom">
+        <div class="row one-margin-bottom">
           <div class="small-12 medium-6 small-centered columns">
 
             <h6 class="fit-left navy">Let's...</h6>
@@ -67,17 +67,35 @@
         
         <a id="add-location">Add another location</a>
 
+        <div class="three-halves-margin-top row left">
+          <div class="small-12 medium-6 small-centered columns">
+            <h6 class="navy no-margin-bottom">Project description</h6>
+            <p class="small-text grey no-margin-bottom">What should volunteers know? What should they bring?</p>
+            <textarea name="project-description" placeholder="" rows="4"></textarea>
+          </div>
+        </div>
+
         <div class="one-margin-top row left">
           <div class="small-12 medium-6 small-centered columns">
-            <h6 class="navy">Additional details</h6>
-            <textarea name="project-description" placeholder="Project description - What should volunteers know? What should they bring?" rows="4"></textarea>
+            <h6 class="navy no-margin-bottom">Project coordinator</h6>
+            <p class="small-text grey">Who will respond to volunteers who register?</p>
+
+            <div class="row">
+              <div class="input-left small-5 columns">
+                <input type="text" name="coordinator-name" placeholder="First name" value="[Creator Firstname]"/>
+              </div>
+
+              <div class="input-right small-7 columns">
+                <input type="text" name="coordinator-email" placeholder="Email" value="[Creator Email]"/>
+              </div>
+            </div>
           </div>
         </div>
 
         <div class="row">
           <div class="small-6 small-centered columns">
             <button class="one-margin-top button round">Create</button>
-            <!--<p><a class="template-popup_open">Save template...</a></p>-->
+            <p><a class="template-popup_open">Save template...</a></p>
           </div>
         </div>
 

@@ -1077,7 +1077,7 @@ select {
       background-color: #0b1d36;
       color: #fefefe; }
   .button.secondary {
-    background-color: #42bdea;
+    background-color: #18a5d9;
     color: #0a0a0a;
     border: 2px solid white; }
     .button.secondary:hover, .button.secondary:focus {
@@ -1128,8 +1128,8 @@ select {
         border-color: #071222;
         color: #071222; }
     .button.hollow.secondary {
-      border: 1px solid #42bdea;
-      color: #42bdea; }
+      border: 1px solid #18a5d9;
+      color: #18a5d9; }
       .button.hollow.secondary:hover, .button.hollow.secondary:focus {
         border-color: #286273;
         color: #286273; }
@@ -1263,7 +1263,7 @@ select {
       background-color: #0b1d36;
       color: #fefefe; }
   .button-group.secondary .button {
-    background-color: #42bdea;
+    background-color: #18a5d9;
     color: #0a0a0a;
     border: 2px solid white; }
     .button-group.secondary .button:hover, .button-group.secondary .button:focus {
@@ -2150,7 +2150,7 @@ select {
 
 html,
 body {
-  height: 100%; }
+/*  height: 100%;*/ }
 
 .off-canvas-wrapper {
   width: 100%;
@@ -2534,7 +2534,7 @@ table.hover tr:nth-of-type(even):hover {
   background: #0e2444;
   color: #fefefe; }
   .badge.secondary {
-    background: #42bdea;
+    background: #18a5d9;
     color: #0a0a0a;
     border: 2px solid white; }
   .badge.alert {
@@ -2564,7 +2564,7 @@ table.hover tr:nth-of-type(even):hover {
   background: #0e2444;
   color: #fefefe; }
   .label.secondary {
-    background: #42bdea;
+    background: #18a5d9;
     color: #0a0a0a; }
   .label.alert {
     background: #f28b44;
@@ -2590,7 +2590,7 @@ table.hover tr:nth-of-type(even):hover {
   .progress.primary .progress-meter {
     background-color: #0e2444; }
   .progress.secondary .progress-meter {
-    background-color: #42bdea; }
+    background-color: #18a5d9; }
   .progress.alert .progress-meter {
     background-color: #f28b44; }
   .progress.success .progress-meter {

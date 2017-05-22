@@ -15,7 +15,7 @@
           
           <!--<div class="medium-5 medium-offset-1 columns">
             <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="round" /> -->
-            <h4 class="title">Linda McCoy</h4>
+            <h4 class="title-sub">Linda McCoy</h4>
             <h6 class="three-halves-margin-bottom">Keep Austin Beautiful</h6>
             
             <div class="medium-5 medium-offset-1 columns">
@@ -43,20 +43,26 @@
           </div>-->
         </div>
 
-        <div id="project-list" class="row one-margin-top">
+        <div id="live-project-list" class="row one-margin-top">
           <div class="medium-8 small-centered columns">
-            <h6 class="half-margin-bottom">Our upcoming projects</h6>
-            <button class="button round small secondary">Preview live dashboard</button>
+            <h6 class="half-margin-bottom">Projects happening now (if any)</h6>
 
             <div class="row one-margin-top one-margin-bottom">
-              <div class="left small-9 columns">
+              <div class="left small-8 columns">
                 <strong>Let's install a rain garden!</strong> on May 27 at 9:00am to 12:00pm at 1203 Springdale Rd
               </div>
 
-              <div class="right small-3 columns">
-                <button class="button round small secondary">Edit</button>
+              <div class="right small-4 columns">
+                <button class="button round small secondary">Live dashboard</button>
               </div>
             </div>
+          </div>
+        </div>
+
+        <div id="project-list" class="row one-margin-top">
+          <div class="medium-8 small-centered columns">
+            <h6 class="half-margin-bottom">Our upcoming projects</h6>
+            <button class="button round small secondary">Preview live dashboard</button> (if no live projects)
 
             <div class="row one-margin-bottom">
               <div class="left small-9 columns">
@@ -90,7 +96,7 @@
               </div>
 
               <div class="feed-item">
-                <strong>Keep Austin Beautiful</strong> created a project: <strong>Let's clean up Lady Bird Lake!</strong>
+                <strong>Keep Austin Beautiful</strong> created a project: <strong><a>Let's clean up Lady Bird Lake<span class="no-wrap">!<i class="half-margin-left fa fa-arrow-circle-right"></i></span></a></strong>
               </div>
 
               <div class="feed-item">
