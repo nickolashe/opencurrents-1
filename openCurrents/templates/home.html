@@ -578,6 +578,9 @@
         $(this).parent().fadeOut(777, function(){
           $('.diagram-div').fadeIn(777);
         });
+        var width = $(window).width();
+            var height = $(window).height();
+            $('#home').resize(width, height);
       });
     </script>
 
