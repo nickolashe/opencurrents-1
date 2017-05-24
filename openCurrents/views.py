@@ -155,6 +155,12 @@ class BlogView(TemplateView):
 class CreateProjectView(TemplateView):
     template_name = 'create-project.html'
 
+class EditProjectView(TemplateView):
+    template_name = 'edit-project.html'
+
+class UpcomingProjectsView(TemplateView):
+    template_name = 'upcoming-projects.html'
+
 class ProjectDetailsView(TemplateView):
     template_name = 'project-details.html'
 

@@ -24,15 +24,14 @@
         {% endif %}
 
         <div class="row">
-            <h3 class="title-sub">Create project</h3>
-            <p class="subtitle"><a>Use template</a> (if any)</p>
+          <h3 class="title">Edit project</h3>
         </div>
         
         <div class="row one-margin-bottom">
           <div class="small-12 medium-6 small-centered columns">
 
             <h6 class="fit-left navy">Let's...</h6>
-            <span class="input-sizer"><input name="project-name" class="center" type="text" placeholder="do some good" /></span>
+            <span class="input-sizer"><input name="project-name" class="center" type="text" placeholder="do some good" value="[project name]"/></span>
           </div>
         </div>
 
@@ -62,7 +61,7 @@
         <div class="row half-margin-bottom center">
           <div id="location-box" class="small-8 medium-4 small-centered columns">
             <h6 class="fit-left navy">at</h6>
-            <span class="input-sizer"><input name="project-location-1" id="project-location-1" type="text" class="center" placeholder="location"/></span>
+            <span class="input-sizer"><input name="project-location-1" id="project-location-1" type="text" class="center" placeholder="location" value=""/></span>
           </div>
         </div>
         
@@ -83,11 +82,11 @@
 
             <div class="row">
               <div class="input-left small-5 columns">
-                <input type="text" name="coordinator-name" placeholder="First name" value="[Creator Firstname]"/>
+                <input type="text" name="coordinator-name" placeholder="First name" value=""/>
               </div>
 
               <div class="input-right small-7 columns">
-                <input type="text" name="coordinator-email" placeholder="Email" value="[Creator Email]"/>
+                <input type="text" name="coordinator-email" placeholder="Email" value=""/>
               </div>
             </div>
           </div>
@@ -169,8 +168,13 @@
       $('#add-location').click(function(){
         id ++;
 
-        $('#project-box').append('<input name="project-location-'+id+'" id="project-location-'+id+'" type="text" class="hidden center" placeholder="location"/>');
-        $('#project-box .hidden').slideDown();
+        $('#location-box').append('<div id="location-'+id+'" class="relative hidden"><h6 class="fit-left navy">&</h6><span class="input-sizer"><input name="project-location-'+id+'" id="project-location-'+id+'" type="text" class="center" placeholder="location"/></span><i class="remove-location fa fa-times-circle"></i></div>');
+        $('#location-'+id+'').slideDown();
+
+      });
+
+      $('#location-box').on('click', 'i', function(){
+        $(this).parent('div').slideUp();
       });
     </script>
 
