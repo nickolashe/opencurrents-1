@@ -189,12 +189,8 @@ textarea:focus {
   border-bottom: 1px solid #1f4975;
 }
 
-input[type='checkbox'] {
-  background-color: #24b2e7;
-}
-
-input[type='checkbox']:checked {
-  background-color: #1f4975;
+input[type='checkbox']:checked + label {
+  color: #24b2e7;
 }
 
 select {
@@ -243,11 +239,6 @@ label {
   color: #888888;
 }
 
-[type=radio]+label {
-  margin-right: 0.25rem;
-  margin-left: 0.25rem;
-}
-
 .radio,
 .checkbox {
   position: relative;
@@ -276,6 +267,17 @@ label {
 }
 
 .styled-radio:checked + label {
+  background-color: #1f4975;
+  border: 1px solid #1f4975;
+  color: #ffffff;
+}
+
+/*.styled-checkbox + label {
+  margin-right: 0.5rem;
+  margin-bottom: 1rem;
+}*/
+
+.styled-checkbox:checked + label {
   background-color: #1f4975;
   border: 1px solid #1f4975;
   color: #ffffff;
@@ -609,11 +611,11 @@ a.list-group-item {
 }
 
 #push {
-  height: 6rem;
+  height: 5rem;
 }
 
 #footer {
-  height: 6rem;
+  height: 5rem;
   padding: 1rem 1rem 1.5rem;
   background: #24b2e7;
   color: #ffffff;
@@ -637,13 +639,13 @@ a.list-group-item {
 
 /* Titles */
 .title {
-  margin-top: 2rem;
+  margin-top: 2.5rem;
   margin-bottom: 1.5rem;
   text-align: center;
 }
 
 .title-sub {
-  margin-top: 2rem;
+  margin-top: 2.5rem;
   text-align: center;
 }
 
@@ -1280,11 +1282,13 @@ i:hover ~ .addtocalendar {
 
 /* profile */
 
-#user-feed {
+#community-feed {
   border: 1px solid #cccccc;
   border-radius: 4px;
   padding: 0 1rem;
   font-size: 0.875rem;
+  max-height: 75vh;
+  overflow: auto;
 }
 
 .feed-item {

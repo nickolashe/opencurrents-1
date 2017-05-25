@@ -170,8 +170,14 @@ class InviteVolunteersView(TemplateView):
 class ProjectCreatedView(TemplateView):
     template_name = 'project-created.html'
 
+class ViewProjectView(TemplateView):
+    template_name = 'view-project.html'
+
 class LiveDashboardView(TemplateView):
     template_name = 'live-dashboard.html'
+
+class RegistrationConfirmedView(TemplateView):
+    template_name = 'registration-confirmed.html'
 
 
 def process_signup(request, referrer):
