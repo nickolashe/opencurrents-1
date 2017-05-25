@@ -77,6 +77,10 @@ class Project(models.Model):
     coordinator_firstname = models.CharField(max_length=128)
     coordinator_email = models.EmailField()
 
+    # start / end timestamps of the project
+    datetime_start = models.DateTimeField('start datetime')
+    datetime_end = models.DateTimeField('end datetime')
+
     # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)
     date_updated = models.DateTimeField('date updated', auto_now=True)
@@ -90,32 +94,9 @@ class Project(models.Model):
         ])
 
 
-class Event(models.Model):
-    project = models.ForeignKey(Project)
-
-    # start / end timestamps of the event
-    date_start = models.DateTimeField('start date')
-    date_end = models.DateTimeField('end date')
-
-    # created / updated timestamps
-    date_created = models.DateTimeField('date created', auto_now_add=True)
-    date_updated = models.DateTimeField('date updated', auto_now=True)
-
-    def __unicode__(self):
-        return ' '.join([
-            'Event',
-            self.project.name,
-            'by',
-            self.project.org.name,
-            'happening at',
-            self.location,
-            'on',
-            self.date_start
-        ])
-
-class UserEventRegistration(models.Model):
+class UserProjectRegistration(models.Model):
     user = models.ForeignKey(User)
-    event = models.ForeignKey(Event)
+    project = models.ForeignKey(Project)
     is_confirmed = models.BooleanField(default=False)
 
     # created / updated timestamps
@@ -126,13 +107,13 @@ class UserEventRegistration(models.Model):
         return ' '.join([
             self.user.username,
             'is registered for',
-            self.event.project.name
+            self.project.name
         ])
 
 
 class UserTimeLog(models.Model):
     user = models.ForeignKey(User)
-    event = models.ForeignKey(Event)
+    project = models.ForeignKey(Project)
     is_verified = models.BooleanField(default=False)
 
     # start / end timestamps of the contributed time
@@ -147,7 +128,7 @@ class UserTimeLog(models.Model):
         return ' '.join([
             self.user.username,
             'contributed time at',
-            self.event.project.name,
+            self.project.name,
             'from',
             str(self.date_start),
             'to',

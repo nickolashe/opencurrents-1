@@ -3,7 +3,9 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext as _
 from django.forms import ModelForm
 
-from openCurrents.models import Project
+from openCurrents.models import Project, OrgUser
+
+from datetime import datetime
 
 import logging
 
@@ -67,18 +69,53 @@ class OrgSignupForm(forms.Form):
         return str(self.cleaned_data['org_status'])
 
 
-class ProjectCreateForm(ModelForm):
-    class Meta:
-        model = Project
-        fields = ['name', 'description', 'location', 'coordinator_firstname', 'coordinator_email']
-        labels = {
-            'name': 'Let\'s...',
-            'description': 'Project description',
-            'location': 'at'
-        }
-        widgets = {
-            'description': forms.Textarea(attrs={'rows': '4'}),
-            'location': forms.TextInput(attrs={'id': 'project-location'}),
-            'coordinator_firstname': forms.TextInput(attrs={'placeholder': 'Coordinator Firstname'}),
-            'coordinator_email': forms.TextInput(attrs={'placeholder': 'Coordinator Email'})
-        }
+class ProjectCreateForm(forms.Form):
+    name = forms.CharField(
+        label='Let\'s...'
+    )
+    description = forms.CharField(
+        label='Project description'
+    )
+    date_start = forms.CharField(
+        label='on'
+    )
+    time_start = forms.CharField(
+        label='from'
+    )
+    time_end = forms.CharField(
+        label='to'
+    )
+    location = forms.CharField(
+        label='at',
+        widget=forms.TextInput(attrs={'id': 'project-location'})
+    )
+    coordinator_firstname = forms.CharField(
+        widget=forms.TextInput(attrs={'placeholder': 'Coordinator Firstname'})
+    )
+    coordinator_email = forms.CharField(
+        widget=forms.TextInput(attrs={'placeholder': 'Coordinator Email'})
+    )
+    orgid = forms.CharField()
+
+    def clean(self):
+        cleaned_data = super(ProjectCreateForm, self).clean()
+        logger.info(cleaned_data)
+        date_start = cleaned_data['date_start']
+        time_start = cleaned_data['time_start']
+        time_end = cleaned_data['time_end']
+        #userid = cleaned_data['userid']
+        #orgid = OrgUser.objects.get(user__id=userid).org.id
+        logger.info('orgid: %s', cleaned_data['orgid'])
+        #cleaned_data['orgid'] = orgid
+
+        cleaned_data['datetime_start'] = datetime.strptime(
+            ' '.join([date_start, time_start]),
+            '%Y-%m-%d %I:%M%p'
+        )
+        cleaned_data['datetime_end'] = datetime.strptime(
+            ' '.join([date_start, time_start]),
+            '%Y-%m-%d %I:%M%p'
+        )
+
+        logger.info('cleaned data: %s', cleaned_data)
+        return cleaned_data

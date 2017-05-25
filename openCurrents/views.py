@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.shortcuts import render, redirect
 from django.views.generic import View, TemplateView
+from django.views.generic.edit import FormView
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 
@@ -11,7 +12,8 @@ from openCurrents.models import \
     Account, \
     Org, \
     OrgUser, \
-    Token
+    Token, \
+    Project
 
 from openCurrents.forms import \
     UserSignupForm, \
@@ -153,12 +155,45 @@ class EditProfileView(TemplateView):
 class BlogView(TemplateView):
     template_name = 'Blog.html'
 
-class CreateProjectView(TemplateView):
+# class CreateProjectView(TemplateView):
+#     template_name = 'create-project.html'
+#
+#     def get_context_data(self, **kwargs):
+#         context = super(CreateProjectView, self).get_context_data(**kwargs)
+#         context['form'] = ProjectCreateForm()
+#
+#         return context
+
+class CreateProjectView(FormView):
     template_name = 'create-project.html'
+    form_class = ProjectCreateForm
+    success_url = '/project-created/'
+
+    def form_valid(self, form):
+        # This method is called when valid form data has been POSTed.
+        # It should return an HttpResponse.
+        # logger.info(form)
+        data = form.cleaned_data
+        org = Org.objects.get(id=data['orgid'])
+        project = Project(
+            name=data['name'],
+            org=org,
+            description=data['description'],
+            location=data['location'],
+            datetime_start=data['datetime_start'],
+            datetime_end=data['datetime_end'],
+            coordinator_firstname=data['coordinator_firstname'],
+            coordinator_email=data['coordinator_email'],
+
+        )
+        project.save()
+
+        return redirect('openCurrents:project-created')
 
     def get_context_data(self, **kwargs):
         context = super(CreateProjectView, self).get_context_data(**kwargs)
-        context['form'] = ProjectCreateForm()
+        userid = self.request.user.id
+        context['orgid'] = OrgUser.objects.get(user__id=userid).org.id
 
         return context
 
@@ -175,10 +210,31 @@ class LiveDashboardView(TemplateView):
     template_name = 'live-dashboard.html'
 
 
+def create_project(request):
+    form = ProjectCreateForm(request.POST)
+
+    # validate form data
+    if form.is_valid():
+        pass
+    else:
+        logger.error('Invalid form: %s', form.errors.as_data())
+
+        context = {
+            'form': form,
+            'errors': form.errors.as_data().values()[0][0]
+        }
+
+        return render(
+            request,
+            'openCurrents/create-project.html',
+            context
+        )
+
+
 def process_signup(request, referrer):
     form = UserSignupForm(request.POST)
 
-    # valid form data received
+    # validate form data
     if form.is_valid():
         user_firstname = form.cleaned_data['user_firstname']
         user_lastname = form.cleaned_data['user_lastname']
