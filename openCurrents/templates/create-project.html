@@ -24,7 +24,8 @@
         {% endif %}
 
         <div class="row">
-            <h3 class="title">Create project</h3>
+            <h3 class="title-sub">Create project</h3>
+            <p class="subtitle"><a>Use template</a> (if any)</p>
         </div>
 
         <form method="post">
@@ -202,8 +203,12 @@
       $('#add-location').click(function(){
         id ++;
 
-        $('#project-box').append('<input name="project-location-'+id+'" id="project-location-'+id+'" type="text" class="hidden center" placeholder="location"/>');
-        $('#project-box .hidden').slideDown();
+        $('#location-box').append('<div id="location-'+id+'" class="relative hidden"><h6 class="fit-left navy">&</h6><span class="input-sizer"><input name="project-location-'+id+'" id="project-location-'+id+'" type="text" class="center" placeholder="location"/></span><i class="remove-location fa fa-times-circle"></i></div>');
+        $('#location-'+id+'').slideDown();
+      });
+
+      $('#location-box').on('click', 'i', function(){
+        $(this).parent('div').slideUp();
       });
     </script>
 

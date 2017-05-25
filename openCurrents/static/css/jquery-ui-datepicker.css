@@ -298,8 +298,8 @@
 	color: #333333;
 }
 .ui-widget-header {
-	border: 1px solid #18a5d9;
-	background: #18a5d9;
+	border: 1px solid #24b2e7;
+	background: #24b2e7;
 	color: #ffffff;
 	font-weight: bold;
 }
@@ -389,13 +389,13 @@ a.ui-button:active,
 .ui-state-highlight,
 .ui-widget-content .ui-state-highlight,
 .ui-widget-header .ui-state-highlight {
-	border: 1px solid #18a5d9;
-	background: #18a5d9;
+	border: 1px solid #24b2e7;
+	background: #24b2e7;
 	color: #ffffff;
 }
 .ui-state-checked {
-	border: 1px solid #18a5d9;
-	background: #18a5d9;
+	border: 1px solid #24b2e7;
+	background: #24b2e7;
 }
 .ui-state-highlight a,
 .ui-widget-content .ui-state-highlight a,

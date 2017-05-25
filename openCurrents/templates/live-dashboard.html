@@ -18,34 +18,87 @@
         {% endif %}
         
         <div class="row">
-            <h4 class="title">Let's install a rain garden!</h4>
+            <h4 class="title-sub">Let's install a rain garden!</h4>
             <p>Keep Austin Beautiful</p>
         </div>
         
         <div class="row one-margin-bottom center">
           <div class="small-12 medium-8 small-centered columns">
-            <h6 class="half-margin-bottom">Registered volunteers</h6>
-            
-            <div class="left small-7 medium-8 columns">
-              <p class="small-text half-margin-top half-margin-bottom"><strong>Name</strong></p>
+            <h6 class="half-margin-top one-margin-bottom left">Add volunteer</h6>
+
+            <div class="row one-margin-bottom">
+              <div class="input-left small-5 columns">
+                <input type="text" name="add-volunteer-name" placeholder="First name"/>
+              </div>
+
+              <div class="input-middle small-4 columns">
+                <input type="text" name="add-volunteer-email" placeholder="Email"/>
+              </div>
+
+              <div class="input-right small-3 columns">
+                <a><i class="grey fa fa-lg fa-check-circle"></i></a>
+              </div>
             </div>
 
-            <div class="right small-5 medium-4 columns">
-              <p class="small-text half-margin-top half-margin-bottom"><strong>Arrived?</strong></p>
+            <h6 class="left half-margin-bottom">Registered volunteers</h6>
+            
+            <div class="row">
+              <div class="left small-7 medium-8 columns">
+                <p class="small-text half-margin-top half-margin-bottom"><strong>Name</strong></p>
+              </div>
+
+              <div class="right small-5 medium-4 columns">
+                <p class="small-text half-margin-top half-margin-bottom"><strong>Arrived?</strong></p>
+              </div>
             </div>
 
-            <div class="left small-7 medium-8 columns">
-              <p class="small-text half-margin-top">Firstname Lastname</p>
+            <div class="row">
+              <div class="left small-9 medium-10 columns">
+                <p class="half-margin-top">Firstname Lastname</p>
+              </div>
+              
+              <div class="right small-3 medium-2 columns">
+                <input type="checkbox" id="vol-arrived-1" name="vol-arrived-1" value="" class="hidden"/>
+                  <label class="large-text vol-arrived" for="vol-arrived-1"><i class="styled-checkbox fa fa-lg fa-check-circle"></i></label>
+              </div>
             </div>
-            
-            <div class="right small-5 medium-4 columns">
-              <input type="checkbox" id="vol-arrived-1" name="vol-arrived-1" value="" class="hidden"/>
-                <label class="large-text" for="vol-arrived-1"><i class="accept fa fa-lg blue fa-check-circle"></i></label>
+
+            <div class="row">
+              <div class="left small-7 medium-8 columns">
+                <p class="half-margin-top">Firstname Lastname</p>
+              </div>
+              
+              <div class="right small-5 medium-4 columns">
+                <input type="checkbox" id="vol-arrived-2" name="vol-arrived-2" value="" class="hidden"/>
+                  <label class="large-text vol-arrived" for="vol-arrived-2"><i class="styled-checkbox fa fa-lg fa-check-circle"></i></label>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="left small-7 medium-8 columns">
+                <p class="half-margin-top">Firstname Lastname</p>
+              </div>
+              
+              <div class="right small-5 medium-4 columns">
+                <input type="checkbox" id="vol-arrived-3" name="vol-arrived-3" value="" class="hidden"/>
+                  <label class="large-text vol-arrived" for="vol-arrived-3"><i class="styled-checkbox fa fa-lg fa-check-circle"></i></label>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="left small-7 medium-8 columns">
+                <p class="half-margin-top">Firstname Lastname</p>
+              </div>
+              
+              <div class="right small-5 medium-4 columns">
+                <input type="checkbox" id="vol-arrived-4" name="vol-arrived-4" value="" class="hidden"/>
+                  <label class="large-text vol-arrived" for="vol-arrived-4"><i class="styled-checkbox fa fa-lg fa-check-circle"></i></label>
+              </div>
             </div>
           </div>
         </div>
 
-        <h6>Additional volunteers</h6>
+        
         
         <div id="push"></div>
     
@@ -82,6 +135,11 @@
     
     <script type="text/javascript">
       $(document).ready(function(){
+
+        $(".vol-arrived").click(function() {
+          $().prop("checked", true);
+        });
+
         $('#').popup({
           vertical: 'top',
           transition: 'all 0.75s',

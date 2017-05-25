@@ -197,6 +197,12 @@ class CreateProjectView(FormView):
 
         return context
 
+class EditProjectView(TemplateView):
+    template_name = 'edit-project.html'
+
+class UpcomingProjectsView(TemplateView):
+    template_name = 'upcoming-projects.html'
+
 class ProjectDetailsView(TemplateView):
     template_name = 'project-details.html'
 
@@ -206,8 +212,14 @@ class InviteVolunteersView(TemplateView):
 class ProjectCreatedView(TemplateView):
     template_name = 'project-created.html'
 
+class ViewProjectView(TemplateView):
+    template_name = 'view-project.html'
+
 class LiveDashboardView(TemplateView):
     template_name = 'live-dashboard.html'
+
+class RegistrationConfirmedView(TemplateView):
+    template_name = 'registration-confirmed.html'
 
 
 def create_project(request):
