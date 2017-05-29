@@ -2,7 +2,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.shortcuts import render, redirect
-from django.views.generic import View, ListView, TemplateView
+from django.views.generic import View, ListView, TemplateView, DetailView
 from django.views.generic.edit import FormView
 from django.contrib.auth.models import User
 from django.db import IntegrityError
@@ -221,15 +221,17 @@ class CreateProjectView(FormView, LoginRequiredMixin):
 class EditProjectView(TemplateView):
     template_name = 'edit-project.html'
 
+
 # TODO: prioritize view by projects which user was invited to
 class UpcomingProjectsView(ListView, LoginRequiredMixin):
     template_name = 'upcoming-projects.html'
-    context_object_name = 'projects'
+    context_object_name = 'events'
 
     def get_queryset(self):
         return Event.objects.filter(
             datetime_start__gte=datetime.now()
         )
+
 
 class ProjectDetailsView(TemplateView):
     template_name = 'project-details.html'
@@ -240,8 +242,12 @@ class InviteVolunteersView(TemplateView):
 class ProjectCreatedView(TemplateView):
     template_name = 'project-created.html'
 
-class ViewProjectView(TemplateView):
-    template_name = 'view-project.html'
+
+class EventDetailView(DetailView, LoginRequiredMixin):
+    model = Event
+    context_object_name = 'event'
+    template_name = 'event-detail.html'
+
 
 class LiveDashboardView(TemplateView):
     template_name = 'live-dashboard.html'

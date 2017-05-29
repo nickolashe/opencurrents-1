@@ -1,14 +1,15 @@
 {% load staticfiles %}
+{% load tags %}
 
 <!DOCTYPE html>
 <html>
   <head>
     {% include "head.html" %}
   </head>
-  
+
   <body>
     {% include "header.html" %}
-    
+
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
         {% if status_msg %}
@@ -16,16 +17,20 @@
           {{status_msg}}
         </div>
         {% endif %}
-        
+
         <div class="row">
-          <h4 class="title-sub">Let's clean up Lady Bird Lake!</h4>
-          <p>with <strong>Keep Austin Beautiful</strong></p>
+          <h4 class="title-sub">Let's {{ event.project.name }}</h4>
+          <p>with <strong>{{ event.project.org }}</strong> </p>
         </div>
-        
+
         <div class="row one-margin-bottom center">
           <div class="small-12 medium-8 small-centered columns">
-            <h6 class="no-margin-bottom">on June 10, 2017</h6>
-            <h6 class="one-margin-bottom">from 10:00am to 12:00pm</h6>
+            <h6 class="no-margin-bottom">
+              on {{ event.datetime_start|day }}
+            </h6>
+            <h6 class="one-margin-bottom">
+              from {{ event.datetime_start|time }} to {{ event.datetime_end|time }}
+            </h6>
           </div>
         </div>
 
@@ -42,7 +47,7 @@
         <div class="three-halves-margin-top row left">
           <div class="small-10 medium-6 small-centered columns">
             <h6 class="navy">Project description</h6>
-            <p class="grey">This is the description of the project. It tells volunteers what they need to know and what to bring in order to make a positive impact the day of the event.</p>
+            <p class="grey"> {{ event.description }}</p>
           </div>
         </div>
 
@@ -52,44 +57,44 @@
             <textarea placeholder="Ask a question, confirm your attendance, or just say hello" rows="4"></textarea>
 
             <div class="three-halves-margin-top center">
-              <button class="button round">Register</button>
+              <button type='submit' class="button round">Register</button>
             </div>
           </div>
         </div>
-        
+
         <div id="push"></div>
-    
+
       <!-- wrapper div-->
       </div>
-      
+
       {% include "footer.html" %}
-            
+
     <!--container div -->
     </div>
-    
+
     <div id="bottom-stripe" class="full-width"></div>
-    
+
     <div off-canvas="menu right shift" id="menu">
       {% include "menu.html" %}
     </div>
-  
+
     <div id="-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
         <h3 class="popup-title"></h3>
       </div>
-      
+
       <div class="row">
         <div class="small-centered medium-10 columns">
-          
+
           <p></p>
-          
+
           <button class="tax-id-popup_close button round">Okay</button>
           <a><button class="button round secondary"></button></a>
         </div>
       </div>
     </div>
-    
-    
+
+
     <script type="text/javascript">
       $(document).ready(function(){
         $('#').popup({
@@ -99,7 +104,7 @@
         });
       });
     </script>
-    
+
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
   </body>
 </html>

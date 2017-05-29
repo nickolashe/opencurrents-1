@@ -52,7 +52,7 @@ urlpatterns = [
 	url(r'^project-created$', views.ProjectCreatedView.as_view(), name='project-created'),
 	url(r'^live-dashboard$', views.LiveDashboardView.as_view(), name='live-dashboard'),
 	url(r'^upcoming-projects$', views.UpcomingProjectsView.as_view(), name='upcoming-projects'),
-	url(r'^view-project/(?P<id>\d+)/$', views.ViewProjectView.as_view(), name='view-project'),
+	url(r'^event-detail/(?P<pk>\d+)/$', views.EventDetailView.as_view(), name='event-detail'),
 	url(r'^registration-confirmed$', views.RegistrationConfirmedView.as_view(), name='registration-confirmed'),
 
 
