@@ -22,7 +22,8 @@ from openCurrents.forms import \
     UserLoginForm, \
     EmailVerificationForm, \
     OrgSignupForm, \
-    ProjectCreateForm
+    ProjectCreateForm, \
+    EventRegisterForm
 
 from datetime import datetime, timedelta
 
@@ -248,6 +249,12 @@ class EventDetailView(DetailView, LoginRequiredMixin):
     context_object_name = 'event'
     template_name = 'event-detail.html'
 
+    def get_context_data(self, **kwargs):
+        context = super(EventDetailView, self).get_context_data(**kwargs)
+        context['form'] = EventRegisterForm()
+
+        return context
+
 
 class LiveDashboardView(TemplateView):
     template_name = 'live-dashboard.html'
@@ -256,8 +263,8 @@ class RegistrationConfirmedView(TemplateView):
     template_name = 'registration-confirmed.html'
 
 
-def create_project(request):
-    form = ProjectCreateForm(request.POST)
+def event_register(request, pk):
+    form = EventRegisterForm(request.POST)
 
     # validate form data
     if form.is_valid():
@@ -272,7 +279,7 @@ def create_project(request):
 
         return render(
             request,
-            'openCurrents/create-project.html',
+            'openCurrents/event-detail.html',
             context
         )
 

@@ -18,52 +18,64 @@
         </div>
         {% endif %}
 
-        <div class="row">
-          <h4 class="title-sub">Let's {{ event.project.name }}</h4>
-          <p>with <strong>{{ event.project.org }}</strong> </p>
-        </div>
+        <form method="post" action="{% url 'openCurrents:event_register' event.id %}">
+          {% csrf_token %}
 
-        <div class="row one-margin-bottom center">
-          <div class="small-12 medium-8 small-centered columns">
-            <h6 class="no-margin-bottom">
-              on {{ event.datetime_start|day }}
-            </h6>
-            <h6 class="one-margin-bottom">
-              from {{ event.datetime_start|time }} to {{ event.datetime_end|time }}
-            </h6>
+          <div class="row">
+            <h4 class="title-sub">Let's {{ event.project.name }}</h4>
+            <p>with <strong>{{ event.project.org }}</strong> </p>
           </div>
-        </div>
 
-        <div class="row left">
-          <div class="small-10 medium-6 small-centered columns">
-            <h6 class="navy">Choose your location:</h6>
-
-            <label><input type="radio"/>(Location 1)</label>
-            <label><input type="radio"/>(Location 2)</label>
-            <label><input type="radio"/>(Location 3)</label>
-          </div>
-        </div>
-
-        <div class="three-halves-margin-top row left">
-          <div class="small-10 medium-6 small-centered columns">
-            <h6 class="navy">Project description</h6>
-            <p class="grey"> {{ event.description }}</p>
-          </div>
-        </div>
-
-        <div class="three-halves-margin-top row left">
-          <div class="small-10 medium-6 small-centered columns">
-            <h6 class="navy no-margin-bottom">Contact project coordinator (optional)</h6>
-            <textarea placeholder="Ask a question, confirm your attendance, or just say hello" rows="4"></textarea>
-
-            <div class="three-halves-margin-top center">
-              <button type='submit' class="button round">Register</button>
+          <div class="row one-margin-bottom center">
+            <div class="small-12 medium-8 small-centered columns">
+              <h6 class="no-margin-bottom">
+                on {{ event.datetime_start|day }}
+              </h6>
+              <h6 class="one-margin-bottom">
+                from {{ event.datetime_start|time }} to {{ event.datetime_end|time }}
+              </h6>
             </div>
           </div>
-        </div>
 
-        <div id="push"></div>
+          <div class="row left">
+            <div class="small-10 medium-6 small-centered columns">
+              <h6 class="navy">Location:</h6>
+              <p class="grey"> {{ event.location }} </p>
+              <!--
+              <label><input type="radio"/>(Location 1)</label>
+              <label><input type="radio"/>(Location 2)</label>
+              <label><input type="radio"/>(Location 3)</label>
+              -->
+            </div>
+          </div>
 
+          <div class="three-halves-margin-top row left">
+            <div class="small-10 medium-6 small-centered columns">
+              <h6 class="navy">Project description</h6>
+              <p class="grey"> {{ event.description }}</p>
+            </div>
+          </div>
+
+          <div class="three-halves-margin-top row left">
+            <div class="small-10 medium-6 small-centered columns">
+              <h6 class="navy no-margin-bottom">
+                {{ form.contact_message.label }}
+              </h6>
+              {{ form.contact_message }}
+              {% if form.contact_message.help_text %}
+                <p class="small-text grey no-margin-bottom">
+                  ({{ form.contact_message.help_text|safe }})
+                </p>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="three-halves-margin-top center">
+            <button type='submit' class="button round">Register</button>
+          </div>
+
+          <div id="push"></div>
+        </form>
       <!-- wrapper div-->
       </div>
 

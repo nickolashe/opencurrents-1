@@ -57,6 +57,7 @@ urlpatterns = [
 
 
     # functional views
+    url(r'^event_register/(?P<pk>\d+)/$', views.event_register, name='event_register'),    
     url(r'^process_login/$', views.process_login, name='process_login'),
     url(r'^process_logout/$', views.process_logout, name='process_logout'),
     url(r'^process_signup/(?P<referrer>[\w\.@\+\-]*)$', views.process_signup, name='process_signup'),

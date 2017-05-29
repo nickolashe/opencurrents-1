@@ -137,3 +137,13 @@ class ProjectCreateForm(forms.Form):
         )
 
         return cleaned_data
+
+# TODO: Add location to form
+class EventRegisterForm(forms.Form):
+    contact_message = forms.CharField(
+        label='Contact project coordinator (optional)',
+        help_text='Ask a question, confirm your attendance, or just say hello',
+        widget=forms.Textarea(attrs={
+            'rows': '4'
+        })
+    )
