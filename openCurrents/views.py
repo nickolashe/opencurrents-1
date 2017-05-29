@@ -179,6 +179,9 @@ class LiveDashboardView(TemplateView):
 class RegistrationConfirmedView(TemplateView):
     template_name = 'registration-confirmed.html'
 
+class AddVolunteersView(TemplateView):
+    template_name = 'add-volunteers.html'
+
 
 def process_signup(request, referrer):
     form = UserSignupForm(request.POST)
