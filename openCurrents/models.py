@@ -70,6 +70,22 @@ class Account(models.Model):
 class Project(models.Model):
     name = models.CharField(max_length=1024)
     org = models.ForeignKey(Org)
+
+    # created / updated timestamps
+    date_created = models.DateTimeField('date created', auto_now_add=True)
+    date_updated = models.DateTimeField('date updated', auto_now=True)
+
+    def __unicode__(self):
+        return ' '.join([
+            'Project',
+            self.name,
+            'by',
+            self.org.name
+        ])
+
+
+class Event(models.Model):
+    project = models.ForeignKey(Project)
     description = models.CharField(max_length=8192)
     location = models.CharField(max_length=1024)
 
@@ -87,11 +103,24 @@ class Project(models.Model):
 
     def __unicode__(self):
         return ' '.join([
-            'Project',
-            self.name,
+            'Event',
+            self.project.name,
             'by',
-            self.org.name
+            self.project.org.name,
+            'at',
+            self.location,
+            'on',
+            self.datetime_start.strftime('%b %d'),
+            'from',
+            self.datetime_start.strftime('%-I %p'),
+            'to',
+            self.datetime_end.strftime('%-I %p')
         ])
+
+
+class ProjectTemplate(models.Model):
+    user = models.ForeignKey(User)
+    event = models.ForeignKey(Event)
 
 
 class UserProjectRegistration(models.Model):

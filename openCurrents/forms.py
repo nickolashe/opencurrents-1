@@ -70,20 +70,45 @@ class OrgSignupForm(forms.Form):
 
 
 class ProjectCreateForm(forms.Form):
-    name = forms.CharField(
-        label='Let\'s...'
-    )
+    def __init__(self, *args, **kwargs):
+        orgid = kwargs.pop('orgid')
+        super(ProjectCreateForm, self).__init__(*args, **kwargs)
+
+        # project_id field
+        self.fields['project_id'] = forms.ChoiceField(
+            label='Let\'s',
+            choices=[
+                (project.id, project.name)
+                for project in Project.objects.filter(org__id=orgid)
+            ]
+        )
+
     description = forms.CharField(
-        label='Project description'
+        label='Project description',
+        help_text='What should volunteers know? What should they bring?'
     )
     date_start = forms.CharField(
-        label='on'
+        label='on',
+        widget=forms.TextInput(attrs={
+            'id': 'date_start',
+            'class': 'center'
+        })
     )
     time_start = forms.CharField(
-        label='from'
+        label='from',
+        widget=forms.TextInput(attrs={
+            'id': 'time_start',
+            'class': 'center',
+            'placeholder': '9:00 am'
+        })
     )
     time_end = forms.CharField(
-        label='to'
+        label='to',
+        widget=forms.TextInput(attrs={
+            'id': 'time_end',
+            'class': 'center',
+            'placeholder': '12:00 pm'
+        })
     )
     location = forms.CharField(
         label='at',
@@ -95,27 +120,20 @@ class ProjectCreateForm(forms.Form):
     coordinator_email = forms.CharField(
         widget=forms.TextInput(attrs={'placeholder': 'Coordinator Email'})
     )
-    orgid = forms.CharField()
 
     def clean(self):
         cleaned_data = super(ProjectCreateForm, self).clean()
-        logger.info(cleaned_data)
         date_start = cleaned_data['date_start']
         time_start = cleaned_data['time_start']
         time_end = cleaned_data['time_end']
-        #userid = cleaned_data['userid']
-        #orgid = OrgUser.objects.get(user__id=userid).org.id
-        logger.info('orgid: %s', cleaned_data['orgid'])
-        #cleaned_data['orgid'] = orgid
 
         cleaned_data['datetime_start'] = datetime.strptime(
             ' '.join([date_start, time_start]),
             '%Y-%m-%d %I:%M%p'
         )
         cleaned_data['datetime_end'] = datetime.strptime(
-            ' '.join([date_start, time_start]),
+            ' '.join([date_start, time_end]),
             '%Y-%m-%d %I:%M%p'
         )
 
-        logger.info('cleaned data: %s', cleaned_data)
         return cleaned_data

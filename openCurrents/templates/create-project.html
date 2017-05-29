@@ -45,12 +45,12 @@
 
           <div class="row one-margin-bottom">
             <div class="small-12 medium-6 small-centered columns">
-              {{ form.name.errors }}
-              <h6 class="fit-left navy">{{ form.name.label }}</h6>
-              <span class="input-sizer"> {{ form.name }} </span>
-              {% if form.name.help_text %}
+              {{ form.project_id.errors }}
+              <h6 class="fit-left navy">{{ form.project_id.label }}</h6>
+              <span class="input-sizer"> {{ form.project_id }} </span>
+              {% if form.project_id.help_text %}
                 <p class="small">
-                  ({{ form.name.help_text|safe }})
+                  ({{ form.project_id.help_text|safe }})
                 </p>
               {% endif %}
             </div>
@@ -58,10 +58,14 @@
 
           <div class="row one-margin-bottom">
             <div class="small-8 medium-4 small-centered columns">
-              <h6 class="fit-left navy">on</h6>
-              <span class="input-sizer">
-                <input name="date_start" id="date_start" class="center" type="text" placeholder="yyyy-mm-dd" value="2017-06-14" />
-              </span>
+              {{ form.date_start.errors }}
+              <h6 class="fit-left navy"> {{ form.date_start.label }} </h6>
+              <span class="input-sizer"> {{ form.date_start }} </span>
+              {% if form.date_start.help_text %}
+                <p class="small">
+                  ({{ form.date_start.help_text|safe }})
+                </p>
+              {% endif %}
             </div>
           </div>
 
@@ -69,17 +73,25 @@
             <div class="small-12 medium-6 small-centered columns">
               <div class="row">
                 <div class="input-left small-6 columns">
-                  <h6 class="fit-left navy"> from </h6>
-                  <span class="input-sizer">
-                    <input name="time_start" id="time_start" class="center" type="text" placeholder="9:00 am" value="9:00 am"/>
-                  </span>
+                  {{ form.time_start.errors }}
+                  <h6 class="fit-left navy"> {{ form.time_start.label }} </h6>
+                  <span class="input-sizer"> {{ form.time_start }} </span>
+                  {% if form.time_start.help_text %}
+                    <p class="small">
+                      ({{ form.time_start.help_text|safe }})
+                    </p>
+                  {% endif %}
                 </div>
 
                 <div class="input-right small-6 columns">
-                  <h6 class="fit-left navy"> to </h6>
-                  <span class="input-sizer">
-                    <input name="time_end" id="time_end" class="center" type="text" placeholder="12:00 pm" value="12:00 pm"/>
-                  </span>
+                  {{ form.time_end.errors }}
+                  <h6 class="fit-left navy"> {{ form.time_end.label }} </h6>
+                  <span class="input-sizer"> {{ form.time_end }} </span>
+                  {% if form.time_end.help_text %}
+                    <p class="small">
+                      ({{ form.time_end.help_text|safe }})
+                    </p>
+                  {% endif %}
                 </div>
               </div>
             </div>
@@ -99,10 +111,9 @@
             <div class="small-12 medium-6 small-centered columns">
               {{ form.description.errors }}
               <h6 class="navy no-margin-bottom">{{ form.description.label }}</h6>
-              <p class="small-text grey no-margin-bottom">What should volunteers know? What should they bring?</p>
               <span class="input-sizer"> {{ form.description }} </span>
               {% if form.description.help_text %}
-                <p class="small">
+                <p class="small-text grey no-margin-bottom">
                   ({{ form.description.help_text|safe }})
                 </p>
               {% endif %}
@@ -112,8 +123,6 @@
           <div class="one-margin-top row left">
             <div class="small-12 medium-6 small-centered columns">
               <h6 class="navy no-margin-bottom">Project coordinator</h6>
-              <p class="small-text grey">Who will respond to volunteers who register?</p>
-
               <div class="row">
                 <div class="input-left small-5 columns">
                   {{ form.coordinator_firstname.errors }}
@@ -125,6 +134,8 @@
                   {{ form.coordinator_email }}
                 </div>
               </div>
+              <p class="small-text grey">(Who will respond to volunteers who register?)</p>
+
             </div>
           </div>
 
@@ -141,12 +152,6 @@
                 <span class="input-sizer"><input name="project-max" id="project-max" class="center" type="text" placeholder="10" /></span>
               </div>
             </div> -->
-
-          <div class="row center">
-            <div class="small-centered small-8 medium-6 columns">
-              <input type='hidden' name='orgid' value='{{orgid}}'/>
-            </div>
-          </div>
 
           <div class="row center">
             <div class="small-centered small-8 medium-6 columns">

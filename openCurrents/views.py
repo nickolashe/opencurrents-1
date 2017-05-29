@@ -2,7 +2,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.shortcuts import render, redirect
-from django.views.generic import View, TemplateView
+from django.views.generic import View, ListView, TemplateView
 from django.views.generic.edit import FormView
 from django.contrib.auth.models import User
 from django.db import IntegrityError
@@ -13,7 +13,9 @@ from openCurrents.models import \
     Org, \
     OrgUser, \
     Token, \
-    Project
+    Project, \
+    Event, \
+    UserTimeLog
 
 from openCurrents.forms import \
     UserSignupForm, \
@@ -143,11 +145,39 @@ class VolunteeringView(TemplateView):
 class VolunteerRequestsView(TemplateView):
     template_name = 'volunteer-requests.html'
 
-class ProfileView(TemplateView):
+
+class ProfileView(TemplateView, LoginRequiredMixin):
     template_name = 'profile.html'
 
-class AdminProfileView(TemplateView):
+    def get_context_data(self, **kwargs):
+        context = super(ProfileView, self).get_context_data(**kwargs)
+        userid = self.request.user.id
+        context['user_balance'] = User.objects.get(id=userid).account.amount
+
+        return context
+
+
+class AdminProfileView(TemplateView, LoginRequiredMixin):
     template_name = 'admin-profile.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(AdminProfileView, self).get_context_data(**kwargs)
+        userid = self.request.user.id
+        org = OrgUser.objects.get(user__id=userid).org
+        verified_time = UserTimeLog.objects.filter(
+            project__org=org
+        ).filter(
+            is_verified=True
+        )
+        issued_total = sum(
+            (timelog.datetime_start - timelog.datetime_end).total_seconds() / 3600
+            for timelog in verified_time
+        )
+
+        context['user_balance'] = User.objects.get(id=userid).account.amount
+        context['issued_total'] = round(issued_total, 1)
+
+        return context
 
 class EditProfileView(TemplateView):
     template_name = 'edit-profile.html'
@@ -155,16 +185,8 @@ class EditProfileView(TemplateView):
 class BlogView(TemplateView):
     template_name = 'Blog.html'
 
-# class CreateProjectView(TemplateView):
-#     template_name = 'create-project.html'
-#
-#     def get_context_data(self, **kwargs):
-#         context = super(CreateProjectView, self).get_context_data(**kwargs)
-#         context['form'] = ProjectCreateForm()
-#
-#         return context
 
-class CreateProjectView(FormView):
+class CreateProjectView(FormView, LoginRequiredMixin):
     template_name = 'create-project.html'
     form_class = ProjectCreateForm
     success_url = '/project-created/'
@@ -172,36 +194,42 @@ class CreateProjectView(FormView):
     def form_valid(self, form):
         # This method is called when valid form data has been POSTed.
         # It should return an HttpResponse.
-        # logger.info(form)
         data = form.cleaned_data
-        org = Org.objects.get(id=data['orgid'])
-        project = Project(
-            name=data['name'],
-            org=org,
+        event = Event(
+            project=Project.objects.get(id=data['project_id']),
             description=data['description'],
             location=data['location'],
             datetime_start=data['datetime_start'],
             datetime_end=data['datetime_end'],
             coordinator_firstname=data['coordinator_firstname'],
             coordinator_email=data['coordinator_email'],
-
         )
-        project.save()
+        event.save()
 
         return redirect('openCurrents:project-created')
 
-    def get_context_data(self, **kwargs):
-        context = super(CreateProjectView, self).get_context_data(**kwargs)
-        userid = self.request.user.id
-        context['orgid'] = OrgUser.objects.get(user__id=userid).org.id
 
-        return context
+    def get_form_kwargs(self):
+        """
+        Returns the keyword arguments for instantiating the form.
+        """
+        kwargs = super(CreateProjectView, self).get_form_kwargs()
+        kwargs.update({'orgid': self.kwargs['orgid']})
+        return kwargs
+
 
 class EditProjectView(TemplateView):
     template_name = 'edit-project.html'
 
-class UpcomingProjectsView(TemplateView):
+# TODO: prioritize view by projects which user was invited to
+class UpcomingProjectsView(ListView, LoginRequiredMixin):
     template_name = 'upcoming-projects.html'
+    context_object_name = 'projects'
+
+    def get_queryset(self):
+        return Event.objects.filter(
+            datetime_start__gte=datetime.now()
+        )
 
 class ProjectDetailsView(TemplateView):
     template_name = 'project-details.html'

@@ -45,14 +45,14 @@ urlpatterns = [
 	url(r'^admin-profile$', views.AdminProfileView.as_view(), name='admin-profile'),
 	url(r'^edit-profile$', views.EditProfileView.as_view(), name='edit-profile'),
 	url(r'^blog$', views.BlogView.as_view(), name='blog'),
-	url(r'^create-project$', views.CreateProjectView.as_view(), name='create-project'),
+	url(r'^create-project/(?P<orgid>\d+)/$', views.CreateProjectView.as_view(), name='create-project'),
 	url(r'^edit-project$', views.EditProjectView.as_view(), name='edit-project'),
 	url(r'^project-details$', views.ProjectDetailsView.as_view(), name='project-details'),
 	url(r'^invite-volunteers$', views.InviteVolunteersView.as_view(), name='invite-volunteers'),
 	url(r'^project-created$', views.ProjectCreatedView.as_view(), name='project-created'),
 	url(r'^live-dashboard$', views.LiveDashboardView.as_view(), name='live-dashboard'),
 	url(r'^upcoming-projects$', views.UpcomingProjectsView.as_view(), name='upcoming-projects'),
-	url(r'^view-project$', views.ViewProjectView.as_view(), name='view-project'),
+	url(r'^view-project/(?P<id>\d+)/$', views.ViewProjectView.as_view(), name='view-project'),
 	url(r'^registration-confirmed$', views.RegistrationConfirmedView.as_view(), name='registration-confirmed'),
 
 
