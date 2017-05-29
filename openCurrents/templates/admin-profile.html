@@ -17,8 +17,13 @@
             <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="round" /> -->
             <h4 class="title-sub">Linda McCoy</h4>
             <h6 class="three-halves-margin-bottom">Keep Austin Beautiful</h6>
+<<<<<<< HEAD
+            
+            <div class="one-margin-bottom medium-5 medium-offset-1 columns">
+=======
 
             <div class="medium-5 medium-offset-1 columns">
+>>>>>>> 27203255ba464db9e41934e2bc6c7cc7577e65e8
               <h6 class="inline">My Currents: </h6>
               <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
               <h6 class="inline"> {{ user_balance }}</h6>
@@ -30,8 +35,8 @@
             </div>
 
             <div class="medium-5 columns end">
-              <h6 class="inline">Currents issued:</h6>
-              <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
+              <h6 class="inline">Hours tracked:</h6>
+              <!-- <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>-->
               <h6 class="inline"> {{ issued_total }}</h6>
               <div class="qtr-margin-top">
                 <a href="{% url 'openCurrents:create-project' %}">
@@ -57,7 +62,7 @@
               </div>
 
               <div class="right small-4 columns">
-                <button class="button round small secondary">Live dashboard</button>
+                <button class="button round small secondary">Start</button>
               </div>
             </div>
           </div>

@@ -427,6 +427,14 @@ label {
   color: #24b2e7;
 }
 
+.blue-icon {
+  color: #24b2e7;
+}
+
+.blue-icon:hover {
+  color: #1f4975;
+}
+
 .navy {
   color: #1f4975;
 }
@@ -1363,4 +1371,10 @@ i:hover ~ .addtocalendar {
   border-bottom: 1px solid #cccccc;
   overflow: hidden;
   text-align: left;
+}
+
+/* live-dashboard */
+
+input[type="checkbox"] + label.vol-arrived {
+  margin-left: 0;
 }

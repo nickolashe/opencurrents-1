@@ -262,6 +262,9 @@ class LiveDashboardView(TemplateView):
 class RegistrationConfirmedView(TemplateView):
     template_name = 'registration-confirmed.html'
 
+class AddVolunteersView(TemplateView):
+    template_name = 'add-volunteers.html'
+
 
 def event_register(request, pk):
     form = EventRegisterForm(request.POST)

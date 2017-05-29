@@ -54,6 +54,7 @@ urlpatterns = [
 	url(r'^upcoming-projects$', views.UpcomingProjectsView.as_view(), name='upcoming-projects'),
 	url(r'^event-detail/(?P<pk>\d+)/$', views.EventDetailView.as_view(), name='event-detail'),
 	url(r'^registration-confirmed$', views.RegistrationConfirmedView.as_view(), name='registration-confirmed'),
+	url(r'^add-volunteers$', views.AddVolunteersView.as_view(), name='add-volunteers'),
 
 
     # functional views
