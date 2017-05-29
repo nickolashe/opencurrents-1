@@ -123,9 +123,9 @@ class ProjectTemplate(models.Model):
     event = models.ForeignKey(Event)
 
 
-class UserProjectRegistration(models.Model):
+class UserEventRegistration(models.Model):
     user = models.ForeignKey(User)
-    project = models.ForeignKey(Project)
+    event = models.ForeignKey(Event)
     is_confirmed = models.BooleanField(default=False)
 
     # created / updated timestamps

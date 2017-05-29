@@ -15,6 +15,7 @@ from openCurrents.models import \
     Token, \
     Project, \
     Event, \
+    UserEventRegistration, \
     UserTimeLog
 
 from openCurrents.forms import \
@@ -177,6 +178,7 @@ class AdminProfileView(TemplateView, LoginRequiredMixin):
 
         context['user_balance'] = User.objects.get(id=userid).account.amount
         context['issued_total'] = round(issued_total, 1)
+        context['orgid'] = org.id
 
         return context
 
@@ -259,8 +261,12 @@ class EventDetailView(DetailView, LoginRequiredMixin):
 class LiveDashboardView(TemplateView):
     template_name = 'live-dashboard.html'
 
-class RegistrationConfirmedView(TemplateView):
+
+class RegistrationConfirmedView(DetailView, LoginRequiredMixin):
+    model = Event
+    context_object_name = 'event'
     template_name = 'registration-confirmed.html'
+
 
 class AddVolunteersView(TemplateView):
     template_name = 'add-volunteers.html'
@@ -271,7 +277,17 @@ def event_register(request, pk):
 
     # validate form data
     if form.is_valid():
-        pass
+        user = request.user
+        event = Event.objects.get(id=pk)
+        user_event_registration = UserEventRegistration(
+            user=user,
+            event=event,
+            is_confirmed=True
+        )
+        user_event_registration.save()
+        logger.info('User %s registered for event %s', user.username, event.id)
+
+        return redirect('openCurrents:registration-confirmed', event.id)
     else:
         logger.error('Invalid form: %s', form.errors.as_data())
 

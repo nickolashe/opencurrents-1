@@ -53,12 +53,12 @@ urlpatterns = [
 	url(r'^live-dashboard$', views.LiveDashboardView.as_view(), name='live-dashboard'),
 	url(r'^upcoming-projects$', views.UpcomingProjectsView.as_view(), name='upcoming-projects'),
 	url(r'^event-detail/(?P<pk>\d+)/$', views.EventDetailView.as_view(), name='event-detail'),
-	url(r'^registration-confirmed$', views.RegistrationConfirmedView.as_view(), name='registration-confirmed'),
+	url(r'^registration-confirmed/(?P<pk>\d+)/$', views.RegistrationConfirmedView.as_view(), name='registration-confirmed'),
 	url(r'^add-volunteers$', views.AddVolunteersView.as_view(), name='add-volunteers'),
 
 
     # functional views
-    url(r'^event_register/(?P<pk>\d+)/$', views.event_register, name='event_register'),    
+    url(r'^event_register/(?P<pk>\d+)/$', views.event_register, name='event_register'),
     url(r'^process_login/$', views.process_login, name='process_login'),
     url(r'^process_logout/$', views.process_logout, name='process_logout'),
     url(r'^process_signup/(?P<referrer>[\w\.@\+\-]*)$', views.process_signup, name='process_signup'),
