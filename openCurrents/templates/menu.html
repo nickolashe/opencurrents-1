@@ -1,7 +1,12 @@
 {% if request.user.is_authenticated %}
   <a class="list-group-item" href="{% url 'openCurrents:user-home' %}">
     <i class="half-margin-right fa-fw fa fa-user"></i>
-    My account
+    Home
+  </a>
+
+  <a class="list-group-item" href="{% url 'openCurrents:profile' %}">
+    <i class="half-margin-right fa-fw fa fa-heartbeat"></i>
+    Profile
   </a>
 
 <!--  <a class="list-group-item" href="{% url 'openCurrents:give-currents' %}">

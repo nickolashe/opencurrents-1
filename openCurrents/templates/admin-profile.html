@@ -5,34 +5,43 @@
   <head>
     {% include "head.html" %}
   </head>
-  
+
   <body>
     {% include "header.html" %}
-    
+
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
         <div class="row center">
-          
+
           <!--<div class="medium-5 medium-offset-1 columns">
             <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="round" /> -->
             <h4 class="title-sub">Linda McCoy</h4>
             <h6 class="three-halves-margin-bottom">Keep Austin Beautiful</h6>
+<<<<<<< HEAD
             
             <div class="one-margin-bottom medium-5 medium-offset-1 columns">
+=======
+
+            <div class="medium-5 medium-offset-1 columns">
+>>>>>>> 27203255ba464db9e41934e2bc6c7cc7577e65e8
               <h6 class="inline">My Currents: </h6>
               <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
-              <h6 class="inline">0</h6>
+              <h6 class="inline"> {{ user_balance }}</h6>
               <div class="qtr-margin-top">
-                <button class="button small round">Earn Currents</button>
+                <a href="{% url 'openCurrents:upcoming-projects' %}">
+                  <button class="button small round">Earn Currents</button>
+                </a>
               </div>
             </div>
 
             <div class="medium-5 columns end">
               <h6 class="inline">Hours tracked:</h6>
               <!-- <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>-->
-              <h6 class="inline">0</h6>
+              <h6 class="inline"> {{ issued_total }}</h6>
               <div class="qtr-margin-top">
-                <button class="button small round">Create project</button>
+                <a href="{% url 'openCurrents:create-project' %}">
+                  <button class="button small round">Create project</button>
+                </a>
               </div>
             </div>
 
@@ -104,7 +113,7 @@
               </div>
 
               <div class="feed-item">
-                <strong>Keep Austin Beautiful</strong> issued 2 Currents to <strong>Jacob Jacobs</strong>. 
+                <strong>Keep Austin Beautiful</strong> issued 2 Currents to <strong>Jacob Jacobs</strong>.
               </div>
             </div>
 
@@ -127,40 +136,40 @@
             -->
           </div>
         </div>
-        
+
         <div id="push"></div>
-    
+
       <!-- wrapper div-->
       </div>
-      
+
       {% include "footer.html" %}
-            
+
     <!--container div -->
     </div>
-    
+
     <div id="bottom-stripe" class="full-width"></div>
-    
+
     <div off-canvas="menu right shift" id="menu">
       {% include "menu.html" %}
     </div>
-  
+
     <div id="-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
         <h3 class="popup-title"></h3>
       </div>
-      
+
       <div class="row">
         <div class="small-centered medium-10 columns">
-          
+
           <p></p>
-          
+
           <button class="tax-id-popup_close button round">Okay</button>
           <a><button class="button round secondary"></button></a>
         </div>
       </div>
     </div>
-    
-    
+
+
     <script type="text/javascript">
       $(document).ready(function(){
         $('#').popup({
@@ -170,7 +179,7 @@
         });
       });
     </script>
-    
+
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
   </body>
 </html>
