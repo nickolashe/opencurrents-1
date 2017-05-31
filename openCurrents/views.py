@@ -24,6 +24,7 @@ from openCurrents.forms import \
     EmailVerificationForm, \
     OrgSignupForm, \
     ProjectCreateForm, \
+    LiveDashboardForm, \
     EventRegisterForm
 
 from datetime import datetime, timedelta
@@ -223,6 +224,34 @@ class CreateProjectView(FormView, LoginRequiredMixin):
 
 class EditProjectView(TemplateView):
     template_name = 'edit-project.html'
+
+# dp
+class LiveDashboardView(FormView, LoginRequiredMixin):
+    template_name = 'live-dashboard.html'
+    form_class = LiveDashboardForm
+    success_url = '/live-dashboard/'
+
+    def form_valid(self, form):
+        # This method is called when valid form data has been POSTed.
+        # It should return an HttpResponse.
+        data = form.cleaned_data
+        event = Event(
+            first_name=data['first_name'],
+            email=data['email'],
+        )
+        event.save()
+
+        return # redirect('openCurrents:project-created')
+
+
+    def get_form_kwargs(self):
+        """
+        Returns the keyword arguments for instantiating the form.
+        """
+        kwargs = super(LiveDashboardView, self).get_form_kwargs()
+        kwargs.update({'orgid': self.kwargs['orgid']})
+        return kwargs
+
 
 
 # TODO: prioritize view by projects which user was invited to

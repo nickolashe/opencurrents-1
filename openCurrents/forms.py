@@ -85,7 +85,10 @@ class ProjectCreateForm(forms.Form):
 
     description = forms.CharField(
         label='Project description',
-        help_text='What should volunteers know? What should they bring?'
+        help_text='What should volunteers know? What should they bring?',
+        widget=forms.Textarea(attrs={
+            'rows': '3'
+        })
     )
     date_start = forms.CharField(
         label='on',
@@ -112,13 +115,17 @@ class ProjectCreateForm(forms.Form):
     )
     location = forms.CharField(
         label='at',
-        widget=forms.TextInput(attrs={'id': 'project-location'})
+        widget=forms.TextInput(attrs={
+            'class': 'location center',
+            'name': 'location-[]',
+            'placeholder': 'location'
+        })
     )
     coordinator_firstname = forms.CharField(
-        widget=forms.TextInput(attrs={'placeholder': 'Coordinator Firstname'})
+        widget=forms.TextInput(attrs={'placeholder': 'First name'})
     )
     coordinator_email = forms.CharField(
-        widget=forms.TextInput(attrs={'placeholder': 'Coordinator Email'})
+        widget=forms.TextInput(attrs={'placeholder': 'Email'})
     )
 
     def clean(self):
@@ -137,6 +144,30 @@ class ProjectCreateForm(forms.Form):
         )
 
         return cleaned_data
+
+# dp
+class LiveDashboardForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        orgid = kwargs.pop('orgid')
+        super(LiveDashboardForm, self).__init__(*args, **kwargs)
+
+    first_name = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'placeholder': 'First name',
+            'id': 'add-volunteer-name-[]',
+            'name': 'add-volunteer-name-[]',
+        })
+    )
+
+    email = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Email',
+            'id': 'add-volunteer-email-[]',
+            'name': 'add-volunteer-email-[]',
+        })
+    )
+
+
 
 # TODO: Add location to form
 class EventRegisterForm(forms.Form):

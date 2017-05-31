@@ -1378,3 +1378,7 @@ i:hover ~ .addtocalendar {
 input[type="checkbox"] + label.vol-arrived {
   margin-left: 0;
 }
+
+.pac-container {
+  z-index: 100002;
+}
