@@ -1,4 +1,5 @@
 {% load staticfiles %}
+{% load tags %}
 
 <!DOCTYPE html>
 <html>
@@ -47,49 +48,59 @@
           </div>-->
         </div>
 
-        <div id="live-project-list" class="row one-margin-top">
-          <div class="medium-8 small-centered columns">
-            <h6 class="half-margin-bottom">Projects happening now (if any)</h6>
+        {% if events_current %}
+          <div id="live-project-list" class="row one-margin-top">
+            <div class="medium-8 small-centered columns">
+              <h6 class="half-margin-bottom">Projects happening now</h6>
 
-            <div class="row one-margin-top one-margin-bottom">
-              <div class="left small-8 columns">
-                <strong>Let's install a rain garden!</strong> on May 27 at 9:00am to 12:00pm at 1203 Springdale Rd
-              </div>
+              {% for event in events_current %}
+                <div class="row one-margin-top one-margin-bottom">
+                  <div class="left small-8 columns">
+                    <strong> {{event.project.name}} </strong>
+                    on {{event.datetime_start|day}}
+                    at {{event.datetime_start|time}}
+                    to {{event.datetime_end|time}}
+                    at {{event.location}}
+                  </div>
 
-              <div class="right small-4 columns">
-                <button class="button round small secondary">Start</button>
-              </div>
+                  <div class="right small-4 columns">
+                    <a href="{% url 'openCurrents:live-dashboard' event.id %}"/>
+                      <button class="button round small secondary">Start</button>
+                    </a>
+                  </div>
+                </div>
+              {% endfor %}
             </div>
           </div>
-        </div>
+        {% endif %}
 
-        <div id="project-list" class="row one-margin-top">
-          <div class="medium-8 small-centered columns">
-            <h6 class="half-margin-bottom">Our upcoming projects</h6>
-            <button class="button round small secondary">Preview live dashboard</button> (if no live projects)
+        {% if events_upcoming %}
+          <div id="project-list" class="row one-margin-top">
+            <div class="medium-8 small-centered columns">
+              <h6 class="half-margin-bottom">Our upcoming projects</h6>
+              {% if not events_current %}
+                <button class="button round small secondary">Preview live dashboard</button> (if no live projects)
+              {% endif %}
 
-            <div class="row one-margin-bottom">
-              <div class="left small-9 columns">
-                <strong>Let's restore Bunn Creek Nature Preserve!</strong> on June 3 at 8:30am to 12:00pm at 1200 St. Edwards Drive
-              </div>
+              {% for event in events_upcoming %}
+                <div class="row one-margin-bottom">
+                  <div class="left small-9 columns">
+                    <strong> {{event.project.name}} </strong>
+                    on {{event.datetime_start|day}}
+                    at {{event.datetime_start|time}}
+                    to {{event.datetime_end|time}}
+                    at {{event.location}}
+                  </div>
 
-              <div class="right small-3 columns">
-                <button class="button round small secondary">Edit</button>
-              </div>
+                  <div class="right small-3 columns">
+                    <button class="button round small secondary">Edit</button>
+                  </div>
+                </div>
+              {% endfor %}
+
             </div>
-
-            <div class="row one-margin-bottom">
-              <div class="left small-9 columns">
-                <strong>Let's clean up Lady Bird Lake!</strong> on June 10 at 10:00am at multiple locations
-              </div>
-
-              <div class="right small-3 columns">
-                <button class="button round small secondary">Edit</button>
-              </div>
-            </div>
-
           </div>
-        </div>
+        {% endif %}
 
         <div class="row one-margin-bottom">
           <div class="left medium-8 small-centered columns">

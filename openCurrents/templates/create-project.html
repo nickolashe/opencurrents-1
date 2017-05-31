@@ -162,7 +162,7 @@
           </div>
         </form>
 
-        <div id="push"></div>
+        <div id="location_arr"></div>
 
       <!-- wrapper div-->
       </div>
@@ -205,6 +205,18 @@
     </script>
 
     <script type="text/javascript">
+      function initAutoComplete() {
+
+        var inputs = document.getElementsByClassName("location");
+
+        for (var i = 0; i < inputs.length; i++) {
+          var autocomplete = new google.maps.places.Autocomplete(inputs[i]);
+          // autocomplete.inputId = inputs[i].id;
+
+          google.maps.event.addListener(autocomplete);
+        }
+      }
+
       var id = 1;
 
       $('#add-location').click(function(){
@@ -212,28 +224,15 @@
 
         $('#location-box').append('<div id="location-'+id+'" class="relative hidden"><h6 class="fit-left navy">&</h6><span class="input-sizer">{{form.location}}</span><i class="remove-location fa fa-times-circle"></i></div>');
         $('#location-'+id+'').slideDown();
+        initAutoComplete()
       });
 
       $('#location-box').on('click', 'i', function(){
         $(this).parent('div').slideUp();
       });
-    </script>
 
-    <script type="text/javascript">
       $(document).ready(function(){
-        function initialize() {
-
-          var inputs = document.getElementsByClassName("location");
-
-          for (var i = 0; i < inputs.length; i++) {
-            var autocomplete = new google.maps.places.Autocomplete(inputs[i]);
-            // autocomplete.inputId = inputs[i].id;
-
-            google.maps.event.addListener(autocomplete);
-          }
-        }
-
-        initialize();
+        initAutoComplete();
       });
     </script>
 

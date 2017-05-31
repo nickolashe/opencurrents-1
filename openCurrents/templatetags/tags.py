@@ -10,4 +10,4 @@ def day(val):
 
 @register.filter
 def time(val):
-    return val.strftime('%-I %p')
+    return val.strftime('%-I:%m %p')

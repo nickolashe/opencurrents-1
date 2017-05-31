@@ -14,6 +14,18 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
+class NotValidatedMultipleChoiceField(forms.TypedMultipleChoiceField):
+    """Field that do not validate if the field values are in self.choices"""
+
+    def to_python(self, value):
+        """Override checking method"""
+        return map(self.coerce, value)
+
+    def validate(self, value):
+        """Nothing to do here"""
+        pass
+
+
 class UserSignupForm(forms.Form):
     user_firstname = forms.CharField()
     user_lastname = forms.CharField()
@@ -117,10 +129,16 @@ class ProjectCreateForm(forms.Form):
         label='at',
         widget=forms.TextInput(attrs={
             'class': 'location center',
-            'name': 'location-[]',
             'placeholder': 'location'
         })
     )
+    # location = NotValidatedMultipleChoiceField(
+    #     label='at',
+    #     widget=forms.SelectMultiple(attrs={
+    #         'class': 'location center',
+    #         'placeholder': 'location'
+    #     })
+    # )
     coordinator_firstname = forms.CharField(
         widget=forms.TextInput(attrs={'placeholder': 'First name'})
     )
