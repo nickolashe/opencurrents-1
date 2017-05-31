@@ -117,7 +117,7 @@ class ProjectCreateForm(forms.Form):
         label='at',
         widget=forms.TextInput(attrs={
             'class': 'location center',
-            'name': 'location-[]',
+            'name': 'location[]',
             'placeholder': 'location'
         })
     )
