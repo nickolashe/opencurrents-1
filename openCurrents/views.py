@@ -180,6 +180,14 @@ class AdminProfileView(TemplateView, LoginRequiredMixin):
         context['user_balance'] = User.objects.get(id=userid).account.amount
         context['issued_total'] = round(issued_total, 1)
         context['orgid'] = org.id
+        context['events_current'] = Event.objects.filter(
+            datetime_start__lte=datetime.now()
+        ).filter(
+            datetime_end__gte=datetime.now()
+        )
+        context['events_upcoming'] = Event.objects.filter(
+            datetime_start__gte=datetime.now()
+        )
 
         return context
 
@@ -225,34 +233,6 @@ class CreateProjectView(FormView, LoginRequiredMixin):
 class EditProjectView(TemplateView):
     template_name = 'edit-project.html'
 
-# dp
-class LiveDashboardView(FormView, LoginRequiredMixin):
-    template_name = 'live-dashboard.html'
-    form_class = LiveDashboardForm
-    success_url = '/live-dashboard/'
-
-    def form_valid(self, form):
-        # This method is called when valid form data has been POSTed.
-        # It should return an HttpResponse.
-        data = form.cleaned_data
-        event = Event(
-            first_name=data['first_name'],
-            email=data['email'],
-        )
-        event.save()
-
-        return # redirect('openCurrents:project-created')
-
-
-    def get_form_kwargs(self):
-        """
-        Returns the keyword arguments for instantiating the form.
-        """
-        kwargs = super(LiveDashboardView, self).get_form_kwargs()
-        kwargs.update({'orgid': self.kwargs['orgid']})
-        return kwargs
-
-
 
 # TODO: prioritize view by projects which user was invited to
 class UpcomingProjectsView(ListView, LoginRequiredMixin):
@@ -261,7 +241,7 @@ class UpcomingProjectsView(ListView, LoginRequiredMixin):
 
     def get_queryset(self):
         return Event.objects.filter(
-            datetime_start__gte=datetime.now()
+            datetime_end__gte=datetime.now()
         )
 
 
@@ -287,8 +267,21 @@ class EventDetailView(DetailView, LoginRequiredMixin):
         return context
 
 
-class LiveDashboardView(TemplateView):
+class LiveDashboardView(TemplateView, LoginRequiredMixin):
     template_name = 'live-dashboard.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(LiveDashboardView, self).get_context_data(**kwargs)
+        event_id = kwargs.pop('id')
+        user_regs = UserEventRegistration.objects.filter(event__id=event_id)
+        context['users'] = sorted(
+            set([
+                user_reg.user for user_reg in user_regs
+            ]),
+            key=lambda u: u.last_name
+        )
+
+        return context
 
 
 class RegistrationConfirmedView(DetailView, LoginRequiredMixin):
