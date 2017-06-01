@@ -50,7 +50,7 @@ urlpatterns = [
 	url(r'^project-details$', views.ProjectDetailsView.as_view(), name='project-details'),
 	url(r'^invite-volunteers$', views.InviteVolunteersView.as_view(), name='invite-volunteers'),
 	url(r'^project-created$', views.ProjectCreatedView.as_view(), name='project-created'),
-	url(r'^live-dashboard/(?P<id>\d+)/$', views.LiveDashboardView.as_view(), name='live-dashboard'),
+	url(r'^live-dashboard/(?P<event_id>\d+)/$', views.LiveDashboardView.as_view(), name='live-dashboard'),
 	url(r'^upcoming-projects$', views.UpcomingProjectsView.as_view(), name='upcoming-projects'),
 	url(r'^event-detail/(?P<pk>\d+)/$', views.EventDetailView.as_view(), name='event-detail'),
 	url(r'^registration-confirmed/(?P<pk>\d+)/$', views.RegistrationConfirmedView.as_view(), name='registration-confirmed'),
@@ -59,6 +59,7 @@ urlpatterns = [
 
     # functional views
     url(r'^event_register/(?P<pk>\d+)/$', views.event_register, name='event_register'),
+    url(r'^event_checkin/(?P<pk>\d+)/$', views.event_checkin, name='event_checkin'),
     url(r'^process_login/$', views.process_login, name='process_login'),
     url(r'^process_logout/$', views.process_logout, name='process_logout'),
     url(r'^process_signup/(?P<referrer>[\w\.@\+\-]*)$', views.process_signup, name='process_signup'),

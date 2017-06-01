@@ -6,6 +6,7 @@ from django.views.generic import View, ListView, TemplateView, DetailView
 from django.views.generic.edit import FormView
 from django.contrib.auth.models import User
 from django.db import IntegrityError
+from django.http import HttpResponse
 
 from openCurrents import config
 from openCurrents.models import \
@@ -25,7 +26,8 @@ from openCurrents.forms import \
     OrgSignupForm, \
     ProjectCreateForm, \
     LiveDashboardForm, \
-    EventRegisterForm
+    EventRegisterForm, \
+    EventCheckinForm
 
 from datetime import datetime, timedelta
 
@@ -280,7 +282,7 @@ class LiveDashboardView(TemplateView, LoginRequiredMixin):
 
     def get_context_data(self, **kwargs):
         context = super(LiveDashboardView, self).get_context_data(**kwargs)
-        event_id = kwargs.pop('id')
+        event_id = kwargs.pop('event_id')
         user_regs = UserEventRegistration.objects.filter(event__id=event_id)
         context['users'] = sorted(
             set([
@@ -300,6 +302,80 @@ class RegistrationConfirmedView(DetailView, LoginRequiredMixin):
 
 class AddVolunteersView(TemplateView):
     template_name = 'add-volunteers.html'
+
+
+def event_checkin(request, pk):
+    form = EventCheckinForm(request.POST)
+
+    # validate form data
+    if form.is_valid():
+        data = form.cleaned_data
+        userid = data['userid']
+        checkin = data['checkin']
+
+        event = None
+        try:
+            event = Event.objects.get(id=pk)
+        except:
+            logger.error(
+                'Checkin attempted for non-existent event, userid: %s',
+                request.user.id
+            )
+
+            context = {
+                'errors': 'Checkin attempted for non-existent event'
+            }
+
+            return HttpResponse(status=404)
+
+        clogger = logger.getChild(
+            'user %s; event %s' % (userid, event.project.name)
+        )
+
+        if checkin:
+            usertimelog = UserTimeLog(
+                user=User.objects.get(id=userid),
+                event=event,
+                datetime_start=datetime.now()
+            )
+            usertimelog.save()
+            clogger.info(
+                'at %s: checkin',
+                str(usertimelog.datetime_start)
+            )
+            return HttpResponse(status=201)
+        else:
+            usertimelog = UserTimeLog.filter(
+                event__id=pk
+            ).filter(
+                user__id=userid
+            ).latest()
+
+            if usertimelog and not usertimelog.datetime_end:
+                clogger.info(
+                    'at %s: checkout',
+                    str(usertimelog.datetime_end)
+                )
+                usertimelog.datetime_end = datetime.now()
+                usertimelog.save()
+                return HttpResponse(status=201)
+            else:
+                clogger.error('invalid checkout (not checked in)')
+                return HttpResponse(status=400)
+
+    else:
+        logger.error('Invalid form: %s', form.errors.as_data())
+
+        context = {
+            'form': form,
+            'errors': form.errors.as_data().values()[0][0]
+        }
+
+        return render(
+            request,
+            'openCurrents/live-dashboard.html',
+            context
+        )
 
 
 def event_register(request, pk):

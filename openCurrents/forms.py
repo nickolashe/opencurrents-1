@@ -181,7 +181,6 @@ class LiveDashboardForm(forms.Form):
     )
 
 
-
 # TODO: Add location to form
 class EventRegisterForm(forms.Form):
     contact_message = forms.CharField(
@@ -193,3 +192,8 @@ class EventRegisterForm(forms.Form):
         }),
         max_length=16384
     )
+
+
+class EventCheckinForm(forms.Form):
+    userid = forms.IntegerField()
+    checkin = forms.BooleanField()

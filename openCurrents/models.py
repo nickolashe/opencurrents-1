@@ -101,6 +101,9 @@ class Event(models.Model):
     date_created = models.DateTimeField('date created', auto_now_add=True)
     date_updated = models.DateTimeField('date updated', auto_now=True)
 
+    class Meta:
+        get_latest_by = 'datetime_start'
+
     def __unicode__(self):
         return ' '.join([
             'Event',
@@ -142,12 +145,12 @@ class UserEventRegistration(models.Model):
 
 class UserTimeLog(models.Model):
     user = models.ForeignKey(User)
-    project = models.ForeignKey(Project)
-    is_verified = models.BooleanField(default=False)
+    event = models.ForeignKey(Event)
+    is_verified = models.BooleanField(default=True)
 
     # start / end timestamps of the contributed time
-    date_start = models.DateTimeField('start time')
-    date_end = models.DateTimeField('end time')
+    datetime_start = models.DateTimeField('start time')
+    datetime_end = models.DateTimeField('end time', null=True)
 
     # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)
@@ -157,7 +160,7 @@ class UserTimeLog(models.Model):
         return ' '.join([
             self.user.username,
             'contributed time at',
-            self.project.name,
+            self.event.project.name,
             'from',
             str(self.date_start),
             'to',

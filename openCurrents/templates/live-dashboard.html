@@ -24,61 +24,64 @@
             <p>Keep Austin Beautiful</p>
         </div>
 
-        <div class="row one-margin-bottom center">
-          <div id="new-volunteers" class="small-12 medium-8 small-centered columns">
-            <h6 class="half-margin-top one-margin-bottom left">Add volunteers</h6>
+        <form method="post">
+          {% csrf_token %}
 
-            <div class="row">
-              <div class="input-left small-5 columns">
-                {{ form.first_name }}
-              </div>
+          <div class="row one-margin-bottom center">
+            <div id="new-volunteers" class="small-12 medium-8 small-centered columns">
+              <h6 class="half-margin-top one-margin-bottom left">Add volunteers</h6>
 
-              <div class="input-middle small-5 medium-6 columns">
-                {{ form.email }}
-              </div>
-
-              <div class="input-right half-margin-top left small-2 medium-1 columns">
-                <a id="add-volunteer" class="blue-icon one-margin-right"><i class="fa fa-lg fa-check-circle"></i></a>
-              </div>
-            </div>
-
-            <p id="vol-error" class="small-text hidden alert">Name and email required</p>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="small-12 medium-8 small-centered columns">
-            <h6 class="left half-margin-top half-margin-bottom">Registered volunteers</h6>
-
-            <div class="row">
-              <div class="left small-7 medium-8 columns">
-                <p class="small-text half-margin-top half-margin-bottom"><strong>Name</strong></p>
-              </div>
-
-              <div class="right small-5 medium-4 columns">
-                <p class="small-text half-margin-top half-margin-bottom"><strong>Arrived?</strong></p>
-              </div>
-            </div>
-
-            {% for user in users %}
               <div class="row">
-                <div class="left input-left small-10 medium-11 columns">
-                  <p class="half-margin-top">
-                    {{ user.first_name }}
-                    {{ user.last_name }}
-                  </p>
+                <div class="input-left small-5 columns">
+                  {{ form.first_name }}
                 </div>
 
-                <div class="left input-right small-2 medium-1 columns">
-                  <input type="checkbox" id="vol-arrived-1" name="vol-arrived-1" value="" class="hidden"/>
-                    <label class="large-text vol-arrived" for="vol-arrived-1"><i class="styled-checkbox fa fa-lg fa-check-circle"></i></label>
+                <div class="input-middle small-5 medium-6 columns">
+                  {{ form.email }}
+                </div>
+
+                <div class="input-right half-margin-top left small-2 medium-1 columns">
+                  <a id="add-volunteer" class="blue-icon one-margin-right"><i class="fa fa-lg fa-check-circle"></i></a>
                 </div>
               </div>
-            {% endfor %}
 
+              <p id="vol-error" class="small-text hidden alert">Name and email required</p>
+            </div>
           </div>
-        </div>
 
+          <div class="row">
+            <div class="small-12 medium-8 small-centered columns">
+              <h6 class="left half-margin-top half-margin-bottom">Registered volunteers</h6>
+
+              <div class="row">
+                <div class="left small-7 medium-8 columns">
+                  <p class="small-text half-margin-top half-margin-bottom"><strong>Name</strong></p>
+                </div>
+
+                <div class="right small-5 medium-4 columns">
+                  <p class="small-text half-margin-top half-margin-bottom"><strong>Arrived?</strong></p>
+                </div>
+              </div>
+
+              {% for user in users %}
+                <div class="row">
+                  <div class="left input-left small-10 medium-11 columns">
+                    <p class="half-margin-top">
+                      {{ user.first_name }}
+                      {{ user.last_name }}
+                    </p>
+                  </div>
+
+                  <div class="left input-right small-2 medium-1 columns">
+                    <input type="checkbox" id="vol-arrived-1" name="vol-arrived-1" value="" class="hidden"/>
+                      <label class="large-text vol-arrived" for="vol-arrived-1"><i class="styled-checkbox fa fa-lg fa-check-circle"></i></label>
+                  </div>
+                </div>
+              {% endfor %}
+
+            </div>
+          </div>
+        </form>
 
 
         <div id="push"></div>
@@ -161,6 +164,24 @@
       var autocomplete = new google.maps.places.Autocomplete(input);
       }
       google.maps.event.addDomListener(window, 'load', initialize);
+    </script>
+
+    <script type="text/javascript">
+      $("#vol-arrived-1").click(function(){
+        $.ajax({
+          url: "{% url 'openCurrents:event_checkin' event_id %}",
+          type: 'POST',
+          data : {
+            csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
+            userid: 11,
+            checkin: true
+          },
+          dataType : "json",
+          success: function( data ){
+            window.alert('success');
+          }
+        });
+      });
     </script>
 
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
