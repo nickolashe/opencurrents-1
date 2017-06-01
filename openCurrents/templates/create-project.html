@@ -46,8 +46,8 @@
           <div class="row one-margin-bottom">
             <div class="small-12 medium-6 small-centered columns">
               {{ form.project_id.errors }}
-              <h6 class="fit-left navy">{{ form.project_id.label }}</h6>
-              <span class="input-sizer"> {{ form.project_id }} </span>
+              <h6 class="fit-left navy"><!-- {{ form.project_id.label }} -->Let's...</h6>
+              <span class="input-sizer"> <!-- {{ form.project_id }} --> <input type="text" name="project-name" class="center" placeholder="do some good" /></span>
               {% if form.project_id.help_text %}
                 <p class="small">
                   ({{ form.project_id.help_text|safe }})
@@ -164,6 +164,8 @@
 
         <div id="location_arr"></div>
 
+        <div id="push"></div>
+
       <!-- wrapper div-->
       </div>
 
@@ -232,24 +234,9 @@
       });
 
       $(document).ready(function(){
-<<<<<<< HEAD:openCurrents/templates/create-event.html
-        function initialize() {
 
-
-          var inputs = document.getElementsByClassName("location");
-
-          for (var i = 0; i < inputs.length; i++) {
-            var autocomplete = new google.maps.places.Autocomplete(inputs[i]);
-            // autocomplete.inputId = inputs[i].id;
-
-            google.maps.event.addListener(autocomplete);
-          }
-        }
-
-        initialize();
-=======
         initAutoComplete();
->>>>>>> 3119eefdcb0c9bc2fb94b00aa5ad12fd47643047:openCurrents/templates/create-project.html
+
       });
     </script>
 

@@ -87,13 +87,13 @@ class ProjectCreateForm(forms.Form):
         super(ProjectCreateForm, self).__init__(*args, **kwargs)
 
         # project_id field
-        self.fields['project_id'] = forms.ChoiceField(
-            label='Let\'s',
-            choices=[
-                (project.id, project.name)
-                for project in Project.objects.filter(org__id=orgid)
-            ]
-        )
+        # self.fields['project_id'] = forms.ChoiceField(
+        #     label='Let\'s',
+        #     choices=[
+        #         (project.id, project.name)
+        #         for project in Project.objects.filter(org__id=orgid)
+        #     ]
+        # )
 
     description = forms.CharField(
         label='Project description',
