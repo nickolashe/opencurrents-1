@@ -203,20 +203,28 @@ class CreateProjectView(FormView, LoginRequiredMixin):
     form_class = ProjectCreateForm
     success_url = '/project-created/'
 
+    def create_location(self, location, form_data):
+        event = Event(
+            project=Project.objects.get(id=form_data['project_id']),
+            description=form_data['description'],
+            location=location,
+            datetime_start=form_data['datetime_start'],
+            datetime_end=form_data['datetime_end'],
+            coordinator_firstname=form_data['coordinator_firstname'],
+            coordinator_email=form_data['coordinator_email'],
+        )
+        event.save()
+
     def form_valid(self, form):
         # This method is called when valid form data has been POSTed.
         # It should return an HttpResponse.
+        locations = [
+            val
+            for (key, val) in self.request.POST.iteritems()
+            if 'event-location' in key
+        ]
         data = form.cleaned_data
-        event = Event(
-            project=Project.objects.get(id=data['project_id']),
-            description=data['description'],
-            location=data['location'],
-            datetime_start=data['datetime_start'],
-            datetime_end=data['datetime_end'],
-            coordinator_firstname=data['coordinator_firstname'],
-            coordinator_email=data['coordinator_email'],
-        )
-        event.save()
+        map(lambda loc: self.create_location(loc, data), locations)
 
         return redirect('openCurrents:project-created')
 

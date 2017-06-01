@@ -125,20 +125,15 @@ class ProjectCreateForm(forms.Form):
             'placeholder': '12:00 pm'
         })
     )
-    location = forms.CharField(
-        label='at',
-        widget=forms.TextInput(attrs={
-            'class': 'location center',
-            'placeholder': 'location'
-        })
-    )
-    # location = NotValidatedMultipleChoiceField(
+    # location = forms.CharField(
     #     label='at',
-    #     widget=forms.SelectMultiple(attrs={
+    #     widget=forms.TextInput(attrs={
     #         'class': 'location center',
+    #         'id': 'event-location-1',
     #         'placeholder': 'location'
     #     })
     # )
+
     coordinator_firstname = forms.CharField(
         widget=forms.TextInput(attrs={'placeholder': 'First name'})
     )

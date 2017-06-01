@@ -99,10 +99,11 @@
 
           <div class="row half-margin-bottom center">
             <div id="location-box" class="small-8 medium-4 small-centered columns">
-              {{ form.location.errors }}
               <div id="location-1">
-                <h6 class="fit-left navy"> {{ form.location.label }} </h6>
-                <span class="input-sizer"> {{form.location}} </span>
+                <h6 class="fit-left navy"> at </h6>
+                <span class="input-sizer">
+                  <input class="location center" name="event-location-1" placeholder="location" type="text" required>
+                </span>
               </div>
             </div>
           </div>
@@ -162,8 +163,6 @@
           </div>
         </form>
 
-        <div id="location_arr"></div>
-
       <!-- wrapper div-->
       </div>
 
@@ -222,7 +221,15 @@
       $('#add-location').click(function(){
         id ++;
 
-        $('#location-box').append('<div id="location-'+id+'" class="relative hidden"><h6 class="fit-left navy">&</h6><span class="input-sizer">{{form.location}}</span><i class="remove-location fa fa-times-circle"></i></div>');
+        $('#location-box').append(
+          '<div id="location-'+id+'" class="relative hidden"> \
+              <h6 class="fit-left navy">&</h6> \
+              <span class="input-sizer"> \
+                <input class="location center" name="event-location-'+id+'" placeholder="location" type="text" required> \
+              </span> \
+              <i class="remove-location fa fa-times-circle"></i> \
+          </div>'
+        );
         $('#location-'+id+'').slideDown();
         initAutoComplete()
       });
