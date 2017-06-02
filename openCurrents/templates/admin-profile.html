@@ -16,10 +16,11 @@
 
           <!--<div class="medium-5 medium-offset-1 columns">
             <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="round" /> -->
-            <h4 class="title-sub">Linda McCoy</h4>
-            <h6 class="three-halves-margin-bottom">Keep Austin Beautiful</h6>
+          <h4 class="title-sub">Linda McCoy</h4>
+          <h6 class="three-halves-margin-bottom">Keep Austin Beautiful</h6>
+        </div>
 
-            <div class="medium-5 medium-offset-1 columns">
+            <!-- <div class="medium-5 medium-offset-1 columns">
               <h6 class="inline">My Currents: </h6>
               <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
               <h6 class="inline"> {{ user_balance }}</h6>
@@ -28,10 +29,10 @@
                   <button class="button small round">Earn Currents</button>
                 </a>
               </div>
-            </div>
-
-            <div class="medium-5 columns end">
-              <h6 class="inline">Hours tracked:</h6>
+            </div> -->
+          <div class="row">
+            <div class="small-centered medium-5 columns">
+              <h6 class="inline">Org hours tracked:</h6>
               <!-- <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>-->
               <h6 class="inline"> {{ issued_total }}</h6>
               <div class="qtr-margin-top">
@@ -102,7 +103,7 @@
           </div>
         {% endif %}
 
-        <div class="row one-margin-bottom">
+        <div class="row one-margin-top">
           <div class="left medium-8 small-centered columns">
             <h6 class="center half-margin-bottom">Community activity</h6>
             <div id="community-feed">

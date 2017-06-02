@@ -66,7 +66,7 @@ class UserSignupForm(forms.Form):
     )
     user_email = forms.EmailField(
         widget=forms.EmailInput(attrs={
-            'id': 'new-email',        
+            'id': 'new-email',
             'placeholder': 'Email'
         })
     )
@@ -127,14 +127,22 @@ class ProjectCreateForm(forms.Form):
         super(ProjectCreateForm, self).__init__(*args, **kwargs)
 
         # project_id field
-        self.fields['project_id'] = forms.ChoiceField(
-            label='Let\'s',
-            choices=[
-                (project.id, project.name)
-                for project in Project.objects.filter(org__id=orgid)
-            ]
-        )
+        # self.fields['project_id'] = forms.ChoiceField(
+        #     label='Let\'s',
+        #     choices=[
+        #         (project.id, project.name)
+        #         for project in Project.objects.filter(org__id=orgid)
+        #     ]
+        # )
 
+    project_name = forms.CharField(
+        label='Let\'s...',
+        widget=forms.TextInput(attrs={
+            'class': ' center',
+            'name': 'project_name',
+            'placeholder': 'do some good'
+        })
+    )
     description = forms.CharField(
         label='Project description',
         help_text='What should volunteers know? What should they bring?',
@@ -166,6 +174,7 @@ class ProjectCreateForm(forms.Form):
         })
     )
     # location = forms.CharField(
+    # location = NotValidatedMultipleChoiceField(
     #     label='at',
     #     widget=forms.TextInput(attrs={
     #         'class': 'location center',
