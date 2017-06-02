@@ -26,6 +26,31 @@ class NotValidatedMultipleChoiceField(forms.TypedMultipleChoiceField):
         pass
 
 
+# class VolunteerIdField(forms.Field):
+#     def __init__(self, *args, **kwargs):
+#         super(VolunteerIdField, self).__init__(self, *args, **kwargs)
+#
+#     def to_python(self, value):
+#         logger.info(value)
+#         if isinstance(value, list) and len(value) == 1:
+#             return value[0]
+#         else:
+#             raise ValidationError(_('Invalid id input'))
+
+
+class VolunteerCheckinField(forms.Field):
+    def __init__(self, *args, **kwargs):
+        super(VolunteerCheckinField, self).__init__(self, *args, **kwargs)
+
+    def to_python(self, value):
+        if value == 'true':
+            return True
+        elif value == 'false':
+            return False
+        else:
+            raise ValidationError(_('Invalid checkin input'))
+
+
 class UserSignupForm(forms.Form):
     user_firstname = forms.CharField()
     user_lastname = forms.CharField()
@@ -196,4 +221,14 @@ class EventRegisterForm(forms.Form):
 
 class EventCheckinForm(forms.Form):
     userid = forms.IntegerField()
-    checkin = forms.BooleanField()
+    checkin = VolunteerCheckinField()
+
+    # def clean_checkin(self):
+    #     data = self.cleaned_data['checkin']
+    #     logger.info(data)
+    #     if data == ['true']:
+    #         return True
+    #     elif data == ['false']:
+    #         return False
+    #     else:
+    #         raise ValidationError(_('Invalid checkin input'))

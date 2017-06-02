@@ -27,6 +27,18 @@
         <form method="post">
           {% csrf_token %}
 
+          <!-- catch and display any top-level form errors -->
+          <!-- (as opposed to field-specific errors which are displayed next to each field) -->
+          {% if errors %}
+            <div class="row">
+              {% for error in errors %}
+                <p>
+                  {{ error }}
+                </p>
+              {% endfor %}
+            </div>
+          {% endif %}
+
           <div class="row one-margin-bottom center">
             <div id="new-volunteers" class="small-12 medium-8 small-centered columns">
               <h6 class="half-margin-top one-margin-bottom left">Add volunteers</h6>
@@ -59,13 +71,13 @@
                 </div>
 
                 <div class="right small-5 medium-4 columns">
-                  <p class="small-text half-margin-top half-margin-bottom"><strong>Arrived?</strong></p>
+                  <p class="small-text half-margin-top half-margin-bottom left"><strong>Check-in</strong></p>
                 </div>
               </div>
 
               {% for user in users %}
                 <div class="row">
-                  <div class="left input-left small-10 medium-11 columns">
+                  <div class="left input-left small-6 medium-8 columns">
                     <p class="half-margin-top">
                       {{ user.first_name }}
                       {{ user.last_name }}
@@ -73,8 +85,14 @@
                   </div>
 
                   <div class="left input-right small-2 medium-1 columns">
-                    <input type="checkbox" id="vol-arrived-1" name="vol-arrived-1" value="" class="hidden"/>
-                      <label class="large-text vol-arrived" for="vol-arrived-1"><i class="styled-checkbox fa fa-lg fa-check-circle"></i></label>
+                      <input type="checkbox" id="vol-checkin-{{ user.id }}" name="vol-checkin-{{ user.id }}" value="{{ user.id }}" class="hidden"/>
+                      <label class="large-text vol-checkin" for="vol-checkin-{{ user.id }}">
+                        <i class="styled-checkbox fa fa-lg fa-check-circle"></i>
+                      </label>
+                  </div>
+
+                  <div class="left input-right small-4 medium-3 columns">
+                      <p id='vol-status-{{ user.id }}' class="half-margin-top"> </p>
                   </div>
                 </div>
               {% endfor %}
@@ -139,7 +157,7 @@
 
             $('#vol-error').slideUp();
 
-            $('#new-volunteers').append('<div id="new-vol-'+num+'" class="row hidden"><div class="input-left small-5 columns"><input name="new-vol-name-'+num+'" type="text" class="hidden-input" value="'+volName+'"></div><div class="input-middle small-5 medium-6 columns"><input name="new-vol-email-'+num+'" type="text" class="hidden-input" value="'+volEmail+'"></div><div class="input-right half-margin-top left small-2 medium-1 columns"><input type="checkbox" checked id="new-vol-arrived-'+num+'" name="new-vol-arrived-'+num+'" class="hidden"/><label class="large-text vol-arrived" for="new-vol-arrived-'+num+'"><i class="styled-checkbox fa fa-lg fa-check-circle"></i></label></div></div>');
+            $('#new-volunteers').append('<div id="new-vol-'+num+'" class="row hidden"><div class="input-left small-5 columns"><input name="new-vol-name-'+num+'" type="text" class="hidden-input" value="'+volName+'"></div><div class="input-middle small-5 medium-6 columns"><input name="new-vol-email-'+num+'" type="text" class="hidden-input" value="'+volEmail+'"></div><div class="input-right half-margin-top left small-2 medium-1 columns"><input type="checkbox" checked id="new-vol-checkin-'+num+'" name="new-vol-checkin-'+num+'" class="hidden"/><label class="large-text vol-checkin" for="new-vol-checkin-'+num+'"><i class="styled-checkbox fa fa-lg fa-check-circle"></i></label></div></div>');
 
             $('#new-vol-'+num+'').slideDown();
 
@@ -167,18 +185,30 @@
     </script>
 
     <script type="text/javascript">
-      $("#vol-arrived-1").click(function(){
+      $("input[name^='vol-checkin']").click(function(event) {
+        let name = event.target.name;
+        let elem = $(`#${name}`);
+        let userid = elem.val();
+        let isChecked = elem.prop("checked");
+
         $.ajax({
           url: "{% url 'openCurrents:event_checkin' event_id %}",
           type: 'POST',
           data : {
             csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
-            userid: 11,
-            checkin: true
+            userid: userid,
+            checkin: isChecked
           },
           dataType : "json",
-          success: function( data ){
-            window.alert('success');
+          context: document.body
+        }).complete(function( data ){
+          if (isChecked) {
+            let dt = new Date();
+            $(`#vol-status-${userid}`).text(`${dt.toLocaleTimeString()}`);
+            $(`#vol-status-${userid}`).show();
+          }
+          else {
+            $(`#vol-status-${userid}`).text(`${data.responseText} min.`);
           }
         });
       });

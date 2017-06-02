@@ -33,12 +33,19 @@ from datetime import datetime, timedelta
 
 import mandrill
 import logging
+import pytz
 import uuid
 
 
 logging.basicConfig(level=logging.DEBUG, filename="log/views.log")
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
+
+def diffInMinutes(t1, t2):
+    return round((t2 - t1).total_seconds() / 60, 1)
+
+def diffInHours(t1, t2):
+    return round((t2 - t1).total_seconds() / 3600, 1)
 
 class HomeView(TemplateView):
     template_name = 'home.html'
@@ -170,13 +177,14 @@ class AdminProfileView(TemplateView, LoginRequiredMixin):
         userid = self.request.user.id
         org = OrgUser.objects.get(user__id=userid).org
         verified_time = UserTimeLog.objects.filter(
-            project__org=org
+            event__project__org=org
         ).filter(
             is_verified=True
         )
         issued_total = sum(
-            (timelog.datetime_start - timelog.datetime_end).total_seconds() / 3600
+            (timelog.datetime_end - timelog.datetime_start).total_seconds() / 3600
             for timelog in verified_time
+            if timelog.datetime_end
         )
 
         context['user_balance'] = User.objects.get(id=userid).account.amount
@@ -305,6 +313,7 @@ class AddVolunteersView(TemplateView):
 
 
 def event_checkin(request, pk):
+    logger.info(request.POST)
     form = EventCheckinForm(request.POST)
 
     # validate form data
@@ -345,20 +354,23 @@ def event_checkin(request, pk):
             )
             return HttpResponse(status=201)
         else:
-            usertimelog = UserTimeLog.filter(
+            usertimelog = UserTimeLog.objects.filter(
                 event__id=pk
             ).filter(
                 user__id=userid
             ).latest()
 
             if usertimelog and not usertimelog.datetime_end:
+                usertimelog.datetime_end = datetime.now(tz=pytz.utc)
+                usertimelog.save()
                 clogger.info(
                     'at %s: checkout',
                     str(usertimelog.datetime_end)
                 )
-                usertimelog.datetime_end = datetime.now()
-                usertimelog.save()
-                return HttpResponse(status=201)
+                return HttpResponse(
+                    diffInMinutes(usertimelog.datetime_start, usertimelog.datetime_end),
+                    status=201
+                )
             else:
                 clogger.error('invalid checkout (not checked in)')
                 return HttpResponse(status=400)
@@ -371,11 +383,7 @@ def event_checkin(request, pk):
             'errors': form.errors.as_data().values()[0][0]
         }
 
-        return render(
-            request,
-            'openCurrents/live-dashboard.html',
-            context
-        )
+        return HttpResponse(status=400)
 
 
 def event_register(request, pk):
