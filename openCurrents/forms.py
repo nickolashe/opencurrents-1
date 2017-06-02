@@ -52,9 +52,24 @@ class VolunteerCheckinField(forms.Field):
 
 
 class UserSignupForm(forms.Form):
-    user_firstname = forms.CharField()
-    user_lastname = forms.CharField()
-    user_email = forms.EmailField()
+    user_firstname = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'id': 'new-firstname',
+            'placeholder': 'Firstname'
+        })
+    )
+    user_lastname = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'id': 'new-lastname',
+            'placeholder': 'Lastname'
+        })
+    )
+    user_email = forms.EmailField(
+        widget=forms.EmailInput(attrs={
+            'id': 'new-email',        
+            'placeholder': 'Email'
+        })
+    )
     org_name = forms.CharField(required=False, min_length=2)
 
 
@@ -222,13 +237,3 @@ class EventRegisterForm(forms.Form):
 class EventCheckinForm(forms.Form):
     userid = forms.IntegerField()
     checkin = VolunteerCheckinField()
-
-    # def clean_checkin(self):
-    #     data = self.cleaned_data['checkin']
-    #     logger.info(data)
-    #     if data == ['true']:
-    #         return True
-    #     elif data == ['false']:
-    #         return False
-    #     else:
-    #         raise ValidationError(_('Invalid checkin input'))

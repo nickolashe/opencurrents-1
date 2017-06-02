@@ -59,10 +59,12 @@ urlpatterns = [
 
     # functional views
     url(r'^event_register/(?P<pk>\d+)/$', views.event_register, name='event_register'),
+    url(r'^event_register_live/(?P<eventid>\d+)/$', views.event_register_live, name='event_register_live'),
     url(r'^event_checkin/(?P<pk>\d+)/$', views.event_checkin, name='event_checkin'),
     url(r'^process_login/$', views.process_login, name='process_login'),
     url(r'^process_logout/$', views.process_logout, name='process_logout'),
     url(r'^process_signup/(?P<referrer>[\w\.@\+\-]*)$', views.process_signup, name='process_signup'),
+    url(r'^process_signup/(?P<endpoint>(True|False))/$', views.process_signup, name='process_signup'),
     url(r'^process_email_confirmation/(?P<user_email>[\w\.@\+\-]+)/$', views.process_email_confirmation, name='process_email_confirmation'),
     url(r'^process_org_signup/$', views.process_org_signup, name='process_org_signup')
 ]

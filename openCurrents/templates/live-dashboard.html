@@ -20,11 +20,11 @@
         {% endif %}
 
         <div class="row">
-            <h4 class="title-sub">Let's install a rain garden!</h4>
-            <p>Keep Austin Beautiful</p>
+            <h4 class="title-sub">Let's {{ event.project.name }}</h4>
+            <p> {{ event.project.org.name }} </p>
         </div>
 
-        <form method="post">
+        <form id='form-add' method="post">
           {% csrf_token %}
 
           <!-- catch and display any top-level form errors -->
@@ -41,28 +41,50 @@
 
           <div class="row one-margin-bottom center">
             <div id="new-volunteers" class="small-12 medium-8 small-centered columns">
-              <h6 class="half-margin-top one-margin-bottom left">Add volunteers</h6>
+              <h6 class="half-margin-top one-margin-bottom left">Add volunteer</h6>
 
               <div class="row">
                 <div class="input-left small-5 columns">
-                  {{ form.first_name }}
+                  {{ form.user_firstname }}
+                </div>
+
+                <div class="input-left small-5 columns">
+                  {{ form.user_lastname }}
                 </div>
 
                 <div class="input-middle small-5 medium-6 columns">
-                  {{ form.email }}
+                  {{ form.user_email }}
                 </div>
 
                 <div class="input-right half-margin-top left small-2 medium-1 columns">
-                  <a id="add-volunteer" class="blue-icon one-margin-right"><i class="fa fa-lg fa-check-circle"></i></a>
+                  <a id="add-volunteer" class="blue-icon one-margin-right">
+                    <i class="fa fa-lg fa-check-circle"></i>
+                  </a>
                 </div>
               </div>
 
               <p id="vol-error" class="small-text hidden alert">Name and email required</p>
             </div>
           </div>
+        </form>
+
+        <form id='form-checkin' method="post">
+          {% csrf_token %}
+
+          <!-- catch and display any top-level form errors -->
+          <!-- (as opposed to field-specific errors which are displayed next to each field) -->
+          {% if errors %}
+            <div class="row">
+              {% for error in errors %}
+                <p>
+                  {{ error }}
+                </p>
+              {% endfor %}
+            </div>
+          {% endif %}
 
           <div class="row">
-            <div class="small-12 medium-8 small-centered columns">
+            <div id="registered-volunteers" class="small-12 medium-8 small-centered columns">
               <h6 class="left half-margin-top half-margin-bottom">Registered volunteers</h6>
 
               <div class="row">
@@ -101,7 +123,6 @@
           </div>
         </form>
 
-
         <div id="push"></div>
 
       <!-- wrapper div-->
@@ -118,7 +139,7 @@
       {% include "menu.html" %}
     </div>
 
-    <div id="live-location-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+    <!--div id="live-location-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
         <h4 class="popup-title">Select your location</h4>
       </div>
@@ -137,34 +158,73 @@
           <div class="three-halves-margin-top"><button class="button round">Save</button></div>
         </div>
       </div>
-    </div>
-
+    </div-->
 
     <script type="text/javascript">
       $(document).ready(function(){
 
-        var num = 1;
-        var volName;
-        var volEmail;
-
-        $("#add-volunteer").click(function(){
-
+        $("#add-volunteer").click(function(event){
           if ($('#add-volunteer-name').val() == '' || $('#add-volunteer-email').val() == '') {
             $('#vol-error').slideDown();
           } else {
-            volName = $('#add-volunteer-name').val();
-            volEmail = $('#add-volunteer-email').val();
-
             $('#vol-error').slideUp();
 
-            $('#new-volunteers').append('<div id="new-vol-'+num+'" class="row hidden"><div class="input-left small-5 columns"><input name="new-vol-name-'+num+'" type="text" class="hidden-input" value="'+volName+'"></div><div class="input-middle small-5 medium-6 columns"><input name="new-vol-email-'+num+'" type="text" class="hidden-input" value="'+volEmail+'"></div><div class="input-right half-margin-top left small-2 medium-1 columns"><input type="checkbox" checked id="new-vol-checkin-'+num+'" name="new-vol-checkin-'+num+'" class="hidden"/><label class="large-text vol-checkin" for="new-vol-checkin-'+num+'"><i class="styled-checkbox fa fa-lg fa-check-circle"></i></label></div></div>');
+            let new_firstname = $('#new-firstname').val();
+            let new_lastname = $('#new-lastname').val();
+            let new_email = $('#new-email').val();
 
-            $('#new-vol-'+num+'').slideDown();
+            $.ajax({
+              url: "{% url 'openCurrents:process_signup' endpoint=True %}",
+              type: 'POST',
+              data : {
+                csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
+                user_firstname: new_firstname,
+                user_lastname: new_lastname,
+                user_email: new_email
+              },
+              dataType : "json",
+            }).success(function( data ) {
+              let userid = data;
+              console.log(data);
 
-            $('#add-volunteer-name').val('');
-            $('#add-volunteer-email').val('');
+              $.ajax({
+                url: "{% url 'openCurrents:event_register_live' eventid=event.id %}",
+                type: 'POST',
+                data : {
+                  csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
+                  userid: userid
+                },
+                dataType : "json",
+              }).complete(function( data ) {
+                console.log('success');
+                $('#registered-volunteers').append(`
+                  <div class="row"> \
+                    <div class="left input-left small-6 medium-8 columns"> \
+                      <p class="half-margin-top"> \
+                        ${new_firstname} \
+                        ${new_lastname} \
+                      </p> \
+                    </div> \
 
-            num ++;
+                    <div class="left input-right small-2 medium-1 columns"> \
+                        <input type="checkbox" id="vol-checkin-${userid}" name="vol-checkin-${userid}" value="${userid}" class="hidden"/> \
+                        <label class="large-text vol-checkin" for="vol-checkin-${userid}"> \
+                          <i class="styled-checkbox fa fa-lg fa-check-circle"></i> \
+                        </label> \
+                    </div> \
+
+                    <div class="left input-right small-4 medium-3 columns"> \
+                        <p id='vol-status-${userid}' class="half-margin-top"> </p> \
+                    </div> \
+                  </div> \
+                `)
+
+                // clear form inputs
+                $('#new-firstname').val('');
+                $('#new-lastname').val('');
+                $('#new-email').val('');
+              });
+            });
           }
         });
 
@@ -195,7 +255,7 @@
           url: "{% url 'openCurrents:event_checkin' event_id %}",
           type: 'POST',
           data : {
-            csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
+            csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[1].value,
             userid: userid,
             checkin: isChecked
           },

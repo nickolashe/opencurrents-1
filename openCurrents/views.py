@@ -56,19 +56,6 @@ class InviteView(TemplateView):
 class ConfirmAccountView(TemplateView):
     template_name = 'confirm-account.html'
 
-    # def get_context_data(self, **kwargs):
-    #     context = super(ConfirmAccountView, self).get_context_data(**kwargs)
-    #     org_name = None
-    #     try:
-    #         org_user = OrgUser.objects.get(user__email=context['email'])
-    #         if org_user:
-    #             org_name = org_user.org.name
-    #             context['org_name'] = org_name
-    #     except:
-    #         logger.info('User %s has no org association', context['email'])
-    #
-    #     return context
-
 class CommunityView(TemplateView):
     template_name = 'community.html'
 
@@ -291,13 +278,16 @@ class LiveDashboardView(TemplateView, LoginRequiredMixin):
     def get_context_data(self, **kwargs):
         context = super(LiveDashboardView, self).get_context_data(**kwargs)
         event_id = kwargs.pop('event_id')
+        event = Event.objects.get(id=event_id)
         user_regs = UserEventRegistration.objects.filter(event__id=event_id)
+        context['event'] = event
         context['users'] = sorted(
             set([
                 user_reg.user for user_reg in user_regs
             ]),
             key=lambda u: u.last_name
         )
+        context['form'] = UserSignupForm()
 
         return context
 
@@ -312,8 +302,8 @@ class AddVolunteersView(TemplateView):
     template_name = 'add-volunteers.html'
 
 
+@login_required
 def event_checkin(request, pk):
-    logger.info(request.POST)
     form = EventCheckinForm(request.POST)
 
     # validate form data
@@ -386,6 +376,7 @@ def event_checkin(request, pk):
         return HttpResponse(status=400)
 
 
+@login_required
 def event_register(request, pk):
     form = EventRegisterForm(request.POST)
 
@@ -416,8 +407,23 @@ def event_register(request, pk):
             context
         )
 
+@login_required
+def event_register_live(request, eventid):
+    userid = request.POST['userid']
+    user = User.objects.get(id=userid)
+    event = Event.objects.get(id=eventid)
+    user_event_registration = UserEventRegistration(
+        user=user,
+        event=event,
+        is_confirmed=True
+    )
+    user_event_registration.save()
+    logger.info('User %s registered for event %s', user.username, event.id)
 
-def process_signup(request, referrer):
+    return HttpResponse({'userid': userid, 'eventid': eventid}, status=201)
+
+
+def process_signup(request, referrer=None, endpoint=False):
     form = UserSignupForm(request.POST)
 
     # validate form data
@@ -517,10 +523,14 @@ def process_signup(request, referrer):
                 e.message,
                 type(e)
             )
-        return redirect(
-            'openCurrents:confirm-account',
-            email=user_email
-        )
+
+        if endpoint:
+            return HttpResponse(user.id, status=201)
+        else:
+            return redirect(
+                'openCurrents:confirm-account',
+                email=user_email
+            )
 
     # fail with form validation error
     else:
@@ -535,7 +545,11 @@ def process_signup(request, referrer):
             for field, le in form.errors.as_data().iteritems()
             for error in le
         ]
-        return redirect('openCurrents:signup', status_msg=errors[0])
+
+        if endpoint:
+            return HttpResponse({errors: errors}, status=400)
+        else:
+            return redirect('openCurrents:signup', status_msg=errors[0])
 
 
 def process_login(request):
