@@ -95,6 +95,14 @@ class ProjectCreateForm(forms.Form):
         #     ]
         # )
 
+    project_name = forms.CharField(
+        label='Let\'s...',
+        widget=forms.TextInput(attrs={
+            'class': ' center',
+            'name': 'project_name',
+            'placeholder': 'do some good'
+        })
+    )
     description = forms.CharField(
         label='Project description',
         help_text='What should volunteers know? What should they bring?',

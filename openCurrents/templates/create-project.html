@@ -5,6 +5,8 @@
   <head>
     {% include "head.html" %}
 
+    <link href="{% static 'css/auto-complete.css' %}" rel="stylesheet" type="text/css">
+
     <script type="text/javascript" src="{% static 'js/jquery.timepicker.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/jquery-ui-datepicker.js' %}"></script>
     <link href="{% static 'css/jquery.timepicker.css' %}" rel="stylesheet" type="text/css">
@@ -24,8 +26,8 @@
         {% endif %}
 
         <div class="row">
-            <h3 class="title-sub">Create event</h3>
-            <p class="subtitle"><a>Use template</a> (if any)</p>
+            <h3 class="title">Create event</h3>
+            <!-- <p class="subtitle"><a>Use template</a> (if any)</p> -->
         </div>
 
         <form method="post">
@@ -46,8 +48,8 @@
           <div class="row one-margin-bottom">
             <div class="small-12 medium-6 small-centered columns">
               {{ form.project_id.errors }}
-              <h6 class="fit-left navy"><!-- {{ form.project_id.label }} -->Let's...</h6>
-              <span class="input-sizer"> <!-- {{ form.project_id }} --> <input type="text" name="project-name" class="center" placeholder="do some good" /></span>
+              <h6 class="fit-left navy">{{ form.project_name.label }}</h6>
+              <span class="input-sizer"> {{ form.project_name }} </span>
               {% if form.project_id.help_text %}
                 <p class="small">
                   ({{ form.project_id.help_text|safe }})
@@ -204,6 +206,22 @@
           step: 15,
         });
       });
+    </script>
+    <script type="text/javascript" src="{% static 'js/auto-complete.min.js' %}"></script>
+    <script type="text/javascript">
+      // initialize
+      var project_auto = new autoComplete({
+        selector: 'input[name="project_name"]',
+        minChars: 2,
+        source: function(term, suggest){
+          var choices = ['clean up Lady Bird Lake', 'install a rain garden', 'host a composting workshop'];
+          var matches = [];
+          for (i=0; i<choices.length; i++)
+              if (~choices[i].toLowerCase().indexOf(term)) matches.push(choices[i]);
+          suggest(matches);
+        }
+      });
+
     </script>
 
     <script type="text/javascript">
