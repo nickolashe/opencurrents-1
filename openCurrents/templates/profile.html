@@ -40,7 +40,7 @@
               </div>
 
               <div class="right input-right small-3 columns">
-                <button class="button small round secondary">Going</button>
+                <button class="rsvp-popup_open button small round secondary">Going</button>
               </div>
             </div>
             <div class="row half-margin-top">
@@ -49,7 +49,7 @@
               </div>
 
               <div class="right input-right small-3 columns">
-                <button class="button small round secondary">Going</button>
+                <button class="rsvp-popup_open button small round secondary">Going</button>
               </div>
             </div>
           </div>
@@ -142,18 +142,26 @@
       {% include "menu.html" %}
     </div>
 
-    <div id="-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+    <div id="rsvp-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
-        <h3 class="popup-title"></h3>
+        <h3 class="popup-title">Change RSVP</h3>
       </div>
 
-      <div class="row">
+      <div class="row center one-margin-top">
         <div class="small-centered medium-10 columns">
 
-          <p></p>
+          <input type="radio" id="rsvp-1" name="rsvp-[]" value="" class="hidden styled-radio" checked/>
+            <label for="rsvp-1" class="button round secondary small">Going</label>
 
-          <button class="tax-id-popup_close button round">Okay</button>
-          <a><button class="button round secondary"></button></a>
+          <input type="radio" id="rsvp-2" name="rsvp-[]" value="" class="hidden styled-radio"/>
+            <label for="rsvp-2" class="button round secondary small">Maybe</label>
+
+          <input type="radio" id="rsvp-3" name="rsvp-[]" value="" class="hidden styled-radio"/>
+            <label for="rsvp-3" class="button round secondary small">Not going</label>
+
+          <div class="three-halves-margin-top">
+            <button type="submit" class="rsvp-popup_close button round">Update</button>
+          </div>
         </div>
       </div>
     </div>
@@ -161,7 +169,7 @@
 
     <script type="text/javascript">
       $(document).ready(function(){
-        $('#').popup({
+        $('#rsvp-popup').popup({
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: true,
