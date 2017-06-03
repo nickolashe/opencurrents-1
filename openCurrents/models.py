@@ -139,7 +139,7 @@ class UserEventRegistration(models.Model):
         return ' '.join([
             self.user.username,
             'is registered for',
-            self.project.name
+            self.event.project.name
         ])
 
 

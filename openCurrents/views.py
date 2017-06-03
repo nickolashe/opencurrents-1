@@ -175,7 +175,6 @@ class AdminProfileView(TemplateView, LoginRequiredMixin):
             if timelog.datetime_end
         )
 
-        context['user_balance'] = User.objects.get(id=userid).account.amount
         context['issued_total'] = round(issued_total, 1)
         context['orgid'] = org.id
         context['events_current'] = Event.objects.filter(
@@ -201,7 +200,7 @@ class CreateProjectView(FormView, LoginRequiredMixin):
     form_class = ProjectCreateForm
     success_url = '/project-created/'
 
-    def create_location(self, location, form_data):
+    def create_event(self, location, form_data):
         event = Event(
             project=Project.objects.get(id=form_data['project_id']),
             description=form_data['description'],
@@ -222,7 +221,7 @@ class CreateProjectView(FormView, LoginRequiredMixin):
             if 'event-location' in key
         ]
         data = form.cleaned_data
-        map(lambda loc: self.create_location(loc, data), locations)
+        map(lambda loc: self.create_event(loc, data), locations)
 
         return redirect('openCurrents:project-created')
 
