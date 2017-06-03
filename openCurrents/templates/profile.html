@@ -5,23 +5,24 @@
   <head>
     {% include "head.html" %}
   </head>
-  
+
   <body>
     {% include "header.html" %}
-    
+
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
         <div class="row center">
-          
           <!--<div class="medium-5 medium-offset-1 columns">
             <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="round" /> -->
             <h4 class="title three-halves-margin-bottom">Danny Pernik</h4>
 
             <h6 class="inline">My Currents: </h6>
             <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
-            <h6 class="inline">0</h6>
+            <h6 class="inline"> {{ user_balance }} </h6>
             <div class="qtr-margin-top">
-              <button class="button small round">Earn Currents</button>
+              <a href="{% url 'openCurrents:upcoming-projects' %}">
+                <button class="button small round">Earn Currents</button>
+              </a>
             </div>
           <!--</div>
 
@@ -30,10 +31,34 @@
           </div>-->
         </div>
 
+        <div class="row one-margin-top">
+          <div class="small-12 medium-8 small-centered columns">
+            <h6 class="half-margin-bottom">My upcoming projects</h6>
+            <div class="row one-margin-top">
+              <div class="left input-left small-9 columns">
+                <p class="half-margin-top"><a>Let's clean up Lady Bird Lake</a></p>
+              </div>
+
+              <div class="right input-right small-3 columns">
+                <button class="button small round secondary">Going</button>
+              </div>
+            </div>
+            <div class="row half-margin-top">
+              <div class="left input-left small-9 columns">
+                <p class="half-margin-top"><a>Let's advocate bike safety</a></p>
+              </div>
+
+              <div class="right input-right small-3 columns">
+                <button class="button small round secondary">Going</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="row one-margin-bottom">
           <div class="left medium-8 small-centered columns">
             <h6 class="center one-margin-top half-margin-bottom">Community activity</h6>
-            <div id="user-feed">
+            <div id="community-feed">
               <div class="feed-item">
                 <strong>Jacob Jacobs</strong> joined openCurrents!
               </div>
@@ -47,7 +72,37 @@
               </div>
 
               <div class="feed-item">
-                <strong>Keep Austin Beautiful</strong> issued 2 Currents to <strong>Jacob Jacobs</strong>. 
+                <strong>Keep Austin Beautiful</strong> issued 2 Currents to <strong>Jacob Jacobs</strong>.
+              </div>
+              <div class="feed-item">
+                <strong>Jacob Jacobs</strong> joined openCurrents!
+              </div>
+
+              <div class="feed-item">
+                <strong>Keep Austin Beautiful</strong> created a project: <strong><a>Let's clean up Lady Bird Lake<span class="no-wrap">!<i class="half-margin-left fa fa-arrow-circle-right"></i></span></a></strong>
+              </div>
+
+              <div class="feed-item">
+                <strong>Jacob Jacobs</strong> will be helping <strong>Keep Austin Beautiful</strong> clean up Lady Bird Lake!
+              </div>
+
+              <div class="feed-item">
+                <strong>Keep Austin Beautiful</strong> issued 2 Currents to <strong>Jacob Jacobs</strong>.
+              </div>
+              <div class="feed-item">
+                <strong>Jacob Jacobs</strong> joined openCurrents!
+              </div>
+
+              <div class="feed-item">
+                <strong>Keep Austin Beautiful</strong> created a project: <strong><a>Let's clean up Lady Bird Lake<span class="no-wrap">!<i class="half-margin-left fa fa-arrow-circle-right"></i></span></a></strong>
+              </div>
+
+              <div class="feed-item">
+                <strong>Jacob Jacobs</strong> will be helping <strong>Keep Austin Beautiful</strong> clean up Lady Bird Lake!
+              </div>
+
+              <div class="feed-item">
+                <strong>Keep Austin Beautiful</strong> issued 2 Currents to <strong>Jacob Jacobs</strong>.
               </div>
             </div>
 
@@ -70,40 +125,40 @@
             -->
           </div>
         </div>
-        
+
         <div id="push"></div>
-    
+
       <!-- wrapper div-->
       </div>
-      
+
       {% include "footer.html" %}
-            
+
     <!--container div -->
     </div>
-    
+
     <div id="bottom-stripe" class="full-width"></div>
-    
+
     <div off-canvas="menu right shift" id="menu">
       {% include "menu.html" %}
     </div>
-  
+
     <div id="-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
         <h3 class="popup-title"></h3>
       </div>
-      
+
       <div class="row">
         <div class="small-centered medium-10 columns">
-          
+
           <p></p>
-          
+
           <button class="tax-id-popup_close button round">Okay</button>
           <a><button class="button round secondary"></button></a>
         </div>
       </div>
     </div>
-    
-    
+
+
     <script type="text/javascript">
       $(document).ready(function(){
         $('#').popup({
@@ -113,7 +168,7 @@
         });
       });
     </script>
-    
+
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
   </body>
 </html>

@@ -1,14 +1,15 @@
 {% load staticfiles %}
+{% load tags %}
 
 <!DOCTYPE html>
 <html>
   <head>
     {% include "head.html" %}
   </head>
-  
+
   <body>
     {% include "header.html" %}
-    
+
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
         {% if status_msg %}
@@ -16,53 +17,71 @@
           {{status_msg}}
         </div>
         {% endif %}
-        
-        <div class="row">
-          <h3 class="title-sub">Additional details</h3>
-          <h6 class="subtitle">Optional, but useful.</h6>
-        </div>
-        
-        <div class="row one-margin-bottom center">
-          <div class="small-12 medium-6 small-centered columns">
-            <textarea name="project-description" placeholder="Project description - What should volunteers know? What should they bring?" rows="4"></textarea>
 
-            <button class="one-margin-top button round">Continue</button>
+        <div class="row">
+          <div class="small-12 medium-8 small-centered columns">
+            <h3 class="title">You're all set!</h3>
+
+            <!-- <span class="addtocalendar one-margin-bottom">
+              <var class="atc_event">
+                <var class="atc_date_start">2017-04-01 12:00:00</var>
+                <var class="atc_date_end">2017-04-02 12:00:00</var>
+                <var class="atc_timezone">America/Chicago</var>
+                <var class="atc_title">Let's clean up Lady Bird Lake with </var>
+                <var class="atc_description"></var>
+                <var class="atc_location"></var>
+                <var class="atc_organizer"></var>
+                <var class="atc_organizer_email"></var>
+              </var>
+            </span> -->
+            <p>
+              Thank you for helping {{ event.project.org.name }} {{ event.project.name }} on {{ event.datetime_start|day }}.
+              If you need to change your registration status, you can do so from your profile page. Enjoy the event!
+            </p>
           </div>
         </div>
-        
+
+        <div class="row three-halves-margin-top center">
+          <div class="small-12 medium-8 small-centered columns">
+            <a href="{% url 'openCurrents:profile' %}"/>
+              <button class="button round">Return to profile</button>
+            </a>  
+          </div>
+        </div>
+
         <div id="push"></div>
-    
+
       <!-- wrapper div-->
       </div>
-      
+
       {% include "footer.html" %}
-            
+
     <!--container div -->
     </div>
-    
+
     <div id="bottom-stripe" class="full-width"></div>
-    
+
     <div off-canvas="menu right shift" id="menu">
       {% include "menu.html" %}
     </div>
-  
+
     <div id="-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
         <h3 class="popup-title"></h3>
       </div>
-      
+
       <div class="row">
         <div class="small-centered medium-10 columns">
-          
+
           <p></p>
-          
+
           <button class="tax-id-popup_close button round">Okay</button>
           <a><button class="button round secondary"></button></a>
         </div>
       </div>
     </div>
-    
-    
+
+
     <script type="text/javascript">
       $(document).ready(function(){
         $('#').popup({
@@ -72,7 +91,7 @@
         });
       });
     </script>
-    
+
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
   </body>
 </html>

@@ -1,14 +1,19 @@
 {% load staticfiles %}
+{% load tags %}
 
 <!DOCTYPE html>
 <html>
   <head>
     {% include "head.html" %}
+
+    <link href="{% static 'css/auto-complete.css' %}" rel="stylesheet" type="text/css">
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAGfdpv-Vg_rskfib8jzp-a6VI92QuC2I0&v=3.exp&types=address&libraries=places"></script>
   </head>
-  
+
   <body>
     {% include "header.html" %}
-    
+
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
         {% if status_msg %}
@@ -16,80 +21,299 @@
           {{status_msg}}
         </div>
         {% endif %}
-        
+
         <div class="row">
-            <h4 class="title">Let's install a rain garden!</h4>
-            <p>Keep Austin Beautiful</p>
+            <h4 class="title-sub">Let's {{ event.project.name }}</h4>
+            <p> {{ event.project.org.name }} </p>
         </div>
-        
-        <div class="row one-margin-bottom center">
-          <div class="small-12 medium-8 small-centered columns">
-            <h6 class="half-margin-bottom">Registered volunteers</h6>
-            
-            <div class="left small-7 medium-8 columns">
-              <p class="small-text half-margin-top half-margin-bottom"><strong>Name</strong></p>
-            </div>
 
-            <div class="right small-5 medium-4 columns">
-              <p class="small-text half-margin-top half-margin-bottom"><strong>Arrived?</strong></p>
-            </div>
+        <form id='form-add' method="post">
+          {% csrf_token %}
 
-            <div class="left small-7 medium-8 columns">
-              <p class="small-text half-margin-top">Firstname Lastname</p>
+          <!-- catch and display any top-level form errors -->
+          <!-- (as opposed to field-specific errors which are displayed next to each field) -->
+          {% if errors %}
+            <div class="row">
+              {% for error in errors %}
+                <p>
+                  {{ error }}
+                </p>
+              {% endfor %}
             </div>
-            
-            <div class="right small-5 medium-4 columns">
-              <input type="checkbox" id="vol-arrived-1" name="vol-arrived-1" value="" class="hidden"/>
-                <label class="large-text" for="vol-arrived-1"><i class="accept fa fa-lg blue fa-check-circle"></i></label>
+          {% endif %}
+
+          <div class="row one-margin-bottom center">
+            <div id="new-volunteers" class="small-12 medium-8 small-centered columns">
+              <h6 class="half-margin-top one-margin-bottom left">Add volunteer</h6>
+
+              <div class="row">
+                <div class="input-left small-5 columns">
+                  {{ form.user_firstname }}
+                </div>
+
+                <div class="input-left small-5 columns">
+                  {{ form.user_lastname }}
+                </div>
+
+                <div class="input-middle small-5 medium-6 columns">
+                  {{ form.user_email }}
+                </div>
+
+                <div class="input-right half-margin-top left small-2 medium-1 columns">
+                  <a id="add-volunteer" class="blue-icon one-margin-right">
+                    <i class="fa fa-lg fa-check-circle"></i>
+                  </a>
+                </div>
+              </div>
+
+              <p id="vol-error" class="small-text hidden alert">Name and email required</p>
             </div>
           </div>
-        </div>
+        </form>
 
-        <h6>Additional volunteers</h6>
-        
+        <form id='form-checkin' method="post">
+          {% csrf_token %}
+
+          <!-- catch and display any top-level form errors -->
+          <!-- (as opposed to field-specific errors which are displayed next to each field) -->
+          {% if errors %}
+            <div class="row">
+              {% for error in errors %}
+                <p>
+                  {{ error }}
+                </p>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          <div class="row">
+            <div id="registered-volunteers" class="small-12 medium-8 small-centered columns">
+              <h6 class="left half-margin-top half-margin-bottom">Registered volunteers</h6>
+
+              <div class="row">
+                <div class="left small-7 medium-8 columns">
+                  <p class="small-text half-margin-top half-margin-bottom"><strong>Name</strong></p>
+                </div>
+
+                <div class="right small-5 medium-4 columns">
+                  <p class="small-text half-margin-top half-margin-bottom left"><strong>Check-in</strong></p>
+                </div>
+              </div>
+
+              {% for user in registered_users %}
+                <div class="row">
+                  <div class="left input-left small-6 medium-8 columns">
+                    <p class="half-margin-top">
+                      {{ user.first_name }}
+                      {{ user.last_name }}
+                    </p>
+                  </div>
+
+                  <div class="left input-right small-2 medium-1 columns">
+                      <input type="checkbox" id="vol-checkin-{{ user.id }}" name="vol-checkin-{{ user.id }}" value="{{ user.id }}" class="hidden"/>
+                      <label class="large-text vol-checkin" for="vol-checkin-{{ user.id }}">
+                        <i class="styled-checkbox fa fa-lg fa-check-circle"></i>
+                      </label>
+                  </div>
+
+                  <div class="left input-right small-4 medium-3 columns">
+                      <p id='vol-status-{{ user.id }}' class="half-margin-top"> </p>
+                  </div>
+                </div>
+              {% endfor %}
+
+            </div>
+          </div>
+        </form>
+
         <div id="push"></div>
-    
+
       <!-- wrapper div-->
       </div>
-      
+
       {% include "footer.html" %}
-            
+
     <!--container div -->
     </div>
-    
+
     <div id="bottom-stripe" class="full-width"></div>
-    
+
     <div off-canvas="menu right shift" id="menu">
       {% include "menu.html" %}
     </div>
-  
-    <div id="-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+
+    <!--div id="live-location-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
-        <h3 class="popup-title"></h3>
+        <h4 class="popup-title">Select your location</h4>
       </div>
-      
-      <div class="row">
-        <div class="small-centered medium-10 columns">
-          
-          <p></p>
-          
-          <button class="tax-id-popup_close button round">Okay</button>
-          <a><button class="button round secondary"></button></a>
+
+      <div class="row center">
+        <div class="small-centered medium-8 columns">
+
+          <select name="live-location">
+            <option value="(location)">(List of locations)</option>
+          </select>
+
+          <p>or add a new location:</p>
+
+          <input type="text" class="center" id="new-location" name="new-location" placeholder="New address"/>
+
+          <div class="three-halves-margin-top"><button class="button round">Save</button></div>
         </div>
       </div>
-    </div>
-    
-    
+    </div-->
+
     <script type="text/javascript">
-      $(document).ready(function(){
-        $('#').popup({
-          vertical: 'top',
-          transition: 'all 0.75s',
-          scrolllock: true,
+      let onCheckClick = function(event) {
+        let name = event.target.name;
+        let elem = $(`#${name}`);
+        let userid = elem.val();
+        let isChecked = elem.prop("checked");
+
+        $.ajax({
+          url: "{% url 'openCurrents:event_checkin' event_id %}",
+          type: 'POST',
+          data : {
+            csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[1].value,
+            userid: userid,
+            checkin: isChecked
+          },
+          dataType : "json",
+          context: document.body
+        }).complete(function( data ){
+          if (isChecked) {
+            let dt = new Date();
+            $(`#vol-status-${userid}`).text(`${dt.toLocaleTimeString()}`);
+            $(`#vol-status-${userid}`).show();
+          }
+          else {
+            $(`#vol-status-${userid}`).text(`${data.responseText} min.`);
+          }
         });
+      };
+
+      $(document).ready(function(){
+        // bind all existing checkbox to checkin
+        $("input[name^='vol-checkin']").click(onCheckClick);
+
+        $("#add-volunteer").click(function(event){
+          if ($('#add-volunteer-name').val() == '' || $('#add-volunteer-email').val() == '') {
+            $('#vol-error').slideDown();
+          } else {
+            $('#vol-error').slideUp();
+
+            let new_firstname = $('#new-firstname').val();
+            let new_lastname = $('#new-lastname').val();
+            let new_email = $('#new-email').val();
+
+            $.ajax({
+              url: "{% url 'openCurrents:process_signup' endpoint=True %}",
+              type: 'POST',
+              data : {
+                csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
+                user_firstname: new_firstname,
+                user_lastname: new_lastname,
+                user_email: new_email
+              },
+              dataType : "json",
+            }).success(function( data ) {
+              let userid = data;
+              console.log(data);
+              $.ajax({
+                url: "{% url 'openCurrents:event_register_live' eventid=event.id %}",
+                type: 'POST',
+                data : {
+                  csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
+                  userid: userid
+                },
+                dataType : "json",
+              }).complete(function( data ) {
+                $('#registered-volunteers').append(`
+                  <div class="row"> \
+                    <div class="left input-left small-6 medium-8 columns"> \
+                      <p class="half-margin-top"> \
+                        ${new_firstname} \
+                        ${new_lastname} \
+                      </p> \
+                    </div> \
+
+                    <div class="left input-right small-2 medium-1 columns"> \
+                        <input type="checkbox" id="vol-checkin-${userid}" name="vol-checkin-${userid}" value="${userid}" class="hidden"/> \
+                        <label class="large-text vol-checkin" for="vol-checkin-${userid}"> \
+                          <i class="styled-checkbox fa fa-lg fa-check-circle"></i> \
+                        </label> \
+                    </div> \
+
+                    <div class="left input-right small-4 medium-3 columns"> \
+                        <p id='vol-status-${userid}' class="half-margin-top"> </p> \
+                    </div> \
+                  </div> \
+                `)
+
+                // clear form inputs
+                $('#new-firstname').val('');
+                $('#new-lastname').val('');
+                $('#new-email').val('');
+
+                // bind new checkbox to checkin
+                $(`input[name='vol-checkin-${userid}']`).click(onCheckClick);
+              });
+            });
+
+          }
+        });
+
+        // $('#live-location-popup').popup({
+        //   vertical: 'top',
+        //   transition: 'all 0.75s',
+        //   autoopen: true,
+        // });
       });
     </script>
-    
+
+    <script type="text/javascript">
+      function initialize() {
+      var input = document.getElementById('new-location');
+      var autocomplete = new google.maps.places.Autocomplete(input);
+      }
+      google.maps.event.addDomListener(window, 'load', initialize);
+    </script>
+
+    <script type="text/javascript" src="{% static 'js/auto-complete.min.js' %}"></script>
+    <script type="text/javascript">
+      // initialize
+      let lastnames = [];
+      let new_email_auto = new autoComplete({
+        selector: 'input[id="new-lastname"]',
+        minChars: 2,
+        source: function(term, suggest){
+          let choices = [];
+          {% for user in unregistered_users %}
+            choices.push("{{ user.last_name }}");
+          {% endfor %}
+          lastnames = choices;
+
+          var matches = [];
+          for (i=0; i<lastnames.length; i++)
+              if (~lastnames[i].toLowerCase().indexOf(term) || ~lastnames[i].indexOf(term)) {
+                matches.push(lastnames[i]);
+              }
+          suggest(matches);
+        }
+      });
+
+      $('#new-lastname').change(function () {
+        let lastname = $('#new-lastname').val();
+        let d = {{ uu_lookup }};
+
+        if ( lastname && ~lastnames.indexOf(lastname) ) {
+          $('#new-firstname').val(d[lastname]['first_name']);
+          $('#new-email').val(d[lastname]['email']);
+        }
+      });
+
+    </script>
+
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
   </body>
 </html>

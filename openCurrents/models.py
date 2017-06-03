@@ -4,39 +4,11 @@ from uuid import uuid4
 
 from django.db import models
 
+# Notes:
+# *) unverified users are still created as User objects but with unusable password
+
 def one_week_from_now():
     return timezone.now() + timedelta(days=7)
-
-class Account(models.Model):
-    user = models.OneToOneField(User)
-    amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    pending = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-
-    # created / updated timestamps
-    date_created = models.DateTimeField('date created', auto_now_add=True)
-    date_updated = models.DateTimeField('date last updated', auto_now=True)
-
-    def __unicode__(self):
-        return ' '.join([self.user.username, '\'s account'])
-
-
-# verification tokens
-class Token(models.Model):
-    email = models.EmailField()
-    is_verified = models.BooleanField(default=False)
-    token = models.UUIDField(default=uuid4)
-    token_type = models.CharField(max_length=20)
-    referrer = models.ForeignKey(User, null=True)
-    date_expires = models.DateTimeField(
-        'date invite token expires',
-        default=one_week_from_now
-    )
-
-    def __unicode__(self):
-        return ' '.join([
-            'Verification token for',
-            self.email
-        ])
 
 # org model
 class Org(models.Model):
@@ -46,6 +18,10 @@ class Org(models.Model):
     mission = models.CharField(max_length=4096, null=True)
     reason = models.CharField(max_length=4096, null=True)
     users = models.ManyToManyField(User, through='OrgUser')
+
+    # created / updated timestamps
+    date_created = models.DateTimeField('date created', auto_now_add=True)
+    date_updated = models.DateTimeField('date updated', auto_now=True)
 
     def __unicode__(self):
         return ' '.join([
@@ -60,6 +36,10 @@ class OrgUser(models.Model):
     org = models.ForeignKey(Org)
     affiliation = models.CharField(max_length=50, null=True)
 
+    # created / updated timestamps
+    date_created = models.DateTimeField('date created', auto_now_add=True)
+    date_updated = models.DateTimeField('date updated', auto_now=True)
+
     class Meta:
         unique_together = ('user', 'org')
 
@@ -71,4 +51,151 @@ class OrgUser(models.Model):
             str(self.affiliation),
             'at',
             self.org.name
+        ])
+
+
+class Account(models.Model):
+    user = models.OneToOneField(User)
+    amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    pending = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+
+    # created / updated timestamps
+    date_created = models.DateTimeField('date created', auto_now_add=True)
+    date_updated = models.DateTimeField('date last updated', auto_now=True)
+
+    def __unicode__(self):
+        return ' '.join([self.user.username, '\'s account'])
+
+
+class Project(models.Model):
+    name = models.CharField(max_length=1024)
+    org = models.ForeignKey(Org)
+
+    # created / updated timestamps
+    date_created = models.DateTimeField('date created', auto_now_add=True)
+    date_updated = models.DateTimeField('date updated', auto_now=True)
+
+    def __unicode__(self):
+        return ' '.join([
+            'Project',
+            self.name,
+            'by',
+            self.org.name
+        ])
+
+
+class Event(models.Model):
+    project = models.ForeignKey(Project)
+    description = models.CharField(max_length=8192)
+    location = models.CharField(max_length=1024)
+
+    # coordinator contact info
+    coordinator_firstname = models.CharField(max_length=128)
+    coordinator_email = models.EmailField()
+
+    # start / end timestamps of the project
+    datetime_start = models.DateTimeField('start datetime')
+    datetime_end = models.DateTimeField('end datetime')
+
+    # created / updated timestamps
+    date_created = models.DateTimeField('date created', auto_now_add=True)
+    date_updated = models.DateTimeField('date updated', auto_now=True)
+
+    class Meta:
+        get_latest_by = 'datetime_start'
+
+    def __unicode__(self):
+        return ' '.join([
+            'Event',
+            self.project.name,
+            'by',
+            self.project.org.name,
+            'at',
+            self.location,
+            'on',
+            self.datetime_start.strftime('%b %d'),
+            'from',
+            self.datetime_start.strftime('%-I %p'),
+            'to',
+            self.datetime_end.strftime('%-I %p')
+        ])
+
+
+class ProjectTemplate(models.Model):
+    user = models.ForeignKey(User)
+    event = models.ForeignKey(Event)
+
+
+class UserEventRegistration(models.Model):
+    user = models.ForeignKey(User)
+    event = models.ForeignKey(Event)
+    is_confirmed = models.BooleanField(default=False)
+
+    # created / updated timestamps
+    date_created = models.DateTimeField('date created', auto_now_add=True)
+    date_updated = models.DateTimeField('date updated', auto_now=True)
+
+    def __unicode__(self):
+        return ' '.join([
+            self.user.username,
+            'is registered for',
+            self.project.name
+        ])
+
+
+class UserTimeLog(models.Model):
+    user = models.ForeignKey(User)
+    event = models.ForeignKey(Event)
+    is_verified = models.BooleanField(default=True)
+
+    # start / end timestamps of the contributed time
+    datetime_start = models.DateTimeField('start time')
+    datetime_end = models.DateTimeField('end time', null=True)
+
+    # created / updated timestamps
+    date_created = models.DateTimeField('date created', auto_now_add=True)
+    date_updated = models.DateTimeField('date updated', auto_now=True)
+
+    class Meta:
+        get_latest_by = 'datetime_start'
+
+    def __unicode__(self):
+        return ' '.join([
+            self.user.username,
+            'contributed time at',
+            self.event.project.name,
+            'from',
+            str(self.date_start),
+            'to',
+            str(self.date_end)
+        ])
+
+
+# verification tokens
+class Token(models.Model):
+    email = models.EmailField()
+    is_verified = models.BooleanField(default=False)
+    token = models.UUIDField(default=uuid4)
+    token_type = models.CharField(max_length=20)
+
+    # referring user
+    referrer = models.ForeignKey(User, null=True)
+
+    # token expiration timestamp
+    date_expires = models.DateTimeField(
+        'date invite token expires',
+        default=one_week_from_now
+    )
+
+    # created / updated timestamps
+    date_created = models.DateTimeField('date created', auto_now_add=True)
+    date_updated = models.DateTimeField('date updated', auto_now=True)
+
+    def __unicode__(self):
+        return ' '.join([
+            'Verification token for',
+            self.email,
+            'expiring on',
+            str(self.date_expires),
+            '(%sverified)' % (self.verified if '' else 'not yet')
         ])
