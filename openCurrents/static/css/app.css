@@ -84,12 +84,12 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 1rem;
 }
 
-/* Large buttons on small screens */ 
+/* Large buttons on small screens */
 .button.large {
   font-size: 1.125rem;
 }
- 
-/* Large buttons on non-small screens */   
+
+/* Large buttons on non-small screens */
 @media screen and (min-width: 42em) {
   .button.large {
     font-size: 1.25rem;
@@ -98,7 +98,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .button.small {
   font-size: 0.875rem; }
-  
+
 .button.tiny {
   font-size: 0.875rem;
   padding-top: 0.5rem;
@@ -229,10 +229,10 @@ input::placeholder,
 textarea::placeholder {
   color: #999999; }
 
-input::-webkit-inner-spin-button, 
-input::-webkit-outer-spin-button { 
-  -webkit-appearance: none; 
-  margin: 0; 
+input::-webkit-inner-spin-button,
+input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 label {
@@ -318,7 +318,7 @@ label {
   content: '';
 }
 
-/* Align large checkboxes on non-small screens */   
+/* Align large checkboxes on non-small screens */
 @media screen and (min-width: 42em) {
   .checkbox.large input[type="checkbox"] {
   position: absolute;
@@ -522,7 +522,7 @@ label {
 
 .input-sizer {
   display: block;
-  overflow: hidden; 
+  overflow: hidden;
   padding-left: 4px;
 }
 
@@ -636,7 +636,7 @@ a.list-group-item {
   z-index:  2;
   background-color: #24b2e7;
 }
-  
+
 .modal {
   padding: 1rem;
   border-radius: 4px;
@@ -951,7 +951,7 @@ a.list-group-item {
 /* non-small home */
 @media screen and (min-width: 42em) {
   #home {
-    background: url(/static/img/wheelbarrow-blur.png) no-repeat center center fixed; 
+    background: url(/static/img/wheelbarrow-blur.png) no-repeat center center fixed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -1025,7 +1025,7 @@ a.list-group-item {
 /* login */
 
 #remember-label {
-  padding-left: 0; 
+  padding-left: 0;
 }
 
 #remember-checkbox {
