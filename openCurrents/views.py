@@ -685,7 +685,7 @@ def process_email_confirmation(request, user_email):
         # send verification email
         try:
             sendTransactionalEmail(
-                'invite-friends',
+                'email-confirmed',
                 None,
                 [
                     {
