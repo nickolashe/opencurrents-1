@@ -56,7 +56,7 @@ class SessionContextView(View):
         org = None
         userorgs = OrgUser.objects.filter(user__id=userid)
         if userorgs:
-            org = userorgs[0]
+            org = userorgs[0].org
             context['orgid'] = org.id
 
         return context
@@ -182,6 +182,7 @@ class AdminProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         ).filter(
             is_verified=True
         )
+
         issued_total = sum(
             (timelog.datetime_end - timelog.datetime_start).total_seconds() / 3600
             for timelog in verified_time
