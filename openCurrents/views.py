@@ -7,6 +7,7 @@ from django.views.generic.edit import FormView
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.http import HttpResponse
+from django.utils.safestring import mark_safe
 
 from openCurrents import config
 from openCurrents.models import \
@@ -25,12 +26,12 @@ from openCurrents.forms import \
     EmailVerificationForm, \
     OrgSignupForm, \
     ProjectCreateForm, \
-    LiveDashboardForm, \
     EventRegisterForm, \
     EventCheckinForm
 
 from datetime import datetime, timedelta
 
+import json
 import mandrill
 import logging
 import pytz
@@ -277,18 +278,41 @@ class LiveDashboardView(TemplateView, LoginRequiredMixin):
 
     def get_context_data(self, **kwargs):
         context = super(LiveDashboardView, self).get_context_data(**kwargs)
+        context['form'] = UserSignupForm()
+
+        # event
         event_id = kwargs.pop('event_id')
         event = Event.objects.get(id=event_id)
-        user_regs = UserEventRegistration.objects.filter(event__id=event_id)
         context['event'] = event
-        context['users'] = sorted(
+
+        # registered users
+        user_regs = UserEventRegistration.objects.filter(event__id=event_id)
+        registered_users = sorted(
             set([
                 user_reg.user for user_reg in user_regs
             ]),
             key=lambda u: u.last_name
         )
-        context['form'] = UserSignupForm()
+        context['registered_users'] = registered_users
 
+        # non-registered (existing) users
+        unregistered_users = [
+            ur_user
+            for ur_user in User.objects.exclude(id__in=[
+                r_user.id for r_user in registered_users
+            ])
+        ]
+        context['unregistered_users'] = unregistered_users
+
+        uu_lookup = dict([
+            (user.last_name, {
+                'first_name': user.first_name,
+                'email': user.email
+            })
+            for user in unregistered_users
+        ])
+
+        context['uu_lookup'] = mark_safe(json.dumps(uu_lookup))
         return context
 
 
@@ -449,6 +473,9 @@ def process_signup(request, referrer=None, endpoint=False):
             logger.info('user %s already exists', user_email)
 
             user = User.objects.get(email=user_email)
+            if endpoint:
+                return HttpResponse(user.id, status=200)
+
             if user.has_usable_password():
                 logger.info('user %s already verified', user_email)
                 return redirect(

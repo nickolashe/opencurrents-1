@@ -207,28 +207,6 @@ class ProjectCreateForm(forms.Form):
 
         return cleaned_data
 
-# dp
-class LiveDashboardForm(forms.Form):
-    def __init__(self, *args, **kwargs):
-        orgid = kwargs.pop('orgid')
-        super(LiveDashboardForm, self).__init__(*args, **kwargs)
-
-    first_name = forms.CharField(
-        widget=forms.TextInput(attrs={
-            'placeholder': 'First name',
-            'id': 'add-volunteer-name-[]',
-            'name': 'add-volunteer-name-[]',
-        })
-    )
-
-    email = forms.CharField(
-        widget=forms.TextInput(attrs={
-            'placeholder': 'Email',
-            'id': 'add-volunteer-email-[]',
-            'name': 'add-volunteer-email-[]',
-        })
-    )
-
 
 # TODO: Add location to form
 class EventRegisterForm(forms.Form):
