@@ -205,6 +205,9 @@ class ProjectCreateForm(forms.Form):
             '%Y-%m-%d %I:%M%p'
         )
 
+        if cleaned_data['datetime_start'] > cleaned_data['datetime_end']:
+            raise ValidationError(_('Start time needs to occur before End time'))
+
         return cleaned_data
 
 
