@@ -47,25 +47,21 @@
               <h6 class="half-margin-top one-margin-bottom left">Add volunteer</h6>
 
               <div class="row">
-                <div class="input-left small-5 columns">
+                <div class="input-right small-6 columns">
                   {{ form.user_firstname }}
                 </div>
 
-                <div class="input-left small-5 columns">
+                <div class="input-right small-6 columns">
                   {{ form.user_lastname }}
                 </div>
 
-                <div class="input-middle small-5 medium-6 columns">
+                <div class="input-right small-12 medium-12 columns">
                   {{ form.user_email }}
                 </div>
-
-                <div class="input-right half-margin-top left small-2 medium-1 columns">
-                  <a id="add-volunteer" class="blue-icon one-margin-right">
-                    <i class="fa fa-lg fa-check-circle"></i>
-                  </a>
-                </div>
               </div>
-
+              <a id="add-volunteer" class="small-12 medium-12 blue-icon columns">
+                  Register user
+              </a>
               <p id="vol-error" class="small-text hidden alert">Name and email required</p>
             </div>
           </div>
@@ -91,32 +87,35 @@
               <h6 class="left half-margin-top half-margin-bottom">Registered volunteers</h6>
 
               <div class="row">
-                <div class="left small-7 medium-8 columns">
+                <div class="left small-6 medium-6 columns">
                   <p class="small-text half-margin-top half-margin-bottom"><strong>Name</strong></p>
                 </div>
 
-                <div class="right small-5 medium-4 columns">
-                  <p class="small-text half-margin-top half-margin-bottom left"><strong>Check-in</strong></p>
+                <div class="small-3 medium-3 columns">
+                  <p class="small-text half-margin-top half-margin-bottom"><strong>Check-in</strong></p>
+                </div>
+                <div class="small-3 medium-3  columns">
+
                 </div>
               </div>
 
               {% for user in registered_users %}
                 <div class="row">
-                  <div class="left input-left small-6 medium-8 columns">
+                  <div class="left input-left small-6 medium-6 columns">
                     <p class="half-margin-top">
                       {{ user.first_name }}
                       {{ user.last_name }}
                     </p>
                   </div>
 
-                  <div class="left input-right small-2 medium-1 columns">
+                  <div class="input-middle small-3 medium-3 columns">
                       <input type="checkbox" id="vol-checkin-{{ user.id }}" name="vol-checkin-{{ user.id }}" value="{{ user.id }}" class="hidden"/>
                       <label class="large-text vol-checkin" for="vol-checkin-{{ user.id }}">
                         <i class="styled-checkbox fa fa-lg fa-check-circle"></i>
                       </label>
                   </div>
 
-                  <div class="left input-right small-4 medium-3 columns">
+                  <div class="left input-right small-3 medium-3 columns">
                       <p id='vol-status-{{ user.id }}' class="half-margin-top"> </p>
                   </div>
                 </div>
@@ -230,21 +229,21 @@
               }).complete(function( data ) {
                 $('#registered-volunteers').append(`
                   <div class="row"> \
-                    <div class="left input-left small-6 medium-8 columns"> \
+                    <div class="left input-left small-6 medium-6 columns"> \
                       <p class="half-margin-top"> \
                         ${new_firstname} \
                         ${new_lastname} \
                       </p> \
                     </div> \
 
-                    <div class="left input-right small-2 medium-1 columns"> \
+                    <div class="input-middle small-3 medium-3 columns"> \
                         <input type="checkbox" id="vol-checkin-${userid}" name="vol-checkin-${userid}" value="${userid}" class="hidden"/> \
                         <label class="large-text vol-checkin" for="vol-checkin-${userid}"> \
                           <i class="styled-checkbox fa fa-lg fa-check-circle"></i> \
                         </label> \
                     </div> \
 
-                    <div class="left input-right small-4 medium-3 columns"> \
+                    <div class="left input-right small-3 medium-3 columns"> \
                         <p id='vol-status-${userid}' class="half-margin-top"> </p> \
                     </div> \
                   </div> \
