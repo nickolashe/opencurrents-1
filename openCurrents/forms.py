@@ -80,8 +80,8 @@ class UserLoginForm(forms.Form):
 
 
 class EmailVerificationForm(forms.Form):
-    user_password = forms.CharField(min_length=10)
-    user_password_confirm = forms.CharField(min_length=10)
+    user_password = forms.CharField(min_length=8)
+    user_password_confirm = forms.CharField(min_length=8)
     verification_token = forms.UUIDField()
 
     def clean(self):
@@ -137,60 +137,59 @@ class ProjectCreateForm(forms.Form):
         #     ]
         # )
 
-    project_name = forms.CharField(
-        label='Let\'s...',
-        widget=forms.TextInput(attrs={
-            'class': ' center',
-            'name': 'project_name',
-            'placeholder': 'do some good'
-        })
-    )
-    description = forms.CharField(
-        label='Project description',
-        help_text='What should volunteers know? What should they bring?',
-        widget=forms.Textarea(attrs={
-            'rows': '3'
-        })
-    )
-    date_start = forms.CharField(
-        label='on',
-        widget=forms.TextInput(attrs={
-            'id': 'date_start',
-            'class': 'center'
-        })
-    )
-    time_start = forms.CharField(
-        label='from',
-        widget=forms.TextInput(attrs={
-            'id': 'time_start',
-            'class': 'center',
-            'placeholder': '9:00 am'
-        })
-    )
-    time_end = forms.CharField(
-        label='to',
-        widget=forms.TextInput(attrs={
-            'id': 'time_end',
-            'class': 'center',
-            'placeholder': '12:00 pm'
-        })
-    )
-    # location = forms.CharField(
-    # location = NotValidatedMultipleChoiceField(
-    #     label='at',
-    #     widget=forms.TextInput(attrs={
-    #         'class': 'location center',
-    #         'id': 'event-location-1',
-    #         'placeholder': 'location'
-    #     })
-    # )
+        project_name = forms.CharField(
+            label='Let\'s...',
+            widget=forms.TextInput(attrs={
+                'class': ' center',
+                'placeholder': 'do some good'
+            })
+        )
+        description = forms.CharField(
+            label='Project description',
+            help_text='What should volunteers know? What should they bring?',
+            widget=forms.Textarea(attrs={
+                'rows': '3'
+            })
+        )
+        date_start = forms.CharField(
+            label='on',
+            widget=forms.TextInput(attrs={
+                'id': 'date_start',
+                'class': 'center'
+            })
+        )
+        time_start = forms.CharField(
+            label='from',
+            widget=forms.TextInput(attrs={
+                'id': 'time_start',
+                'class': 'center',
+                'placeholder': '9:00 am'
+            })
+        )
+        time_end = forms.CharField(
+            label='to',
+            widget=forms.TextInput(attrs={
+                'id': 'time_end',
+                'class': 'center',
+                'placeholder': '12:00 pm'
+            })
+        )
+        # location = forms.CharField(
+        # location = NotValidatedMultipleChoiceField(
+        #     label='at',
+        #     widget=forms.TextInput(attrs={
+        #         'class': 'location center',
+        #         'id': 'event-location-1',
+        #         'placeholder': 'location'
+        #     })
+        # )
 
-    coordinator_firstname = forms.CharField(
-        widget=forms.TextInput(attrs={'placeholder': 'First name'})
-    )
-    coordinator_email = forms.CharField(
-        widget=forms.TextInput(attrs={'placeholder': 'Email'})
-    )
+        coordinator_firstname = forms.CharField(
+            widget=forms.TextInput(attrs={'placeholder': 'First name'})
+        )
+        coordinator_email = forms.CharField(
+            widget=forms.TextInput(attrs={'placeholder': 'Email'})
+        )
 
     def clean(self):
         cleaned_data = super(ProjectCreateForm, self).clean()
@@ -206,6 +205,9 @@ class ProjectCreateForm(forms.Form):
             ' '.join([date_start, time_end]),
             '%Y-%m-%d %I:%M%p'
         )
+
+        if cleaned_data['datetime_start'] > cleaned_data['datetime_end']:
+            raise ValidationError(_('Start time needs to occur before End time'))
 
         return cleaned_data
 
