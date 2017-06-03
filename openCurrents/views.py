@@ -2,33 +2,51 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.shortcuts import render, redirect
-from django.views.generic import View, TemplateView
+from django.views.generic import View, ListView, TemplateView, DetailView
+from django.views.generic.edit import FormView
 from django.contrib.auth.models import User
 from django.db import IntegrityError
+from django.http import HttpResponse
+from django.utils.safestring import mark_safe
 
 from openCurrents import config
 from openCurrents.models import \
     Account, \
     Org, \
     OrgUser, \
-    Token
+    Token, \
+    Project, \
+    Event, \
+    UserEventRegistration, \
+    UserTimeLog
 
 from openCurrents.forms import \
     UserSignupForm, \
     UserLoginForm, \
     EmailVerificationForm, \
-    OrgSignupForm
+    OrgSignupForm, \
+    ProjectCreateForm, \
+    EventRegisterForm, \
+    EventCheckinForm
 
 from datetime import datetime, timedelta
 
+import json
 import mandrill
 import logging
+import pytz
 import uuid
 
 
 logging.basicConfig(level=logging.DEBUG, filename="log/views.log")
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
+
+def diffInMinutes(t1, t2):
+    return round((t2 - t1).total_seconds() / 60, 1)
+
+def diffInHours(t1, t2):
+    return round((t2 - t1).total_seconds() / 3600, 1)
 
 class HomeView(TemplateView):
     template_name = 'home.html'
@@ -38,19 +56,6 @@ class InviteView(TemplateView):
 
 class ConfirmAccountView(TemplateView):
     template_name = 'confirm-account.html'
-
-    # def get_context_data(self, **kwargs):
-    #     context = super(ConfirmAccountView, self).get_context_data(**kwargs)
-    #     org_name = None
-    #     try:
-    #         org_user = OrgUser.objects.get(user__email=context['email'])
-    #         if org_user:
-    #             org_name = org_user.org.name
-    #             context['org_name'] = org_name
-    #     except:
-    #         logger.info('User %s has no org association', context['email'])
-    #
-    #     return context
 
 class CommunityView(TemplateView):
     template_name = 'community.html'
@@ -140,11 +145,49 @@ class VolunteeringView(TemplateView):
 class VolunteerRequestsView(TemplateView):
     template_name = 'volunteer-requests.html'
 
-class ProfileView(TemplateView):
+
+class ProfileView(TemplateView, LoginRequiredMixin):
     template_name = 'profile.html'
 
-class AdminProfileView(TemplateView):
+    def get_context_data(self, **kwargs):
+        context = super(ProfileView, self).get_context_data(**kwargs)
+        userid = self.request.user.id
+        context['user_balance'] = User.objects.get(id=userid).account.amount
+
+        return context
+
+
+class AdminProfileView(TemplateView, LoginRequiredMixin):
     template_name = 'admin-profile.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(AdminProfileView, self).get_context_data(**kwargs)
+        userid = self.request.user.id
+        org = OrgUser.objects.get(user__id=userid).org
+        verified_time = UserTimeLog.objects.filter(
+            event__project__org=org
+        ).filter(
+            is_verified=True
+        )
+        issued_total = sum(
+            (timelog.datetime_end - timelog.datetime_start).total_seconds() / 3600
+            for timelog in verified_time
+            if timelog.datetime_end
+        )
+
+        context['user_balance'] = User.objects.get(id=userid).account.amount
+        context['issued_total'] = round(issued_total, 1)
+        context['orgid'] = org.id
+        context['events_current'] = Event.objects.filter(
+            datetime_start__lte=datetime.now()
+        ).filter(
+            datetime_end__gte=datetime.now()
+        )
+        context['events_upcoming'] = Event.objects.filter(
+            datetime_start__gte=datetime.now()
+        )
+
+        return context
 
 class EditProfileView(TemplateView):
     template_name = 'edit-profile.html'
@@ -152,8 +195,61 @@ class EditProfileView(TemplateView):
 class BlogView(TemplateView):
     template_name = 'Blog.html'
 
-class CreateProjectView(TemplateView):
+
+class CreateProjectView(FormView, LoginRequiredMixin):
     template_name = 'create-project.html'
+    form_class = ProjectCreateForm
+    success_url = '/project-created/'
+
+    def create_location(self, location, form_data):
+        event = Event(
+            project=Project.objects.get(id=form_data['project_id']),
+            description=form_data['description'],
+            location=location,
+            datetime_start=form_data['datetime_start'],
+            datetime_end=form_data['datetime_end'],
+            coordinator_firstname=form_data['coordinator_firstname'],
+            coordinator_email=form_data['coordinator_email'],
+        )
+        event.save()
+
+    def form_valid(self, form):
+        # This method is called when valid form data has been POSTed.
+        # It should return an HttpResponse.
+        locations = [
+            val
+            for (key, val) in self.request.POST.iteritems()
+            if 'event-location' in key
+        ]
+        data = form.cleaned_data
+        map(lambda loc: self.create_location(loc, data), locations)
+
+        return redirect('openCurrents:project-created')
+
+
+    def get_form_kwargs(self):
+        """
+        Returns the keyword arguments for instantiating the form.
+        """
+        kwargs = super(CreateProjectView, self).get_form_kwargs()
+        kwargs.update({'orgid': self.kwargs['orgid']})
+        return kwargs
+
+
+class EditProjectView(TemplateView):
+    template_name = 'edit-project.html'
+
+
+# TODO: prioritize view by projects which user was invited to
+class UpcomingProjectsView(ListView, LoginRequiredMixin):
+    template_name = 'upcoming-projects.html'
+    context_object_name = 'events'
+
+    def get_queryset(self):
+        return Event.objects.filter(
+            datetime_end__gte=datetime.now()
+        )
+
 
 class ProjectDetailsView(TemplateView):
     template_name = 'project-details.html'
@@ -164,14 +260,197 @@ class InviteVolunteersView(TemplateView):
 class ProjectCreatedView(TemplateView):
     template_name = 'project-created.html'
 
-class LiveDashboardView(TemplateView):
+
+class EventDetailView(DetailView, LoginRequiredMixin):
+    model = Event
+    context_object_name = 'event'
+    template_name = 'event-detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(EventDetailView, self).get_context_data(**kwargs)
+        context['form'] = EventRegisterForm()
+
+        return context
+
+
+class LiveDashboardView(TemplateView, LoginRequiredMixin):
     template_name = 'live-dashboard.html'
 
+    def get_context_data(self, **kwargs):
+        context = super(LiveDashboardView, self).get_context_data(**kwargs)
+        context['form'] = UserSignupForm()
 
-def process_signup(request, referrer):
+        # event
+        event_id = kwargs.pop('event_id')
+        event = Event.objects.get(id=event_id)
+        context['event'] = event
+
+        # registered users
+        user_regs = UserEventRegistration.objects.filter(event__id=event_id)
+        registered_users = sorted(
+            set([
+                user_reg.user for user_reg in user_regs
+            ]),
+            key=lambda u: u.last_name
+        )
+        context['registered_users'] = registered_users
+
+        # non-registered (existing) users
+        unregistered_users = [
+            ur_user
+            for ur_user in User.objects.exclude(id__in=[
+                r_user.id for r_user in registered_users
+            ])
+        ]
+        context['unregistered_users'] = unregistered_users
+
+        uu_lookup = dict([
+            (user.last_name, {
+                'first_name': user.first_name,
+                'email': user.email
+            })
+            for user in unregistered_users
+        ])
+
+        context['uu_lookup'] = mark_safe(json.dumps(uu_lookup))
+        return context
+
+
+class RegistrationConfirmedView(DetailView, LoginRequiredMixin):
+    model = Event
+    context_object_name = 'event'
+    template_name = 'registration-confirmed.html'
+
+
+class AddVolunteersView(TemplateView):
+    template_name = 'add-volunteers.html'
+
+
+@login_required
+def event_checkin(request, pk):
+    form = EventCheckinForm(request.POST)
+
+    # validate form data
+    if form.is_valid():
+        data = form.cleaned_data
+        userid = data['userid']
+        checkin = data['checkin']
+
+        event = None
+        try:
+            event = Event.objects.get(id=pk)
+        except:
+            logger.error(
+                'Checkin attempted for non-existent event, userid: %s',
+                request.user.id
+            )
+
+            context = {
+                'errors': 'Checkin attempted for non-existent event'
+            }
+
+            return HttpResponse(status=404)
+
+        clogger = logger.getChild(
+            'user %s; event %s' % (userid, event.project.name)
+        )
+
+        if checkin:
+            usertimelog = UserTimeLog(
+                user=User.objects.get(id=userid),
+                event=event,
+                datetime_start=datetime.now()
+            )
+            usertimelog.save()
+            clogger.info(
+                'at %s: checkin',
+                str(usertimelog.datetime_start)
+            )
+            return HttpResponse(status=201)
+        else:
+            usertimelog = UserTimeLog.objects.filter(
+                event__id=pk
+            ).filter(
+                user__id=userid
+            ).latest()
+
+            if usertimelog and not usertimelog.datetime_end:
+                usertimelog.datetime_end = datetime.now(tz=pytz.utc)
+                usertimelog.save()
+                clogger.info(
+                    'at %s: checkout',
+                    str(usertimelog.datetime_end)
+                )
+                return HttpResponse(
+                    diffInMinutes(usertimelog.datetime_start, usertimelog.datetime_end),
+                    status=201
+                )
+            else:
+                clogger.error('invalid checkout (not checked in)')
+                return HttpResponse(status=400)
+
+    else:
+        logger.error('Invalid form: %s', form.errors.as_data())
+
+        context = {
+            'form': form,
+            'errors': form.errors.as_data().values()[0][0]
+        }
+
+        return HttpResponse(status=400)
+
+
+@login_required
+def event_register(request, pk):
+    form = EventRegisterForm(request.POST)
+
+    # validate form data
+    if form.is_valid():
+        user = request.user
+        event = Event.objects.get(id=pk)
+        user_event_registration = UserEventRegistration(
+            user=user,
+            event=event,
+            is_confirmed=True
+        )
+        user_event_registration.save()
+        logger.info('User %s registered for event %s', user.username, event.id)
+
+        return redirect('openCurrents:registration-confirmed', event.id)
+    else:
+        logger.error('Invalid form: %s', form.errors.as_data())
+
+        context = {
+            'form': form,
+            'errors': form.errors.as_data().values()[0][0]
+        }
+
+        return render(
+            request,
+            'openCurrents/event-detail.html',
+            context
+        )
+
+@login_required
+def event_register_live(request, eventid):
+    userid = request.POST['userid']
+    user = User.objects.get(id=userid)
+    event = Event.objects.get(id=eventid)
+    user_event_registration = UserEventRegistration(
+        user=user,
+        event=event,
+        is_confirmed=True
+    )
+    user_event_registration.save()
+    logger.info('User %s registered for event %s', user.username, event.id)
+
+    return HttpResponse({'userid': userid, 'eventid': eventid}, status=201)
+
+
+def process_signup(request, referrer=None, endpoint=False):
     form = UserSignupForm(request.POST)
 
-    # valid form data received
+    # validate form data
     if form.is_valid():
         user_firstname = form.cleaned_data['user_firstname']
         user_lastname = form.cleaned_data['user_lastname']
@@ -194,6 +473,9 @@ def process_signup(request, referrer):
             logger.info('user %s already exists', user_email)
 
             user = User.objects.get(email=user_email)
+            if endpoint:
+                return HttpResponse(user.id, status=200)
+
             if user.has_usable_password():
                 logger.info('user %s already verified', user_email)
                 return redirect(
@@ -268,10 +550,14 @@ def process_signup(request, referrer):
                 e.message,
                 type(e)
             )
-        return redirect(
-            'openCurrents:confirm-account',
-            email=user_email
-        )
+
+        if endpoint:
+            return HttpResponse(user.id, status=201)
+        else:
+            return redirect(
+                'openCurrents:confirm-account',
+                email=user_email
+            )
 
     # fail with form validation error
     else:
@@ -286,7 +572,11 @@ def process_signup(request, referrer):
             for field, le in form.errors.as_data().iteritems()
             for error in le
         ]
-        return redirect('openCurrents:signup', status_msg=errors[0])
+
+        if endpoint:
+            return HttpResponse({errors: errors}, status=400)
+        else:
+            return redirect('openCurrents:signup', status_msg=errors[0])
 
 
 def process_login(request):

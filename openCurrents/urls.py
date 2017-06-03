@@ -45,17 +45,26 @@ urlpatterns = [
 	url(r'^admin-profile$', views.AdminProfileView.as_view(), name='admin-profile'),
 	url(r'^edit-profile$', views.EditProfileView.as_view(), name='edit-profile'),
 	url(r'^blog$', views.BlogView.as_view(), name='blog'),
-	url(r'^create-project$', views.CreateProjectView.as_view(), name='create-project'),
+	url(r'^create-project/(?P<orgid>\d+)/$', views.CreateProjectView.as_view(), name='create-project'),
+	url(r'^edit-project$', views.EditProjectView.as_view(), name='edit-project'),
 	url(r'^project-details$', views.ProjectDetailsView.as_view(), name='project-details'),
 	url(r'^invite-volunteers$', views.InviteVolunteersView.as_view(), name='invite-volunteers'),
 	url(r'^project-created$', views.ProjectCreatedView.as_view(), name='project-created'),
-	url(r'^live-dashboard$', views.LiveDashboardView.as_view(), name='live-dashboard'),
+	url(r'^live-dashboard/(?P<event_id>\d+)/$', views.LiveDashboardView.as_view(), name='live-dashboard'),
+	url(r'^upcoming-projects$', views.UpcomingProjectsView.as_view(), name='upcoming-projects'),
+	url(r'^event-detail/(?P<pk>\d+)/$', views.EventDetailView.as_view(), name='event-detail'),
+	url(r'^registration-confirmed/(?P<pk>\d+)/$', views.RegistrationConfirmedView.as_view(), name='registration-confirmed'),
+	url(r'^add-volunteers$', views.AddVolunteersView.as_view(), name='add-volunteers'),
 
 
     # functional views
+    url(r'^event_register/(?P<pk>\d+)/$', views.event_register, name='event_register'),
+    url(r'^event_register_live/(?P<eventid>\d+)/$', views.event_register_live, name='event_register_live'),
+    url(r'^event_checkin/(?P<pk>\d+)/$', views.event_checkin, name='event_checkin'),
     url(r'^process_login/$', views.process_login, name='process_login'),
     url(r'^process_logout/$', views.process_logout, name='process_logout'),
     url(r'^process_signup/(?P<referrer>[\w\.@\+\-]*)$', views.process_signup, name='process_signup'),
+    url(r'^process_signup/(?P<endpoint>(True|False))/$', views.process_signup, name='process_signup'),
     url(r'^process_email_confirmation/(?P<user_email>[\w\.@\+\-]+)/$', views.process_email_confirmation, name='process_email_confirmation'),
     url(r'^process_org_signup/$', views.process_org_signup, name='process_org_signup')
 ]
