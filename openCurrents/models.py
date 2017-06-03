@@ -7,10 +7,13 @@ from django.db import models
 # Notes:
 # *) unverified users are still created as User objects but with unusable password
 
+
 def one_week_from_now():
     return timezone.now() + timedelta(days=7)
 
 # org model
+
+
 class Org(models.Model):
     name = models.CharField(max_length=100, unique=True)
     website = models.CharField(max_length=100, unique=True, null=True)

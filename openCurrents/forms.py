@@ -39,6 +39,7 @@ class NotValidatedMultipleChoiceField(forms.TypedMultipleChoiceField):
 
 
 class VolunteerCheckinField(forms.Field):
+
     def __init__(self, *args, **kwargs):
         super(VolunteerCheckinField, self).__init__(self, *args, **kwargs)
 
@@ -97,7 +98,7 @@ class OrgSignupForm(forms.Form):
     org_name = forms.CharField(min_length=1)
     org_website = forms.CharField(min_length=1)
     user_affiliation = forms.ChoiceField(
-        choices = [
+        choices=[
             ('employee', 'employee'),
             ('leader', 'leader'),
             ('volunteer', 'volunteer'),
@@ -105,7 +106,7 @@ class OrgSignupForm(forms.Form):
         ]
     )
     org_status = forms.ChoiceField(
-        choices = [
+        choices=[
             ('nonprofit', 'nonprofit'),
             ('business', 'business'),
             ('unregistered', 'unregistered')
@@ -122,6 +123,7 @@ class OrgSignupForm(forms.Form):
 
 
 class ProjectCreateForm(forms.Form):
+
     def __init__(self, *args, **kwargs):
         orgid = kwargs.pop('orgid')
         super(ProjectCreateForm, self).__init__(*args, **kwargs)
