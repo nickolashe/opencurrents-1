@@ -177,6 +177,7 @@ class AdminProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(AdminProfileView, self).get_context_data(**kwargs)
         orgid = context['orgid'] if 'orgid' in context else None
+        context["org_name"] = Org.objects.get(pk=orgid).name if 'orgid' in context else None
         verified_time = UserTimeLog.objects.filter(
             event__project__org__id=orgid
         ).filter(
