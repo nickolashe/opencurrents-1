@@ -47,12 +47,12 @@
 
           <div class="row one-margin-bottom">
             <div class="small-12 medium-6 small-centered columns">
-              {{ form.project_id.errors }}
+              {{ form.project_name.errors }}
               <h6 class="fit-left navy">{{ form.project_name.label }}</h6>
               <span class="input-sizer"> {{ form.project_name }} </span>
-              {% if form.project_id.help_text %}
+              {% if form.project_name.help_text %}
                 <p class="small">
-                  ({{ form.project_id.help_text|safe }})
+                  ({{ form.project_name.help_text|safe }})
                 </p>
               {% endif %}
             </div>
@@ -211,7 +211,8 @@
         selector: 'input[name="project_name"]',
         minChars: 2,
         source: function(term, suggest){
-          var choices = ['clean up Lady Bird Lake', 'install a rain garden', 'host a composting workshop'];
+          //var choices = ['clean up Lady Bird Lake', 'install a rain garden', 'host a composting workshop'];
+          var choices = {{ project_names }}
           var matches = [];
           for (i=0; i<choices.length; i++)
               if (~choices[i].toLowerCase().indexOf(term)) matches.push(choices[i]);

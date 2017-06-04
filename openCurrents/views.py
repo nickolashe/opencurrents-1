@@ -240,6 +240,23 @@ class CreateProjectView(LoginRequiredMixin, SessionContextView, FormView):
 
         return redirect('openCurrents:project-created')
 
+    def get_context_data(self, **kwargs):
+        context = super(CreateProjectView, self).get_context_data(**kwargs)
+
+        # obtain orgid from the session context (provided by SessionContextView)
+        orgid = context['orgid']
+
+        # context::project_names
+        projects = Project.objects.filter(
+            org__id=orgid
+        )
+        project_names = [
+            project.name
+            for project in projects
+        ]
+        context['project_names'] = mark_safe(json.dumps(project_names))
+
+        return context
 
     def get_form_kwargs(self):
         """
