@@ -126,68 +126,68 @@ class ProjectCreateForm(forms.Form):
         orgid = kwargs.pop('orgid')
         super(ProjectCreateForm, self).__init__(*args, **kwargs)
 
-        # project_id field
-        # self.fields['project_id'] = forms.ChoiceField(
-        #     label='Let\'s',
-        #     choices=[
-        #         (project.id, project.name)
-        #         for project in Project.objects.filter(org__id=orgid)
-        #     ]
-        # )
+    # project_id field
+    # self.fields['project_id'] = forms.ChoiceField(
+    #     label='Let\'s',
+    #     choices=[
+    #         (project.id, project.name)
+    #         for project in Project.objects.filter(org__id=orgid)
+    #     ]
+    # )
 
-        project_name = forms.CharField(
-            label='Let\'s...',
-            widget=forms.TextInput(attrs={
-                'class': ' center',
-                'placeholder': 'do some good'
-            })
-        )
-        description = forms.CharField(
-            label='Project description',
-            help_text='What should volunteers know? What should they bring?',
-            widget=forms.Textarea(attrs={
-                'rows': '3'
-            })
-        )
-        date_start = forms.CharField(
-            label='on',
-            widget=forms.TextInput(attrs={
-                'id': 'date_start',
-                'class': 'center'
-            })
-        )
-        time_start = forms.CharField(
-            label='from',
-            widget=forms.TextInput(attrs={
-                'id': 'time_start',
-                'class': 'center',
-                'placeholder': '9:00 am'
-            })
-        )
-        time_end = forms.CharField(
-            label='to',
-            widget=forms.TextInput(attrs={
-                'id': 'time_end',
-                'class': 'center',
-                'placeholder': '12:00 pm'
-            })
-        )
-        # location = forms.CharField(
-        # location = NotValidatedMultipleChoiceField(
-        #     label='at',
-        #     widget=forms.TextInput(attrs={
-        #         'class': 'location center',
-        #         'id': 'event-location-1',
-        #         'placeholder': 'location'
-        #     })
-        # )
+    project_name = forms.CharField(
+        label='Let\'s...',
+        widget=forms.TextInput(attrs={
+            'class': ' center',
+            'placeholder': 'do some good'
+        })
+    )
+    description = forms.CharField(
+        label='Project description',
+        help_text='What should volunteers know? What should they bring?',
+        widget=forms.Textarea(attrs={
+            'rows': '3'
+        })
+    )
+    date_start = forms.CharField(
+        label='on',
+        widget=forms.TextInput(attrs={
+            'id': 'date_start',
+            'class': 'center'
+        })
+    )
+    time_start = forms.CharField(
+        label='from',
+        widget=forms.TextInput(attrs={
+            'id': 'time_start',
+            'class': 'center',
+            'placeholder': '9:00 am'
+        })
+    )
+    time_end = forms.CharField(
+        label='to',
+        widget=forms.TextInput(attrs={
+            'id': 'time_end',
+            'class': 'center',
+            'placeholder': '12:00 pm'
+        })
+    )
+    # location = forms.CharField(
+    # location = NotValidatedMultipleChoiceField(
+    #     label='at',
+    #     widget=forms.TextInput(attrs={
+    #         'class': 'location center',
+    #         'id': 'event-location-1',
+    #         'placeholder': 'location'
+    #     })
+    # )
 
-        coordinator_firstname = forms.CharField(
-            widget=forms.TextInput(attrs={'placeholder': 'First name'})
-        )
-        coordinator_email = forms.CharField(
-            widget=forms.TextInput(attrs={'placeholder': 'Email'})
-        )
+    coordinator_firstname = forms.CharField(
+        widget=forms.TextInput(attrs={'placeholder': 'First name'})
+    )
+    coordinator_email = forms.CharField(
+        widget=forms.TextInput(attrs={'placeholder': 'Email'})
+    )
 
     def clean(self):
         cleaned_data = super(ProjectCreateForm, self).clean()
