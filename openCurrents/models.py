@@ -165,9 +165,9 @@ class UserTimeLog(models.Model):
             'contributed time at',
             self.event.project.name,
             'from',
-            str(self.date_start),
+            str(self.datetime_start.isoformat()),
             'to',
-            str(self.date_end)
+            str(self.datetime_end.isoformat())
         ])
 
 
@@ -197,5 +197,5 @@ class Token(models.Model):
             self.email,
             'expiring on',
             str(self.date_expires),
-            '(%sverified)' % (self.verified if '' else 'not yet')
+            '(%sverified)' % ('' if self.is_verified else 'not yet ')
         ])
