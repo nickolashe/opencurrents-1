@@ -144,7 +144,7 @@ class SignupView(TemplateView):
 class OrgApprovalView(TemplateView):
     template_name = 'org-approval.html'
 
-class UserHomeView(LoginRequiredMixin, TemplateView):
+class UserHomeView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'user-home.html'
 
 class VerifyIdentityView(TemplateView):
