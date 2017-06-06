@@ -14,7 +14,7 @@
         <div class="row center">
           <!--<div class="medium-5 medium-offset-1 columns">
             <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="round" /> -->
-            <h4 class="title three-halves-margin-bottom">Danny Pernik</h4>
+            <h4 class="title three-halves-margin-bottom">{{ user.first_name }} {{ user.last_name }}</h4>
 
             <h6 class="inline">My Currents: </h6>
             <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
@@ -54,8 +54,8 @@
             </div>
           </div>
         </div>
-
-        <div class="row one-margin-bottom">
+        <!-- community feed code. Hardcoded not dynamic --> 
+        <!-- <div class="row one-margin-bottom">
           <div class="left medium-8 small-centered columns">
             <h6 class="center one-margin-top half-margin-bottom">Community activity</h6>
             <div id="community-feed">
@@ -105,7 +105,8 @@
                 <strong>Keep Austin Beautiful</strong> issued 2 Currents to <strong>Jacob Jacobs</strong>.
               </div>
             </div>
-
+          </div>
+        </div> -->
             <!-- <h5 class="fit-left">I care about</h5>
             <span class="input-sizer"><input name="offer-text" type="text" class="profile-text" value="showing people their power"/></span>
 
@@ -123,8 +124,7 @@
 
             <h5 class="one-margin-top one-margin-bottom">My hours given</h5>
             -->
-          </div>
-        </div>
+
 
         <div id="push"></div>
 

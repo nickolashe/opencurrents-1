@@ -51,7 +51,20 @@ def diffInHours(t1, t2):
     return round((t2 - t1).total_seconds() / 3600, 1)
 
 
-class HomeView(TemplateView):
+class SessionContextView(View):
+    def get_context_data(self, **kwargs):
+        context = super(SessionContextView, self).get_context_data(**kwargs)
+        userid = self.request.user.id
+        org = None
+        userorgs = OrgUser.objects.filter(user__id=userid)
+        if userorgs:
+            org = userorgs[0].org
+            context['orgid'] = org.id
+
+        return context
+
+
+class HomeView(SessionContextView, TemplateView):
     template_name = 'home.html'
 
 
@@ -71,7 +84,7 @@ class LoginView(TemplateView):
     template_name = 'login.html'
 
 
-class InviteFriendsView(LoginRequiredMixin, TemplateView):
+class InviteFriendsView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'invite-friends.html'
 
     def get_context_data(self, **kwargs):
@@ -157,7 +170,7 @@ class OrgApprovalView(TemplateView):
     template_name = 'org-approval.html'
 
 
-class UserHomeView(LoginRequiredMixin, TemplateView):
+class UserHomeView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'user-home.html'
 
 
@@ -177,7 +190,7 @@ class VolunteerRequestsView(TemplateView):
     template_name = 'volunteer-requests.html'
 
 
-class ProfileView(TemplateView, LoginRequiredMixin):
+class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'profile.html'
 
     def get_context_data(self, **kwargs):
@@ -188,18 +201,19 @@ class ProfileView(TemplateView, LoginRequiredMixin):
         return context
 
 
-class AdminProfileView(TemplateView, LoginRequiredMixin):
+class AdminProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'admin-profile.html'
 
     def get_context_data(self, **kwargs):
         context = super(AdminProfileView, self).get_context_data(**kwargs)
-        userid = self.request.user.id
-        org = OrgUser.objects.get(user__id=userid).org
+        orgid = context['orgid'] if 'orgid' in context else None
+        context["org_name"] = Org.objects.get(pk=orgid).name if 'orgid' in context else None
         verified_time = UserTimeLog.objects.filter(
-            event__project__org=org
+            event__project__org__id=orgid
         ).filter(
             is_verified=True
         )
+
         issued_total = sum(
             (timelog.datetime_end - timelog.datetime_start).total_seconds() / 3600
             for timelog in verified_time
@@ -207,7 +221,6 @@ class AdminProfileView(TemplateView, LoginRequiredMixin):
         )
 
         context['issued_total'] = round(issued_total, 1)
-        context['orgid'] = org.id
         context['events_current'] = Event.objects.filter(
             datetime_start__lte=datetime.now()
         ).filter(
@@ -228,7 +241,7 @@ class BlogView(TemplateView):
     template_name = 'Blog.html'
 
 
-class CreateProjectView(FormView, LoginRequiredMixin):
+class CreateProjectView(LoginRequiredMixin, SessionContextView, FormView):
     template_name = 'create-project.html'
     form_class = ProjectCreateForm
     success_url = '/project-created/'
@@ -258,6 +271,24 @@ class CreateProjectView(FormView, LoginRequiredMixin):
 
         return redirect('openCurrents:project-created')
 
+    def get_context_data(self, **kwargs):
+        context = super(CreateProjectView, self).get_context_data(**kwargs)
+
+        # obtain orgid from the session context (provided by SessionContextView)
+        orgid = context['orgid']
+
+        # context::project_names
+        projects = Project.objects.filter(
+            org__id=orgid
+        )
+        project_names = [
+            project.name
+            for project in projects
+        ]
+        context['project_names'] = mark_safe(json.dumps(project_names))
+
+        return context
+
     def get_form_kwargs(self):
         """
         Returns the keyword arguments for instantiating the form.
@@ -272,7 +303,7 @@ class EditProjectView(TemplateView):
 
 
 # TODO: prioritize view by projects which user was invited to
-class UpcomingProjectsView(ListView, LoginRequiredMixin):
+class UpcomingProjectsView(LoginRequiredMixin, SessionContextView, ListView):
     template_name = 'upcoming-projects.html'
     context_object_name = 'events'
 
@@ -294,7 +325,7 @@ class ProjectCreatedView(TemplateView):
     template_name = 'project-created.html'
 
 
-class EventDetailView(DetailView, LoginRequiredMixin):
+class EventDetailView(LoginRequiredMixin, SessionContextView, DetailView):
     model = Event
     context_object_name = 'event'
     template_name = 'event-detail.html'
@@ -306,7 +337,7 @@ class EventDetailView(DetailView, LoginRequiredMixin):
         return context
 
 
-class LiveDashboardView(TemplateView, LoginRequiredMixin):
+class LiveDashboardView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'live-dashboard.html'
 
     def get_context_data(self, **kwargs):
@@ -718,7 +749,7 @@ def process_email_confirmation(request, user_email):
         # send verification email
         try:
             sendTransactionalEmail(
-                'invite-friends',
+                'email-confirmed',
                 None,
                 [
                     {
