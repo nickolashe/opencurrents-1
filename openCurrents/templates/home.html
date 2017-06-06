@@ -4,6 +4,7 @@
 <html>
   <head>
     {% include "head.html" %}
+    <link href="{% static "css/home.css" %}" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Alegreya+Sans+SC:100,300" rel="stylesheet">
 
     <meta property="og:url" content="http://www.opencurrents.com" />
@@ -536,7 +537,7 @@
           $('#intro-3').fadeOut(777, function(){
             $('#intro-4').fadeIn(777);
           });
-          
+
           page = 4;
 
           //history.pushState(page, null, "");

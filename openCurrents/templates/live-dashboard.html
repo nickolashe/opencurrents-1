@@ -141,27 +141,6 @@
       {% include "menu.html" %}
     </div>
 
-    <!--div id="live-location-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <div class="row center">
-        <h4 class="popup-title">Select your location</h4>
-      </div>
-
-      <div class="row center">
-        <div class="small-centered medium-8 columns">
-
-          <select name="live-location">
-            <option value="(location)">(List of locations)</option>
-          </select>
-
-          <p>or add a new location:</p>
-
-          <input type="text" class="center" id="new-location" name="new-location" placeholder="New address"/>
-
-          <div class="three-halves-margin-top"><button class="button round">Save</button></div>
-        </div>
-      </div>
-    </div-->
-
     <script type="text/javascript">
       let onCheckClick = function(event) {
         let name = event.target.name;
@@ -196,7 +175,7 @@
         $("input[name^='vol-checkin']").click(onCheckClick);
 
         $("#add-volunteer").click(function(event){
-          if ($('#add-volunteer-name').val() == '' || $('#add-volunteer-email').val() == '') {
+          if ($('#new-firstname').val() == '' || $('#new-lastname').val() == '' || $('#new-email').val() == '') {
             $('#vol-error').slideDown();
           } else {
             $('#vol-error').slideUp();
