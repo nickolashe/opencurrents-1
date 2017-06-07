@@ -58,9 +58,9 @@
                 <div class="row one-margin-top one-margin-bottom">
                   <div class="left small-8 columns">
                     <strong> {{event.project.name}} </strong>
-                    on {{event.datetime_start|day}}
-                    at {{event.datetime_start|time}}
-                    to {{event.datetime_end|time}}
+                    on {{event.datetime_start|day:timezone}}
+                    at {{event.datetime_start|time:timezone}}
+                    to {{event.datetime_end|time:timezone}}
                     at {{event.location}}
                   </div>
 
@@ -87,9 +87,9 @@
                 <div class="row one-margin-bottom">
                   <div class="left small-9 columns">
                     <strong> {{event.project.name}} </strong>
-                    on {{event.datetime_start|day}}
-                    at {{event.datetime_start|time}}
-                    to {{event.datetime_end|time}}
+                    on {{event.datetime_start|day:timezone}}
+                    at {{event.datetime_start|time:timezone}}
+                    to {{event.datetime_end|time:timezone}}
                     at {{event.location}}
                   </div>
 
@@ -102,7 +102,7 @@
             </div>
           </div>
         {% endif %}
-        <!-- community feed code. Hardcoded not dynamic --> 
+        <!-- community feed code. Hardcoded not dynamic -->
         <!-- <div class="row one-margin-top">
           <div class="left medium-8 small-centered columns">
             <h6 class="center half-margin-bottom">Community activity</h6>

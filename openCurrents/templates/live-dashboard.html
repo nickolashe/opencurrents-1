@@ -23,7 +23,7 @@
         {% endif %}
 
         <div class="row">
-            <h4 class="title-sub">Let's {{ event.project.name }}</h4>
+            <h4 class="title-sub">Let's {{ event.project.name }}!</h4>
             <p> {{ event.project.org.name }} </p>
         </div>
 
@@ -42,7 +42,7 @@
             </div>
           {% endif %}
 
-          <div class="row one-margin-bottom center">
+          <!-- <div class="row one-margin-bottom center">
             <div id="new-volunteers" class="small-12 medium-8 small-centered columns">
               <h6 class="half-margin-top one-margin-bottom left">Add volunteer</h6>
 
@@ -64,7 +64,7 @@
               </a>
               <p id="vol-error" class="small-text hidden alert">Name and email required</p>
             </div>
-          </div>
+          </div> -->
         </form>
 
         <form id='form-checkin' method="post">
@@ -87,37 +87,37 @@
               <h6 class="left half-margin-top half-margin-bottom">Registered volunteers</h6>
 
               <div class="row">
-                <div class="left small-6 medium-6 columns">
+                <div class="left small-8 columns">
                   <p class="small-text half-margin-top half-margin-bottom"><strong>Name</strong></p>
                 </div>
 
-                <div class="small-3 medium-3 columns">
+                <div class="right small-4 columns">
                   <p class="small-text half-margin-top half-margin-bottom"><strong>Check-in</strong></p>
                 </div>
-                <div class="small-3 medium-3  columns">
-
-                </div>
+                <!-- <div class="small-3 medium-3 columns">
+                <p class="small-text half-margin-top half-margin-bottom"><strong>Time in</strong></p>
+                </div> -->
               </div>
 
               {% for user in registered_users %}
                 <div class="row">
-                  <div class="left input-left small-6 medium-6 columns">
+                  <div class="left small-9 columns">
                     <p class="half-margin-top">
                       {{ user.first_name }}
                       {{ user.last_name }}
                     </p>
                   </div>
 
-                  <div class="input-middle small-3 medium-3 columns">
+                  <div class="right small-3 columns">
                       <input type="checkbox" id="vol-checkin-{{ user.id }}" name="vol-checkin-{{ user.id }}" value="{{ user.id }}" class="hidden"/>
                       <label class="large-text vol-checkin" for="vol-checkin-{{ user.id }}">
                         <i class="styled-checkbox fa fa-lg fa-check-circle"></i>
                       </label>
                   </div>
 
-                  <div class="left input-right small-3 medium-3 columns">
+                  <!-- <div class="left input-right small-3 medium-3 columns">
                       <p id='vol-status-{{ user.id }}' class="half-margin-top"> </p>
-                  </div>
+                  </div> -->
                 </div>
               {% endfor %}
 
@@ -208,22 +208,18 @@
               }).complete(function( data ) {
                 $('#registered-volunteers').append(`
                   <div class="row"> \
-                    <div class="left input-left small-6 medium-6 columns"> \
+                    <div class="left input-left small-9 columns"> \
                       <p class="half-margin-top"> \
                         ${new_firstname} \
                         ${new_lastname} \
                       </p> \
                     </div> \
 
-                    <div class="input-middle small-3 medium-3 columns"> \
+                    <div class="input-middle small-3 columns"> \
                         <input type="checkbox" id="vol-checkin-${userid}" name="vol-checkin-${userid}" value="${userid}" class="hidden"/> \
                         <label class="large-text vol-checkin" for="vol-checkin-${userid}"> \
                           <i class="styled-checkbox fa fa-lg fa-check-circle"></i> \
                         </label> \
-                    </div> \
-
-                    <div class="left input-right small-3 medium-3 columns"> \
-                        <p id='vol-status-${userid}' class="half-margin-top"> </p> \
                     </div> \
                   </div> \
                 `)
