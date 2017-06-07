@@ -1,8 +1,9 @@
 from __future__ import unicode_literals
 from django.contrib.auth.models import User
+from django.db import models
+
 from uuid import uuid4
 
-from django.db import models
 
 # Notes:
 # *) unverified users are still created as User objects but with unusable password
@@ -10,6 +11,14 @@ from django.db import models
 
 def one_week_from_now():
     return timezone.now() + timedelta(days=7)
+
+def diffInMinutes(t1, t2):
+    return round((t2 - t1).total_seconds() / 60, 1)
+
+
+def diffInHours(t1, t2):
+    return round((t2 - t1).total_seconds() / 3600, 1)
+
 
 # org model
 
@@ -155,7 +164,7 @@ class UserTimeLog(models.Model):
 
     # start / end timestamps of the contributed time
     datetime_start = models.DateTimeField('start time')
-    datetime_end = models.DateTimeField('end time', null=True)
+    datetime_end = models.DateTimeField('end time', null=True, blank=True)
 
     # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)
@@ -165,15 +174,21 @@ class UserTimeLog(models.Model):
         get_latest_by = 'datetime_start'
 
     def __unicode__(self):
-        return ' '.join([
+        status = ' '.join([
             self.user.username,
-            'contributed time at',
-            self.event.project.name,
-            'from',
-            str(self.datetime_start.isoformat()),
-            'to',
-            str(self.datetime_end.isoformat())
+            'contributed %s starting',
+            self.datetime_start.strftime('%Y-%m-%d %I-%M %p'),
+            'at',
+            self.event.project.name
         ])
+
+        if self.datetime_end:
+            minutes = diffInHours(self.datetime_start, self.datetime_end)
+        else:
+            minutes = '(but has not been checked out)'
+
+        status %= minutes
+        return status
 
 
 # verification tokens
