@@ -87,11 +87,11 @@
               <h6 class="left half-margin-top half-margin-bottom">Registered volunteers</h6>
 
               <div class="row">
-                <div class="left small-9 columns">
+                <div class="left small-8 columns">
                   <p class="small-text half-margin-top half-margin-bottom"><strong>Name</strong></p>
                 </div>
 
-                <div class="small-3 columns">
+                <div class="right small-4 columns">
                   <p class="small-text half-margin-top half-margin-bottom"><strong>Check-in</strong></p>
                 </div>
                 <!-- <div class="small-3 medium-3 columns">
@@ -101,14 +101,14 @@
 
               {% for user in registered_users %}
                 <div class="row">
-                  <div class="left input-left small-9 columns">
+                  <div class="left small-9 columns">
                     <p class="half-margin-top">
                       {{ user.first_name }}
                       {{ user.last_name }}
                     </p>
                   </div>
 
-                  <div class="input-middle small-3 medium-3 columns">
+                  <div class="right small-3 columns">
                       <input type="checkbox" id="vol-checkin-{{ user.id }}" name="vol-checkin-{{ user.id }}" value="{{ user.id }}" class="hidden"/>
                       <label class="large-text vol-checkin" for="vol-checkin-{{ user.id }}">
                         <i class="styled-checkbox fa fa-lg fa-check-circle"></i>

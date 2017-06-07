@@ -196,8 +196,19 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(ProfileView, self).get_context_data(**kwargs)
         userid = self.request.user.id
-        context['user_balance'] = User.objects.get(id=userid).account.amount
-
+        user = User.objects.get(id=userid)
+        context['user_balance'] = user.account.amount
+        events_upcoming = [
+            userreg.event
+            for userreg in UserEventRegistration.objects.filter(
+                user__id=userid
+            ).filter(
+                event__datetime_start__gte=datetime.now(tz=pytz.utc)
+            )
+        ]
+        context['events_upcoming'] = events_upcoming
+        context['timezone'] = user.account.timezone
+        
         return context
 
 
@@ -206,8 +217,11 @@ class AdminProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(AdminProfileView, self).get_context_data(**kwargs)
-        orgid = context['orgid'] if 'orgid' in context else None
-        context["org_name"] = Org.objects.get(pk=orgid).name if 'orgid' in context else None
+        orgid = context['orgid']
+        org = Org.objects.get(pk=orgid)
+        context['org_name'] = org.name
+        context['timezone'] = org.timezone
+
         verified_time = UserTimeLog.objects.filter(
             event__project__org__id=orgid
         ).filter(
@@ -222,12 +236,12 @@ class AdminProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
 
         context['issued_total'] = round(issued_total, 1)
         context['events_current'] = Event.objects.filter(
-            datetime_start__lte=datetime.now()
+            datetime_start__lte=datetime.now(tz=pytz.utc)
         ).filter(
-            datetime_end__gte=datetime.now()
+            datetime_end__gte=datetime.now(tz=pytz.utc)
         )
         context['events_upcoming'] = Event.objects.filter(
-            datetime_start__gte=datetime.now()
+            datetime_start__gte=datetime.now(tz=pytz.utc)
         )
 
         return context
@@ -423,7 +437,7 @@ def event_checkin(request, pk):
             usertimelog = UserTimeLog(
                 user=User.objects.get(id=userid),
                 event=event,
-                datetime_start=datetime.now()
+                datetime_start=datetime.now(tz=pytz.UTC)
             )
             usertimelog.save()
             clogger.info(
@@ -656,7 +670,10 @@ def process_login(request):
         )
         if user is not None and user.is_active:
             login(request, user)
-            return redirect('openCurrents:user-home')
+            if user.org_set.exists():
+                return redirect('openCurrents:admin-profile')
+            else:
+                return redirect('openCurrents:user-home')
         else:
             return redirect('openCurrents:login', status_msg='Invalid login/password')
     else:
