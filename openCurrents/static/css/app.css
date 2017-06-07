@@ -1123,3 +1123,7 @@ input[type="checkbox"] + label.vol-arrived {
 .pac-container {
   z-index: 100002;
 }
+
+.vol-checkin {
+  font-size: 1.5rem;
+}
