@@ -21,6 +21,7 @@ class Org(models.Model):
     mission = models.CharField(max_length=4096, null=True)
     reason = models.CharField(max_length=4096, null=True)
     users = models.ManyToManyField(User, through='OrgUser')
+    timezone = models.CharField(max_length=128, default='America/Chicago')
 
     # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)
@@ -61,6 +62,7 @@ class Account(models.Model):
     user = models.OneToOneField(User)
     amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     pending = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    timezone = models.CharField(max_length=128, default='America/Chicago')
 
     # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)

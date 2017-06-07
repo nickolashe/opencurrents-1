@@ -1,4 +1,5 @@
 {% load staticfiles %}
+{% load tags %}
 
 <!DOCTYPE html>
 <html>
@@ -31,30 +32,32 @@
           </div>-->
         </div>
 
-        <div class="row one-margin-top">
-          <div class="small-12 medium-8 small-centered columns">
-            <h6 class="half-margin-bottom">My upcoming projects</h6>
-            <div class="row one-margin-top">
-              <div class="left input-left small-9 columns">
-                <p class="half-margin-top"><a>Let's clean up Lady Bird Lake</a></p>
-              </div>
+        {% if events_upcoming %}
+          <div id="project-list" class="row one-margin-top">
+            <div class="medium-8 small-centered columns">
+              <h6 class="half-margin-bottom">My upcoming projects</h6>
 
-              <div class="right input-right small-3 columns">
-                <button class="rsvp-popup_open button small round secondary">Going</button>
-              </div>
-            </div>
-            <div class="row half-margin-top">
-              <div class="left input-left small-9 columns">
-                <p class="half-margin-top"><a>Let's advocate bike safety</a></p>
-              </div>
+              {% for event in events_upcoming %}
+                <div class="row one-margin-bottom">
+                  <div class="left small-9 columns">
+                    <strong> {{event.project.name}} </strong>
+                    on {{event.datetime_start|day:timezone}}
+                    at {{event.datetime_start|time:timezone}}
+                    to {{event.datetime_end|time:timezone}}
+                    at {{event.location}}
+                  </div>
 
-              <div class="right input-right small-3 columns">
-                <button class="rsvp-popup_open button small round secondary">Going</button>
-              </div>
+                  <div class="right input-right small-3 columns">
+                    <button class="rsvp-popup_open button small round secondary">Going</button>
+                  </div>
+                </div>
+              {% endfor %}
+
             </div>
           </div>
-        </div>
-        <!-- community feed code. Hardcoded not dynamic --> 
+        {% endif %}
+
+        <!-- community feed code. Hardcoded not dynamic -->
         <!-- <div class="row one-margin-bottom">
           <div class="left medium-8 small-centered columns">
             <h6 class="center one-margin-top half-margin-bottom">Community activity</h6>
