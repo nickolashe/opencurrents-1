@@ -75,17 +75,18 @@
           </div>
         {% endif %}
 
+        {% if not events_current %}
+          <p><a href="{% url 'openCurrents:live-dashboard' event_id=1 %}" class="button round small">Preview live dashboard</a></p>
+        {% endif %}
+
         {% if events_upcoming %}
           <div id="project-list" class="row one-margin-top">
             <div class="medium-8 small-centered columns">
               <h6 class="half-margin-bottom">Our upcoming projects</h6>
-              {% if not events_current %}
-                <button class="button round small secondary">Preview live dashboard</button> (if no live projects)
-              {% endif %}
 
               {% for event in events_upcoming %}
                 <div class="row one-margin-bottom">
-                  <div class="left small-9 columns">
+                  <div class="left small-12 columns">
                     Let's {{event.project.name}}!
                     on {{event.datetime_start|day:timezone}}
                     at {{event.datetime_start|time:timezone}}
@@ -93,9 +94,9 @@
                     at <strong>{{event.location}}</strong>
                   </div>
 
-                  <div class="right small-3 columns">
+                  <!-- <div class="right small-3 columns">
                     <button class="button round small secondary">Edit</button>
-                  </div>
+                  </div> -->
                 </div>
               {% endfor %}
 
