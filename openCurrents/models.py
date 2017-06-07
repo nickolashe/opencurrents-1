@@ -4,6 +4,7 @@ from django.db import models
 
 from uuid import uuid4
 
+import pytz
 
 # Notes:
 # *) unverified users are still created as User objects but with unusable password
@@ -174,10 +175,11 @@ class UserTimeLog(models.Model):
         get_latest_by = 'datetime_start'
 
     def __unicode__(self):
+        tz = self.event.project.org.timezone
         status = ' '.join([
             self.user.username,
             'contributed %s starting',
-            self.datetime_start.strftime('%Y-%m-%d %I-%M %p'),
+            self.datetime_start.astimezone(pytz.timezone(tz)).strftime('%Y-%m-%d %I-%M %p'),
             'at',
             self.event.project.name
         ])
