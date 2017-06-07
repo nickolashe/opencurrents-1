@@ -35,11 +35,11 @@
               <h6 class="inline">Org hours tracked:</h6>
               <!-- <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>-->
               <h6 class="inline"> {{ issued_total }}</h6>
-              <div class="qtr-margin-top">
+              <!-- <div class="qtr-margin-top">
                 <a href="{% url 'openCurrents:create-project' orgid %}">
-                  <button class="button small round">Create project</button>
+                  <button class="button small round">Create event</button>
                 </a>
-              </div>
+              </div> -->
             </div>
 
           <!--</div>
@@ -86,11 +86,11 @@
               {% for event in events_upcoming %}
                 <div class="row one-margin-bottom">
                   <div class="left small-9 columns">
-                    <strong> {{event.project.name}} </strong>
+                    Let's {{event.project.name}}!
                     on {{event.datetime_start|day:timezone}}
                     at {{event.datetime_start|time:timezone}}
                     to {{event.datetime_end|time:timezone}}
-                    at {{event.location}}
+                    at <strong>{{event.location}}</strong>
                   </div>
 
                   <div class="right small-3 columns">
