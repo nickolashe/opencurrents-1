@@ -656,7 +656,10 @@ def process_login(request):
         )
         if user is not None and user.is_active:
             login(request, user)
-            return redirect('openCurrents:user-home')
+            if user.org_set.exists():
+                return redirect('openCurrents:admin-profile')
+            else:
+                return redirect('openCurrents:user-home')
         else:
             return redirect('openCurrents:login', status_msg='Invalid login/password')
     else:
