@@ -76,7 +76,7 @@
         {% endif %}
 
         {% if not events_current %}
-          <p><button href="{% url 'openCurrents:live-dashboard' event_id=1 %}" class="button round small">Preview live dashboard</button></p>
+          <p><a href="{% url 'openCurrents:live-dashboard' event_id=1 %}" class="button round small">Preview live dashboard</a></p>
         {% endif %}
 
         {% if events_upcoming %}
