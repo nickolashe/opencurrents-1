@@ -42,8 +42,10 @@ logging.basicConfig(level=logging.DEBUG, filename="log/views.log")
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
+
 def diffInMinutes(t1, t2):
     return round((t2 - t1).total_seconds() / 60, 1)
+
 
 def diffInHours(t1, t2):
     return round((t2 - t1).total_seconds() / 3600, 1)
@@ -65,17 +67,22 @@ class SessionContextView(View):
 class HomeView(SessionContextView, TemplateView):
     template_name = 'home.html'
 
+
 class InviteView(TemplateView):
     template_name = 'home.html'
+
 
 class ConfirmAccountView(TemplateView):
     template_name = 'confirm-account.html'
 
+
 class CommunityView(TemplateView):
     template_name = 'community.html'
 
+
 class LoginView(TemplateView):
     template_name = 'login.html'
+
 
 class InviteFriendsView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'invite-friends.html'
@@ -90,71 +97,94 @@ class InviteFriendsView(LoginRequiredMixin, SessionContextView, TemplateView):
 
         return context
 
+
 class ApproveHoursView(TemplateView):
     template_name = 'approve-hours.html'
+
 
 class CausesView(TemplateView):
     template_name = 'causes.html'
 
+
 class EditHoursView(TemplateView):
     template_name = 'edit-hours.html'
+
 
 class FaqView(TemplateView):
     template_name = 'faq.html'
 
+
 class FindOrgsView(TemplateView):
     template_name = 'find-orgs.html'
+
 
 class GiveCurrentsView(TemplateView):
     template_name = 'give-currents.html'
 
+
 class HoursApprovedView(TemplateView):
     template_name = 'hours-approved.html'
+
 
 class InventoryView(TemplateView):
     template_name = 'Inventory.html'
 
+
 class MissionView(TemplateView):
     template_name = 'mission.html'
+
 
 class NominateView(TemplateView):
     template_name = 'nominate.html'
 
+
 class NominationConfirmedView(TemplateView):
     template_name = 'nomination-confirmed.html'
+
 
 class NominationEmailView(TemplateView):
     template_name = 'nomination-email.html'
 
+
 class OrgHomeView(TemplateView):
     template_name = 'org-home.html'
+
 
 class OrgSignupView(LoginRequiredMixin, TemplateView):
     template_name = 'org-signup.html'
 
+
 class RequestCurrentsView(TemplateView):
     template_name = 'request-currents.html'
+
 
 class SellView(TemplateView):
     template_name = 'sell.html'
 
+
 class SignupView(TemplateView):
     template_name = 'signup.html'
+
 
 class OrgApprovalView(TemplateView):
     template_name = 'org-approval.html'
 
+
 class UserHomeView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'user-home.html'
+
 
 class VerifyIdentityView(TemplateView):
     template_name = 'verify-identity.html'
 
+
 class VolunteerHoursView(TemplateView):
     template_name = 'volunteer-hours.html'
 
+
 class VolunteeringView(TemplateView):
     template_name = 'volunteering.html'
+
 
 class VolunteerRequestsView(TemplateView):
     template_name = 'volunteer-requests.html'
@@ -205,6 +235,7 @@ class AdminProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
 
 class EditProfileView(TemplateView):
     template_name = 'edit-profile.html'
+
 
 class BlogView(TemplateView):
     template_name = 'Blog.html'
@@ -285,8 +316,10 @@ class UpcomingProjectsView(LoginRequiredMixin, SessionContextView, ListView):
 class ProjectDetailsView(TemplateView):
     template_name = 'project-details.html'
 
+
 class InviteVolunteersView(TemplateView):
     template_name = 'invite-volunteers.html'
+
 
 class ProjectCreatedView(TemplateView):
     template_name = 'project-created.html'
@@ -462,6 +495,7 @@ def event_register(request, pk):
             context
         )
 
+
 @login_required
 def event_register_live(request, eventid):
     userid = request.POST['userid']
@@ -552,7 +586,6 @@ def process_signup(request, referrer=None, endpoint=False):
                 org_user.save()
             except IntegrityError:
                 logger.info('org %s already exists', org_name)
-
 
         # send verification email
         try:
@@ -655,7 +688,7 @@ def process_email_confirmation(request, user_email):
             logger.error(error_msg, user_email)
             return redirect(
                 'openCurrents:signup',
-                status_msg= error_msg % user_email
+                status_msg=error_msg % user_email
             )
 
         if user.has_usable_password():
@@ -675,7 +708,7 @@ def process_email_confirmation(request, user_email):
             logger.error(error_msg, user_email)
             return redirect(
                 'openCurrents:signup',
-                status_msg = error_msg % user_email
+                status_msg=error_msg % user_email
             )
 
         if token_record.is_verified:
@@ -812,7 +845,7 @@ def process_org_signup(request):
                 org=org,
                 user=request.user
             )
-            org_user.affiliation=form_data['user_affiliation']
+            org_user.affiliation = form_data['user_affiliation']
             org_user.save()
 
         logger.info(
