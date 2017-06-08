@@ -15,7 +15,7 @@ def day(val, tz='UTC'):
 
 @register.filter
 def time(val, tz='UTC'):
-    return val.astimezone(pytz.timezone(tz)).strftime('%-I:%m %p')
+    return val.astimezone(pytz.timezone(tz)).strftime('%-I:%M %p')
 
 @register.filter
 def keyvalue(d, key):

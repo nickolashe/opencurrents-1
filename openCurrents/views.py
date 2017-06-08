@@ -208,7 +208,7 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         ]
         context['events_upcoming'] = events_upcoming
         context['timezone'] = user.account.timezone
-        
+
         return context
 
 
