@@ -208,7 +208,7 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         ]
         context['events_upcoming'] = events_upcoming
         context['timezone'] = user.account.timezone
-        
+
         return context
 
 
@@ -261,8 +261,16 @@ class CreateProjectView(LoginRequiredMixin, SessionContextView, FormView):
     success_url = '/project-created/'
 
     def create_event(self, location, form_data):
+        if not self.project:
+            project = Project(
+                org=Org.objects.get(id=self.orgid),
+                name=form_data['project_name']
+            )
+            project.save()
+            self.project = project
+
         event = Event(
-            project=Project.objects.get(id=form_data['project_id']),
+            project=self.project,
             description=form_data['description'],
             location=location,
             datetime_start=form_data['datetime_start'],
@@ -281,6 +289,16 @@ class CreateProjectView(LoginRequiredMixin, SessionContextView, FormView):
             if 'event-location' in key
         ]
         data = form.cleaned_data
+        if data['project_name'] in self.project_names:
+            logger.info('event found')
+            self.project = Project.objects.get(
+                org__id=self.orgid,
+                name=data['project_name']
+            )
+        else:
+            self.project = None
+
+        # create an event for each location
         map(lambda loc: self.create_event(loc, data), locations)
 
         return redirect('openCurrents:project-created')
@@ -290,6 +308,7 @@ class CreateProjectView(LoginRequiredMixin, SessionContextView, FormView):
 
         # obtain orgid from the session context (provided by SessionContextView)
         orgid = context['orgid']
+        self.orgid = orgid
 
         # context::project_names
         projects = Project.objects.filter(
@@ -299,7 +318,10 @@ class CreateProjectView(LoginRequiredMixin, SessionContextView, FormView):
             project.name
             for project in projects
         ]
+
         context['project_names'] = mark_safe(json.dumps(project_names))
+        self.project_names = project_names
+        logger.info(project_names)
 
         return context
 

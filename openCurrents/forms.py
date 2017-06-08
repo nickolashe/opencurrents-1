@@ -3,11 +3,12 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext as _
 from django.forms import ModelForm
 
-from openCurrents.models import Project, OrgUser
+from openCurrents.models import Project, Org, OrgUser
 
 from datetime import datetime
 
 import logging
+import pytz
 
 
 logger = logging.getLogger(__name__)
@@ -126,6 +127,7 @@ class ProjectCreateForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         orgid = kwargs.pop('orgid')
+        self.org = Org.objects.get(id=orgid)
         super(ProjectCreateForm, self).__init__(*args, **kwargs)
 
     # project_id field
@@ -196,15 +198,19 @@ class ProjectCreateForm(forms.Form):
         date_start = cleaned_data['date_start']
         time_start = cleaned_data['time_start']
         time_end = cleaned_data['time_end']
+        tz = self.org.timezone
 
-        cleaned_data['datetime_start'] = datetime.strptime(
+        datetime_start = datetime.strptime(
             ' '.join([date_start, time_start]),
             '%Y-%m-%d %I:%M%p'
         )
-        cleaned_data['datetime_end'] = datetime.strptime(
+        cleaned_data['datetime_start'] = pytz.timezone(tz).localize(datetime_start)
+
+        datetime_end = datetime.strptime(
             ' '.join([date_start, time_end]),
             '%Y-%m-%d %I:%M%p'
         )
+        cleaned_data['datetime_end'] = pytz.timezone(tz).localize(datetime_end)
 
         if cleaned_data['datetime_start'] > cleaned_data['datetime_end']:
             raise ValidationError(_('Start time needs to occur before End time'))
