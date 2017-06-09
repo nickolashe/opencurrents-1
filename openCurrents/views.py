@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.http import HttpResponse
 from django.utils.safestring import mark_safe
+from django.db.models import F, Max
 
 from openCurrents import config
 from openCurrents.models import \
@@ -150,7 +151,7 @@ class OrgHomeView(TemplateView):
     template_name = 'org-home.html'
 
 
-class OrgSignupView(LoginRequiredMixin, TemplateView):
+class OrgSignupView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'org-signup.html'
 
 
@@ -261,8 +262,16 @@ class CreateProjectView(LoginRequiredMixin, SessionContextView, FormView):
     success_url = '/project-created/'
 
     def create_event(self, location, form_data):
+        if not self.project:
+            project = Project(
+                org=Org.objects.get(id=self.orgid),
+                name=form_data['project_name']
+            )
+            project.save()
+            self.project = project
+
         event = Event(
-            project=Project.objects.get(id=form_data['project_id']),
+            project=self.project,
             description=form_data['description'],
             location=location,
             datetime_start=form_data['datetime_start'],
@@ -281,6 +290,16 @@ class CreateProjectView(LoginRequiredMixin, SessionContextView, FormView):
             if 'event-location' in key
         ]
         data = form.cleaned_data
+        if data['project_name'] in self.project_names:
+            logger.info('event found')
+            self.project = Project.objects.get(
+                org__id=self.orgid,
+                name=data['project_name']
+            )
+        else:
+            self.project = None
+
+        # create an event for each location
         map(lambda loc: self.create_event(loc, data), locations)
 
         return redirect('openCurrents:project-created')
@@ -290,6 +309,7 @@ class CreateProjectView(LoginRequiredMixin, SessionContextView, FormView):
 
         # obtain orgid from the session context (provided by SessionContextView)
         orgid = context['orgid']
+        self.orgid = orgid
 
         # context::project_names
         projects = Project.objects.filter(
@@ -299,7 +319,10 @@ class CreateProjectView(LoginRequiredMixin, SessionContextView, FormView):
             project.name
             for project in projects
         ]
+
         context['project_names'] = mark_safe(json.dumps(project_names))
+        self.project_names = project_names
+        logger.info(project_names)
 
         return context
 
@@ -382,6 +405,7 @@ class LiveDashboardView(LoginRequiredMixin, SessionContextView, TemplateView):
         ]
         context['unregistered_users'] = unregistered_users
 
+        # dict for looking up user data by lastname
         uu_lookup = dict([
             (user.last_name, {
                 'first_name': user.first_name,
@@ -391,6 +415,26 @@ class LiveDashboardView(LoginRequiredMixin, SessionContextView, TemplateView):
         ])
 
         context['uu_lookup'] = mark_safe(json.dumps(uu_lookup))
+
+        # identify users that are checked in
+        usertimelogs = UserTimeLog.objects.filter(
+            event__id=event_id
+        )
+
+        # create a map of checked in user id => checked in timestamp
+        checkedin_users = {}
+        for usertimelog in usertimelogs:
+            if not usertimelog.datetime_end:
+                if usertimelog.user.id not in checkedin_users:
+                    checkedin_users[usertimelog.user.id] = usertimelog.datetime_start
+                elif checkedin_users[usertimelog.user.id] < usertimelog.datetime_start:
+                    checkedin_users[usertimelog.user.id] = usertimelog.datetime_start
+            else:
+                if usertimelog.user.id in checkedin_users:
+                    checkedin_users.pop(usertimelog.user.id)
+
+        context['checkedin_users'] = checkedin_users.keys()
+
         return context
 
 

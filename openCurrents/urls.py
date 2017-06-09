@@ -81,6 +81,6 @@ urlpatterns = [
     url(r'^process_org_signup/$', views.process_org_signup, name='process_org_signup')
 ]
 
-handler404 = 'openCurrents.views.return_404'
+#handler404 = 'openCurrents.views.return_404'
 #handler500 = 'openCurrents.views.return_500'
 
