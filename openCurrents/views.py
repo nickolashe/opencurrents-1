@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.http import HttpResponse
 from django.utils.safestring import mark_safe
+from django.db.models import F, Max
 
 from openCurrents import config
 from openCurrents.models import \
@@ -415,17 +416,24 @@ class LiveDashboardView(LoginRequiredMixin, SessionContextView, TemplateView):
 
         context['uu_lookup'] = mark_safe(json.dumps(uu_lookup))
 
-
-        # users that are checked in
+        # identify users that are checked in
         usertimelogs = UserTimeLog.objects.filter(
-            event__id=event_id,
-            datetime_end__isnull=True
+            event__id=event_id
         )
-        checkedin_users = set([
-            usertimelog.user.id
-            for usertimelog in usertimelogs
-        ])
-        context['checkedin_users'] = checkedin_users
+
+        # create a map of checked in user id => checked in timestamp
+        checkedin_users = {}
+        for usertimelog in usertimelogs:
+            if not usertimelog.datetime_end:
+                if usertimelog.user.id not in checkedin_users:
+                    checkedin_users[usertimelog.user.id] = usertimelog.datetime_start
+                elif checkedin_users[usertimelog.user.id] < usertimelog.datetime_start:
+                    checkedin_users[usertimelog.user.id] = usertimelog.datetime_start
+            else:
+                if usertimelog.user.id in checkedin_users:
+                    checkedin_users.pop(usertimelog.user.id)
+
+        context['checkedin_users'] = checkedin_users.keys()
 
         return context
 
