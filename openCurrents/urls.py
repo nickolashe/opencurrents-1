@@ -64,6 +64,10 @@ urlpatterns = [
         views.RegistrationConfirmedView.as_view(), name='registration-confirmed'),
     url(r'^add-volunteers$', views.AddVolunteersView.as_view(), name='add-volunteers'),
 
+    #temp 404 and 500 views
+    url(r'^404$', views.NotFoundView.as_view(), name='404'),
+    url(r'^500$', views.ErrorView.as_view(), name='500'),
+
 
     # functional views
     url(r'^event_register/(?P<pk>\d+)/$', views.event_register, name='event_register'),

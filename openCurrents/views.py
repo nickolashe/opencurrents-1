@@ -68,6 +68,12 @@ class SessionContextView(View):
 class HomeView(SessionContextView, TemplateView):
     template_name = 'home.html'
 
+class NotFoundView(SessionContextView, TemplateView):
+    template_name = '404.html'
+
+class ErrorView(SessionContextView, TemplateView):
+    template_name = '500.html'
+
 
 class InviteView(TemplateView):
     template_name = 'home.html'
