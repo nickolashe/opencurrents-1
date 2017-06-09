@@ -421,10 +421,11 @@ class LiveDashboardView(LoginRequiredMixin, SessionContextView, TemplateView):
             event__id=event_id,
             datetime_end__isnull=True
         )
-        checkedin_users = [
+        checkedin_users = set([
             usertimelog.user.id
             for usertimelog in usertimelogs
-        ]
+        ])
+        context['checkedin_users'] = checkedin_users
 
         return context
 
