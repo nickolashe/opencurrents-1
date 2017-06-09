@@ -35,11 +35,11 @@
               <h6 class="inline">Org hours tracked:</h6>
               <!-- <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>-->
               <h6 class="inline"> {{ issued_total }}</h6>
-              <div class="qtr-margin-top">
+              <!-- <div class="qtr-margin-top">
                 <a href="{% url 'openCurrents:create-project' orgid %}">
-                  <button class="button small round">Create project</button>
+                  <button class="button small round">Create event</button>
                 </a>
-              </div>
+              </div> -->
             </div>
 
           <!--</div>
@@ -57,11 +57,11 @@
               {% for event in events_current %}
                 <div class="row one-margin-top one-margin-bottom">
                   <div class="left small-8 columns">
-                    <strong> {{event.project.name}} </strong>
+                    Let's {{event.project.name}}!
                     on {{event.datetime_start|day:timezone}}
                     at {{event.datetime_start|time:timezone}}
                     to {{event.datetime_end|time:timezone}}
-                    at {{event.location}}
+                    at <strong>{{event.location}}</strong>
                   </div>
 
                   <div class="right small-4 columns">
@@ -75,27 +75,28 @@
           </div>
         {% endif %}
 
+        {% if not events_current %}
+          <p><a href="{% url 'openCurrents:live-dashboard' event_id=1 %}" class="button round small">Preview live dashboard</a></p>
+        {% endif %}
+
         {% if events_upcoming %}
           <div id="project-list" class="row one-margin-top">
             <div class="medium-8 small-centered columns">
               <h6 class="half-margin-bottom">Our upcoming projects</h6>
-              {% if not events_current %}
-                <button class="button round small secondary">Preview live dashboard</button> (if no live projects)
-              {% endif %}
 
               {% for event in events_upcoming %}
                 <div class="row one-margin-bottom">
-                  <div class="left small-9 columns">
-                    <strong> {{event.project.name}} </strong>
+                  <div class="left small-12 columns">
+                    Let's {{event.project.name}}!
                     on {{event.datetime_start|day:timezone}}
                     at {{event.datetime_start|time:timezone}}
                     to {{event.datetime_end|time:timezone}}
-                    at {{event.location}}
+                    at <strong>{{event.location}}</strong>
                   </div>
 
-                  <div class="right small-3 columns">
+                  <!-- <div class="right small-3 columns">
                     <button class="button round small secondary">Edit</button>
-                  </div>
+                  </div> -->
                 </div>
               {% endfor %}
 
