@@ -404,6 +404,7 @@ class LiveDashboardView(LoginRequiredMixin, SessionContextView, TemplateView):
         ]
         context['unregistered_users'] = unregistered_users
 
+        # dict for looking up user data by lastname
         uu_lookup = dict([
             (user.last_name, {
                 'first_name': user.first_name,
@@ -413,6 +414,18 @@ class LiveDashboardView(LoginRequiredMixin, SessionContextView, TemplateView):
         ])
 
         context['uu_lookup'] = mark_safe(json.dumps(uu_lookup))
+
+
+        # users that are checked in
+        usertimelogs = UserTimeLog.objects.filter(
+            event__id=event_id,
+            datetime_end__isnull=True
+        )
+        checkedin_users = [
+            usertimelog.user.id
+            for usertimelog in usertimelogs
+        ]
+
         return context
 
 
