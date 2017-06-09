@@ -20,11 +20,10 @@
             <h6 class="inline">My Currents: </h6>
             <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
             <h6 class="inline"> {{ user_balance }} </h6>
-            <!-- <div class="qtr-margin-top">
-              <a href="{% url 'openCurrents:upcoming-projects' %}">
-                <button class="button small round">Earn Currents</button>
+            <div class="half-margin-top">
+              <a class="earn-currents-popup_open button small round">Earn Currents</a>
               </a>
-            </div> -->
+            </div>
           <!--</div>
 
           <div class="center half-margin-top medium-5 columns end">
@@ -145,6 +144,20 @@
       {% include "menu.html" %}
     </div>
 
+    <div id="earn-currents-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h3 class="one-margin-top">Do you give time?</h3>
+        <h6>Nominate an organization for openCurrents</h6>
+      </div>
+
+      <div class="row center half-margin-top">
+        <div class="small-centered medium-10 columns">
+          <p class="three-halves-margin-bottom">We are currently working with a handful of social organizations to help them track hours and issue Currents to volunteers. If you'd like your time to be rewarded, nominate an organization to openCurrents and we will get in touch. To increase the chances, let your organizer know about us!</p>
+          <a href="{% url 'openCurrents:org-signup' %}" class="button round">Nominate</a>
+        </div>
+      </div>
+    </div>
+
     <div id="rsvp-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
         <h3 class="popup-title">Change RSVP</h3>
@@ -172,7 +185,7 @@
 
     <script type="text/javascript">
       $(document).ready(function(){
-        $('#rsvp-popup').popup({
+        $('#rsvp-popup, #earn-currents-popup').popup({
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: true,
