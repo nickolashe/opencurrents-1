@@ -120,6 +120,7 @@ class Event(models.Model):
         get_latest_by = 'datetime_start'
 
     def __unicode__(self):
+        tz = self.project.org.timezone
         return ' '.join([
             'Event',
             self.project.name,
@@ -128,11 +129,11 @@ class Event(models.Model):
             'at',
             self.location,
             'on',
-            self.datetime_start.strftime('%b %d'),
+            self.datetime_start.astimezone(pytz.timezone(tz)).strftime('%b %d'),
             'from',
-            self.datetime_start.strftime('%-I %p'),
+            self.datetime_start.astimezone(pytz.timezone(tz)).strftime('%-I:%m %p'),
             'to',
-            self.datetime_end.strftime('%-I %p')
+            self.datetime_end.astimezone(pytz.timezone(tz)).strftime('%-I:%m %p')
         ])
 
 
