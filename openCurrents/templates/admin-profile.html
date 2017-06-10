@@ -50,9 +50,9 @@
         </div>
 
         {% if events_current %}
-          <div id="live-project-list" class="row one-margin-top">
+          <div id="live-event-list" class="row one-margin-top">
             <div class="medium-8 small-centered columns">
-              <h6 class="half-margin-bottom">Projects happening now</h6>
+              <h6 class="half-margin-bottom">Events happening now</h6>
 
               {% for event in events_current %}
                 <div class="row one-margin-top one-margin-bottom">
@@ -80,9 +80,9 @@
         {% endif %}
 
         {% if events_upcoming %}
-          <div id="project-list" class="row one-margin-top">
+          <div id="upcoming-event-list" class="row one-margin-top">
             <div class="medium-8 small-centered columns">
-              <h6 class="half-margin-bottom">Our upcoming projects</h6>
+              <h6 class="half-margin-bottom">Our upcoming events</h6>
 
               {% for event in events_upcoming %}
                 <div class="row one-margin-bottom">
@@ -103,6 +103,32 @@
             </div>
           </div>
         {% endif %}
+
+        {% if events_past %}
+          <div id="past-event-list" class="row one-margin-top">
+            <div class="medium-8 small-centered columns">
+              <h6 class="half-margin-bottom">Past events</h6>
+
+              {% for event in events_past %}
+                <div class="row one-margin-bottom">
+                  <div class="left small-12 columns">
+                    Let's {{event.project.name}}!
+                    on {{event.datetime_start|day:timezone}}
+                    at {{event.datetime_start|time:timezone}}
+                    to {{event.datetime_end|time:timezone}}
+                    at <strong>{{event.location}}</strong>
+                  </div>
+
+                  <!-- <div class="right small-3 columns">
+                    <button class="button round small secondary">Edit</button>
+                  </div> -->
+                </div>
+              {% endfor %}
+
+            </div>
+          </div>
+        {% endif %}
+
         <!-- community feed code. Hardcoded not dynamic -->
         <!-- <div class="row one-margin-top">
           <div class="left medium-8 small-centered columns">
