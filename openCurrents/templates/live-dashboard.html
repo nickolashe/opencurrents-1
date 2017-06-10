@@ -67,7 +67,7 @@
               <a id="add-volunteer" class="button round small secondary">
                 Add volunteer
               </a>
-              
+
               <p id="vol-error" class="small-text hidden alert">Name and email required</p>
             </div>
           </div>
@@ -190,9 +190,18 @@
             let new_firstname = $('#new-firstname').val();
             let new_lastname = $('#new-lastname').val();
             let new_email = $('#new-email').val();
+            let invite_optin = $('#invite-optin').prop('checked');
+            let process_signup_url;
+            
+            if (invite_optin) {
+              process_signup_url = "{% url 'openCurrents:process_signup' endpoint=True verify_email=True %}"
+            }
+            else {
+              process_signup_url = "{% url 'openCurrents:process_signup' endpoint=True verify_email=False %}"
+            }
 
             $.ajax({
-              url: "{% url 'openCurrents:process_signup' endpoint=True %}",
+              url: process_signup_url,
               type: 'POST',
               data : {
                 csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
@@ -203,7 +212,7 @@
               dataType : "json",
             }).success(function( data ) {
               let userid = data;
-              console.log(data);
+
               $.ajax({
                 url: "{% url 'openCurrents:event_register_live' eventid=event.id %}",
                 type: 'POST',
