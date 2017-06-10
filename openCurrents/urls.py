@@ -14,7 +14,7 @@ urlpatterns = [
     url(r'^confirm-account/(?P<email>[\w\.@\+\-]+)/(?P<token>\w{8}-\w{4}-\w{4}-\w{4}-\w{12})/$',
         views.ConfirmAccountView.as_view(), name='confirm-account'),
     url(r'^confirm-account/(?P<email>[\w\.@\+\-]+)/(?P<status_msg>.*)/$',
-        views.ConfirmAccountView.as_view(), name='confirm-account'),        
+        views.ConfirmAccountView.as_view(), name='confirm-account'),
     url(r'^community$', views.CommunityView.as_view(), name='community'),
     url(r'^login/$', views.LoginView.as_view(), name='login'),
     url(r'^login/(?P<status_msg>.*)$', views.LoginView.as_view(), name='login'),
@@ -64,6 +64,10 @@ urlpatterns = [
         views.RegistrationConfirmedView.as_view(), name='registration-confirmed'),
     url(r'^add-volunteers$', views.AddVolunteersView.as_view(), name='add-volunteers'),
 
+    #temp 404 and 500 views
+    url(r'^404$', views.NotFoundView.as_view(), name='404'),
+    url(r'^500$', views.ErrorView.as_view(), name='500'),
+
 
     # functional views
     url(r'^event_register/(?P<pk>\d+)/$', views.event_register, name='event_register'),
@@ -76,9 +80,12 @@ urlpatterns = [
         views.process_signup, name='process_signup'),
     url(r'^process_signup/(?P<endpoint>(True|False))/$',
         views.process_signup, name='process_signup'),
+    url(r'^process_signup/(?P<endpoint>(True|False))/(?P<verify_email>(True|False))/$',
+        views.process_signup, name='process_signup'),
     url(r'^process_email_confirmation/(?P<user_email>[\w\.@\+\-]+)/$',
         views.process_email_confirmation, name='process_email_confirmation'),
     url(r'^process_org_signup/$', views.process_org_signup, name='process_org_signup')
 ]
 
 #handler404 = 'openCurrents.views.return_404'
+#handler500 = 'openCurrents.views.return_500'

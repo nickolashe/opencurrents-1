@@ -49,6 +49,7 @@
           </div>-->
         </div>
 
+        <!-- current events section -->
         {% if events_current %}
           <div id="live-project-list" class="row one-margin-top">
             <div class="medium-8 small-centered columns">
@@ -66,17 +67,15 @@
 
                   <div class="right small-4 columns">
                     <a href="{% url 'openCurrents:live-dashboard' event.id %}"/>
-                      <button class="button round small secondary">Start</button>
+                      <button class="button round small">Start</button>
                     </a>
                   </div>
                 </div>
               {% endfor %}
             </div>
           </div>
-        {% endif %}
-
-        {% if not events_current %}
-          <p><a href="{% url 'openCurrents:live-dashboard' event_id=1 %}" class="button round small">Preview live dashboard</a></p>
+        {% elif events_upcoming %}
+          <p><a href="{% url 'openCurrents:live-dashboard' event_id=events_upcoming.0.id %}" class="button round small">Preview live dashboard</a></p>
         {% endif %}
 
         {% if events_upcoming %}
