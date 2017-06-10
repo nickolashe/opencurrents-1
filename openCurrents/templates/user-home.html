@@ -18,8 +18,10 @@
         {% endif %}
         
         <div class="row">
-          <h3 class="title-sub">Welcome to openCurrents</h3>
-          <h6 class="subtitle">Thank you for being a part of the solution.</h6>
+          <h3 class="title-sub">{{ user.first_name }} {{ user.last_name }}</h3>
+          <h6 class="inline">My Currents:</h6>
+          <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
+          <h6 class="inline"> {{ user_balance }}</h6>
         </div>
         <div class="row half-margin-bottom">
           <div class="small-12 medium-8 medium-centered columns">

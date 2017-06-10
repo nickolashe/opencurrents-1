@@ -59,8 +59,11 @@
                   {{ form.user_email }}
                 </div>
               </div>
-              <a id="add-volunteer" class="small-12 medium-12 blue-icon columns">
-                  Register user
+              <!-- <div class="one-margin-bottom checkbox center">
+                <label><input type="checkbox" name="invite-optin" id="invite-optin" />Invite volunteer to openCurrents</label>
+              </div> -->
+              <a id="add-volunteer" class="button round small secondary">
+                Add volunteer
               </a>
               <p id="vol-error" class="small-text hidden alert">Name and email required</p>
             </div>
@@ -87,28 +90,25 @@
               <h6 class="left half-margin-top half-margin-bottom">Registered volunteers</h6>
 
               <div class="row">
-                <div class="left small-6 medium-6 columns">
+                <div class="left small-8 columns">
                   <p class="small-text half-margin-top half-margin-bottom"><strong>Name</strong></p>
                 </div>
 
-                <div class="small-3 medium-3 columns">
+                <div class="right small-4 columns">
                   <p class="small-text half-margin-top half-margin-bottom"><strong>Check-in</strong></p>
-                </div>
-                <div class="small-3 medium-3  columns">
-
                 </div>
               </div>
 
               {% for user in registered_users %}
                 <div class="row">
-                  <div class="left input-left small-6 medium-6 columns">
+                  <div class="left small-9 columns">
                     <p class="half-margin-top">
                       {{ user.first_name }}
                       {{ user.last_name }}
                     </p>
                   </div>
 
-                  <div class="input-middle small-3 medium-3 columns">
+                  <div class="right small-3 columns">
                       <input type="checkbox" id="vol-checkin-{{ user.id }}" name="vol-checkin-{{ user.id }}" value="{{ user.id }}" class="hidden"
                         {% if user.id in checkedin_users %}
                           checked
@@ -119,8 +119,8 @@
                       </label>
                   </div>
 
-                  <div class="left input-right small-3 medium-3 columns">
-                      <p id='vol-status-{{ user.id }}' class="half-margin-top"> </p>
+                  <div class="hidden">
+                    <p id='vol-status-{{ user.id }}' class="half-margin-top"> </p>
                   </div>
                 </div>
               {% endfor %}
@@ -212,22 +212,18 @@
               }).complete(function( data ) {
                 $('#registered-volunteers').append(`
                   <div class="row"> \
-                    <div class="left input-left small-6 medium-6 columns"> \
+                    <div class="left small-9 columns"> \
                       <p class="half-margin-top"> \
                         ${new_firstname} \
                         ${new_lastname} \
                       </p> \
                     </div> \
 
-                    <div class="input-middle small-3 medium-3 columns"> \
+                    <div class="right small-3 columns"> \
                         <input type="checkbox" id="vol-checkin-${userid}" name="vol-checkin-${userid}" value="${userid}" class="hidden"/> \
                         <label class="large-text vol-checkin" for="vol-checkin-${userid}"> \
                           <i class="styled-checkbox fa fa-lg fa-check-circle"></i> \
                         </label> \
-                    </div> \
-
-                    <div class="left input-right small-3 medium-3 columns"> \
-                        <p id='vol-status-${userid}' class="half-margin-top"> </p> \
                     </div> \
                   </div> \
                 `)
