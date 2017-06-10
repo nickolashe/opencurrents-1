@@ -243,12 +243,13 @@ class AdminProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
 
         context['issued_total'] = round(issued_total, 1)
         context['events_current'] = Event.objects.filter(
-            datetime_start__lte=datetime.now(tz=pytz.utc)
-        ).filter(
+            project__org__id=orgid,
+            datetime_start__lte=datetime.now(tz=pytz.utc) + timedelta(hours=1),
             datetime_end__gte=datetime.now(tz=pytz.utc)
         )
         context['events_upcoming'] = Event.objects.filter(
-            datetime_start__gte=datetime.now(tz=pytz.utc)
+            project__org__id=orgid,
+            datetime_start__gte=datetime.now(tz=pytz.utc) + timedelta(hours=1)
         )
 
         return context
@@ -576,8 +577,15 @@ def event_register_live(request, eventid):
     return HttpResponse({'userid': userid, 'eventid': eventid}, status=201)
 
 
-def process_signup(request, referrer=None, endpoint=False):
+def process_signup(request, referrer=None, endpoint=False, verify_email=True):
     form = UserSignupForm(request.POST)
+
+    # TODO: figure out a way to pass booleans in the url
+    if endpoint == 'False':
+        endpoint = False
+
+    if verify_email == 'False':
+        verify_email = False
 
     # validate form data
     if form.is_valid():
@@ -614,28 +622,6 @@ def process_signup(request, referrer=None, endpoint=False):
             else:
                 logger.info('user %s has not been verified', user_email)
 
-        # generate and save token
-        token = uuid.uuid4()
-        one_week_from_now = datetime.now() + timedelta(days=7)
-
-        token_record = Token(
-            email=user_email,
-            token=token,
-            token_type='signup',
-            date_expires=one_week_from_now
-        )
-
-        if referrer:
-            try:
-                token_record.referrer = User.objects.get(username=referrer)
-            except Exception as e:
-                error_msg = 'unable to locate / assign referrer: %s (%s)'
-                logger.error(error_msg, e.message, type(e))
-        else:
-            logger.info('no referrer provided')
-
-        token_record.save()
-
         # user org
         if org_name:
             org = None
@@ -651,33 +637,58 @@ def process_signup(request, referrer=None, endpoint=False):
             except IntegrityError:
                 logger.info('org %s already exists', org_name)
 
-        # send verification email
-        try:
-            sendTransactionalEmail(
-                'verify-email',
-                None,
-                [
-                    {
-                        'name': 'FIRSTNAME',
-                        'content': user_firstname
-                    },
-                    {
-                        'name': 'EMAIL',
-                        'content': user_email
-                    },
-                    {
-                        'name': 'TOKEN',
-                        'content': str(token)
-                    }
-                ],
-                user_email
+        if verify_email:
+            logger.info('Email verification requested')
+
+            # generate and save token
+            token = uuid.uuid4()
+            one_week_from_now = datetime.now() + timedelta(days=7)
+
+            token_record = Token(
+                email=user_email,
+                token=token,
+                token_type='signup',
+                date_expires=one_week_from_now
             )
-        except Exception as e:
-            logger.error(
-                'unable to send transactional email: %s (%s)',
-                e.message,
-                type(e)
-            )
+
+            if referrer:
+                try:
+                    token_record.referrer = User.objects.get(username=referrer)
+                except Exception as e:
+                    error_msg = 'unable to locate / assign referrer: %s (%s)'
+                    logger.error(error_msg, e.message, type(e))
+            else:
+                logger.info('no referrer provided')
+
+            token_record.save()
+
+            # send verification email
+            try:
+                sendTransactionalEmail(
+                    'verify-email',
+                    None,
+                    [
+                        {
+                            'name': 'FIRSTNAME',
+                            'content': user_firstname
+                        },
+                        {
+                            'name': 'EMAIL',
+                            'content': user_email
+                        },
+                        {
+                            'name': 'TOKEN',
+                            'content': str(token)
+                        }
+                    ],
+                    user_email
+                )
+            except Exception as e:
+                logger.error(
+                    'unable to send transactional email: %s (%s)',
+                    e.message,
+                    type(e)
+                )
 
         if endpoint:
             return HttpResponse(user.id, status=201)
