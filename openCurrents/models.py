@@ -118,6 +118,7 @@ class Event(models.Model):
 
     class Meta:
         get_latest_by = 'datetime_start'
+        ordering = ['datetime_start']
 
     def __unicode__(self):
         tz = self.project.org.timezone

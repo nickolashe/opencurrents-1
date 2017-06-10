@@ -237,12 +237,13 @@ class AdminProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
 
         context['issued_total'] = round(issued_total, 1)
         context['events_current'] = Event.objects.filter(
-            datetime_start__lte=datetime.now(tz=pytz.utc)
-        ).filter(
+            project__org__id=orgid,
+            datetime_start__lte=datetime.now(tz=pytz.utc) + timedelta(hours=1),
             datetime_end__gte=datetime.now(tz=pytz.utc)
         )
         context['events_upcoming'] = Event.objects.filter(
-            datetime_start__gte=datetime.now(tz=pytz.utc)
+            project__org__id=orgid,
+            datetime_start__gte=datetime.now(tz=pytz.utc) + timedelta(hours=1)
         )
 
         return context
