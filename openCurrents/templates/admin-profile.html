@@ -118,9 +118,11 @@
                     at <strong>{{event.location}}</strong>
                   </div>
 
-                  <!-- <div class="right small-3 columns">
-                    <button class="button round small secondary">Edit</button>
-                  </div> -->
+                  <div class="right small-4 columns">
+                    <a href="{% url 'openCurrents:live-dashboard' event.id %}"/>
+                      <button class="button round small">Attendees</button>
+                    </a>
+                  </div>
                 </div>
               {% endfor %}
 
