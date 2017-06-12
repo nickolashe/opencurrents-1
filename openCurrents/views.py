@@ -235,13 +235,31 @@ class AdminProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
             is_verified=True
         )
 
-        issued_total = sum(
+        issued_total = sum([
             (timelog.datetime_end - timelog.datetime_start).total_seconds() / 3600
             for timelog in verified_time
             if timelog.datetime_end
-        )
+        ])
 
+        # for users that have not been checked out, use event end time
+        issued_total += sum([
+            (timelog.event.datetime_end - timelog.datetime_start).total_seconds() / 3600
+            for timelog in verified_time
+            if not timelog.datetime_end and timelog.datetime_start <= timelog.event.datetime_end
+        ])
+
+        # if users post-added, use the entire event duration
+        issued_total += sum([
+            (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
+            for timelog in verified_time
+            if not timelog.datetime_end and timelog.datetime_start > timelog.event.datetime_end
+        ])
         context['issued_total'] = round(issued_total, 1)
+
+        context['events_past'] = Event.objects.filter(
+            project__org__id=orgid,
+            datetime_end__lte=datetime.now(tz=pytz.utc)
+        ).order_by('-datetime_start')[:3]
         context['events_current'] = Event.objects.filter(
             project__org__id=orgid,
             datetime_start__lte=datetime.now(tz=pytz.utc) + timedelta(hours=1),
