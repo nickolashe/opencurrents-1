@@ -110,7 +110,7 @@
 
               {% for event in events_past %}
                 <div class="row one-margin-bottom">
-                  <div class="left small-12 columns">
+                  <div class="left input-left small-8 columns">
                     Let's {{event.project.name}}!
                     on {{event.datetime_start|day:timezone}}
                     at {{event.datetime_start|time:timezone}}
@@ -118,9 +118,9 @@
                     at <strong>{{event.location}}</strong>
                   </div>
 
-                  <div class="right small-4 columns">
+                  <div class="right input-right small-4 columns">
                     <a href="{% url 'openCurrents:live-dashboard' event.id %}"/>
-                      <button class="button round small">Attendees</button>
+                      <button class="button round small secondary">Attendees</button>
                     </a>
                   </div>
                 </div>
