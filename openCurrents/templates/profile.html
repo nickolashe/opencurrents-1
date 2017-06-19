@@ -21,7 +21,7 @@
             <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
             <h6 class="inline"> {{ user_balance }} </h6>
             <div class="half-margin-top">
-              <a class="earn-currents-popup_open button small round">Earn Currents</a>
+              <a href="{% url 'openCurrents:time-tracker' %}" class="button small round">Record hours</a>
               </a>
             </div>
           <!--</div>

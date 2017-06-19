@@ -12,11 +12,12 @@ html {
 
 a {
   color: #24b2e7;
-  transition: color 0.25s ease-out;
+  transition: background-color 0.25s ease-in-out, color 0.25s ease-in-out;
 }
 
 a:hover, a:focus {
   color: #1f4975;
+  transition: background-color 0.25s, border 0.25s, color 0.25s ease-in-out;
 }
 
 .full-width {
@@ -108,7 +109,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .button {
   background-color: #24b2e7;
-  transition: border 0.25s ease-out, background-color 0.25s ease-out, color 0.25s ease-out;
+  transition: border 0.25s ease-in-out, background-color 0.25s ease-in-out;
   outline: none;
 }
 
@@ -122,6 +123,7 @@ h1, h2, h3, h4, h5, h6 {
   color: #24b2e7;
   background-color: #ffffff;
   border: 1px solid #24b2e7;
+  transition: border 0.25s ease-in-out, background-color 0.25s ease-in-out, color 0.25s ease-in-out;
 }
 
 .button.secondary:hover, .button.secondary:focus {
@@ -142,9 +144,10 @@ h1, h2, h3, h4, h5, h6 {
   background-color: transparent;
   color: #ffffff;
   border: 1px solid #ffffff;
+  transition: border 0.25s ease-in-out, background-color 0.25s ease-in-out;
 }
 
-.button.clear:hover {
+.button.clear:hover, .button.clear:focus {
   background-color: #1f4975;
   color: #ffffff;
   border: 1px solid #1f4975;
@@ -198,9 +201,10 @@ select {
   border-color: #24b2e7;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='32' height='24' viewBox='0 0 32 24'><polygon points='0,0 32,0 16,24' style='fill: rgb%28106, 181, 204%29'></polygon></svg>");
   outline: none;
-  transition: border 0.25s ease-out, background-image 0.25s ease-out;
+  transition: border 0.25s ease-in-out, background-image 0.25s ease-in-out;
   border: none;
   border-bottom: 1px solid #24b2e7;
+  line-height: inherit;
 }
 
 select:hover {
@@ -278,11 +282,12 @@ label {
 .accordion-title {
   font-size: 1rem;
   padding: 1rem;
+  border-bottom: none;
 }
 
-#volunteer-list li .accordion-title {
+/*#volunteer-list li .accordion-title {
   font-size: 0.875rem;
-}
+}*/
 
 .accordion-content {
   color: #888888;
@@ -435,6 +440,10 @@ label {
   color: #888888;
 }
 
+.grey-bg {
+  background-color: #888888;
+}
+
 .success {
   color: #009900;
 }
@@ -581,7 +590,7 @@ label {
   padding: 20px 15px;
   margin-bottom: -1px;
   border-bottom: 1px solid #ddd;
-  transition: background-color 0.25s ease-out, color 0.25s ease-out;
+  transition: background-color 0.25s ease-in-out, color 0.25s ease-in-out;
 }
 
 a.list-group-item {
@@ -1072,7 +1081,7 @@ a.list-group-item {
 }
 
 .fa-caret-right, .fa-caret-left {
-  transition: color 0.25s ease-out;
+  transition: color 0.25s ease-in-out;
 }
 
 #add-volunteer-popup {
@@ -1107,7 +1116,7 @@ a.list-group-item {
 
 .symbol-circle {
   stroke: #24b2e7;
-  transition: stroke 0.25s ease-out;
+  transition: stroke 0.25s ease-in-out;
 }
 
 .amount-input {
@@ -1204,8 +1213,9 @@ a.list-group-item {
 /* volunteer-requests */
 
 .volunteer-confirm label {
-  font-size: 1rem;
-  line-height: 1.8;
+  font-size: 1.25rem;
+  line-height: 1.5;
+  margin-right: 0;
 }
 
 .volunteer-confirm i {
@@ -1227,6 +1237,7 @@ a.list-group-item {
 
 .vol-status {
   line-height: 2;
+  margin-top: 0.125rem;
 }
 
 /* volunteering */
@@ -1378,3 +1389,7 @@ input[type="checkbox"] + label.vol-arrived {
 .vol-checkin {
   font-size: 1.5rem;
 }
+
+/* time-tracker */
+
+

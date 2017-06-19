@@ -185,8 +185,11 @@ class VerifyIdentityView(TemplateView):
     template_name = 'verify-identity.html'
 
 
-class VolunteerHoursView(TemplateView):
-    template_name = 'volunteer-hours.html'
+class TimeTrackerView(TemplateView):
+    template_name = 'time-tracker.html'
+
+class TimeTrackedView(TemplateView):
+    template_name = 'time-tracked.html'
 
 
 class VolunteeringView(TemplateView):
