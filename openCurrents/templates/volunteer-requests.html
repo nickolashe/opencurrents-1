@@ -12,7 +12,8 @@
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
         <div class="row one-margin-bottom">
-          <h2 class="title">Volunteer requests</h2>
+          <h2 class="title-sub">Volunteer requests</h2>
+          <p class="subtitle">These volunteers want to start tracking hours with {{ org_name }}
         </div>
         
         <div class="row one-margin-bottom">
@@ -75,7 +76,7 @@
         </div>
 
         <div class="row center two-margin-top">
-          <a href="{% url 'openCurrents:approve-hours' %}" id="confirm-requests" class="button round">Continue</a>
+          <a href="{% url 'openCurrents:approve-hours' %}"><button id="confirm-requests" class="button round">Continue</button></a>
         </div>
 
         <div id="push"></div>
@@ -136,21 +137,21 @@
         $(this).parents('.right').find('input').attr('checked',false);
       });
 
-      // $(function () {
-      //     var button = $('#confirm-requests');
-      //     var radios = $('input[type="radio"]');
-      //     var arr    = $.map(radios, function(el) { 
-      //                       return el.name; 
-      //                  });
+      $(function () {
+          var button = $('#confirm-requests').prop('disabled', true);
+          var radios = $('input[type="radio"]');
+          var arr    = $.map(radios, function(el) { 
+                            return el.name; 
+                       });
 
-      //     var groups = $.grep(arr, function(v, k){
-      //                      return $.inArray(v ,arr) === k;
-      //                  }).length;
+          var groups = $.grep(arr, function(v, k){
+                           return $.inArray(v ,arr) === k;
+                       }).length;
 
-      //     radios.on('change', function () {
-      //         button.prop('disabled', radios.filter(':checked').length < groups);
-      //     });
-      // });
+          radios.on('change', function () {
+              button.prop('disabled', radios.filter(':checked').length < groups);
+          });
+      });
     </script>
     
     <script type="text/javascript">
