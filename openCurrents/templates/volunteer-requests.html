@@ -74,6 +74,10 @@
           </div>
         </div>
 
+        <div class="row center two-margin-top">
+          <a href="{% url 'openCurrents:approve-hours' %}" id="confirm-requests" class="button round">Continue</a>
+        </div>
+
         <div id="push"></div>
     
       <!-- wrapper div-->
@@ -131,6 +135,22 @@
         });
         $(this).parents('.right').find('input').attr('checked',false);
       });
+
+      // $(function () {
+      //     var button = $('#confirm-requests');
+      //     var radios = $('input[type="radio"]');
+      //     var arr    = $.map(radios, function(el) { 
+      //                       return el.name; 
+      //                  });
+
+      //     var groups = $.grep(arr, function(v, k){
+      //                      return $.inArray(v ,arr) === k;
+      //                  }).length;
+
+      //     radios.on('change', function () {
+      //         button.prop('disabled', radios.filter(':checked').length < groups);
+      //     });
+      // });
     </script>
     
     <script type="text/javascript">

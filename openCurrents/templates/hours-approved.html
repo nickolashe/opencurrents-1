@@ -12,18 +12,17 @@
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
         <div class="row">
-          <h2 class="title">Hours approved</h2>
+          <h3 class="title">Hours approved</h3>
         </div>
         
         <div class="row one-margin-bottom center">
           <div class="small-12 medium-8 small-centered columns">
-            X Currents have been paid to Y volunteers. Thank you for your service!
+            X Currents have been issued to Y volunteers. Keep up the good work!
           </div>
         </div>
         
-        <div class="row three-halves-margin-top">
-          <button class="button round">See dashboard</button>
-          <button class="button round secondary">Close window</button>
+        <div class="row two-margin-top">
+          <a href="{% url 'openCurrents:admin-profile' %}" class="button round">Go home</a>
         </div>
 
         <div id="push"></div>

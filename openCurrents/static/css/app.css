@@ -153,6 +153,14 @@ h1, h2, h3, h4, h5, h6 {
   border: 1px solid #1f4975;
 }
 
+.button.disabled, .button[disabled] {
+  background-color: #777777;
+}
+
+.button.disabled:hover, .button.disabled:focus, .button[disabled]:hover, .button[disabled]:focus {
+  background-color: #777777;
+  color: #ffffff; }
+
 .button.large {
   padding-left: 2rem;
   padding-right: 2rem;
