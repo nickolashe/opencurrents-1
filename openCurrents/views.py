@@ -755,7 +755,7 @@ def process_login(request):
             if user.org_set.exists():
                 return redirect('openCurrents:admin-profile')
             else:
-                return redirect('openCurrents:user-home')
+                return redirect('openCurrents:profile')
         else:
             return redirect('openCurrents:login', status_msg='Invalid login/password')
     else:

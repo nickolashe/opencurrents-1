@@ -554,9 +554,21 @@ label {
   margin-top: 1.125rem;
 }
 
+.toggle-menu {
+  margin-right: 3rem;
+}
+
 #tilde-menu {
   height: 15px;
-  margin-right: 3rem;
+}
+
+#tilde-menu g {
+  fill: #24b2e7;
+  transition: fill 0.25s ease-in-out;
+}
+
+#tilde-menu:hover g, #tilde-menu:focus g {
+  fill: #1f4975;
 }
 
 .fa-bars {
