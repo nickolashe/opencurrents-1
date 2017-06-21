@@ -15,14 +15,19 @@
         <div class="row center">
           <!--<div class="medium-5 medium-offset-1 columns">
             <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="round" /> -->
-            <h4 class="title three-halves-margin-bottom">{{ user.first_name }} {{ user.last_name }}</h4>
+            <h3 class="title three-halves-margin-bottom">{{ user.first_name }} {{ user.last_name }}</h3>
 
             <h6 class="inline">My Currents: </h6>
             <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
             <h6 class="inline"> {{ user_balance }} </h6>
             <div class="half-margin-top">
+<<<<<<< HEAD
               <a class="earn-currents-popup_open button round">Earn Currents</a>
               </a>
+=======
+              <!-- <a href="{% url 'openCurrents:time-tracker' %}" class="button small round">Record hours</a> -->
+              <a class="earn-currents-popup_open button round">Earn Currents</a>
+>>>>>>> 407fb31... welcome message, menu hover
             </div>
           <!--</div>
 
@@ -144,6 +149,21 @@
       {% include "menu.html" %}
     </div>
 
+    <div id="welcome-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <div class="small-centered medium-10 columns">
+          <h3 class="one-margin-top">Welcome to openCurrents!</h3>
+          <p class="three-halves-margin-top">We're excited to have you with us in the community. We are just getting started with our testing phase. Soon we will connect you with opportunities to volunteer for Currents and exchange them for partial payment with participating businesses.</p>
+          <p>If you'd like to help us fulfill our mission even sooner, please don't hesitate to reach out!</p>
+
+          <p class="three-halves-margin-top">
+            <a href="" class="button round small">Get in touch</a>
+            <a class="welcome-popup_close button round secondary small">Close</a>
+          </p>
+        </div>
+      </div>
+    </div>
+
     <div id="earn-currents-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
         <h3 class="one-margin-top">2 ways to earn Currents</h3>
@@ -201,6 +221,13 @@
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: true,
+        });
+
+        $('#welcome-popup').popup({
+          vertical: 'top',
+          transition: 'all 0.75s',
+          scrolllock: true,
+          autoopen: true,
         });
       });
     </script>
