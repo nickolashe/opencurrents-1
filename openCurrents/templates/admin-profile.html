@@ -85,7 +85,7 @@
 
               {% for event in events_upcoming %}
                 <div class="row one-margin-bottom">
-                  <div class="left small-12 columns">
+                  <div class="left small-8 columns">
                     Let's {{event.project.name}}!
                     on {{event.datetime_start|day:timezone}}
                     at {{event.datetime_start|time:timezone}}
@@ -93,9 +93,9 @@
                     at <strong>{{event.location}}</strong>
                   </div>
 
-                  <!-- <div class="right small-3 columns">
-                    <button class="button round small secondary">Edit</button>
-                  </div> -->
+                  <div class="right small-4 columns">
+                    <a href="{% url 'openCurrents:invite-volunteers' %}" class="button round small secondary">Invite</a>
+                  </div>
                 </div>
               {% endfor %}
 
