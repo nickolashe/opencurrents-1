@@ -132,11 +132,14 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .button.alert {
-  background-color: #993366;
+  background-color: #ffffff;
+  border: 1px solid #890045;
+  color: #890045;
 }
 
 .button.alert:hover, .button.alert:focus {
-  background-color: #5e1f3f;
+  background-color: #890045;
+  color: #ffffff;
 }
 
 .button.clear {
@@ -201,6 +204,10 @@ textarea:focus {
 
 input[type='checkbox']:checked + label {
   color: #24b2e7;
+}
+
+[type='checkbox'] + label, [type='radio'] + label {
+  margin-right: 0;
 }
 
 select {
@@ -298,6 +305,7 @@ label {
 
 .accordion-content {
   color: #888888;
+  padding-bottom: 0.5rem;
 }
 
 #volunteer-list .accordion-content p {
@@ -310,7 +318,7 @@ label {
 }
 
 .accordion-content .button {
-  margin-bottom: 0;
+  margin-bottom: 0.25rem;
   margin-top: 0.5rem;
 }
 
@@ -1398,10 +1406,16 @@ input[type="checkbox"] + label.vol-arrived {
   z-index: 100002;
 }
 
-.vol-checkin {
+.large-icon {
   font-size: 1.5rem;
 }
 
 /* time-tracker */
 
 
+/* edit-hours */
+
+.volunteer-declined {
+  text-align: center;
+  margn
+}
