@@ -21,8 +21,9 @@
             <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
             <h6 class="inline"> {{ user_balance }} </h6>
             <div class="half-margin-top">
-              <a class="earn-currents-popup_open button round">Earn Currents</a>
+              <a class="earn-currents-popup_open button round small">Earn Currents</a>
               </a>
+              <a href="{% url 'openCurrents:marketplace' %}" class="button round secondary small">Spend Currents</a>
             </div>
           <!--</div>
 

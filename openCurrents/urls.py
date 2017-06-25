@@ -52,6 +52,7 @@ urlpatterns = [
     url(r'^admin-profile$', views.AdminProfileView.as_view(), name='admin-profile'),
     url(r'^edit-profile$', views.EditProfileView.as_view(), name='edit-profile'),
     url(r'^blog$', views.BlogView.as_view(), name='blog'),
+    url(r'^marketplace$', views.MarketplaceView.as_view(), name='marketplace'),
     url(r'^create-project/(?P<orgid>\d+)/$', views.CreateProjectView.as_view(), name='create-project'),
     url(r'^edit-project$', views.EditProjectView.as_view(), name='edit-project'),
     url(r'^project-details$', views.ProjectDetailsView.as_view(), name='project-details'),
