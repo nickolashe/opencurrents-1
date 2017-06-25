@@ -23,6 +23,7 @@ urlpatterns = [
     url(r'^approve-hours$', views.ApproveHoursView.as_view(), name='approve-hours'),
     url(r'^causes$', views.CausesView.as_view(), name='causes'),
     url(r'^edit-hours$', views.EditHoursView.as_view(), name='edit-hours'),
+    url(r'^export-data$', views.ExportDataView.as_view(), name='export-data'),
     url(r'^faq$', views.FaqView.as_view(), name='faq'),
     url(r'^find-orgs$', views.FindOrgsView.as_view(), name='find-orgs'),
     url(r'^give-currents$', views.GiveCurrentsView.as_view(), name='give-currents'),

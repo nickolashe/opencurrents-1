@@ -116,6 +116,8 @@ class CausesView(TemplateView):
 class EditHoursView(TemplateView):
     template_name = 'edit-hours.html'
 
+class ExportDataView(TemplateView):
+    template_name = 'export-data.html'
 
 class FaqView(TemplateView):
     template_name = 'faq.html'
