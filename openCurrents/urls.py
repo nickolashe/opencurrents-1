@@ -33,6 +33,7 @@ urlpatterns = [
     url(r'^nominate$', views.NominateView.as_view(), name='nominate'),
     url(r'^nomination-confirmed$', views.NominationConfirmedView.as_view(), name='nomination-confirmed'),
     url(r'^nomination-email$', views.NominationEmailView.as_view(), name='nomination-email'),
+    url(r'^offer', views.OfferView.as_view(), name='offer'),
     url(r'^org-signup/$', views.OrgSignupView.as_view(), name='org-signup'),
     url(r'^org-signup/(?P<org_name>.*)/$', views.OrgSignupView.as_view(), name='org-signup'),
     url(r'^org-signup/(?P<org_name>.*)/(?P<status_msg>.*)/$',
