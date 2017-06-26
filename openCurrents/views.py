@@ -155,6 +155,9 @@ class NominationConfirmedView(TemplateView):
 class NominationEmailView(TemplateView):
     template_name = 'nomination-email.html'
 
+class OfferView(TemplateView):
+    template_name = 'offer.html'
+
 
 class OrgHomeView(TemplateView):
     template_name = 'org-home.html'
