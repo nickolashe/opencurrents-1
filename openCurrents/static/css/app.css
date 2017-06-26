@@ -187,6 +187,8 @@ textarea {
   border-bottom: 1px solid #24b2e7;
   box-shadow: none;
   color: #1f4975;
+  height: inherit;
+  line-height: inherit;
   transition: border 0.25s ease-in-out;
 }
 
@@ -1429,5 +1431,35 @@ input[type="checkbox"] + label.vol-arrived {
 
 .volunteer-declined {
   text-align: center;
-  margn
+}
+
+
+/* offer */
+
+#discount-amount {
+  width: 50px;
+  padding-bottom: 0.375rem
+}
+
+#discount-type {
+  width: 111px;
+  margin-left: 0.5rem;
+}
+
+#item-name {
+  max-width: 333px;
+  margin: auto;
+}
+
+#current-value {
+  width: 40px;
+  margin-left: 0.25rem;
+}
+
+#max-currents {
+  width: 40px;
+}
+
+#min-purchase-amount {
+  width: 44px;
 }
