@@ -26,7 +26,10 @@
                   <p>Wednesday<span>2 hrs</span></p>
                   <p>Thursday<span>3 hrs</span></p>
                   <p class="edit-volunteer center">
-                    <a href="{% url 'openCurrents:edit-hours' %}" class="button round tiny secondary">Edit hours</a>
+                    <input type="radio" id="defer-vol-1" name="defer-vol-1" class="vol-radio hidden"/>
+                      <label for="defer-vol-1">
+                        <a class="defer-volunteer button round tiny caution" tabindex="0">Defer volunteer</a>
+                      </label>
                     <input type="radio" id="decline-vol-1" name="decline-vol-1" class="vol-radio hidden"/>
                       <label for="decline-vol-1">
                         <a class="decline-volunteer button round tiny alert">Decline volunteer</a>
@@ -34,6 +37,8 @@
                   </p>
 
                   <p class="volunteer-declined hidden alert">Volunteer declined. <a class="undo-decline">Undo</a></p>
+
+                  <p class="volunteer-deferred hidden caution">Volunteer deferred. <a class="undo-defer">Undo</a></p>
                 </div>
               </li>
 
@@ -44,7 +49,11 @@
                   <p>Wednesday<span>2 hrs</span></p>
                   <p>Thursday<span>4 hrs</span></p>
                   <p class="edit-volunteer center">
-                    <a href="{% url 'openCurrents:edit-hours' %}" class="button round tiny secondary">Edit hours</a>
+                    <input type="radio" id="defer-vol-2" name="defer-vol-2" class="vol-radio hidden"/>
+                    <label for="defer-vol-2">
+                      <a class="defer-volunteer button round tiny caution" tabindex="0">Defer volunteer</a>
+                    </label>
+
                     <input type="radio" id="decline-vol-2" name="decline-vol-2" class="vol-radio hidden"/>
                       <label for="decline-vol-2">
                         <a class="decline-volunteer button round tiny alert">Decline volunteer</a>
@@ -52,6 +61,8 @@
                   </p>
 
                   <p class="volunteer-declined hidden alert">Volunteer declined. <a class="undo-decline">Undo</a></p>
+
+                  <p class="volunteer-deferred hidden caution">Volunteer deferred. <a class="undo-defer">Undo</a></p>
                 </div>
               </li>
 
@@ -62,7 +73,11 @@
                   <p>Wednesday<span>3 hrs</span></p>
                   <p>Thursday<span>4 hrs</span></p>
                   <p class="edit-volunteer center">
-                    <a href="{% url 'openCurrents:edit-hours' %}" class="button round tiny secondary">Edit hours</a>
+                    <input type="radio" id="defer-vol-3" name="defer-vol-3" class="vol-radio hidden"/>
+                    <label for="defer-vol-3">
+                      <a class="defer-volunteer button round tiny caution" tabindex="0">Defer volunteer</a>
+                    </label>
+
                     <input type="radio" id="decline-vol-3" name="decline-vol-3" class="vol-radio hidden"/>
                     <label for="decline-vol-3">
                       <a class="decline-volunteer button round tiny alert">Decline volunteer</a>
@@ -70,6 +85,8 @@
                   </p>
 
                   <p class="volunteer-declined hidden alert">Volunteer declined. <a class="undo-decline">Undo</a></p>
+
+                  <p class="volunteer-deferred hidden caution">Volunteer deferred. <a class="undo-defer">Undo</a></p>
                 </div>
               </li>
             </ul>
@@ -132,6 +149,21 @@
         });
 
         $('.undo-decline').on('click', function(){
+          $(this).parent().siblings('.edit-volunteer').find('input[type="radio"]').attr('checked',false);
+          $(this).parent().fadeOut(333, function(){
+            $(this).siblings('.edit-volunteer').fadeIn(333);
+            $(this).parent().siblings('.accordion-title').css('color', '#1f4975');
+          });
+        });
+
+        $('.defer-volunteer').click(function(){
+          $(this).parents('.edit-volunteer').fadeOut(333, function(){
+            $(this).siblings('.volunteer-deferred').fadeIn(333);
+            $(this).parent().siblings('.accordion-title').css('color', '#e7b708');
+          });
+        });
+
+        $('.undo-defer').on('click', function(){
           $(this).parent().siblings('.edit-volunteer').find('input[type="radio"]').attr('checked',false);
           $(this).parent().fadeOut(333, function(){
             $(this).siblings('.edit-volunteer').fadeIn(333);

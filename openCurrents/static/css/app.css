@@ -142,6 +142,17 @@ h1, h2, h3, h4, h5, h6 {
   color: #ffffff;
 }
 
+.button.caution {
+  background-color: #ffffff;
+  border: 1px solid #e7b708;
+  color: #e7b708;
+}
+
+.button.caution:hover, .button.caution:focus {
+  background-color: #e7b708;
+  color: #ffffff;
+}
+
 .button.clear {
   background-color: transparent;
   color: #ffffff;
@@ -467,6 +478,10 @@ label {
 
 .alert {
   color: #890045;
+}
+
+.caution {
+  color: #e7b708;
 }
 
 .center {
@@ -1427,9 +1442,9 @@ input[type="checkbox"] + label.vol-arrived {
 /* time-tracker */
 
 
-/* edit-hours */
+/* approve-hours */
 
-.volunteer-declined {
+.volunteer-declined, .volunteer-deferred {
   text-align: center;
 }
 

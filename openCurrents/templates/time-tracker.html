@@ -29,10 +29,15 @@
                 <option disabled selected hidden>Select organization</option>
                 <!-- all requested orgs should appear here unless org declines a volunteer -->
                 <option>Bike Austin</option>
+                <option>Casa Marianella</option>
+                <option>Colorado River Alliance</option>
                 <option>Keep Austin Beautiful</option>
+                <option>Keep Austin Fed</option>
+                <option>Urban Patchwork</option>
+                
               </select>
               
-              <a class="add-org-popup_open button round secondary" tabindex=0>Request organization</a>
+              <a href="{% url 'openCurrents:org-signup' %}" class="add-org-popup_open button round secondary" tabindex=0>Nominate an organization</a>
           </div>
         </div>
 
