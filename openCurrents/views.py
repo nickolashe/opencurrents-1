@@ -125,10 +125,6 @@ class FindOrgsView(TemplateView):
     template_name = 'find-orgs.html'
 
 
-class GiveCurrentsView(TemplateView):
-    template_name = 'give-currents.html'
-
-
 class HoursApprovedView(TemplateView):
     template_name = 'hours-approved.html'
 
@@ -173,6 +169,9 @@ class RequestCurrentsView(TemplateView):
 
 class SellView(TemplateView):
     template_name = 'sell.html'
+
+class SendCurrentsView(TemplateView):
+    template_name = 'send-currents.html'
 
 
 class SignupView(TemplateView):
