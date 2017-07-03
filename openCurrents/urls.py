@@ -58,6 +58,7 @@ urlpatterns = [
     url(r'^edit-project$', views.EditProjectView.as_view(), name='edit-project'),
     url(r'^project-details$', views.ProjectDetailsView.as_view(), name='project-details'),
     url(r'^invite-volunteers$', views.InviteVolunteersView.as_view(), name='invite-volunteers'),
+    url(r'^volunteers-invited$', views.VolunteersInvitedView.as_view(), name='volunteers-invited'),
     url(r'^project-created$', views.ProjectCreatedView.as_view(), name='project-created'),
     url(r'^live-dashboard/(?P<event_id>\d+)/$',
         views.LiveDashboardView.as_view(), name='live-dashboard'),
@@ -65,7 +66,7 @@ urlpatterns = [
     url(r'^event-detail/(?P<pk>\d+)/$', views.EventDetailView.as_view(), name='event-detail'),
     url(r'^registration-confirmed/(?P<pk>\d+)/$',
         views.RegistrationConfirmedView.as_view(), name='registration-confirmed'),
-    url(r'^add-volunteers$', views.AddVolunteersView.as_view(), name='add-volunteers'),
+
 
     #temp 404 and 500 views
     url(r'^404$', views.NotFoundView.as_view(), name='404'),

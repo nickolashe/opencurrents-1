@@ -18,29 +18,44 @@
         {% endif %}
         
         <div class="row">
-          <h3 class="title">Invite volunteers</h3>
+          <h3 class="title-sub">Invite volunteers</h3>
+          <a class="bulk-email-popup_open button round small secondary">Copy/paste email list</a>
+          <p class="">or add volunteers individually:</p>
         </div>
         
         <div class="row one-margin-bottom center">
           <div class="small-12 medium-8 small-centered columns">
             <div id="vol-invites-box" class="row">
               <div class="small-6 columns">
-                <input type="text" name="vol-name-1" id="vol-name-1" placeholder="First name (optional)" />
+                <input type="text" name="vol-name-1" placeholder="First name (optional)" />
+              </div>
+              <div class="small-6 columns">
+                <input type="text" name="vol-email-1" placeholder="Email" />
               </div>
 
               <div class="small-6 columns">
-                <input type="text" name="vol-email-1" id="vol-email-1" placeholder="Email" />
+                <input type="text" name="vol-name-2" placeholder="First name (optional)" />
+              </div>
+              <div class="small-6 columns">
+                <input type="text" name="vol-email-2" placeholder="Email" />
+              </div>
+
+              <div class="small-6 columns">
+                <input type="text" name="vol-name-3" placeholder="First name (optional)" />
+              </div>
+              <div class="small-6 columns">
+                <input type="text" name="vol-email-3" placeholder="Email" />
               </div>
             </div>
 
-            <div class="row">
-              <a id="add-volunteer">Add volunteer</a>
-              <p class="one-margin-top">or add multiple emails separated by spaces, new lines, or commas</p>
-              <textarea name="bulk-emails" placeholder="email@yahoo.com, address@wahoo.com" rows="3"></textarea>
+            <div class="row one-margin-bottom left">
+              <div class="column">
+                <a id="add-volunteer" class="blue-icon"><i class="fa fa-plus-circle half-margin-right"></i>Add volunteer</a>
+              </div>
             </div>
           </div>
 
-          <a href="{% url 'openCurrents:admin-profile' %}" class="one-margin-top button round">Send invites</a>
+          <a href="{% url 'openCurrents:admin-profile' %}" class="button round">Send invites</a>
           <!-- <p><a href="{% url 'openCurrents:project-created' %}">Skip for now</a></p> -->
         </div>
         
@@ -60,18 +75,17 @@
       {% include "menu.html" %}
     </div>
   
-    <div id="-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+    <div id="bulk-email-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
-        <h3 class="popup-title"></h3>
+        <h3 class="popup-title">Add email list</h3>
       </div>
-      
-      <div class="row">
-        <div class="small-centered medium-10 columns">
-          
-          <p></p>
-          
-          <button class="tax-id-popup_close button round">Okay</button>
-          <a><button class="button round secondary"></button></a>
+
+      <div class="row center">
+        <div class="medium-10 small-centered column">
+          <p>Add multiple emails separated by spaces, new lines, or commas:</p>
+          <textarea name="bulk-emails" placeholder="email@yahoo.com, address@wahoo.com" rows="3"></textarea>
+
+          <p class="three-halves-margin-top"><a href="{% url 'openCurrents:volunteers-invited' %}" class="button round">Send invites</a></p>
         </div>
       </div>
     </div>
@@ -79,13 +93,13 @@
     
     <script type="text/javascript">
       $(document).ready(function(){
-        $('#').popup({
+        $('#bulk-email-popup').popup({
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: true,
         });
 
-        var vols = 1;
+        var vols = 3;
 
         $('#add-volunteer').click(function() {
 

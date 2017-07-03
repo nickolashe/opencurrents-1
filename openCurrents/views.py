@@ -204,6 +204,9 @@ class VolunteeringView(TemplateView):
 class VolunteerRequestsView(TemplateView):
     template_name = 'volunteer-requests.html'
 
+class VolunteersInvitedView(TemplateView):
+    template_name = 'volunteers-invited.html'
+
 
 class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'profile.html'
