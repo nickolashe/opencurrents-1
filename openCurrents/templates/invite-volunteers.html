@@ -19,7 +19,7 @@
         
         <div class="row">
           <h3 class="title-sub">Invite volunteers</h3>
-          <a class="bulk-email-popup_open button round small secondary">Copy/paste email list</a>
+          <a class="bulk-email-popup_open button round small">Copy/paste email list</a>
           <p class="">or add volunteers individually:</p>
         </div>
         
@@ -50,12 +50,12 @@
 
             <div class="row one-margin-bottom left">
               <div class="column">
-                <a id="add-volunteer" class="blue-icon"><i class="fa fa-plus-circle half-margin-right"></i>Add volunteer</a>
+                <a id="add-volunteer" class="blue-icon"><i class="fa fa-plus-circle half-margin-left half-margin-right"></i>Add volunteer</a>
               </div>
             </div>
           </div>
 
-          <a href="{% url 'openCurrents:admin-profile' %}" class="button round">Send invites</a>
+          <a href="{% url 'openCurrents:admin-profile' %}" class="button round secondary">Send invites</a>
           <!-- <p><a href="{% url 'openCurrents:project-created' %}">Skip for now</a></p> -->
         </div>
         
@@ -105,7 +105,7 @@
 
           vols ++;
 
-          $('#vol-invites-box').append('<div class="hidden small-6 columns"><input type="text" name="vol-name-'+vols+'" id="vol-name-'+vols+'" placeholder="First name (optional)" /></div><div class="hidden small-6 columns"><input type="text" name="vol-email-'+vols+'" id="vol-email-'+vols+'" placeholder="Email" /></div>');
+          $('#vol-invites-box').append('<div class="hidden slide small-6 columns"><input type="text" name="vol-name-'+vols+'" id="vol-name-'+vols+'" placeholder="First name (optional)" /></div><div class="hidden small-6 columns"><input type="text" name="vol-email-'+vols+'" id="vol-email-'+vols+'" placeholder="Email" /></div>');
           $('#vol-invites-box .hidden').slideDown();
         });
       });
