@@ -19,33 +19,74 @@
         <div class="row left one-margin-top one-margin-bottom">
           <div class="small-12 medium-8 small-centered columns">
             <ul id="volunteer-list" class="accordion" data-accordion data-allow-all-closed="true">
-              <li class="accordion-item" data-accordion-item>  
-                <a href="#" class="accordion-title">Firstname Lastname<span class="float-right">9 hrs</span></a>
+              <li class="accordion-item is-active" data-accordion-item>  
+                <a href="#" class="accordion-title">Danny Pernik<span class="float-right">8 hrs</span></a>
                 <div class="accordion-content" data-tab-content>
                   <p>Monday<span>3 hrs</span></p>
                   <p>Wednesday<span>2 hrs</span></p>
-                  <p>Thursday<span>4 hrs</span></p>
-                  <p class="center"><a href="{% url 'openCurrents:edit-hours' %}" class="button round tiny secondary">View details</a></p>
+                  <p>Thursday<span>3 hrs</span></p>
+                  <p class="edit-volunteer center">
+                    <input type="radio" id="defer-vol-1" name="vol-status-1" class="vol-radio hidden"/>
+                      <label for="defer-vol-1">
+                        <a class="defer-volunteer button round tiny caution" tabindex="0">Defer volunteer</a>
+                      </label>
+                    <input type="radio" id="decline-vol-1" name="vol-status-1" class="vol-radio hidden"/>
+                      <label for="decline-vol-1">
+                        <a class="decline-volunteer button round tiny alert">Decline volunteer</a>
+                      </label>
+                  </p>
+
+                  <p class="volunteer-declined hidden alert">Volunteer declined. <a class="undo-decline">Undo</a></p>
+
+                  <p class="volunteer-deferred hidden caution">Volunteer deferred. <a class="undo-defer">Undo</a></p>
                 </div>
               </li>
 
               <li class="accordion-item" data-accordion-item>  
-                <a href="#" class="accordion-title">Firstname Lastname<span class="float-right">9 hrs</span></a>
+                <a href="#" class="accordion-title">Max Tattenbach<span class="float-right">9 hrs</span></a>
                 <div class="accordion-content" data-tab-content>
                   <p>Monday<span>3 hrs</span></p>
                   <p>Wednesday<span>2 hrs</span></p>
                   <p>Thursday<span>4 hrs</span></p>
-                  <p class="center"><a href="{% url 'openCurrents:edit-hours' %}" class="button round tiny secondary">View details</a></p>
+                  <p class="edit-volunteer center">
+                    <input type="radio" id="defer-vol-2" name="vol-status-2" class="vol-radio hidden"/>
+                    <label for="defer-vol-2">
+                      <a class="defer-volunteer button round tiny caution" tabindex="0">Defer volunteer</a>
+                    </label>
+
+                    <input type="radio" id="decline-vol-2" name="vol-status-2" class="vol-radio hidden"/>
+                      <label for="decline-vol-2">
+                        <a class="decline-volunteer button round tiny alert">Decline volunteer</a>
+                      </label>
+                  </p>
+
+                  <p class="volunteer-declined hidden alert">Volunteer declined. <a class="undo-decline">Undo</a></p>
+
+                  <p class="volunteer-deferred hidden caution">Volunteer deferred. <a class="undo-defer">Undo</a></p>
                 </div>
               </li>
 
               <li class="accordion-item" data-accordion-item>  
-                <a href="#" class="accordion-title">Firstname Lastname<span class="float-right">9 hrs</span></a>
+                <a href="#" class="accordion-title">Nicko Shestopalov<span class="float-right">10 hrs</span></a>
                 <div class="accordion-content" data-tab-content>
                   <p>Monday<span>3 hrs</span></p>
-                  <p>Wednesday<span>2 hrs</span></p>
+                  <p>Wednesday<span>3 hrs</span></p>
                   <p>Thursday<span>4 hrs</span></p>
-                  <p class="center"><a href="{% url 'openCurrents:edit-hours' %}" class="button round tiny secondary">View details</a></p>
+                  <p class="edit-volunteer center">
+                    <input type="radio" id="defer-vol-3" name="vol-status-3" class="vol-radio hidden"/>
+                    <label for="defer-vol-3">
+                      <a class="defer-volunteer button round tiny caution" tabindex="0">Defer volunteer</a>
+                    </label>
+
+                    <input type="radio" id="decline-vol-3" name="vol-status-3" class="vol-radio hidden"/>
+                    <label for="decline-vol-3">
+                      <a class="decline-volunteer button round tiny alert">Decline volunteer</a>
+                    </label>
+                  </p>
+
+                  <p class="volunteer-declined hidden alert">Volunteer declined. <a class="undo-decline">Undo</a></p>
+
+                  <p class="volunteer-deferred hidden caution">Volunteer deferred. <a class="undo-defer">Undo</a></p>
                 </div>
               </li>
             </ul>
@@ -53,7 +94,7 @@
         </div>
 
         <div class="row center">
-          <button type="submit" class="button round">Approve</button>
+          <a href="{% url 'openCurrents:hours-approved' %}" class="button round">Approve hours</a>
         </div>
         
         <div id="push"></div>
@@ -99,6 +140,36 @@
           transition: 'all 0.75s',
           scrolllock: true,
         });
+
+        $('.decline-volunteer').click(function(){
+          $(this).parents('.edit-volunteer').fadeOut(333, function(){
+            $(this).siblings('.volunteer-declined').fadeIn(333);
+            $(this).parent().siblings('.accordion-title').css('color', '#890045');
+          });
+        });
+
+        $('.undo-decline').on('click', function(){
+          $(this).parent().siblings('.edit-volunteer').find('input[type="radio"]').attr('checked',false);
+          $(this).parent().fadeOut(333, function(){
+            $(this).siblings('.edit-volunteer').fadeIn(333);
+            $(this).parent().siblings('.accordion-title').css('color', '#1f4975');
+          });
+        });
+
+        $('.defer-volunteer').click(function(){
+          $(this).parents('.edit-volunteer').fadeOut(333, function(){
+            $(this).siblings('.volunteer-deferred').fadeIn(333);
+            $(this).parent().siblings('.accordion-title').css('color', '#e7b708');
+          });
+        });
+
+        $('.undo-defer').on('click', function(){
+          $(this).parent().siblings('.edit-volunteer').find('input[type="radio"]').attr('checked',false);
+          $(this).parent().fadeOut(333, function(){
+            $(this).siblings('.edit-volunteer').fadeIn(333);
+            $(this).parent().siblings('.accordion-title').css('color', '#1f4975');
+          });
+        });         
       });
     </script>
     

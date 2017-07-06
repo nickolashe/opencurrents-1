@@ -129,16 +129,15 @@ class FindOrgsView(TemplateView):
     template_name = 'find-orgs.html'
 
 
-class GiveCurrentsView(TemplateView):
-    template_name = 'give-currents.html'
-
-
 class HoursApprovedView(TemplateView):
     template_name = 'hours-approved.html'
 
 
 class InventoryView(TemplateView):
     template_name = 'Inventory.html'
+
+class MarketplaceView(TemplateView):
+    template_name = 'marketplace.html'
 
 
 class MissionView(TemplateView):
@@ -156,6 +155,9 @@ class NominationConfirmedView(TemplateView):
 class NominationEmailView(TemplateView):
     template_name = 'nomination-email.html'
 
+class OfferView(TemplateView):
+    template_name = 'offer.html'
+
 
 class OrgHomeView(TemplateView):
     template_name = 'org-home.html'
@@ -171,6 +173,9 @@ class RequestCurrentsView(TemplateView):
 
 class SellView(TemplateView):
     template_name = 'sell.html'
+
+class SendCurrentsView(TemplateView):
+    template_name = 'send-currents.html'
 
 
 class SignupView(TemplateView):
@@ -189,8 +194,11 @@ class VerifyIdentityView(TemplateView):
     template_name = 'verify-identity.html'
 
 
-class VolunteerHoursView(TemplateView):
-    template_name = 'volunteer-hours.html'
+class TimeTrackerView(TemplateView):
+    template_name = 'time-tracker.html'
+
+class TimeTrackedView(TemplateView):
+    template_name = 'time-tracked.html'
 
 
 class VolunteeringView(TemplateView):
@@ -199,6 +207,9 @@ class VolunteeringView(TemplateView):
 
 class VolunteerRequestsView(TemplateView):
     template_name = 'volunteer-requests.html'
+
+class VolunteersInvitedView(TemplateView):
+    template_name = 'volunteers-invited.html'
 
 
 class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
@@ -756,7 +767,7 @@ def process_login(request):
             if user.org_set.exists():
                 return redirect('openCurrents:admin-profile')
             else:
-                return redirect('openCurrents:user-home')
+                return redirect('openCurrents:profile')
         else:
             return redirect('openCurrents:login', status_msg='Invalid login/password')
     else:
