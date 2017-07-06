@@ -79,6 +79,10 @@ class InviteView(TemplateView):
     template_name = 'home.html'
 
 
+class CheckEmailView(TemplateView):
+    template_name = 'check-email.html'
+
+
 class ConfirmAccountView(TemplateView):
     template_name = 'confirm-account.html'
 
