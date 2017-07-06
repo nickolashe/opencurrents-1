@@ -73,6 +73,7 @@ class Account(models.Model):
     amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     pending = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     timezone = models.CharField(max_length=128, default='America/Chicago')
+    monthly_updates = models.BooleanField(default=False)
 
     # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)

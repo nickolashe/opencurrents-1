@@ -79,6 +79,10 @@ class InviteView(TemplateView):
     template_name = 'home.html'
 
 
+class CheckEmailView(TemplateView):
+    template_name = 'check-email.html'
+
+
 class ConfirmAccountView(TemplateView):
     template_name = 'confirm-account.html'
 
@@ -127,16 +131,15 @@ class FindOrgsView(TemplateView):
     template_name = 'find-orgs.html'
 
 
-class GiveCurrentsView(TemplateView):
-    template_name = 'give-currents.html'
-
-
 class HoursApprovedView(TemplateView):
     template_name = 'hours-approved.html'
 
 
 class InventoryView(TemplateView):
     template_name = 'Inventory.html'
+
+class MarketplaceView(TemplateView):
+    template_name = 'marketplace.html'
 
 
 class MissionView(TemplateView):
@@ -173,6 +176,9 @@ class RequestCurrentsView(TemplateView):
 class SellView(TemplateView):
     template_name = 'sell.html'
 
+class SendCurrentsView(TemplateView):
+    template_name = 'send-currents.html'
+
 
 class SignupView(TemplateView):
     template_name = 'signup.html'
@@ -203,6 +209,9 @@ class VolunteeringView(TemplateView):
 
 class VolunteerRequestsView(TemplateView):
     template_name = 'volunteer-requests.html'
+
+class VolunteersInvitedView(TemplateView):
+    template_name = 'volunteers-invited.html'
 
 
 class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
@@ -830,6 +839,12 @@ def process_email_confirmation(request, user_email):
 
         # create user account
         user_account = Account(user=user, pending=1)
+
+        if form.cleaned_data['monthly_updates']:
+            user_account.monthly_updates = True;
+        else:
+            user_account.monthly_updates = False;
+
         user_account.save()
 
         # add credit to the referrer

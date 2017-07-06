@@ -18,12 +18,32 @@
         {% endif %}
         
         <div class="row">
-          <h3 class="title"></h3>
+          <h3 class="title">We offer...</h3>
         </div>
         
-        <div class="row one-margin-bottom center">
-          <div class="small-12 medium-8 small-centered columns">
-            
+        <div class="row center">
+          <div class="center small-12 medium-6 small-centered columns">
+            <input type="number" id="discount-amount" name="discount-amount" class="inline" placeholder="#">
+            <select id="discount-type" name="discount-type" class="inline">
+              <option name="dollar">dollars off</option>
+              <option name="percent">percent off</option>
+            </select>
+
+            <input id="item-name" name="item-name" type="text" placeholder="name of product/service" class="center">
+
+            <p class="one-margin-top no-margin-bottom large-text">at a value of $<input type="number" id="current-value" name="current-value" class="inline large-text" placeholder="#" value="10"> per Current</p>
+
+            <p class="large-text">up to <input type="number" id="max-currents" name="max-currents" class="inline large-text" placeholder="#" value="1"> Currents per customer per day</p>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="small-12 medium-5 small-centered columns">
+            <label><input type="checkbox" id="min-purchase" name="min-purchase"/>Minimum purchase required</label>
+
+            <div id="min-purchase-div" class="hidden">Minimum purchase: $ <input type="number" id="min-purchase-amount" name="min-purchase-amount" class="inline" placeholder="10" /></div>
+
+            <a href="" class="three-halves-margin-top button round">Create offer</a>
           </div>
         </div>
         
@@ -66,6 +86,10 @@
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: true,
+        });
+
+        $('#min-purchase').change(function(){
+          $('#min-purchase-div')[this.checked ? "slideDown" : "slideUp"]();
         });
       });
     </script>

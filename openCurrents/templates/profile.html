@@ -21,8 +21,9 @@
             <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
             <h6 class="inline"> {{ user_balance }} </h6>
             <div class="half-margin-top">
-              <!-- <a href="{% url 'openCurrents:time-tracker' %}" class="button small round">Record hours</a> -->
-              <a class="earn-currents-popup_open button round">Earn Currents</a>
+              <a class="earn-currents-popup_open button round small">Earn Currents</a>
+              </a>
+              <!--<a href="{% url 'openCurrents:marketplace' %}" class="button round secondary small">Spend Currents</a>-->
             </div>
           <!--</div>
 
@@ -161,14 +162,23 @@
 
     <div id="earn-currents-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
-        <h3 class="one-margin-top">Do you volunteer?</h3>
-        <h6>Nominate an organization for openCurrents</h6>
+        <h3 class="one-margin-top">2 ways to earn Currents</h3>
+        <h6></h6>
       </div>
 
       <div class="row center half-margin-top">
-        <div class="small-centered medium-10 columns">
-          <p class="three-halves-margin-bottom">We are currently working with a handful of social organizations to help them track hours and issue Currents to volunteers. If you'd like your time to be rewarded, nominate an organization to openCurrents and we will reach out to them. To increase the chances, let your organizer know about us!</p>
-          <a href="{% url 'openCurrents:org-signup' %}" class="button round">Nominate</a>
+        <div class="small-centered medium-12. columns">
+          <div class="small-12 medium-6 columns">
+            <h6>Volunteer at an event</h6>
+            <p>Check out these upcoming opportunities with participating organizations:</p>
+            <a href="{% url 'openCurrents:upcoming-projects' %}" class="button round small">View upcoming events</a>
+          </div>
+
+          <div class="small-12 medium-6 columns">
+            <h6>Track volunteer time</h6>
+            <p>If you already give time with a participating organization, track your hours here:</p>
+            <a href="{% url 'openCurrents:time-tracker' %}" class="button round small">Record hours</a>
+          </div>
         </div>
       </div>
     </div>

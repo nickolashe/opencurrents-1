@@ -12,13 +12,7 @@
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
         <div class="row">
-            <h2 class="title">Confirm account</h2>
-        </div>
-
-        <div class="row center half-margin-bottom">
-          <div class="small-12 medium-6 small-centered columns">
-            <p class="small">To verify your account, copy the code sent to {{email}} or click the link in the email.</p>
-          </div>
+            <h2 class="title-sub">Confirm account</h2>
         </div>
 
         {% if status_msg %}
@@ -31,7 +25,7 @@
 
         <form method="post" action="{% url 'openCurrents:process_email_confirmation' user_email=email %}">
           {% csrf_token %}
-          <div class="row center half-margin-bottom">
+          <div class="hidden row center half-margin-bottom">
             <div class="medium-6 small-centered columns">
               <p class="inline">Verification code: </p>
               <input type="text" {% if token %} readonly {% endif %} id="verify-email" name="verification_token" class="inline-input" value="{{token}}" />
@@ -39,7 +33,7 @@
           </div>
 
           <div class="row no-margin-bottom">
-            <p class="half-margin-bottom">Also, choose a password:</p>
+            <p class="three-halves-margin-bottom">To complete signup, set your password:</p>
 
             <div class="input-left small-6 medium-3 medium-offset-3 columns">
               <input type="password" name='user_password' placeholder="Set password" class="half-margin-bottom"/>
@@ -52,16 +46,20 @@
           <label class="one-margin-bottom">8+ chars including UPPER, lower, 123, %#@!</label>
 
           <div class="row center">
-            <input type="submit" class="button round" value="Confirm"/>
-            <button class="resend-email_open button round secondary">Resend email</button>
-            <p class="">or <a class="change-email_open">change email address</a></p>
+            <div class="checkbox">
+              <label id=""><input type="checkbox" name="monthly_updates" id="" />Send me monthly updates</label>
+            </div>
+
+            <input type="submit" class="button round" value="Finish"/>
+            <!-- <button class="resend-email_open button round secondary">Resend email</button>
+            <p class="">or <a class="change-email_open">change email address</a></p> -->
           </div>
         </form>
 
         <div id="change-email" class="modal center small-12 medium-9 large-7 small-centered columns">
           <div class="row">
             <div class="center small-centered medium-10 columns">
-              <h3 class="one-margin-bottom">Change email address</h3>
+              <h3 class="popup-title">Change email address</h3>
               <input type="email" name="email" placeholder="Email address" tabindex="1" />
               <button class="button round">Send verification</button>
               <button class="change-email_close button secondary round">Cancel</button>

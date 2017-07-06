@@ -28,11 +28,16 @@
               <select id="user-orgs" class="two-margin-bottom">
                 <option disabled selected hidden>Select organization</option>
                 <!-- all requested orgs should appear here unless org declines a volunteer -->
-                <option value="Name of organization">Approved organization 1</option>
-                <option value="Name of organization 2">Approved organization 2</option>
+                <option>Bike Austin</option>
+                <option>Casa Marianella</option>
+                <option>Colorado River Alliance</option>
+                <option>Keep Austin Beautiful</option>
+                <option>Keep Austin Fed</option>
+                <option>Urban Patchwork</option>
+                
               </select>
               
-              <a class="add-org-popup_open button round secondary" tabindex=0>Request organization</a>
+              <a href="{% url 'openCurrents:org-signup' %}" class="add-org-popup_open button round secondary" tabindex=0>Nominate an organization</a>
           </div>
         </div>
 
@@ -106,7 +111,11 @@
             
             <select id="all-orgs">
               <option disabled selected hidden>Select organization</option>
-              <option>(all orgs not in user-orgs)</option>
+              <option>Bike Austin</option>
+              <option>Keep Austin Beautiful</option>
+              <option>Keep Austin Fed</option>
+              <option>Urban Patchwork</option>
+              <option>Casa Marianella</option>
             </select>
           </div>
         </div>
@@ -143,7 +152,7 @@
 
     <script type="text/javascript">
       $('select').on('change', function(){
-        var selected = $(this).find('option:selected').val();
+        var selected = $(this).find('option:selected').text();
         document.getElementById('org-name').innerHTML = selected;
         $('#choose-org').fadeOut(777, function(){
           $('#track-time').fadeIn(777);
@@ -207,5 +216,7 @@
       var d = n.getDate();
       document.getElementById("date").innerHTML = d + " " + months[m] + " " + y;
     </script>
+
+    <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
   </body>
 </html>
