@@ -51,9 +51,9 @@
 
         <!-- current events section -->
         {% if events_current %}
-          <div id="live-project-list" class="row one-margin-top">
+          <div id="live-event-list" class="row one-margin-top">
             <div class="medium-8 small-centered columns">
-              <h6 class="half-margin-bottom">Projects happening now</h6>
+              <h6 class="half-margin-bottom">Events happening now</h6>
 
               {% for event in events_current %}
                 <div class="row one-margin-top one-margin-bottom">
@@ -79,9 +79,9 @@
         {% endif %}
 
         {% if events_upcoming %}
-          <div id="project-list" class="row one-margin-top">
+          <div id="upcoming-event-list" class="row one-margin-top">
             <div class="medium-8 small-centered columns">
-              <h6 class="half-margin-bottom">Our upcoming projects</h6>
+              <h6 class="half-margin-bottom">Our upcoming events</h6>
 
               {% for event in events_upcoming %}
                 <div class="row one-margin-bottom">
@@ -102,6 +102,34 @@
             </div>
           </div>
         {% endif %}
+
+        {% if events_past %}
+          <div id="past-event-list" class="row one-margin-top">
+            <div class="medium-8 small-centered columns">
+              <h6 class="half-margin-bottom">Past events</h6>
+
+              {% for event in events_past %}
+                <div class="row one-margin-bottom">
+                  <div class="left input-left small-8 columns">
+                    Let's {{event.project.name}}!
+                    on {{event.datetime_start|day:timezone}}
+                    at {{event.datetime_start|time:timezone}}
+                    to {{event.datetime_end|time:timezone}}
+                    at <strong>{{event.location}}</strong>
+                  </div>
+
+                  <div class="right input-right small-4 columns">
+                    <a href="{% url 'openCurrents:live-dashboard' event.id %}"/>
+                      <button class="button round small secondary">Attendees</button>
+                    </a>
+                  </div>
+                </div>
+              {% endfor %}
+
+            </div>
+          </div>
+        {% endif %}
+
         <!-- community feed code. Hardcoded not dynamic -->
         <!-- <div class="row one-margin-top">
           <div class="left medium-8 small-centered columns">
