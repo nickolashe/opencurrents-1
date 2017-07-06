@@ -804,6 +804,12 @@ def process_email_confirmation(request, user_email):
 
         # create user account
         user_account = Account(user=user, pending=1)
+
+        if form.cleaned_data['monthly_updates']:
+            user_account.monthly_updates = True;
+        else:
+            user_account.monthly_updates = False;
+
         user_account.save()
 
         # add credit to the referrer
