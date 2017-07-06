@@ -12,13 +12,7 @@
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
         <div class="row">
-            <h2 class="title">Confirm account</h2>
-        </div>
-
-        <div class="row center half-margin-bottom">
-          <div class="small-12 medium-6 small-centered columns">
-            <p class="small">To verify your account, copy the code sent to {{email}} or click the link in the email.</p>
-          </div>
+            <h2 class="title-sub">Confirm account</h2>
         </div>
 
         {% if status_msg %}
@@ -31,7 +25,7 @@
 
         <form method="post" action="{% url 'openCurrents:process_email_confirmation' user_email=email %}">
           {% csrf_token %}
-          <div class="row center half-margin-bottom">
+          <div class="hidden row center half-margin-bottom">
             <div class="medium-6 small-centered columns">
               <p class="inline">Verification code: </p>
               <input type="text" {% if token %} readonly {% endif %} id="verify-email" name="verification_token" class="inline-input" value="{{token}}" />
