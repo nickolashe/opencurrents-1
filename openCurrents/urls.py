@@ -90,7 +90,9 @@ urlpatterns = [
         views.process_signup, name='process_signup'),
     url(r'^process_email_confirmation/(?P<user_email>[\w\.@\+\-]+)/$',
         views.process_email_confirmation, name='process_email_confirmation'),
-    url(r'^process_org_signup/$', views.process_org_signup, name='process_org_signup')
+    url(r'^process_org_signup/$', views.process_org_signup, name='process_org_signup'),
+    url(r'^orgs_list/$', views.orgs_list, name='orgs_list'),
+    url(r'^manual_track_org/$', views.manual_track_org, name='manual_track_org')
 ]
 
 #handler404 = 'openCurrents.views.return_404'
