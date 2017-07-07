@@ -81,6 +81,7 @@ urlpatterns = [
     url(r'^event_checkin/(?P<pk>\d+)/$', views.event_checkin, name='event_checkin'),
     url(r'^process_login/$', views.process_login, name='process_login'),
     url(r'^process_logout/$', views.process_logout, name='process_logout'),
+    url(r'^process_resend/', views.process_resend, name='process_resend'),
     url(r'^process_signup/(?P<referrer>[\w\.@\+\-]*)$',
         views.process_signup, name='process_signup'),
     url(r'^process_signup/(?P<endpoint>(True|False))/$',
