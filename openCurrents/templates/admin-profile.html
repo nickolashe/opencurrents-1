@@ -40,9 +40,9 @@
                   <button class="button small round">Create event</button>
                 </a>
               </div> -->
-              <div class="half-margin-top">
+              <!-- <div class="half-margin-top">
                 <a href="{% url 'openCurrents:invite-volunteers' %}" class="button round">Invite volunteers</a>
-              </div>
+              </div> -->
             </div>
 
           <!--</div>
@@ -54,9 +54,9 @@
 
         <!-- current events section -->
         {% if events_current %}
-          <div id="live-event-list" class="row one-margin-top">
+          <div id="live-event-list" class="left row one-margin-top">
             <div class="medium-8 small-centered columns">
-              <h6 class="half-margin-bottom">Events happening now</h6>
+              <h6 class="one-margin-bottom">Events happening now</h6>
 
               {% for event in events_current %}
                 <div class="row one-margin-top one-margin-bottom">
@@ -78,13 +78,13 @@
             </div>
           </div>
         {% elif events_upcoming %}
-          <p><a href="{% url 'openCurrents:live-dashboard' event_id=events_upcoming.0.id %}" class="button round small">Preview live dashboard</a></p>
+          <!--<p><a href="{% url 'openCurrents:live-dashboard' event_id=events_upcoming.0.id %}" class="button round small">Preview live dashboard</a></p>-->
         {% endif %}
 
         {% if events_upcoming %}
-          <div id="upcoming-event-list" class="row one-margin-top">
+          <div id="upcoming-event-list" class="left row one-margin-top">
             <div class="medium-8 small-centered columns">
-              <h6 class="half-margin-bottom">Our upcoming events</h6>
+              <h6 class="one-margin-bottom">Our upcoming events</h6>
 
               {% for event in events_upcoming %}
                 <div class="row one-margin-bottom">
@@ -97,7 +97,7 @@
                   </div>
 
                   <div class="right small-4 columns">
-                    <a href="{% url 'openCurrents:invite-volunteers' %}" class="button round small secondary">Invite</a>
+                    <a href="{% url 'openCurrents:live-dashboard' event.id %}" class="button round small">Preview</a>
                   </div>
                 </div>
               {% endfor %}
@@ -107,9 +107,9 @@
         {% endif %}
 
         {% if events_past %}
-          <div id="past-event-list" class="row one-margin-top">
+          <div id="past-event-list" class="left row one-margin-top">
             <div class="medium-8 small-centered columns">
-              <h6 class="half-margin-bottom">Past events</h6>
+              <h6 class="one-margin-bottom">Past events</h6>
 
               {% for event in events_past %}
                 <div class="row one-margin-bottom">
@@ -214,7 +214,7 @@
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: true,
-          autoopen: true,
+          //autoopen: true,
         });
       });
     </script>
