@@ -729,8 +729,8 @@ def process_signup(request, referrer=None, endpoint=False, verify_email=True):
             return HttpResponse(user.id, status=201)
         else:
             return redirect(
-                'openCurrents:confirm-account',
-                email=user_email
+               'openCurrents:check-email',
+               email=user_email
             )
 
     # fail with form validation error
