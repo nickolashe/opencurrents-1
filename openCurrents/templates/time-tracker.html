@@ -25,12 +25,13 @@
 
               <h6 class="subtitle">for</h6>
 
-              <select id="user-orgs" class="two-margin-bottom">
+              <!--<select id="user-orgs" class="two-margin-bottom">
                 <option disabled selected hidden>Select organization</option>
-                 <!--all requested orgs should appear here unless org declines a volunteer -->
+                 all requested orgs should appear here unless org declines a volunteer 
                 
 
-              </select>
+              </select>-->
+              {{form.orgs}}
 
               <a href="{% url 'openCurrents:org-signup' %}" class="add-org-popup_open button round secondary" tabindex=0>Nominate an organization</a>
           </div>

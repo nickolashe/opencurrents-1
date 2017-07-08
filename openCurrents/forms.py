@@ -234,6 +234,9 @@ class EventRegisterForm(forms.Form):
 class TrackVolunteerHours(forms.Form):
 
 
+    CHOICES = (("Select Organisation","Select Organisation"),)
+    orgs = forms.ChoiceField(choices=CHOICES)
+
     description = forms.CharField(
         widget=forms.TextInput(attrs={
             #'rows': '1',
