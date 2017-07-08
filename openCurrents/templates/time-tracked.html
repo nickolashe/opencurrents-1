@@ -18,12 +18,15 @@
         {% endif %}
         
         <div class="row">
-          <h3 class="title"></h3>
+          <h3 class="title">Your time has been recorded</h3>
         </div>
         
         <div class="row one-margin-bottom center">
           <div class="small-12 medium-8 small-centered columns">
-            
+            <p class="two-margin-bottom">Once the organizer approves your weekly hours, Currents will be added to your account. Well done!</p>
+
+            <a href="{% url 'openCurrents:profile' %}" class="button round">Go home</a>
+            <a href="{% url 'openCurrents:time-tracker' %}" class="button round secondary">Add more time</a>
           </div>
         </div>
         
@@ -53,7 +56,8 @@
           
           <p></p>
           
-          <button class="-popup_close button round">Close</button>
+          <button class="tax-id-popup_close button round">Okay</button>
+          <a><button class="button round secondary"></button></a>
         </div>
       </div>
     </div>

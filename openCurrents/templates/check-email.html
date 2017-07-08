@@ -1,0 +1,83 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    {% include "head.html" %}
+  </head>
+  
+  <body>
+    {% include "header.html" %}
+    
+    <div id="container" class="js-close-any" canvas="container">
+      <div id="wrapper">
+        {% if status_msg %}
+        <div class="alert row half-margin-top">
+          {{status_msg}}
+        </div>
+        {% endif %}
+        
+        <div class="row">
+          <h3 class="title-sub">Check your email</h3>
+          <p class="two-margin-bottom">To confirm your account, click the link in the email that we just sent to {{ email }}.</p>
+          <a class="resend-email-popup_open button round secondary">Resend email</a>
+          <p>or <a class="change-email-popup_open">Change email address</a></p>
+        </div>
+        
+        <div class="row one-margin-bottom center">
+          <div class="small-12 medium-8 small-centered columns">
+            
+          </div>
+        </div>
+        
+        <div id="push"></div>
+    
+      <!-- wrapper div-->
+      </div>
+      
+      {% include "footer.html" %}
+            
+    <!--container div -->
+    </div>
+    
+    <div id="bottom-stripe" class="full-width"></div>
+    
+    <div off-canvas="menu right shift" id="menu">
+      {% include "menu.html" %}
+    </div>
+  
+    <div id="change-email-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row">
+        <div class="center small-centered medium-10 columns">
+          <h3 class="popup-title">Change email address</h3>
+          <input type="email" name="email" placeholder="Email address" class="center three-halves-margin-bottom" />
+          <button class="button round">Send verification</button>
+          <button class="change-email-popup_close button secondary round">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="resend-email-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row">
+        <div class="center small-centered medium-10 columns">
+          <h3 class="one-margin-bottom">Email verification sent</h3>
+          <p>It may take a few minutes for the email to arrive. If you still don't see it, check your Spam folder.</p>
+          <button class="resend-email-popup_close button round">Okay</button>
+        </div>
+      </div>
+    </div>
+    
+    
+    <script type="text/javascript">
+      $(document).ready(function(){
+        $('#change-email-popup, #resend-email-popup').popup({
+          vertical: 'top',
+          transition: 'all 0.75s',
+          scrolllock: true,
+        });
+      });
+    </script>
+    
+    <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
+  </body>
+</html>

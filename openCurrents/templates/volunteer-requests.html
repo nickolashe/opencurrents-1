@@ -12,12 +12,13 @@
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
         <div class="row one-margin-bottom">
-          <h2 class="title">Volunteer requests</h2>
+          <h2 class="title-sub">Volunteer requests</h2>
+          <p class="subtitle">These volunteers want to start tracking hours with Bike Austin:
         </div>
         
         <div class="row one-margin-bottom">
-          <div class="left small-7 medium-5 medium-offset-2 columns">
-            <a href="{% url 'openCurrents:edit-hours' %}" title="View hours recorded">Firstname Lastname</a>
+          <div class="left qtr-margin-top small-7 medium-5 medium-offset-2 columns">
+            <a href="{% url 'openCurrents:edit-hours' %}" title="View hours recorded">Danny Pernik</a>
           </div>
 
           <div class="right small-5 medium-3 columns end">
@@ -46,8 +47,8 @@
 
         <!-- change input names and ids, and label for, for each volunteer -->
         <div class="row one-margin-bottom">
-          <div class="left small-7 medium-5 medium-offset-2 columns">
-            <a href="{% url 'openCurrents:edit-hours' %}" title="View hours recorded">Firstname Lastname</a>
+          <div class="left qtr-margin-top small-7 medium-5 medium-offset-2 columns">
+            <a href="{% url 'openCurrents:edit-hours' %}" title="View hours recorded">Max Tattenbach</a>
           </div>
 
           <div class="right small-5 medium-3 columns end">
@@ -72,6 +73,10 @@
               <label class="vol-status">Deferred. <a class="undo">Undo</a></label>
             </div>
           </div>
+        </div>
+
+        <div class="row center two-margin-top">
+          <a href="{% url 'openCurrents:approve-hours' %}"><button id="confirm-requests" class="button round">Continue</button></a>
         </div>
 
         <div id="push"></div>
@@ -130,6 +135,22 @@
           $(this).siblings('.volunteer-confirm').fadeIn(333);
         });
         $(this).parents('.right').find('input').attr('checked',false);
+      });
+
+      $(function () {
+          var button = $('#confirm-requests').prop('disabled', true);
+          var radios = $('input[type="radio"]');
+          var arr    = $.map(radios, function(el) { 
+                            return el.name; 
+                       });
+
+          var groups = $.grep(arr, function(v, k){
+                           return $.inArray(v ,arr) === k;
+                       }).length;
+
+          radios.on('change', function () {
+              button.prop('disabled', radios.filter(':checked').length < groups);
+          });
       });
     </script>
     

@@ -459,45 +459,8 @@
       </form>
     </div>
 
-    <div id="demo-box" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <div class="row center">
-        <div class="small-11 small-centered columns">
-          <h2 class="popup-title">This is a demo.</h2>
-          <p class="navy">Come see what we're working on. Most buttons will work, but don't bother entering information, as data is not yet being saved.</p>
-          <p class="navy three-halves-margin-bottom">If you have any questions or would like to get involved, click "Contact us" at the bottom of each page.</p>
-          <a class="signup-box_open demo-box_close"><button type="submit" class="button large round">Continue</button></a>
-        </div>
-      </div>
-    </div>
-
-    <div id="suggestion-box" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <div class="row">
-        <div class="center small-centered medium-10 columns">
-          <h3 class="popup-title">Speak your mind</h3>
-
-        </div>
-      </div>
-    </div>
-
     <script type="text/javascript" src="{% static "js/home.js" %}"></script>
 
-    <!--<script type="text/javascript">
-      var timeout = 100;
-      var timer;
-        $(window).scroll(function(event){
-          clearTimeout(timer);
-          timer = setTimeout(function() {
-            $(".header-spacer, .snap").each(function() {
-              var scrollTop = $(window).scrollTop();
-              var offset = $(this).offset().top;
-              if(offset-scrollTop < 200 && offset-scrollTop > -50) {
-                $('html,body').animate({scrollTop: $(this).offset().top},'slow');
-                return;
-              }
-            });
-          }, timeout);
-        });
-    </script>-->
     <script type="text/javascript">
       var elem = new Foundation.Accordion($("#benefits-small, #everyone-box"));
     </script>

@@ -79,6 +79,10 @@ class InviteView(TemplateView):
     template_name = 'home.html'
 
 
+class CheckEmailView(TemplateView):
+    template_name = 'check-email.html'
+
+
 class ConfirmAccountView(TemplateView):
     template_name = 'confirm-account.html'
 
@@ -116,6 +120,8 @@ class CausesView(TemplateView):
 class EditHoursView(TemplateView):
     template_name = 'edit-hours.html'
 
+class ExportDataView(TemplateView):
+    template_name = 'export-data.html'
 
 class FaqView(TemplateView):
     template_name = 'faq.html'
@@ -125,16 +131,15 @@ class FindOrgsView(TemplateView):
     template_name = 'find-orgs.html'
 
 
-class GiveCurrentsView(TemplateView):
-    template_name = 'give-currents.html'
-
-
 class HoursApprovedView(TemplateView):
     template_name = 'hours-approved.html'
 
 
 class InventoryView(TemplateView):
     template_name = 'Inventory.html'
+
+class MarketplaceView(TemplateView):
+    template_name = 'marketplace.html'
 
 
 class MissionView(TemplateView):
@@ -152,6 +157,9 @@ class NominationConfirmedView(TemplateView):
 class NominationEmailView(TemplateView):
     template_name = 'nomination-email.html'
 
+class OfferView(TemplateView):
+    template_name = 'offer.html'
+
 
 class OrgHomeView(TemplateView):
     template_name = 'org-home.html'
@@ -167,6 +175,9 @@ class RequestCurrentsView(TemplateView):
 
 class SellView(TemplateView):
     template_name = 'sell.html'
+
+class SendCurrentsView(TemplateView):
+    template_name = 'send-currents.html'
 
 
 class SignupView(TemplateView):
@@ -185,8 +196,11 @@ class VerifyIdentityView(TemplateView):
     template_name = 'verify-identity.html'
 
 
-class VolunteerHoursView(TemplateView):
-    template_name = 'volunteer-hours.html'
+class TimeTrackerView(TemplateView):
+    template_name = 'time-tracker.html'
+
+class TimeTrackedView(TemplateView):
+    template_name = 'time-tracked.html'
 
 
 class VolunteeringView(TemplateView):
@@ -195,6 +209,9 @@ class VolunteeringView(TemplateView):
 
 class VolunteerRequestsView(TemplateView):
     template_name = 'volunteer-requests.html'
+
+class VolunteersInvitedView(TemplateView):
+    template_name = 'volunteers-invited.html'
 
 
 class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
@@ -235,13 +252,31 @@ class AdminProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
             is_verified=True
         )
 
-        issued_total = sum(
+        issued_total = sum([
             (timelog.datetime_end - timelog.datetime_start).total_seconds() / 3600
             for timelog in verified_time
             if timelog.datetime_end
-        )
+        ])
 
+        # for users that have not been checked out, use event end time
+        issued_total += sum([
+            (timelog.event.datetime_end - timelog.datetime_start).total_seconds() / 3600
+            for timelog in verified_time
+            if not timelog.datetime_end and timelog.datetime_start <= timelog.event.datetime_end
+        ])
+
+        # if users post-added, use the entire event duration
+        issued_total += sum([
+            (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
+            for timelog in verified_time
+            if not timelog.datetime_end and timelog.datetime_start > timelog.event.datetime_end
+        ])
         context['issued_total'] = round(issued_total, 1)
+
+        context['events_past'] = Event.objects.filter(
+            project__org__id=orgid,
+            datetime_end__lte=datetime.now(tz=pytz.utc)
+        ).order_by('-datetime_start')[:3]
         context['events_current'] = Event.objects.filter(
             project__org__id=orgid,
             datetime_start__lte=datetime.now(tz=pytz.utc) + timedelta(hours=1),
@@ -694,8 +729,8 @@ def process_signup(request, referrer=None, endpoint=False, verify_email=True):
             return HttpResponse(user.id, status=201)
         else:
             return redirect(
-                'openCurrents:confirm-account',
-                email=user_email
+               'openCurrents:check-email',
+               email=user_email
             )
 
     # fail with form validation error
@@ -734,7 +769,7 @@ def process_login(request):
             if user.org_set.exists():
                 return redirect('openCurrents:admin-profile')
             else:
-                return redirect('openCurrents:user-home')
+                return redirect('openCurrents:profile')
         else:
             return redirect('openCurrents:login', status_msg='Invalid login/password')
     else:
@@ -804,6 +839,12 @@ def process_email_confirmation(request, user_email):
 
         # create user account
         user_account = Account(user=user, pending=1)
+
+        if form.cleaned_data['monthly_updates']:
+            user_account.monthly_updates = True;
+        else:
+            user_account.monthly_updates = False;
+
         user_account.save()
 
         # add credit to the referrer

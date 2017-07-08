@@ -1,0 +1,222 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    {% include "head.html" %}
+
+    <script type="text/javascript" src="{% static 'js/jquery.timepicker.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jquery-ui-datepicker.js' %}"></script>
+    <link href="{% static 'css/jquery.timepicker.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/jquery-ui-datepicker.css' %}" rel="stylesheet" type="text/css">
+  </head>
+  
+  <body>
+    {% include "header.html" %}
+    
+    <div id="container" class="js-close-any" canvas="container">
+      <div id="wrapper">
+        <div class="row">
+          <h3 class="title-sub">Track volunteer time</h3>
+        </div>
+        
+        <div id="choose-org" class="half-margin-top row center">
+          <div class="center medium-6 small-centered columns">
+
+              <h6 class="subtitle">for</h6>
+              
+              <select id="user-orgs" class="two-margin-bottom">
+                <option disabled selected hidden>Select organization</option>
+                <!-- all requested orgs should appear here unless org declines a volunteer -->
+                <option>Bike Austin</option>
+                <option>Casa Marianella</option>
+                <option>Colorado River Alliance</option>
+                <option>Keep Austin Beautiful</option>
+                <option>Keep Austin Fed</option>
+                <option>Urban Patchwork</option>
+                
+              </select>
+              
+              <a href="{% url 'openCurrents:org-signup' %}" class="add-org-popup_open button round secondary" tabindex=0>Nominate an organization</a>
+          </div>
+        </div>
+
+        <!--<div class="row center one-margin-top">
+          <button type="submit" class="button round">Clock in</button>
+        </div>-->
+
+        
+        <div id="track-time" class="row hidden">
+          <div class="left medium-8 small-centered columns">
+
+            <h6 class="subtitle">for <span id="org-name"></span><a id="undo-org" class="small-text half-margin-left">Undo</a></h6>
+
+            <div id="manual-tracking">
+              <div class="row">
+                <div class="three-halves-margin-top two-margin-bottom small-12 columns">
+                  <input type="text" id="description" name="" class="center large-text" placeholder="Description of work"/>
+                </div>
+
+                <div class="small-12 medium-4 columns">
+                  <label>Date</label>
+                  <input type="text" id="volunteer-date" name="volunteer-date" placeholder="yyyy-mm-dd"/>
+                </div>
+                
+                <div class="small-6 medium-4 columns">
+                  <label>Start time</label>
+                  <input type="text" id="start-time" name="start-time" value="12:00:00"/>
+                </div>
+                
+                <div class="small-6 medium-4 columns">
+                  <label>End time</label>
+                  <input type="text" id="end-time" name="end-time" value="12:00:00"/>
+                </div>
+              </div>
+            </div>
+
+            <div class="row center one-margin-top">
+              <a href="{% url 'openCurrents:time-tracked' %}" class="button round">Save</a>
+            </div>
+          </div>
+        </div>
+        
+        <div id="push"></div>
+    
+      <!-- wrapper div-->
+      </div>
+      
+      {% include "footer.html" %}
+            
+    <!--container div -->
+    </div>
+    
+    <div id="bottom-stripe" class="full-width"></div>
+    
+    <div off-canvas="menu right shift" id="menu">
+      {% include "menu.html" %}
+    </div>
+  
+    <div id="add-org-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h3 class="popup-title">Volunteer request</h3>
+        <div class="medium-10 medium-offset-1 columns end">
+          <p>Select the participating organization that you are volunteering with. You can record hours today, but the organizer will need to confirm your participation before you receive Currents. If your organization is not listed, you can nominate it.</p>
+        </div>
+      </div>
+      
+      <!--<form>-->
+        <div class="row">
+          <div class="small-12 medium-8 medium-offset-2 columns end">
+            <label for="all-orgs" class="inline">Organization name</label>
+            
+            <select id="all-orgs">
+              <option disabled selected hidden>Select organization</option>
+              <option>Bike Austin</option>
+              <option>Keep Austin Beautiful</option>
+              <option>Keep Austin Fed</option>
+              <option>Urban Patchwork</option>
+              <option>Casa Marianella</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row center one-margin-top">
+          <a id="add-org" type="submit" class="save-org add-org-popup_close button round">Request approval</a>
+          <a href="{% url 'openCurrents:org-signup' %}" class="button round secondary">Nominate new org</a>
+        </div>
+      <!--</form>-->
+    </div>
+    
+    <script type="text/javascript">
+      $(document).ready(function(){
+        
+        $("#volunteer-date").mask("9999-99-99");
+
+        $('#volunteer-date').datepicker({ 
+          dateFormat: 'yy-mm-dd',
+          minDate: -6,
+          maxDate: 0,
+        }).datepicker("setDate", new Date());
+        
+        $('#start-time, #end-time').timepicker({
+          step: 15,
+        });
+        
+        $('#add-org-popup').popup({
+          vertical: 'top',
+          transition: 'all 0.75s',
+          scrolllock: true,
+        });
+      });
+    </script>
+
+    <script type="text/javascript">
+      $('select').on('change', function(){
+        var selected = $(this).find('option:selected').text();
+        document.getElementById('org-name').innerHTML = selected;
+        $('#choose-org').fadeOut(777, function(){
+          $('#track-time').fadeIn(777);
+        });
+      });
+
+      $('#undo-org').click(function(){
+        $('#track-time').fadeOut(777, function(){
+          $('#choose-org').fadeIn(777);
+        });
+
+        $('option').prop('selected', function() {
+            return this.defaultSelected;
+        });
+      });
+    </script>
+
+    <script type="text/javascript">
+      $('#clock-in').on('click', function(){
+        var minutesLabel = document.getElementById("minutes");
+        var secondsLabel = document.getElementById("seconds");
+        var totalSeconds = 0;
+        setInterval(setTime, 1000);
+
+        $("#ticker").css('color', '#24b2e7');
+
+        $(this).text('Clock out').attr('id', 'clock-out').css({
+          'background-color' : '#999999',
+          'border-color' : '#999999',
+        });
+
+
+        function setTime()
+        {
+            ++totalSeconds;
+            secondsLabel.innerHTML = pad(totalSeconds%60);
+            minutesLabel.innerHTML = pad(parseInt(totalSeconds/60));
+        }
+
+        function pad(val)
+        {
+            var valString = val + "";
+            if(valString.length < 2)
+            {
+                return "0" + valString;
+            }
+            else
+            {
+                return valString;
+            }
+        }
+      });
+
+    </script>
+
+    <script type="text/javascript">
+      var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      var n = new Date();
+      var y = n.getFullYear();
+      var m = n.getMonth();
+      var d = n.getDate();
+      document.getElementById("date").innerHTML = d + " " + months[m] + " " + y;
+    </script>
+
+    <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
+  </body>
+</html>
