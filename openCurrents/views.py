@@ -974,7 +974,9 @@ def process_email_confirmation(request, user_email):
             logger.info('No org association')
             return redirect('openCurrents:user-home')
 
+    #if form was invalid for bad password, still need to preserve token 
     else:
+        token = form.cleaned_data['verification_token']
         logger.error(
             'Invalid email confirmation request: %s',
             form.errors.as_data()
@@ -989,6 +991,7 @@ def process_email_confirmation(request, user_email):
         return redirect(
             'openCurrents:confirm-account',
             email=user_email,
+            token=token,
             status_msg=errors[0]
         )
 
