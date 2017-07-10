@@ -21,7 +21,7 @@
             <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
             <h6 class="inline"> {{ user_balance }} </h6>
             <div class="half-margin-top">
-              <a class="earn-currents-popup_open button round small">Earn Currents</a>
+              <a href="{% url 'openCurrents:upcoming-events' %}" class="button round">Earn Currents</a>
               </a>
               <!--<a href="{% url 'openCurrents:marketplace' %}" class="button round secondary small">Spend Currents</a>-->
             </div>
@@ -35,7 +35,7 @@
         {% if events_upcoming %}
           <div id="project-list" class="row one-margin-top">
             <div class="medium-8 small-centered columns">
-              <h6 class="half-margin-bottom">My upcoming projects</h6>
+              <h6 class="half-margin-bottom">My upcoming events</h6>
 
               {% for event in events_upcoming %}
                 <div class="row one-margin-bottom">
@@ -171,7 +171,7 @@
           <div class="small-12 medium-6 columns">
             <h6>Volunteer at an event</h6>
             <p>Check out these upcoming opportunities with participating organizations:</p>
-            <a href="{% url 'openCurrents:upcoming-projects' %}" class="button round small">View upcoming events</a>
+            <a href="{% url 'openCurrents:upcoming-events' %}" class="button round small">View upcoming events</a>
           </div>
 
           <div class="small-12 medium-6 columns">
