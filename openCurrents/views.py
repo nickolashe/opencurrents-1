@@ -611,64 +611,45 @@ def event_register_live(request, eventid):
     return HttpResponse({'userid': userid, 'eventid': eventid}, status=201)
 
 # resend the verification email to a user who hits the Resend button on their check-email page
-def process_resend(request):
+def process_resend(request, user_email):
     form = UserResendForm(request.POST)
 
-    #validate form data
-    if form.is_valid():
-        user_email = form.cleaned_data['user_email']
-        user = User.objects.get(email=user_email)
-        token_records = Token.objects.filter(email=user_email)
+    user = User.objects.get(email=user_email)
+    token_records = Token.objects.filter(email=user_email)
+    
+    # assign the last generated token in case multiple exist for one email
+    for token_record in token_records:
+        token = token_record.token
         
-        # assign the last generated token in case multiple exist for one email
-        for token_record in token_records:
-            token = token_record.token
-            
-        # resend verification email
-        try:
-            sendTransactionalEmail(
-                'verify-email',
-                None,
-                [
-                    {
-                        'name': 'FIRSTNAME',
-                        'content': user.first_name
-                    },
-                    {
-                        'name': 'EMAIL',
-                        'content': user.email
-                    },
-                    {
-                        'name': 'TOKEN',
-                        'content': str(token)
-                    }
-                ],
-                user_email
-            )
-        except Exception as e:
-            logger.error(
-                'unable to send transactional email: %s (%s)',
-                e.message,
-                type(e)
-            )
-
-        return redirect('openCurrents:check-email',email=user_email)
-
-    # fail with form validation error
-    else:
+    # resend verification email
+    try:
+        sendTransactionalEmail(
+            'verify-email',
+            None,
+            [
+                {
+                    'name': 'FIRSTNAME',
+                    'content': user.first_name
+                },
+                {
+                    'name': 'EMAIL',
+                    'content': user.email
+                },
+                {
+                    'name': 'TOKEN',
+                    'content': str(token)
+                }
+            ],
+            user_email
+        )
+    except Exception as e:
         logger.error(
-            'Invalid signup request: %s',
-            form.errors.as_data()
+            'unable to send transactional email: %s (%s)',
+            e.message,
+            type(e)
         )
 
-        # just report the first validation error
-        errors = [
-            '%s: %s' % (field, error.messages[0])
-            for field, le in form.errors.as_data().iteritems()
-            for error in le
-        ]
-
-        return redirect('openCurrents:signup', status_msg=errors[0])
+    return redirect('openCurrents:check-email', user_email)
 
 
 def process_signup(request, referrer=None, endpoint=False, verify_email=True):
@@ -789,7 +770,7 @@ def process_signup(request, referrer=None, endpoint=False, verify_email=True):
         else:
             return redirect(
                'openCurrents:check-email',
-               email=user_email
+               user_email
             )
 
     # fail with form validation error
