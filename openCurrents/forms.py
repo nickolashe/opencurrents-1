@@ -53,13 +53,13 @@ class VolunteerCheckinField(forms.Field):
             raise ValidationError(_('Invalid checkin input'))
 
 
-class UserResendForm(forms.Form):
-     user_email = forms.EmailField(
-        widget=forms.EmailInput(attrs={
-            'id': 'email',
-            'placeholder': 'Email'
-        })
-    )
+#class UserResendForm(forms.Form):
+#     user_email = forms.EmailField(
+#        widget=forms.EmailInput(attrs={
+#            'id': 'email',
+#            'placeholder': 'Email'
+#        })
+#    )
 
 class UserSignupForm(forms.Form):
     user_firstname = forms.CharField(

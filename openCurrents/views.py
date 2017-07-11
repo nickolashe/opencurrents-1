@@ -24,7 +24,6 @@ from openCurrents.models import \
 from openCurrents.forms import \
     UserSignupForm, \
     UserLoginForm, \
-    UserResendForm, \
     EmailVerificationForm, \
     OrgSignupForm, \
     ProjectCreateForm, \
@@ -646,14 +645,12 @@ def event_register_live(request, eventid):
 
 # resend the verification email to a user who hits the Resend button on their check-email page
 def process_resend(request, user_email):
-    form = UserResendForm(request.POST)
 
     user = User.objects.get(email=user_email)
     token_records = Token.objects.filter(email=user_email)
     
     # assign the last generated token in case multiple exist for one email
-    for token_record in token_records:
-        token = token_record.token
+    token = token_records.last().token
         
     # resend verification email
     try:
