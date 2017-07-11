@@ -414,7 +414,7 @@ class EditProjectView(TemplateView):
 
 
 # TODO: prioritize view by projects which user was invited to
-class UpcomingProjectsView(LoginRequiredMixin, SessionContextView, ListView):
+class UpcomingEventsView(LoginRequiredMixin, SessionContextView, ListView):
     template_name = 'upcoming-events.html'
     context_object_name = 'events'
 
