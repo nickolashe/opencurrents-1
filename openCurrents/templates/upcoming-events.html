@@ -26,6 +26,7 @@
           <div class="small-12 medium-8 small-centered columns">
             <div class="upcoming-events">
               {% for event in events %}
+              {% if event != "ManualTracking" %}
               <div class="upcoming-event">
                 <div class="input-left small-9 columns">
                   <strong><a href="{% url 'openCurrents:event-detail' event.id %}"> {{ event.project.name }} </a></strong>
@@ -42,6 +43,7 @@
                   </a>
                 </div>
               </div>
+              {% endif %}
               {% endfor %}
 
               <!--div class="upcoming-event">

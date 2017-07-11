@@ -9,6 +9,8 @@ from django.db import IntegrityError
 from django.http import HttpResponse
 from django.utils.safestring import mark_safe
 from django.db.models import F, Max
+from django.views.decorators.csrf import csrf_exempt,csrf_protect
+from django.template.context_processors import csrf
 
 from openCurrents import config
 from openCurrents.models import \
@@ -28,7 +30,8 @@ from openCurrents.forms import \
     OrgSignupForm, \
     ProjectCreateForm, \
     EventRegisterForm, \
-    EventCheckinForm
+    EventCheckinForm, \
+    TrackVolunteerHours
 
 from datetime import datetime, timedelta
 
@@ -196,8 +199,96 @@ class VerifyIdentityView(TemplateView):
     template_name = 'verify-identity.html'
 
 
-class TimeTrackerView(TemplateView):
+def orgs_list(request):
+    """Lists all the organisations"""
+    i=1
+    a=[]
+    k=1
+    while i:
+        try:
+            a.append(Org.objects.get(id=k).name)
+            k += 1
+        except:
+            i=0
+    print(str(a))
+    return HttpResponse(str(a)[1:-1].replace("'",""),content_type="application/type")
+
+
+@csrf_exempt
+def manual_track_org(request):
+    """manually track org"""
+    c = {}
+    c.update(csrf(request));
+    data = request.POST["org_name"]
+    global g_org_name
+    g_org_name = data
+    return HttpResponse("success",content_type="application/type")
+
+
+class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
     template_name = 'time-tracker.html'
+    form_class = TrackVolunteerHours
+    success_url = '/time-tracked/'
+
+    def track_hours(self, form_data):
+        userid = self.request.user.id
+        user = User.objects.get(id=userid)
+        test_org = Org.objects.get(name=g_org_name).id
+
+        try:
+            self.project = Project.objects.get(
+                    org__id=test_org,
+                    name='ManualTracking'
+                )
+        except:
+            project = Project(
+                org=Org.objects.get(id=test_org),
+                name='ManualTracking'
+            )
+            project.save()
+            self.project = project
+
+        event = Event(
+            project = self.project,
+            description = form_data['description'],
+            datetime_start = form_data['datetime_start'],
+            datetime_end = form_data['datetime_end']
+        )
+        event.save()
+
+        track = UserTimeLog(
+            user = user,
+            event = event,
+            datetime_start = form_data['datetime_start'],
+            datetime_end = form_data['datetime_end']
+            )
+        track.save()
+
+
+    def form_valid(self, form):
+        # This method is called when valid form data has been POSTed.
+        # It should return an HttpResponse.
+        data = form.cleaned_data
+        self.track_hours(data)
+        return redirect('openCurrents:time-tracked')
+
+
+    # def get_context_data(self, **kwargs):
+    #     context = super(TimeTrackerView, self).get_context_data(**kwargs)
+    #
+    #     # obtain orgid from the session context (provided by SessionContextView)
+    #     orgid = context['orgid']
+    #     return context
+
+    # def get_form_kwargs(self):
+    #     """
+    #     Returns the keyword arguments for instantiating the form.
+    #     """
+    #     kwargs = super(TimeTrackerView, self).get_form_kwargs()
+    #     kwargs.update({'userid': self.kwargs['userid']})
+    #     return kwargs
+
+
 
 class TimeTrackedView(TemplateView):
     template_name = 'time-tracked.html'

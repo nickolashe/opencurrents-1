@@ -92,7 +92,6 @@ class EmailVerificationForm(forms.Form):
     user_password = forms.CharField(min_length=8)
     user_password_confirm = forms.CharField(min_length=8)
     verification_token = forms.UUIDField()
-    monthly_updates = forms.BooleanField(initial=False,required=False)
 
     def clean(self):
         cleaned_data = super(EmailVerificationForm, self).clean()
@@ -238,6 +237,73 @@ class EventRegisterForm(forms.Form):
         }),
         max_length=16384
     )
+
+
+class TrackVolunteerHours(forms.Form):
+
+    choices = [
+        (org.name, org.name)
+        for org in Org.objects.all().order_by('name')
+    ]
+    orgs = forms.ChoiceField(choices=choices)
+
+    description = forms.CharField(
+        widget=forms.TextInput(attrs={
+            #'rows': '1',
+            'class': 'center large-text',
+            'placeholder': 'Description of work'
+        })
+    )
+    date_start = forms.CharField(
+        #label='on',
+        label = 'Date',
+        widget=forms.TextInput(attrs={
+            'id': 'start-date',
+            'placeholder': 'yyyy-mm-dd'
+        })
+    )
+    time_start = forms.CharField(
+        #label='from',
+        label = 'Start time',
+        widget=forms.TextInput(attrs={
+            'id': 'start-time',
+            'name':'',
+            'value': '12:00:00'
+        })
+    )
+    time_end = forms.CharField(
+        #label='to',
+        label = 'End time',
+        widget=forms.TextInput(attrs={
+            'id': 'end-time',
+            'name':'',
+            'value': '12:00:00'
+        })
+    )
+
+    def clean(self):
+        cleaned_data = super(TrackVolunteerHours, self).clean()
+        date_start = cleaned_data['date_start']
+        time_start = cleaned_data['time_start']
+        time_end = cleaned_data['time_end']
+        tz = "America/Chicago"#self.org.timezone
+
+        datetime_start = datetime.strptime(
+            ' '.join([date_start, time_start]),
+            '%Y-%m-%d %I:%M%p'
+        )
+        cleaned_data['datetime_start'] = pytz.timezone(tz).localize(datetime_start)
+
+        datetime_end = datetime.strptime(
+            ' '.join([date_start, time_end]),
+            '%Y-%m-%d %I:%M%p'
+        )
+        cleaned_data['datetime_end'] = pytz.timezone(tz).localize(datetime_end)
+
+        if cleaned_data['datetime_start'] > cleaned_data['datetime_end']:
+            raise ValidationError(_('Start time needs to occur before End time'))
+
+        return cleaned_data
 
 
 class EventCheckinForm(forms.Form):
