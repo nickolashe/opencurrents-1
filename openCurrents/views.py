@@ -227,9 +227,9 @@ def manual_track_org(request):
 
 class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
     template_name = 'time-tracker.html'
-    form_class = TrackVolunteerHours 
+    form_class = TrackVolunteerHours
     success_url = '/time-tracked/'
-    
+
     def track_hours(self, form_data):
         userid = self.request.user.id
         user = User.objects.get(id=userid)
@@ -247,7 +247,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             )
             project.save()
             self.project = project
- 
+
         event = Event(
             project = self.project,
             description = form_data['description'],
@@ -272,36 +272,21 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         self.track_hours(data)
         return redirect('openCurrents:time-tracked')
 
-    
-    def get_context_data(self, **kwargs):
-        context = super(TimeTrackerView, self).get_context_data(**kwargs)
 
-        # obtain orgid from the session context (provided by SessionContextView)
-        orgid = context['orgid']
-        self.orgid = orgid
+    # def get_context_data(self, **kwargs):
+    #     context = super(TimeTrackerView, self).get_context_data(**kwargs)
+    #
+    #     # obtain orgid from the session context (provided by SessionContextView)
+    #     orgid = context['orgid']
+    #     return context
 
-        # context::project_names
-        projects = Project.objects.filter(
-            org__id=orgid
-        )
-        project_names = [
-            project.name
-            for project in projects
-        ]
-
-        context['project_names'] = mark_safe(json.dumps(project_names))
-        self.project_names = project_names
-        logger.info(project_names)
-
-        return context
-
-    def get_form_kwargs(self):
-        """
-        Returns the keyword arguments for instantiating the form.
-        """
-        kwargs = super(TimeTrackerView, self).get_form_kwargs()
-        #kwargs.update({'orgid': self.kwargs['orgid']})
-        return kwargs
+    # def get_form_kwargs(self):
+    #     """
+    #     Returns the keyword arguments for instantiating the form.
+    #     """
+    #     kwargs = super(TimeTrackerView, self).get_form_kwargs()
+    #     kwargs.update({'userid': self.kwargs['userid']})
+    #     return kwargs
 
 
 

@@ -27,8 +27,8 @@
 
               <!--<select id="user-orgs" class="two-margin-bottom">
                 <option disabled selected hidden>Select organization</option>
-                 all requested orgs should appear here unless org declines a volunteer 
-                
+                 all requested orgs should appear here unless org declines a volunteer
+
 
               </select>-->
               {{form.orgs}}
@@ -41,11 +41,11 @@
           <button type="submit" class="button round">Clock in</button>
         </div>-->
 
-        
+
 
           <!-- catch and display any top-level form errors -->
           <!-- (as opposed to field-specific errors which are displayed next to each field) -->
-          
+
 
         <div id="track-time" class="row hidden">
           <div class="left medium-8 small-centered columns">
@@ -56,7 +56,7 @@
               <div class="row">
                 <div class="three-halves-margin-top two-margin-bottom small-12 columns">
                   <!--<input type="text" name="" class="center large-text" placeholder="Description of work"/>-->
-                  {{ form.description }} 
+                  {{ form.description }}
                 </div>
 
                 <div class="small-12 medium-4 columns">
@@ -156,41 +156,39 @@
           scrolllock: true,
         });
 
+        // $.ajax
+        // (
+        //   {
+        //     type:"GET",
+        //     url:"../../orgs_list/",
+        //     async:false,
+        //     success:function(response){
+        //     //var obj = $.parseJSON(response);
+        //     //alert(typeof(response.split(",")[0]));
+        //     option_list = response.split(",")
+        //     //alert(option_list.length)
+        //     //var sel = document.getElementById("user-orgs");
+        //     var sel = document.getElementById("user-orgs");
+        //     for(var i=0;i<option_list.length;i++)
+        //     {
+        //       var option = document.createElement("option");
+        //       option.text = option_list[i];
+        //       sel.appendChild(option);
+        //     }
+        //
+        //     },
+        //     error:function(response){
+        //       alert("error")
+        //     }
+        //   }
+        // );
 
-          $.ajax
-          (
-            {
-              type:"GET",
-              url:"../../orgs_list/",
-              async:false,
-              success:function(response){
-              //var obj = $.parseJSON(response);
-              //alert(typeof(response.split(",")[0]));
-              option_list = response.split(",")
-              //alert(option_list.length)
-              //var sel = document.getElementById("user-orgs");
-              var sel = document.getElementById("user-orgs");
-              for(var i=0;i<option_list.length;i++)
-              {
-                var option = document.createElement("option");
-                option.text = option_list[i];
-                sel.appendChild(option);
-              }
-
-              },
-              error:function(response){
-                alert("error")
-              }
-            }
-          );
-          
-          //$( "#id_userorgs option[value='sel_org']" ).selected=true;
-          
+        //$( "#id_userorgs option[value='sel_org']" ).selected=true;
 
       });
     </script>
 
-    <script type="text/javascript">
+    <!-- <script type="text/javascript">
 
       $('select').on('change', function(){
         var selected = $(this).find('option:selected').text();
@@ -207,14 +205,14 @@
             type:"POST",
             url:"../../manual_track_org/",
             async:true,
-            data: 
+            data:
                 {
                     org_name: input // from form
                 },
               dataType: "text",
-              success: function(data) 
+              success: function(data)
               {
-                  
+
               },
               error: function(data)
               {
@@ -235,7 +233,7 @@
             return this.defaultSelected;
         });
       });
-    </script>
+    </script> -->
 
     <script type="text/javascript">
       $('#clock-in').on('click', function(){
@@ -281,7 +279,7 @@
       var y = n.getFullYear();
       var m = n.getMonth();
       var d = n.getDate();
-      document.getElementById("date").innerHTML = d + " " + months[m] + " " + y;
+      document.getElementById("start-date").innerHTML = d + " " + months[m] + " " + y;
     </script>
 
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
