@@ -1418,9 +1418,9 @@ i:hover ~ .addtocalendar {
   color: #999999;
 }
 
-/* upcoming-projects */
+/* upcoming-events */
 
-.upcoming-project {
+.upcoming-event {
   min-height: 67px;
   padding-top: 1rem;
   padding-bottom: 1rem;
