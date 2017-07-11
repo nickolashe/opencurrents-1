@@ -19,72 +19,73 @@
         <div class="row">
           <h3 class="title-sub">Track volunteer time</h3>
         </div>
-        <form action ="" method="post">{% csrf_token %}
-        <div id="choose-org" class="half-margin-top row center">
-          <div class="center medium-6 small-centered columns">
+        <form action ="" method="post">
+          {% csrf_token %}
+          <div id="choose-org" class="half-margin-top row center">
+            <div class="center medium-6 small-centered columns">
 
-              <h6 class="subtitle">for</h6>
+                <h6 class="subtitle">for</h6>
 
-              <!--<select id="user-orgs" class="two-margin-bottom">
-                <option disabled selected hidden>Select organization</option>
-                 all requested orgs should appear here unless org declines a volunteer
+                <!--<select id="user-orgs" class="two-margin-bottom">
+                  <option disabled selected hidden>Select organization</option>
+                   all requested orgs should appear here unless org declines a volunteer
 
 
-              </select>-->
-              {{form.orgs}}
+                </select>-->
+                {{form.orgs}}
 
-              <a href="{% url 'openCurrents:org-signup' %}" class="add-org-popup_open button round secondary" tabindex=0>Nominate an organization</a>
+                <a href="{% url 'openCurrents:org-signup' %}" class="add-org-popup_open button round secondary" tabindex=0>Nominate an organization</a>
+            </div>
           </div>
-        </div>
 
-        <!--<div class="row center one-margin-top">
-          <button type="submit" class="button round">Clock in</button>
-        </div>-->
-
+          <!--<div class="row center one-margin-top">
+            <button type="submit" class="button round">Clock in</button>
+          </div>-->
 
 
-          <!-- catch and display any top-level form errors -->
-          <!-- (as opposed to field-specific errors which are displayed next to each field) -->
+
+            <!-- catch and display any top-level form errors -->
+            <!-- (as opposed to field-specific errors which are displayed next to each field) -->
 
 
-        <div id="track-time" class="row hidden">
-          <div class="left medium-8 small-centered columns">
+          <div id="track-time" class="row hidden">
+            <div class="left medium-8 small-centered columns">
 
-            <h6 class="subtitle">for <span id="org-name"></span><a id="undo-org" class="small-text half-margin-left">Undo</a></h6>
+              <h6 class="subtitle">for <span id="org-name"></span><a id="undo-org" class="small-text half-margin-left">Undo</a></h6>
 
-            <div id="manual-tracking">
-              <div class="row">
-                <div class="three-halves-margin-top two-margin-bottom small-12 columns">
-                  <!--<input type="text" name="" class="center large-text" placeholder="Description of work"/>-->
-                  {{ form.description }}
-                </div>
+              <div id="manual-tracking">
+                <div class="row">
+                  <div class="three-halves-margin-top two-margin-bottom small-12 columns">
+                    <!--<input type="text" name="" class="center large-text" placeholder="Description of work"/>-->
+                    {{ form.description }}
+                  </div>
 
-                <div class="small-12 medium-4 columns">
-                  {{form.date_start.label}}
-                  <!--<input type="text" id="volunteer-date" name="volunteer-date" placeholder="yyyy-mm-dd"/>-->
-                  {{ form.date_start }}
-                </div>
+                  <div class="small-12 medium-4 columns">
+                    {{form.date_start.label}}
+                    <!--<input type="text" id="volunteer-date" name="volunteer-date" placeholder="yyyy-mm-dd"/>-->
+                    {{ form.date_start }}
+                  </div>
 
-                <div class="small-6 medium-4 columns">
-                  {{ form.time_start.label }}
-                  <!--<input type="text" id="start-time" name="" value="12:00:00"/>-->
-                  {{ form.time_start }}
-                </div>
+                  <div class="small-6 medium-4 columns">
+                    {{ form.time_start.label }}
+                    <!--<input type="text" id="start-time" name="" value="12:00:00"/>-->
+                    {{ form.time_start }}
+                  </div>
 
-                <div class="small-6 medium-4 columns">
-                  {{ form.time_end.label }}
-                  <!--<input type="text" id="end-time" name="" value="12:00:00"/>-->
-                  {{ form.time_end }}
+                  <div class="small-6 medium-4 columns">
+                    {{ form.time_end.label }}
+                    <!--<input type="text" id="end-time" name="" value="12:00:00"/>-->
+                    {{ form.time_end }}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div class="row center one-margin-top">
-              <!--<a href="{% url 'openCurrents:time-tracked' %}" class="button round">Save</a>-->
-              <button type='submit' class="one-margin-top button round">Save</button>
+              <div class="row center one-margin-top">
+                <!--<a href="{% url 'openCurrents:time-tracked' %}" class="button round">Save</a>-->
+                <button type='submit' class="one-margin-top button round">Save</button>
+              </div>
             </div>
           </div>
-        </div>
 
         </form>
 
@@ -155,6 +156,10 @@
           transition: 'all 0.75s',
           scrolllock: true,
         });
+
+        document.getElementById('id_orgs').options[0].disabled = true;
+        document.getElementById('id_orgs').options[0].selected = true;
+        document.getElementById('id_orgs').options[0].setAttribute("hidden", true);
 
         // $.ajax
         // (

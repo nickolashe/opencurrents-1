@@ -241,7 +241,7 @@ class EventRegisterForm(forms.Form):
 
 class TrackVolunteerHours(forms.Form):
 
-    choices_init = [("select org","select organisation")]
+    choices_init = [("select_org","Select organization")]
     choices = [
         (org.name, org.name)
         for org in Org.objects.all().order_by('name')
@@ -260,7 +260,8 @@ class TrackVolunteerHours(forms.Form):
         #label='on',
         label = 'Date',
         widget=forms.TextInput(attrs={
-            'id': 'start-date',
+            'id': 'volunteer-date',
+            'name':'volunteer-date',
             'placeholder': 'yyyy-mm-dd'
         })
     )
@@ -288,7 +289,8 @@ class TrackVolunteerHours(forms.Form):
         date_start = cleaned_data['date_start']
         time_start = cleaned_data['time_start']
         time_end = cleaned_data['time_end']
-        tz = "America/Chicago"#self.org.timezone
+        self.org = Org.objects.get(name=cleaned_data['orgs'])
+        tz = self.org.timezone
 
         datetime_start = datetime.strptime(
             ' '.join([date_start, time_start]),

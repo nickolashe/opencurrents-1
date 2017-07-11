@@ -206,18 +206,17 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
 
     def track_hours(self, form_data):
         userid = self.request.user.id
-        print(form_data)
         user = User.objects.get(id=userid)
-        test_org = Org.objects.get(name=form_data['orgs']).id
+        org = Org.objects.get(name=form_data['orgs']).id
 
         try:
             self.project = Project.objects.get(
-                    org__id=test_org,
+                    org__id=org,
                     name='ManualTracking'
                 )
         except:
             project = Project(
-                org=Org.objects.get(id=test_org),
+                org=Org.objects.get(id=org),
                 name='ManualTracking'
             )
             project.save()
@@ -246,22 +245,6 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         data = form.cleaned_data
         self.track_hours(data)
         return redirect('openCurrents:time-tracked')
-
-
-    # def get_context_data(self, **kwargs):
-    #     context = super(TimeTrackerView, self).get_context_data(**kwargs)
-    #
-    #     # obtain orgid from the session context (provided by SessionContextView)
-    #     orgid = context['orgid']
-    #     return context
-
-    # def get_form_kwargs(self):
-    #     """
-    #     Returns the keyword arguments for instantiating the form.
-    #     """
-    #     kwargs = super(TimeTrackerView, self).get_form_kwargs()
-    #     kwargs.update({'userid': self.kwargs['userid']})
-    #     return kwargs
 
 
 
