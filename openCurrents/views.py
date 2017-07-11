@@ -643,6 +643,45 @@ def event_register_live(request, eventid):
 
     return HttpResponse({'userid': userid, 'eventid': eventid}, status=201)
 
+# resend the verification email to a user who hits the Resend button on their check-email page
+def process_resend(request, user_email):
+
+    user = User.objects.get(email=user_email)
+    token_records = Token.objects.filter(email=user_email)
+    
+    # assign the last generated token in case multiple exist for one email
+    token = token_records.last().token
+        
+    # resend verification email
+    try:
+        sendTransactionalEmail(
+            'verify-email',
+            None,
+            [
+                {
+                    'name': 'FIRSTNAME',
+                    'content': user.first_name
+                },
+                {
+                    'name': 'EMAIL',
+                    'content': user.email
+                },
+                {
+                    'name': 'TOKEN',
+                    'content': str(token)
+                }
+            ],
+            user_email
+        )
+    except Exception as e:
+        logger.error(
+            'unable to send transactional email: %s (%s)',
+            e.message,
+            type(e)
+        )
+
+    return redirect('openCurrents:check-email', user_email)
+
 
 def process_signup(request, referrer=None, endpoint=False, verify_email=True):
     form = UserSignupForm(request.POST)
@@ -762,7 +801,7 @@ def process_signup(request, referrer=None, endpoint=False, verify_email=True):
         else:
             return redirect(
                'openCurrents:check-email',
-               email=user_email
+               user_email
             )
 
     # fail with form validation error
@@ -932,7 +971,9 @@ def process_email_confirmation(request, user_email):
             logger.info('No org association')
             return redirect('openCurrents:user-home')
 
+    #if form was invalid for bad password, still need to preserve token 
     else:
+        token = form.cleaned_data['verification_token']
         logger.error(
             'Invalid email confirmation request: %s',
             form.errors.as_data()
@@ -947,6 +988,7 @@ def process_email_confirmation(request, user_email):
         return redirect(
             'openCurrents:confirm-account',
             email=user_email,
+            token=token,
             status_msg=errors[0]
         )
 

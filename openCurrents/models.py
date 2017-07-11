@@ -219,6 +219,9 @@ class Token(models.Model):
     date_created = models.DateTimeField('date created', auto_now_add=True)
     date_updated = models.DateTimeField('date updated', auto_now=True)
 
+    class Meta:
+        get_latest_by = 'date_created'
+
     def __unicode__(self):
         return ' '.join([
             'Verification token for',
