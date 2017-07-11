@@ -325,9 +325,36 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(ProfileView, self).get_context_data(**kwargs)
+
         userid = self.request.user.id
-        user = User.objects.get(id=userid)
-        context['user_balance'] = user.account.amount
+        verified_times = UserTimeLog.objects.filter(
+            user_id=userid
+        ).filter(
+            is_verified=True
+        )
+
+        event_user = set()
+
+        issued_total = 0
+        for timelog in verified_times:
+            if not timelog.event.id in event_user:
+                event_user.add(timelog.event.id)
+
+                if timelog.datetime_end and timelog.datetime_end < timelog.event.datetime_end + timedelta(hours=1):
+                    # users checked within 1 hour after the event
+                    issued_total += (timelog.datetime_end - timelog.datetime_start).total_seconds() / 3600
+                elif timelog.datetime_start <= timelog.event.datetime_end:
+                    # users that have not been checked out, use event end time
+                    issued_total += (timelog.event.datetime_end - timelog.datetime_start).total_seconds() / 3600
+                else:
+                    # if users post-added, use the event duration
+                    issued_total += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
+            else:
+                #logger.debug('user %d already counted, skipping', timelog.user.id)
+                pass
+
+        context['user_balance'] = round(issued_total, 1)
+
         events_upcoming = [
             userreg.event
             for userreg in UserEventRegistration.objects.filter(
@@ -337,7 +364,7 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
             )
         ]
         context['events_upcoming'] = events_upcoming
-        context['timezone'] = user.account.timezone
+        context['timezone'] = self.request.user.account.timezone
 
         return context
 
@@ -358,27 +385,32 @@ class AdminProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
             is_verified=True
         )
 
-        issued_total = sum([
-            (timelog.datetime_end - timelog.datetime_start).total_seconds() / 3600
-            for timelog in verified_time
-            if timelog.datetime_end
+        org_event_user = dict([
+            (event.id, set())
+            for event in Event.objects.filter(project__org__id=orgid)
         ])
 
-        # for users that have not been checked out, use event end time
-        issued_total += sum([
-            (timelog.event.datetime_end - timelog.datetime_start).total_seconds() / 3600
-            for timelog in verified_time
-            if not timelog.datetime_end and timelog.datetime_start <= timelog.event.datetime_end
-        ])
+        issued_total = 0
+        for timelog in verified_time:
+            if not timelog.user.id in org_event_user[timelog.event.id]:
+                org_event_user[timelog.event.id].add(timelog.user.id)
 
-        # if users post-added, use the entire event duration
-        issued_total += sum([
-            (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
-            for timelog in verified_time
-            if not timelog.datetime_end and timelog.datetime_start > timelog.event.datetime_end
-        ])
+                if timelog.datetime_end and timelog.datetime_end < timelog.event.datetime_end + timedelta(hours=1):
+                    # users checked within 1 hour after the event
+                    issued_total += (timelog.datetime_end - timelog.datetime_start).total_seconds() / 3600
+                elif timelog.datetime_start <= timelog.event.datetime_end:
+                    # users that have not been checked out, use event end time
+                    issued_total += (timelog.event.datetime_end - timelog.datetime_start).total_seconds() / 3600
+                else:
+                    # if users post-added, use the event duration
+                    issued_total += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
+            else:
+                #logger.info('user %d already counted, skipping', timelog.user.id)
+                pass
+
         context['issued_total'] = round(issued_total, 1)
 
+        # past, current and upcoming events for org
         context['events_past'] = Event.objects.filter(
             project__org__id=orgid,
             datetime_end__lte=datetime.now(tz=pytz.utc)
@@ -488,8 +520,8 @@ class EditProjectView(TemplateView):
 
 
 # TODO: prioritize view by projects which user was invited to
-class UpcomingProjectsView(LoginRequiredMixin, SessionContextView, ListView):
-    template_name = 'upcoming-projects.html'
+class UpcomingEventsView(LoginRequiredMixin, SessionContextView, ListView):
+    template_name = 'upcoming-events.html'
     context_object_name = 'events'
 
     def get_queryset(self):
@@ -835,8 +867,8 @@ def process_signup(request, referrer=None, endpoint=False, verify_email=True):
             return HttpResponse(user.id, status=201)
         else:
             return redirect(
-                'openCurrents:confirm-account',
-                email=user_email
+               'openCurrents:check-email',
+               email=user_email
             )
 
     # fail with form validation error
