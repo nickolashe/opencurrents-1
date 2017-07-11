@@ -188,7 +188,7 @@
       });
     </script>
 
-    <!-- <script type="text/javascript">
+    <script type="text/javascript">
 
       $('select').on('change', function(){
         var selected = $(this).find('option:selected').text();
@@ -199,28 +199,7 @@
         });
         var sel = document.getElementById("id_orgs");
         var input = sel.options[sel.selectedIndex].text;
-        $.ajax
-        (
-          {
-            type:"POST",
-            url:"../../manual_track_org/",
-            async:true,
-            data:
-                {
-                    org_name: input // from form
-                },
-              dataType: "text",
-              success: function(data)
-              {
-
-              },
-              error: function(data)
-              {
-                  alert("Sorry for the inconvinience. Server is not working. check if the server is working.");
-              }
-            }
-          );
-
+        
 
       });
 
@@ -233,7 +212,7 @@
             return this.defaultSelected;
         });
       });
-    </script> -->
+    </script> 
 
     <script type="text/javascript">
       $('#clock-in').on('click', function(){

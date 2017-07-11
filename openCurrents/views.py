@@ -199,32 +199,6 @@ class VerifyIdentityView(TemplateView):
     template_name = 'verify-identity.html'
 
 
-def orgs_list(request):
-    """Lists all the organisations"""
-    i=1
-    a=[]
-    k=1
-    while i:
-        try:
-            a.append(Org.objects.get(id=k).name)
-            k += 1
-        except:
-            i=0
-    print(str(a))
-    return HttpResponse(str(a)[1:-1].replace("'",""),content_type="application/type")
-
-
-@csrf_exempt
-def manual_track_org(request):
-    """manually track org"""
-    c = {}
-    c.update(csrf(request));
-    data = request.POST["org_name"]
-    global g_org_name
-    g_org_name = data
-    return HttpResponse("success",content_type="application/type")
-
-
 class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
     template_name = 'time-tracker.html'
     form_class = TrackVolunteerHours
@@ -232,8 +206,9 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
 
     def track_hours(self, form_data):
         userid = self.request.user.id
+        print(form_data)
         user = User.objects.get(id=userid)
-        test_org = Org.objects.get(name=g_org_name).id
+        test_org = Org.objects.get(name=form_data['orgs']).id
 
         try:
             self.project = Project.objects.get(
