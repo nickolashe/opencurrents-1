@@ -154,8 +154,8 @@ class Event(models.Model):
         (OTHER, 'Other'),
     )
     event_type = models.CharField(max_length=2,
-                                      choices=event_type_choices,
-                                      default=GROUP)
+                                  choices=event_type_choices,
+                                  default=GROUP)
 
     # start / end timestamps of the project
     datetime_start = models.DateTimeField('start datetime')
