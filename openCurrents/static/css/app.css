@@ -79,8 +79,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .button {
-  margin-left: 0.5rem;
-  margin-right: 0.5rem;
+  margin-left: 0.25rem;
+  margin-right: 0.25rem;
   font-size: 1rem;
 }
 
@@ -1369,6 +1369,7 @@ i:hover ~ .addtocalendar {
   display: inline-block;
   height: 44px;
   margin-right: 2rem;
+  vertical-align: top;
 }
 
 
@@ -1376,7 +1377,7 @@ i:hover ~ .addtocalendar {
 @media screen and (min-width: 42em) {
   #profile-img {
     display: inline-block;
-    height: 44px;
+    height: 55px;
     margin-right: 2rem;
   }
 }
