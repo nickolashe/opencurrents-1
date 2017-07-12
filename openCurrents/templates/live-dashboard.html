@@ -89,7 +89,8 @@
           {% endif %}
 
           <div class="row">
-            <div id="registered-volunteers" class="small-12 medium-8 small-centered columns">
+
+            <div class="small-12 medium-8 small-centered columns">
               <h6 class="left half-margin-top half-margin-bottom">Registered volunteers</h6>
 
               <div class="row">
@@ -97,21 +98,23 @@
                   <p class="small-text half-margin-top half-margin-bottom"><strong>Name</strong></p>
                 </div>
 
-                <div class="right small-4 columns">
+                <div class="right small-3 columns">
                   <p class="small-text half-margin-top half-margin-bottom"><strong>Check-in</strong></p>
                 </div>
               </div>
+            </div>
 
-              {% for user in registered_users %}
+            <div id="registered-volunteers" class="small-12 medium-10 small-centered columns">
+                          {% for user in registered_users %}
                 <div class="row">
-                  <div class="left small-9 columns">
+                  <div class="left small-8 columns">
                     <p class="half-margin-top">
                       {{ user.first_name }}
                       {{ user.last_name }}
                     </p>
                   </div>
 
-                  <div class="right small-3 columns">
+                  <div class="right small-1 columns">
                       <input type="checkbox" id="vol-checkin-{{ user.id }}" name="vol-checkin-{{ user.id }}" value="{{ user.id }}" class="hidden"
                         {% if user.id in checkedin_users %}
                           checked
@@ -222,7 +225,7 @@
                 },
                 dataType : "json",
               }).complete(function( data ) {
-                $('#registered-volunteers').append(`
+                $('#registered-volunteers').prepend(`
                   <div class="row"> \
                     <div class="left small-9 columns"> \
                       <p class="half-margin-top"> \
