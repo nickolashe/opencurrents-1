@@ -147,11 +147,9 @@ class Event(models.Model):
     coordinator_email = models.EmailField()
     MANUAL = 'MN'
     GROUP = 'GR'
-    OTHER = 'OT'
     event_type_choices = (
         (MANUAL, 'ManualTracking'),
         (GROUP, 'Group'),
-        (OTHER, 'Other'),
     )
     event_type = models.CharField(max_length=2,
                                   choices=event_type_choices,
