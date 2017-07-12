@@ -1445,6 +1445,9 @@ input[type="checkbox"] + label.vol-arrived {
 
 /* time-tracker */
 
+#user-orgs {
+  margin-bottom: 2rem;
+}
 
 /* approve-hours */
 
