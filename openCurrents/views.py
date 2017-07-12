@@ -207,34 +207,35 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
     def track_hours(self, form_data):
         userid = self.request.user.id
         user = User.objects.get(id=userid)
-        org = Org.objects.get(name=form_data['orgs']).id
+        org = Org.objects.get(id=form_data['org'])
+        tz = org.timezone
 
         try:
             self.project = Project.objects.get(
-                    org__id=org,
+                    org__id=org.id,
                     name='ManualTracking'
                 )
         except:
             project = Project(
-                org=Org.objects.get(id=org),
+                org=org,
                 name='ManualTracking'
             )
             project.save()
             self.project = project
 
         event = Event(
-            project = self.project,
-            description = form_data['description'],
-            datetime_start = form_data['datetime_start'],
-            datetime_end = form_data['datetime_end']
+            project=self.project,
+            description=form_data['description'],
+            datetime_start=form_data['datetime_start'],
+            datetime_end=form_data['datetime_end']
         )
         event.save()
 
         track = UserTimeLog(
-            user = user,
-            event = event,
-            datetime_start = form_data['datetime_start'],
-            datetime_end = form_data['datetime_end']
+            user=user,
+            event=event,
+            datetime_start=form_data['datetime_start'],
+            datetime_end=form_data['datetime_end']
             )
         track.save()
 
@@ -697,10 +698,10 @@ def process_resend(request, user_email):
 
     user = User.objects.get(email=user_email)
     token_records = Token.objects.filter(email=user_email)
-    
+
     # assign the last generated token in case multiple exist for one email
     token = token_records.last().token
-        
+
     # resend verification email
     try:
         sendTransactionalEmail(
@@ -1020,7 +1021,7 @@ def process_email_confirmation(request, user_email):
             logger.info('No org association')
             return redirect('openCurrents:user-home')
 
-    #if form was invalid for bad password, still need to preserve token 
+    #if form was invalid for bad password, still need to preserve token
     else:
         token = form.cleaned_data['verification_token']
         logger.error(

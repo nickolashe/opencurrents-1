@@ -243,11 +243,16 @@ class TrackVolunteerHours(forms.Form):
 
     choices_init = [("select_org","Select organization")]
     choices = [
-        (org.name, org.name)
+        (org.id, org.name)
         for org in Org.objects.all().order_by('name')
     ]
-    choices = choices_init+choices
-    orgs = forms.ChoiceField(choices=choices)
+    choices = choices_init + choices
+    org = forms.ChoiceField(
+        choices=choices,
+        widget=forms.Select(attrs={
+            'id': 'id_org_choice'
+        })
+    )
 
     description = forms.CharField(
         widget=forms.TextInput(attrs={
@@ -289,7 +294,7 @@ class TrackVolunteerHours(forms.Form):
         date_start = cleaned_data['date_start']
         time_start = cleaned_data['time_start']
         time_end = cleaned_data['time_end']
-        self.org = Org.objects.get(name=cleaned_data['orgs'])
+        self.org = Org.objects.get(id=cleaned_data['org'])
         tz = self.org.timezone
 
         datetime_start = datetime.strptime(
