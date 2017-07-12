@@ -59,6 +59,7 @@
               <h6 class="one-margin-bottom">Events happening now</h6>
 
               {% for event in events_current %}
+              {% if event != "ManualTracking" %}
                 <div class="row one-margin-top one-margin-bottom">
                   <div class="left small-8 columns">
                     Let's {{event.project.name}}!
@@ -74,6 +75,7 @@
                     </a>
                   </div>
                 </div>
+              {% endif %}
               {% endfor %}
             </div>
           </div>
@@ -87,6 +89,7 @@
               <h6 class="one-margin-bottom">Our upcoming events</h6>
 
               {% for event in events_upcoming %}
+              {% if event != "ManualTracking" %}
                 <div class="row one-margin-bottom">
                   <div class="left small-8 columns">
                     Let's {{event.project.name}}!
@@ -100,6 +103,7 @@
                     <a href="{% url 'openCurrents:live-dashboard' event.id %}" class="button round small">Preview</a>
                   </div>
                 </div>
+              {% endif %}
               {% endfor %}
 
             </div>
@@ -112,6 +116,7 @@
               <h6 class="one-margin-bottom">Past events</h6>
 
               {% for event in events_past %}
+              {% if event != "ManualTracking" %}
                 <div class="row one-margin-bottom">
                   <div class="left input-left small-8 columns">
                     Let's {{event.project.name}}!
@@ -127,6 +132,7 @@
                     </a>
                   </div>
                 </div>
+              {% endif %}
               {% endfor %}
 
             </div>

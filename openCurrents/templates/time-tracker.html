@@ -10,92 +10,102 @@
     <link href="{% static 'css/jquery.timepicker.css' %}" rel="stylesheet" type="text/css">
     <link href="{% static 'css/jquery-ui-datepicker.css' %}" rel="stylesheet" type="text/css">
   </head>
-  
+
   <body>
     {% include "header.html" %}
-    
+
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
         <div class="row">
           <h3 class="title-sub">Track volunteer time</h3>
         </div>
-        
-        <div id="choose-org" class="half-margin-top row center">
-          <div class="center medium-6 small-centered columns">
+        <form action ="" method="post">
+          {% csrf_token %}
+          <div id="choose-org" class="half-margin-top row center">
+            <div class="center medium-6 small-centered columns">
 
-              <h6 class="subtitle">for</h6>
-              
-              <select id="user-orgs">
-                <option disabled selected hidden>Select organization</option>
-                <!-- all requested orgs should appear here unless org declines a volunteer -->
-                <option>Bike Austin</option>
-                <option>Casa Marianella</option>
-                <option>Colorado River Alliance</option>
-                <option>Keep Austin Beautiful</option>
-                <option>Keep Austin Fed</option>
-                <option>Urban Patchwork</option>
-                
-              </select>
-              
-              <a href="{% url 'openCurrents:org-signup' %}" class="button round secondary" tabindex=0>Nominate an organization</a>
+                <h6 class="subtitle">for</h6>
+
+                <!--<select id="user-orgs" class="two-margin-bottom">
+                  <option disabled selected hidden>Select organization</option>
+                   all requested orgs should appear here unless org declines a volunteer
+
+
+                </select>-->
+                {{form.org}}
+
+                <a href="{% url 'openCurrents:org-signup' %}" class="add-org-popup_open button round secondary" tabindex=0>Nominate an organization</a>
+            </div>
+
           </div>
-        </div>
 
-        <!--<div class="row center one-margin-top">
-          <button type="submit" class="button round">Clock in</button>
-        </div>-->
+          <!--<div class="row center one-margin-top">
+            <button type="submit" class="button round">Clock in</button>
+          </div>-->
 
-        
-        <div id="track-time" class="row hidden">
-          <div class="left medium-8 small-centered columns">
 
-            <h6 class="subtitle">for <span id="org-name"></span><a id="undo-org" class="small-text half-margin-left">Undo</a></h6>
 
-            <div id="manual-tracking">
-              <div class="row">
-                <div class="three-halves-margin-top two-margin-bottom small-12 columns">
-                  <input type="text" id="description" name="" class="center large-text" placeholder="Description of work"/>
-                </div>
+            <!-- catch and display any top-level form errors -->
+            <!-- (as opposed to field-specific errors which are displayed next to each field) -->
 
-                <div class="small-12 medium-4 columns">
-                  <label>Date</label>
-                  <input type="text" id="volunteer-date" name="volunteer-date" placeholder="yyyy-mm-dd"/>
-                </div>
-                
-                <div class="small-6 medium-4 columns">
-                  <label>Start time</label>
-                  <input type="text" id="start-time" name="start-time" value="12:00:00"/>
-                </div>
-                
-                <div class="small-6 medium-4 columns">
-                  <label>End time</label>
-                  <input type="text" id="end-time" name="end-time" value="12:00:00"/>
+
+          <div id="track-time" class="row hidden">
+            <div class="left medium-8 small-centered columns">
+
+              <h6 class="subtitle">for <span id="org-name"></span><a id="undo-org" class="small-text half-margin-left">Undo</a></h6>
+
+              <div id="manual-tracking">
+                <div class="row">
+                  <div class="three-halves-margin-top two-margin-bottom small-12 columns">
+                    <!--<input type="text" name="" class="center large-text" placeholder="Description of work"/>-->
+                    {{ form.description }}
+                  </div>
+
+                  <div class="small-12 medium-4 columns">
+                    {{form.date_start.label}}
+                    <!--<input type="text" id="volunteer-date" name="volunteer-date" placeholder="yyyy-mm-dd"/>-->
+                    {{ form.date_start }}
+                  </div>
+
+                  <div class="small-6 medium-4 columns">
+                    {{ form.time_start.label }}
+                    <!--<input type="text" id="start-time" name="" value="12:00:00"/>-->
+                    {{ form.time_start }}
+                  </div>
+
+                  <div class="small-6 medium-4 columns">
+                    {{ form.time_end.label }}
+                    <!--<input type="text" id="end-time" name="" value="12:00:00"/>-->
+                    {{ form.time_end }}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div class="row center one-margin-top">
-              <a href="{% url 'openCurrents:time-tracked' %}" class="button round">Save</a>
+              <div class="row center one-margin-top">
+                <!--<a href="{% url 'openCurrents:time-tracked' %}" class="button round">Save</a>-->
+                <button type='submit' class="one-margin-top button round">Save</button>
+              </div>
             </div>
           </div>
-        </div>
-        
+
+        </form>
+
         <div id="push"></div>
-    
+
       <!-- wrapper div-->
       </div>
-      
+
       {% include "footer.html" %}
-            
+
     <!--container div -->
     </div>
-    
+
     <div id="bottom-stripe" class="full-width"></div>
-    
+
     <div off-canvas="menu right shift" id="menu">
       {% include "menu.html" %}
     </div>
-  
+
     <div id="add-org-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
         <h3 class="popup-title">Volunteer request</h3>
@@ -103,12 +113,12 @@
           <p>Select the participating organization that you are volunteering with. You can record hours today, but the organizer will need to confirm your participation before you receive Currents. If your organization is not listed, you can nominate it.</p>
         </div>
       </div>
-      
+
       <!--<form>-->
         <div class="row">
           <div class="small-12 medium-8 medium-offset-2 columns end">
             <label for="all-orgs" class="inline">Organization name</label>
-            
+
             <select id="all-orgs">
               <option disabled selected hidden>Select organization</option>
               <option>Bike Austin</option>
@@ -126,37 +136,77 @@
         </div>
       <!--</form>-->
     </div>
-    
+
     <script type="text/javascript">
       $(document).ready(function(){
-        
+
         $("#volunteer-date").mask("9999-99-99");
 
-        $('#volunteer-date').datepicker({ 
+        $('#volunteer-date').datepicker({
           dateFormat: 'yy-mm-dd',
           minDate: -6,
           maxDate: 0,
         }).datepicker("setDate", new Date());
-        
+
         $('#start-time, #end-time').timepicker({
           step: 15,
         });
-        
+
         $('#add-org-popup').popup({
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: true,
         });
+
+        document.getElementById('id_org_choice').options[0].disabled = true;
+        document.getElementById('id_org_choice').options[0].selected = true;
+        document.getElementById('id_org_choice').options[0].setAttribute("hidden", true);
+
+        // $.ajax
+        // (
+        //   {
+        //     type:"GET",
+        //     url:"../../orgs_list/",
+        //     async:false,
+        //     success:function(response){
+        //     //var obj = $.parseJSON(response);
+        //     //alert(typeof(response.split(",")[0]));
+        //     option_list = response.split(",")
+        //     //alert(option_list.length)
+        //     //var sel = document.getElementById("user-orgs");
+        //     var sel = document.getElementById("user-orgs");
+        //     for(var i=0;i<option_list.length;i++)
+        //     {
+        //       var option = document.createElement("option");
+        //       option.text = option_list[i];
+        //       sel.appendChild(option);
+        //     }
+        //
+        //     },
+        //     error:function(response){
+        //       alert("error")
+        //     }
+        //   }
+        // );
+
+        //$( "#id_userorgs option[value='sel_org']" ).selected=true;
+
       });
     </script>
 
     <script type="text/javascript">
+
       $('select').on('change', function(){
         var selected = $(this).find('option:selected').text();
         document.getElementById('org-name').innerHTML = selected;
+
         $('#choose-org').fadeOut(777, function(){
           $('#track-time').fadeIn(777);
         });
+        var sel = document.getElementById("id_org_choice");
+        var input = sel.options[sel.selectedIndex].text;
+
+
       });
 
       $('#undo-org').click(function(){
@@ -214,7 +264,7 @@
       var y = n.getFullYear();
       var m = n.getMonth();
       var d = n.getDate();
-      document.getElementById("date").innerHTML = d + " " + months[m] + " " + y;
+      document.getElementById("volunteer-date").innerHTML = d + " " + months[m] + " " + y;
     </script>
 
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
