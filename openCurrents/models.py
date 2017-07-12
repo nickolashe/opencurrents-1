@@ -145,6 +145,17 @@ class Event(models.Model):
     # coordinator contact info
     coordinator_firstname = models.CharField(max_length=128)
     coordinator_email = models.EmailField()
+    MANUAL = 'MN'
+    GROUP = 'GR'
+    event_type_choices = (
+        (MANUAL, 'ManualTracking'),
+        (GROUP, 'Group'),
+    )
+    event_type = models.CharField(
+        max_length=2,
+        choices=event_type_choices,
+        default=GROUP
+    )
 
     # start / end timestamps of the project
     datetime_start = models.DateTimeField('start datetime')

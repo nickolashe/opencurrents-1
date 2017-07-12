@@ -226,6 +226,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         event = Event(
             project=self.project,
             description=form_data['description'],
+            event_type="MN",
             datetime_start=form_data['datetime_start'],
             datetime_end=form_data['datetime_end']
         )

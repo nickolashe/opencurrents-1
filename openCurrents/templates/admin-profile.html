@@ -59,23 +59,23 @@
               <h6 class="one-margin-bottom">Events happening now</h6>
 
               {% for event in events_current %}
-              {% if event != "ManualTracking" %}
-                <div class="row one-margin-top one-margin-bottom">
-                  <div class="left small-8 columns">
-                    Let's {{event.project.name}}!
-                    on {{event.datetime_start|day:timezone}}
-                    at {{event.datetime_start|time:timezone}}
-                    to {{event.datetime_end|time:timezone}}
-                    at <strong>{{event.location}}</strong>
-                  </div>
+                {% if event.event_type != "MN" %}
+                  <div class="row one-margin-top one-margin-bottom">
+                    <div class="left small-8 columns">
+                      Let's {{event.project.name}}!
+                      on {{event.datetime_start|day:timezone}}
+                      at {{event.datetime_start|time:timezone}}
+                      to {{event.datetime_end|time:timezone}}
+                      at <strong>{{event.location}}</strong>
+                    </div>
 
-                  <div class="right small-4 columns">
-                    <a href="{% url 'openCurrents:live-dashboard' event.id %}"/>
-                      <button class="button round small">Start</button>
-                    </a>
+                    <div class="right small-4 columns">
+                      <a href="{% url 'openCurrents:live-dashboard' event.id %}"/>
+                        <button class="button round small">Start</button>
+                      </a>
+                    </div>
                   </div>
-                </div>
-              {% endif %}
+                {% endif %}
               {% endfor %}
             </div>
           </div>
@@ -89,21 +89,21 @@
               <h6 class="one-margin-bottom">Our upcoming events</h6>
 
               {% for event in events_upcoming %}
-              {% if event != "ManualTracking" %}
-                <div class="row one-margin-bottom">
-                  <div class="left small-8 columns">
-                    Let's {{event.project.name}}!
-                    on {{event.datetime_start|day:timezone}}
-                    at {{event.datetime_start|time:timezone}}
-                    to {{event.datetime_end|time:timezone}}
-                    at <strong>{{event.location}}</strong>
-                  </div>
+                {% if event.event_type != "MN" %}
+                  <div class="row one-margin-bottom">
+                    <div class="left small-8 columns">
+                      Let's {{event.project.name}}!
+                      on {{event.datetime_start|day:timezone}}
+                      at {{event.datetime_start|time:timezone}}
+                      to {{event.datetime_end|time:timezone}}
+                      at <strong>{{event.location}}</strong>
+                    </div>
 
-                  <div class="right small-4 columns">
-                    <a href="{% url 'openCurrents:live-dashboard' event.id %}" class="button round small">Preview</a>
+                    <div class="right small-4 columns">
+                      <a href="{% url 'openCurrents:live-dashboard' event.id %}" class="button round small">Preview</a>
+                    </div>
                   </div>
-                </div>
-              {% endif %}
+                {% endif %}
               {% endfor %}
 
             </div>
@@ -116,23 +116,23 @@
               <h6 class="one-margin-bottom">Past events</h6>
 
               {% for event in events_past %}
-              {% if event != "ManualTracking" %}
-                <div class="row one-margin-bottom">
-                  <div class="left input-left small-8 columns">
-                    Let's {{event.project.name}}!
-                    on {{event.datetime_start|day:timezone}}
-                    at {{event.datetime_start|time:timezone}}
-                    to {{event.datetime_end|time:timezone}}
-                    at <strong>{{event.location}}</strong>
-                  </div>
+                {% if event.event_type != "MN" %}
+                  <div class="row one-margin-bottom">
+                    <div class="left input-left small-8 columns">
+                      Let's {{event.project.name}}!
+                      on {{event.datetime_start|day:timezone}}
+                      at {{event.datetime_start|time:timezone}}
+                      to {{event.datetime_end|time:timezone}}
+                      at <strong>{{event.location}}</strong>
+                    </div>
 
-                  <div class="right input-right small-4 columns">
-                    <a href="{% url 'openCurrents:live-dashboard' event.id %}"/>
-                      <button class="button round small secondary">Attendees</button>
-                    </a>
+                    <div class="right input-right small-4 columns">
+                      <a href="{% url 'openCurrents:live-dashboard' event.id %}"/>
+                        <button class="button round small secondary">Attendees</button>
+                      </a>
+                    </div>
                   </div>
-                </div>
-              {% endif %}
+                {% endif %}
               {% endfor %}
 
             </div>
