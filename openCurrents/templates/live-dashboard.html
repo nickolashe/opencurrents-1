@@ -89,7 +89,6 @@
           {% endif %}
 
           <div class="row">
-
             <div class="small-12 medium-8 small-centered columns">
               <h6 class="left half-margin-top half-margin-bottom">Registered volunteers</h6>
 
@@ -98,31 +97,33 @@
                   <p class="small-text half-margin-top half-margin-bottom"><strong>Name</strong></p>
                 </div>
 
-                <div class="right small-3 columns">
+                <div class="right small-4 columns">
                   <p class="small-text half-margin-top half-margin-bottom"><strong>Check-in</strong></p>
                 </div>
               </div>
             </div>
+          </div>
 
-            <div id="registered-volunteers" class="small-12 medium-10 small-centered columns">
-                          {% for user in registered_users %}
+          <div class="row">
+            <div id="registered-volunteers" class="small-12 medium-8 small-centered columns">
+              {% for user in registered_users %}
                 <div class="row">
-                  <div class="left small-8 columns">
+                  <div class="left small-9 columns">
                     <p class="half-margin-top">
                       {{ user.first_name }}
                       {{ user.last_name }}
                     </p>
                   </div>
 
-                  <div class="right small-1 columns">
-                      <input type="checkbox" id="vol-checkin-{{ user.id }}" name="vol-checkin-{{ user.id }}" value="{{ user.id }}" class="hidden"
-                        {% if user.id in checkedin_users %}
-                          checked
-                        {% endif %}
-                      />
-                      <label class="large-icon" for="vol-checkin-{{ user.id }}">
-                        <i class="styled-checkbox fa fa-lg fa-check-circle"></i>
-                      </label>
+                  <div class="right small-3 columns">
+                    <input type="checkbox" id="vol-checkin-{{ user.id }}" name="vol-checkin-{{ user.id }}" value="{{ user.id }}" class="hidden"
+                      {% if user.id in checkedin_users %}
+                        checked
+                      {% endif %}
+                    />
+                    <label class="large-icon" for="vol-checkin-{{ user.id }}">
+                      <i class="styled-checkbox fa fa-lg fa-check-circle"></i>
+                    </label>
                   </div>
 
                   <div class="hidden">
