@@ -9,6 +9,8 @@ from django.db import IntegrityError
 from django.http import HttpResponse
 from django.utils.safestring import mark_safe
 from django.db.models import F, Max
+from django.views.decorators.csrf import csrf_exempt,csrf_protect
+from django.template.context_processors import csrf
 
 from openCurrents import config
 from openCurrents.models import \
@@ -28,7 +30,8 @@ from openCurrents.forms import \
     OrgSignupForm, \
     ProjectCreateForm, \
     EventRegisterForm, \
-    EventCheckinForm
+    EventCheckinForm, \
+    TrackVolunteerHours
 
 from datetime import datetime, timedelta
 
@@ -196,8 +199,55 @@ class VerifyIdentityView(TemplateView):
     template_name = 'verify-identity.html'
 
 
-class TimeTrackerView(TemplateView):
+class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
     template_name = 'time-tracker.html'
+    form_class = TrackVolunteerHours
+    success_url = '/time-tracked/'
+
+    def track_hours(self, form_data):
+        userid = self.request.user.id
+        user = User.objects.get(id=userid)
+        org = Org.objects.get(id=form_data['org'])
+        tz = org.timezone
+
+        try:
+            self.project = Project.objects.get(
+                    org__id=org.id,
+                    name='ManualTracking'
+                )
+        except:
+            project = Project(
+                org=org,
+                name='ManualTracking'
+            )
+            project.save()
+            self.project = project
+
+        event = Event(
+            project=self.project,
+            description=form_data['description'],
+            datetime_start=form_data['datetime_start'],
+            datetime_end=form_data['datetime_end']
+        )
+        event.save()
+
+        track = UserTimeLog(
+            user=user,
+            event=event,
+            datetime_start=form_data['datetime_start'],
+            datetime_end=form_data['datetime_end']
+            )
+        track.save()
+
+
+    def form_valid(self, form):
+        # This method is called when valid form data has been POSTed.
+        # It should return an HttpResponse.
+        data = form.cleaned_data
+        self.track_hours(data)
+        return redirect('openCurrents:time-tracked')
+
+
 
 class TimeTrackedView(TemplateView):
     template_name = 'time-tracked.html'
@@ -648,10 +698,10 @@ def process_resend(request, user_email):
 
     user = User.objects.get(email=user_email)
     token_records = Token.objects.filter(email=user_email)
-    
+
     # assign the last generated token in case multiple exist for one email
     token = token_records.last().token
-        
+
     # resend verification email
     try:
         sendTransactionalEmail(
@@ -971,7 +1021,7 @@ def process_email_confirmation(request, user_email):
             logger.info('No org association')
             return redirect('openCurrents:profile')
 
-    #if form was invalid for bad password, still need to preserve token 
+    #if form was invalid for bad password, still need to preserve token
     else:
         token = form.cleaned_data['verification_token']
         logger.error(
