@@ -927,7 +927,7 @@ def process_email_confirmation(request, user_email):
 
         if user.has_usable_password():
             logger.warning('user %s has already been verified', user_email)
-            return redirect('openCurrents:user-home')
+            return redirect('openCurrents:profile')
 
         # second, make sure the verification token and user email match
         token_record = None
@@ -947,7 +947,7 @@ def process_email_confirmation(request, user_email):
 
         if token_record.is_verified:
             logger.warning('token for %s has already been verified', user_email)
-            return redirect('openCurrents:user-home')
+            return redirect('openCurrents:profile')
 
         # mark the verification record as verified
         token_record.is_verified = True
@@ -1019,7 +1019,7 @@ def process_email_confirmation(request, user_email):
 
         except:
             logger.info('No org association')
-            return redirect('openCurrents:user-home')
+            return redirect('openCurrents:profile')
 
     #if form was invalid for bad password, still need to preserve token
     else:
@@ -1097,7 +1097,7 @@ def process_org_signup(request):
             request.user.email
         )
         return redirect(
-            'openCurrents:user-home',
+            'openCurrents:profile',
             status_msg='Thank you for nominating %s to openCurrents!' % org.name
         )
 
