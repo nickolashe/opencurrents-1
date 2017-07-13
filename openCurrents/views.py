@@ -52,6 +52,16 @@ def diffInHours(t1, t2):
     return round((t2 - t1).total_seconds() / 3600, 1)
 
 
+class DatetimeEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return obj.strftime('%Y-%m-%dT%H:%M:%SZ')
+        elif isinstance(obj, date):
+            return obj.strftime('%Y-%m-%d')
+        # Let the base class default method raise the TypeError
+        return json.JSONEncoder.default(self, obj)
+
+
 class SessionContextView(View):
     def get_context_data(self, **kwargs):
         context = super(SessionContextView, self).get_context_data(**kwargs)
@@ -647,8 +657,8 @@ def event_register(request, pk):
                             'content': message
                         },
                         {
-                            'name': 'EVENTDATE',
-                            'content': event.datetime_start
+                            'name': 'DATE',
+                            'content': json.dumps(event.datetime_start,cls=DatetimeEncoder)
                         }
                     ],
                     event.coordinator_email,
@@ -656,7 +666,7 @@ def event_register(request, pk):
                 )
             except Exception as e:
                 logger.error(
-                    'unable to send transactional email: %s (%s)',
+                    'unable to send contact email: %s (%s)',
                     e.message,
                     type(e)
                 )
@@ -689,8 +699,8 @@ def event_register(request, pk):
                             'content': event.coordinator_email
                         },
                         {
-                            'name': 'EVENTDATE',
-                            'content': event.datetime_start
+                            'name': 'DATE',
+                            'content': json.dumps(event.datetime_start,cls=DatetimeEncoder)
                         }
                     ],
                     event.coordinator_email,
@@ -698,7 +708,7 @@ def event_register(request, pk):
                 )
             except Exception as e:
                 logger.error(
-                    'unable to send transactional email: %s (%s)',
+                    'unable to send contact email: %s (%s)',
                     e.message,
                     type(e)
                 )
@@ -764,14 +774,16 @@ def process_resend(request, user_email):
             ],
             user_email
         )
+        status_msg = "Verification email resent. It may take a few minutes for the email to arrive. If you still don't see it, check your Spam folder."
     except Exception as e:
         logger.error(
             'unable to send transactional email: %s (%s)',
             e.message,
             type(e)
         )
+        status_msg = "Unable to resend verification email."
 
-    return redirect('openCurrents:check-email', user_email)
+    return redirect('openCurrents:check-email', user_email, status_msg)
 
 
 def process_signup(request, referrer=None, endpoint=False, verify_email=True):
