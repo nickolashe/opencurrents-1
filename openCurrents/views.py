@@ -614,6 +614,11 @@ def event_register(request, pk):
     if form.is_valid():
         user = request.user
         event = Event.objects.get(id=pk)
+        message = form.cleaned_data['contact_message']
+        
+        #check for existing registration
+        event_records = UserEventRegistration.objects.filter(user=user, event=event, is_confirmed=True).exists()
+        
         user_event_registration = UserEventRegistration(
             user=user,
             event=event,
@@ -621,10 +626,9 @@ def event_register(request, pk):
         )
         user_event_registration.save()
   
-        message = form.cleaned_data['contact_message']
 
         # if the volunteer entered an optional contact message, send to project coordinator
-        if message != "":
+        if (message != ""):
             logger.info('User %s registered for event %s wants to send msg %s ', user.username, event.id, message)
 
             try:
@@ -670,7 +674,7 @@ def event_register(request, pk):
                     e.message,
                     type(e)
                 )
-        else:
+        elif(not event_records):
             logger.info('User %s registered for event %s with no optional msg %s ', user.username, event.id, message)
 
             try:
