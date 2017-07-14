@@ -1180,6 +1180,7 @@ def sendContactEmail(template_name, template_content, merge_vars, admin_email, u
     message = {
         'from_email': 'info@opencurrents.com',
         'from_name': 'openCurrents',
+        'subject': 'New Volunteer Registered',
         'to': [{
             'email': admin_email,
             'type': 'to'
