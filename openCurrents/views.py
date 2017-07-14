@@ -6,11 +6,14 @@ from django.views.generic import View, ListView, TemplateView, DetailView
 from django.views.generic.edit import FormView
 from django.contrib.auth.models import User
 from django.db import IntegrityError
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.safestring import mark_safe
 from django.db.models import F, Max
 from django.views.decorators.csrf import csrf_exempt,csrf_protect
 from django.template.context_processors import csrf
+from datetime import datetime, time
+from collections import OrderedDict
+from copy import deepcopy
 
 from openCurrents import config
 from openCurrents.models import \
@@ -112,8 +115,61 @@ class InviteFriendsView(LoginRequiredMixin, SessionContextView, TemplateView):
         return context
 
 
-class ApproveHoursView(TemplateView):
+class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
     template_name = 'approve-hours.html'
+    context_object_name = 'users'
+
+    def get_queryset(self):
+        time_log = OrderedDict()
+        keys = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', 'Total']
+        value = 0
+        items = [(key, value) for key in keys]
+        all_volunteer_data = UserTimeLog.objects.all()
+        #print(all_volunteer_data)
+        for i in all_volunteer_data:
+            if str(i.datetime_start).split(" ")[0] == str(i.datetime_end).split(" ")[0]:
+                #Same day Volunteering
+                if(self.get_hours(str(i.datetime_end - i.datetime_start)) != 0.0):
+                    time_log[str(i.user)] = OrderedDict(items)
+                    time_log[str(i.user)][str(i.datetime_start.strftime("%A"))] += self.get_hours(str(i.datetime_end - i.datetime_start))
+                    time_log[str(i.user)]['Total'] += self.get_hours(str(i.datetime_end - i.datetime_start))
+                else:
+                    continue
+            else:
+                #Multiple day volunteering
+                #Still working on it
+                day_diff = i.datetime_end - i.datetime_start
+                temp_date = i.datetime_start
+                while temp_date.date() != i.datetime_end.date():
+                    tt = temp_date+timedelta(days=1)
+                    tt = datetime.combine(tt, time.min).replace(tzinfo=None)
+                    tt_diff = tt - temp_date.replace(tzinfo=None)
+                    time_log[str(i.user)][str(temp_date.strftime("%A"))] += self.get_hours(str(tt_diff))
+                    time_log[str(i.user)]['Total'] += self.get_hours(str(tt_diff))
+                    temp_date = temp_date+timedelta(days=1)
+                    time_log[str(i.user)][str(temp_date.strftime("%A"))] += self.get_hours(str(temp_date.replace(tzinfo=None) - tt))
+                    time_log[str(i.user)]['Total'] += self.get_hours(str(temp_date.replace(tzinfo=None) - tt))
+        temp_time_log = deepcopy(time_log)
+        for i in temp_time_log:
+            if temp_time_log[i]['Total'] == 0:
+                del time_log[i]
+        return time_log
+
+    def post(self, request, *args, **kwargs):
+        post_data = self.request.POST['post-data']
+        templist = post_data.split(",")
+        templist[:] = [item for item in templist if item != '']
+        try:
+            for i in templist:
+                user = User.objects.get(username=i)
+                time_log = UserTimeLog.objects.filter(user=user).update(is_verified = True);
+            return redirect('openCurrents:hours-approved')
+        except:
+            return redirect('openCurrents:approve-hours')
+
+    def get_hours(self, time_str):
+        h, m, s = time_str.split(':')
+        return int(h) + int(m)/60 + int(s)/3600
 
 
 class CausesView(TemplateView):
@@ -134,16 +190,14 @@ class FindOrgsView(TemplateView):
     template_name = 'find-orgs.html'
 
 
-class HoursApprovedView(TemplateView):
+class HoursApprovedView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'hours-approved.html'
-
 
 class InventoryView(TemplateView):
     template_name = 'Inventory.html'
 
 class MarketplaceView(TemplateView):
     template_name = 'marketplace.html'
-
 
 class MissionView(TemplateView):
     template_name = 'mission.html'
