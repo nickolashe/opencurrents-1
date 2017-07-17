@@ -778,16 +778,16 @@ def process_resend(request, user_email):
             ],
             user_email
         )
-        status_msg = "Verification email resent. It may take a few minutes for the email to arrive. If you still don't see it, check your Spam folder."
+        status = "success"
     except Exception as e:
         logger.error(
             'unable to send transactional email: %s (%s)',
             e.message,
             type(e)
         )
-        status_msg = "Unable to resend verification email."
+        status = "fail"
 
-    return redirect('openCurrents:check-email', user_email, status_msg)
+    return redirect('openCurrents:check-email', user_email, status)
 
 
 def process_signup(request, referrer=None, endpoint=False, verify_email=True):
