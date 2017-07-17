@@ -125,9 +125,9 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
         value = 0
         items = [(key, value) for key in keys]
         all_volunteer_data = UserTimeLog.objects.all()
-        #print(all_volunteer_data)
+        #print(all_volunteer_data[0].is_verified)
         for i in all_volunteer_data:
-            if str(i.datetime_start).split(" ")[0] == str(i.datetime_end).split(" ")[0]:
+            if (str(i.datetime_start).split(" ")[0] == str(i.datetime_end).split(" ")[0]) and i.is_verified != True:
                 #Same day Volunteering
                 if(self.get_hours(str(i.datetime_end - i.datetime_start)) != 0.0):
                     time_log[str(i.user)] = OrderedDict(items)
@@ -135,7 +135,7 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
                     time_log[str(i.user)]['Total'] += self.get_hours(str(i.datetime_end - i.datetime_start))
                 else:
                     continue
-            else:
+            elif i.is_verified != True:
                 #Multiple day volunteering
                 #Still working on it
                 day_diff = i.datetime_end - i.datetime_start
@@ -149,13 +149,15 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
                     temp_date = temp_date+timedelta(days=1)
                     time_log[str(i.user)][str(temp_date.strftime("%A"))] += self.get_hours(str(temp_date.replace(tzinfo=None) - tt))
                     time_log[str(i.user)]['Total'] += self.get_hours(str(temp_date.replace(tzinfo=None) - tt))
+            else:
+                pass
         temp_time_log = deepcopy(time_log)
         for i in temp_time_log:
             if temp_time_log[i]['Total'] == 0:
                 del time_log[i]
         return time_log
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         post_data = self.request.POST['post-data']
         templist = post_data.split(",")
         templist[:] = [item for item in templist if item != '']

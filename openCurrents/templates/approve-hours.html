@@ -13,7 +13,7 @@
       <div id="wrapper">
         <div class="row">
           <h2 class="title-sub">Approve hours</h2>
-          <h5 class="subtitle">for the week of Jan 8, 2017</h5>
+          <h5 class="subtitle">for the week of <span id="week_display"></span></h5>
         </div>
         <form action ="" method="post">
           {% csrf_token %}
@@ -154,18 +154,25 @@
 
     <script type="text/javascript">
 
-      function dec_vol(k){
+      function dec_vol(k){//Declining volunteer on clicking decline button
 
         var decline = k.text.replace("Decline volunteer","").replaceAll(" ","").replaceAll("\n","");
         document.getElementById('result_sel').value = document.getElementById('result_sel').value.replace(decline,"");
 
       }
 
-      function acc_vol(vol){
+      function acc_vol(vol){//Accept Volunteer on clicking Undo
 
         var accept = vol.text.replace("Undo","").replaceAll(" ","").replaceAll("\n","");
         document.getElementById('result_sel').value += accept+",";
 
+      }
+
+      function getMonday(d) {//display of the weeks monday in the UI
+        d = new Date(d);
+        var day = d.getDay(),
+            diff = d.getDate() - day + (day == 0 ? -6:1); // adjust when day is sunday
+        return new Date(d.setDate(diff));
       }
 
       String.prototype.replaceAll = function(search, replacement) {
@@ -180,6 +187,11 @@
         var rep = $('.decline-volunteer').text().replaceAll("Decline volunteer\n","").replaceAll(" ","");
 
         document.getElementById('result_sel').value = rep.split("\n");
+
+        var today = new Date();
+        var app_week = String(getMonday(today)).split(" ");
+        var week_display = app_week[1]+" "+app_week[2]+", "+app_week[3];
+        document.getElementById("week_display").innerHTML = week_display;
 
         $('#').popup({
           vertical: 'top',
