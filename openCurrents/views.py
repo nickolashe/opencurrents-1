@@ -615,7 +615,7 @@ def event_register(request, pk):
         message = form.cleaned_data['contact_message']
         
         #check for existing registration
-        event_records = UserEventRegistration.objects.filter(user=user, event=event, is_confirmed=True).exists()
+        event_records = UserEventRegistration.objects.filter(user__id=user.id, event__id=event.id, is_confirmed=True).exists()
         
         user_event_registration = UserEventRegistration(
             user=user,
