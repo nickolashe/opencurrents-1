@@ -20,7 +20,7 @@
           <div class="row left one-margin-top one-margin-bottom">
             <div class="small-12 medium-8 small-centered columns">
               <ul id="volunteer-list" class="accordion" data-accordion data-allow-all-closed="true">
-                {% for key, value in users.items %}
+                {% for key, value in users.iteritems %}
                     <li class="accordion-item" data-accordion-item>  
                       <a href="#" class="accordion-title">{{key}}
                         <span class="float-right">
@@ -29,7 +29,7 @@
                       </a>
                       <div class="accordion-content" data-tab-content>
 
-                        {% for k, v in value.items %} 
+                        {% for k, v in value.iteritems %} 
                           {% if k != "Total" and v != 0 %}   
                             <p>{{k}}<span>{{v}} hrs</span></p>
                             <!--<p>Wednesday<span>2 hrs</span></p>
