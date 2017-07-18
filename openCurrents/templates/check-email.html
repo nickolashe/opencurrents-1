@@ -11,28 +11,29 @@
     
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
-        {% if status == "success" %}
-        <div class="alert row half-margin-top">
-          <p>Verification email resent. It may take a few minutes for the email to arrive. If you still don't see it, check your Spam folder.</p>
-        </div>
-        {% elif status == "fail" %}
-        <div class="alert row half-margin-top">
-          <p>Unable to resend verification email.</p>
-        </div>
-        {% endif %}
-        
         <div class="row">
           <h3 class="title-sub">Check your email</h3>
-          <p class="two-margin-bottom">To confirm your account, click the link in the email that we just sent to {{ user_email }}.</p>
+          <p class="two-margin-bottom">To confirm your account, click the link in the email that we just sent to <strong>{{ user_email }}</strong>.</p>
         </div>
 
           <form method="post" action="{% url 'openCurrents:process_resend' user_email %}">
                   {% csrf_token %}
-
                   <div class="row center half-margin-top">
                     <input type="submit" class="resend-email_open button large round" value="Resend email"/>
                   </div>
           </form>
+
+          {% if status == "success" %}
+          <div class="success row one-margin-top">
+            <div class="medium-8 columns small-centered">
+              <p class="no-margin-bottom">Verification email resent. It may take a few minutes for the email to arrive. If you still don't see it, check your Spam folder.</p>
+            </div>
+          </div>
+          {% elif status == "fail" %}
+          <div class="alert row half-margin-top">
+            <p>Unable to resend verification email.</p>
+          </div>
+          {% endif %}
 
         <div class="row one-margin-bottom center">
           <div class="small-12 medium-8 small-centered columns">
