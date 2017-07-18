@@ -55,9 +55,7 @@ def diffInHours(t1, t2):
 class DatetimeEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, datetime):
-            return obj.strftime('%Y-%m-%dT%H:%M:%SZ')
-        elif isinstance(obj, date):
-            return obj.strftime('%Y-%m-%d')
+            return obj.strftime('%m-%d-%Y')
         # Let the base class default method raise the TypeError
         return json.JSONEncoder.default(self, obj)
 
@@ -1184,7 +1182,6 @@ def sendContactEmail(template_name, template_content, merge_vars, admin_email, u
     message = {
         'from_email': 'info@opencurrents.com',
         'from_name': 'openCurrents',
-        'subject': 'New Volunteer Registered',
         'to': [{
             'email': admin_email,
             'type': 'to'
