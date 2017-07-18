@@ -21,7 +21,7 @@
             <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
             <h6 class="inline"> {{ user_balance }} </h6>
             <div class="half-margin-top">
-              <a href="{% url 'openCurrents:upcoming-events' %}" class="button round">Earn Currents</a>
+              <a href="" class="button round earn-currents-popup_open">Earn Currents</a>
               </a>
               <!--<a href="{% url 'openCurrents:marketplace' %}" class="button round secondary small">Spend Currents</a>-->
             </div>
@@ -38,6 +38,7 @@
               <h6 class="half-margin-bottom">My upcoming events</h6>
 
               {% for event in events_upcoming %}
+                {% if event.project.name != "ManualTracking" %}
                 <div class="row one-margin-bottom">
                   <div class="left small-9 columns">
                     <strong> {{event.project.name}} </strong>
@@ -51,6 +52,7 @@
                     <button class="rsvp-popup_open button small round secondary">Going</button>
                   </div>
                 </div>
+                {% endif %}
               {% endfor %}
 
             </div>
@@ -153,7 +155,7 @@
           <p>If you'd like to help us fulfill our mission even sooner, please don't hesitate to reach out!</p>
 
           <p class="three-halves-margin-top">
-            <a href="" class="button round small">Get in touch</a>
+            <a href="javascript:void(Tawk_API.toggle())" class="button round small">Get in touch</a>
             <a class="welcome-popup_close button round secondary small">Close</a>
           </p>
         </div>

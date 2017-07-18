@@ -12,14 +12,14 @@
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
         <div class="row">
-          <h3 class="title-sub">Check your email</h3>
+          <h3 class="title-sub">Check you email</h3>
           <p class="two-margin-bottom">To confirm your account, click the link in the email that we just sent to <strong>{{ user_email }}</strong>.</p>
         </div>
 
           <form method="post" action="{% url 'openCurrents:process_resend' user_email %}">
                   {% csrf_token %}
                   <div class="row center half-margin-top">
-                    <input type="submit" class="resend-email_open button large round" value="Resend email"/>
+                    <input type="submit" class="resend-email_open button round" value="Resend email"/>
                   </div>
           </form>
 
