@@ -10,6 +10,7 @@ urlpatterns = [
         views.HomeView.as_view(), name='home'),
     url(r'^invite/(?P<referrer>[\w\.@\+\-]*)$', views.HomeView.as_view(), name='invite'),
     url(r'^check-email/(?P<user_email>[\w\.@\+\-]+)/$', views.CheckEmailView.as_view(), name='check-email'),
+    url(r'^check-email/(?P<user_email>[\w\.@\+\-]+)/(?P<status>.*)/$', views.CheckEmailView.as_view(), name='check-email'),
     url(r'^confirm-account/(?P<email>[\w\.@\+\-]+)/$',
         views.ConfirmAccountView.as_view(), name='confirm-account'),
     url(r'^confirm-account/(?P<email>[\w\.@\+\-]+)/(?P<token>\w{8}-\w{4}-\w{4}-\w{4}-\w{12})/$',

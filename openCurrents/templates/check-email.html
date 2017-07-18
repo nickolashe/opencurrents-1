@@ -11,9 +11,13 @@
     
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
-        {% if status_msg %}
+        {% if status == "success" %}
         <div class="alert row half-margin-top">
-          {{status_msg}}
+          <p>Verification email resent. It may take a few minutes for the email to arrive. If you still don't see it, check your Spam folder.</p>
+        </div>
+        {% elif status == "fail" %}
+        <div class="alert row half-margin-top">
+          <p>Unable to resend verification email.</p>
         </div>
         {% endif %}
         
