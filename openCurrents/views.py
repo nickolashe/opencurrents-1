@@ -9,6 +9,8 @@ from django.db import IntegrityError
 from django.http import HttpResponse
 from django.utils.safestring import mark_safe
 from django.db.models import F, Max
+from django.views.decorators.csrf import csrf_exempt,csrf_protect
+from django.template.context_processors import csrf
 
 from openCurrents import config
 from openCurrents.models import \
@@ -28,7 +30,8 @@ from openCurrents.forms import \
     OrgSignupForm, \
     ProjectCreateForm, \
     EventRegisterForm, \
-    EventCheckinForm
+    EventCheckinForm, \
+    TrackVolunteerHours
 
 from datetime import datetime, timedelta
 
@@ -50,6 +53,14 @@ def diffInMinutes(t1, t2):
 
 def diffInHours(t1, t2):
     return round((t2 - t1).total_seconds() / 3600, 1)
+
+
+class DatetimeEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return obj.strftime('%m-%d-%Y')
+        # Let the base class default method raise the TypeError
+        return json.JSONEncoder.default(self, obj)
 
 
 class SessionContextView(View):
@@ -196,8 +207,56 @@ class VerifyIdentityView(TemplateView):
     template_name = 'verify-identity.html'
 
 
-class TimeTrackerView(TemplateView):
+class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
     template_name = 'time-tracker.html'
+    form_class = TrackVolunteerHours
+    success_url = '/time-tracked/'
+
+    def track_hours(self, form_data):
+        userid = self.request.user.id
+        user = User.objects.get(id=userid)
+        org = Org.objects.get(id=form_data['org'])
+        tz = org.timezone
+
+        try:
+            self.project = Project.objects.get(
+                    org__id=org.id,
+                    name='ManualTracking'
+                )
+        except:
+            project = Project(
+                org=org,
+                name='ManualTracking'
+            )
+            project.save()
+            self.project = project
+
+        event = Event(
+            project=self.project,
+            description=form_data['description'],
+            event_type="MN",
+            datetime_start=form_data['datetime_start'],
+            datetime_end=form_data['datetime_end']
+        )
+        event.save()
+
+        track = UserTimeLog(
+            user=user,
+            event=event,
+            datetime_start=form_data['datetime_start'],
+            datetime_end=form_data['datetime_end']
+            )
+        track.save()
+
+
+    def form_valid(self, form):
+        # This method is called when valid form data has been POSTed.
+        # It should return an HttpResponse.
+        data = form.cleaned_data
+        self.track_hours(data)
+        return redirect('openCurrents:time-tracked')
+
+
 
 class TimeTrackedView(TemplateView):
     template_name = 'time-tracked.html'
@@ -604,13 +663,108 @@ def event_register(request, pk):
     if form.is_valid():
         user = request.user
         event = Event.objects.get(id=pk)
+        message = form.cleaned_data['contact_message']
+        
+        #check for existing registration
+        event_records = UserEventRegistration.objects.filter(user__id=user.id, event__id=event.id, is_confirmed=True).exists()
+        
         user_event_registration = UserEventRegistration(
             user=user,
             event=event,
             is_confirmed=True
         )
         user_event_registration.save()
-        logger.info('User %s registered for event %s', user.username, event.id)
+  
+
+        # if the volunteer entered an optional contact message, send to project coordinator
+        if (message != ""):
+            logger.info('User %s registered for event %s wants to send msg %s ', user.username, event.id, message)
+
+            try:
+                sendContactEmail(
+                    'volunteer-messaged',
+                    None,
+                    [
+                        {
+                            'name': 'USER_FIRSTNAME',
+                            'content': user.first_name
+                        },
+                        {
+                            'name': 'USER_LASTNAME',
+                            'content': user.last_name
+                        },
+                        {
+                            'name': 'USER_EMAIL',
+                            'content': user.email
+                        },
+                        {
+                            'name': 'ADMIN_FIRSTNAME',
+                            'content': event.coordinator_firstname
+                        },
+                        {
+                            'name': 'ADMIN_EMAIL',
+                            'content': event.coordinator_email
+                        },
+                        {
+                            'name': 'MESSAGE',
+                            'content': message
+                        },
+                        {
+                            'name': 'DATE',
+                            'content': json.dumps(event.datetime_start,cls=DatetimeEncoder)
+                        }
+                    ],
+                    event.coordinator_email,
+                    user.email
+                )
+            except Exception as e:
+                logger.error(
+                    'unable to send contact email: %s (%s)',
+                    e.message,
+                    type(e)
+                )
+        elif(not event_records):
+            logger.info('User %s registered for event %s with no optional msg %s ', user.username, event.id, message)
+
+            try:
+                sendContactEmail(
+                    'volunteer-registered',
+                    None,
+                    [
+                        {
+                            'name': 'USER_FIRSTNAME',
+                            'content': user.first_name
+                        },
+                        {
+                            'name': 'USER_LASTNAME',
+                            'content': user.last_name
+                        },
+                        {
+                            'name': 'USER_EMAIL',
+                            'content': user.email
+                        },
+                        {
+                            'name': 'ADMIN_FIRSTNAME',
+                            'content': event.coordinator_firstname
+                        },
+                        {
+                            'name': 'ADMIN_EMAIL',
+                            'content': event.coordinator_email
+                        },
+                        {
+                            'name': 'DATE',
+                            'content': json.dumps(event.datetime_start,cls=DatetimeEncoder)
+                        }
+                    ],
+                    event.coordinator_email,
+                    user.email
+                )
+            except Exception as e:
+                logger.error(
+                    'unable to send contact email: %s (%s)',
+                    e.message,
+                    type(e)
+                )
 
         return redirect('openCurrents:registration-confirmed', event.id)
     else:
@@ -642,6 +796,47 @@ def event_register_live(request, eventid):
     logger.info('User %s registered for event %s', user.username, event.id)
 
     return HttpResponse({'userid': userid, 'eventid': eventid}, status=201)
+
+# resend the verification email to a user who hits the Resend button on their check-email page
+def process_resend(request, user_email):
+
+    user = User.objects.get(email=user_email)
+    token_records = Token.objects.filter(email=user_email)
+
+    # assign the last generated token in case multiple exist for one email
+    token = token_records.last().token
+
+    # resend verification email
+    try:
+        sendTransactionalEmail(
+            'verify-email',
+            None,
+            [
+                {
+                    'name': 'FIRSTNAME',
+                    'content': user.first_name
+                },
+                {
+                    'name': 'EMAIL',
+                    'content': user.email
+                },
+                {
+                    'name': 'TOKEN',
+                    'content': str(token)
+                }
+            ],
+            user_email
+        )
+        status = "success"
+    except Exception as e:
+        logger.error(
+            'unable to send transactional email: %s (%s)',
+            e.message,
+            type(e)
+        )
+        status = "fail"
+
+    return redirect('openCurrents:check-email', user_email, status)
 
 
 def process_signup(request, referrer=None, endpoint=False, verify_email=True):
@@ -762,7 +957,7 @@ def process_signup(request, referrer=None, endpoint=False, verify_email=True):
         else:
             return redirect(
                'openCurrents:check-email',
-               email=user_email
+               user_email
             )
 
     # fail with form validation error
@@ -838,7 +1033,7 @@ def process_email_confirmation(request, user_email):
 
         if user.has_usable_password():
             logger.warning('user %s has already been verified', user_email)
-            return redirect('openCurrents:user-home')
+            return redirect('openCurrents:profile')
 
         # second, make sure the verification token and user email match
         token_record = None
@@ -858,7 +1053,7 @@ def process_email_confirmation(request, user_email):
 
         if token_record.is_verified:
             logger.warning('token for %s has already been verified', user_email)
-            return redirect('openCurrents:user-home')
+            return redirect('openCurrents:profile')
 
         # mark the verification record as verified
         token_record.is_verified = True
@@ -930,9 +1125,11 @@ def process_email_confirmation(request, user_email):
 
         except:
             logger.info('No org association')
-            return redirect('openCurrents:user-home')
+            return redirect('openCurrents:profile')
 
+    #if form was invalid for bad password, still need to preserve token
     else:
+        token = form.cleaned_data['verification_token']
         logger.error(
             'Invalid email confirmation request: %s',
             form.errors.as_data()
@@ -947,6 +1144,7 @@ def process_email_confirmation(request, user_email):
         return redirect(
             'openCurrents:confirm-account',
             email=user_email,
+            token=token,
             status_msg=errors[0]
         )
 
@@ -1005,7 +1203,7 @@ def process_org_signup(request):
             request.user.email
         )
         return redirect(
-            'openCurrents:user-home',
+            'openCurrents:profile',
             status_msg='Thank you for nominating %s to openCurrents!' % org.name
         )
 
@@ -1028,6 +1226,29 @@ def process_org_signup(request):
 def process_logout(request):
     logout(request)
     return redirect('openCurrents:login')
+
+
+def sendContactEmail(template_name, template_content, merge_vars, admin_email, user_email):
+    mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)
+    message = {
+        'from_email': 'info@opencurrents.com',
+        'from_name': 'openCurrents',
+        'to': [{
+            'email': admin_email,
+            'type': 'to'
+        }],
+        'headers': {
+            'Reply-To': user_email
+        },
+        'global_merge_vars': merge_vars
+    }
+
+    mandrill_client.messages.send_template(
+        template_name=template_name,
+        template_content=template_content,
+        message=message
+    )
+
 
 
 def sendTransactionalEmail(template_name, template_content, merge_vars, recipient_email):
