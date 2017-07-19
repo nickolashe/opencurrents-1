@@ -11,6 +11,7 @@ from django.utils.safestring import mark_safe
 from django.db.models import F, Max
 from django.views.decorators.csrf import csrf_exempt,csrf_protect
 from django.template.context_processors import csrf
+import re
 
 from openCurrents import config
 from openCurrents.models import \
@@ -487,8 +488,54 @@ class ProjectDetailsView(TemplateView):
     template_name = 'project-details.html'
 
 
-class InviteVolunteersView(TemplateView):
+class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'invite-volunteers.html'
+
+    def post(self, request, *args, **kwargs):
+        userid = self.request.user.id
+        user = User.objects.get(id=userid)
+        post_data = self.request.POST
+        k = []
+        Organisation = OrgUser.objects.get(user=user).org.name
+        if post_data['bulk-vol'].encode('ascii','ignore') == '':
+            no_of_loops = int(post_data['count-vol'])
+        else:
+            bulk_list = re.split(',| |\n',post_data['bulk-vol'])
+            no_of_loops = len(bulk_list)
+        for i in range(no_of_loops):
+            if post_data['bulk-vol'].encode('ascii','ignore') == '':
+                if post_data['vol-email-'+str(i+1)] != '':
+                    k.append({"email":post_data['vol-email-'+str(i+1)],"type":"to"})
+            elif post_data['bulk-vol'] != '':
+                k.append({"email":bulk_list[i].strip(),"type":"to"})
+        try:
+                sendBulkEmail(
+                    'invite-volunteer',
+                    None,
+                    [
+                        {
+                            'name': 'ADMIN_FIRSTNAME',
+                            'content': user.first_name
+                        },
+                        {
+                            'name': 'ADMIN_LASTNAME',
+                            'content': user.last_name
+                        },
+                        {
+                            'name': 'ORG_NAME',
+                            'content': Organisation
+                        }
+                    ],
+                    k,
+                    user.email
+                )
+        except Exception as e:
+            logger.error(
+                'unable to send email: %s (%s)',
+                e,
+                type(e)
+            )
+        return redirect('openCurrents:volunteers-invited')
 
 
 class ProjectCreatedView(TemplateView):
@@ -1260,6 +1307,24 @@ def sendTransactionalEmail(template_name, template_content, merge_vars, recipien
             'email': recipient_email,
             'type': 'to'
         }],
+        'global_merge_vars': merge_vars
+    }
+
+    mandrill_client.messages.send_template(
+        template_name=template_name,
+        template_content=template_content,
+        message=message
+    )
+
+def sendBulkEmail(template_name, template_content, merge_vars, recipient_email, sender_email):
+    mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)
+    message = {
+        'from_email': 'info@opencurrents.com',
+        'from_name': 'openCurrents',
+        'to': recipient_email,
+        "headers": {
+            "Reply-To": sender_email.encode('ascii','ignore')
+        },
         'global_merge_vars': merge_vars
     }
 
