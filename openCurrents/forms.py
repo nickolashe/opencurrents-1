@@ -104,6 +104,20 @@ class EmailVerificationForm(forms.Form):
             raise ValidationError(_('Passwords don\'t match'))
 
 
+class PasswordResetForm(forms.Form):
+    new_password = forms.CharField(min_length=8)
+    new_password_confirm = forms.CharField(min_length=8)
+
+    def clean(self):
+        cleaned_data = super(PasswordResetForm, self).clean()
+
+        # check if passwords match
+        new_password = cleaned_data.get('new_password')
+        new_password_confirm = cleaned_data.get('new_password_confirm')
+        if new_password and new_password_confirm and new_password != new_password_confirm:
+            raise ValidationError(_('Passwords don\'t match'))
+
+
 class OrgSignupForm(forms.Form):
     org_name = forms.CharField(min_length=1)
     org_website = forms.CharField(min_length=1)

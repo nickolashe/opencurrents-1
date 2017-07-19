@@ -27,6 +27,7 @@ from openCurrents.forms import \
     UserSignupForm, \
     UserLoginForm, \
     EmailVerificationForm, \
+    PasswordResetForm, \
     OrgSignupForm, \
     ProjectCreateForm, \
     EventRegisterForm, \
@@ -92,6 +93,10 @@ class InviteView(TemplateView):
 
 class CheckEmailView(TemplateView):
     template_name = 'check-email.html'
+
+
+class PasswordResetView(TemplateView):
+    template_name = 'password-reset.html'
 
 
 class ConfirmAccountView(TemplateView):
@@ -1147,6 +1152,55 @@ def process_email_confirmation(request, user_email):
             token=token,
             status_msg=errors[0]
         )
+
+
+def process_password_reset(request, user_email):
+    form = PasswordResetForm(request.POST)
+
+    # valid form data received
+    if form.is_valid():
+
+        new_password = form.cleaned_data['new_password']
+
+        # try to locate the verified user object by email
+        user = None
+        try:
+            user = User.objects.get(email=user_email)
+        except Exception:
+            error_msg = 'Email %s has not been registered'
+            logger.error(error_msg, user_email)
+            return redirect(
+                'openCurrents:signup',
+                status_msg=error_msg % user_email
+            )
+
+        if user.has_usable_password():
+            logger.warning('verified user %s, allow password reset', user_email)
+            user.set_password(new_password)
+            user.save()
+            return redirect('openCurrents:login')
+
+        # TODO: generate new token and send new verification email if a non-verified user is trying to reset password
+        else:
+            logger.warning('user %s has not been verified', user_email)
+            return redirect('openCurrents:check-email', user_email)
+
+    # re-enter valid matching passwords
+    else:
+        logger.error(
+            'Invalid password reset request: %s',
+            form.errors.as_data()
+        )
+
+        # just report the first validation error
+        errors = [
+            '%s: %s' % (field, error.messages[0])
+            for field, le in form.errors.as_data().iteritems()
+            for error in le
+        ]
+        status_msg=errors[0]
+        return redirect('openCurrents:password-reset', user_email, status_msg )
+
 
 
 @login_required
