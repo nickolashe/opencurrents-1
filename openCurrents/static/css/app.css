@@ -505,6 +505,12 @@ label {
   font-size: 1.125rem;
 }
 
+.hide-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .block {
   display: block;
 }
@@ -1376,9 +1382,7 @@ i:hover ~ .addtocalendar {
 /* non-small */
 @media screen and (min-width: 42em) {
   #profile-img {
-    display: inline-block;
     height: 55px;
-    margin-right: 2rem;
   }
 }
 
