@@ -124,10 +124,10 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
         keys = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', 'Total']
         value = 0
         items = [(key, value) for key in keys]
-        all_volunteer_data = UserTimeLog.objects.all()
+        all_volunteer_data = UserTimeLog.objects.filter(is_verified=False)#all()
         #print(all_volunteer_data[0].is_verified)
         for i in all_volunteer_data:
-            if (i.datetime_start.date() == i.datetime_end.date()) and i.is_verified != True:
+            if (i.datetime_start.date() == i.datetime_end.date()):
                 #Same day Volunteering
                 if(self.get_hours(str(i.datetime_end - i.datetime_start)) != 0.0):
                     time_log[str(i.user)] = OrderedDict(items)
