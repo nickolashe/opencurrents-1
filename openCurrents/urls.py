@@ -11,6 +11,7 @@ urlpatterns = [
     url(r'^invite/(?P<referrer>[\w\.@\+\-]*)$', views.HomeView.as_view(), name='invite'),
     url(r'^check-email/(?P<user_email>[\w\.@\+\-]+)/$', views.CheckEmailView.as_view(), name='check-email'),
     url(r'^check-email/(?P<user_email>[\w\.@\+\-]+)/(?P<status>.*)/$', views.CheckEmailView.as_view(), name='check-email'),
+    url(r'^password-reset/$', views.PasswordResetView.as_view(), name='password-reset'),
     url(r'^password-reset/(?P<user_email>[\w\.@\+\-]+)/$', views.PasswordResetView.as_view(), name='password-reset'),
     url(r'^password-reset/(?P<user_email>[\w\.@\+\-]+)/(?P<status_msg>.*)/$', views.PasswordResetView.as_view(), name='password-reset'),
     url(r'^confirm-account/(?P<email>[\w\.@\+\-]+)/$',
