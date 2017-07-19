@@ -28,6 +28,7 @@ from openCurrents.forms import \
     UserLoginForm, \
     EmailVerificationForm, \
     PasswordResetForm, \
+    PasswordResetRequestForm, \
     OrgSignupForm, \
     ProjectCreateForm, \
     EventRegisterForm, \
@@ -1152,6 +1153,69 @@ def process_email_confirmation(request, user_email):
             token=token,
             status_msg=errors[0]
         )
+
+
+def password_reset_request(request):
+    form = PasswordResetRequestForm(request.POST)
+
+    # valid form data received
+    if form.is_valid():
+        user_email = form.cleaned_data['user_email']
+
+# try to locate the verified user object by email
+        user = None
+        try:
+            user = User.objects.get(email=user_email)
+        except Exception:
+            error_msg = 'Email %s has not been registered'
+            logger.error(error_msg, user_email)
+            return redirect(
+                'openCurrents:signup',
+                status_msg=error_msg % user_email
+            )
+
+        if user.has_usable_password():
+            logger.warning('verified user %s, send password reset email', user_email)
+            # TODO: send email with link to password reset
+            try:
+                sendTransactionalEmail(
+                    'password-email',
+                    None,
+                    [
+                        {
+                            'name': 'EMAIL',
+                            'content': user_email
+                        }
+                    ],
+                    user_email
+                )
+            except Exception as e:
+                logger.error(
+                    'unable to send password email: %s (%s)',
+                    e.message,
+                    type(e)
+                )
+            # TODO: redirect to check-email for password instead of for verification
+            return redirect('openCurrents:check-email', user_email)
+            
+
+        else:
+            # TODO: generate new token and send new verification email if a non-verified user is trying to reset password
+            logger.warning('user %s has not been verified', user_email)
+            return redirect('openCurrents:check-email', user_email)
+
+    # could not read email
+    else:
+        # just report the first validation error
+        errors = [
+            '%s: %s' % (field, error.messages[0])
+            for field, le in form.errors.as_data().iteritems()
+            for error in le
+        ]
+        status_msg=errors[0]
+        return redirect('openCurrents:login')
+
+
 
 
 def process_password_reset(request, user_email):

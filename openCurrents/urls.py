@@ -89,6 +89,7 @@ urlpatterns = [
     url(r'^process_login/$', views.process_login, name='process_login'),
     url(r'^process_logout/$', views.process_logout, name='process_logout'),
     url(r'^process_resend/(?P<user_email>[\w\.@\+\-]+)/$', views.process_resend, name='process_resend'),
+    url(r'^password_reset_request/$', views.password_reset_request, name='password_reset_request'),
     url(r'^process_password_reset/(?P<user_email>[\w\.@\+\-]+)/$', views.process_password_reset, name='process_password_reset'),
     url(r'^process_signup/(?P<referrer>[\w\.@\+\-]*)$',
         views.process_signup, name='process_signup'),

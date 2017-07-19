@@ -83,6 +83,9 @@ class UserSignupForm(forms.Form):
     org_name = forms.CharField(required=False, min_length=2)
 
 
+class PasswordResetRequestForm(forms.Form):
+    user_email = forms.CharField(min_length=1)
+
 class UserLoginForm(forms.Form):
     user_email = forms.CharField(min_length=1)
     user_password = forms.CharField(min_length=1)
