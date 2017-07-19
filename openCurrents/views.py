@@ -711,7 +711,7 @@ def event_register(request, pk):
                         },
                         {
                             'name': 'DATE',
-                            'content': json.dumps(event.datetime_start,cls=DatetimeEncoder)
+                            'content': json.dumps(event.datetime_start,cls=DatetimeEncoder).replace('"','')
                         }
                     ],
                     event.coordinator_email,
@@ -753,7 +753,7 @@ def event_register(request, pk):
                         },
                         {
                             'name': 'DATE',
-                            'content': json.dumps(event.datetime_start,cls=DatetimeEncoder)
+                            'content': json.dumps(event.datetime_start,cls=DatetimeEncoder).replace('"','')
                         }
                     ],
                     event.coordinator_email,
