@@ -126,7 +126,9 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
         items = [(key, value) for key in keys]
         userid = self.request.user.id
         #user = User.objects.get(id=userid)
-        orgid = OrgUser.objects.get(user__id=userid).org.id
+        org = OrgUser.objects.filter(user__id=userid)
+        if org:
+            orgid = org[0].org.id
         project = Project.objects.filter(org__id=orgid)
         events = Event.objects.filter(
             project=project
