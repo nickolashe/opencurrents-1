@@ -1231,9 +1231,8 @@ def password_reset_request(request):
             
 
         else:
-            # TODO: generate new token and send new verification email if a non-verified user is trying to reset password
             logger.warning('user %s has not been verified', user_email)
-            return redirect('openCurrents:check-email', user_email)
+            return redirect('openCurrents:signup')
 
     # could not read email
     else:
@@ -1275,10 +1274,9 @@ def process_reset_password(request, user_email):
             user.save()
             return redirect('openCurrents:login')
 
-        # TODO: generate new token and send new verification email if a non-verified user is trying to reset password
         else:
             logger.warning('user %s has not been verified', user_email)
-            return redirect('openCurrents:check-email', user_email)
+            return redirect('openCurrents:signup')
 
     # re-enter valid matching passwords
     else:
