@@ -1162,7 +1162,7 @@ def password_reset_request(request):
     if form.is_valid():
         user_email = form.cleaned_data['user_email']
 
-# try to locate the verified user object by email
+    # try to locate the verified user object by email
         user = None
         try:
             user = User.objects.get(email=user_email)
