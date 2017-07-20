@@ -14,6 +14,7 @@ from django.template.context_processors import csrf
 from datetime import datetime, time
 from collections import OrderedDict
 from copy import deepcopy
+import math
 
 from openCurrents import config
 from openCurrents.models import \
@@ -151,8 +152,9 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
                 if(self.get_hours(str(i.datetime_end - i.datetime_start)) != 0.0):
                     if str(i.user) not in time_log.keys():
                         time_log[str(i.user)] = OrderedDict(items)
-                    time_log[str(i.user)][str(i.datetime_start.strftime("%A"))] += self.get_hours(str(i.datetime_end - i.datetime_start))
-                    time_log[str(i.user)]['Total'] += self.get_hours(str(i.datetime_end - i.datetime_start))
+                    rounded_time = (math.ceil(self.get_hours(str(i.datetime_end - i.datetime_start)) * 4) / 4)
+                    time_log[str(i.user)][str(i.datetime_start.strftime("%A"))] += rounded_time
+                    time_log[str(i.user)]['Total'] += rounded_time
             elif not i.is_verified:
                 #Multiple day volunteering
                 #Still working on it
@@ -162,11 +164,13 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
                     tt = temp_date+timedelta(days=1)
                     tt = datetime.combine(tt, time.min).replace(tzinfo=None)
                     tt_diff = tt - temp_date.replace(tzinfo=None)
-                    time_log[str(i.user)][str(temp_date.strftime("%A"))] += self.get_hours(str(tt_diff))
-                    time_log[str(i.user)]['Total'] += self.get_hours(str(tt_diff))
+                    rounded_time_mdv1 = (math.ceil(self.get_hours(str(tt_diff)) * 4) / 4)
+                    time_log[str(i.user)][str(temp_date.strftime("%A"))] += rounded_time_mdv1
+                    time_log[str(i.user)]['Total'] += rounded_time_mdv1
                     temp_date = temp_date+timedelta(days=1)
-                    time_log[str(i.user)][str(temp_date.strftime("%A"))] += self.get_hours(str(temp_date.replace(tzinfo=None) - tt))
-                    time_log[str(i.user)]['Total'] += self.get_hours(str(temp_date.replace(tzinfo=None) - tt))
+                    rounded_time_mdv2 = (math.ceil(self.get_hours(str(temp_date.replace(tzinfo=None) - tt)) * 4) / 4)
+                    time_log[str(i.user)][str(temp_date.strftime("%A"))] += rounded_time_mdv2
+                    time_log[str(i.user)]['Total'] += rounded_time_mdv2
             else:
                 pass
         temp_time_log = deepcopy(time_log)
