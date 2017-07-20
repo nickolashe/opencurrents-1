@@ -16,4 +16,9 @@ class Migration(migrations.Migration):
             name='token',
             options={'get_latest_by': 'date_created'},
         ),
+        migrations.AddField(
+            model_name='account',
+            name='monthly_updates',
+            field=models.BooleanField(default=False),
+        ),
     ]
