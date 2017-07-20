@@ -1209,7 +1209,6 @@ def password_reset_request(request):
 
         if user.has_usable_password():
             logger.warning('verified user %s, send password reset email', user_email)
-            # TODO: send email with link to password reset
             try:
                 sendTransactionalEmail(
                     'password-email',
@@ -1228,7 +1227,6 @@ def password_reset_request(request):
                     e.message,
                     type(e)
                 )
-            # TODO: redirect to check-email for password instead of for verification
             return redirect('openCurrents:password-reset', user_email)
             
 
