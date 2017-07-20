@@ -130,12 +130,11 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
             if (i.datetime_start.date() == i.datetime_end.date()):
                 #Same day Volunteering
                 if(self.get_hours(str(i.datetime_end - i.datetime_start)) != 0.0):
-                    time_log[str(i.user)] = OrderedDict(items)
+                    if str(i.user) not in time_log.keys():
+                        time_log[str(i.user)] = OrderedDict(items)
                     time_log[str(i.user)][str(i.datetime_start.strftime("%A"))] += self.get_hours(str(i.datetime_end - i.datetime_start))
                     time_log[str(i.user)]['Total'] += self.get_hours(str(i.datetime_end - i.datetime_start))
-                else:
-                    continue
-            elif i.is_verified != True:
+            elif not i.is_verified:
                 #Multiple day volunteering
                 #Still working on it
                 day_diff = i.datetime_end - i.datetime_start
@@ -171,7 +170,7 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
 
     def get_hours(self, time_str):
         h, m, s = time_str.split(':')
-        return int(h) + int(m)/60 + int(s)/3600
+        return float(h) + float(m)/60 + float(s)/3600
 
 
 class CausesView(TemplateView):
