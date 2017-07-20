@@ -496,7 +496,9 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
         user = User.objects.get(id=userid)
         post_data = self.request.POST
         k = []
-        Organisation = OrgUser.objects.get(user__id=userid).org.name
+        OrgUsers = OrgUser.objects.filter(user__id=userid)
+        if OrgUsers:
+            Organisation = OrgUsers[0].org.name
         if post_data['bulk-vol'].encode('ascii','ignore') == '':
             no_of_loops = int(post_data['count-vol'])
         else:
