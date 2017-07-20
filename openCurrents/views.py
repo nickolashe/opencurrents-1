@@ -124,7 +124,14 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
         keys = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', 'Total']
         value = 0
         items = [(key, value) for key in keys]
-        all_volunteer_data = UserTimeLog.objects.filter(is_verified=False)#all()
+        userid = self.request.user.id
+        user = User.objects.get(id=userid)
+        org = OrgUser.objects.get(user=user).org
+        project = Project.objects.filter(org=org)
+        events = Event.objects.filter(project=project)
+        #date_today = datetime.now()
+        last_week = datetime.now() - timedelta(days=7)
+        all_volunteer_data = UserTimeLog.objects.filter(is_verified=False).filter(event=events).filter(datetime_start__gte = last_week)#all()
         #print(all_volunteer_data[0].is_verified)
         for i in all_volunteer_data:
             if (i.datetime_start.date() == i.datetime_end.date()):
