@@ -1375,6 +1375,7 @@ i:hover ~ .addtocalendar {
   display: inline-block;
   height: 44px;
   margin-right: 2rem;
+  margin-top: 1rem;
   vertical-align: middle;
 }
 
