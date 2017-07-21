@@ -59,6 +59,14 @@ def diffInHours(t1, t2):
     return round((t2 - t1).total_seconds() / 3600, 1)
 
 
+class DatetimeEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return obj.strftime('%m-%d-%Y')
+        # Let the base class default method raise the TypeError
+        return json.JSONEncoder.default(self, obj)
+
+
 class SessionContextView(View):
     def get_context_data(self, **kwargs):
         context = super(SessionContextView, self).get_context_data(**kwargs)
@@ -733,13 +741,108 @@ def event_register(request, pk):
     if form.is_valid():
         user = request.user
         event = Event.objects.get(id=pk)
+        message = form.cleaned_data['contact_message']
+        
+        #check for existing registration
+        event_records = UserEventRegistration.objects.filter(user__id=user.id, event__id=event.id, is_confirmed=True).exists()
+        
         user_event_registration = UserEventRegistration(
             user=user,
             event=event,
             is_confirmed=True
         )
         user_event_registration.save()
-        logger.info('User %s registered for event %s', user.username, event.id)
+  
+
+        # if the volunteer entered an optional contact message, send to project coordinator
+        if (message != ""):
+            logger.info('User %s registered for event %s wants to send msg %s ', user.username, event.id, message)
+
+            try:
+                sendContactEmail(
+                    'volunteer-messaged',
+                    None,
+                    [
+                        {
+                            'name': 'USER_FIRSTNAME',
+                            'content': user.first_name
+                        },
+                        {
+                            'name': 'USER_LASTNAME',
+                            'content': user.last_name
+                        },
+                        {
+                            'name': 'USER_EMAIL',
+                            'content': user.email
+                        },
+                        {
+                            'name': 'ADMIN_FIRSTNAME',
+                            'content': event.coordinator_firstname
+                        },
+                        {
+                            'name': 'ADMIN_EMAIL',
+                            'content': event.coordinator_email
+                        },
+                        {
+                            'name': 'MESSAGE',
+                            'content': message
+                        },
+                        {
+                            'name': 'DATE',
+                            'content': json.dumps(event.datetime_start,cls=DatetimeEncoder).replace('"','')
+                        }
+                    ],
+                    event.coordinator_email,
+                    user.email
+                )
+            except Exception as e:
+                logger.error(
+                    'unable to send contact email: %s (%s)',
+                    e.message,
+                    type(e)
+                )
+        elif(not event_records):
+            logger.info('User %s registered for event %s with no optional msg %s ', user.username, event.id, message)
+
+            try:
+                sendContactEmail(
+                    'volunteer-registered',
+                    None,
+                    [
+                        {
+                            'name': 'USER_FIRSTNAME',
+                            'content': user.first_name
+                        },
+                        {
+                            'name': 'USER_LASTNAME',
+                            'content': user.last_name
+                        },
+                        {
+                            'name': 'USER_EMAIL',
+                            'content': user.email
+                        },
+                        {
+                            'name': 'ADMIN_FIRSTNAME',
+                            'content': event.coordinator_firstname
+                        },
+                        {
+                            'name': 'ADMIN_EMAIL',
+                            'content': event.coordinator_email
+                        },
+                        {
+                            'name': 'DATE',
+                            'content': json.dumps(event.datetime_start,cls=DatetimeEncoder).replace('"','')
+                        }
+                    ],
+                    event.coordinator_email,
+                    user.email
+                )
+            except Exception as e:
+                logger.error(
+                    'unable to send contact email: %s (%s)',
+                    e.message,
+                    type(e)
+                )
 
         return redirect('openCurrents:registration-confirmed', event.id)
     else:
@@ -802,14 +905,16 @@ def process_resend(request, user_email):
             ],
             user_email
         )
+        status = "success"
     except Exception as e:
         logger.error(
             'unable to send transactional email: %s (%s)',
             e.message,
             type(e)
         )
+        status = "fail"
 
-    return redirect('openCurrents:check-email', user_email)
+    return redirect('openCurrents:check-email', user_email, status)
 
 
 def process_signup(request, referrer=None, endpoint=False, verify_email=True):
@@ -1199,6 +1304,29 @@ def process_org_signup(request):
 def process_logout(request):
     logout(request)
     return redirect('openCurrents:login')
+
+
+def sendContactEmail(template_name, template_content, merge_vars, admin_email, user_email):
+    mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)
+    message = {
+        'from_email': 'info@opencurrents.com',
+        'from_name': 'openCurrents',
+        'to': [{
+            'email': admin_email,
+            'type': 'to'
+        }],
+        'headers': {
+            'Reply-To': user_email
+        },
+        'global_merge_vars': merge_vars
+    }
+
+    mandrill_client.messages.send_template(
+        template_name=template_name,
+        template_content=template_content,
+        message=message
+    )
+
 
 
 def sendTransactionalEmail(template_name, template_content, merge_vars, recipient_email):

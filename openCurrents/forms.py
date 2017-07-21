@@ -92,6 +92,7 @@ class EmailVerificationForm(forms.Form):
     user_password = forms.CharField(min_length=8)
     user_password_confirm = forms.CharField(min_length=8)
     verification_token = forms.UUIDField()
+    monthly_updates = forms.BooleanField(initial=False,required=False)
 
     def clean(self):
         cleaned_data = super(EmailVerificationForm, self).clean()
