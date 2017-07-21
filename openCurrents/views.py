@@ -140,14 +140,14 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
             orgid = org[0].org.id
         projects = Project.objects.filter(org__id=orgid)
         events = Event.objects.filter(
-            project=projects
+            project__in=projects
         ).filter(
             event_type='MN'
         )
         #date_today = datetime.now()
         last_week = datetime.now() - timedelta(days=7)
         all_volunteer_data = UserTimeLog.objects.filter(
-            event=events
+            event__in=events
         ).filter(
             datetime_start__gte = last_week
         ).filter(
