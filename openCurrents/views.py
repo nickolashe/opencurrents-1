@@ -100,8 +100,8 @@ class ResetPasswordView(TemplateView):
     template_name = 'reset-password.html'
 
 
-class PasswordResetView(TemplateView):
-    template_name = 'password-reset.html'
+class CheckEmailPasswordView(TemplateView):
+    template_name = 'check-email-password.html'
 
 
 class ConfirmAccountView(TemplateView):

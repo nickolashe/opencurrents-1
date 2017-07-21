@@ -14,7 +14,7 @@ urlpatterns = [
     url(r'^reset-password/$', views.ResetPasswordView.as_view(), name='reset-password'),
     url(r'^reset-password/(?P<user_email>[\w\.@\+\-]+)/$', views.ResetPasswordView.as_view(), name='reset-password'),
     url(r'^reset-password/(?P<user_email>[\w\.@\+\-]+)/(?P<status_msg>.*)/$', views.ResetPasswordView.as_view(), name='reset-password'),
-    url(r'^password-reset/$', views.PasswordResetView.as_view(), name='password-reset'),
+    url(r'^check-email-password/$', views.CheckEmailPasswordView.as_view(), name='check-email-password'),
     url(r'^confirm-account/(?P<email>[\w\.@\+\-]+)/$',
         views.ConfirmAccountView.as_view(), name='confirm-account'),
     url(r'^confirm-account/(?P<email>[\w\.@\+\-]+)/(?P<token>\w{8}-\w{4}-\w{4}-\w{4}-\w{12})/$',
