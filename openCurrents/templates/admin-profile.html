@@ -12,56 +12,43 @@
 
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
-        <div class="row center">
+        <div class="hide-for-small-only row full-width collapse two-margin-top">
+          <div class="left medium-6 medium-offset-1 large-5 large-offset-2 columns">
+            <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="fit-left round" />
+            <span class="input-sizer">
+              <h5 class="one-margin-top no-margin-bottom">{{ user.first_name }} {{ user.last_name }}</h5>
+              <h6>openCurrents</h6>
+            </span>
+          </div>
 
-          <!--<div class="medium-5 medium-offset-1 columns">
-            <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="round" /> -->
-          <h3 class="title-sub">{{ user.first_name }} {{ user.last_name }}</h3>
-          <h5 class="three-halves-margin-bottom">{{ org_name }}</h5>
+          <div class="one-margin-top right medium-4 large-3 columns end">
+            <h6 class="inline">Org hours tracked: {{ issued_total }}</h6>
+            
+          </div>
         </div>
 
-            <!-- <div class="medium-5 medium-offset-1 columns">
-              <h6 class="inline">My Currents: </h6>
-              <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
-              <h6 class="inline"> {{ user_balance }}</h6>
-              <div class="qtr-margin-top">
-                <a href="{% url 'openCurrents:upcoming-events' %}">
-                  <button class="button small round">Earn Currents</button>
-                </a>
-              </div>
-            </div> -->
-          <div class="row">
-            <div class="small-centered medium-5 columns">
-              <h6 class="inline">Org hours tracked:</h6>
-              <!-- <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>-->
-              <h6 class="inline"> {{ issued_total }}</h6>
-              <!-- <div class="qtr-margin-top">
-                <a href="{% url 'openCurrents:create-project' orgid %}">
-                  <button class="button small round">Create event</button>
-                </a>
-              </div> -->
-              <!-- <div class="half-margin-top">
-                <a href="{% url 'openCurrents:invite-volunteers' %}" class="button round">Invite volunteers</a>
-              </div> -->
+        <div class="show-for-small-only row one-margin-top">
+          <div class="columns">
+            <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="round" />
+            <h5 class="half-margin-top no-margin-bottom">{{ user.first_name }} {{ user.last_name }}</h5>
+            <h6>openCurrents</h6>
+
+            <div class="half-margin-top">
+              <h6 class="inline">Org hours tracked: {{ issued_total }}</h6>
             </div>
-
-          <!--</div>
-
-          <div class="center half-margin-top medium-5 columns end">
-
-          </div>-->
+          </div>
         </div>
 
         <!-- current events section -->
         {% if events_current %}
-          <div id="live-event-list" class="left row one-margin-top">
-            <div class="medium-8 small-centered columns">
+          <div id="live-event-list" class="left row full-width collapse one-margin-top">
+            <div class="small-11 medium-10 large-8 small-centered columns">
               <h6 class="one-margin-bottom">Events happening now</h6>
 
               {% for event in events_current %}
                 {% if event.event_type != "MN" %}
                   <div class="row one-margin-top one-margin-bottom">
-                    <div class="left small-8 columns">
+                    <div class="left small-8 collapse columns">
                       Let's {{event.project.name}}!
                       on {{event.datetime_start|day:timezone}}
                       at {{event.datetime_start|time:timezone}}
@@ -69,7 +56,7 @@
                       at <strong>{{event.location}}</strong>
                     </div>
 
-                    <div class="right small-4 columns">
+                    <div class="right small-4 collapse columns">
                       <a href="{% url 'openCurrents:live-dashboard' event.id %}"/>
                         <button class="button round small">Start</button>
                       </a>
@@ -84,14 +71,14 @@
         {% endif %}
 
         {% if events_upcoming %}
-          <div id="upcoming-event-list" class="left row one-margin-top">
-            <div class="medium-8 small-centered columns">
+          <div id="upcoming-event-list" class="left row one-margin-top full-width collapse">
+            <div class="small-11 medium-10 large-8 small-centered columns">
               <h6 class="one-margin-bottom">Our upcoming events</h6>
 
               {% for event in events_upcoming %}
                 {% if event.event_type != "MN" %}
                   <div class="row one-margin-bottom">
-                    <div class="left small-8 columns">
+                    <div class="left small-8 collapse columns">
                       Let's {{event.project.name}}!
                       on {{event.datetime_start|day:timezone}}
                       at {{event.datetime_start|time:timezone}}
@@ -99,7 +86,7 @@
                       at <strong>{{event.location}}</strong>
                     </div>
 
-                    <div class="right small-4 columns">
+                    <div class="right small-4 collapse columns">
                       <a href="{% url 'openCurrents:live-dashboard' event.id %}" class="button round small">Preview</a>
                     </div>
                   </div>
@@ -111,14 +98,14 @@
         {% endif %}
 
         {% if events_past %}
-          <div id="past-event-list" class="left row one-margin-top">
-            <div class="medium-8 small-centered columns">
+          <div id="past-event-list" class="left row one-margin-top full-width collapse">
+            <div class="small-11 medium-10 large-8 small-centered columns">
               <h6 class="one-margin-bottom">Past events</h6>
 
               {% for event in events_past %}
                 {% if event.event_type != "MN" %}
                   <div class="row one-margin-bottom">
-                    <div class="left input-left small-8 columns">
+                    <div class="left input-left small-8 collapse columns">
                       Let's {{event.project.name}}!
                       on {{event.datetime_start|day:timezone}}
                       at {{event.datetime_start|time:timezone}}
@@ -126,7 +113,7 @@
                       at <strong>{{event.location}}</strong>
                     </div>
 
-                    <div class="right input-right small-4 columns">
+                    <div class="right input-right small-4 collapse columns">
                       <a href="{% url 'openCurrents:live-dashboard' event.id %}"/>
                         <button class="button round small secondary">Attendees</button>
                       </a>

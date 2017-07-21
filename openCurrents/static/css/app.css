@@ -1374,7 +1374,7 @@ i:hover ~ .addtocalendar {
 #profile-img {
   display: inline-block;
   height: 44px;
-  margin-right: 2rem;
+  margin-right: 0;
   margin-top: 1rem;
   vertical-align: middle;
 }
@@ -1384,6 +1384,7 @@ i:hover ~ .addtocalendar {
 @media screen and (min-width: 42em) {
   #profile-img {
     height: 55px;
+    margin-right: 2rem;
   }
 }
 
