@@ -808,7 +808,7 @@ def event_register_live(request, eventid):
     return HttpResponse({'userid': userid, 'eventid': eventid}, status=201)
 
 # resend the verification email to a user who hits the Resend button on their check-email page
-def process_resend(request, user_email):
+def process_resend_verification(request, user_email):
 
     user = User.objects.get(email=user_email)
     token_records = Token.objects.filter(email=user_email)
@@ -847,6 +847,35 @@ def process_resend(request, user_email):
         status = "fail"
 
     return redirect('openCurrents:check-email', user_email, status)
+
+
+def process_resend_password(request, user_email):
+
+    # resend password email
+    try:
+        sendTransactionalEmail(
+            'password-email',
+            None,
+            [
+                {
+                    'name': 'EMAIL',
+                    'content': user_email
+                },
+            ],
+            user_email
+        )
+        status = "success"
+    except Exception as e:
+        logger.error(
+            'unable to send transactional email: %s (%s)',
+            e.message,
+            type(e)
+        )
+        status = "fail"
+
+    return redirect('openCurrents:password-reset', user_email, status)
+
+
 
 
 def process_signup(request, referrer=None, endpoint=False, verify_email=True):
@@ -1166,7 +1195,7 @@ def password_reset_request(request):
     if form.is_valid():
         user_email = form.cleaned_data['user_email']
 
-# try to locate the verified user object by email
+    # try to locate the verified user object by email
         user = None
         try:
             user = User.objects.get(email=user_email)
@@ -1180,7 +1209,6 @@ def password_reset_request(request):
 
         if user.has_usable_password():
             logger.warning('verified user %s, send password reset email', user_email)
-            # TODO: send email with link to password reset
             try:
                 sendTransactionalEmail(
                     'password-email',
@@ -1199,14 +1227,12 @@ def password_reset_request(request):
                     e.message,
                     type(e)
                 )
-            # TODO: redirect to check-email for password instead of for verification
-            return redirect('openCurrents:check-email', user_email)
+            return redirect('openCurrents:password-reset', user_email)
             
 
         else:
-            # TODO: generate new token and send new verification email if a non-verified user is trying to reset password
             logger.warning('user %s has not been verified', user_email)
-            return redirect('openCurrents:check-email', user_email)
+            return redirect('openCurrents:signup')
 
     # could not read email
     else:
@@ -1222,7 +1248,7 @@ def password_reset_request(request):
 
 
 
-def process_password_reset(request, user_email):
+def process_reset_password(request, user_email):
     form = PasswordResetForm(request.POST)
 
     # valid form data received
@@ -1248,10 +1274,9 @@ def process_password_reset(request, user_email):
             user.save()
             return redirect('openCurrents:login')
 
-        # TODO: generate new token and send new verification email if a non-verified user is trying to reset password
         else:
             logger.warning('user %s has not been verified', user_email)
-            return redirect('openCurrents:check-email', user_email)
+            return redirect('openCurrents:signup')
 
     # re-enter valid matching passwords
     else:
