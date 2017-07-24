@@ -615,7 +615,7 @@ def event_checkin(request, pk):
             # award admin/coordinator currents on checkin only if not already awarded
             if not event.admin_awarded:
                 admin = User.objects.get(id=request.user.id)
-                account = Account.objects.get(user=admin)
+                account = Account.objects.get(user__id=admin.id)
                 event.admin_awarded = True
                 event.save()
 
