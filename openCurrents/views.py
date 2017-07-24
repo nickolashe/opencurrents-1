@@ -614,7 +614,7 @@ def event_checkin(request, pk):
         if checkin:
             # award admin/coordinator currents on checkin only if not already awarded
             if not event.admin_awarded:
-                admin = User.objects.get(email=event.coordinator_email)
+                admin = User.objects.get(id=request.user.id)
                 account = Account.objects.get(user=admin)
                 event.admin_awarded = True
                 event.save()
@@ -623,7 +623,7 @@ def event_checkin(request, pk):
                 account.amount += hours
                 account.save()
 
-                logger.warning('Awarded admin %s hours: %s currents for event id: %s', admin, hours, pk)
+                logger.info('Awarded admin %s hours: %s currents for event id: %s', admin, hours, pk)
 
             usertimelog = UserTimeLog(
                 user=User.objects.get(id=userid),
