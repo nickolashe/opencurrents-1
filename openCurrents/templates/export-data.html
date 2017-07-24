@@ -24,49 +24,54 @@
           <h3 class="title-sub">Export volunteer data</h3>
           <p>Choose fields to include in the export:</p>
         </div>
+        <form action ="" name="theForm" id="form_id" method="post">
+        {% csrf_token %}
         
-        <div class="row one-margin-bottom">
-          <div class="small-8 small-centered columns">
-            
-            <div class="left small-12 medium-4 columns">
-              <label><input type="checkbox" name="first-name" checked/>First name</label>
-              <label><input type="checkbox" name="last-name" checked/>Last name</label>
-              <label><input type="checkbox" name="email" checked/>Email</label>
-            </div>
+          <div class="row one-margin-bottom">
+            <div class="small-8 small-centered columns">
+              
+              <div class="left small-12 medium-4 columns">
+                <label><input type="checkbox" name="volunteer-first-name" checked/>First name</label>
+                <label><input type="checkbox" name="volunteer-last-name" checked/>Last name</label>
+                <label><input type="checkbox" name="volunteer-email" checked/>Email</label>
+              </div>
 
-            <div class="left small-12 medium-4 columns">
-              <label><input type="checkbox" name="date" checked/>Event date</label>
-              <label><input type="checkbox" name="start-time" checked/>Start time</label>
-              <label><input type="checkbox" name="end-time" checked/>End time</label>
-            </div>
+              <div class="left small-12 medium-4 columns">
+                <label><input type="checkbox" name="event-date" checked/>Event date</label>
+                <label><input type="checkbox" name="start-time" checked/>Start time/End time</label>
+                <label><input type="checkbox" name="duration" checked/>Duration</label>
+              </div>
 
-            <div class="left small-12 medium-4 columns">
-              <label><input type="checkbox" name="date" checked/>Event name</label>
-              <label><input type="checkbox" name="location" checked/>Event location</label>
-              <label><input type="checkbox" name="admin-full-name" checked/>Admin name</label>
-            </div>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="medium-8 small-centered columns">
-            <p>Choose the date range for which you would like to export data (leave start date blank to export all data available for your organization):</p>
-
-            <div class="left small-6 columns">
-              <label>Start date</label>
-              <input type="text" id="start-date" name="start-date" placeholder="yyyy-mm-dd"/>
-            </div>
-
-            <div class="left small-6 columns">
-              <label>End date</label>
-              <input type="text" id="end-date" name="end-date" placeholder="yyyy-mm-dd"/>
+              <div class="left small-12 medium-4 columns">
+                <label><input type="checkbox" name="event-name" checked/>Event name</label>
+                <label><input type="checkbox" name="location" checked/>Event location</label>
+                <label><input type="checkbox" name="admin-full-name" checked/>Admin name</label>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="row three-halves-margin-top">
-          <a class="button round">Export</a>
-        </div>
+          <div class="row">
+            <div class="medium-8 small-centered columns">
+              <p>Choose the date range for which you would like to export data (leave start date blank to export all data available for your organization):</p>
+
+              <div class="left small-6 columns">
+                <label>Start date</label>
+                <input type="text" id="start-date" name="start-date" placeholder="yyyy-mm-dd"/>
+              </div>
+
+              <div class="left small-6 columns">
+                <label>End date</label>
+                <input type="text" id="end-date" name="end-date" placeholder="yyyy-mm-dd"/>
+              </div>
+            </div>
+          </div>
+
+          <div class="row three-halves-margin-top">
+            <!--<a class="button round">Export</a>-->
+            <button type='submit' class="button round">Export</button>
+          </div>
+
+        </form>
         
         <div id="push"></div>
     
