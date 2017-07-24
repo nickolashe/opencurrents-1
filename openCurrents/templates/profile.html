@@ -21,7 +21,7 @@
             <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
             <h6 class="inline"> {{ user_balance }} </h6>
             <div class="half-margin-top">
-              <a href="{% url 'openCurrents:upcoming-events' %}" class="button round">Earn Currents</a>
+              <a href="" class="button round earn-currents-popup_open">Earn Currents</a>
               </a>
               <!--<a href="{% url 'openCurrents:marketplace' %}" class="button round secondary small">Spend Currents</a>-->
             </div>
@@ -38,6 +38,7 @@
               <h6 class="half-margin-bottom">My upcoming events</h6>
 
               {% for event in events_upcoming %}
+                {% if event.project.name != "ManualTracking" %}
                 <div class="row one-margin-bottom">
                   <div class="left small-9 columns">
                     <strong> {{event.project.name}} </strong>
@@ -51,6 +52,7 @@
                     <button class="rsvp-popup_open button small round secondary">Going</button>
                   </div>
                 </div>
+                {% endif %}
               {% endfor %}
 
             </div>
@@ -209,6 +211,14 @@
 
 
     <script type="text/javascript">
+      if(!localStorage.viewed){
+        localStorage.viewed=1;
+        var open = true;
+      }
+      else{
+        var open = false;
+      }
+
       $(document).ready(function(){
         $('#rsvp-popup, #earn-currents-popup').popup({
           vertical: 'top',
@@ -220,7 +230,7 @@
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: true,
-          autoopen: true,
+          autoopen: open,
         });
       });
     </script>
