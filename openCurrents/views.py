@@ -40,6 +40,7 @@ import mandrill
 import logging
 import pytz
 import uuid
+import decimal
 
 
 logging.basicConfig(level=logging.DEBUG, filename="log/views.log")
@@ -611,6 +612,19 @@ def event_checkin(request, pk):
         )
 
         if checkin:
+            # award admin/coordinator currents on checkin only if not already awarded
+            if not event.admin_awarded:
+                admin = User.objects.get(email=event.coordinator_email)
+                account = Account.objects.get(user=admin)
+                event.admin_awarded = True
+                event.save()
+
+                hours = decimal.Decimal(diffInHours(event.datetime_start,event.datetime_end))
+                account.amount += hours
+                account.save()
+
+                logger.warning('Awarded admin %s hours: %s currents for event id: %s', admin, hours, pk)
+
             usertimelog = UserTimeLog(
                 user=User.objects.get(id=userid),
                 event=event,
