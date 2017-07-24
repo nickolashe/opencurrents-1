@@ -197,7 +197,7 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
                 time_log = UserTimeLog.objects.filter(user=user).update(is_verified = True);
             return redirect('openCurrents:hours-approved')
         except:
-            return redirect('openCurrents:approve-hours')
+            return redirect('openCurrents:500')
 
     def get_hours(self, time_str):
         h, m, s = time_str.split(':')
