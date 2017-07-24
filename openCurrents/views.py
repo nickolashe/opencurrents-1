@@ -12,6 +12,7 @@ from django.db.models import F, Max
 from django.views.decorators.csrf import csrf_exempt,csrf_protect
 from django.template.context_processors import csrf
 import csv
+import collections
 
 from openCurrents import config
 from openCurrents.models import \
@@ -137,18 +138,19 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
 
     def post(self, request):
         post_data = self.request.POST
-        k_dict = {
+        k_dict = collections.OrderedDict([
             #'admin-full-name',
-            'volunteer-first-name':0,
-            'volunteer-last-name':1,
-            'volunteer-email':2,
-            'duration':3,
-            'volunteer-login-time':4,
-            'volunteer-logout-time':5,
-            'event-date':6,
-            'location':7,
-            'event-name':8
-        }
+            ('volunteer-first-name',0),
+            ('volunteer-last-name',1),
+            ('volunteer-email',2),
+            ('duration',3),
+            ('volunteer-login-time',4),
+            ('volunteer-logout-time',5),
+            ('event-date',6),
+            ('location',7),
+            ('event-name',8)
+        ])
+        utc=pytz.UTC
         vol_personal_info = User.objects.all()
         if post_data['start-date'] != u'':
             event_info = Event.objects.filter(datetime_start__gte=post_data['start-date']).filter(datetime_end__lte=post_data['end-date'])
@@ -171,7 +173,7 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
                     del k_dict[i]
                 
         response = HttpResponse(content_type='text/csv')
-        print(datetime.now())
+        #print(datetime.now())
         response['Content-Disposition'] = 'attachment; filename="volunteer-data.csv"'
 
         writer = csv.writer(response)
@@ -184,8 +186,14 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
                 except:
                     datetime_duration = '00:00:00'
                 if post_data['start-date'] != u'':
-                    if (str(j.event.datetime_start)> str(post_data['start-date']) or str(j.event.datetime_start)==str(post_data['start-date'])) \
-                    and (str(j.event.datetime_end)<str(post_data['end-date']) or str(j.event.datetime_end)==str(post_data['end-date'])):
+                    s_dt_db = j.event.datetime_start
+                    s_dt_ui = post_data['start-date']
+                    e_dt_db = j.event.datetime_end
+                    e_dt_ui = post_data['end-date']
+                    if (s_dt_db.replace(tzinfo=utc) > datetime.strptime(s_dt_ui, '%Y-%m-%d').replace(tzinfo=utc)  or\
+                    s_dt_db.replace(tzinfo=utc)==datetime.strptime(s_dt_ui, '%Y-%m-%d').replace(tzinfo=utc) ) \
+                    and (e_dt_db.replace(tzinfo=utc) <datetime.strptime(e_dt_ui, '%Y-%m-%d').replace(tzinfo=utc)  or\
+                    e_dt_db.replace(tzinfo=utc) ==datetime.strptime(e_dt_ui, '%Y-%m-%d').replace(tzinfo=utc) ):
                         cleaned_list = [str(i.first_name), str(i.last_name), str(i.email), str(datetime_duration), str(j.datetime_start),\
                             str(j.datetime_end), str(j.event.datetime_start), str(j.event.location), str(j.event.project.name)]
                         for k in rem_index:
