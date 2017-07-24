@@ -158,6 +158,7 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
             event_info = Event.objects.filter(datetime_end__lte=post_data['end-date'])
         rem_index = []
         for i in k_dict.keys():
+            #keep track of deselected columns by users in a list
             if i == 'volunteer-login-time' or i == 'volunteer-logout-time':
                 if post_data.get('start-time')==None:
                     try:
@@ -181,11 +182,13 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
         for i in vol_personal_info:
             usertimelog_info = UserTimeLog.objects.filter(user=i)
             for j in usertimelog_info:
+                # Loop across all the users registered
                 try:
                     datetime_duration = j.datetime_end-j.datetime_start
                 except:
                     datetime_duration = '00:00:00'
                 if post_data['start-date'] != u'':
+                    #if the user fill the start-time this condition is executed
                     s_dt_db = j.event.datetime_start
                     s_dt_ui = post_data['start-date']
                     e_dt_db = j.event.datetime_end
@@ -197,15 +200,18 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
                         cleaned_list = [str(i.first_name), str(i.last_name), str(i.email), str(datetime_duration), str(j.datetime_start),\
                             str(j.datetime_end), str(j.event.datetime_start), str(j.event.location), str(j.event.project.name)]
                         for k in rem_index:
+                            #delete the columns which were deselected by the user
                             del cleaned_list[k]
-                        writer.writerow(cleaned_list)
+                        writer.writerow(cleaned_list)#write to the CSV file
                 else:
+                    #if the user input in start-time is empty
                     if (str(j.event.datetime_end)<str(post_data['end-date']) or str(j.event.datetime_end)==str(post_data['end-date'])):
                         cleaned_list = [str(i.first_name), str(i.last_name), str(i.email), str(datetime_duration), str(j.datetime_start),\
                             str(j.datetime_end), str(j.event.datetime_start), str(j.event.location), str(j.event.project.name)]
                         for k in rem_index:
+                            #delete the columns which were deselected by the user
                             del cleaned_list[k]
-                        writer.writerow(cleaned_list)
+                        writer.writerow(cleaned_list)#write to the CSV file
         return response#redirect('openCurrents:export-data')#
 
 class FaqView(TemplateView):
