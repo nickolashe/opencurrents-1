@@ -468,8 +468,42 @@ class CreateProjectView(LoginRequiredMixin, SessionContextView, FormView):
         return kwargs
 
 
-class EditProjectView(TemplateView):
+class EditEventView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'edit-project.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(EditEventView, self).get_context_data(**kwargs)
+        # event
+        event_id = kwargs.pop('event_id')
+        event = Event.objects.get(id=event_id)
+        context['event'] = event
+        context['start_time'] = str(event.datetime_start.time())
+        context['end_time'] = str(event.datetime_end.time())
+        context['date_start'] = str(event.datetime_start.date())
+        return context
+
+    def post(self, request, **kwargs):
+        post_data = self.request.POST
+        event_id = kwargs.pop('event_id')
+        edit_event = Event.objects.get(id=event_id)
+        if 'save-button' in post_data:
+            #print('save-button')
+            edit_event.description = str(post_data['project-description'])
+            edit_event.location = str(post_data['project-location-1'])
+            edit_event.coordinator_firstname = str(post_data['coordinator-name'])
+            edit_event.coordinator_email = str(post_data['coordinator-email'])
+            edit_event.datetime_start = datetime.combine(datetime.strptime(post_data['project-date'], '%Y-%m-%d'),\
+                datetime.strptime(str(post_data['project-start']),'%H:%M%p').time())
+            edit_event.datetime_end = datetime.combine(datetime.strptime(post_data['project-date'], '%Y-%m-%d'),\
+                datetime.strptime(str(post_data['project-end']),'%H:%M%p').time())
+            edit_event.save()
+            project = Project.objects.get(id = edit_event.project.id)
+            project.name = str(post_data['project-name'])
+            project.save()
+        elif 'del-button' in post_data:
+            #print('del-button')
+            edit_event.delete()
+        return redirect('openCurrents:admin-profile')
 
 
 # TODO: prioritize view by projects which user was invited to
