@@ -472,6 +472,7 @@ class EditEventView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'edit-project.html'
 
     def get_context_data(self, **kwargs):
+        #get the event id from admin-profile page and fetch the data need for the UI
         context = super(EditEventView, self).get_context_data(**kwargs)
         # event
         event_id = kwargs.pop('event_id')
@@ -483,10 +484,12 @@ class EditEventView(LoginRequiredMixin, SessionContextView, TemplateView):
         return context
 
     def post(self, request, **kwargs):
+        #POST the modified data by the user to the models
         post_data = self.request.POST
         event_id = kwargs.pop('event_id')
         edit_event = Event.objects.get(id=event_id)
         if 'save-button' in post_data:
+            #if the user hits save button
             #print('save-button')
             edit_event.description = str(post_data['project-description'])
             edit_event.location = str(post_data['project-location-1'])
@@ -501,6 +504,7 @@ class EditEventView(LoginRequiredMixin, SessionContextView, TemplateView):
             project.name = str(post_data['project-name'])
             project.save()
         elif 'del-button' in post_data:
+            #if the user hits delete button
             #print('del-button')
             edit_event.delete()
         return redirect('openCurrents:admin-profile')
