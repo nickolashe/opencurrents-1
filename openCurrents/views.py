@@ -486,11 +486,87 @@ class EditEventView(LoginRequiredMixin, SessionContextView, TemplateView):
     def post(self, request, **kwargs):
         #POST the modified data by the user to the models
         post_data = self.request.POST
+        utc=pytz.UTC
         event_id = kwargs.pop('event_id')
         edit_event = Event.objects.get(id=event_id)
         if 'save-button' in post_data:
             #if the user hits save button
             #print('save-button')
+            #print(edit_event.project.org.id)
+            k = []
+            Organisation = OrgUser.objects.get(user__id=self.request.user.id).org.name
+            if edit_event.location != str(post_data['project-location-1']) or\
+               edit_event.datetime_start.replace(tzinfo=utc) != datetime.combine(datetime.strptime(post_data['project-date'], '%Y-%m-%d'),\
+                  datetime.strptime(str(post_data['project-start']),'%H:%M%p').time()).replace(tzinfo=utc) or\
+               edit_event.project.name != str(post_data['project-name']):
+                #If some important data has been modified for the event
+                volunteers = OrgUser.objects.filter(org__id=edit_event.project.org.id)
+                volunteer_emails = [str(i.user.email) for i in volunteers]
+                for i in volunteer_emails:
+                    k.append({"email":i,"type":"to"})
+                try:
+                    sendBulkEmail(
+                        'edit-event',
+                        None,
+                        [
+                            {
+                                'name': 'ADMIN_FIRSTNAME',
+                                'content': self.request.user.first_name
+                            },
+                            {
+                                'name': 'ADMIN_LASTNAME',
+                                'content': self.request.user.last_name
+                            },
+                            {
+                                'name': 'EVENT_NAME',
+                                'content': str(post_data['project-name'])
+                            },
+                            {
+                                'name': 'ORG_NAME',
+                                'content': Organisation
+                            },
+                            {
+                                'name': 'EVENT_LOCATION',
+                                'content': str(post_data['project-location-1'])
+                            },
+                            {
+                                'name': 'EVENT_DATE',
+                                'content': str(post_data['project-date'])
+                            },
+                            {
+                                'name':'EVENT_START_TIME',
+                                'content': str(post_data['project-start'])
+                            },
+                            {
+                                'name':'EVENT_END_TIME',
+                                'content': str(post_data['project-end'])
+                            },
+                            {
+                                'name': 'NAME',
+                                'content': int(edit_event.project.name != str(post_data['project-name']))
+                            },
+                            {
+                                'name': 'LOCATION',
+                                'content': int(edit_event.location != str(post_data['project-location-1']))
+                            },
+                            {
+                                'name':'TIME',
+                                'content': int(edit_event.datetime_start.time().replace(tzinfo=utc) !=\
+                                    datetime.strptime(str(post_data['project-start']),'%H:%M%p').time().replace(tzinfo=utc))
+                            }
+
+                        ],
+                        k,
+                        self.request.user.email
+                    )
+                except Exception as e:
+                    logger.error(
+                        'unable to send email: %s (%s)',
+                        e,
+                        type(e)
+                    )
+                    return redirect('openCurrents:500')
+
             edit_event.description = str(post_data['project-description'])
             edit_event.location = str(post_data['project-location-1'])
             edit_event.coordinator_firstname = str(post_data['coordinator-name'])
@@ -505,7 +581,6 @@ class EditEventView(LoginRequiredMixin, SessionContextView, TemplateView):
             project.save()
         elif 'del-button' in post_data:
             #if the user hits delete button
-            #print('del-button')
             edit_event.delete()
         return redirect('openCurrents:admin-profile')
 
@@ -1298,6 +1373,25 @@ def sendTransactionalEmail(template_name, template_content, merge_vars, recipien
             'email': recipient_email,
             'type': 'to'
         }],
+        'global_merge_vars': merge_vars
+    }
+
+    mandrill_client.messages.send_template(
+        template_name=template_name,
+        template_content=template_content,
+        message=message
+    )
+
+def sendBulkEmail(template_name, template_content, merge_vars, recipient_email, sender_email):
+    print(type(sender_email))
+    mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)
+    message = {
+        'from_email': 'info@opencurrents.com',
+        'from_name': 'openCurrents',
+        'to': recipient_email,
+        "headers": {
+            "Reply-To": sender_email.encode('ascii','ignore')
+        },
         'global_merge_vars': merge_vars
     }
 
