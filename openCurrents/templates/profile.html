@@ -38,7 +38,7 @@
             <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="round" /> -->
             <h5 class="half-margin-top no-margin-bottom">{{ user.first_name }} {{ user.last_name }}</h5>
             <h6>{{orgname}}</h6>
-            <a class="button round secondary tiny">Manage org</a>
+            <a href="{% url 'openCurrents:admin-profile' %}" class="button round secondary tiny">Manage org</a>
 
             <div class="half-margin-top">
               <h6 class="inline">My Currents: </h6>

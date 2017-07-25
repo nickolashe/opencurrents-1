@@ -392,10 +392,10 @@ class BlogView(TemplateView):
     template_name = 'Blog.html'
 
 
-class CreateProjectView(LoginRequiredMixin, SessionContextView, FormView):
-    template_name = 'create-project.html'
+class CreateEventView(LoginRequiredMixin, SessionContextView, FormView):
+    template_name = 'create-event.html'
     form_class = ProjectCreateForm
-    success_url = '/project-created/'
+    success_url = '/event-created/'
 
     def create_event(self, location, form_data):
         if not self.project:
@@ -441,7 +441,7 @@ class CreateProjectView(LoginRequiredMixin, SessionContextView, FormView):
         return redirect('openCurrents:project-created')
 
     def get_context_data(self, **kwargs):
-        context = super(CreateProjectView, self).get_context_data(**kwargs)
+        context = super(CreateEventView, self).get_context_data(**kwargs)
 
         # obtain orgid from the session context (provided by SessionContextView)
         orgid = context['orgid']
@@ -466,7 +466,7 @@ class CreateProjectView(LoginRequiredMixin, SessionContextView, FormView):
         """
         Returns the keyword arguments for instantiating the form.
         """
-        kwargs = super(CreateProjectView, self).get_form_kwargs()
+        kwargs = super(CreateEventView, self).get_form_kwargs()
         kwargs.update({'orgid': self.kwargs['orgid']})
         return kwargs
 
@@ -494,8 +494,8 @@ class InviteVolunteersView(TemplateView):
     template_name = 'invite-volunteers.html'
 
 
-class ProjectCreatedView(TemplateView):
-    template_name = 'project-created.html'
+class EventCreatedView(TemplateView):
+    template_name = 'event-created.html'
 
 
 class EventDetailView(LoginRequiredMixin, SessionContextView, DetailView):
