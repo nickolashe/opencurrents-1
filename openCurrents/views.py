@@ -456,11 +456,7 @@ class CreateEventView(LoginRequiredMixin, SessionContextView, FormView):
         # create an event for each location
         event_ids = map(lambda loc: self._create_event(loc, data), locations)
 
-        return redirect(
-            'openCurrents:project-created',
-            project=self.project.name,
-            num_events=len(event_ids)
-        )
+        return redirect('openCurrents:invite-volunteers')
 
     def get_context_data(self, **kwargs):
         context = super(CreateEventView, self).get_context_data()
