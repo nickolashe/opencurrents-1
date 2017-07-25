@@ -873,7 +873,7 @@ def process_resend_password(request, user_email):
         )
         status = "fail"
 
-    return redirect('openCurrents:password-reset', user_email, status)
+    return redirect('openCurrents:check-email-password', user_email, status)
 
 
 
@@ -1227,7 +1227,7 @@ def password_reset_request(request):
                     e.message,
                     type(e)
                 )
-            return redirect('openCurrents:password-reset', user_email)
+            return redirect('openCurrents:check-email-password', user_email)
             
 
         else:
