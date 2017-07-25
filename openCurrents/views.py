@@ -278,7 +278,8 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(ProfileView, self).get_context_data(**kwargs)
-
+        org_name = Org.objects.get(id=context['orgid']).name
+        context['orgname'] = org_name
         userid = self.request.user.id
         verified_times = UserTimeLog.objects.filter(
             user_id=userid
@@ -292,16 +293,17 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         for timelog in verified_times:
             if not timelog.event.id in event_user:
                 event_user.add(timelog.event.id)
+                issued_total += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
 
-                if timelog.datetime_end and timelog.datetime_end < timelog.event.datetime_end + timedelta(hours=1):
-                    # users checked within 1 hour after the event
-                    issued_total += (timelog.datetime_end - timelog.datetime_start).total_seconds() / 3600
-                elif timelog.datetime_start <= timelog.event.datetime_end:
-                    # users that have not been checked out, use event end time
-                    issued_total += (timelog.event.datetime_end - timelog.datetime_start).total_seconds() / 3600
-                else:
-                    # if users post-added, use the event duration
-                    issued_total += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
+                # if timelog.datetime_end and timelog.datetime_end < timelog.event.datetime_end + timedelta(hours=1):
+                #     # users checked within 1 hour after the event
+                #     issued_total += (timelog.datetime_end - timelog.datetime_start).total_seconds() / 3600
+                # elif timelog.datetime_start <= timelog.event.datetime_end:
+                #     # users that have not been checked out, use event end time
+                #     issued_total += (timelog.event.datetime_end - timelog.datetime_start).total_seconds() / 3600
+                # else:
+                #     # if users post-added, use the event duration
+                #     issued_total += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
             else:
                 #logger.debug('user %d already counted, skipping', timelog.user.id)
                 pass
@@ -347,16 +349,17 @@ class AdminProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         for timelog in verified_time:
             if not timelog.user.id in org_event_user[timelog.event.id]:
                 org_event_user[timelog.event.id].add(timelog.user.id)
+                issued_total += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
 
-                if timelog.datetime_end and timelog.datetime_end < timelog.event.datetime_end + timedelta(hours=1):
-                    # users checked within 1 hour after the event
-                    issued_total += (timelog.datetime_end - timelog.datetime_start).total_seconds() / 3600
-                elif timelog.datetime_start <= timelog.event.datetime_end:
-                    # users that have not been checked out, use event end time
-                    issued_total += (timelog.event.datetime_end - timelog.datetime_start).total_seconds() / 3600
-                else:
-                    # if users post-added, use the event duration
-                    issued_total += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
+                # if timelog.datetime_end and timelog.datetime_end < timelog.event.datetime_end + timedelta(hours=1):
+                #     # users checked within 1 hour after the event
+                #     issued_total += (timelog.datetime_end - timelog.datetime_start).total_seconds() / 3600
+                # elif timelog.datetime_start <= timelog.event.datetime_end:
+                #     # users that have not been checked out, use event end time
+                #     issued_total += (timelog.event.datetime_end - timelog.datetime_start).total_seconds() / 3600
+                # else:
+                #     # if users post-added, use the event duration
+                #     issued_total += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
             else:
                 #logger.info('user %d already counted, skipping', timelog.user.id)
                 pass
@@ -389,12 +392,12 @@ class BlogView(TemplateView):
     template_name = 'Blog.html'
 
 
-class CreateProjectView(LoginRequiredMixin, SessionContextView, FormView):
-    template_name = 'create-project.html'
+class CreateEventView(LoginRequiredMixin, SessionContextView, FormView):
+    template_name = 'create-event.html'
     form_class = ProjectCreateForm
-    success_url = '/project-created/'
+    success_url = '/event-created/'
 
-    def create_event(self, location, form_data):
+    def _create_event(self, location, form_data):
         if not self.project:
             project = Project(
                 org=Org.objects.get(id=self.orgid),
@@ -414,16 +417,32 @@ class CreateProjectView(LoginRequiredMixin, SessionContextView, FormView):
         )
         event.save()
 
+        return event.id
+
+    def _get_project_names(self):
+        context = super(CreateEventView, self).get_context_data()
+
+        # obtain orgid from the session context (provided by SessionContextView)
+        orgid = context['orgid']
+        self.orgid = orgid
+
+        projects = Project.objects.filter(
+            org__id=self.orgid
+        )
+        project_names = [project.name for project in projects]
+
+        return project_names
+
     def form_valid(self, form):
-        # This method is called when valid form data has been POSTed.
-        # It should return an HttpResponse.
+        project_names = self._get_project_names()
+
         locations = [
             val
             for (key, val) in self.request.POST.iteritems()
             if 'event-location' in key
         ]
         data = form.cleaned_data
-        if data['project_name'] in self.project_names:
+        if data['project_name'] in project_names:
             logger.info('event found')
             self.project = Project.objects.get(
                 org__id=self.orgid,
@@ -433,29 +452,17 @@ class CreateProjectView(LoginRequiredMixin, SessionContextView, FormView):
             self.project = None
 
         # create an event for each location
-        map(lambda loc: self.create_event(loc, data), locations)
+        event_ids = map(lambda loc: self._create_event(loc, data), locations)
 
-        return redirect('openCurrents:project-created')
+        return redirect('openCurrents:invite-volunteers')
 
     def get_context_data(self, **kwargs):
-        context = super(CreateProjectView, self).get_context_data(**kwargs)
+        context = super(CreateEventView, self).get_context_data()
 
-        # obtain orgid from the session context (provided by SessionContextView)
-        orgid = context['orgid']
-        self.orgid = orgid
-
-        # context::project_names
-        projects = Project.objects.filter(
-            org__id=orgid
-        )
-        project_names = [
-            project.name
-            for project in projects
-        ]
+        # context::project_names (for autocompleting the project name field)
+        project_names = self._get_project_names()
 
         context['project_names'] = mark_safe(json.dumps(project_names))
-        self.project_names = project_names
-        logger.info(project_names)
 
         return context
 
@@ -463,14 +470,14 @@ class CreateProjectView(LoginRequiredMixin, SessionContextView, FormView):
         """
         Returns the keyword arguments for instantiating the form.
         """
-        kwargs = super(CreateProjectView, self).get_form_kwargs()
+        kwargs = super(CreateEventView, self).get_form_kwargs()
         kwargs.update({'orgid': self.kwargs['orgid']})
         return kwargs
 
 
 class EditEventView(LoginRequiredMixin, SessionContextView, TemplateView):
-    template_name = 'edit-project.html'
-
+    template_name = 'edit-event.html'
+    
     def get_context_data(self, **kwargs):
         #get the event id from admin-profile page and fetch the data need for the UI
         context = super(EditEventView, self).get_context_data(**kwargs)
@@ -604,8 +611,8 @@ class InviteVolunteersView(TemplateView):
     template_name = 'invite-volunteers.html'
 
 
-class ProjectCreatedView(TemplateView):
-    template_name = 'project-created.html'
+class EventCreatedView(TemplateView):
+    template_name = 'event-created.html'
 
 
 class EventDetailView(LoginRequiredMixin, SessionContextView, DetailView):
@@ -777,17 +784,17 @@ def event_register(request, pk):
         user = request.user
         event = Event.objects.get(id=pk)
         message = form.cleaned_data['contact_message']
-        
+
         #check for existing registration
         event_records = UserEventRegistration.objects.filter(user__id=user.id, event__id=event.id, is_confirmed=True).exists()
-        
+
         user_event_registration = UserEventRegistration(
             user=user,
             event=event,
             is_confirmed=True
         )
         user_event_registration.save()
-  
+
 
         # if the volunteer entered an optional contact message, send to project coordinator
         if (message != ""):
@@ -1106,10 +1113,7 @@ def process_login(request):
         )
         if user is not None and user.is_active:
             login(request, user)
-            if user.org_set.exists():
-                return redirect('openCurrents:admin-profile')
-            else:
-                return redirect('openCurrents:profile')
+            return redirect('openCurrents:profile')
         else:
             return redirect('openCurrents:login', status_msg='Invalid login/password')
     else:
