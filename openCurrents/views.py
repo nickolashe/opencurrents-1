@@ -270,8 +270,13 @@ class VolunteeringView(TemplateView):
 class VolunteerRequestsView(TemplateView):
     template_name = 'volunteer-requests.html'
 
-class VolunteersInvitedView(TemplateView):
+class VolunteersInvitedView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'volunteers-invited.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(VolunteersInvitedView, self).get_context_data(**kwargs)
+        return context
+
 
 
 class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
@@ -395,7 +400,7 @@ class BlogView(TemplateView):
 class CreateEventView(LoginRequiredMixin, SessionContextView, FormView):
     template_name = 'create-project.html'
     form_class = ProjectCreateForm
-    success_url = '/project-created/'
+    success_url = '/invite-volunteers/'
 
     def _create_event(self, location, form_data):
         if not self.project:
@@ -455,7 +460,7 @@ class CreateEventView(LoginRequiredMixin, SessionContextView, FormView):
         event_ids = map(lambda loc: self._create_event(loc, data), locations)
 
         return redirect(
-            'openCurrents:project-created',
+            'openCurrents:invite-volunteers',
             project=self.project.name,
             num_events=len(event_ids)
         )
@@ -547,7 +552,7 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
                 e,
                 type(e)
             )
-        return redirect('openCurrents:volunteers-invited')
+        return redirect('openCurrents:volunteers-invited', no_of_loops)
 
 
 class EventCreatedView(TemplateView):
