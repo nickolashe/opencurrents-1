@@ -850,6 +850,10 @@ def process_resend_verification(request, user_email):
 
 
 def process_resend_password(request, user_email):
+    token_records = Token.objects.filter(email=user_email)
+
+    # assign the last generated token in case multiple exist for one email
+    token = token_records.last().token
 
     # resend password email
     try:
@@ -861,6 +865,10 @@ def process_resend_password(request, user_email):
                     'name': 'EMAIL',
                     'content': user_email
                 },
+                {
+                    'name': 'TOKEN',
+                    'content': str(token)
+                }
             ],
             user_email
         )
@@ -1310,7 +1318,6 @@ def process_reset_password(request, user_email):
         # mark the verification record as verified
         token_record.is_verified = True
         token_record.save()
-
 
         if user.has_usable_password():
             logger.info('verified user %s, allow password reset', user_email)
