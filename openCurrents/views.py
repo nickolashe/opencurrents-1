@@ -284,7 +284,10 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(ProfileView, self).get_context_data(**kwargs)
-
+        org_name = Org.objects.get(id=context['orgid']).name
+        context['orgname'] = org_name
+        print("-------")
+        print(context)
         userid = self.request.user.id
         verified_times = UserTimeLog.objects.filter(
             user_id=userid
@@ -398,9 +401,13 @@ class BlogView(TemplateView):
 
 
 class CreateEventView(LoginRequiredMixin, SessionContextView, FormView):
-    template_name = 'create-project.html'
+    template_name = 'create-event.html'
     form_class = ProjectCreateForm
+<<<<<<< HEAD
     success_url = '/invite-volunteers/'
+=======
+    success_url = '/event-created/'
+>>>>>>> 1103f5a0a6f6cfa5977f46f599a681edd444b9cc
 
     def _create_event(self, location, form_data):
         if not self.project:
@@ -459,11 +466,15 @@ class CreateEventView(LoginRequiredMixin, SessionContextView, FormView):
         # create an event for each location
         event_ids = map(lambda loc: self._create_event(loc, data), locations)
 
+<<<<<<< HEAD
         return redirect(
             'openCurrents:invite-volunteers',
             project=self.project.name,
             num_events=len(event_ids)
         )
+=======
+        return redirect('openCurrents:invite-volunteers')
+>>>>>>> 1103f5a0a6f6cfa5977f46f599a681edd444b9cc
 
     def get_context_data(self, **kwargs):
         context = super(CreateEventView, self).get_context_data()
@@ -1057,10 +1068,7 @@ def process_login(request):
         )
         if user is not None and user.is_active:
             login(request, user)
-            if user.org_set.exists():
-                return redirect('openCurrents:admin-profile')
-            else:
-                return redirect('openCurrents:profile')
+            return redirect('openCurrents:profile')
         else:
             return redirect('openCurrents:login', status_msg='Invalid login/password')
     else:
