@@ -71,6 +71,7 @@
               </a>
 
               <p id="vol-error" class="small-text hidden alert">Name and email required</p>
+              <p id="email-error" class="small-text hidden alert">Invalid email address</p>
             </div>
           </div>
         </form>
@@ -190,8 +191,12 @@
         $("#add-volunteer").click(function(event){
           if ($('#new-firstname').val() == '' || $('#new-lastname').val() == '' || $('#new-email').val() == '') {
             $('#vol-error').slideDown();
+          } else if ( !(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test($('#new-email').val() ))  ) {
+            $('#vol-error').slideUp();
+            $('#email-error').slideDown();
           } else {
             $('#vol-error').slideUp();
+            $('#email-error').slideUp();
 
             let new_firstname = $('#new-firstname').val();
             let new_lastname = $('#new-lastname').val();
