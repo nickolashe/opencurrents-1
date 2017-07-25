@@ -17,8 +17,8 @@
             <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="fit-left round" />
             <span class="input-sizer"> -->
               <h5 class="one-margin-top no-margin-bottom">{{ user.first_name }} {{ user.last_name }}</h5>
-              <h6 class="inline half-margin-right">openCurrents</h6>
-              <a class="button baseline round secondary tiny">Manage org</a>
+              <h6 class="inline half-margin-right">{{orgname}}</h6>
+              <a href="{% url 'openCurrents:admin-profile' %}" class="button baseline round secondary tiny">Manage org</a>
             <!-- </span> -->
           </div>
 
@@ -37,7 +37,7 @@
           <div class="columns">
             <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="round" /> -->
             <h5 class="half-margin-top no-margin-bottom">{{ user.first_name }} {{ user.last_name }}</h5>
-            <h6>openCurrents</h6>
+            <h6>{{orgname}}</h6>
             <a class="button round secondary tiny">Manage org</a>
 
             <div class="half-margin-top">
