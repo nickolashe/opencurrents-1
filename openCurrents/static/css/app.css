@@ -448,6 +448,10 @@ label {
   margin-top: 3rem;
 }
 
+.two-line-height {
+   line-height: 2rem;
+}
+
 .white {
   color: #ffffff;
 }

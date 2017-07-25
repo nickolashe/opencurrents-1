@@ -18,12 +18,14 @@
             <span class="input-sizer"> -->
               <h5 class="one-margin-top no-margin-bottom">{{ user.first_name }} {{ user.last_name }}</h5>
               <h6>{{org_name}}</h6>
+              <a href="{% url 'openCurrents:invite-volunteers' %}" class="button secondary tiny round">Invite volunteers</a>
             <!-- </span> -->
           </div>
 
           <div class="one-margin-top right medium-4 large-3 columns end">
-            <h6 class="no-margin-bottom">My hours tracked: [ my_total ]</h6>
+            <h6 class="no-margin-bottom two-line-height">My hours tracked: [my]</h6>
             <h6>Org hours tracked: {{ issued_total }}</h6>
+            <a href="{% url 'openCurrents:create-event' orgid %}" class="button round tiny">Create event</a>
           </div>
         </div>
 
@@ -36,13 +38,14 @@
             <div class="half-margin-top">
               <h6 class="no-margin-bottom">My hours tracked: [ my_total ]</h6>
               <h6>Org hours tracked: {{ issued_total }}</h6>
+              <a href="{% url 'openCurrents:create-event' orgid %}" class="button round tiny">Create event</a>
             </div>
           </div>
         </div>
 
         <div class="row full-width collapse">
           <div class="columns">
-            <a href="{% url 'openCurrents:create-event' orgid %}" class="button round small">Create event</a>
+            
           </div>
         </div>
 
