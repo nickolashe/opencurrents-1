@@ -34,6 +34,8 @@
             <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="round" /> -->
             <h5 class="half-margin-top no-margin-bottom">{{ user.first_name }} {{ user.last_name }}</h5>
             <h6>{{org_name}}</h6>
+            <a href="{% url 'openCurrents:create-event' orgid %}" class="button round tiny">Create event</a>
+            <a href="{% url 'openCurrents:invite-volunteers' %}" class="button secondary tiny round">Invite volunteers</a>
 
             <div class="half-margin-top">
               <h6 class="no-margin-bottom">My hours tracked: [ my_total ]</h6>

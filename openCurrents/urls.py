@@ -60,11 +60,19 @@ urlpatterns = [
     url(r'^blog$', views.BlogView.as_view(), name='blog'),
     url(r'^marketplace$', views.MarketplaceView.as_view(), name='marketplace'),
     url(r'^create-event/(?P<orgid>\d+)/$', views.CreateEventView.as_view(), name='create-event'),
+<<<<<<< HEAD
     url(r'^edit-project$', views.EditProjectView.as_view(), name='edit-project'),
     url(r'^project-details$', views.ProjectDetailsView.as_view(), name='project-details'),
     url(r'^invite-volunteers$', views.InviteVolunteersView.as_view(), name='invite-volunteers'),
     url(r'^volunteers-invited$', views.VolunteersInvitedView.as_view(), name='volunteers-invited'),
     url(r'^event-created$', views.EventCreatedView.as_view(), name='event-created'),
+=======
+    url(r'^edit-event$', views.EditEventView.as_view(), name='edit-event'),
+    url(r'^project-details$', views.ProjectDetailsView.as_view(), name='project-details'),
+    url(r'^invite-volunteers$', views.InviteVolunteersView.as_view(), name='invite-volunteers'),
+    url(r'^volunteers-invited$', views.VolunteersInvitedView.as_view(), name='volunteers-invited'),
+    url(r'^event-created/(?P<project>\w+)/(?P<num_events>\d+)/$', views.EventCreatedView.as_view(), name='event-created'),
+>>>>>>> 807a86965a68f9edd96b5d099c09943d84b35b5e
     url(r'^live-dashboard/(?P<event_id>\d+)/$',
         views.LiveDashboardView.as_view(), name='live-dashboard'),
     url(r'^upcoming-events$', views.UpcomingEventsView.as_view(), name='upcoming-events'),
