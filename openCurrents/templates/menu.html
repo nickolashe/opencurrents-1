@@ -4,21 +4,10 @@
     Home
   </a> -->
 
-  {% if orgid %}
-
-  <a class="list-group-item" href="{% url 'openCurrents:admin-profile' %}">
-    <i class="half-margin-right fa-fw fa fa-user"></i>
-    Profile
-  </a>
-
-  {% else %}
-
   <a class="list-group-item" href="{% url 'openCurrents:profile' %}">
     <i class="half-margin-right fa-fw fa fa-user"></i>
     Profile
   </a>
-
-  {% endif %}
 
 <!--  <a class="list-group-item" href="{% url 'openCurrents:send-currents' %}">
     <i class="half-margin-right fa-fw fa fa-long-arrow-right"></i>
