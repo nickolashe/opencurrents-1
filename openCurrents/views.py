@@ -278,10 +278,11 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(ProfileView, self).get_context_data(**kwargs)
-        org_name = Org.objects.get(id=context['orgid']).name
-        context['orgname'] = org_name
-        print("-------")
-        print(context)
+        try:
+            org_name = Org.objects.get(id=context['orgid']).name
+            context['orgname'] = org_name
+        except:
+            pass
         userid = self.request.user.id
         verified_times = UserTimeLog.objects.filter(
             user_id=userid
