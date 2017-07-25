@@ -17,11 +17,6 @@ class Migration(migrations.Migration):
             options={'get_latest_by': 'date_created'},
         ),
         migrations.AddField(
-            model_name='account',
-            name='monthly_updates',
-            field=models.BooleanField(default=False),
-        ),
-        migrations.AddField(
             model_name='event',
             name='event_type',
             field=models.CharField(choices=[('MN', 'ManualTracking'), ('GR', 'Group')], default='GR', max_length=2),
