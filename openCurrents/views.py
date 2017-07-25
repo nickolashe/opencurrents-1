@@ -292,16 +292,17 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         for timelog in verified_times:
             if not timelog.event.id in event_user:
                 event_user.add(timelog.event.id)
+                issued_total += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
 
-                if timelog.datetime_end and timelog.datetime_end < timelog.event.datetime_end + timedelta(hours=1):
-                    # users checked within 1 hour after the event
-                    issued_total += (timelog.datetime_end - timelog.datetime_start).total_seconds() / 3600
-                elif timelog.datetime_start <= timelog.event.datetime_end:
-                    # users that have not been checked out, use event end time
-                    issued_total += (timelog.event.datetime_end - timelog.datetime_start).total_seconds() / 3600
-                else:
-                    # if users post-added, use the event duration
-                    issued_total += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
+                # if timelog.datetime_end and timelog.datetime_end < timelog.event.datetime_end + timedelta(hours=1):
+                #     # users checked within 1 hour after the event
+                #     issued_total += (timelog.datetime_end - timelog.datetime_start).total_seconds() / 3600
+                # elif timelog.datetime_start <= timelog.event.datetime_end:
+                #     # users that have not been checked out, use event end time
+                #     issued_total += (timelog.event.datetime_end - timelog.datetime_start).total_seconds() / 3600
+                # else:
+                #     # if users post-added, use the event duration
+                #     issued_total += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
             else:
                 #logger.debug('user %d already counted, skipping', timelog.user.id)
                 pass
@@ -347,16 +348,17 @@ class AdminProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         for timelog in verified_time:
             if not timelog.user.id in org_event_user[timelog.event.id]:
                 org_event_user[timelog.event.id].add(timelog.user.id)
+                issued_total += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
 
-                if timelog.datetime_end and timelog.datetime_end < timelog.event.datetime_end + timedelta(hours=1):
-                    # users checked within 1 hour after the event
-                    issued_total += (timelog.datetime_end - timelog.datetime_start).total_seconds() / 3600
-                elif timelog.datetime_start <= timelog.event.datetime_end:
-                    # users that have not been checked out, use event end time
-                    issued_total += (timelog.event.datetime_end - timelog.datetime_start).total_seconds() / 3600
-                else:
-                    # if users post-added, use the event duration
-                    issued_total += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
+                # if timelog.datetime_end and timelog.datetime_end < timelog.event.datetime_end + timedelta(hours=1):
+                #     # users checked within 1 hour after the event
+                #     issued_total += (timelog.datetime_end - timelog.datetime_start).total_seconds() / 3600
+                # elif timelog.datetime_start <= timelog.event.datetime_end:
+                #     # users that have not been checked out, use event end time
+                #     issued_total += (timelog.event.datetime_end - timelog.datetime_start).total_seconds() / 3600
+                # else:
+                #     # if users post-added, use the event duration
+                #     issued_total += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
             else:
                 #logger.info('user %d already counted, skipping', timelog.user.id)
                 pass
