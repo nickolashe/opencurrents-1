@@ -522,8 +522,28 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
             if post_data['bulk-vol'].encode('ascii','ignore') == '':
                 if post_data['vol-email-'+str(i+1)] != '':
                     k.append({"email":post_data['vol-email-'+str(i+1)],"type":"to"})
+                    try:
+                        user = User(
+                            username=post_data['vol-email-'+str(i+1)],
+                            email=post_data['vol-email-'+str(i+1)],
+                            #first_name=user_firstname,
+                            #last_name=user_lastname
+                        )
+                        user.save()
+                    except Exception as e:
+                        print(e)
             elif post_data['bulk-vol'] != '':
                 k.append({"email":bulk_list[i].strip(),"type":"to"})
+                try:
+                    user = User(
+                        username=user_email,
+                        email=user_email,
+                        #first_name=user_firstname,
+                        #last_name=user_lastname
+                    )
+                    user.save()
+                except:
+                    pass
         try:
                 sendBulkEmail(
                     'invite-volunteer',
@@ -935,17 +955,53 @@ def process_signup(request, referrer=None, endpoint=False, verify_email=True):
             logger.info('user %s already exists', user_email)
 
             user = User.objects.get(email=user_email)
-            if endpoint:
-                return HttpResponse(user.id, status=200)
+            try:
+                if user.first_name=='' or user.last_name=='':
+                    user.first_name = user_firstname
+                    user.last_name = user_lastname
+                    user.save()
+                    if verify_email:
+                        logger.info('Email verification requested')
 
-            if user.has_usable_password():
-                logger.info('user %s already verified', user_email)
-                return redirect(
-                    'openCurrents:signup',
-                    status_msg='User with this email already exists'
-                )
-            else:
-                logger.info('user %s has not been verified', user_email)
+                        # generate and save token
+                        token = uuid.uuid4()
+                        one_week_from_now = datetime.now() + timedelta(days=7)
+
+                        token_record = Token(
+                            email=user_email,
+                            token=token,
+                            token_type='signup',
+                            date_expires=one_week_from_now
+                        )
+
+                        if referrer:
+                            try:
+                                token_record.referrer = User.objects.get(username=referrer)
+                            except Exception as e:
+                                error_msg = 'unable to locate / assign referrer: %s (%s)'
+                                logger.error(error_msg, e.message, type(e))
+                        else:
+                            logger.info('no referrer provided')
+
+                        token_record.save()
+                        return redirect(
+                            'openCurrents:confirm-account',
+                            email=user_email,
+                            token=token,
+                            #status_msg=errors[0]
+                        )
+            except:
+                if endpoint:
+                    return HttpResponse(user.id, status=200)
+
+                if user.has_usable_password():
+                    logger.info('user %s already verified', user_email)
+                    return redirect(
+                        'openCurrents:signup',
+                        status_msg='User with this email already exists'
+                    )
+                else:
+                    logger.info('user %s has not been verified', user_email)
 
         # user org
         if org_name:
