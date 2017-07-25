@@ -64,7 +64,7 @@ urlpatterns = [
     url(r'^project-details$', views.ProjectDetailsView.as_view(), name='project-details'),
     url(r'^invite-volunteers$', views.InviteVolunteersView.as_view(), name='invite-volunteers'),
     url(r'^volunteers-invited$', views.VolunteersInvitedView.as_view(), name='volunteers-invited'),
-    url(r'^project-created$', views.ProjectCreatedView.as_view(), name='project-created'),
+    url(r'^project-created/(?P<project>\w+)/(?P<num_events>\d+)/$', views.ProjectCreatedView.as_view(), name='project-created'),
     url(r'^live-dashboard/(?P<event_id>\d+)/$',
         views.LiveDashboardView.as_view(), name='live-dashboard'),
     url(r'^upcoming-events$', views.UpcomingEventsView.as_view(), name='upcoming-events'),

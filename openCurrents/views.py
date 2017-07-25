@@ -394,7 +394,7 @@ class CreateProjectView(LoginRequiredMixin, SessionContextView, FormView):
     form_class = ProjectCreateForm
     success_url = '/project-created/'
 
-    def create_event(self, location, form_data):
+    def _create_event(self, location, form_data):
         if not self.project:
             project = Project(
                 org=Org.objects.get(id=self.orgid),
@@ -414,16 +414,32 @@ class CreateProjectView(LoginRequiredMixin, SessionContextView, FormView):
         )
         event.save()
 
+        return event.id
+
+    def _get_project_names(self):
+        context = super(CreateProjectView, self).get_context_data()
+
+        # obtain orgid from the session context (provided by SessionContextView)
+        orgid = context['orgid']
+        self.orgid = orgid
+
+        projects = Project.objects.filter(
+            org__id=self.orgid
+        )
+        project_names = [project.name for project in projects]
+
+        return project_names
+
     def form_valid(self, form):
-        # This method is called when valid form data has been POSTed.
-        # It should return an HttpResponse.
+        project_names = self._get_project_names()
+
         locations = [
             val
             for (key, val) in self.request.POST.iteritems()
             if 'event-location' in key
         ]
         data = form.cleaned_data
-        if data['project_name'] in self.project_names:
+        if data['project_name'] in project_names:
             logger.info('event found')
             self.project = Project.objects.get(
                 org__id=self.orgid,
@@ -433,29 +449,21 @@ class CreateProjectView(LoginRequiredMixin, SessionContextView, FormView):
             self.project = None
 
         # create an event for each location
-        map(lambda loc: self.create_event(loc, data), locations)
+        event_ids = map(lambda loc: self._create_event(loc, data), locations)
 
-        return redirect('openCurrents:project-created')
+        return redirect(
+            'openCurrents:project-created',
+            project=self.project.name,
+            num_events=len(event_ids)
+        )
 
     def get_context_data(self, **kwargs):
-        context = super(CreateProjectView, self).get_context_data(**kwargs)
+        context = super(CreateProjectView, self).get_context_data()
 
-        # obtain orgid from the session context (provided by SessionContextView)
-        orgid = context['orgid']
-        self.orgid = orgid
-
-        # context::project_names
-        projects = Project.objects.filter(
-            org__id=orgid
-        )
-        project_names = [
-            project.name
-            for project in projects
-        ]
+        # context::project_names (for autocompleting the project name field)
+        project_names = self._get_project_names()
 
         context['project_names'] = mark_safe(json.dumps(project_names))
-        self.project_names = project_names
-        logger.info(project_names)
 
         return context
 
@@ -664,17 +672,17 @@ def event_register(request, pk):
         user = request.user
         event = Event.objects.get(id=pk)
         message = form.cleaned_data['contact_message']
-        
+
         #check for existing registration
         event_records = UserEventRegistration.objects.filter(user__id=user.id, event__id=event.id, is_confirmed=True).exists()
-        
+
         user_event_registration = UserEventRegistration(
             user=user,
             event=event,
             is_confirmed=True
         )
         user_event_registration.save()
-  
+
 
         # if the volunteer entered an optional contact message, send to project coordinator
         if (message != ""):
