@@ -157,7 +157,7 @@ class Event(models.Model):
         default=GROUP
     )
 
-    is_public = models.BooleanField(default=True)
+    is_public = models.BooleanField(default=False)
 
     # start / end timestamps of the project
     datetime_start = models.DateTimeField('start datetime')
@@ -220,7 +220,7 @@ class UserTimeLog(models.Model):
     datetime_start = models.DateTimeField('start time')
     datetime_end = models.DateTimeField('end time', null=True, blank=True)
 
-    datetime_duration = models.CharField(max_length=20, default='00:00:00')
+    datetime_duration = models.DecimalField(max_digits=12, decimal_places=2, default=0.0)
 
     # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)
