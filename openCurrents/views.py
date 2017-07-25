@@ -403,11 +403,7 @@ class BlogView(TemplateView):
 class CreateEventView(LoginRequiredMixin, SessionContextView, FormView):
     template_name = 'create-event.html'
     form_class = ProjectCreateForm
-<<<<<<< HEAD
     success_url = '/invite-volunteers/'
-=======
-    success_url = '/event-created/'
->>>>>>> 1103f5a0a6f6cfa5977f46f599a681edd444b9cc
 
     def _create_event(self, location, form_data):
         if not self.project:
@@ -466,15 +462,7 @@ class CreateEventView(LoginRequiredMixin, SessionContextView, FormView):
         # create an event for each location
         event_ids = map(lambda loc: self._create_event(loc, data), locations)
 
-<<<<<<< HEAD
-        return redirect(
-            'openCurrents:invite-volunteers',
-            project=self.project.name,
-            num_events=len(event_ids)
-        )
-=======
         return redirect('openCurrents:invite-volunteers')
->>>>>>> 1103f5a0a6f6cfa5977f46f599a681edd444b9cc
 
     def get_context_data(self, **kwargs):
         context = super(CreateEventView, self).get_context_data()
