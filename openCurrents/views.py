@@ -477,7 +477,7 @@ class CreateEventView(LoginRequiredMixin, SessionContextView, FormView):
 
 class EditEventView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'edit-event.html'
-    
+
     def get_context_data(self, **kwargs):
         #get the event id from admin-profile page and fetch the data need for the UI
         context = super(EditEventView, self).get_context_data(**kwargs)
@@ -525,7 +525,7 @@ class EditEventView(LoginRequiredMixin, SessionContextView, TemplateView):
                                 'content': self.request.user.last_name
                             },
                             {
-                                'name': 'EVENT_NAME',
+                                'name': 'EVENT_TITLE',
                                 'content': str(post_data['project-name'])
                             },
                             {
@@ -549,7 +549,7 @@ class EditEventView(LoginRequiredMixin, SessionContextView, TemplateView):
                                 'content': str(post_data['project-end'])
                             },
                             {
-                                'name': 'NAME',
+                                'name': 'TITLE',
                                 'content': int(edit_event.project.name != str(post_data['project-name']))
                             },
                             {
@@ -560,6 +560,10 @@ class EditEventView(LoginRequiredMixin, SessionContextView, TemplateView):
                                 'name':'TIME',
                                 'content': int(edit_event.datetime_start.time().replace(tzinfo=utc) !=\
                                     datetime.strptime(str(post_data['project-start']),'%H:%M%p').time().replace(tzinfo=utc))
+                            },
+                            {
+                                'name': 'EVENT_ID',
+                                'content': event_id
                             }
 
                         ],
