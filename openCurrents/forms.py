@@ -53,6 +53,14 @@ class VolunteerCheckinField(forms.Field):
             raise ValidationError(_('Invalid checkin input'))
 
 
+#class UserResendForm(forms.Form):
+#     user_email = forms.EmailField(
+#        widget=forms.EmailInput(attrs={
+#            'id': 'email',
+#            'placeholder': 'Email'
+#        })
+#    )
+
 class UserSignupForm(forms.Form):
     user_firstname = forms.CharField(
         widget=forms.TextInput(attrs={
@@ -230,6 +238,82 @@ class EventRegisterForm(forms.Form):
         }),
         max_length=16384
     )
+
+
+class TrackVolunteerHours(forms.Form):
+
+    choices_init = [("select_org","Select organization")]
+    choices = [
+        (org.id, org.name)
+        for org in Org.objects.all().order_by('name')
+    ]
+    choices = choices_init + choices
+    org = forms.ChoiceField(
+        choices=choices,
+        widget=forms.Select(attrs={
+            'id': 'id_org_choice'
+        })
+    )
+
+    description = forms.CharField(
+        widget=forms.TextInput(attrs={
+            #'rows': '1',
+            'class': 'center large-text',
+            'placeholder': 'Description of work'
+        })
+    )
+    date_start = forms.CharField(
+        #label='on',
+        label = 'Date',
+        widget=forms.TextInput(attrs={
+            'id': 'volunteer-date',
+            'name':'volunteer-date',
+            'placeholder': 'yyyy-mm-dd'
+        })
+    )
+    time_start = forms.CharField(
+        #label='from',
+        label = 'Start time',
+        widget=forms.TextInput(attrs={
+            'id': 'start-time',
+            'name':'',
+            'value': '12:00:00'
+        })
+    )
+    time_end = forms.CharField(
+        #label='to',
+        label = 'End time',
+        widget=forms.TextInput(attrs={
+            'id': 'end-time',
+            'name':'',
+            'value': '12:00:00'
+        })
+    )
+
+    def clean(self):
+        cleaned_data = super(TrackVolunteerHours, self).clean()
+        date_start = cleaned_data['date_start']
+        time_start = cleaned_data['time_start']
+        time_end = cleaned_data['time_end']
+        self.org = Org.objects.get(id=cleaned_data['org'])
+        tz = self.org.timezone
+
+        datetime_start = datetime.strptime(
+            ' '.join([date_start, time_start]),
+            '%Y-%m-%d %I:%M%p'
+        )
+        cleaned_data['datetime_start'] = pytz.timezone(tz).localize(datetime_start)
+
+        datetime_end = datetime.strptime(
+            ' '.join([date_start, time_end]),
+            '%Y-%m-%d %I:%M%p'
+        )
+        cleaned_data['datetime_end'] = pytz.timezone(tz).localize(datetime_end)
+
+        if cleaned_data['datetime_start'] > cleaned_data['datetime_end']:
+            raise ValidationError(_('Start time needs to occur before End time'))
+
+        return cleaned_data
 
 
 class EventCheckinForm(forms.Form):

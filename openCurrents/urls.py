@@ -9,10 +9,13 @@ urlpatterns = [
     url(r'^home/(?P<referrer>[\w\.@\+\-]*)/(?P<status_msg>.*)/$',
         views.HomeView.as_view(), name='home'),
     url(r'^invite/(?P<referrer>[\w\.@\+\-]*)$', views.HomeView.as_view(), name='invite'),
-    url(r'^check-email/(?P<email>[\w\.@\+\-]+)/$', views.CheckEmailView.as_view(), name='check-email'),
+    url(r'^check-email/(?P<user_email>[\w\.@\+\-]+)/$', views.CheckEmailView.as_view(), name='check-email'),
+    url(r'^check-email/(?P<user_email>[\w\.@\+\-]+)/(?P<status>.*)/$', views.CheckEmailView.as_view(), name='check-email'),
     url(r'^confirm-account/(?P<email>[\w\.@\+\-]+)/$',
         views.ConfirmAccountView.as_view(), name='confirm-account'),
     url(r'^confirm-account/(?P<email>[\w\.@\+\-]+)/(?P<token>\w{8}-\w{4}-\w{4}-\w{4}-\w{12})/$',
+        views.ConfirmAccountView.as_view(), name='confirm-account'),
+    url(r'^confirm-account/(?P<email>[\w\.@\+\-]+)/(?P<token>\w{8}-\w{4}-\w{4}-\w{4}-\w{12})/(?P<status_msg>.*)/$',
         views.ConfirmAccountView.as_view(), name='confirm-account'),
     url(r'^confirm-account/(?P<email>[\w\.@\+\-]+)/(?P<status_msg>.*)/$',
         views.ConfirmAccountView.as_view(), name='confirm-account'),
@@ -61,7 +64,7 @@ urlpatterns = [
     url(r'^project-details$', views.ProjectDetailsView.as_view(), name='project-details'),
     url(r'^invite-volunteers$', views.InviteVolunteersView.as_view(), name='invite-volunteers'),
     url(r'^volunteers-invited$', views.VolunteersInvitedView.as_view(), name='volunteers-invited'),
-    url(r'^project-created$', views.ProjectCreatedView.as_view(), name='project-created'),
+    url(r'^project-created/(?P<project>\w+)/(?P<num_events>\d+)/$', views.ProjectCreatedView.as_view(), name='project-created'),
     url(r'^live-dashboard/(?P<event_id>\d+)/$',
         views.LiveDashboardView.as_view(), name='live-dashboard'),
     url(r'^upcoming-events$', views.UpcomingEventsView.as_view(), name='upcoming-events'),
@@ -82,6 +85,7 @@ urlpatterns = [
     url(r'^event_checkin/(?P<pk>\d+)/$', views.event_checkin, name='event_checkin'),
     url(r'^process_login/$', views.process_login, name='process_login'),
     url(r'^process_logout/$', views.process_logout, name='process_logout'),
+    url(r'^process_resend/(?P<user_email>[\w\.@\+\-]+)/$', views.process_resend, name='process_resend'),
     url(r'^process_signup/(?P<referrer>[\w\.@\+\-]*)$',
         views.process_signup, name='process_signup'),
     url(r'^process_signup/(?P<endpoint>(True|False))/$',
@@ -90,7 +94,7 @@ urlpatterns = [
         views.process_signup, name='process_signup'),
     url(r'^process_email_confirmation/(?P<user_email>[\w\.@\+\-]+)/$',
         views.process_email_confirmation, name='process_email_confirmation'),
-    url(r'^process_org_signup/$', views.process_org_signup, name='process_org_signup')
+    url(r'^process_org_signup/$', views.process_org_signup, name='process_org_signup'),
 ]
 
 #handler404 = 'openCurrents.views.return_404'

@@ -1,5 +1,4 @@
 #Install instructions for the Mac
-#tgodwin
 + Install XCode (to get gcc compiler, done through appstore)
 + Upgrade mac os from 10.10.5 -> 10.12.3 (Sierra), 10.11.x required
 + <del>Used this to install [Python](http://docs.python-guide.org/en/latest/starting/install3/osx/)</del> Not needed as Mac comes default with Python 2.7 which we currently use for oc work

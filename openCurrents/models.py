@@ -99,6 +99,43 @@ class Project(models.Model):
             self.org.name
         ])
 
+'''
+class ManualTracking(models.Model):
+    project = models.ForeignKey(Project)
+    description = models.CharField(max_length=8192)
+    #location = models.CharField(max_length=1024)
+
+    # coordinator contact info
+    #coordinator_firstname = models.CharField(max_length=128)
+    #coordinator_email = models.EmailField()
+
+    # start / end timestamps of the project
+    datetime_start = models.DateTimeField('start datetime')
+    datetime_end = models.DateTimeField('end datetime')
+
+    # created / updated timestamps
+    date_created = models.DateTimeField('date created', auto_now_add=True)
+    date_updated = models.DateTimeField('date updated', auto_now=True)
+
+    class Meta:
+        get_latest_by = 'datetime_start'
+        ordering = ['datetime_start']
+
+    def __unicode__(self):
+        tz = self.project.org.timezone
+        return ' '.join([
+            'Event',
+            self.project.name,
+            'by',
+            self.project.org.name,
+            'on',
+            self.datetime_start.astimezone(pytz.timezone(tz)).strftime('%b %d'),
+            'from',
+            self.datetime_start.astimezone(pytz.timezone(tz)).strftime('%-I:%m %p'),
+            'to',
+            self.datetime_end.astimezone(pytz.timezone(tz)).strftime('%-I:%m %p')
+        ])
+'''
 
 class Event(models.Model):
     project = models.ForeignKey(Project)
@@ -108,6 +145,17 @@ class Event(models.Model):
     # coordinator contact info
     coordinator_firstname = models.CharField(max_length=128)
     coordinator_email = models.EmailField()
+    MANUAL = 'MN'
+    GROUP = 'GR'
+    event_type_choices = (
+        (MANUAL, 'ManualTracking'),
+        (GROUP, 'Group'),
+    )
+    event_type = models.CharField(
+        max_length=2,
+        choices=event_type_choices,
+        default=GROUP
+    )
 
     # start / end timestamps of the project
     datetime_start = models.DateTimeField('start datetime')
@@ -133,9 +181,9 @@ class Event(models.Model):
             'on',
             self.datetime_start.astimezone(pytz.timezone(tz)).strftime('%b %d'),
             'from',
-            self.datetime_start.astimezone(pytz.timezone(tz)).strftime('%-I:%m %p'),
+            self.datetime_start.astimezone(pytz.timezone(tz)).strftime('%-I:%M %p'),
             'to',
-            self.datetime_end.astimezone(pytz.timezone(tz)).strftime('%-I:%m %p')
+            self.datetime_end.astimezone(pytz.timezone(tz)).strftime('%-I:%M %p')
         ])
 
 
@@ -218,6 +266,9 @@ class Token(models.Model):
     # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)
     date_updated = models.DateTimeField('date updated', auto_now=True)
+
+    class Meta:
+        get_latest_by = 'date_created'
 
     def __unicode__(self):
         return ' '.join([
