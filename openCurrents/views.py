@@ -621,18 +621,15 @@ def event_checkin(request, pk):
         )
 
         if checkin:
-            # award admin/coordinator currents on checkin only if not already awarded
-            if not event.admin_awarded:
-                admin = User.objects.get(id=request.user.id)
-                account = Account.objects.get(user__id=admin.id)
-                event.admin_awarded = True
-                event.save()
-
-                hours = decimal.Decimal(diffInHours(event.datetime_start,event.datetime_end))
-                account.amount += hours
-                account.save()
-
-                logger.info('Awarded admin %s hours: %s currents for event id: %s', admin, hours, pk)
+            # create admin/coordinator UserTimeLog on checkin only if not already done
+            if not UserTimeLog.objects.filter(event__id=event.id, user__id=request.user.id):
+                usertimelog = UserTimeLog(
+                    user=User.objects.get(id=request.user.id),
+                    event=event,
+                    datetime_start=datetime.now(tz=pytz.UTC)
+                )
+                usertimelog.save()
+    
 
             usertimelog = UserTimeLog(
                 user=User.objects.get(id=userid),

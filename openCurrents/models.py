@@ -151,7 +151,6 @@ class Event(models.Model):
         (MANUAL, 'ManualTracking'),
         (GROUP, 'Group'),
     )
-    admin_awarded = models.BooleanField(default=False)
 
     event_type = models.CharField(
         max_length=2,
