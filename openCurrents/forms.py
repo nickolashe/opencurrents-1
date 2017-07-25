@@ -110,6 +110,7 @@ class EmailVerificationForm(forms.Form):
 class PasswordResetForm(forms.Form):
     new_password = forms.CharField(min_length=8)
     new_password_confirm = forms.CharField(min_length=8)
+    verification_token = forms.UUIDField()
 
     def clean(self):
         cleaned_data = super(PasswordResetForm, self).clean()

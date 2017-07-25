@@ -1208,7 +1208,21 @@ def password_reset_request(request):
             )
 
         if user.has_usable_password():
-            logger.warning('verified user %s, send password reset email', user_email)
+            logger.info('verified user %s, send password reset email', user_email)
+
+            # generate and save token
+            token = uuid.uuid4()
+            one_week_from_now = datetime.now() + timedelta(days=7)
+
+            token_record = Token(
+                email=user_email,
+                token=token,
+                token_type='password',
+                date_expires=one_week_from_now
+            )
+
+            token_record.save()
+
             try:
                 sendTransactionalEmail(
                     'password-email',
@@ -1217,6 +1231,10 @@ def password_reset_request(request):
                         {
                             'name': 'EMAIL',
                             'content': user_email
+                        },
+                        {
+                            'name': 'TOKEN',
+                            'content': str(token)
                         }
                     ],
                     user_email
@@ -1256,7 +1274,7 @@ def process_reset_password(request, user_email):
 
         new_password = form.cleaned_data['new_password']
 
-        # try to locate the verified user object by email
+        # first, try to locate the verified user object by email
         user = None
         try:
             user = User.objects.get(email=user_email)
@@ -1268,8 +1286,34 @@ def process_reset_password(request, user_email):
                 status_msg=error_msg % user_email
             )
 
+
+        # second, make sure the verification token and user email match
+        token_record = None
+        token = form.cleaned_data['verification_token']
+        try:
+            token_record = Token.objects.get(
+                email=user_email,
+                token=token
+            )
+        except Exception:
+            error_msg = 'Invalid verification token for %s'
+            logger.error(error_msg, user_email)
+            return redirect(
+                'openCurrents:signup',
+                status_msg=error_msg % user_email
+            )
+
+        if token_record.is_verified:
+            logger.warning('token for %s has already been verified', user_email)
+            return redirect('openCurrents:profile')
+
+        # mark the verification record as verified
+        token_record.is_verified = True
+        token_record.save()
+
+
         if user.has_usable_password():
-            logger.warning('verified user %s, allow password reset', user_email)
+            logger.info('verified user %s, allow password reset', user_email)
             user.set_password(new_password)
             user.save()
             return redirect('openCurrents:login')
@@ -1280,6 +1324,8 @@ def process_reset_password(request, user_email):
 
     # re-enter valid matching passwords
     else:
+        token = form.cleaned_data['verification_token']
+
         logger.error(
             'Invalid password reset request: %s',
             form.errors.as_data()
@@ -1292,7 +1338,7 @@ def process_reset_password(request, user_email):
             for error in le
         ]
         status_msg=errors[0]
-        return redirect('openCurrents:password-reset', user_email, status_msg )
+        return redirect('openCurrents:reset-password', user_email, token, status_msg )
 
 
 
