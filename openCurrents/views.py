@@ -510,13 +510,15 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
         #print(kwargs)
         user = User.objects.get(id=userid)
         post_data = self.request.POST
-        k = []
-        OrgUsers = OrgUser.objects.filter(user__id=userid)
+        event_create_id = None
         try:
             event_create_id = kwargs.pop('event_id')
         except:
             pass
-        #project = Project.objects.get(org__id=)
+
+        k = []
+
+        OrgUsers = OrgUser.objects.filter(user__id=userid)
         if OrgUsers:
             Organisation = OrgUsers[0].org.name
         if post_data['bulk-vol'].encode('ascii','ignore') == '':
@@ -528,6 +530,7 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
             if post_data['bulk-vol'].encode('ascii','ignore') == '':
                 if post_data['vol-email-'+str(i+1)] != '':
                     k.append({"email":post_data['vol-email-'+str(i+1)],"type":"to"})
+                    user_new = None
                     try:
                         user_new = User(
                             username=post_data['vol-email-'+str(i+1)],
@@ -536,28 +539,24 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
                             #last_name=user_lastname
                         )
                         user_new.save()
-
-                        user_event_registration = UserEventRegistration(
-                            user=user_new,
-                            event=Event.objects.get(id=event_create_id),
-                            is_confirmed=True
-                        )
-                        user_event_registration.save()
                     except Exception as e:
-                        #print(e)
+                        pass
+
+                    if user_new and event_create_id:
                         try:
                             user_event_registration = UserEventRegistration(
-                                user=User.objects.get(username=post_data['vol-email-'+str(i+1)]),
+                                user=user_new,
                                 event=Event.objects.get(id=event_create_id),
                                 is_confirmed=True
                             )
                             user_event_registration.save()
-                        except:
-                            pass
+                        except Exception as e:
+                            logger.error('unable to register user for event')
                 else:
                     no_of_loops -= 1
             elif post_data['bulk-vol'] != '':
                 k.append({"email":bulk_list[i].strip(),"type":"to"})
+                user_new = None
                 try:
                     user_new = User(
                         username=user_email,
@@ -566,22 +565,18 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
                         #last_name=user_lastname
                     )
                     user_new.save()
+                except Exception as e:
+                    pass
 
-                    user_event_registration = UserEventRegistration(
-                        user=user_new,
-                        event=Event.objects.get(event__id=event_create_id),
-                        is_confirmed=True
-                    )
-                    user_event_registration.save()
-                except:
+                if user_new and event_create_id:
                     try:
                         user_event_registration = UserEventRegistration(
-                            user=User.objects.get(username=post_data['vol-email-'+str(i+1)]),
-                            event=Event.objects.get(id=event_create_id),
+                            user=user_new,
+                            event=Event.objects.get(event__id=event_create_id),
                             is_confirmed=True
                         )
                         user_event_registration.save()
-                    except:
+                    except Exception as e:
                         pass
         try:
             event=Event.objects.get(id=event_create_id)
@@ -633,7 +628,6 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
                     type(e)
                 )
         except Exception as e:
-            print(e)
             try:
                     sendBulkEmail(
                         'invite-volunteer',
