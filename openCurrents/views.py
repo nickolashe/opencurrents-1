@@ -1081,7 +1081,7 @@ def process_signup(request, referrer=None, endpoint=False, verify_email=True):
                 if user.has_usable_password():
                     logger.info('user %s already verified', user_email)
                     return redirect(
-                        'openCurrents:signup',
+                        'openCurrents:login',
                         status_msg='User with this email already exists'
                     )
                 else:
