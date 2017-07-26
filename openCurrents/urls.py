@@ -63,6 +63,7 @@ urlpatterns = [
     url(r'^edit-event$', views.EditEventView.as_view(), name='edit-event'),
     url(r'^project-details$', views.ProjectDetailsView.as_view(), name='project-details'),
     url(r'^invite-volunteers$', views.InviteVolunteersView.as_view(), name='invite-volunteers'),
+    url(r'^invite-volunteers/(?P<event_id>\d+)/$', views.InviteVolunteersView.as_view(), name='invite-volunteers'),
     url(r'^volunteers-invited/(?P<vol_no>\d+)/$', views.VolunteersInvitedView.as_view(), name='volunteers-invited'),
     url(r'^event-created/(?P<project>\w+)/(?P<num_events>\d+)/$', views.EventCreatedView.as_view(), name='event-created'),
     url(r'^live-dashboard/(?P<event_id>\d+)/$',

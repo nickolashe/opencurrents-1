@@ -403,7 +403,7 @@ class BlogView(TemplateView):
 class CreateEventView(LoginRequiredMixin, SessionContextView, FormView):
     template_name = 'create-event.html'
     form_class = ProjectCreateForm
-    success_url = '/invite-volunteers/'
+    #success_url = '/invite-volunteers/'
 
     def _create_event(self, location, form_data):
         if not self.project:
@@ -461,8 +461,8 @@ class CreateEventView(LoginRequiredMixin, SessionContextView, FormView):
 
         # create an event for each location
         event_ids = map(lambda loc: self._create_event(loc, data), locations)
-
-        return redirect('openCurrents:invite-volunteers')
+        print(event_ids)
+        return redirect('openCurrents:invite-volunteers',event_ids[0])
 
     def get_context_data(self, **kwargs):
         context = super(CreateEventView, self).get_context_data()
@@ -507,10 +507,16 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
 
     def post(self, request, *args, **kwargs):
         userid = self.request.user.id
+        #print(kwargs)
         user = User.objects.get(id=userid)
         post_data = self.request.POST
         k = []
         OrgUsers = OrgUser.objects.filter(user__id=userid)
+        try:
+            event_create_id = kwargs.pop('event_id')
+        except:
+            pass
+        #project = Project.objects.get(org__id=)
         if OrgUsers:
             Organisation = OrgUsers[0].org.name
         if post_data['bulk-vol'].encode('ascii','ignore') == '':
@@ -523,54 +529,138 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
                 if post_data['vol-email-'+str(i+1)] != '':
                     k.append({"email":post_data['vol-email-'+str(i+1)],"type":"to"})
                     try:
-                        user = User(
+                        user_new = User(
                             username=post_data['vol-email-'+str(i+1)],
-                            email=post_data['vol-email-'+str(i+1)],
+                            email=post_data['vol-email-'+str(i+1)]
                             #first_name=user_firstname,
                             #last_name=user_lastname
                         )
-                        user.save()
+                        user_new.save()
+
+                        user_event_registration = UserEventRegistration(
+                            user=user_new,
+                            event=Event.objects.get(id=event_create_id),
+                            is_confirmed=True
+                        )
+                        user_event_registration.save()
                     except Exception as e:
-                        print(e)
+                        #print(e)
+                        try:
+                            user_event_registration = UserEventRegistration(
+                                user=User.objects.get(username=post_data['vol-email-'+str(i+1)]),
+                                event=Event.objects.get(id=event_create_id),
+                                is_confirmed=True
+                            )
+                            user_event_registration.save()
+                        except:
+                            pass
+                else:
+                    no_of_loops -= 1
             elif post_data['bulk-vol'] != '':
                 k.append({"email":bulk_list[i].strip(),"type":"to"})
                 try:
-                    user = User(
+                    user_new = User(
                         username=user_email,
-                        email=user_email,
+                        email=user_email
                         #first_name=user_firstname,
                         #last_name=user_lastname
                     )
-                    user.save()
+                    user_new.save()
+
+                    user_event_registration = UserEventRegistration(
+                        user=user_new,
+                        event=Event.objects.get(event__id=event_create_id),
+                        is_confirmed=True
+                    )
+                    user_event_registration.save()
                 except:
-                    pass
+                    try:
+                        user_event_registration = UserEventRegistration(
+                            user=User.objects.get(username=post_data['vol-email-'+str(i+1)]),
+                            event=Event.objects.get(id=event_create_id),
+                            is_confirmed=True
+                        )
+                        user_event_registration.save()
+                    except:
+                        pass
         try:
-                sendBulkEmail(
-                    'invite-volunteer',
-                    None,
-                    [
-                        {
-                            'name': 'ADMIN_FIRSTNAME',
-                            'content': user.first_name
-                        },
-                        {
-                            'name': 'ADMIN_LASTNAME',
-                            'content': user.last_name
-                        },
-                        {
-                            'name': 'ORG_NAME',
-                            'content': Organisation
-                        }
-                    ],
-                    k,
-                    user.email
+            event=Event.objects.get(id=event_create_id)
+            try:
+                    sendBulkEmail(
+                        'invite-volunteer-event',
+                        None,
+                        [
+                            {
+                                'name': 'ADMIN_FIRSTNAME',
+                                'content': user.first_name
+                            },
+                            {
+                                'name': 'ADMIN_LASTNAME',
+                                'content': user.last_name
+                            },
+                            {
+                                'name': 'EVENT_TITLE',
+                                'content': event.project.name
+                            },
+                            {
+                                'name': 'ORG_NAME',
+                                'content': Organisation
+                            },
+                            {
+                                'name': 'EVENT_LOCATION',
+                                'content': event.location
+                            },
+                            {
+                                'name': 'EVENT_DATE',
+                                'content': str(event.datetime_start.date())
+                            },
+                            {
+                                'name':'EVENT_START_TIME',
+                                'content': str(event.datetime_start.time())
+                            },
+                            {
+                                'name':'EVENT_END_TIME',
+                                'content': str(event.datetime_end.time())
+                            },
+                        ],
+                        k,
+                        user.email
+                    )
+            except Exception as e:
+                logger.error(
+                    'unable to send email: %s (%s)',
+                    e,
+                    type(e)
                 )
         except Exception as e:
-            logger.error(
-                'unable to send email: %s (%s)',
-                e,
-                type(e)
-            )
+            print(e)
+            try:
+                    sendBulkEmail(
+                        'invite-volunteer',
+                        None,
+                        [
+                            {
+                                'name': 'ADMIN_FIRSTNAME',
+                                'content': user.first_name
+                            },
+                            {
+                                'name': 'ADMIN_LASTNAME',
+                                'content': user.last_name
+                            },
+                            {
+                                'name': 'ORG_NAME',
+                                'content': Organisation
+                            }
+                        ],
+                        k,
+                        user.email
+                    )
+            except Exception as e:
+                logger.error(
+                    'unable to send email: %s (%s)',
+                    e,
+                    type(e)
+                )
         return redirect('openCurrents:volunteers-invited', no_of_loops)
 
 
