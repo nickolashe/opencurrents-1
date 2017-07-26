@@ -140,10 +140,6 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
     context_object_name = 'users'
 
     def get_queryset(self):
-        time_log = OrderedDict()
-        keys = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', 'Total']
-        value = 0
-        items = [(key, value) for key in keys]
         userid = self.request.user.id
         #user = User.objects.get(id=userid)
         org = OrgUser.objects.filter(user__id=userid)
@@ -155,52 +151,69 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
         ).filter(
             event_type='MN'
         )
-        #date_today = datetime.now()
+
+        # event time logs
         last_week = datetime.now() - timedelta(days=7)
-        all_volunteer_data = UserTimeLog.objects.filter(
+        eventtimelogs = UserTimeLog.objects.filter(
             event__in=events
         ).filter(
-            datetime_start__gte = last_week
+            datetime_start__gte=last_week
         ).filter(
             is_verified=False
-        )#all()
-        #print(all_volunteer_data[0].is_verified)
-        for i in all_volunteer_data:
-            if (i.datetime_start.date() == i.datetime_end.date()):
-                #Same day Volunteering
-                if(self.get_hours(str(i.datetime_end - i.datetime_start)) != 0.0):
-                    if str(i.user) not in time_log.keys():
-                        time_log[str(i.user)] = OrderedDict(items)
-                    rounded_time = (math.ceil(self.get_hours(str(i.datetime_end - i.datetime_start)) * 4) / 4)
-                    time_log[str(i.user)][str(i.datetime_start.strftime("%A"))] += rounded_time
-                    time_log[str(i.user)]['Total'] += rounded_time
-            elif not i.is_verified:
-                #Multiple day volunteering
-                #Still working on it
-                day_diff = i.datetime_end - i.datetime_start
-                temp_date = i.datetime_start
-                while temp_date.date() != i.datetime_end.date():
-                    tt = temp_date+timedelta(days=1)
-                    tt = datetime.combine(tt, time.min).replace(tzinfo=None)
-                    tt_diff = tt - temp_date.replace(tzinfo=None)
-                    rounded_time_mdv1 = (math.ceil(self.get_hours(str(tt_diff)) * 4) / 4)
-                    time_log[str(i.user)][str(temp_date.strftime("%A"))] += rounded_time_mdv1
-                    time_log[str(i.user)]['Total'] += rounded_time_mdv1
-                    temp_date = temp_date+timedelta(days=1)
-                    rounded_time_mdv2 = (math.ceil(self.get_hours(str(temp_date.replace(tzinfo=None) - tt)) * 4) / 4)
-                    time_log[str(i.user)][str(temp_date.strftime("%A"))] += rounded_time_mdv2
-                    time_log[str(i.user)]['Total'] += rounded_time_mdv2
+        )
+
+        time_log = OrderedDict()
+        items = {'Total': 0}
+
+        for timelog in eventtimelogs:
+            user_email = timelog.user.email
+
+            # check if same day and duration longer than 15 min
+            if timelog.datetime_start.date() == timelog.datetime_end.date() and timelog.datetime_end - timelog.datetime_start >= timedelta(minutes=15):
+                if user_email not in time_log:
+                    time_log[user_email] = OrderedDict(items)
+
+                # time in hours rounded to nearest 15 min
+                rounded_time = self.get_hours_rounded(timelog.datetime_start, timelog.datetime_end)
+
+                # use day of week and date as key
+                date_key = timelog.datetime_start.strftime('%A, %m/%d')
+                if date_key not in time_log[user_email]:
+                    time_log[user_email][date_key] = 0
+
+                # add the time to the corresponding date_key and total
+                time_log[user_email][date_key] += rounded_time
+                time_log[user_email]['Total'] += rounded_time
             else:
+                # Multiple day volunteering
+                # Still working on it
+                # day_diff = i.datetime_end - i.datetime_start
+                # temp_date = i.datetime_start
+                # while temp_date.date() != i.datetime_end.date():
+                #     tt = temp_date+timedelta(days=1)
+                #     tt = datetime.combine(tt, time.min).replace(tzinfo=None)
+                #     tt_diff = tt - temp_date.replace(tzinfo=None)
+                #     rounded_time_mdv1 = (math.ceil(self.get_hours(str(tt_diff)) * 4) / 4)
+                #     time_log[str(i.user)][str(temp_date.strftime("%A"))] += rounded_time_mdv1
+                #     time_log[str(i.user)]['Total'] += rounded_time_mdv1
+                #     temp_date = temp_date+timedelta(days=1)
+                #     rounded_time_mdv2 = (math.ceil(self.get_hours(str(temp_date.replace(tzinfo=None) - tt)) * 4) / 4)
+                #     time_log[str(i.user)][str(temp_date.strftime("%A"))] += rounded_time_mdv2
+                #     time_log[str(i.user)]['Total'] += rounded_time_mdv2
+
+                # just ignore multi-day requests for now
                 pass
-        temp_time_log = deepcopy(time_log)
-        for i in temp_time_log:
-            if temp_time_log[i]['Total'] == 0:
-                del time_log[i]
+
+        time_log = OrderedDict([
+            (k, time_log[k])
+            for k in time_log
+            if time_log[k]['Total'] > 0
+        ])
         return time_log
 
     def post(self, request):
         post_data = self.request.POST['post-data']
-        templist = post_data.split(",")
+        templist = post_data.split(',')
         templist[:] = [item for item in templist if item != '']
         try:
             for i in templist:
@@ -210,10 +223,10 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
         except:
             return redirect('openCurrents:500')
 
-    def get_hours(self, time_str):
-        h, m, s = time_str.split(':')
-        return float(h) + float(m)/60 + float(s)/3600
-
+    def get_hours_rounded(self, datetime_start, datetime_end):
+        # h, m, s = time_str.split(':')
+        # return float(h) + float(m)/60 + float(s)/3600
+        return math.ceil((datetime_end - datetime_start).total_seconds() / 3600 * 4) / 4
 
 class CausesView(TemplateView):
     template_name = 'causes.html'
@@ -1535,7 +1548,7 @@ def password_reset_request(request):
                     type(e)
                 )
             return redirect('openCurrents:check-email-password', user_email)
-            
+
 
         else:
             logger.warning('user %s has not been verified', user_email)
