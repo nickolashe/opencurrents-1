@@ -472,8 +472,8 @@ class CreateEventView(LoginRequiredMixin, SessionContextView, FormView):
 
         # create an event for each location
         event_ids = map(lambda loc: self._create_event(loc, data), locations)
-        print(event_ids)
-        return redirect('openCurrents:invite-volunteers',event_ids[0])
+        e_ids = "b".join(str(x) for x in event_ids)
+        return redirect('openCurrents:invite-volunteers',e_ids)
 
     def get_context_data(self, **kwargs):
         context = super(CreateEventView, self).get_context_data()
@@ -525,7 +525,7 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
         post_data = self.request.POST
         event_create_id = None
         try:
-            event_create_id = kwargs.pop('event_id')
+            event_create_id = kwargs.pop('event_id').split('b')
         except:
             pass
 
@@ -592,7 +592,9 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
                     except Exception as e:
                         pass
         try:
-            event=Event.objects.get(id=event_create_id)
+            event=Event.objects.get(id=event_create_id[0])
+            events = Event.objects.filter(id__in=event_create_id)
+            loc = [str(i.location).split(',')[0] for i in events]
             try:
                     sendBulkEmail(
                         'invite-volunteer-event',
@@ -616,19 +618,19 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
                             },
                             {
                                 'name': 'EVENT_LOCATION',
-                                'content': event.location
+                                'content': " | ".join(x for x in loc)#event.location
                             },
                             {
                                 'name': 'EVENT_DATE',
-                                'content': str(event.datetime_start.date())
+                                'content': str(event.datetime_start.date().strftime('%d %B %Y'))
                             },
                             {
                                 'name':'EVENT_START_TIME',
-                                'content': str(event.datetime_start.time())
+                                'content': str(event.datetime_start.time().strftime('%I:%M %p'))
                             },
                             {
                                 'name':'EVENT_END_TIME',
-                                'content': str(event.datetime_end.time())
+                                'content': str(event.datetime_end.time().strftime('%I:%M %p'))
                             },
                         ],
                         k,
