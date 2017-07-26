@@ -259,7 +259,11 @@ class Token(models.Model):
     token_type = models.CharField(max_length=20)
 
     # referring user
-    referrer = models.ForeignKey(User, null=True)
+    referrer = models.ForeignKey(
+        User,
+        null=True,
+        on_delete=models.CASCADE        
+    )
 
     # token expiration timestamp
     date_expires = models.DateTimeField(
