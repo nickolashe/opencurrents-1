@@ -482,6 +482,8 @@ class CreateEventView(LoginRequiredMixin, SessionContextView, FormView):
         project_names = self._get_project_names()
 
         context['project_names'] = mark_safe(json.dumps(project_names))
+        context['form'].fields['coordinator_firstname'].widget.attrs['value'] = str(self.request.user.first_name)
+        context['form'].fields['coordinator_email'].widget.attrs['value'] = str(self.request.user.email)
 
         return context
 

@@ -214,10 +214,10 @@ class ProjectCreateForm(forms.Form):
     # )
 
     coordinator_firstname = forms.CharField(
-        widget=forms.TextInput(attrs={'placeholder': 'First name'})
+        widget=forms.TextInput(attrs={'placeholder': 'First name','value':''})
     )
     coordinator_email = forms.CharField(
-        widget=forms.TextInput(attrs={'placeholder': 'Email'})
+        widget=forms.TextInput(attrs={'placeholder': 'Email','value':''})
     )
 
     def clean(self):
