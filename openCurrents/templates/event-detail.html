@@ -50,7 +50,7 @@
 
           <div class="three-halves-margin-top row left">
             <div class="small-10 medium-6 small-centered columns">
-              <h6 class="navy">Project description</h6>
+              <h6 class="navy">Event description</h6>
               <p class="grey"> {{ event.description }}</p>
             </div>
           </div>
@@ -60,12 +60,12 @@
               <h6 class="navy no-margin-bottom">
                 {{ form.contact_message.label }}
               </h6>
-              {{ form.contact_message }}
               {% if form.contact_message.help_text %}
                 <p class="small-text grey no-margin-bottom">
                   ({{ form.contact_message.help_text|safe }})
                 </p>
               {% endif %}
+              {{ form.contact_message }}
             </div>
           </div>
 

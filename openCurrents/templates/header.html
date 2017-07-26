@@ -4,8 +4,10 @@
     <div class="small-10 medium-9 medium-offset-1 columns">
       {% if orgid %}
       <a href="{% url 'openCurrents:admin-profile' %}">
-      {% else %}
+      {% elif request.user.is_authenticated %}
       <a href="{% url 'openCurrents:profile' %}">
+      {% else %}
+      <a>
       {% endif %}
 
       	<img id="header-logo" src="{% static 'img/oc-header-blue2.png' %}" />
