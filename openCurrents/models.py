@@ -46,7 +46,7 @@ class Org(models.Model):
 
 # user-org affiliations
 class OrgUser(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     org = models.ForeignKey(Org)
     affiliation = models.CharField(max_length=50, null=True)
 
@@ -138,7 +138,7 @@ class ManualTracking(models.Model):
 '''
 
 class Event(models.Model):
-    project = models.ForeignKey(Project)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
     description = models.CharField(max_length=8192)
     location = models.CharField(max_length=1024)
 
@@ -195,8 +195,8 @@ class ProjectTemplate(models.Model):
 
 
 class UserEventRegistration(models.Model):
-    user = models.ForeignKey(User)
-    event = models.ForeignKey(Event)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
     is_confirmed = models.BooleanField(default=False)
 
     # created / updated timestamps
@@ -212,8 +212,8 @@ class UserEventRegistration(models.Model):
 
 
 class UserTimeLog(models.Model):
-    user = models.ForeignKey(User)
-    event = models.ForeignKey(Event)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
     is_verified = models.BooleanField(default=True)
 
     # start / end timestamps of the contributed time
