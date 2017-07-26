@@ -16,9 +16,4 @@ class Migration(migrations.Migration):
             name='token',
             options={'get_latest_by': 'date_created'},
         ),
-        migrations.AddField(
-            model_name='event',
-            name='event_type',
-            field=models.CharField(choices=[('MN', 'ManualTracking'), ('GR', 'Group')], default='GR', max_length=2),
-        ),
     ]
