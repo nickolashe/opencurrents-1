@@ -112,8 +112,12 @@
                 <div class="row">
                   <div class="left small-9 columns">
                     <p class="half-margin-top">
-                      {{ user.first_name }}
-                      {{ user.last_name }}
+                      {% if user.first_name %}
+                        {{ user.first_name }}
+                        {{ user.last_name }}
+                      {% else %}
+                        {{user.email}}
+                      {% endif %}
                     </p>
                   </div>
 
