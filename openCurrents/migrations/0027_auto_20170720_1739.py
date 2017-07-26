@@ -20,5 +20,5 @@ class Migration(migrations.Migration):
             model_name='event',
             name='event_type',
             field=models.CharField(choices=[('MN', 'ManualTracking'), ('GR', 'Group')], default='GR', max_length=2),
-        ),
+        )
     ]
