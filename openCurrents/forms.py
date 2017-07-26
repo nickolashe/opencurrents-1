@@ -83,6 +83,9 @@ class UserSignupForm(forms.Form):
     org_name = forms.CharField(required=False, min_length=2)
 
 
+class PasswordResetRequestForm(forms.Form):
+    user_email = forms.CharField(min_length=1)
+
 class UserLoginForm(forms.Form):
     user_email = forms.CharField(min_length=1)
     user_password = forms.CharField(min_length=1)
@@ -101,6 +104,21 @@ class EmailVerificationForm(forms.Form):
         user_password = cleaned_data.get('user_password')
         user_password_confirm = cleaned_data.get('user_password_confirm')
         if user_password and user_password_confirm and user_password != user_password_confirm:
+            raise ValidationError(_('Passwords don\'t match'))
+
+
+class PasswordResetForm(forms.Form):
+    new_password = forms.CharField(min_length=8)
+    new_password_confirm = forms.CharField(min_length=8)
+    verification_token = forms.UUIDField()
+
+    def clean(self):
+        cleaned_data = super(PasswordResetForm, self).clean()
+
+        # check if passwords match
+        new_password = cleaned_data.get('new_password')
+        new_password_confirm = cleaned_data.get('new_password_confirm')
+        if new_password and new_password_confirm and new_password != new_password_confirm:
             raise ValidationError(_('Passwords don\'t match'))
 
 
