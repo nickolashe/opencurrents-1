@@ -43,6 +43,7 @@ import mandrill
 import logging
 import pytz
 import uuid
+import decimal
 
 
 logging.basicConfig(level=logging.DEBUG, filename="log/views.log")
@@ -791,6 +792,7 @@ def event_checkin(request, pk):
         )
 
         if checkin:
+            # create volunteer UserTimeLog
             usertimelog = UserTimeLog(
                 user=User.objects.get(id=userid),
                 event=event,
@@ -801,6 +803,17 @@ def event_checkin(request, pk):
                 'at %s: checkin',
                 str(usertimelog.datetime_start)
             )
+
+            # create admin/coordinator UserTimeLog only if not already done
+            if not UserTimeLog.objects.filter(event__id=event.id, user__id=request.user.id):
+                usertimelog = UserTimeLog(
+                    user=User.objects.get(id=request.user.id),
+                    event=event,
+                    datetime_start=datetime.now(tz=pytz.UTC)
+                )
+                usertimelog.save()
+    
+
             return HttpResponse(status=201)
         else:
             usertimelog = UserTimeLog.objects.filter(
