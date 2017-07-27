@@ -13,29 +13,21 @@
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
 
-          {% if num_events|add:"0" >= 1 and num_vols|add:"0" >= 1 %}
-          <div class="success row one-margin-top">
-            <div class="medium-8 columns small-centered">
-          <!--    You have created events at {{ num_events }} location{{ num_events|pluralize }} and invited {{ num_vols  }} volunteer{{num_vols|pluralize}} to the openCurrents community. Nice!  -->
-              You have created events at {{ num_events }} location{{ num_events|pluralize }} and invited volunteers to the openCurrents community. Nice!
-            </div>
-          </div>
+          {% if num_events or num_vols %}
+            <div class="success row one-margin-top">
+              <div class="medium-8 columns small-centered">
+                {% if num_events|add:"0" >= 1 and num_vols|add:"0" >= 1 %}
+                    You have created events at {{ num_events }} location{{ num_events|pluralize }} and invited {{ num_vols }} volunteer{{ num_vols|pluralize }} to the openCurrents community. Nice!
 
-          {% elif num_events|add:"0" >= 1 and num_vols|add:"0" == 0 %}
-          <div class="success row one-margin-top">
-            <div class="medium-8 columns small-centered">
-              You have created events at {{ num_events }} location{{ num_events|pluralize }}. Nice!
-            </div>
-          </div>
+                {% elif num_events|add:"0" >= 1 and num_vols|add:"0" == 0 %}
+                    You have created events at {{ num_events }} location{{ num_events|pluralize }}. Nice!
 
-          {% elif num_events|add:"0" == 0 and num_vols|add:"0" >= 1 %}
-          <div class="success row one-margin-top">
-            <div class="medium-8 columns small-centered">
-           <!--   You have invited {{ num_vols }} volunteer{{ num_vols|pluralize }} to the openCurrents community. Nice!  -->
-              You have invited volunteers to the openCurrents community. Nice!  
-            </div>
-          </div>
+                {% elif num_events|add:"0" == 0 and num_vols|add:"0" >= 1 %}
+                    You have invited {{ num_vols  }} volunteer{{ num_vols|pluralize }} to the openCurrents community. Nice!  
 
+                {% endif %}
+              </div>
+            </div>
           {% endif %}
 
 
@@ -45,7 +37,7 @@
             <span class="input-sizer"> -->
               <h5 class="one-margin-top no-margin-bottom">{{ user.first_name }} {{ user.last_name }}</h5>
               <h6>{{org_name}}</h6>
-              <a href="{% url 'openCurrents:invite-volunteers' num_events='0' %}" class="button secondary tiny round">Invite volunteers</a>
+              <a href="{% url 'openCurrents:invite-volunteers' %}" class="button secondary tiny round">Invite volunteers</a>
             <!-- </span> -->
           </div>
 

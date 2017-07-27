@@ -55,9 +55,9 @@
             </div>
           </div>
           
-          <a href="{% url 'openCurrents:admin-profile' num_events=num_events num_vols=1 %}" class="button round secondary">Send invites</a>
+          <a href="{% url 'openCurrents:admin-profile' %}" class="button round secondary">Send invites</a>
 
-          <p><a href="{% url 'openCurrents:admin-profile' num_events=num_events num_vols=0 %}">Skip for now</a></p>
+          <p><a href="{% url 'openCurrents:admin-profile' num_vols=0 %}">Skip for now</a></p>
         </div>
         
         <div id="push"></div>
@@ -86,7 +86,7 @@
           <p>Add multiple emails separated by spaces, new lines, or commas:</p>
           <textarea name="bulk-emails" placeholder="email@yahoo.com, address@wahoo.com" rows="3"></textarea>
 
-          <p class="three-halves-margin-top"><a href="{% url 'openCurrents:admin-profile' num_events  %}" class="button round">Send invites</a></p>
+          <p class="three-halves-margin-top"><a href="{% url 'openCurrents:admin-profile' %}" class="button round">Send invites</a></p>
         </div>
       </div>
     </div>

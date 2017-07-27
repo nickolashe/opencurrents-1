@@ -67,6 +67,7 @@ class SessionContextView(View):
     def get_context_data(self, **kwargs):
         context = super(SessionContextView, self).get_context_data(**kwargs)
         userid = self.request.user.id
+        context['userid'] = userid
         org = None
         userorgs = OrgUser.objects.filter(user__id=userid)
         if userorgs:
@@ -331,10 +332,23 @@ class AdminProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(AdminProfileView, self).get_context_data(**kwargs)
+        userid = context['userid']
         orgid = context['orgid']
         org = Org.objects.get(pk=orgid)
         context['org_name'] = org.name
         context['timezone'] = org.timezone
+
+        #find events made by the admin with notified=false
+        new_events = Event.objects.filter(project__org__id=orgid).filter(creator_id=userid).filter(notified=False)
+        num_events=len(new_events)
+
+        for event in new_events:
+            event.notified=True
+            event.save()
+
+        context['num_events'] = num_events
+
+        logger.info("TIM8 %s %s", userid,num_events)
 
         verified_time = UserTimeLog.objects.filter(
             event__project__org__id=orgid
@@ -400,6 +414,7 @@ class CreateEventView(LoginRequiredMixin, SessionContextView, FormView):
     success_url = '/event-created/'
 
     def _create_event(self, location, form_data):
+        logger.info("TIM7 %s %s",self.orgid, self.userid)
         if not self.project:
             project = Project(
                 org=Org.objects.get(id=self.orgid),
@@ -416,6 +431,7 @@ class CreateEventView(LoginRequiredMixin, SessionContextView, FormView):
             datetime_end=form_data['datetime_end'],
             coordinator_firstname=form_data['coordinator_firstname'],
             coordinator_email=form_data['coordinator_email'],
+            creator_id = self.userid
         )
         event.save()
 
@@ -427,6 +443,9 @@ class CreateEventView(LoginRequiredMixin, SessionContextView, FormView):
         # obtain orgid from the session context (provided by SessionContextView)
         orgid = context['orgid']
         self.orgid = orgid
+
+        userid = context['userid']
+        self.userid = userid
 
         projects = Project.objects.filter(
             org__id=self.orgid
@@ -455,9 +474,8 @@ class CreateEventView(LoginRequiredMixin, SessionContextView, FormView):
 
         # create an event for each location
         event_ids = map(lambda loc: self._create_event(loc, data), locations)
-        num_events = len(event_ids)
  
-        return redirect('openCurrents:invite-volunteers', num_events)
+        return redirect('openCurrents:invite-volunteers')
 
     def get_context_data(self, **kwargs):
         context = super(CreateEventView, self).get_context_data()
