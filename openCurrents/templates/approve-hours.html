@@ -109,7 +109,7 @@
               </ul>
             </div>
           </div>
-          <input type="hidden" id="result_sel" name="post-data" value="" />
+          <input type="hidden" id="result_sel" name="post-data" value="" /><!---->
           <div class="row center">
             <!--<a href="{% url 'openCurrents:hours-approved' %}" onclick="test()" class="button round">Approve hours</a>-->
             <button type='submit' class="one-margin-top button round">Approve hours</button>
@@ -157,14 +157,20 @@
       function dec_vol(k){//Declining volunteer on clicking decline button
 
         var decline = k.text.replace("Decline volunteer","").replaceAll(" ","").replaceAll("\n","");
-        document.getElementById('result_sel').value = document.getElementById('result_sel').value.replace(decline,"");
+        var dec_0 = decline+':0'
+        var dec_1 = decline+':1'
+        document.getElementById('result_sel').value = document.getElementById('result_sel').value.replace(dec_0,"").replace(dec_1,"").replace(decline,"");
+        document.getElementById('result_sel').value += decline+":0,";
 
       }
 
       function acc_vol(vol){//Accept Volunteer on clicking Undo
 
         var accept = vol.text.replace("Undo","").replaceAll(" ","").replaceAll("\n","");
-        document.getElementById('result_sel').value += accept+",";
+        var acc_0 = accept+':0'
+        var acc_1 = accept+':1'
+        document.getElementById('result_sel').value = document.getElementById('result_sel').value.replace(acc_0,"").replace(acc_1,"");
+        document.getElementById('result_sel').value += accept+":1,";
 
       }
 

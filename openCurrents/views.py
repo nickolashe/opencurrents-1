@@ -214,14 +214,30 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
     def post(self, request):
         post_data = self.request.POST['post-data']
         templist = post_data.split(',')
-        templist[:] = [item for item in templist if item != '']
-        try:
-            for i in templist:
-                user = User.objects.get(username=i)
-                time_log = UserTimeLog.objects.filter(user=user).update(is_verified = True);
-            return redirect('openCurrents:hours-approved')
-        except:
-            return redirect('openCurrents:500')
+        for i in templist:
+            i = str(i)
+            try:
+                if i.split(':')[1] == '0' and i != '':
+                    user = User.objects.get(username=i.split(':')[0])
+                    time_log = UserTimeLog.objects.filter(user=user).delete()
+                elif i.split(':')[1] == '1' and i !='':
+                    user = User.objects.get(username=i.split(':')[0])
+                    time_log = UserTimeLog.objects.filter(user=user).update(is_verified = True)
+            except Exception as e:
+                if i:
+                    user = User.objects.get(username=i)
+                    time_log = UserTimeLog.objects.filter(user=user).update(is_verified = True)
+                else:
+                    pass
+        return redirect('openCurrents:hours-approved')
+        #templist[:] = [item.split(':')[0] for item in templist if item != '' and item.split(':')[1]!='0']
+        # try:
+        #     for i in templist:
+        #         user = User.objects.get(username=i)
+        #         time_log = UserTimeLog.objects.filter(user=user).update(is_verified = True);
+        #     return redirect('openCurrents:hours-approved')
+        # except:
+        #     return redirect('openCurrents:500')
 
     def get_hours_rounded(self, datetime_start, datetime_end):
         # h, m, s = time_str.split(':')
