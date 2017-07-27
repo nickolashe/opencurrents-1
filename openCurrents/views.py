@@ -348,8 +348,6 @@ class AdminProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
 
         context['num_events'] = num_events
 
-        logger.info("TIM8 %s %s", userid,num_events)
-
         verified_time = UserTimeLog.objects.filter(
             event__project__org__id=orgid
         ).filter(
@@ -414,7 +412,6 @@ class CreateEventView(LoginRequiredMixin, SessionContextView, FormView):
     success_url = '/event-created/'
 
     def _create_event(self, location, form_data):
-        logger.info("TIM7 %s %s",self.orgid, self.userid)
         if not self.project:
             project = Project(
                 org=Org.objects.get(id=self.orgid),
