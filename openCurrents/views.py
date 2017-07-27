@@ -218,16 +218,20 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
             i = str(i)
             try:
                 if i.split(':')[1] == '0' and i != '':
+                    #check if the volunteer is declined and delete the same
                     user = User.objects.get(username=i.split(':')[0])
                     time_log = UserTimeLog.objects.filter(user=user).delete()
                 elif i.split(':')[1] == '1' and i !='':
+                    #check if the volunteer is accepted and approve the same
                     user = User.objects.get(username=i.split(':')[0])
                     time_log = UserTimeLog.objects.filter(user=user).update(is_verified = True)
             except Exception as e:
                 if i:
+                    #if it's approved without changing the initial state of the tag
                     user = User.objects.get(username=i)
                     time_log = UserTimeLog.objects.filter(user=user).update(is_verified = True)
                 else:
+                    logger.error("usertimelog record could'nt be deleted",e)
                     pass
         return redirect('openCurrents:hours-approved')
         #templist[:] = [item.split(':')[0] for item in templist if item != '' and item.split(':')[1]!='0']
