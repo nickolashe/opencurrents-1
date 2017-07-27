@@ -151,6 +151,7 @@ class Event(models.Model):
         (MANUAL, 'ManualTracking'),
         (GROUP, 'Group'),
     )
+
     event_type = models.CharField(
         max_length=2,
         choices=event_type_choices,
