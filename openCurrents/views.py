@@ -553,16 +553,18 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
                         )
                         user_new.save()
                     except Exception as e:
-                        pass
+                        user_new = User.objects.get(username=post_data['vol-email-'+str(i+1)])
 
                     if user_new and event_create_id:
                         try:
-                            user_event_registration = UserEventRegistration(
-                                user=user_new,
-                                event=Event.objects.get(id=event_create_id),
-                                is_confirmed=True
-                            )
-                            user_event_registration.save()
+                            multiple_event_reg = Event.objects.filter(id__in=event_create_id)
+                            for i in multiple_event_reg:
+                                user_event_registration = UserEventRegistration(
+                                    user=user_new,
+                                    event=i,
+                                    is_confirmed=True
+                                )
+                                user_event_registration.save()
                         except Exception as e:
                             logger.error('unable to register user for event')
                 else:
@@ -579,63 +581,65 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
                     )
                     user_new.save()
                 except Exception as e:
-                    pass
+                    user_new = User.objects.get(username=post_data['vol-email-'+str(i+1)])
 
                 if user_new and event_create_id:
                     try:
-                        user_event_registration = UserEventRegistration(
-                            user=user_new,
-                            event=Event.objects.get(event__id=event_create_id),
-                            is_confirmed=True
-                        )
-                        user_event_registration.save()
+                        multiple_event_reg = Event.objects.filter(id__in=event_create_id)
+                        for i in multiple_event_reg:
+                            user_event_registration = UserEventRegistration(
+                                user=user_new,
+                                event=i,
+                                is_confirmed=True
+                            )
+                            user_event_registration.save()
                     except Exception as e:
-                        pass
+                        logger.error('unable to register user for event')
         try:
             event=Event.objects.get(id=event_create_id[0])
             events = Event.objects.filter(id__in=event_create_id)
             loc = [str(i.location).split(',')[0] for i in events]
             try:
-                    sendBulkEmail(
-                        'invite-volunteer-event',
-                        None,
-                        [
-                            {
-                                'name': 'ADMIN_FIRSTNAME',
-                                'content': user.first_name
-                            },
-                            {
-                                'name': 'ADMIN_LASTNAME',
-                                'content': user.last_name
-                            },
-                            {
-                                'name': 'EVENT_TITLE',
-                                'content': event.project.name
-                            },
-                            {
-                                'name': 'ORG_NAME',
-                                'content': Organisation
-                            },
-                            {
-                                'name': 'EVENT_LOCATION',
-                                'content': " | ".join(x for x in loc)#event.location
-                            },
-                            {
-                                'name': 'EVENT_DATE',
-                                'content': str(event.datetime_start.date().strftime('%d %B %Y'))
-                            },
-                            {
-                                'name':'EVENT_START_TIME',
-                                'content': str(event.datetime_start.time().strftime('%I:%M %p'))
-                            },
-                            {
-                                'name':'EVENT_END_TIME',
-                                'content': str(event.datetime_end.time().strftime('%I:%M %p'))
-                            },
-                        ],
-                        k,
-                        user.email
-                    )
+                sendBulkEmail(
+                    'invite-volunteer-event',
+                    None,
+                    [
+                        {
+                            'name': 'ADMIN_FIRSTNAME',
+                            'content': user.first_name
+                        },
+                        {
+                            'name': 'ADMIN_LASTNAME',
+                            'content': user.last_name
+                        },
+                        {
+                            'name': 'EVENT_TITLE',
+                            'content': event.project.name
+                        },
+                        {
+                            'name': 'ORG_NAME',
+                            'content': Organisation
+                        },
+                        {
+                            'name': 'EVENT_LOCATION',
+                            'content': " | ".join(x for x in loc)#event.location
+                        },
+                        {
+                            'name': 'EVENT_DATE',
+                            'content': str(event.datetime_start.date().strftime('%d %B %Y'))
+                        },
+                        {
+                            'name':'EVENT_START_TIME',
+                            'content': str(event.datetime_start.time().strftime('%I:%M %p'))
+                        },
+                        {
+                            'name':'EVENT_END_TIME',
+                            'content': str(event.datetime_end.time().strftime('%I:%M %p'))
+                        },
+                    ],
+                    k,
+                    user.email
+                )
             except Exception as e:
                 logger.error(
                     'unable to send email: %s (%s)',
@@ -644,26 +648,26 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
                 )
         except Exception as e:
             try:
-                    sendBulkEmail(
-                        'invite-volunteer',
-                        None,
-                        [
-                            {
-                                'name': 'ADMIN_FIRSTNAME',
-                                'content': user.first_name
-                            },
-                            {
-                                'name': 'ADMIN_LASTNAME',
-                                'content': user.last_name
-                            },
-                            {
-                                'name': 'ORG_NAME',
-                                'content': Organisation
-                            }
-                        ],
-                        k,
-                        user.email
-                    )
+                sendBulkEmail(
+                    'invite-volunteer',
+                    None,
+                    [
+                        {
+                            'name': 'ADMIN_FIRSTNAME',
+                            'content': user.first_name
+                        },
+                        {
+                            'name': 'ADMIN_LASTNAME',
+                            'content': user.last_name
+                        },
+                        {
+                            'name': 'ORG_NAME',
+                            'content': Organisation
+                        }
+                    ],
+                    k,
+                    user.email
+                )
             except Exception as e:
                 logger.error(
                     'unable to send email: %s (%s)',
