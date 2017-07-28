@@ -43,6 +43,7 @@ import mandrill
 import logging
 import pytz
 import uuid
+import decimal
 
 
 logging.basicConfig(level=logging.DEBUG, filename="log/views.log")
@@ -600,6 +601,7 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
             events = Event.objects.filter(id__in=event_create_id)
             loc = [str(i.location).split(',')[0] for i in events]
             try:
+                tz = event.project.org.timezone
                 sendBulkEmail(
                     'invite-volunteer-event',
                     None,
@@ -622,19 +624,19 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
                         },
                         {
                             'name': 'EVENT_LOCATION',
-                            'content': " | ".join(x for x in loc)#event.location
+                            'content': event.location
                         },
                         {
                             'name': 'EVENT_DATE',
-                            'content': str(event.datetime_start.date().strftime('%d %B %Y'))
+                            'content': str(event.datetime_start.astimezone(pytz.timezone(tz)).date().strftime('%b %d, %Y'))
                         },
                         {
                             'name':'EVENT_START_TIME',
-                            'content': str(event.datetime_start.time().strftime('%I:%M %p'))
+                            'content': str(event.datetime_start.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p'))
                         },
                         {
                             'name':'EVENT_END_TIME',
-                            'content': str(event.datetime_end.time().strftime('%I:%M %p'))
+                            'content': str(event.datetime_end.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p'))
                         },
                     ],
                     k,
@@ -797,6 +799,7 @@ def event_checkin(request, pk):
         )
 
         if checkin:
+            # create volunteer UserTimeLog
             usertimelog = UserTimeLog(
                 user=User.objects.get(id=userid),
                 event=event,
@@ -807,6 +810,17 @@ def event_checkin(request, pk):
                 'at %s: checkin',
                 str(usertimelog.datetime_start)
             )
+
+            # create admin/coordinator UserTimeLog only if not already done
+            if not UserTimeLog.objects.filter(event__id=event.id, user__id=request.user.id):
+                usertimelog = UserTimeLog(
+                    user=User.objects.get(id=request.user.id),
+                    event=event,
+                    datetime_start=datetime.now(tz=pytz.UTC)
+                )
+                usertimelog.save()
+    
+
             return HttpResponse(status=201)
         else:
             usertimelog = UserTimeLog.objects.filter(
