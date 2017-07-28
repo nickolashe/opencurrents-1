@@ -988,8 +988,15 @@ def event_register_live(request, eventid):
     )
     user_event_registration.save()
     logger.info('User %s registered for event %s', user.username, event.id)
-
-    return HttpResponse({'userid': userid, 'eventid': eventid}, status=201)
+    tz = event.project.org.timezone
+    event_ds = event.datetime_start.astimezone(pytz.timezone(tz)).time()
+    event_de = event.datetime_end.astimezone(pytz.timezone(tz)).time()
+    d_now = datetime.utcnow().replace(tzinfo=pytz.utc).astimezone(pytz.timezone(tz))
+    if d_now.time() < event_de and d_now.time() > event_ds and d_now.date() == event.datetime_start.astimezone(pytz.timezone(tz)).date():
+        event_status = '1'
+    else:
+        event_status = '0'
+    return HttpResponse(content=json.dumps({'userid': userid, 'eventid': eventid, 'event_status': event_status}), status=201)
 
 # resend the verification email to a user who hits the Resend button on their check-email page
 def process_resend_verification(request, user_email):

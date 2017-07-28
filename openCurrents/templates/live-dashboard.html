@@ -232,6 +232,7 @@
                 },
                 dataType : "json",
               }).complete(function( data ) {
+                let test_data = data;
                 $('#registered-volunteers').prepend(`
                   <div class="row"> \
                     <div class="left small-9 columns"> \
@@ -257,6 +258,9 @@
 
                 // bind new checkbox to checkin
                 $(`input[name='vol-checkin-${userid}']`).click(onCheckClick);
+                if(test_data.responseJSON.event_status=='1'){
+                  $(`input[name='vol-checkin-${userid}']`).trigger('click')
+                }
               });
             });
 
