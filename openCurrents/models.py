@@ -156,11 +156,14 @@ class Event(models.Model):
         (MANUAL, 'ManualTracking'),
         (GROUP, 'Group'),
     )
+
     event_type = models.CharField(
         max_length=2,
         choices=event_type_choices,
         default=GROUP
     )
+
+    is_public = models.BooleanField(default=False)
 
     # start / end timestamps of the project
     datetime_start = models.DateTimeField('start datetime')
