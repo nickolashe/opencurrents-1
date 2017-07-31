@@ -215,12 +215,15 @@
 
     <script type="text/javascript">
       $(document).ready(function(){
-        $('#approve-hours-popup').popup({
-          vertical: 'top',
-          transition: 'all 0.75s',
-          scrolllock: true,
-          //autoopen: true,
-        });
+        var u_t_l = {{user_time_log_status}}
+        if (u_t_l=='1'){
+          $('#approve-hours-popup').popup({
+            vertical: 'top',
+            transition: 'all 0.75s',
+            scrolllock: true,
+            autoopen: true,
+          });
+        }
       });
     </script>
 

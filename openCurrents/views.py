@@ -513,6 +513,11 @@ class AdminProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
             project__org__id=orgid,
             datetime_start__gte=datetime.now(tz=pytz.utc) + timedelta(hours=1)
         )
+        user_time_logs = UserTimeLog.objects.filter(is_verified = False)
+        if user_time_logs:
+            context['user_time_log_status'] = '1'
+        else:
+            context['user_time_log_status'] = '0'
 
         return context
 
