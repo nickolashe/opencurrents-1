@@ -47,6 +47,7 @@ import mandrill
 import logging
 import pytz
 import uuid
+import decimal
 
 
 logging.basicConfig(level=logging.DEBUG, filename="log/views.log")
@@ -705,46 +706,47 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
         try:
             event=Event.objects.get(id=event_create_id)
             try:
-                    sendBulkEmail(
-                        'invite-volunteer-event',
-                        None,
-                        [
-                            {
-                                'name': 'ADMIN_FIRSTNAME',
-                                'content': user.first_name
-                            },
-                            {
-                                'name': 'ADMIN_LASTNAME',
-                                'content': user.last_name
-                            },
-                            {
-                                'name': 'EVENT_TITLE',
-                                'content': event.project.name
-                            },
-                            {
-                                'name': 'ORG_NAME',
-                                'content': Organisation
-                            },
-                            {
-                                'name': 'EVENT_LOCATION',
-                                'content': event.location
-                            },
-                            {
-                                'name': 'EVENT_DATE',
-                                'content': str(event.datetime_start.date())
-                            },
-                            {
-                                'name':'EVENT_START_TIME',
-                                'content': str(event.datetime_start.time())
-                            },
-                            {
-                                'name':'EVENT_END_TIME',
-                                'content': str(event.datetime_end.time())
-                            },
-                        ],
-                        k,
-                        user.email
-                    )
+                tz = event.project.org.timezone
+                sendBulkEmail(
+                    'invite-volunteer-event',
+                    None,
+                    [
+                        {
+                            'name': 'ADMIN_FIRSTNAME',
+                            'content': user.first_name
+                        },
+                        {
+                            'name': 'ADMIN_LASTNAME',
+                            'content': user.last_name
+                        },
+                        {
+                            'name': 'EVENT_TITLE',
+                            'content': event.project.name
+                        },
+                        {
+                            'name': 'ORG_NAME',
+                            'content': Organisation
+                        },
+                        {
+                            'name': 'EVENT_LOCATION',
+                            'content': event.location
+                        },
+                        {
+                            'name': 'EVENT_DATE',
+                            'content': str(event.datetime_start.astimezone(pytz.timezone(tz)).date().strftime('%b %d, %Y'))
+                        },
+                        {
+                            'name':'EVENT_START_TIME',
+                            'content': str(event.datetime_start.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p'))
+                        },
+                        {
+                            'name':'EVENT_END_TIME',
+                            'content': str(event.datetime_end.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p'))
+                        },
+                    ],
+                    k,
+                    user.email
+                )
             except Exception as e:
                 logger.error(
                     'unable to send email: %s (%s)',
@@ -753,26 +755,26 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
                 )
         except Exception as e:
             try:
-                    sendBulkEmail(
-                        'invite-volunteer',
-                        None,
-                        [
-                            {
-                                'name': 'ADMIN_FIRSTNAME',
-                                'content': user.first_name
-                            },
-                            {
-                                'name': 'ADMIN_LASTNAME',
-                                'content': user.last_name
-                            },
-                            {
-                                'name': 'ORG_NAME',
-                                'content': Organisation
-                            }
-                        ],
-                        k,
-                        user.email
-                    )
+                sendBulkEmail(
+                    'invite-volunteer',
+                    None,
+                    [
+                        {
+                            'name': 'ADMIN_FIRSTNAME',
+                            'content': user.first_name
+                        },
+                        {
+                            'name': 'ADMIN_LASTNAME',
+                            'content': user.last_name
+                        },
+                        {
+                            'name': 'ORG_NAME',
+                            'content': Organisation
+                        }
+                    ],
+                    k,
+                    user.email
+                )
             except Exception as e:
                 logger.error(
                     'unable to send email: %s (%s)',
@@ -902,6 +904,7 @@ def event_checkin(request, pk):
         )
 
         if checkin:
+            # create volunteer UserTimeLog
             usertimelog = UserTimeLog(
                 user=User.objects.get(id=userid),
                 event=event,
@@ -912,6 +915,17 @@ def event_checkin(request, pk):
                 'at %s: checkin',
                 str(usertimelog.datetime_start)
             )
+
+            # create admin/coordinator UserTimeLog only if not already done
+            if not UserTimeLog.objects.filter(event__id=event.id, user__id=request.user.id):
+                usertimelog = UserTimeLog(
+                    user=User.objects.get(id=request.user.id),
+                    event=event,
+                    datetime_start=datetime.now(tz=pytz.UTC)
+                )
+                usertimelog.save()
+    
+
             return HttpResponse(status=201)
         else:
             usertimelog = UserTimeLog.objects.filter(
