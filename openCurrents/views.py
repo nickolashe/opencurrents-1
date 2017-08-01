@@ -11,7 +11,7 @@ from django.utils.safestring import mark_safe
 from django.db.models import F, Max
 from django.views.decorators.csrf import csrf_exempt,csrf_protect
 from django.template.context_processors import csrf
-from datetime import datetime, time
+from datetime import datetime, time, date
 from collections import OrderedDict
 from copy import deepcopy
 import math
@@ -453,6 +453,14 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         ]
         context['events_upcoming'] = events_upcoming
         context['timezone'] = self.request.user.account.timezone
+        try:
+            app_hr = str(kwargs.pop('app_hr'))
+            if app_hr == 'True':
+                context['app_hr'] = '1'
+            else:
+                context['app_hr'] = '0'
+        except:
+            pass
 
         return context
 
@@ -466,7 +474,6 @@ class AdminProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         org = Org.objects.get(pk=orgid)
         context['org_name'] = org.name
         context['timezone'] = org.timezone
-
         verified_time = UserTimeLog.objects.filter(
             event__project__org__id=orgid
         ).filter(
@@ -515,9 +522,9 @@ class AdminProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         )
         user_time_logs = UserTimeLog.objects.filter(is_verified = False)
         if user_time_logs:
-            context['user_time_log_status'] = '1'
+            context['user_time_log_status'] = 1
         else:
-            context['user_time_log_status'] = '0'
+            context['user_time_log_status'] = 0
 
         return context
 
@@ -1377,8 +1384,16 @@ def process_login(request):
             password=user_password
         )
         if user is not None and user.is_active:
+            user_last_log = User.objects.get(username=user_name).last_login
+            today = date.today()
+            this_monday = today - timedelta(days=today.weekday())
+            this_monday = datetime.combine(this_monday, datetime.min.time())
+            if user_last_log.replace(tzinfo=pytz.UTC) < this_monday.replace(tzinfo=pytz.UTC):
+                app_hr = True
+            else:
+                app_hr = False
             login(request, user)
-            return redirect('openCurrents:profile')
+            return redirect('openCurrents:profile', app_hr)
         else:
             return redirect('openCurrents:login', status_msg='Invalid login/password')
     else:
