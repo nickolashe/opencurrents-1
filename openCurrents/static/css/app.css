@@ -849,11 +849,11 @@ a.list-group-item {
   min-height: 100vh;
 }
 
-#home-logo {
+/*#home-logo {
   width: 533px;
   margin-bottom: 1rem;
   margin-top: 4rem;
-}
+}*/
 
 #home-tagline {
   width: 533px; /* matches home-logo width to scale synchronously */
@@ -1027,8 +1027,8 @@ a.list-group-item {
   }
 
   #home-logo {
-    margin-top: 8rem;
-    width: 444px;
+    margin-top: 4rem;
+    width: 280px;
   }
 
   #home-tagline {
