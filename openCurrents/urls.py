@@ -5,6 +5,7 @@ urlpatterns = [
     # template views
     url(r'^$', views.HomeView.as_view(), name='root'),
     url(r'^home/$', views.HomeView.as_view(), name='home'),
+    url(r'^home/(?P<referrer>[\w\.@\+\-]*)/(?P<f_name>.*)/$', views.HomeView.as_view(), name='home'),
     url(r'^home/(?P<referrer>[\w\.@\+\-]*)$', views.HomeView.as_view(), name='home'),
     url(r'^home/(?P<referrer>[\w\.@\+\-]*)/(?P<status_msg>.*)/$',
         views.HomeView.as_view(), name='home'),
