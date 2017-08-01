@@ -12,7 +12,7 @@
 
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
-        <div class="hide-for-small-only row full-width collapse two-margin-top">
+        <div class="hide-for-small-only row full-width collapse two-margin-top one-margin-bottom">
           <div class="left medium-6 medium-offset-1 large-5 large-offset-2 columns">
             <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="fit-left round" />
             <span class="input-sizer"> -->
@@ -23,37 +23,30 @@
           </div>
 
           <div class="one-margin-top right medium-4 large-3 columns end">
-            <!--h6 class="no-margin-bottom two-line-height">My hours tracked: [my]</h6-->
+            <h6 class="no-margin-bottom two-line-height">My hours tracked: 10.0</h6>
             <h6>Org hours tracked: {{ issued_total }}</h6>
             <a href="{% url 'openCurrents:create-event' orgid %}" class="button round tiny">Create event</a>
           </div>
         </div>
 
-        <div class="show-for-small-only row one-margin-top">
+        <div class="show-for-small-only row one-margin-top one-margin-bottom">
           <div class="columns">
             <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="round" /> -->
             <h5 class="half-margin-top no-margin-bottom">{{ user.first_name }} {{ user.last_name }}</h5>
             <h6>{{org_name}}</h6>
-            <a href="{% url 'openCurrents:create-event' orgid %}" class="button round tiny">Create event</a>
-            <a href="{% url 'openCurrents:invite-volunteers' %}" class="button secondary tiny round">Invite volunteers</a>
 
             <div class="half-margin-top">
-              <h6 class="no-margin-bottom">My hours tracked: [ my_total ]</h6>
-              <h6>Org hours tracked: {{ issued_total }}</h6>
+              <h6 class="no-margin-bottom">My hours tracked: 10.0</h6>
+              <h6 class="one-margin-bottom">Org hours tracked: {{ issued_total }}</h6>
               <a href="{% url 'openCurrents:create-event' orgid %}" class="button round tiny">Create event</a>
+              <a href="{% url 'openCurrents:invite-volunteers' %}" class="button secondary tiny round">Invite volunteers</a>
             </div>
-          </div>
-        </div>
-
-        <div class="row full-width collapse">
-          <div class="columns">
-
           </div>
         </div>
 
         <!-- current events section -->
         {% if events_current %}
-          <div id="live-event-list" class="left row full-width collapse one-margin-top">
+          <div id="live-event-list" class="left row full-width collapse">
             <div class="small-11 medium-10 large-8 small-centered columns">
               <h6 class="one-margin-bottom">Events happening now</h6>
 
@@ -83,7 +76,7 @@
         {% endif %}
 
         {% if events_upcoming %}
-          <div id="upcoming-event-list" class="left row one-margin-top full-width collapse">
+          <div id="upcoming-event-list" class="left row full-width collapse">
             <div class="small-11 medium-10 large-8 small-centered columns">
               <h6 class="one-margin-bottom">Our upcoming events</h6>
 
@@ -99,7 +92,7 @@
                     </div>
 
                     <div class="right small-4 collapse columns">
-                      <a href="{% url 'openCurrents:live-dashboard' event.id %}" class="button round small">Preview</a>
+                      <a href="{% url 'openCurrents:live-dashboard' event.id %}" class="button round small secondary">Preview</a>
                     </div>
                   </div>
                 {% endif %}
@@ -110,7 +103,7 @@
         {% endif %}
 
         {% if events_past %}
-          <div id="past-event-list" class="left row one-margin-top full-width collapse">
+          <div id="past-event-list" class="left row full-width collapse">
             <div class="small-11 medium-10 large-8 small-centered columns">
               <h6 class="one-margin-bottom">Past events</h6>
 
