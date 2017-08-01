@@ -595,46 +595,47 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
         try:
             event=Event.objects.get(id=event_create_id)
             try:
-                    sendBulkEmail(
-                        'invite-volunteer-event',
-                        None,
-                        [
-                            {
-                                'name': 'ADMIN_FIRSTNAME',
-                                'content': user.first_name
-                            },
-                            {
-                                'name': 'ADMIN_LASTNAME',
-                                'content': user.last_name
-                            },
-                            {
-                                'name': 'EVENT_TITLE',
-                                'content': event.project.name
-                            },
-                            {
-                                'name': 'ORG_NAME',
-                                'content': Organisation
-                            },
-                            {
-                                'name': 'EVENT_LOCATION',
-                                'content': event.location
-                            },
-                            {
-                                'name': 'EVENT_DATE',
-                                'content': str(event.datetime_start.date())
-                            },
-                            {
-                                'name':'EVENT_START_TIME',
-                                'content': str(event.datetime_start.time())
-                            },
-                            {
-                                'name':'EVENT_END_TIME',
-                                'content': str(event.datetime_end.time())
-                            },
-                        ],
-                        k,
-                        user.email
-                    )
+                tz = event.project.org.timezone
+                sendBulkEmail(
+                    'invite-volunteer-event',
+                    None,
+                    [
+                        {
+                            'name': 'ADMIN_FIRSTNAME',
+                            'content': user.first_name
+                        },
+                        {
+                            'name': 'ADMIN_LASTNAME',
+                            'content': user.last_name
+                        },
+                        {
+                            'name': 'EVENT_TITLE',
+                            'content': event.project.name
+                        },
+                        {
+                            'name': 'ORG_NAME',
+                            'content': Organisation
+                        },
+                        {
+                            'name': 'EVENT_LOCATION',
+                            'content': event.location
+                        },
+                        {
+                            'name': 'EVENT_DATE',
+                            'content': str(event.datetime_start.astimezone(pytz.timezone(tz)).date().strftime('%b %d, %Y'))
+                        },
+                        {
+                            'name':'EVENT_START_TIME',
+                            'content': str(event.datetime_start.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p'))
+                        },
+                        {
+                            'name':'EVENT_END_TIME',
+                            'content': str(event.datetime_end.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p'))
+                        },
+                    ],
+                    k,
+                    user.email
+                )
             except Exception as e:
                 logger.error(
                     'unable to send email: %s (%s)',
@@ -643,26 +644,26 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
                 )
         except Exception as e:
             try:
-                    sendBulkEmail(
-                        'invite-volunteer',
-                        None,
-                        [
-                            {
-                                'name': 'ADMIN_FIRSTNAME',
-                                'content': user.first_name
-                            },
-                            {
-                                'name': 'ADMIN_LASTNAME',
-                                'content': user.last_name
-                            },
-                            {
-                                'name': 'ORG_NAME',
-                                'content': Organisation
-                            }
-                        ],
-                        k,
-                        user.email
-                    )
+                sendBulkEmail(
+                    'invite-volunteer',
+                    None,
+                    [
+                        {
+                            'name': 'ADMIN_FIRSTNAME',
+                            'content': user.first_name
+                        },
+                        {
+                            'name': 'ADMIN_LASTNAME',
+                            'content': user.last_name
+                        },
+                        {
+                            'name': 'ORG_NAME',
+                            'content': Organisation
+                        }
+                    ],
+                    k,
+                    user.email
+                )
             except Exception as e:
                 logger.error(
                     'unable to send email: %s (%s)',
