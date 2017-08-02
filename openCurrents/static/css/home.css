@@ -17,29 +17,18 @@
 }
 
 #home-logo {
-  width: 533px;
-  margin-bottom: 1rem;
   margin-top: 4rem;
+  width: 234px;
 }
 
 #home-tagline {
-  width: 533px; /* matches home-logo width to scale synchronously */
-  margin-bottom: 0rem;
+  line-height: 1.2;
+  margin-top: 4.5rem;
 }
 
 #home-symbol {
   margin-right: 0.375rem;
   height: 2rem;
-}
-
-#home .button:hover {
-  background-color: #1f4975;
-  border-color: #1f4975;
-}
-
-#home .button:focus {
-  background-color: #1f4975;
-  border-color: #1f4975;
 }
 
 .home-link {
@@ -61,6 +50,16 @@
   font-weight: normal;
 }
 
+.button.clear:hover {
+  background-color: #42bdea;
+  border-color: #42bdea;
+}
+
+.button.clear:focus {
+  background-color: #42bdea;
+  border-color: #42bdea;
+}
+
 #back-button {
   position: fixed;
   left: 55px;
@@ -77,8 +76,12 @@
   height: 77px;
   padding: 21px 0;
   border-radius: 99px;
-  border: 1px solid #ffffff;
+  border: 1px solid #1f4975;
+  color: #1f4975;
+  background-color: #ffffff;
   cursor: default;
+  display: inline-block;
+  margin: 0 0.25rem 1rem;
 }
 
 #arrow-1 {
@@ -155,7 +158,9 @@
   height: 77px;
   padding: 21px 0;
   border-radius: 99px;
-  border: 1px solid #ffffff;
+  border: 1px solid #1f4975;
+  color: #1f4975;
+  background-color: #ffffff;
 }
 
 #benefits-small {
@@ -193,25 +198,6 @@
     background-size: cover;
   }
 
-  #home-logo {
-    margin-top: 4rem;
-    width: 222px;
-  }
-
-  #home-tagline {
-    width: 444px;
-  }
-
-  #home .button:hover {
-    background-color: #42bdea;
-    border-color: #42bdea;
-  }
-
-  #home .button:focus {
-    background-color: #42bdea;
-    border-color: #42bdea;
-  }
-
   #signup-box .button:hover {
     background-color: #1f4975;
     border-color: #1f4975;
@@ -241,6 +227,7 @@
   #benefit-box {
     height: 99px;
     width: 488px;
+    margin: auto;
   }
 
   #mission-box {
@@ -248,11 +235,12 @@
   }
 }
 
-#intro-5-1, #intro-5-2, #intro-5-3 {
+#intro-1, #intro-2, #intro-3, #intro-4 {
   min-height: 100vh;
+  position: relative;
 }
 
-#intro-5-2 {
+#intro-2, #intro-4, #intro-6 {
   background-color: #ffffff;
   color: #1f4975;
 }

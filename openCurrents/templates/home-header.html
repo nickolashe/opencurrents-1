@@ -1,0 +1,22 @@
+{% load staticfiles %}
+
+<header id="header" class="full-width row collapse js-close-any" canvas>
+  <div class="small-9 medium-3 small-offset-1 columns">
+    <a href="#1">
+
+    	<img id="header-logo" src="{% static 'img/oc-header-blue2.png' %}" />
+    </a>
+  </div>
+
+  <div class="hide-for-small-only one-margin-top medium-7 right columns end">
+    <a class="three-halves-margin-right">For nonprofits</a>
+    <a class="three-halves-margin-right">For businesses</a>
+    <a><strong>Sign up</strong><i class="half-margin-left fa fa-lg fa-user-plus"></i></a>
+  </div>
+
+  <div id="header-menu" class="show-for-small-only small-2 columns center end">
+    <a class="toggle-menu">
+      {% include 'tilde-menu.html' %}
+    </a>
+  </div>
+</header>
