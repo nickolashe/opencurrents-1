@@ -8,6 +8,7 @@ from openCurrents.models import Project, Org, OrgUser
 from datetime import datetime
 
 import logging
+import re
 import pytz
 
 
@@ -105,6 +106,11 @@ class EmailVerificationForm(forms.Form):
         user_password_confirm = cleaned_data.get('user_password_confirm')
         if user_password and user_password_confirm and user_password != user_password_confirm:
             raise ValidationError(_('Passwords don\'t match'))
+        if re.match(r'((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%]).{8,})', user_password):
+            # match
+            pass
+        else:
+            raise ValidationError(_('Password does\'nt meet the required criterion.'))
 
 
 class PasswordResetForm(forms.Form):
@@ -120,6 +126,11 @@ class PasswordResetForm(forms.Form):
         new_password_confirm = cleaned_data.get('new_password_confirm')
         if new_password and new_password_confirm and new_password != new_password_confirm:
             raise ValidationError(_('Passwords don\'t match'))
+        if re.match(r'((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%]).{8,})', user_password):
+            # match
+            pass
+        else:
+            raise ValidationError(_('Password does\'nt meet the required criterion.'))
 
 
 class OrgSignupForm(forms.Form):
