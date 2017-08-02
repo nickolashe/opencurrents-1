@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.safestring import mark_safe
+from django.utils import timezone
 from django.db.models import F, Max
 from django.views.decorators.csrf import csrf_exempt,csrf_protect
 from django.template.context_processors import csrf
@@ -138,7 +139,7 @@ class InviteFriendsView(LoginRequiredMixin, SessionContextView, TemplateView):
 
 class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
     template_name = 'approve-hours.html'
-    context_object_name = 'users'
+    context_object_name = 'week_list'
 
     def get_queryset(self):
         userid = self.request.user.id
@@ -153,67 +154,99 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
             event_type='MN'
         )
 
-        # event time logs
-        last_week = datetime.now() - timedelta(days=7)
-        eventtimelogs = UserTimeLog.objects.filter(
+        # gather unverified time logs
+        timelogs = UserTimeLog.objects.filter(
             event__in=events
-        ).filter(
-            datetime_start__gte=last_week
         ).filter(
             is_verified=False
         )
 
-        time_log = OrderedDict()
-        items = {'Total': 0}
+        # list meant to hold dictionary ordered pairs for each 7 days
+        weeks = []
 
-        for timelog in eventtimelogs:
-            user_email = timelog.user.email
+        # return nothing if unverified time logs not found
+        if not timelogs:
+            return weeks
+        
+        # find monday before oldest unverified time log
+        oldest_timelog = timelogs.order_by('datetime_start')[0]
+        week_startdate = oldest_timelog.datetime_start
+        week_startdate_monday = week_startdate - timedelta(days=week_startdate.weekday())
+        today = timezone.now()
 
-            # check if same day and duration longer than 15 min
-            if timelog.datetime_start.date() == timelog.datetime_end.date() and timelog.datetime_end - timelog.datetime_start >= timedelta(minutes=15):
-                if user_email not in time_log:
-                    time_log[user_email] = OrderedDict(items)
+        # loop with 7 day increments from monday before oldest timelog until today
+        # building the list weeks with all timelogs per week
+        #while( week_startdate_monday <= today ):
+        for x in range(0,1):
+            eventtimelogs = UserTimeLog.objects.filter(
+                event__in=events
+            ).filter(
+                datetime_start__lt=week_startdate_monday + timedelta(days=7) 
+            ).filter(
+                datetime_start__gte=week_startdate_monday
+            ).filter(
+                is_verified=False
+            )
 
-                # time in hours rounded to nearest 15 min
-                rounded_time = self.get_hours_rounded(timelog.datetime_start, timelog.datetime_end)
+            week_startdate_monday += timedelta(days=7)
 
-                # use day of week and date as key
-                date_key = timelog.datetime_start.strftime('%A, %m/%d')
-                if date_key not in time_log[user_email]:
-                    time_log[user_email][date_key] = 0
+            time_log = OrderedDict()
+            items = {'Total': 0}
 
-                # add the time to the corresponding date_key and total
-                time_log[user_email][date_key] += rounded_time
-                time_log[user_email]['Total'] += rounded_time
-            else:
-                # Multiple day volunteering
-                # Still working on it
-                # day_diff = i.datetime_end - i.datetime_start
-                # temp_date = i.datetime_start
-                # while temp_date.date() != i.datetime_end.date():
-                #     tt = temp_date+timedelta(days=1)
-                #     tt = datetime.combine(tt, time.min).replace(tzinfo=None)
-                #     tt_diff = tt - temp_date.replace(tzinfo=None)
-                #     rounded_time_mdv1 = (math.ceil(self.get_hours(str(tt_diff)) * 4) / 4)
-                #     time_log[str(i.user)][str(temp_date.strftime("%A"))] += rounded_time_mdv1
-                #     time_log[str(i.user)]['Total'] += rounded_time_mdv1
-                #     temp_date = temp_date+timedelta(days=1)
-                #     rounded_time_mdv2 = (math.ceil(self.get_hours(str(temp_date.replace(tzinfo=None) - tt)) * 4) / 4)
-                #     time_log[str(i.user)][str(temp_date.strftime("%A"))] += rounded_time_mdv2
-                #     time_log[str(i.user)]['Total'] += rounded_time_mdv2
+            for timelog in eventtimelogs:
+                user_email = timelog.user.email
 
-                # just ignore multi-day requests for now
-                pass
+                # check if same day and duration longer than 15 min
+                if timelog.datetime_start.date() == timelog.datetime_end.date() and timelog.datetime_end - timelog.datetime_start >= timedelta(minutes=15):
+                    if user_email not in time_log:
+                        time_log[user_email] = OrderedDict(items)
 
-        time_log = OrderedDict([
-            (k, time_log[k])
-            for k in time_log
-            if time_log[k]['Total'] > 0
-        ])
-        return time_log
+                    # time in hours rounded to nearest 15 min
+                    rounded_time = self.get_hours_rounded(timelog.datetime_start, timelog.datetime_end)
+
+                    # use day of week and date as key
+                    date_key = timelog.datetime_start.strftime('%A, %m/%d')
+                    if date_key not in time_log[user_email]:
+                        time_log[user_email][date_key] = 0
+
+                    # add the time to the corresponding date_key and total
+                    time_log[user_email][date_key] += rounded_time
+                    time_log[user_email]['Total'] += rounded_time
+                else:
+                    # Multiple day volunteering
+                    # Still working on it
+                    # day_diff = i.datetime_end - i.datetime_start
+                    # temp_date = i.datetime_start
+                    # while temp_date.date() != i.datetime_end.date():
+                    #     tt = temp_date+timedelta(days=1)
+                    #     tt = datetime.combine(tt, time.min).replace(tzinfo=None)
+                    #     tt_diff = tt - temp_date.replace(tzinfo=None)
+                    #     rounded_time_mdv1 = (math.ceil(self.get_hours(str(tt_diff)) * 4) / 4)
+                    #     time_log[str(i.user)][str(temp_date.strftime("%A"))] += rounded_time_mdv1
+                    #     time_log[str(i.user)]['Total'] += rounded_time_mdv1
+                    #     temp_date = temp_date+timedelta(days=1)
+                    #     rounded_time_mdv2 = (math.ceil(self.get_hours(str(temp_date.replace(tzinfo=None) - tt)) * 4) / 4)
+                    #     time_log[str(i.user)][str(temp_date.strftime("%A"))] += rounded_time_mdv2
+                    #     time_log[str(i.user)]['Total'] += rounded_time_mdv2
+
+                    # just ignore multi-day requests for now
+                    pass
+
+            time_log = OrderedDict([
+                (k, time_log[k])
+                for k in time_log
+                if time_log[k]['Total'] > 0
+            ])
+            logger.info('made a time_log: %s',time_log)
+            if(time_log):
+                weeks.append(time_log)
+
+        logger.info('%s',weeks)
+        return weeks
 
     def post(self, request):
         post_data = self.request.POST['post-data']
+
         templist = post_data.split(',')
         for i in templist:
             i = str(i)
@@ -222,18 +255,18 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
                     #check if the volunteer is declined and delete the same
                     user = User.objects.get(username=i.split(':')[0])
                     time_log = UserTimeLog.objects.filter(user=user).delete()
-                    return redirect('openCurrents:hours-approved')
+                    return redirect('openCurrents:approve-hours')
                 elif i.split(':')[1] == '1' and i !='':
                     #check if the volunteer is accepted and approve the same
                     user = User.objects.get(username=i.split(':')[0])
                     time_log = UserTimeLog.objects.filter(user=user).update(is_verified = True)
-                    return redirect('openCurrents:hours-approved')
+                    return redirect('openCurrents:approve-hours')
             except Exception as e:
                 if i:
                     #if it's approved without changing the initial state of the tag
                     user = User.objects.get(username=i)
                     time_log = UserTimeLog.objects.filter(user=user).update(is_verified = True)
-                    return redirect('openCurrents:hours-approved')
+                    return redirect('openCurrents:approve-hours')
                 else:
                     logger.error("usertimelog record could'nt be deleted",e)
                     return redirect('openCurrents:500')
@@ -453,14 +486,6 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         ]
         context['events_upcoming'] = events_upcoming
         context['timezone'] = self.request.user.account.timezone
-        try:
-            app_hr = str(kwargs.pop('app_hr'))
-            if app_hr == 'True':
-                context['app_hr'] = '1'
-            else:
-                context['app_hr'] = '0'
-        except:
-            pass
 
         return context
 
@@ -474,6 +499,7 @@ class AdminProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         org = Org.objects.get(pk=orgid)
         context['org_name'] = org.name
         context['timezone'] = org.timezone
+
         verified_time = UserTimeLog.objects.filter(
             event__project__org__id=orgid
         ).filter(
@@ -520,11 +546,6 @@ class AdminProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
             project__org__id=orgid,
             datetime_start__gte=datetime.now(tz=pytz.utc) + timedelta(hours=1)
         )
-        user_time_logs = UserTimeLog.objects.filter(is_verified = False)
-        if user_time_logs:
-            context['user_time_log_status'] = 1
-        else:
-            context['user_time_log_status'] = 0
 
         return context
 
@@ -1384,16 +1405,8 @@ def process_login(request):
             password=user_password
         )
         if user is not None and user.is_active:
-            user_last_log = User.objects.get(username=user_name).last_login
-            today = date.today()
-            this_monday = today - timedelta(days=today.weekday())
-            this_monday = datetime.combine(this_monday, datetime.min.time())
-            if user_last_log.replace(tzinfo=pytz.UTC) < this_monday.replace(tzinfo=pytz.UTC):
-                app_hr = True
-            else:
-                app_hr = False
             login(request, user)
-            return redirect('openCurrents:profile', app_hr)
+            return redirect('openCurrents:profile')
         else:
             return redirect('openCurrents:login', status_msg='Invalid login/password')
     else:
