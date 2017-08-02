@@ -543,7 +543,7 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
         for i in range(no_of_loops):
             if post_data['bulk-vol'].encode('ascii','ignore') == '':
                 if post_data['vol-email-'+str(i+1)] != '':
-                    k.append({"email":post_data['vol-email-'+str(i+1)],"type":"to"})
+                    k.append({"email":post_data['vol-email-'+str(i+1)], "name":post_data['vol-name-'+str(i+1)],"type":"to"})
                     user_new = None
                     try:
                         user_new = User(
@@ -569,7 +569,7 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
                 else:
                     no_of_loops -= 1
             elif post_data['bulk-vol'] != '':
-                k.append({"email":bulk_list[i].strip(),"type":"to"})
+                k.append({"email":bulk_list[i].strip(), "type":"to"})
                 user_new = None
                 try:
                     user_new = User(
@@ -597,7 +597,7 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
             try:
                 tz = event.project.org.timezone
                 sendBulkEmail(
-                    'invite-volunteer-event',
+                    'invite-volunteer-event-new',
                     None,
                     [
                         {
