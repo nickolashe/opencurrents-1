@@ -529,6 +529,10 @@ label {
   font-size: 1.125rem;
 }
 
+.med-bold {
+  font-weight: 600;
+}
+
 .hide-text {
   white-space: nowrap;
   overflow: hidden;
@@ -643,7 +647,7 @@ label {
 }
 
 #container {
-  margin-bottom: 24px;
+  /*margin-bottom: 24px;*/
   text-align: center;
 }
 

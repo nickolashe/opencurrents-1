@@ -17,8 +17,9 @@
     {% include "home-header.html" %}
 
     <div id="container" class="js-close-any" canvas>
-      <div id="1" class="header-spacer"></div>
+      
       <div id="intro-1">
+        <div id="1" class="header-spacer"></div>
         <div class="row center">
           <div class="medium-8 small-centered columns">
             <h1 id="home-tagline" class="white three-halves-margin-bottom">Thank you for the <br class="show-for-medium-only" />good you give.</h1>
@@ -37,9 +38,8 @@
         </div>
       </div>
 
-      <div id="2" class="header-spacer"></div>
-
       <div id="intro-2">
+        <div id="2" class="header-spacer"></div>
         <div class="row center">
           <div class="medium-8 small-centered columns">
             <h3 class="title">What are Currents?</h3>
@@ -48,7 +48,7 @@
           </div>
         </div>
 
-        <p class="two-margin-top two-margin-bottom center"><a id="show-diagram" class="button small secondary round">Show diagram<i class="half-margin-left fa fa-lg fa-angle-down"></i></a></p>
+        <p class="two-margin-top two-margin-bottom center"><a id="show-diagram" class="button small round">Show diagram<i class="half-margin-left fa fa-lg fa-angle-down"></i></a></p>
 
         <img id="how-it-works-small" class="hidden diagram-div show-for-small-only" src="{% static "img/diagram-blue.png" %}"/>
 
@@ -64,14 +64,12 @@
           <a href="{% url 'openCurrents:login' %}"><p class="two-margin-bottom">Log in<i class="half-margin-left fa fa-angle-right"></i></p></a>
         </div>
       </div>
-
-      <div id="3" class="header-spacer"></div>
-      <div class="header-spacer"></div>
       
       <div id="intro-3">
+        <div id="3" class="header-spacer"></div>
         <div class="row center">
           <div class="medium-10 small-centered columns">
-            <h3 class="white qtr-margin-top qtr-margin-bottom">Our mission</h3>
+            <h3 class="white title-sub">Our mission</h3>
             <h4 class="white three-halves-margin-bottom">That we all may live on the good we give.</h4>
           </div>
         </div>
@@ -95,8 +93,8 @@
         </div>
       </div>
 
-      <div id="4" class="header-spacer"></div>
       <div id="intro-4">
+        <div id="4" class="header-spacer"></div>
         <div class="row center">
           <div class="medium-8 small-centered columns">
             <h4 class="title-sub">Who benefits?</h4>
@@ -218,7 +216,7 @@
 
         <div class="row two-margin-top two-margin-bottom">
           <div class="one-margin-bottom center small-centered medium-8 columns">
-            <button class="signup-box_open button large round">Sign me up</button>
+            <button class="signup-box_open button large round">I'm in!</button>
             <a href="javascript:void(Tawk_API.toggle())" class=""><p class="no-margin-bottom">I have a question<i class="half-margin-left fa fa-angle-right"></i></p></a>
           </div>
         </div>

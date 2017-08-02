@@ -236,8 +236,7 @@
 }
 
 #intro-1, #intro-2, #intro-3, #intro-4 {
-  min-height: 100vh;
-  position: relative;
+  height: 100vh;
 }
 
 #intro-2, #intro-4, #intro-6 {
