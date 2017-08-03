@@ -25,6 +25,7 @@
                    {% for key_m, value_m in date.iteritems %}
 
                    <input type="hidden" id="week_display_draft" name="" value="{{key_m}}">
+                   <input type="hidden" id="week_month" name="" value="{{key_m.date.month}}-{{key_m.date.day}}-{{key_m.date.year}}"> 
                       
                    {% for key,value in value_m.iteritems %}
                        <li class="accordion-item" data-accordion-item>  
@@ -162,24 +163,25 @@
     </script>
 
     <script type="text/javascript">
+    var week_format = document.getElementById("week_month").value;
 
       function dec_vol(k){//Declining volunteer on clicking decline button
 
         var decline = k.text.replace("Decline volunteer","").replaceAll(" ","").replaceAll("\n","");
-        var dec_0 = decline+':0'
-        var dec_1 = decline+':1'
-        document.getElementById('result_sel').value = document.getElementById('result_sel').value.replace(dec_0,"").replace(dec_1,"").replace(decline,"");
-        document.getElementById('result_sel').value += decline+":0,";
+        var dec_0 = decline+':0:'
+        var dec_1 = decline+':1:'
+        document.getElementById('result_sel').value = document.getElementById('result_sel').value.replace(dec_0,"").replace(dec_1,"").replace(week_format,"").replace(decline,"");
+        document.getElementById('result_sel').value += decline+":0:"+week_format+",";
 
       }
 
       function acc_vol(vol){//Accept Volunteer on clicking Undo
 
         var accept = vol.text.replace("Undo","").replaceAll(" ","").replaceAll("\n","");
-        var acc_0 = accept+':0'
-        var acc_1 = accept+':1'
-        document.getElementById('result_sel').value = document.getElementById('result_sel').value.replace(acc_0,"").replace(acc_1,"");
-        document.getElementById('result_sel').value += accept+":1,";
+        var acc_0 = accept+':0:'
+        var acc_1 = accept+':1:'
+        document.getElementById('result_sel').value = document.getElementById('result_sel').value.replace(acc_0,"").replace(acc_1,"").replace(week_format,"");
+        document.getElementById('result_sel').value += accept+":1:"+week_format+",";
 
       }
 
@@ -200,8 +202,9 @@
       $(document).ready(function(){
 
         var rep = $('.decline-volunteer').text().replaceAll("Decline volunteer\n","").replaceAll(" ","");
+        var rep_list = rep.split("\n")
 
-        document.getElementById('result_sel').value = rep.split("\n");
+        
 
         var today = new Date();
         var app_week = String(getMonday(today)).split(" ");
@@ -211,6 +214,15 @@
         //str = str.replace(/,[^,]+$/, "")
         document.getElementById("week_display").innerHTML = week_display;
         //alert(week_display)
+        var week_format = document.getElementById("week_month").value;
+
+        for(var i=0;i<rep_list.length;i++)
+        {
+          if(rep_list[i]!='')
+          {
+            document.getElementById('result_sel').value += rep_list[i]+":1:"+week_format+",";
+          }
+        }
         
 
         $('#').popup({
