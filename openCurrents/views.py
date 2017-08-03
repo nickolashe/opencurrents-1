@@ -76,6 +76,7 @@ class SessionContextView(View):
     def get_context_data(self, **kwargs):
         context = super(SessionContextView, self).get_context_data(**kwargs)
         userid = self.request.user.id
+        context['userid'] = userid
         org = None
         userorgs = OrgUser.objects.filter(user__id=userid)
         if userorgs:
@@ -557,10 +558,21 @@ class AdminProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(AdminProfileView, self).get_context_data(**kwargs)
+        userid = context['userid']
         orgid = context['orgid']
         org = Org.objects.get(pk=orgid)
         context['org_name'] = org.name
         context['timezone'] = org.timezone
+
+        #find events made by the admin with notified=false
+        new_events = Event.objects.filter(project__org__id=orgid).filter(creator_id=userid).filter(notified=False)
+        num_events=len(new_events)
+
+        for event in new_events:
+            event.notified=True
+            event.save()
+
+        context['num_events'] = num_events
 
         verified_time = UserTimeLog.objects.filter(
             event__project__org__id=orgid
@@ -642,6 +654,7 @@ class CreateEventView(LoginRequiredMixin, SessionContextView, FormView):
             datetime_end=form_data['datetime_end'],
             coordinator_firstname=form_data['coordinator_firstname'],
             coordinator_email=form_data['coordinator_email'],
+            creator_id = self.userid
         )
         event.save()
 
@@ -653,6 +666,9 @@ class CreateEventView(LoginRequiredMixin, SessionContextView, FormView):
         # obtain orgid from the session context (provided by SessionContextView)
         orgid = context['orgid']
         self.orgid = orgid
+
+        userid = context['userid']
+        self.userid = userid
 
         projects = Project.objects.filter(
             org__id=self.orgid
@@ -744,11 +760,11 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
         if OrgUsers:
             Organisation = OrgUsers[0].org.name
         if post_data['bulk-vol'].encode('ascii','ignore') == '':
-            no_of_loops = int(post_data['count-vol'])
+            num_vols = int(post_data['count-vol'])
         else:
             bulk_list = re.split(',| |\n',post_data['bulk-vol'])
-            no_of_loops = len(bulk_list)
-        for i in range(no_of_loops):
+            num_vols = len(bulk_list)
+        for i in range(num_vols):
             if post_data['bulk-vol'].encode('ascii','ignore') == '':
                 if post_data['vol-email-'+str(i+1)] != '':
                     k.append({"email":post_data['vol-email-'+str(i+1)],"type":"to"})
@@ -775,7 +791,7 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
                         except Exception as e:
                             logger.error('unable to register user for event')
                 else:
-                    no_of_loops -= 1
+                    num_vols -= 1
             elif post_data['bulk-vol'] != '':
                 k.append({"email":bulk_list[i].strip(),"type":"to"})
                 user_new = None
@@ -878,7 +894,7 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
                     e,
                     type(e)
                 )
-        return redirect('openCurrents:volunteers-invited', no_of_loops)
+        return redirect('openCurrents:admin-profile', num_vols)
 
 
 class EventCreatedView(TemplateView):

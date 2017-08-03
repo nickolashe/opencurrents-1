@@ -12,6 +12,25 @@
 
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
+
+          {% if num_events or num_vols %}
+            <div class="success row one-margin-top">
+              <div class="medium-8 columns small-centered">
+                {% if num_events|add:"0" >= 1 and num_vols|add:"0" >= 1 %}
+                    You have created events at {{ num_events }} location{{ num_events|pluralize }} and invited {{ num_vols }} volunteer{{ num_vols|pluralize }} to the openCurrents community. Nice!
+
+                {% elif num_events|add:"0" >= 1 and num_vols|add:"0" == 0 %}
+                    You have created events at {{ num_events }} location{{ num_events|pluralize }}. Nice!
+
+                {% elif num_events|add:"0" == 0 and num_vols|add:"0" >= 1 %}
+                    You have invited {{ num_vols  }} volunteer{{ num_vols|pluralize }} to the openCurrents community. Nice!  
+
+                {% endif %}
+              </div>
+            </div>
+          {% endif %}
+
+
         <div class="hide-for-small-only row full-width collapse two-margin-top">
           <div class="left medium-6 medium-offset-1 large-5 large-offset-2 columns">
             <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="fit-left round" />
