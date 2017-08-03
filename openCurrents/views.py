@@ -196,11 +196,13 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
 
             for timelog in eventtimelogs:
                 user_email = timelog.user.email 
+                name = User.objects.get(username = user_email).first_name +" "+User.objects.get(username = user_email).last_name
 
                 # check if same day and duration longer than 15 min
                 if timelog.datetime_start.date() == timelog.datetime_end.date() and timelog.datetime_end - timelog.datetime_start >= timedelta(minutes=15):
                     if user_email not in time_log:
                         time_log[user_email] = OrderedDict(items)
+                    time_log[user_email]["name"] = name
 
                     # time in hours rounded to nearest 15 min
                     rounded_time = self.get_hours_rounded(timelog.datetime_start, timelog.datetime_end)

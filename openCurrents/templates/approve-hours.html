@@ -29,7 +29,7 @@
                       
                    {% for key,value in value_m.iteritems %}
                        <li class="accordion-item" data-accordion-item>  
-                         <a href="#" class="accordion-title">{{key}}
+                         <a href="#" class="accordion-title">{% for k, v in value.items %} {% if k == "name" %} {{v}} {% endif %}{% endfor %}
                            <span class="float-right">
                              {% for k, v in value.items %} {% if k == "Total" %} {{v}} {% endif %}{% endfor %} hrs
                            </span>
@@ -37,7 +37,7 @@
                          <div class="accordion-content" data-tab-content>
 
                            {% for k, v in value.iteritems %} 
-                             {% if k != "Total" and v != 0 %}   
+                             {% if k != "Total" and v != 0 and k != "name" %}   
                                <p>{{k}}<span>{{v}}  hrs</span></p>
                                <!--<p>Wednesday<span>2 hrs</span></p>
                                <p>Thursday<span>3 hrs</span></p>-->
