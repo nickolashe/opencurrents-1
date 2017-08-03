@@ -12,6 +12,13 @@
 
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
+
+        {% if status_msg %}
+        <div class="success row half-margin-top">
+          {{status_msg}}
+        </div>
+        {% endif %}
+
         <div class="hide-for-small-only row full-width collapse two-margin-top">
           <div class="left medium-6 medium-offset-1 large-5 large-offset-2 columns">
             <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="fit-left round" />

@@ -1582,6 +1582,11 @@ def process_org_signup(request):
             mission=form_data['org_mission'],
             reason=form_data['org_reason']
         )
+   
+        # if website was not left blank, check it's not already in use
+        if form_data['org_website'] != '' and Org.objects.filter(website=form_data['org_website']).exists():
+            return redirect('openCurrents:org-signup', status_msg='The website provided is already in use by another organization.')
+
         try:
             org.save()
         except IntegrityError:
@@ -1595,7 +1600,7 @@ def process_org_signup(request):
                 existing.reason = form_data['org_reason']
             existing.save()
 
-        org = Org.objects.get(website=form_data['org_website'])
+        org = Org.objects.get(name=form_data['org_name'])
         org_user = OrgUser(
             org=org,
             user=request.user,
