@@ -767,7 +767,6 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
         else:
             bulk_list = re.split(',| |\n',post_data['bulk-vol'])
             num_vols = len(bulk_list)
-
         for i in range(num_vols):
             email_list = post_data['vol-email-'+str(i+1)]
             if post_data['bulk-vol'].encode('ascii','ignore') == '':
@@ -786,7 +785,7 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
                         )
                         user_new.save()
                     except Exception as e:
-                        user_new = User.objects.get(username=post_data['vol-email-'+str(i+1)])
+                        user_new = User.objects.get(username=email_list)
 
                     if user_new and event_create_id:
                         try:
@@ -803,10 +802,11 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
                 else:
                     num_vols -= 1
             elif post_data['bulk-vol'] != '':
-                if bulk_list[i].strip() not in user_list:
-                    k.append({"email":bulk_list[i].strip(), "type":"to"})
+                user_email = str(bulk_list[i].strip())
+                if str(bulk_list[i].strip()) != '' and bulk_list[i].strip() not in user_list:
+                    k.append({"email":user_email, "type":"to"})
                 elif bulk_list[i].strip() in user_list:
-                    k_old.append({"email":bulk_list[i].strip(), "type":"to"})
+                    k_old.append({"email":user_email, "type":"to"})
                 user_new = None
                 try:
                     user_new = User(
@@ -817,7 +817,7 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
                     )
                     user_new.save()
                 except Exception as e:
-                    user_new = User.objects.get(username=post_data['vol-email-'+str(i+1)])
+                    user_new = User.objects.get(username=user_email)
 
                 if user_new and event_create_id:
                     try:
