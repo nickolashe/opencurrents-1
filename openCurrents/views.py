@@ -102,6 +102,11 @@ class ResetPasswordView(TemplateView):
     template_name = 'reset-password.html'
 
 
+
+class BusinessView(TemplateView):
+    template_name = 'business.html'
+
+
 class CheckEmailPasswordView(TemplateView):
     template_name = 'check-email-password.html'
 
@@ -179,6 +184,11 @@ class NominationConfirmedView(TemplateView):
 
 class NominationEmailView(TemplateView):
     template_name = 'nomination-email.html'
+
+
+class NonprofitView(TemplateView):
+    template_name = 'nonprofit.html'
+
 
 class OfferView(TemplateView):
     template_name = 'offer.html'
