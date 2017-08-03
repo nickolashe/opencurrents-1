@@ -23,7 +23,8 @@
                <div class="small-12 medium-8 small-centered columns">
                  <ul id="volunteer-list" class="accordion" data-accordion data-allow-all-closed="true">
                    {% for key_m, value_m in date.iteritems %}
-                   
+
+                   <input type="hidden" id="week_display_draft" name="" value="{{key_m}}">
                       
                    {% for key,value in value_m.iteritems %}
                        <li class="accordion-item" data-accordion-item>  
@@ -204,8 +205,13 @@
 
         var today = new Date();
         var app_week = String(getMonday(today)).split(" ");
-        var week_display = app_week[1]+" "+app_week[2]+", "+app_week[3];
+        //var week_display = app_week[1]+" "+app_week[2]+", "+app_week[3];
+        //document.getElementById("week_display").innerHTML = week_display;
+        var week_display = document.getElementById("week_display_draft").value.replace(/,[^,]+$/, "")
+        //str = str.replace(/,[^,]+$/, "")
         document.getElementById("week_display").innerHTML = week_display;
+        //alert(week_display)
+        
 
         $('#').popup({
           vertical: 'top',
@@ -243,6 +249,7 @@
           });
         });         
       });
+
     </script>
     
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>

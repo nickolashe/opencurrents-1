@@ -240,8 +240,8 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
                 if time_log[k]['Total'] > 0
             ])
             logger.info('made a time_log: %s',time_log)
-            time_log_week[week_startdate_monday] = time_log
-            if(time_log):
+            if time_log:
+                time_log_week[week_startdate_monday] = time_log
                 weeks.append(time_log_week)
 
 
