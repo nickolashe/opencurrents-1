@@ -168,7 +168,7 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
         # return nothing if unverified time logs not found
         if not timelogs:
             return weeks
-        
+
         # find monday before oldest unverified time log
         oldest_timelog = timelogs.order_by('datetime_start')[0]
         week_startdate = oldest_timelog.datetime_start
@@ -184,7 +184,7 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
             eventtimelogs = UserTimeLog.objects.filter(
                 event__in=events
             ).filter(
-                datetime_start__lt=week_startdate_monday + timedelta(days=7) 
+                datetime_start__lt=week_startdate_monday + timedelta(days=7)
             ).filter(
                 datetime_start__gte=week_startdate_monday
             ).filter(
@@ -196,7 +196,7 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
             items = {'Total': 0}
 
             for timelog in eventtimelogs:
-                user_email = timelog.user.email 
+                user_email = timelog.user.email
                 name = User.objects.get(username = user_email).first_name +" "+User.objects.get(username = user_email).last_name
 
                 # check if same day and duration longer than 15 min
@@ -246,7 +246,7 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
                 time_log_week[week_startdate_monday] = time_log
                 weeks.append(time_log_week)
 
- 
+
             week_startdate_monday += timedelta(days=7)
 
         logger.info('%s',weeks)
@@ -264,8 +264,8 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
                 try:
                     user = User.objects.get(username=i.split(':')[0])
                     week_date = datetime.strptime( i.split(':')[2], '%m-%d-%Y')
-                  
-                    #build manual tracking filter, currently only accessible by OrgUser...  
+
+                    #build manual tracking filter, currently only accessible by OrgUser...
                     userid = user.id
                     org = OrgUser.objects.filter(user__id=userid)
                     orgid = org[0].org.id
@@ -301,7 +301,7 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
                         logger.info('Approving timelog : %s',time_log)
 
                         return redirect('openCurrents:approve-hours')
-                
+
                 #if unable to split, approve for when left in initial state
                 except Exception as e:
                     logger.info('unable to split, exception: %s',e)
@@ -309,7 +309,7 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
                         user = User.objects.get(username=i.split(':')[0])
                         week_date = datetime.strptime( i.split(':')[2], '%m-%d-%Y')
 
-                        #build manual tracking filter, currently only accessible by OrgUser...  
+                        #build manual tracking filter, currently only accessible by OrgUser...
                         userid = user.id
                         org = OrgUser.objects.filter(user__id=userid)
                         orgid = org[0].org.id
@@ -755,6 +755,9 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
             pass
 
         k = []
+        k_old = []
+        users = User.objects.values_list('username')
+        user_list = [str(''.join(j)) for j in users]
 
         OrgUsers = OrgUser.objects.filter(user__id=userid)
         if OrgUsers:
@@ -764,15 +767,20 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
         else:
             bulk_list = re.split(',| |\n',post_data['bulk-vol'])
             num_vols = len(bulk_list)
+
         for i in range(num_vols):
+            email_list = post_data['vol-email-'+str(i+1)]
             if post_data['bulk-vol'].encode('ascii','ignore') == '':
-                if post_data['vol-email-'+str(i+1)] != '':
-                    k.append({"email":post_data['vol-email-'+str(i+1)],"type":"to"})
+                if email_list != '':
+                    if email_list not in user_list:
+                        k.append({"email":email_list, "name":post_data['vol-name-'+str(i+1)],"type":"to"})
+                    elif email_list in user_list:
+                        k_old.append({"email":email_list, "name":post_data['vol-name-'+str(i+1)],"type":"to"})
                     user_new = None
                     try:
                         user_new = User(
-                            username=post_data['vol-email-'+str(i+1)],
-                            email=post_data['vol-email-'+str(i+1)]
+                            username=email_list,
+                            email=email_list
                             #first_name=user_firstname,
                             #last_name=user_lastname
                         )
@@ -793,7 +801,10 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
                 else:
                     num_vols -= 1
             elif post_data['bulk-vol'] != '':
-                k.append({"email":bulk_list[i].strip(),"type":"to"})
+                if bulk_list[i].strip() not in user_list:
+                    k.append({"email":bulk_list[i].strip(), "type":"to"})
+                elif bulk_list[i].strip() in user_list:
+                    k_old.append({"email":bulk_list[i].strip(), "type":"to"})
                 user_new = None
                 try:
                     user_new = User(
@@ -820,46 +831,88 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
             event=Event.objects.get(id=event_create_id)
             try:
                 tz = event.project.org.timezone
-                sendBulkEmail(
-                    'invite-volunteer-event',
-                    None,
-                    [
-                        {
-                            'name': 'ADMIN_FIRSTNAME',
-                            'content': user.first_name
-                        },
-                        {
-                            'name': 'ADMIN_LASTNAME',
-                            'content': user.last_name
-                        },
-                        {
-                            'name': 'EVENT_TITLE',
-                            'content': event.project.name
-                        },
-                        {
-                            'name': 'ORG_NAME',
-                            'content': Organisation
-                        },
-                        {
-                            'name': 'EVENT_LOCATION',
-                            'content': event.location
-                        },
-                        {
-                            'name': 'EVENT_DATE',
-                            'content': str(event.datetime_start.astimezone(pytz.timezone(tz)).date().strftime('%b %d, %Y'))
-                        },
-                        {
-                            'name':'EVENT_START_TIME',
-                            'content': str(event.datetime_start.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p'))
-                        },
-                        {
-                            'name':'EVENT_END_TIME',
-                            'content': str(event.datetime_end.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p'))
-                        },
-                    ],
-                    k,
-                    user.email
-                )
+                if k:
+                    sendBulkEmail(
+                        'invite-volunteer-event-new',
+                        None,
+                        [
+                            {
+                                'name': 'ADMIN_FIRSTNAME',
+                                'content': user.first_name
+                            },
+                            {
+                                'name': 'ADMIN_LASTNAME',
+                                'content': user.last_name
+                            },
+                            {
+                                'name': 'EVENT_TITLE',
+                                'content': event.project.name
+                            },
+                            {
+                                'name': 'ORG_NAME',
+                                'content': Organisation
+                            },
+                            {
+                                'name': 'EVENT_LOCATION',
+                                'content': event.location
+                            },
+                            {
+                                'name': 'EVENT_DATE',
+                                'content': str(event.datetime_start.astimezone(pytz.timezone(tz)).date().strftime('%b %d, %Y'))
+                            },
+                            {
+                                'name':'EVENT_START_TIME',
+                                'content': str(event.datetime_start.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p'))
+                            },
+                            {
+                                'name':'EVENT_END_TIME',
+                                'content': str(event.datetime_end.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p'))
+                            },
+                        ],
+                        k,
+                        user.email
+                    )
+                if k_old:
+                    sendBulkEmail(
+                        'invite-volunteer-event-existing',
+                        None,
+                        [
+                            {
+                                'name': 'ADMIN_FIRSTNAME',
+                                'content': user.first_name
+                            },
+                            {
+                                'name': 'ADMIN_LASTNAME',
+                                'content': user.last_name
+                            },
+                            {
+                                'name': 'EVENT_TITLE',
+                                'content': event.project.name
+                            },
+                            {
+                                'name': 'ORG_NAME',
+                                'content': Organisation
+                            },
+                            {
+                                'name': 'EVENT_LOCATION',
+                                'content': event.location
+                            },
+                            {
+                                'name': 'EVENT_DATE',
+                                'content': str(event.datetime_start.astimezone(pytz.timezone(tz)).date().strftime('%b %d, %Y'))
+                            },
+                            {
+                                'name':'EVENT_START_TIME',
+                                'content': str(event.datetime_start.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p'))
+                            },
+                            {
+                                'name':'EVENT_END_TIME',
+                                'content': str(event.datetime_end.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p'))
+                            },
+                        ],
+                        k_old,
+                        user.email
+                    )
             except Exception as e:
                 logger.error(
                     'unable to send email: %s (%s)',
@@ -1037,7 +1090,7 @@ def event_checkin(request, pk):
                     datetime_start=datetime.now(tz=pytz.UTC)
                 )
                 usertimelog.save()
-    
+
 
             return HttpResponse(status=201)
         else:
