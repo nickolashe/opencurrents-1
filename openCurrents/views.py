@@ -11,6 +11,8 @@ from django.utils.safestring import mark_safe
 from django.db.models import F, Max
 from django.views.decorators.csrf import csrf_exempt,csrf_protect
 from django.template.context_processors import csrf
+import csv
+import collections
 import re
 
 from openCurrents import config
@@ -143,8 +145,86 @@ class CausesView(TemplateView):
 class EditHoursView(TemplateView):
     template_name = 'edit-hours.html'
 
-class ExportDataView(TemplateView):
+class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'export-data.html'
+
+    def post(self, request):
+        post_data = self.request.POST
+        k_dict = collections.OrderedDict([
+            #'admin-full-name',
+            ('volunteer-first-name',0),
+            ('volunteer-last-name',1),
+            ('volunteer-email',2),
+            ('duration',3),
+            ('volunteer-login-time',4),
+            ('volunteer-logout-time',5),
+            ('event-date',6),
+            ('location',7),
+            ('event-name',8)
+        ])
+        utc=pytz.UTC
+        vol_personal_info = User.objects.all()
+        if post_data['start-date'] != u'':
+            event_info = Event.objects.filter(datetime_start__gte=post_data['start-date']).filter(datetime_end__lte=post_data['end-date'])
+        else:
+            event_info = Event.objects.filter(datetime_end__lte=post_data['end-date'])
+        rem_index = []
+        for i in k_dict.keys():
+            #keep track of deselected columns by users in a list
+            if i == 'volunteer-login-time' or i == 'volunteer-logout-time':
+                if post_data.get('start-time')==None:
+                    try:
+                        rem_index.append(k_dict['volunteer-login-time'])
+                        del k_dict['volunteer-login-time']
+                        rem_index.append(k_dict['volunteer-logout-time'])
+                        del k_dict['volunteer-logout-time']
+                    except:
+                        continue
+            else:
+                if post_data.get(i)==None or post_data.get(i)=='':
+                    rem_index.append(k_dict[i])
+                    del k_dict[i]
+                
+        response = HttpResponse(content_type='text/csv')
+        #print(datetime.now())
+        response['Content-Disposition'] = 'attachment; filename="volunteer-data.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow(k_dict.keys())
+        for i in vol_personal_info:
+            usertimelog_info = UserTimeLog.objects.filter(user=i)
+            for j in usertimelog_info:
+                # Loop across all the users registered
+                try:
+                    datetime_duration = j.datetime_end-j.datetime_start
+                except:
+                    datetime_duration = '00:00:00'
+                if post_data['start-date'] != u'':
+                    #if the user fill the start-time this condition is executed
+                    s_dt_db = j.event.datetime_start
+                    s_dt_ui = post_data['start-date']
+                    e_dt_db = j.event.datetime_end
+                    e_dt_ui = post_data['end-date']
+                    if (s_dt_db.replace(tzinfo=utc) > datetime.strptime(s_dt_ui, '%Y-%m-%d').replace(tzinfo=utc)  or\
+                    s_dt_db.replace(tzinfo=utc)==datetime.strptime(s_dt_ui, '%Y-%m-%d').replace(tzinfo=utc) ) \
+                    and (e_dt_db.replace(tzinfo=utc) <datetime.strptime(e_dt_ui, '%Y-%m-%d').replace(tzinfo=utc)  or\
+                    e_dt_db.replace(tzinfo=utc) ==datetime.strptime(e_dt_ui, '%Y-%m-%d').replace(tzinfo=utc) ):
+                        cleaned_list = [str(i.first_name), str(i.last_name), str(i.email), str(datetime_duration), str(j.datetime_start),\
+                            str(j.datetime_end), str(j.event.datetime_start), str(j.event.location), str(j.event.project.name)]
+                        for k in rem_index:
+                            #delete the columns which were deselected by the user
+                            del cleaned_list[k]
+                        writer.writerow(cleaned_list)#write to the CSV file
+                else:
+                    #if the user input in start-time is empty
+                    if (str(j.event.datetime_end)<str(post_data['end-date']) or str(j.event.datetime_end)==str(post_data['end-date'])):
+                        cleaned_list = [str(i.first_name), str(i.last_name), str(i.email), str(datetime_duration), str(j.datetime_start),\
+                            str(j.datetime_end), str(j.event.datetime_start), str(j.event.location), str(j.event.project.name)]
+                        for k in rem_index:
+                            #delete the columns which were deselected by the user
+                            del cleaned_list[k]
+                        writer.writerow(cleaned_list)#write to the CSV file
+        return response#redirect('openCurrents:export-data')#
 
 class FaqView(TemplateView):
     template_name = 'faq.html'
