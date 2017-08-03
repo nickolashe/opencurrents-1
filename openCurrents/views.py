@@ -179,7 +179,7 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
         # building the list weeks with all timelogs per week
         #while( week_startdate_monday <= today ):
         time_log_week = OrderedDict()
-        for x in range(0,2):
+        for x in range(0,1):
             eventtimelogs = UserTimeLog.objects.filter(
                 event__in=events
             ).filter(
@@ -190,7 +190,6 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
                 is_verified=False
             )
 
-            week_startdate_monday += timedelta(days=7)
 
             time_log = OrderedDict()
             items = {'Total': 0}
@@ -244,6 +243,8 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
                 time_log_week[week_startdate_monday] = time_log
                 weeks.append(time_log_week)
 
+ 
+            week_startdate_monday += timedelta(days=7)
 
         logger.info('%s',weeks)
         #print(weeks)
@@ -254,27 +255,80 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
 
         templist = post_data.split(',')
         for i in templist:
-            i = str(i)
-            try:
-                if i.split(':')[1] == '0' and i != '':
+            if i != '':
+                i = str(i)
+
+                #split the data for user, flag, and date info
+                try:
+                    user = User.objects.get(username=i.split(':')[0])
+                    week_date = datetime.strptime( i.split(':')[2], '%m-%d-%Y')
+                  
+                    #build manual tracking filter, currently only accessible by OrgUser...  
+                    userid = user.id
+                    org = OrgUser.objects.filter(user__id=userid)
+                    orgid = org[0].org.id
+                    projects = Project.objects.filter(org__id=orgid)
+                    events = Event.objects.filter(project__in=projects).filter(event_type='MN')
+
                     #check if the volunteer is declined and delete the same
-                    user = User.objects.get(username=i.split(':')[0])
-                    time_log = UserTimeLog.objects.filter(user=user).delete()
-                    return redirect('openCurrents:approve-hours')
-                elif i.split(':')[1] == '1' and i !='':
+                    if i.split(':')[1] == '0' and i != '':
+                        time_log = UserTimeLog.objects.filter(user=user
+                           ).filter(
+                              datetime_start__lt=week_date + timedelta(days=7)
+                           ).filter(
+                              datetime_start__gte=week_date
+                           ).filter(
+                              is_verified=False
+                           ).filter(
+                              event__in=events).delete()
+
+
+                        return redirect('openCurrents:approve-hours')
+
                     #check if the volunteer is accepted and approve the same
-                    user = User.objects.get(username=i.split(':')[0])
-                    time_log = UserTimeLog.objects.filter(user=user).update(is_verified = True)
-                    return redirect('openCurrents:approve-hours')
-            except Exception as e:
-                if i:
-                    #if it's approved without changing the initial state of the tag
-                    user = User.objects.get(username=i)
-                    time_log = UserTimeLog.objects.filter(user=user).update(is_verified = True)
-                    return redirect('openCurrents:approve-hours')
-                else:
-                    logger.error("usertimelog record could'nt be deleted",e)
-                    return redirect('openCurrents:500')
+                    elif i.split(':')[1] == '1' and i !='':
+                        time_log = UserTimeLog.objects.filter(user=user
+                           ).filter(
+                              datetime_start__lt=week_date + timedelta(days=7)
+                           ).filter(
+                              datetime_start__gte=week_date
+                           ).filter(
+                              is_verified=False
+                           ).filter(
+                              event__in=events).update(verified=True)
+                        logger.info('Approving timelog : %s',time_log)
+
+                        return redirect('openCurrents:approve-hours')
+                
+                #if unable to split, approve for when left in initial state
+                except Exception as e:
+                    logger.info('unable to split, exception: %s',e)
+                    if i:
+                        user = User.objects.get(username=i.split(':')[0])
+                        week_date = datetime.strptime( i.split(':')[2], '%m-%d-%Y')
+
+                        #build manual tracking filter, currently only accessible by OrgUser...  
+                        userid = user.id
+                        org = OrgUser.objects.filter(user__id=userid)
+                        orgid = org[0].org.id
+                        projects = Project.objects.filter(org__id=orgid)
+                        events = Event.objects.filter(project__in=projects).filter(event_type='MN')
+
+                        #update is_verified to True
+                        time_log = UserTimeLog.objects.filter(user=user
+                           ).filter(
+                              datetime_start__lt=week_date + timedelta(days=7)
+                           ).filter(
+                              datetime_start__gte=week_date
+                           ).filter(
+                              is_verified=False
+                           ).filter(
+                              event__in=events).update(is_verified = True)
+
+                        return redirect('openCurrents:approve-hours')
+                    else:
+                        logger.error("usertimelog record could'nt be deleted",e)
+                        return redirect('openCurrents:500')
         #templist[:] = [item.split(':')[0] for item in templist if item != '' and item.split(':')[1]!='0']
         # try:
         #     for i in templist:
