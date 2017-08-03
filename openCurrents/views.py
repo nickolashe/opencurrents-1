@@ -173,11 +173,13 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
         week_startdate = oldest_timelog.datetime_start
         week_startdate_monday = week_startdate - timedelta(days=week_startdate.weekday())
         today = timezone.now()
+        #print(week_startdate_monday)
 
         # loop with 7 day increments from monday before oldest timelog until today
         # building the list weeks with all timelogs per week
         #while( week_startdate_monday <= today ):
-        for x in range(0,1):
+        time_log_week = OrderedDict()
+        for x in range(0,2):
             eventtimelogs = UserTimeLog.objects.filter(
                 event__in=events
             ).filter(
@@ -194,7 +196,7 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
             items = {'Total': 0}
 
             for timelog in eventtimelogs:
-                user_email = timelog.user.email
+                user_email = timelog.user.email 
 
                 # check if same day and duration longer than 15 min
                 if timelog.datetime_start.date() == timelog.datetime_end.date() and timelog.datetime_end - timelog.datetime_start >= timedelta(minutes=15):
@@ -238,10 +240,13 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
                 if time_log[k]['Total'] > 0
             ])
             logger.info('made a time_log: %s',time_log)
+            time_log_week[week_startdate_monday] = time_log
             if(time_log):
-                weeks.append(time_log)
+                weeks.append(time_log_week)
+
 
         logger.info('%s',weeks)
+        #print(weeks)
         return weeks
 
     def post(self, request):

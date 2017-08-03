@@ -13,15 +13,19 @@
       <div id="wrapper">
         <div class="row">
           <h2 class="title-sub">Approve hours</h2>
+          {% for date in week_list %}
           <h5 class="subtitle">for the week of <span id="week_display"></span></h5>
         </div>
-        {% for week in week_list %}
+        
           <form action ="" method="post">
              {% csrf_token %}
              <div class="row left one-margin-top one-margin-bottom">
                <div class="small-12 medium-8 small-centered columns">
                  <ul id="volunteer-list" class="accordion" data-accordion data-allow-all-closed="true">
-                   {% for key, value in week.iteritems %}
+                   {% for key_m, value_m in date.iteritems %}
+                   
+                      
+                   {% for key,value in value_m.iteritems %}
                        <li class="accordion-item" data-accordion-item>  
                          <a href="#" class="accordion-title">{{key}}
                            <span class="float-right">
@@ -37,6 +41,7 @@
                                <p>Thursday<span>3 hrs</span></p>-->
                              {% endif %}
                            {% endfor %}
+
                            <p class="edit-volunteer center">
                              <input type="radio" id="defer-vol-1" name="vol-status-1" class="vol-radio hidden" />
                                <label for="defer-vol-1">
@@ -57,6 +62,7 @@
                            <p class="volunteer-deferred hidden caution">Volunteer deferred. <a class="undo-defer">Undo</a></p>
                          </div>
                        </li>
+                       {% endfor %}
                    {% endfor %}  
 
 
