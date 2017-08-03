@@ -249,7 +249,6 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
             week_startdate_monday += timedelta(days=7)
 
         logger.info('%s',weeks)
-        #print(weeks)
         return weeks
 
     def post(self, request):
