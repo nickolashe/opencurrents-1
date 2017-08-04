@@ -17,13 +17,13 @@
         <div id="1" class="header-spacer"></div>
         <div class="row center">
           <div class="medium-12 small-centered columns">
-            <h1 id="home-tagline" class="white three-halves-margin-bottom">Record and reward.</h1>
+            <h1 id="home-tagline" class="white three-halves-margin-bottom">Record and reward</h1>
           </div>
         </div>
         <div class="row center">
           <div class="medium-8 small-centered columns">
-            <h5 class="white one-margin-bottom">Track volunteer hours with ease. For each hour worked, volunteers earn 1 Current, which can be used for partial payment with participating businesses.</h5>
-            <h5 class="white">By the way, it's free.</h5>
+            <h5 class="white one-margin-bottom">Track volunteer hours with ease. For each hour worked, volunteers earn 1 Current, which they can use for partial payment with participating businesses.</h5>
+            <h5 class="white">In case you're wondering, it's free.</h5>
           </div>
         </div>
 
@@ -270,22 +270,20 @@
       var elem = new Foundation.Sticky($("#sticky-header"));
     </script>
 
-    <script type="text/javascript" src="{% static "js/history.js" %}"></script>
+    <script type="text/javascript">
+      $('#show-diagram').click(function(){
+        $(this).parent().fadeOut(777, function(){
+          $('.diagram-div').fadeIn(777);
+        });
+        var width = $(window).width();
+            var height = $(window).height();
+            $('#home').resize(width, height);
+      });
+    </script>
 
     <script type="text/javascript">
 
       $(document).ready(function(){
-
-        // var $root = $('html, body');
-        // $('a').click(function() {
-        //     var href = $.attr(this, 'href');
-        //     $root.animate({
-        //         scrollTop: $(href).offset().top
-        //     }, 1111, function () {
-        //         window.location.hash = href;
-        //     });
-        //     return false;
-        // });
 
         $('#play-intro').popup({
           vertical: 'top',
