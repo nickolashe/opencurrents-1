@@ -1,6 +1,6 @@
 {% load staticfiles %}
 
-<header id="header" class="full-width js-close-any" canvas>
+<header id="header" class="full-width row collapse js-close-any" canvas>
   <div class="small-10 medium-9 medium-offset-1 columns">
     {% if orgid %}
     <a href="{% url 'openCurrents:admin-profile' %}">
@@ -10,7 +10,7 @@
     <a class="arrow-cursor">
     {% endif %}
 
-    	<img id="header-logo" src="{% static 'img/oc-header-blue2.png' %}" />
+    	<img id="header-logo" src="{% static 'img/oc-header-blue2.svg' %}" />
     </a>
   </div>
 
