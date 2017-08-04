@@ -26,7 +26,7 @@ def diffInHours(t1, t2):
 
 class Org(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    website = models.CharField(max_length=100, unique=True, null=True)
+    website = models.CharField(max_length=100, null=True, blank=True)
     status = models.CharField(max_length=50, null=True)
     mission = models.CharField(max_length=4096, null=True)
     reason = models.CharField(max_length=4096, null=True)
