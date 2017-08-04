@@ -293,9 +293,6 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
                        ).filter(
                           event__in=events).delete()
 
-
-                    return redirect('openCurrents:approve-hours')
-
                 #check if the volunteer is accepted and approve the same
                 elif i.split(':')[1] == '1' and i !='':
                     try:
@@ -312,8 +309,6 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
                         logger.info('Approving timelog Error: %s',e)
                         return redirect('openCurrents:500')
                     logger.info('Approving timelog : %s',time_log)
-
-                    #return redirect('openCurrents:approve-hours')
                 
         return redirect('openCurrents:approve-hours')
         #templist[:] = [item.split(':')[0] for item in templist if item != '' and item.split(':')[1]!='0']
