@@ -191,11 +191,11 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
         writer = csv.writer(response)
         writer.writerow(k_dict.keys())
         for i in vol_personal_info:
-            usertimelog_info = UserTimeLog.objects.filter(user=i)
+            usertimelog_info = UserTimeLog.objects.filter(user=i).filter(is_verified=True)
             for j in usertimelog_info:
                 # Loop across all the users registered
                 try:
-                    datetime_duration = j.datetime_end-j.datetime_start
+                    datetime_duration = j.event.datetime_end-j.event.datetime_start
                 except:
                     datetime_duration = '00:00:00'
                 if post_data['start-date'] != u'':
@@ -208,8 +208,8 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
                     s_dt_db.replace(tzinfo=utc)==datetime.strptime(s_dt_ui, '%Y-%m-%d').replace(tzinfo=utc) ) \
                     and (e_dt_db.replace(tzinfo=utc) <datetime.strptime(e_dt_ui, '%Y-%m-%d').replace(tzinfo=utc)  or\
                     e_dt_db.replace(tzinfo=utc) ==datetime.strptime(e_dt_ui, '%Y-%m-%d').replace(tzinfo=utc) ):
-                        cleaned_list = [str(i.first_name), str(i.last_name), str(i.email), str(datetime_duration), str(j.datetime_start),\
-                            str(j.datetime_end), str(j.event.datetime_start), str(j.event.location), str(j.event.project.name)]
+                        cleaned_list = [str(i.first_name), str(i.last_name), str(i.email), str(datetime_duration), str(j.event.datetime_start),\
+                            str(j.event.datetime_end), str(j.event.datetime_start).split(" ")[0], str(j.event.location), str(j.event.project.name)]
                         for k in rem_index:
                             #delete the columns which were deselected by the user
                             del cleaned_list[k]
@@ -217,8 +217,8 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
                 else:
                     #if the user input in start-time is empty
                     if (str(j.event.datetime_end)<str(post_data['end-date']) or str(j.event.datetime_end)==str(post_data['end-date'])):
-                        cleaned_list = [str(i.first_name), str(i.last_name), str(i.email), str(datetime_duration), str(j.datetime_start),\
-                            str(j.datetime_end), str(j.event.datetime_start), str(j.event.location), str(j.event.project.name)]
+                        cleaned_list = [str(i.first_name), str(i.last_name), str(i.email), str(datetime_duration), str(j.event.datetime_start),\
+                            str(j.event.datetime_end), str(j.event.datetime_start).split(" ")[0], str(j.event.location), str(j.event.project.name)]
                         for k in rem_index:
                             #delete the columns which were deselected by the user
                             del cleaned_list[k]
