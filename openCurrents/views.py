@@ -255,6 +255,7 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
         post_data = self.request.POST['post-data']
 
         templist = post_data.split(',')
+        projects = []
         for i in templist:
             if i != '':
                 i = str(i)
@@ -267,12 +268,15 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
                     #build manual tracking filter, currently only accessible by OrgUser...  
                     userid = user.id
                     org = OrgUser.objects.filter(user__id=userid)
-                    orgid = org[0].org.id
-                    projects = Project.objects.filter(org__id=orgid)
+                    for j in org:
+                        orgid = j.org.id
+                        for k in Project.objects.filter(org__id=orgid):
+                            if k.name == "ManualTracking":
+                                projects += list(Project.objects.filter(org__id=orgid))
                     events = Event.objects.filter(project__in=projects).filter(event_type='MN')
 
                     #check if the volunteer is declined and delete the same
-                    if i.split(':')[1] == '0' and i != '':
+                    if i.split(':')[1] == '0':
                         time_log = UserTimeLog.objects.filter(user=user
                            ).filter(
                               datetime_start__lt=week_date + timedelta(days=7)
@@ -288,15 +292,19 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
 
                     #check if the volunteer is accepted and approve the same
                     elif i.split(':')[1] == '1' and i !='':
-                        time_log = UserTimeLog.objects.filter(user=user
-                           ).filter(
-                              datetime_start__lt=week_date + timedelta(days=7)
-                           ).filter(
-                              datetime_start__gte=week_date
-                           ).filter(
-                              is_verified=False
-                           ).filter(
-                              event__in=events).update(verified=True)
+                        try:
+                            time_log = UserTimeLog.objects.filter(user=user
+                               ).filter(
+                                  datetime_start__lt=week_date + timedelta(days=7)
+                               ).filter(
+                                  datetime_start__gte=week_date
+                               ).filter(
+                                  is_verified=False
+                               ).filter(
+                                  event__in=events).update(is_verified=True)
+                        except Exception as e:
+                            logger.info('Approving timelog Error: %s',e)
+                            return redirect('openCurrents:500')
                         logger.info('Approving timelog : %s',time_log)
 
                         return redirect('openCurrents:approve-hours')
