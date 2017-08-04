@@ -314,7 +314,7 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
                             return redirect('openCurrents:500')
                         logger.info('Approving timelog : %s',time_log)
 
-                        return redirect('openCurrents:approve-hours')
+                        #return redirect('openCurrents:approve-hours')
                 
                 #if unable to split, approve for when left in initial state
                 except Exception as e:
@@ -341,10 +341,11 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
                            ).filter(
                               event__in=events).update(is_verified = True)
 
-                        return redirect('openCurrents:approve-hours')
+                        #return redirect('openCurrents:approve-hours')
                     else:
                         logger.error("usertimelog record could'nt be deleted",e)
                         return redirect('openCurrents:500')
+        return redirect('openCurrents:approve-hours')
         #templist[:] = [item.split(':')[0] for item in templist if item != '' and item.split(':')[1]!='0']
         # try:
         #     for i in templist:
