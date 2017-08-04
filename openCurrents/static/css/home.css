@@ -216,11 +216,39 @@
   }
 }
 
-#intro-1, #intro-2, #intro-3, #intro-4 {
+#intro-1, #intro-2, #intro-3, #intro-4, #intro-5 {
   min-height: 100vh;
 }
 
 #intro-2, #intro-4, #intro-6 {
   background-color: #ffffff;
   color: #1f4975;
+}
+
+.home-input {
+  background-color: transparent;
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+input.home-input::-webkit-input-placeholder {
+  color: #ffffff; }
+
+input.home-input::-moz-placeholder {
+  color: #ffffff; }
+
+input.home-input:-ms-input-placeholder {
+  color: #ffffff; }
+
+input.home-input::placeholder {
+  color: #ffffff; }
+
+.home-input:hover {
+  background-color: transparent;
+  border-color: #ffffff;
+}
+
+.home-input:focus {
+  background-color: transparent;
+  border-color: #42bdea;
 }

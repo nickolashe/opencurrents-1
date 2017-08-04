@@ -222,6 +222,45 @@
           </div>
         </div>
       </div>
+
+      <div id="intro-5">
+        <div id="5" class="header-spacer"></div>
+
+        <div class="row center">
+          <h2 class="title white">Join openCurrents</h2>
+        </div>
+
+        <form method="post" action="{% url 'openCurrents:process_signup' referrer=referrer %}">
+          {% csrf_token %}
+          <div class="row collapse three-halves-margin-bottom half-margin-top">
+            <div class="center small-12 medium-8 small-centered columns">
+
+              <div class="small-6 columns">
+                <input class="home-input lead center" type="text" name="user_firstname" placeholder="First name" tabindex="0" />
+              </div>
+
+              <div class="small-6 columns">
+                <input class="home-input lead center" type="text" name="user_lastname" placeholder="Last name" tabindex="0" />
+              </div>
+              <div class="small-12 columns">
+                <input class="home-input lead center" type="email" name="user_email" placeholder="Email address" tabindex="0" />
+              </div>
+
+              <!--
+              <div class="small-12 columns">
+                <div class="checkbox center">
+                  <label id=""><input type="checkbox" name="" id="" />Send me monthly updates</label>
+                </div>
+              </div>
+              -->
+            </div>
+          </div>
+
+          <div class="row center half-margin-top">
+            <input type="submit" class="button large round clear" value="I'm in!"/>
+          </div>
+        </form>
+      </div>
     </div>
 
     <div off-canvas="menu right shift" id="home-menu">
@@ -248,7 +287,7 @@
       </div>
     </div>
 
-    <div id="signup-box" class="modal center small-12 medium-9 large-7 small-centered columns">
+    <div id="signup-box" class="modal center small-12 medium-9 large-8 small-centered columns">
       <div class="row center">
         <h2 class="one-margin-top">Join openCurrents</h2>
       </div>
@@ -258,19 +297,19 @@
         <div class="row three-halves-margin-bottom half-margin-top">
           <div class="center small-12 medium-9 small-centered columns">
 
-            <div class="input-left small-6 columns">
-              <input type="text" name="user_firstname" placeholder="First name" tabindex="0" />
+            <div class="small-6 columns">
+              <input class="center" type="text" name="user_firstname" placeholder="First name" tabindex="0" />
             </div>
 
-            <div class="input-right small-6 columns">
-              <input type="text" name="user_lastname" placeholder="Last name" tabindex="0" />
+            <div class="small-6 columns">
+              <input class="center" type="text" name="user_lastname" placeholder="Last name" tabindex="0" />
             </div>
             <div class="small-12 columns">
-              <input type="email" name="user_email" placeholder="Email address" tabindex="0" />
+              <input class="center" type="email" name="user_email" placeholder="Email address" tabindex="0" />
             </div>
-            <div id="org-signup-name" class="small-12 columns hidden">
+<!--             <div id="org-signup-name" class="small-12 columns hidden">
               <input type="text" name="org_name" placeholder="Organization name" tabindex="0" />
-            </div>
+            </div> -->
 
             <!--
             <div class="small-12 columns">

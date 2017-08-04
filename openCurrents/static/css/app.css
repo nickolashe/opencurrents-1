@@ -207,11 +207,6 @@ textarea {
   transition: border 0.25s ease-in-out;
 }
 
-[type='text']:hover, [type='password']:hover, [type='date']:hover, [type='datetime']:hover, [type='datetime-local']:hover, [type='month']:hover, [type='week']:hover, [type='email']:hover, [type='number']:hover, [type='search']:hover, [type='tel']:hover, [type='time']:hover, [type='url']:hover, [type='color']:hover,
-textarea:hover {
-  border-bottom: 1px solid #1f4975;
-}
-
 [type='text']:focus, [type='password']:focus, [type='date']:focus, [type='datetime']:focus, [type='datetime-local']:focus, [type='month']:focus, [type='week']:focus, [type='email']:focus, [type='number']:focus, [type='search']:focus, [type='tel']:focus, [type='time']:focus, [type='url']:focus, [type='color']:focus,
 textarea:focus {
   border: none;
@@ -239,8 +234,8 @@ select {
 }
 
 select:hover {
-  border-color: #1f4975;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='32' height='24' viewBox='0 0 32 24'><polygon points='0,0 32,0 16,24' style='fill: #r1f4975'></polygon></svg>");
+  border-color: #1f4975;
 }
 
 select:focus {
