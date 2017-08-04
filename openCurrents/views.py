@@ -266,71 +266,39 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
                 i = str(i)
 
                 #split the data for user, flag, and date info
-                try:
-                    user = User.objects.get(username=i.split(':')[0])
-                    week_date = datetime.strptime( i.split(':')[2], '%m-%d-%Y')
-                  
-                    #build manual tracking filter, currently only accessible by OrgUser...  
-                    userid = user.id
-                    org = OrgUser.objects.filter(user__id=userid)#queryset of Orgs
-                    for j in org:
-                        #Parse through the orglist to check ManualTracking project for the user in concern
-                        orgid = j.org.id
-                        for k in Project.objects.filter(org__id=orgid):
-                            if k.name == "ManualTracking":
-                                #Add the project in manualtracking to the projects list
-                                projects += list(Project.objects.filter(org__id=orgid))
-                    events = Event.objects.filter(project__in=projects).filter(event_type='MN')
-
-                    #check if the volunteer is declined and delete the same
-                    if i.split(':')[1] == '0':
-                        time_log = UserTimeLog.objects.filter(user=user
-                           ).filter(
-                              datetime_start__lt=week_date + timedelta(days=7)
-                           ).filter(
-                              datetime_start__gte=week_date
-                           ).filter(
-                              is_verified=False
-                           ).filter(
-                              event__in=events).delete()
-
-
-                        return redirect('openCurrents:approve-hours')
-
-                    #check if the volunteer is accepted and approve the same
-                    elif i.split(':')[1] == '1' and i !='':
-                        try:
-                            time_log = UserTimeLog.objects.filter(user=user
-                               ).filter(
-                                  datetime_start__lt=week_date + timedelta(days=7)
-                               ).filter(
-                                  datetime_start__gte=week_date
-                               ).filter(
-                                  is_verified=False
-                               ).filter(
-                                  event__in=events).update(is_verified=True)
-                        except Exception as e:
-                            logger.info('Approving timelog Error: %s',e)
-                            return redirect('openCurrents:500')
-                        logger.info('Approving timelog : %s',time_log)
-
-                        #return redirect('openCurrents:approve-hours')
+                user = User.objects.get(username=i.split(':')[0])
+                week_date = datetime.strptime( i.split(':')[2], '%m-%d-%Y')
                 
-                #if unable to split, approve for when left in initial state
-                except Exception as e:
-                    logger.info('unable to split, exception: %s',e)
-                    if i:
-                        user = User.objects.get(username=i.split(':')[0])
-                        week_date = datetime.strptime( i.split(':')[2], '%m-%d-%Y')
+                #build manual tracking filter, currently only accessible by OrgUser...  
+                userid = user.id
+                org = OrgUser.objects.filter(user__id=userid)#queryset of Orgs
+                for j in org:
+                    #Parse through the orglist to check ManualTracking project for the user in concern
+                    orgid = j.org.id
+                    for k in Project.objects.filter(org__id=orgid):
+                        if k.name == "ManualTracking":
+                            #Add the project in manualtracking to the projects list
+                            projects += list(Project.objects.filter(org__id=orgid))
+                events = Event.objects.filter(project__in=projects).filter(event_type='MN')
 
-                        #build manual tracking filter, currently only accessible by OrgUser...  
-                        userid = user.id
-                        org = OrgUser.objects.filter(user__id=userid)
-                        orgid = org[0].org.id
-                        projects = Project.objects.filter(org__id=orgid)
-                        events = Event.objects.filter(project__in=projects).filter(event_type='MN')
+                #check if the volunteer is declined and delete the same
+                if i.split(':')[1] == '0':
+                    time_log = UserTimeLog.objects.filter(user=user
+                       ).filter(
+                          datetime_start__lt=week_date + timedelta(days=7)
+                       ).filter(
+                          datetime_start__gte=week_date
+                       ).filter(
+                          is_verified=False
+                       ).filter(
+                          event__in=events).delete()
 
-                        #update is_verified to True
+
+                    return redirect('openCurrents:approve-hours')
+
+                #check if the volunteer is accepted and approve the same
+                elif i.split(':')[1] == '1' and i !='':
+                    try:
                         time_log = UserTimeLog.objects.filter(user=user
                            ).filter(
                               datetime_start__lt=week_date + timedelta(days=7)
@@ -339,12 +307,14 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
                            ).filter(
                               is_verified=False
                            ).filter(
-                              event__in=events).update(is_verified = True)
-
-                        #return redirect('openCurrents:approve-hours')
-                    else:
-                        logger.error("usertimelog record could'nt be deleted",e)
+                              event__in=events).update(is_verified=True)
+                    except Exception as e:
+                        logger.info('Approving timelog Error: %s',e)
                         return redirect('openCurrents:500')
+                    logger.info('Approving timelog : %s',time_log)
+
+                    #return redirect('openCurrents:approve-hours')
+                
         return redirect('openCurrents:approve-hours')
         #templist[:] = [item.split(':')[0] for item in templist if item != '' and item.split(':')[1]!='0']
         # try:
