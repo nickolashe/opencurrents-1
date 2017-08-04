@@ -139,7 +139,7 @@ class InviteFriendsView(LoginRequiredMixin, SessionContextView, TemplateView):
 
 class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
     template_name = 'approve-hours.html'
-    context_object_name = 'week_list'
+    context_object_name = 'week'
 
     def get_queryset(self):
         userid = self.request.user.id
@@ -161,12 +161,12 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
             is_verified=False
         )
 
-        # list meant to hold dictionary ordered pairs for each 7 days
-        weeks = []
+        # week list holds dictionary ordered pairs for 7 days of timelogs
+        week = []
 
         # return nothing if unverified time logs not found
         if not timelogs:
-            return weeks
+            return week
         
         # find monday before oldest unverified time log
         oldest_timelog = timelogs.order_by('datetime_start')[0]
@@ -175,81 +175,76 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
         today = timezone.now()
         #print(week_startdate_monday)
 
-        # loop with 7 day increments from monday before oldest timelog until today
-        # building the list weeks with all timelogs per week
-        #while( week_startdate_monday <= today ):
+        # build one weeks worth of timelogs starting from the oldest monday
         time_log_week = OrderedDict()
-        for x in range(0,1):
-            eventtimelogs = UserTimeLog.objects.filter(
-                event__in=events
-            ).filter(
-                datetime_start__lt=week_startdate_monday + timedelta(days=7) 
-            ).filter(
-                datetime_start__gte=week_startdate_monday
-            ).filter(
-                is_verified=False
-            )
+        eventtimelogs = UserTimeLog.objects.filter(
+            event__in=events
+        ).filter(
+            datetime_start__lt=week_startdate_monday + timedelta(days=7) 
+        ).filter(
+            datetime_start__gte=week_startdate_monday
+        ).filter(
+            is_verified=False
+        )
 
 
-            time_log = OrderedDict()
-            items = {'Total': 0}
+        time_log = OrderedDict()
+        items = {'Total': 0}
 
-            for timelog in eventtimelogs:
-                user_email = timelog.user.email 
-                name = User.objects.get(username = user_email).first_name +" "+User.objects.get(username = user_email).last_name
+        for timelog in eventtimelogs:
+            user_email = timelog.user.email 
+            name = User.objects.get(username = user_email).first_name +" "+User.objects.get(username = user_email).last_name
 
-                # check if same day and duration longer than 15 min
-                if timelog.datetime_start.date() == timelog.datetime_end.date() and timelog.datetime_end - timelog.datetime_start >= timedelta(minutes=15):
-                    if user_email not in time_log:
-                        time_log[user_email] = OrderedDict(items)
-                    time_log[user_email]["name"] = name
+            # check if same day and duration longer than 15 min
+            if timelog.datetime_start.date() == timelog.datetime_end.date() and timelog.datetime_end - timelog.datetime_start >= timedelta(minutes=15):
+                if user_email not in time_log:
+                    time_log[user_email] = OrderedDict(items)
+                time_log[user_email]["name"] = name
 
-                    # time in hours rounded to nearest 15 min
-                    rounded_time = self.get_hours_rounded(timelog.datetime_start, timelog.datetime_end)
+                # time in hours rounded to nearest 15 min
+                rounded_time = self.get_hours_rounded(timelog.datetime_start, timelog.datetime_end)
 
-                    # use day of week and date as key
-                    date_key = timelog.datetime_start.strftime('%A, %m/%d')
-                    if date_key not in time_log[user_email]:
-                        time_log[user_email][date_key] = 0
+                # use day of week and date as key
+                date_key = timelog.datetime_start.strftime('%A, %m/%d')
+                if date_key not in time_log[user_email]:
+                    time_log[user_email][date_key] = 0
 
-                    # add the time to the corresponding date_key and total
-                    time_log[user_email][date_key] += rounded_time
-                    time_log[user_email]['Total'] += rounded_time
-                else:
-                    # Multiple day volunteering
-                    # Still working on it
-                    # day_diff = i.datetime_end - i.datetime_start
-                    # temp_date = i.datetime_start
-                    # while temp_date.date() != i.datetime_end.date():
-                    #     tt = temp_date+timedelta(days=1)
-                    #     tt = datetime.combine(tt, time.min).replace(tzinfo=None)
-                    #     tt_diff = tt - temp_date.replace(tzinfo=None)
-                    #     rounded_time_mdv1 = (math.ceil(self.get_hours(str(tt_diff)) * 4) / 4)
-                    #     time_log[str(i.user)][str(temp_date.strftime("%A"))] += rounded_time_mdv1
-                    #     time_log[str(i.user)]['Total'] += rounded_time_mdv1
-                    #     temp_date = temp_date+timedelta(days=1)
-                    #     rounded_time_mdv2 = (math.ceil(self.get_hours(str(temp_date.replace(tzinfo=None) - tt)) * 4) / 4)
-                    #     time_log[str(i.user)][str(temp_date.strftime("%A"))] += rounded_time_mdv2
-                    #     time_log[str(i.user)]['Total'] += rounded_time_mdv2
+                # add the time to the corresponding date_key and total
+                time_log[user_email][date_key] += rounded_time
+                time_log[user_email]['Total'] += rounded_time
+            else:
+                # Multiple day volunteering
+                # Still working on it
+                # day_diff = i.datetime_end - i.datetime_start
+                # temp_date = i.datetime_start
+                # while temp_date.date() != i.datetime_end.date():
+                #     tt = temp_date+timedelta(days=1)
+                #     tt = datetime.combine(tt, time.min).replace(tzinfo=None)
+                #     tt_diff = tt - temp_date.replace(tzinfo=None)
+                #     rounded_time_mdv1 = (math.ceil(self.get_hours(str(tt_diff)) * 4) / 4)
+                #     time_log[str(i.user)][str(temp_date.strftime("%A"))] += rounded_time_mdv1
+                #     time_log[str(i.user)]['Total'] += rounded_time_mdv1
+                #     temp_date = temp_date+timedelta(days=1)
+                #     rounded_time_mdv2 = (math.ceil(self.get_hours(str(temp_date.replace(tzinfo=None) - tt)) * 4) / 4)
+                #     time_log[str(i.user)][str(temp_date.strftime("%A"))] += rounded_time_mdv2
+                #     time_log[str(i.user)]['Total'] += rounded_time_mdv2
 
-                    # just ignore multi-day requests for now
-                    pass
+                # just ignore multi-day requests for now
+                pass
 
-            time_log = OrderedDict([
-                (k, time_log[k])
-                for k in time_log
-                if time_log[k]['Total'] > 0
-            ])
-            logger.info('made a time_log: %s',time_log)
-            if time_log:
-                time_log_week[week_startdate_monday] = time_log
-                weeks.append(time_log_week)
+        time_log = OrderedDict([
+            (k, time_log[k])
+            for k in time_log
+            if time_log[k]['Total'] > 0
+        ])
+        logger.info('made a time_log: %s',time_log)
+        if time_log:
+            time_log_week[week_startdate_monday] = time_log
+            week.append(time_log_week)
 
  
-            week_startdate_monday += timedelta(days=7)
-
-        logger.info('%s',weeks)
-        return weeks
+        logger.info('%s',week)
+        return week
 
     def post(self, request):
         """
