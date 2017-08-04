@@ -252,11 +252,21 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
         return weeks
 
     def post(self, request):
+        """
+        Takes request as input which is a comma separated string which is then split to form a list with data like
+        ```['a@bc.com:1:7-20-2017','abc@gmail.com:0:7-22-2017',''...]```
+        """
         post_data = self.request.POST['post-data']
 
-        templist = post_data.split(',')
+        templist = post_data.split(',')#eg list: ['a@bc.com:1:7-20-2017','abc@gmail.com:0:7-22-2017',''...]
         projects = []
         for i in templist:
+            """
+            eg for i:
+            i.split(':')[0] = 'abc@gmail.com'
+            i.split(':')[1] = '0' | '1'
+            i.split(':')[2] = '7-31-2017'
+            """
             if i != '':
                 i = str(i)
 
@@ -267,11 +277,13 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
                   
                     #build manual tracking filter, currently only accessible by OrgUser...  
                     userid = user.id
-                    org = OrgUser.objects.filter(user__id=userid)
+                    org = OrgUser.objects.filter(user__id=userid)#queryset of Orgs
                     for j in org:
+                        #Parse through the orglist to check ManualTracking project for the user in concern
                         orgid = j.org.id
                         for k in Project.objects.filter(org__id=orgid):
                             if k.name == "ManualTracking":
+                                #Add the project in manualtracking to the projects list
                                 projects += list(Project.objects.filter(org__id=orgid))
                     events = Event.objects.filter(project__in=projects).filter(event_type='MN')
 
