@@ -255,6 +255,10 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
 
         templist = post_data.split(',')#eg list: ['a@bc.com:1:7-20-2017','abc@gmail.com:0:7-22-2017',''...]
         projects = []
+        userid = self.request.user.id
+        org = OrgUser.objects.filter(user__id=userid)
+        if org:
+            orgid = org[0].org.id
         for i in templist:
             """
             eg for i:
@@ -270,15 +274,15 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
                 week_date = datetime.strptime( i.split(':')[2], '%m-%d-%Y')
                 
                 #build manual tracking filter, currently only accessible by OrgUser...  
-                userid = user.id
-                org = OrgUser.objects.filter(user__id=userid)#queryset of Orgs
-                for j in org:
-                    #Parse through the orglist to check ManualTracking project for the user in concern
-                    orgid = j.org.id
-                    for k in Project.objects.filter(org__id=orgid):
-                        if k.name == "ManualTracking":
-                            #Add the project in manualtracking to the projects list
-                            projects += list(Project.objects.filter(org__id=orgid))
+                # userid = user.id
+                # org = OrgUser.objects.filter(user__id=userid)#queryset of Orgs
+                # for j in org:
+                #     #Parse through the orglist to check ManualTracking project for the user in concern
+                #     orgid = j.org.id
+                #     for k in Project.objects.filter(org__id=orgid):
+                #         if k.name == "ManualTracking":
+                #             #Add the project in manualtracking to the projects list
+                projects = Project.objects.filter(org__id=orgid)
                 events = Event.objects.filter(project__in=projects).filter(event_type='MN')
 
                 #check if the volunteer is declined and delete the same
