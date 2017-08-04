@@ -1270,20 +1270,21 @@ def process_signup(request, referrer=None, endpoint=False, verify_email=True):
                 else:
                     logger.info('user %s has not been verified', user_email)
 
-        # user org
-        if org_name:
-            org = None
-            try:
-                org = Org(name=org_name)
-                org.save()
+        # skip creation of an OrgUser from signup for now
+        ## user org
+        #if org_name:
+        #    org = None
+        #    try:
+        #        org = Org(name=org_name)
+        #        org.save()
 
-                org_user = OrgUser(
-                    user=user,
-                    org=org
-                )
-                org_user.save()
-            except IntegrityError:
-                logger.info('org %s already exists', org_name)
+        #        org_user = OrgUser(
+        #            user=user,
+        #            org=org
+        #        )
+        #        org_user.save()
+        #    except IntegrityError:
+        #        logger.info('org %s already exists', org_name)
 
         if verify_email:
             logger.info('Email verification requested')
