@@ -12,6 +12,12 @@
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
 
+      {% if status_msg %}
+      <div class="alert row half-margin-top">
+        {{status_msg}}
+      </div>
+      {% endif %}
+
         <!-- If org-type = unregistered, direct to ?
         If org-type = nonprofit || business && org-user-type = leader, direct to /ground-rules. If org-type = nonprofit || business && org-user-type = employee, direct to /tell-your-boss -->
         <form id="org-signup-form" method="post" action="{% url "openCurrents:process_org_signup" %}">
@@ -20,11 +26,6 @@
             <h3 class="title">Pilot organization application</h3>
           </div>
 
-          {% if status_msg %}
-          <div class="alert row half-margin-top">
-            {{status_msg}}
-          </div>
-          {% endif %}
 
           <div id="org-signup-1">
             <div class="row half-margin-bottom half-margin-top center">
