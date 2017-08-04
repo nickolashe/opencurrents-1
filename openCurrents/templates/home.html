@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    {% include "head.html" %}
+    {% include "partials/head.html" %}
     <link href="{% static "css/home.css" %}" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Alegreya+Sans+SC:300" rel="stylesheet">
 
@@ -14,7 +14,7 @@
   </head>
 
   <body id="home" class="splash" onunload=''>
-    {% include "home-header.html" %}
+    {% include "partials/home-header.html" %}
 
     <div id="container" class="js-close-any" canvas>
       
@@ -58,7 +58,7 @@
 
         <div class="row center one-margin-bottom">
           <div class="small-centered columns">
-            {% include 'home-diagram.html' %}
+            {% include 'partials/home-diagram.html' %}
           </div>
         </div>
 
@@ -264,7 +264,7 @@
     </div>
 
     <div off-canvas="menu right shift" id="home-menu">
-      {% include 'home-menu.html' %}
+      {% include 'partials/home-menu.html' %}
     </div>
 
 

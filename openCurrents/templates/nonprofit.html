@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    {% include "head.html" %}
+    {% include "partials/head.html" %}
     <link href="{% static "css/home.css" %}" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Alegreya+Sans+SC:300" rel="stylesheet">
   </head>
@@ -18,14 +18,14 @@
       </div>
 
       <div class="hide-for-small-only one-margin-top medium-6 right columns end">
-        <a href="{% url 'openCurrents:nonprofit' %}" class="three-halves-margin-right navy">For nonprofits</a>
+        <a href="#1" class="three-halves-margin-right navy">For nonprofits</a>
         <a href="{% url 'openCurrents:business' %}" class="three-halves-margin-right">For businesses</a>
         <a href="{% url 'openCurrents:login' %}">Log in</a>
       </div>
 
       <div id="header-menu" class="show-for-small-only small-2 columns center end">
         <a class="toggle-menu">
-          {% include 'tilde-menu.html' %}
+          {% include 'partials/tilde-menu.html' %}
         </a>
       </div>
     </header>
@@ -142,7 +142,7 @@
 
         <div class="row center one-margin-bottom">
           <div class="small-centered columns">
-            {% include 'home-diagram.html' %}
+            {% include 'partials/home-diagram.html' %}
           </div>
         </div>
 
@@ -200,7 +200,7 @@
     </div>
 
     <div off-canvas="menu right shift" id="home-menu">
-      {% include 'home-menu.html' %}
+      {% include 'partials/home-menu.html' %}
     </div>
 
     <div id="play-intro" class="modal small-12 medium-9 large-7 small-centered columns">
