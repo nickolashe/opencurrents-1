@@ -830,6 +830,7 @@ class LiveDashboardView(LoginRequiredMixin, SessionContextView, TemplateView):
         )
         context['registered_users'] = registered_users
 
+
         # non-registered (existing) users
         unregistered_users = [
             ur_user
@@ -838,7 +839,6 @@ class LiveDashboardView(LoginRequiredMixin, SessionContextView, TemplateView):
             ])
         ]
         context['unregistered_users'] = unregistered_users
-
         # dict for looking up user data by lastname
         uu_lookup = dict([
             (user.last_name, {
@@ -1100,15 +1100,28 @@ def event_register_live(request, eventid):
     userid = request.POST['userid']
     user = User.objects.get(id=userid)
     event = Event.objects.get(id=eventid)
-    user_event_registration = UserEventRegistration(
-        user=user,
-        event=event,
-        is_confirmed=True
-    )
-    user_event_registration.save()
-    logger.info('User %s registered for event %s', user.username, event.id)
-
-    return HttpResponse({'userid': userid, 'eventid': eventid}, status=201)
+    user_events = UserEventRegistration.objects.values('user__id','event__id').filter(user__id = userid)
+    user_event_ids = [d for d in user_events if int(userid) == d['user__id'] and int(eventid) == d['event__id']]
+    if not user_event_ids:
+        user_event_registration = UserEventRegistration(
+            user=user,
+            event=event,
+            is_confirmed=True
+        )
+        user_event_registration.save()
+        logger.info('User %s registered for event %s', user.username, event.id)
+    else:
+        logger.info('User %s already registered for event %s', user.username, event.id)
+        return HttpResponse(status=400)
+    tz = event.project.org.timezone
+    event_ds = event.datetime_start.astimezone(pytz.timezone(tz)).time()
+    event_de = event.datetime_end.astimezone(pytz.timezone(tz)).time()
+    d_now = datetime.utcnow().replace(tzinfo=pytz.utc).astimezone(pytz.timezone(tz))
+    if d_now.time() < event_de and d_now.time() > event_ds and d_now.date() == event.datetime_start.astimezone(pytz.timezone(tz)).date():
+        event_status = '1'
+    else:
+        event_status = '0'
+    return HttpResponse(content=json.dumps({'userid': userid, 'eventid': eventid, 'event_status': event_status}), status=201)
 
 # resend the verification email to a user who hits the Resend button on their check-email page
 def process_resend_verification(request, user_email):
