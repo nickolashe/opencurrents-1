@@ -1468,11 +1468,12 @@ def process_signup(request, referrer=None, endpoint=False, verify_email=True):
                 org = Org(name=org_name)
                 org.save()
 
-                org_user = OrgUser(
-                    user=user,
-                    org=org
-                )
-                org_user.save()
+               # skip creation of an OrgUser from signup for now
+                #org_user = OrgUser(
+                #    user=user,
+                #    org=org
+                #)
+                #org_user.save()
             except IntegrityError:
                 logger.info('org %s already exists', org_name)
 
@@ -1909,25 +1910,27 @@ def process_org_signup(request):
             existing.save()
 
         org = Org.objects.get(name=form_data['org_name'])
-        org_user = OrgUser(
-            org=org,
-            user=request.user,
-            affiliation=form_data['user_affiliation']
-        )
-        try:
-            org_user.save()
-        except IntegrityError:
-            logger.info(
-                'user %s is already affiliated with org %s',
-                request.user.email,
-                org.name
-            )
-            org_user = OrgUser.objects.get(
-                org=org,
-                user=request.user
-            )
-            org_user.affiliation = form_data['user_affiliation']
-            org_user.save()
+        # preventing automatic creation of OrgUser for now.
+        # OrgUser creation for org admins is under review
+        #org_user = OrgUser(
+        #    org=org,
+        #    user=request.user,
+        #    affiliation=form_data['user_affiliation']
+        #)
+        #try:
+        #    org_user.save()
+        #except IntegrityError:
+        #    logger.info(
+        #        'user %s is already affiliated with org %s',
+        #        request.user.email,
+        #        org.name
+        #    )
+        #    org_user = OrgUser.objects.get(
+        #        org=org,
+        #        user=request.user
+        #    )
+        #    org_user.affiliation = form_data['user_affiliation']
+        #    org_user.save()
 
         logger.info(
             'Successfully created / updated org %s nominated by %s',
