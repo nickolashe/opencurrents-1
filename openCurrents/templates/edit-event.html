@@ -1,0 +1,198 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    {% include "partials/head.html" %}
+
+    <script type="text/javascript" src="{% static 'js/jquery.timepicker.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jquery-ui-datepicker.js' %}"></script>
+    <link href="{% static 'css/jquery.timepicker.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/jquery-ui-datepicker.css' %}" rel="stylesheet" type="text/css">
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAGfdpv-Vg_rskfib8jzp-a6VI92QuC2I0&v=3.exp&types=address&libraries=places"></script>
+  </head>
+
+  <body>
+
+    {% include "partials/header.html" %}  
+
+    <div id="container" class="js-close-any" canvas="container">
+      <div id="wrapper">
+        {% if status_msg %}
+        <div class="alert row half-margin-top">
+          {{status_msg}}
+        </div>
+        {% endif %}
+
+        <div class="row">
+          <h3 class="title">Edit event</h3>
+        </div>
+        <form action ="" method="post">
+        {% csrf_token %}
+          <div class="row one-margin-bottom">
+            <div class="small-12 medium-6 small-centered columns">
+
+              <h6 class="fit-left navy">Let's...</h6>
+              <span class="input-sizer"><input name="project-name" class="center" type="text" placeholder="do some good" value="{{ event.project.name }}"/></span>
+            </div>
+          </div>
+
+          <div class="row one-margin-bottom">
+            <div class="small-8 medium-4 small-centered columns">
+              <h6 class="fit-left navy">on</h6>
+              <span class="input-sizer"><input name="project-date" id="project-date" class="center" type="text" placeholder="yyyy-mm-dd" value="{{date_start}}" /></span>
+            </div>
+          </div>
+
+          <div class="row one-margin-bottom">
+            <div class="small-12 medium-6 small-centered columns">
+              <div class="row">
+                <div class="input-left small-6 columns">
+                  <h6 class="fit-left navy">from</h6>
+                  <span class="input-sizer"><input name="project-start" id="project-start" class="center" type="text" placeholder="12:00 pm" value="{{ start_time }}" /></span>
+                </div>
+
+                <div class="input-right small-6 columns">
+                  <h6 class="fit-left navy">to</h6>
+                  <span class="input-sizer"><input name="project-end" id="project-end" class="center" type="text" placeholder="12:00 pm" value="{{end_time}}" /></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row half-margin-bottom center">
+            <div id="location-box" class="small-8 medium-4 small-centered columns">
+              <h6 class="fit-left navy">at</h6>
+              <span class="input-sizer"><input name="project-location-1" id="project-location-1" type="text" class="center" placeholder="location" value="{{event.location}}"/></span>
+            </div>
+          </div>
+
+          <a id="add-location">Add another location</a>
+
+          <div class="three-halves-margin-top row left">
+            <div class="small-12 medium-6 small-centered columns">
+              <h6 class="navy no-margin-bottom">Project description</h6>
+              <p class="small-text grey no-margin-bottom">What should volunteers know? What should they bring?</p>
+              <textarea name="project-description" placeholder="" rows="4" value="">{{event.description}}</textarea>
+            </div>
+
+          </div>
+
+          <div class="one-margin-top row left">
+            <div class="small-12 medium-6 small-centered columns">
+              <h6 class="navy no-margin-bottom">Project coordinator</h6>
+              <p class="small-text grey">Who will respond to volunteers who register?</p>
+
+              <div class="row">
+                <div class="input-left small-5 columns">
+                  <input type="text" name="coordinator-name" placeholder="First name" value="{{event.coordinator_firstname}}"/>
+                </div>
+
+                <div class="input-right small-7 columns">
+                  <input type="text" name="coordinator-email" placeholder="Email" value="{{event.coordinator_email}}"/>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="small-6 small-centered columns">
+              <input type='submit' name='save-button' class="one-margin-top button round" value="Save"></button>
+              <input type='submit' name='del-button' class="one-margin-top button round" value="Delete"></button>
+              <p><a class="template-popup_open">Save template...</a></p>
+            </div>
+          </div>
+        </form>
+
+
+            <!-- <div class="row">
+              <div class="small-8 small-centered columns">
+                <h6 class="fit-left navy">Max volunteers:</h6>
+                <span class="input-sizer"><input name="project-max" id="project-max" class="center" type="text" placeholder="10" /></span>
+              </div>
+            </div> -->
+
+
+
+
+        <div id="push"></div>
+
+      <!-- wrapper div-->
+      </div>
+
+      {% include "footer.html" %}
+
+    <!--container div -->
+    </div>
+
+    <div id="bottom-stripe" class="full-width"></div>
+
+    <div off-canvas="menu right shift" id="menu">
+      {% include 'partials/menu.html' %}
+    </div>
+
+    <div id="template-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h3 class="popup-title">Save project template as...</h3>
+      </div>
+
+      <div class="row center">
+        <div class="small-centered small-8 medium-6 columns">
+
+          <input name="template-name" type="text" placeholder="Template name" value="[project-name]" class="center" />
+
+          <button class="one-margin-top button round">Create project</button>
+        </div>
+      </div>
+    </div>
+
+
+    <script type="text/javascript">
+      $(document).ready(function(){
+        $('#template-popup').popup({
+          vertical: 'top',
+          transition: 'all 0.75s',
+          scrolllock: true,
+        });
+
+
+        $('#project-date').datepicker({
+          dateFormat: 'yy-mm-dd',
+        });
+
+        $('#project-start, #project-end').timepicker({
+          step: 15,
+        });
+      });
+
+    </script>
+
+    <script type="text/javascript">
+      var id = 1;
+
+      $('#add-location').click(function(){
+        id ++;
+
+        $('#location-box').append('<div id="location-'+id+'" class="relative hidden"><h6 class="fit-left navy">&</h6><span class="input-sizer"><input name="project-location-'+id+'" id="project-location-'+id+'" type="text" class="center" placeholder="location"/></span><i class="remove-location fa fa-times-circle"></i></div>');
+        $('#location-'+id+'').slideDown();
+
+      });
+
+      $('#location-box').on('click', 'i', function(){
+        $(this).parent('div').slideUp();
+      });
+    </script>
+
+    <script type="text/javascript">
+      function initialize() {
+
+      var input = document.getElementById('project-location-'+id+'');
+      var autocomplete = new google.maps.places.Autocomplete(input);
+      }
+
+      google.maps.event.addDomListener(window, 'load', initialize);
+    </script>
+
+    <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
+  </body>
+</html>
