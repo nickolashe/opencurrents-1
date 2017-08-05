@@ -13,89 +13,118 @@
       <div id="wrapper">
         <div class="row">
           <h2 class="title-sub">Approve hours</h2>
-          <h5 class="subtitle">for the week of Jan 8, 2017</h5>
+          {% for date in week %}
+          <h5 class="subtitle">for the week of <span id="week_display"></span></h5>
         </div>
         
-        <div class="row left one-margin-top one-margin-bottom">
-          <div class="small-12 medium-8 small-centered columns">
-            <ul id="volunteer-list" class="accordion" data-accordion data-allow-all-closed="true">
-              <li class="accordion-item is-active" data-accordion-item>  
-                <a href="#" class="accordion-title">Danny Pernik<span class="float-right">8 hrs</span></a>
-                <div class="accordion-content" data-tab-content>
-                  <p>Monday<span>3 hrs</span></p>
-                  <p>Wednesday<span>2 hrs</span></p>
-                  <p>Thursday<span>3 hrs</span></p>
-                  <p class="edit-volunteer center">
-                    <input type="radio" id="defer-vol-1" name="vol-status-1" class="vol-radio hidden"/>
-                      <label for="defer-vol-1">
-                        <a class="defer-volunteer button round tiny caution" tabindex="0">Defer volunteer</a>
-                      </label>
-                    <input type="radio" id="decline-vol-1" name="vol-status-1" class="vol-radio hidden"/>
-                      <label for="decline-vol-1">
-                        <a class="decline-volunteer button round tiny alert">Decline volunteer</a>
-                      </label>
-                  </p>
+          <form action ="" method="post">
+             {% csrf_token %}
+             <div class="row left one-margin-top one-margin-bottom">
+               <div class="small-12 medium-8 small-centered columns">
+                 <ul id="volunteer-list" class="accordion" data-accordion data-allow-all-closed="true">
+                   {% for key_m, value_m in date.iteritems %}
 
-                  <p class="volunteer-declined hidden alert">Volunteer declined. <a class="undo-decline">Undo</a></p>
+                     <input type="hidden" id="week_display_draft" name="" value="{{key_m}}">
+                     <input type="hidden" id="week_month" name="" value="{{key_m.date.month}}-{{key_m.date.day}}-{{key_m.date.year}}"> 
+                        
+                     {% for key,value in value_m.iteritems %}
+                         <li class="accordion-item" data-accordion-item>  
+                           <a href="#" class="accordion-title">{% for k, v in value.items %} {% if k == "name" %} {{v}} {% endif %}{% endfor %}
+                             <span class="float-right">
+                               {% for k, v in value.items %} {% if k == "Total" %} {{v}} {% endif %}{% endfor %} hrs
+                             </span>
+                           </a>
+                           <div class="accordion-content" data-tab-content>
 
-                  <p class="volunteer-deferred hidden caution">Volunteer deferred. <a class="undo-defer">Undo</a></p>
-                </div>
-              </li>
+                             {% for k, v in value.iteritems %} 
+                               {% if k != "Total" and v != 0 and k != "name" %}   
+                                 <p>{{k}}<span>{{v}}  hrs</span></p>
+                                 <!--<p>Wednesday<span>2 hrs</span></p>
+                                 <p>Thursday<span>3 hrs</span></p>-->
+                               {% endif %}
+                             {% endfor %}
 
-              <li class="accordion-item" data-accordion-item>  
-                <a href="#" class="accordion-title">Max Tattenbach<span class="float-right">9 hrs</span></a>
-                <div class="accordion-content" data-tab-content>
-                  <p>Monday<span>3 hrs</span></p>
-                  <p>Wednesday<span>2 hrs</span></p>
-                  <p>Thursday<span>4 hrs</span></p>
-                  <p class="edit-volunteer center">
-                    <input type="radio" id="defer-vol-2" name="vol-status-2" class="vol-radio hidden"/>
-                    <label for="defer-vol-2">
-                      <a class="defer-volunteer button round tiny caution" tabindex="0">Defer volunteer</a>
-                    </label>
+                             <p class="edit-volunteer center">
+                               <input type="radio" id="defer-vol-1" name="vol-status-1" class="vol-radio hidden" />
+                                 <label for="defer-vol-1">
+                                   <a class="defer-volunteer button round tiny caution" tabindex="0">Defer volunteer</a>
+                                 </label>
+                               <input type="radio" id="decline-vol-1" name="vol-status-1" class="vol-radio hidden"/>
+                                 <label for="decline-vol-1">
+                                   <a onclick="dec_vol(this)" class="decline-volunteer button round tiny alert">Decline volunteer
+                                     <span style="display:none">{{key}}</span>
+                                   </a>
+                                 </label>
+                             </p>
 
-                    <input type="radio" id="decline-vol-2" name="vol-status-2" class="vol-radio hidden"/>
-                      <label for="decline-vol-2">
-                        <a class="decline-volunteer button round tiny alert">Decline volunteer</a>
-                      </label>
-                  </p>
+                             <p class="volunteer-declined hidden alert">Volunteer declined. <a onclick="acc_vol(this)" class="undo-decline">Undo
+                             <span style="display:none">{{key}}</span>
+                             </a></p>
 
-                  <p class="volunteer-declined hidden alert">Volunteer declined. <a class="undo-decline">Undo</a></p>
+                             <p class="volunteer-deferred hidden caution">Volunteer deferred. <a class="undo-defer">Undo</a></p>
+                           </div>
+                         </li>
+                       {% endfor %}
+                   {% endfor %}  
 
-                  <p class="volunteer-deferred hidden caution">Volunteer deferred. <a class="undo-defer">Undo</a></p>
-                </div>
-              </li>
 
-              <li class="accordion-item" data-accordion-item>  
-                <a href="#" class="accordion-title">Nicko Shestopalov<span class="float-right">10 hrs</span></a>
-                <div class="accordion-content" data-tab-content>
-                  <p>Monday<span>3 hrs</span></p>
-                  <p>Wednesday<span>3 hrs</span></p>
-                  <p>Thursday<span>4 hrs</span></p>
-                  <p class="edit-volunteer center">
-                    <input type="radio" id="defer-vol-3" name="vol-status-3" class="vol-radio hidden"/>
-                    <label for="defer-vol-3">
-                      <a class="defer-volunteer button round tiny caution" tabindex="0">Defer volunteer</a>
-                    </label>
+                   <!--<li class="accordion-item is-active" data-accordion-item>  
+                     <a href="#" class="accordion-title">Max Tattenbach<span class="float-right">9 hrs</span></a>
+                     <div class="accordion-content" data-tab-content>
+                       <p>Monday<span>3 hrs</span></p>
+                       <p>Wednesday<span>2 hrs</span></p>
+                       <p>Thursday<span>4 hrs</span></p>
+                       <p class="edit-volunteer center">
+                         <input type="radio" id="defer-vol-2" name="vol-status-2" class="vol-radio hidden"/>
+                         <label for="defer-vol-2">
+                           <a class="defer-volunteer button round tiny caution" tabindex="0">Defer volunteer</a>
+                         </label>
 
-                    <input type="radio" id="decline-vol-3" name="vol-status-3" class="vol-radio hidden"/>
-                    <label for="decline-vol-3">
-                      <a class="decline-volunteer button round tiny alert">Decline volunteer</a>
-                    </label>
-                  </p>
+                         <input type="radio" id="decline-vol-2" name="vol-status-2" class="vol-radio hidden"/>
+                           <label for="decline-vol-2">
+                             <a class="decline-volunteer button round tiny alert">Decline volunteer</a>
+                           </label>
+                       </p>
 
-                  <p class="volunteer-declined hidden alert">Volunteer declined. <a class="undo-decline">Undo</a></p>
+                       <p class="volunteer-declined hidden alert">Volunteer declined. <a class="undo-decline">Undo</a></p>
 
-                  <p class="volunteer-deferred hidden caution">Volunteer deferred. <a class="undo-defer">Undo</a></p>
-                </div>
-              </li>
-            </ul>
-          </div>
-        </div>
+                       <p class="volunteer-deferred hidden caution">Volunteer deferred. <a class="undo-defer">Undo</a></p>
+                     </div>
+                   </li>
 
-        <div class="row center">
-          <a href="{% url 'openCurrents:hours-approved' %}" class="button round">Approve hours</a>
-        </div>
+                   <li class="accordion-item" data-accordion-item>  
+                     <a href="#" class="accordion-title">Nicko Shestopalov<span class="float-right">10 hrs</span></a>
+                     <div class="accordion-content" data-tab-content>
+                       <p>Monday<span>3 hrs</span></p>
+                       <p>Wednesday<span>3 hrs</span></p>
+                       <p>Thursday<span>4 hrs</span></p>
+                       <p class="edit-volunteer center">
+                         <input type="radio" id="defer-vol-3" name="vol-status-3" class="vol-radio hidden"/>
+                         <label for="defer-vol-3">
+                           <a class="defer-volunteer button round tiny caution" tabindex="0">Defer volunteer</a>
+                         </label>
+
+                         <input type="radio" id="decline-vol-3" name="vol-status-3" class="vol-radio hidden"/>
+                         <label for="decline-vol-3">
+                           <a class="decline-volunteer button round tiny alert">Decline volunteer</a>
+                         </label>
+                       </p>
+
+                       <p class="volunteer-declined hidden alert">Volunteer declined. <a class="undo-decline">Undo</a></p>
+
+                       <p class="volunteer-deferred hidden caution">Volunteer deferred. <a class="undo-defer">Undo</a></p>
+                     </div>
+                   </li>-->
+                 </ul>
+               </div>
+             </div>
+             <input type="hidden" id="result_sel" name="post-data" value="" /><!---->
+             <div class="row center">
+               <!--<a href="{% url 'openCurrents:hours-approved' %}" onclick="test()" class="button round">Approve hours</a>-->
+               <button type='submit' class="one-margin-top button round">Confirm hours</button>
+             </div>
+          </form>
+        {% endfor %}  
         
         <div id="push"></div>
     
@@ -134,7 +163,64 @@
     </script>
 
     <script type="text/javascript">
+    var week_format = document.getElementById("week_month").value;
+
+      function dec_vol(k){//Declining volunteer on clicking decline button
+
+        var decline = k.text.replace("Decline volunteer","").replaceAll(" ","").replaceAll("\n","");
+        var dec_0 = decline+':0:'
+        var dec_1 = decline+':1:'
+        document.getElementById('result_sel').value = document.getElementById('result_sel').value.replace(dec_0,"").replace(dec_1,"").replace(week_format,"").replace(decline,"");
+        document.getElementById('result_sel').value += decline+":0:"+week_format+",";
+
+      }
+
+      function acc_vol(vol){//Accept Volunteer on clicking Undo
+
+        var accept = vol.text.replace("Undo","").replaceAll(" ","").replaceAll("\n","");
+        var acc_0 = accept+':0:'
+        var acc_1 = accept+':1:'
+        document.getElementById('result_sel').value = document.getElementById('result_sel').value.replace(acc_0,"").replace(acc_1,"").replace(week_format,"");
+        document.getElementById('result_sel').value += accept+":1:"+week_format+",";
+
+      }
+
+      function getMonday(d) {//display of the weeks monday in the UI
+        d = new Date(d);
+        var day = d.getDay(),
+            diff = d.getDate() - day + (day == 0 ? -6:1); // adjust when day is sunday
+        return new Date(d.setDate(diff));
+      }
+
+      String.prototype.replaceAll = function(search, replacement) {
+        var target = this;
+        return target.replace(new RegExp(search, 'g'), replacement);
+      };
+    </script>
+
+    <script type="text/javascript">
       $(document).ready(function(){
+
+        var rep = $('.decline-volunteer').text().replaceAll("Decline volunteer\n","").replaceAll(" ","");
+        var rep_list = rep.split("\n")
+
+        
+
+        var today = new Date();
+        var app_week = String(getMonday(today)).split(" ");
+        var week_display = document.getElementById("week_display_draft").value.replace(/,[^,]+$/, "")
+        document.getElementById("week_display").innerHTML = week_display;
+        var week_format = document.getElementById("week_month").value;
+
+        for(var i=0;i<rep_list.length;i++)
+        {
+          if(rep_list[i]!='')
+          {
+            document.getElementById('result_sel').value += rep_list[i]+":1:"+week_format+",";
+          }
+        }
+        
+
         $('#').popup({
           vertical: 'top',
           transition: 'all 0.75s',
@@ -171,6 +257,7 @@
           });
         });         
       });
+
     </script>
     
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
