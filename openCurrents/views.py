@@ -6,11 +6,16 @@ from django.views.generic import View, ListView, TemplateView, DetailView
 from django.views.generic.edit import FormView
 from django.contrib.auth.models import User
 from django.db import IntegrityError
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.safestring import mark_safe
+from django.utils import timezone
 from django.db.models import F, Max
 from django.views.decorators.csrf import csrf_exempt,csrf_protect
 from django.template.context_processors import csrf
+from datetime import datetime, time, date
+from collections import OrderedDict
+from copy import deepcopy
+import math
 import re
 
 from openCurrents import config
@@ -132,9 +137,197 @@ class InviteFriendsView(LoginRequiredMixin, SessionContextView, TemplateView):
         return context
 
 
-class ApproveHoursView(TemplateView):
+class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
     template_name = 'approve-hours.html'
+    context_object_name = 'week'
 
+    def get_queryset(self):
+        userid = self.request.user.id
+        #user = User.objects.get(id=userid)
+        org = OrgUser.objects.filter(user__id=userid)
+        if org:
+            orgid = org[0].org.id
+        projects = Project.objects.filter(org__id=orgid)
+        events = Event.objects.filter(
+            project__in=projects
+        ).filter(
+            event_type='MN'
+        )
+
+        # gather unverified time logs
+        timelogs = UserTimeLog.objects.filter(
+            event__in=events
+        ).filter(
+            is_verified=False
+        )
+
+        # week list holds dictionary ordered pairs for 7 days of timelogs
+        week = []
+
+        # return nothing if unverified time logs not found
+        if not timelogs:
+            return week
+        
+        # find monday before oldest unverified time log
+        oldest_timelog = timelogs.order_by('datetime_start')[0]
+        week_startdate = oldest_timelog.datetime_start
+        week_startdate_monday = week_startdate - timedelta(days=week_startdate.weekday())
+        today = timezone.now()
+        #print(week_startdate_monday)
+
+        # build one weeks worth of timelogs starting from the oldest monday
+        time_log_week = OrderedDict()
+        eventtimelogs = UserTimeLog.objects.filter(
+            event__in=events
+        ).filter(
+            datetime_start__lt=week_startdate_monday + timedelta(days=7) 
+        ).filter(
+            datetime_start__gte=week_startdate_monday
+        ).filter(
+            is_verified=False
+        )
+
+
+        time_log = OrderedDict()
+        items = {'Total': 0}
+
+        for timelog in eventtimelogs:
+            user_email = timelog.user.email 
+            name = User.objects.get(username = user_email).first_name +" "+User.objects.get(username = user_email).last_name
+
+            # check if same day and duration longer than 15 min
+            if timelog.datetime_start.date() == timelog.datetime_end.date() and timelog.datetime_end - timelog.datetime_start >= timedelta(minutes=15):
+                if user_email not in time_log:
+                    time_log[user_email] = OrderedDict(items)
+                time_log[user_email]["name"] = name
+
+                # time in hours rounded to nearest 15 min
+                rounded_time = self.get_hours_rounded(timelog.datetime_start, timelog.datetime_end)
+
+                # use day of week and date as key
+                date_key = timelog.datetime_start.strftime('%A, %m/%d')
+                if date_key not in time_log[user_email]:
+                    time_log[user_email][date_key] = 0
+
+                # add the time to the corresponding date_key and total
+                time_log[user_email][date_key] += rounded_time
+                time_log[user_email]['Total'] += rounded_time
+            else:
+                # Multiple day volunteering
+                # Still working on it
+                # day_diff = i.datetime_end - i.datetime_start
+                # temp_date = i.datetime_start
+                # while temp_date.date() != i.datetime_end.date():
+                #     tt = temp_date+timedelta(days=1)
+                #     tt = datetime.combine(tt, time.min).replace(tzinfo=None)
+                #     tt_diff = tt - temp_date.replace(tzinfo=None)
+                #     rounded_time_mdv1 = (math.ceil(self.get_hours(str(tt_diff)) * 4) / 4)
+                #     time_log[str(i.user)][str(temp_date.strftime("%A"))] += rounded_time_mdv1
+                #     time_log[str(i.user)]['Total'] += rounded_time_mdv1
+                #     temp_date = temp_date+timedelta(days=1)
+                #     rounded_time_mdv2 = (math.ceil(self.get_hours(str(temp_date.replace(tzinfo=None) - tt)) * 4) / 4)
+                #     time_log[str(i.user)][str(temp_date.strftime("%A"))] += rounded_time_mdv2
+                #     time_log[str(i.user)]['Total'] += rounded_time_mdv2
+
+                # just ignore multi-day requests for now
+                pass
+
+        time_log = OrderedDict([
+            (k, time_log[k])
+            for k in time_log
+            if time_log[k]['Total'] > 0
+        ])
+        logger.info('made a time_log: %s',time_log)
+        if time_log:
+            time_log_week[week_startdate_monday] = time_log
+            week.append(time_log_week)
+
+ 
+        logger.info('%s',week)
+        return week
+
+    def post(self, request):
+        """
+        Takes request as input which is a comma separated string which is then split to form a list with data like
+        ```['a@bc.com:1:7-20-2017','abc@gmail.com:0:7-22-2017',''...]```
+        """
+        post_data = self.request.POST['post-data']
+
+        templist = post_data.split(',')#eg list: ['a@bc.com:1:7-20-2017','abc@gmail.com:0:7-22-2017',''...]
+        projects = []
+        userid = self.request.user.id
+        org = OrgUser.objects.filter(user__id=userid)
+        if org:
+            orgid = org[0].org.id
+        for i in templist:
+            """
+            eg for i:
+            i.split(':')[0] = 'abc@gmail.com'
+            i.split(':')[1] = '0' | '1'
+            i.split(':')[2] = '7-31-2017'
+            """
+            if i != '':
+                i = str(i)
+
+                #split the data for user, flag, and date info
+                user = User.objects.get(username=i.split(':')[0])
+                week_date = datetime.strptime( i.split(':')[2], '%m-%d-%Y')
+                
+                #build manual tracking filter, currently only accessible by OrgUser...  
+                # userid = user.id
+                # org = OrgUser.objects.filter(user__id=userid)#queryset of Orgs
+                # for j in org:
+                #     #Parse through the orglist to check ManualTracking project for the user in concern
+                #     orgid = j.org.id
+                #     for k in Project.objects.filter(org__id=orgid):
+                #         if k.name == "ManualTracking":
+                #             #Add the project in manualtracking to the projects list
+                projects = Project.objects.filter(org__id=orgid)
+                events = Event.objects.filter(project__in=projects).filter(event_type='MN')
+
+                #check if the volunteer is declined and delete the same
+                if i.split(':')[1] == '0':
+                    time_log = UserTimeLog.objects.filter(user=user
+                       ).filter(
+                          datetime_start__lt=week_date + timedelta(days=7)
+                       ).filter(
+                          datetime_start__gte=week_date
+                       ).filter(
+                          is_verified=False
+                       ).filter(
+                          event__in=events).delete()
+
+                #check if the volunteer is accepted and approve the same
+                elif i.split(':')[1] == '1' and i !='':
+                    try:
+                        time_log = UserTimeLog.objects.filter(user=user
+                           ).filter(
+                              datetime_start__lt=week_date + timedelta(days=7)
+                           ).filter(
+                              datetime_start__gte=week_date
+                           ).filter(
+                              is_verified=False
+                           ).filter(
+                              event__in=events).update(is_verified=True)
+                    except Exception as e:
+                        logger.info('Approving timelog Error: %s',e)
+                        return redirect('openCurrents:500')
+                    logger.info('Approving timelog : %s',time_log)
+                
+        return redirect('openCurrents:approve-hours')
+        #templist[:] = [item.split(':')[0] for item in templist if item != '' and item.split(':')[1]!='0']
+        # try:
+        #     for i in templist:
+        #         user = User.objects.get(username=i)
+        #         time_log = UserTimeLog.objects.filter(user=user).update(is_verified = True);
+        #     return redirect('openCurrents:hours-approved')
+        # except:
+        #     return redirect('openCurrents:500')
+
+    def get_hours_rounded(self, datetime_start, datetime_end):
+        # h, m, s = time_str.split(':')
+        # return float(h) + float(m)/60 + float(s)/3600
+        return math.ceil((datetime_end - datetime_start).total_seconds() / 3600 * 4) / 4
 
 class CausesView(TemplateView):
     template_name = 'causes.html'
@@ -154,16 +347,14 @@ class FindOrgsView(TemplateView):
     template_name = 'find-orgs.html'
 
 
-class HoursApprovedView(TemplateView):
+class HoursApprovedView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'hours-approved.html'
-
 
 class InventoryView(TemplateView):
     template_name = 'Inventory.html'
 
 class MarketplaceView(TemplateView):
     template_name = 'marketplace.html'
-
 
 class MissionView(TemplateView):
     template_name = 'mission.html'
@@ -1590,7 +1781,7 @@ def password_reset_request(request):
                     type(e)
                 )
             return redirect('openCurrents:check-email-password', user_email)
-            
+
 
         else:
             logger.warning('user %s has not been verified', user_email)
