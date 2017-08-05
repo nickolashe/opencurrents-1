@@ -4,7 +4,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    {% include "head.html" %}
+    {% include "partials/head.html" %}
 
     <link href="{% static 'css/auto-complete.css' %}" rel="stylesheet" type="text/css">
 
@@ -12,7 +12,7 @@
   </head>
 
   <body>
-    {% include "header.html" %}
+    {% include "partials/header.html" %}
 
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
@@ -96,11 +96,11 @@
 
               <div class="row">
                 <div class="left small-8 columns">
-                  <p class="small-text half-margin-top half-margin-bottom"><strong>Name</strong></p>
+                  <p class="small-text half-margin-top half-margin-bottom"><strong>Name / Email</strong></p>
                 </div>
 
                 <div class="right small-4 columns">
-                  <p class="small-text half-margin-top half-margin-bottom"><strong>Check-in</strong></p>
+                  <p class="small-text half-margin-top half-margin-bottom"><strong>Check in</strong></p>
                 </div>
               </div>
             </div>
@@ -112,8 +112,12 @@
                 <div class="row">
                   <div class="left small-9 columns">
                     <p class="half-margin-top">
-                      {{ user.first_name }}
-                      {{ user.last_name }}
+                      {% if user.first_name %}
+                        {{ user.first_name }}
+                        {{ user.last_name }}
+                      {% else %}
+                        {{user.email}}
+                      {% endif %}
                     </p>
                   </div>
 
@@ -151,7 +155,7 @@
     <div id="bottom-stripe" class="full-width"></div>
 
     <div off-canvas="menu right shift" id="menu">
-      {% include "menu.html" %}
+      {% include 'partials/menu.html' %}
     </div>
 
     <script type="text/javascript">

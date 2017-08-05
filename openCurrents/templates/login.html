@@ -3,11 +3,11 @@
 <!DOCTYPE html>
 <html>
   <head>
-    {% include "head.html" %}
+    {% include "partials/head.html" %}
   </head>
 
   <body>
-    {% include "header.html" %}
+    {% include "partials/header.html" %}
 
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
@@ -35,13 +35,17 @@
             <div class="row center one-margin-top">
               <button type="submit" class="button round">Enter</button>
             </div>
+
+            <div class="row center">
+              <a class="forgotpassword-box_open">Forgot password?</a>
+            </div>
         </form>
 
         <div id="push"></div>
 
       </div>
 
-        {% include "footer.html" %}
+      {% include "footer.html" %}
 
       <!--container div -->
       </div>
@@ -49,8 +53,39 @@
       <div id="bottom-stripe" class="full-width"></div>
 
       <div off-canvas="menu right shift" id="menu">
-        {% include "menu.html" %}
+        {% include 'partials/menu.html' %}
       </div>
+
+    <div id="forgotpassword-box" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h2 class="one-margin-top no-margin-bottom">Request password reset</h2>
+      </div>
+
+      <form method="post" action="{% url 'openCurrents:password_reset_request' %}"> 
+        {% csrf_token %}
+        <div class="row three-halves-margin-bottom half-margin-top">
+          <div class="center small-12 medium-9 small-centered columns">
+            <div class="small-12 columns">
+              <input type="email" name="user_email" class="centered" placeholder="Email address"/>
+              <input type="submit" class="button round" value="Enter"/>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+
+   <script type="text/javascript"> 
+     $(document).ready(function(){
+
+        $('#forgotpassword-box').popup({
+          vertical: 'top',
+          transition: 'all 0.75s',
+          scrolllock: false,
+        });
+      });
+    </script>
+
 
     <script>
       ( function ( $ ) {

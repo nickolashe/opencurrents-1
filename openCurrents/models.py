@@ -151,11 +151,14 @@ class Event(models.Model):
         (MANUAL, 'ManualTracking'),
         (GROUP, 'Group'),
     )
+
     event_type = models.CharField(
         max_length=2,
         choices=event_type_choices,
         default=GROUP
     )
+
+    is_public = models.BooleanField(default=False)
 
     # start / end timestamps of the project
     datetime_start = models.DateTimeField('start datetime')
@@ -181,9 +184,9 @@ class Event(models.Model):
             'on',
             self.datetime_start.astimezone(pytz.timezone(tz)).strftime('%b %d'),
             'from',
-            self.datetime_start.astimezone(pytz.timezone(tz)).strftime('%-I:%m %p'),
+            self.datetime_start.astimezone(pytz.timezone(tz)).strftime('%-I:%M %p'),
             'to',
-            self.datetime_end.astimezone(pytz.timezone(tz)).strftime('%-I:%m %p')
+            self.datetime_end.astimezone(pytz.timezone(tz)).strftime('%-I:%M %p')
         ])
 
 

@@ -3,12 +3,12 @@
 <!DOCTYPE html>
 <html>
   <head>
-    {% include "head.html" %}
+    {% include "partials/head.html" %}
   </head>
-  
+
   <body>
-    {% include "header.html" %}
-    
+    {% include "partials/header.html" %}
+
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
         {% if status_msg %}
@@ -16,52 +16,52 @@
           {{status_msg}}
         </div>
         {% endif %}
-        
+
         <div class="row">
           <h3 class="title">Volunteers invited</h3>
         </div>
-        
+
         <div class="row one-margin-bottom center">
           <div class="small-12 medium-8 small-centered columns">
-            <p>You've invited X volunteers to record hours with openCurrents. Nicely done!</p>
+            <p>You've invited {{vol_no}} volunteers to record hours with openCurrents. Nicely done!</p>
 
-            <a href="{% url 'openCurrents:volunteers-invited' %}" class="button round">Go home</a>
+            <a href="{% url 'openCurrents:admin-profile' %}" class="button round">Go home</a>
           </div>
         </div>
-        
+
         <div id="push"></div>
-    
+
       <!-- wrapper div-->
       </div>
-      
+
       {% include "footer.html" %}
-            
+
     <!--container div -->
     </div>
-    
+
     <div id="bottom-stripe" class="full-width"></div>
-    
+
     <div off-canvas="menu right shift" id="menu">
-      {% include "menu.html" %}
+      {% include 'partials/menu.html' %}
     </div>
-  
+
     <div id="-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
         <h3 class="popup-title"></h3>
       </div>
-      
+
       <div class="row">
         <div class="small-centered medium-10 columns">
-          
+
           <p></p>
-          
+
           <button class="tax-id-popup_close button round">Okay</button>
           <a><button class="button round secondary"></button></a>
         </div>
       </div>
     </div>
-    
-    
+
+
     <script type="text/javascript">
       $(document).ready(function(){
         $('#').popup({
@@ -71,7 +71,7 @@
         });
       });
     </script>
-    
+
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
   </body>
 </html>

@@ -11,6 +11,7 @@ from django.utils.safestring import mark_safe
 from django.db.models import F, Max
 from django.views.decorators.csrf import csrf_exempt,csrf_protect
 from django.template.context_processors import csrf
+import re
 
 from openCurrents import config
 from openCurrents.models import \
@@ -27,6 +28,8 @@ from openCurrents.forms import \
     UserSignupForm, \
     UserLoginForm, \
     EmailVerificationForm, \
+    PasswordResetForm, \
+    PasswordResetRequestForm, \
     OrgSignupForm, \
     ProjectCreateForm, \
     EventRegisterForm, \
@@ -40,6 +43,7 @@ import mandrill
 import logging
 import pytz
 import uuid
+import decimal
 
 
 logging.basicConfig(level=logging.DEBUG, filename="log/views.log")
@@ -92,6 +96,19 @@ class InviteView(TemplateView):
 
 class CheckEmailView(TemplateView):
     template_name = 'check-email.html'
+
+
+class ResetPasswordView(TemplateView):
+    template_name = 'reset-password.html'
+
+
+
+class BusinessView(TemplateView):
+    template_name = 'business.html'
+
+
+class CheckEmailPasswordView(TemplateView):
+    template_name = 'check-email-password.html'
 
 
 class ConfirmAccountView(TemplateView):
@@ -167,6 +184,11 @@ class NominationConfirmedView(TemplateView):
 
 class NominationEmailView(TemplateView):
     template_name = 'nomination-email.html'
+
+
+class NonprofitView(TemplateView):
+    template_name = 'nonprofit.html'
+
 
 class OfferView(TemplateView):
     template_name = 'offer.html'
@@ -269,8 +291,13 @@ class VolunteeringView(TemplateView):
 class VolunteerRequestsView(TemplateView):
     template_name = 'volunteer-requests.html'
 
-class VolunteersInvitedView(TemplateView):
+class VolunteersInvitedView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'volunteers-invited.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(VolunteersInvitedView, self).get_context_data(**kwargs)
+        return context
+
 
 
 class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
@@ -278,7 +305,11 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(ProfileView, self).get_context_data(**kwargs)
-
+        try:
+            org_name = Org.objects.get(id=context['orgid']).name
+            context['orgname'] = org_name
+        except:
+            pass
         userid = self.request.user.id
         verified_times = UserTimeLog.objects.filter(
             user_id=userid
@@ -292,16 +323,17 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         for timelog in verified_times:
             if not timelog.event.id in event_user:
                 event_user.add(timelog.event.id)
+                issued_total += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
 
-                if timelog.datetime_end and timelog.datetime_end < timelog.event.datetime_end + timedelta(hours=1):
-                    # users checked within 1 hour after the event
-                    issued_total += (timelog.datetime_end - timelog.datetime_start).total_seconds() / 3600
-                elif timelog.datetime_start <= timelog.event.datetime_end:
-                    # users that have not been checked out, use event end time
-                    issued_total += (timelog.event.datetime_end - timelog.datetime_start).total_seconds() / 3600
-                else:
-                    # if users post-added, use the event duration
-                    issued_total += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
+                # if timelog.datetime_end and timelog.datetime_end < timelog.event.datetime_end + timedelta(hours=1):
+                #     # users checked within 1 hour after the event
+                #     issued_total += (timelog.datetime_end - timelog.datetime_start).total_seconds() / 3600
+                # elif timelog.datetime_start <= timelog.event.datetime_end:
+                #     # users that have not been checked out, use event end time
+                #     issued_total += (timelog.event.datetime_end - timelog.datetime_start).total_seconds() / 3600
+                # else:
+                #     # if users post-added, use the event duration
+                #     issued_total += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
             else:
                 #logger.debug('user %d already counted, skipping', timelog.user.id)
                 pass
@@ -347,16 +379,17 @@ class AdminProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         for timelog in verified_time:
             if not timelog.user.id in org_event_user[timelog.event.id]:
                 org_event_user[timelog.event.id].add(timelog.user.id)
+                issued_total += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
 
-                if timelog.datetime_end and timelog.datetime_end < timelog.event.datetime_end + timedelta(hours=1):
-                    # users checked within 1 hour after the event
-                    issued_total += (timelog.datetime_end - timelog.datetime_start).total_seconds() / 3600
-                elif timelog.datetime_start <= timelog.event.datetime_end:
-                    # users that have not been checked out, use event end time
-                    issued_total += (timelog.event.datetime_end - timelog.datetime_start).total_seconds() / 3600
-                else:
-                    # if users post-added, use the event duration
-                    issued_total += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
+                # if timelog.datetime_end and timelog.datetime_end < timelog.event.datetime_end + timedelta(hours=1):
+                #     # users checked within 1 hour after the event
+                #     issued_total += (timelog.datetime_end - timelog.datetime_start).total_seconds() / 3600
+                # elif timelog.datetime_start <= timelog.event.datetime_end:
+                #     # users that have not been checked out, use event end time
+                #     issued_total += (timelog.event.datetime_end - timelog.datetime_start).total_seconds() / 3600
+                # else:
+                #     # if users post-added, use the event duration
+                #     issued_total += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
             else:
                 #logger.info('user %d already counted, skipping', timelog.user.id)
                 pass
@@ -389,12 +422,12 @@ class BlogView(TemplateView):
     template_name = 'Blog.html'
 
 
-class CreateProjectView(LoginRequiredMixin, SessionContextView, FormView):
-    template_name = 'create-project.html'
+class CreateEventView(LoginRequiredMixin, SessionContextView, FormView):
+    template_name = 'create-event.html'
     form_class = ProjectCreateForm
-    success_url = '/project-created/'
+    #success_url = '/invite-volunteers/'
 
-    def create_event(self, location, form_data):
+    def _create_event(self, location, form_data):
         if not self.project:
             project = Project(
                 org=Org.objects.get(id=self.orgid),
@@ -414,16 +447,32 @@ class CreateProjectView(LoginRequiredMixin, SessionContextView, FormView):
         )
         event.save()
 
+        return event.id
+
+    def _get_project_names(self):
+        context = super(CreateEventView, self).get_context_data()
+
+        # obtain orgid from the session context (provided by SessionContextView)
+        orgid = context['orgid']
+        self.orgid = orgid
+
+        projects = Project.objects.filter(
+            org__id=self.orgid
+        )
+        project_names = [project.name for project in projects]
+
+        return project_names
+
     def form_valid(self, form):
-        # This method is called when valid form data has been POSTed.
-        # It should return an HttpResponse.
+        project_names = self._get_project_names()
+
         locations = [
             val
             for (key, val) in self.request.POST.iteritems()
             if 'event-location' in key
         ]
         data = form.cleaned_data
-        if data['project_name'] in self.project_names:
+        if data['project_name'] in project_names:
             logger.info('event found')
             self.project = Project.objects.get(
                 org__id=self.orgid,
@@ -433,29 +482,19 @@ class CreateProjectView(LoginRequiredMixin, SessionContextView, FormView):
             self.project = None
 
         # create an event for each location
-        map(lambda loc: self.create_event(loc, data), locations)
-
-        return redirect('openCurrents:project-created')
+        event_ids = map(lambda loc: self._create_event(loc, data), locations)
+        print(event_ids)
+        return redirect('openCurrents:invite-volunteers',event_ids[0])
 
     def get_context_data(self, **kwargs):
-        context = super(CreateProjectView, self).get_context_data(**kwargs)
+        context = super(CreateEventView, self).get_context_data()
 
-        # obtain orgid from the session context (provided by SessionContextView)
-        orgid = context['orgid']
-        self.orgid = orgid
-
-        # context::project_names
-        projects = Project.objects.filter(
-            org__id=orgid
-        )
-        project_names = [
-            project.name
-            for project in projects
-        ]
+        # context::project_names (for autocompleting the project name field)
+        project_names = self._get_project_names()
 
         context['project_names'] = mark_safe(json.dumps(project_names))
-        self.project_names = project_names
-        logger.info(project_names)
+        context['form'].fields['coordinator_firstname'].widget.attrs['value'] = str(self.request.user.first_name)
+        context['form'].fields['coordinator_email'].widget.attrs['value'] = str(self.request.user.email)
 
         return context
 
@@ -463,13 +502,13 @@ class CreateProjectView(LoginRequiredMixin, SessionContextView, FormView):
         """
         Returns the keyword arguments for instantiating the form.
         """
-        kwargs = super(CreateProjectView, self).get_form_kwargs()
+        kwargs = super(CreateEventView, self).get_form_kwargs()
         kwargs.update({'orgid': self.kwargs['orgid']})
         return kwargs
 
 
-class EditProjectView(TemplateView):
-    template_name = 'edit-project.html'
+class EditEventView(TemplateView):
+    template_name = 'edit-event.html'
 
 
 # TODO: prioritize view by projects which user was invited to
@@ -487,12 +526,165 @@ class ProjectDetailsView(TemplateView):
     template_name = 'project-details.html'
 
 
-class InviteVolunteersView(TemplateView):
+class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'invite-volunteers.html'
 
+    def post(self, request, *args, **kwargs):
+        userid = self.request.user.id
+        #print(kwargs)
+        user = User.objects.get(id=userid)
+        post_data = self.request.POST
+        event_create_id = None
+        try:
+            event_create_id = kwargs.pop('event_id')
+        except:
+            pass
 
-class ProjectCreatedView(TemplateView):
-    template_name = 'project-created.html'
+        k = []
+
+        OrgUsers = OrgUser.objects.filter(user__id=userid)
+        if OrgUsers:
+            Organisation = OrgUsers[0].org.name
+        if post_data['bulk-vol'].encode('ascii','ignore') == '':
+            no_of_loops = int(post_data['count-vol'])
+        else:
+            bulk_list = re.split(',| |\n',post_data['bulk-vol'])
+            no_of_loops = len(bulk_list)
+        for i in range(no_of_loops):
+            if post_data['bulk-vol'].encode('ascii','ignore') == '':
+                if post_data['vol-email-'+str(i+1)] != '':
+                    k.append({"email":post_data['vol-email-'+str(i+1)],"type":"to"})
+                    user_new = None
+                    try:
+                        user_new = User(
+                            username=post_data['vol-email-'+str(i+1)],
+                            email=post_data['vol-email-'+str(i+1)]
+                            #first_name=user_firstname,
+                            #last_name=user_lastname
+                        )
+                        user_new.save()
+                    except Exception as e:
+                        pass
+
+                    if user_new and event_create_id:
+                        try:
+                            user_event_registration = UserEventRegistration(
+                                user=user_new,
+                                event=Event.objects.get(id=event_create_id),
+                                is_confirmed=True
+                            )
+                            user_event_registration.save()
+                        except Exception as e:
+                            logger.error('unable to register user for event')
+                else:
+                    no_of_loops -= 1
+            elif post_data['bulk-vol'] != '':
+                k.append({"email":bulk_list[i].strip(),"type":"to"})
+                user_new = None
+                try:
+                    user_new = User(
+                        username=user_email,
+                        email=user_email
+                        #first_name=user_firstname,
+                        #last_name=user_lastname
+                    )
+                    user_new.save()
+                except Exception as e:
+                    pass
+
+                if user_new and event_create_id:
+                    try:
+                        user_event_registration = UserEventRegistration(
+                            user=user_new,
+                            event=Event.objects.get(event__id=event_create_id),
+                            is_confirmed=True
+                        )
+                        user_event_registration.save()
+                    except Exception as e:
+                        pass
+        try:
+            event=Event.objects.get(id=event_create_id)
+            try:
+                tz = event.project.org.timezone
+                sendBulkEmail(
+                    'invite-volunteer-event',
+                    None,
+                    [
+                        {
+                            'name': 'ADMIN_FIRSTNAME',
+                            'content': user.first_name
+                        },
+                        {
+                            'name': 'ADMIN_LASTNAME',
+                            'content': user.last_name
+                        },
+                        {
+                            'name': 'EVENT_TITLE',
+                            'content': event.project.name
+                        },
+                        {
+                            'name': 'ORG_NAME',
+                            'content': Organisation
+                        },
+                        {
+                            'name': 'EVENT_LOCATION',
+                            'content': event.location
+                        },
+                        {
+                            'name': 'EVENT_DATE',
+                            'content': str(event.datetime_start.astimezone(pytz.timezone(tz)).date().strftime('%b %d, %Y'))
+                        },
+                        {
+                            'name':'EVENT_START_TIME',
+                            'content': str(event.datetime_start.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p'))
+                        },
+                        {
+                            'name':'EVENT_END_TIME',
+                            'content': str(event.datetime_end.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p'))
+                        },
+                    ],
+                    k,
+                    user.email
+                )
+            except Exception as e:
+                logger.error(
+                    'unable to send email: %s (%s)',
+                    e,
+                    type(e)
+                )
+        except Exception as e:
+            try:
+                sendBulkEmail(
+                    'invite-volunteer',
+                    None,
+                    [
+                        {
+                            'name': 'ADMIN_FIRSTNAME',
+                            'content': user.first_name
+                        },
+                        {
+                            'name': 'ADMIN_LASTNAME',
+                            'content': user.last_name
+                        },
+                        {
+                            'name': 'ORG_NAME',
+                            'content': Organisation
+                        }
+                    ],
+                    k,
+                    user.email
+                )
+            except Exception as e:
+                logger.error(
+                    'unable to send email: %s (%s)',
+                    e,
+                    type(e)
+                )
+        return redirect('openCurrents:volunteers-invited', no_of_loops)
+
+
+class EventCreatedView(TemplateView):
+    template_name = 'event-created.html'
 
 
 class EventDetailView(LoginRequiredMixin, SessionContextView, DetailView):
@@ -611,6 +803,7 @@ def event_checkin(request, pk):
         )
 
         if checkin:
+            # create volunteer UserTimeLog
             usertimelog = UserTimeLog(
                 user=User.objects.get(id=userid),
                 event=event,
@@ -621,6 +814,17 @@ def event_checkin(request, pk):
                 'at %s: checkin',
                 str(usertimelog.datetime_start)
             )
+
+            # create admin/coordinator UserTimeLog only if not already done
+            if not UserTimeLog.objects.filter(event__id=event.id, user__id=request.user.id):
+                usertimelog = UserTimeLog(
+                    user=User.objects.get(id=request.user.id),
+                    event=event,
+                    datetime_start=datetime.now(tz=pytz.UTC)
+                )
+                usertimelog.save()
+    
+
             return HttpResponse(status=201)
         else:
             usertimelog = UserTimeLog.objects.filter(
@@ -664,17 +868,17 @@ def event_register(request, pk):
         user = request.user
         event = Event.objects.get(id=pk)
         message = form.cleaned_data['contact_message']
-        
+
         #check for existing registration
         event_records = UserEventRegistration.objects.filter(user__id=user.id, event__id=event.id, is_confirmed=True).exists()
-        
+
         user_event_registration = UserEventRegistration(
             user=user,
             event=event,
             is_confirmed=True
         )
         user_event_registration.save()
-  
+
 
         # if the volunteer entered an optional contact message, send to project coordinator
         if (message != ""):
@@ -798,7 +1002,7 @@ def event_register_live(request, eventid):
     return HttpResponse({'userid': userid, 'eventid': eventid}, status=201)
 
 # resend the verification email to a user who hits the Resend button on their check-email page
-def process_resend(request, user_email):
+def process_resend_verification(request, user_email):
 
     user = User.objects.get(email=user_email)
     token_records = Token.objects.filter(email=user_email)
@@ -839,6 +1043,43 @@ def process_resend(request, user_email):
     return redirect('openCurrents:check-email', user_email, status)
 
 
+def process_resend_password(request, user_email):
+    token_records = Token.objects.filter(email=user_email)
+
+    # assign the last generated token in case multiple exist for one email
+    token = token_records.last().token
+
+    # resend password email
+    try:
+        sendTransactionalEmail(
+            'password-email',
+            None,
+            [
+                {
+                    'name': 'EMAIL',
+                    'content': user_email
+                },
+                {
+                    'name': 'TOKEN',
+                    'content': str(token)
+                }
+            ],
+            user_email
+        )
+        status = "success"
+    except Exception as e:
+        logger.error(
+            'unable to send transactional email: %s (%s)',
+            e.message,
+            type(e)
+        )
+        status = "fail"
+
+    return redirect('openCurrents:check-email-password', user_email, status)
+
+
+
+
 def process_signup(request, referrer=None, endpoint=False, verify_email=True):
     form = UserSignupForm(request.POST)
 
@@ -872,17 +1113,53 @@ def process_signup(request, referrer=None, endpoint=False, verify_email=True):
             logger.info('user %s already exists', user_email)
 
             user = User.objects.get(email=user_email)
-            if endpoint:
-                return HttpResponse(user.id, status=200)
+            try:
+                if user.first_name=='' or user.last_name=='':
+                    user.first_name = user_firstname
+                    user.last_name = user_lastname
+                    user.save()
+                    if verify_email:
+                        logger.info('Email verification requested')
 
-            if user.has_usable_password():
-                logger.info('user %s already verified', user_email)
-                return redirect(
-                    'openCurrents:signup',
-                    status_msg='User with this email already exists'
-                )
-            else:
-                logger.info('user %s has not been verified', user_email)
+                        # generate and save token
+                        token = uuid.uuid4()
+                        one_week_from_now = datetime.now() + timedelta(days=7)
+
+                        token_record = Token(
+                            email=user_email,
+                            token=token,
+                            token_type='signup',
+                            date_expires=one_week_from_now
+                        )
+
+                        if referrer:
+                            try:
+                                token_record.referrer = User.objects.get(username=referrer)
+                            except Exception as e:
+                                error_msg = 'unable to locate / assign referrer: %s (%s)'
+                                logger.error(error_msg, e.message, type(e))
+                        else:
+                            logger.info('no referrer provided')
+
+                        token_record.save()
+                        return redirect(
+                            'openCurrents:confirm-account',
+                            email=user_email,
+                            token=token,
+                            #status_msg=errors[0]
+                        )
+            except:
+                if endpoint:
+                    return HttpResponse(user.id, status=200)
+
+                if user.has_usable_password():
+                    logger.info('user %s already verified', user_email)
+                    return redirect(
+                        'openCurrents:login',
+                        status_msg='User with this email already exists'
+                    )
+                else:
+                    logger.info('user %s has not been verified', user_email)
 
         # user org
         if org_name:
@@ -993,10 +1270,7 @@ def process_login(request):
         )
         if user is not None and user.is_active:
             login(request, user)
-            if user.org_set.exists():
-                return redirect('openCurrents:admin-profile')
-            else:
-                return redirect('openCurrents:profile')
+            return redirect('openCurrents:profile')
         else:
             return redirect('openCurrents:login', status_msg='Invalid login/password')
     else:
@@ -1149,6 +1423,159 @@ def process_email_confirmation(request, user_email):
         )
 
 
+def password_reset_request(request):
+    form = PasswordResetRequestForm(request.POST)
+
+    # valid form data received
+    if form.is_valid():
+        user_email = form.cleaned_data['user_email']
+
+    # try to locate the verified user object by email
+        user = None
+        try:
+            user = User.objects.get(email=user_email)
+        except Exception:
+            error_msg = 'Email %s has not been registered'
+            logger.error(error_msg, user_email)
+            return redirect(
+                'openCurrents:signup',
+                status_msg=error_msg % user_email
+            )
+
+        if user.has_usable_password():
+            logger.info('verified user %s, send password reset email', user_email)
+
+            # generate and save token
+            token = uuid.uuid4()
+            one_week_from_now = datetime.now() + timedelta(days=7)
+
+            token_record = Token(
+                email=user_email,
+                token=token,
+                token_type='password',
+                date_expires=one_week_from_now
+            )
+
+            token_record.save()
+
+            try:
+                sendTransactionalEmail(
+                    'password-email',
+                    None,
+                    [
+                        {
+                            'name': 'EMAIL',
+                            'content': user_email
+                        },
+                        {
+                            'name': 'TOKEN',
+                            'content': str(token)
+                        }
+                    ],
+                    user_email
+                )
+            except Exception as e:
+                logger.error(
+                    'unable to send password email: %s (%s)',
+                    e.message,
+                    type(e)
+                )
+            return redirect('openCurrents:check-email-password', user_email)
+            
+
+        else:
+            logger.warning('user %s has not been verified', user_email)
+            return redirect('openCurrents:signup')
+
+    # could not read email
+    else:
+        # just report the first validation error
+        errors = [
+            '%s: %s' % (field, error.messages[0])
+            for field, le in form.errors.as_data().iteritems()
+            for error in le
+        ]
+        status_msg=errors[0]
+        return redirect('openCurrents:login')
+
+
+
+
+def process_reset_password(request, user_email):
+    form = PasswordResetForm(request.POST)
+
+    # valid form data received
+    if form.is_valid():
+
+        new_password = form.cleaned_data['new_password']
+
+        # first, try to locate the verified user object by email
+        user = None
+        try:
+            user = User.objects.get(email=user_email)
+        except Exception:
+            error_msg = 'Email %s has not been registered'
+            logger.error(error_msg, user_email)
+            return redirect(
+                'openCurrents:signup',
+                status_msg=error_msg % user_email
+            )
+
+
+        # second, make sure the verification token and user email match
+        token_record = None
+        token = form.cleaned_data['verification_token']
+        try:
+            token_record = Token.objects.get(
+                email=user_email,
+                token=token
+            )
+        except Exception:
+            error_msg = 'Invalid verification token for %s'
+            logger.error(error_msg, user_email)
+            return redirect(
+                'openCurrents:signup',
+                status_msg=error_msg % user_email
+            )
+
+        if token_record.is_verified:
+            logger.warning('token for %s has already been verified', user_email)
+            return redirect('openCurrents:profile')
+
+        # mark the verification record as verified
+        token_record.is_verified = True
+        token_record.save()
+
+        if user.has_usable_password():
+            logger.info('verified user %s, allow password reset', user_email)
+            user.set_password(new_password)
+            user.save()
+            return redirect('openCurrents:login')
+
+        else:
+            logger.warning('user %s has not been verified', user_email)
+            return redirect('openCurrents:signup')
+
+    # re-enter valid matching passwords
+    else:
+        token = form.cleaned_data['verification_token']
+
+        logger.error(
+            'Invalid password reset request: %s',
+            form.errors.as_data()
+        )
+
+        # just report the first validation error
+        errors = [
+            '%s: %s' % (field, error.messages[0])
+            for field, le in form.errors.as_data().iteritems()
+            for error in le
+        ]
+        status_msg=errors[0]
+        return redirect('openCurrents:reset-password', user_email, token, status_msg )
+
+
+
 @login_required
 def process_org_signup(request):
     form = OrgSignupForm(request.POST)
@@ -1260,6 +1687,24 @@ def sendTransactionalEmail(template_name, template_content, merge_vars, recipien
             'email': recipient_email,
             'type': 'to'
         }],
+        'global_merge_vars': merge_vars
+    }
+
+    mandrill_client.messages.send_template(
+        template_name=template_name,
+        template_content=template_content,
+        message=message
+    )
+
+def sendBulkEmail(template_name, template_content, merge_vars, recipient_email, sender_email):
+    mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)
+    message = {
+        'from_email': 'info@opencurrents.com',
+        'from_name': 'openCurrents',
+        'to': recipient_email,
+        "headers": {
+            "Reply-To": sender_email.encode('ascii','ignore')
+        },
         'global_merge_vars': merge_vars
     }
 

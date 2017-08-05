@@ -4,11 +4,11 @@
 <!DOCTYPE html>
 <html>
   <head>
-    {% include "head.html" %}
+    {% include "partials/head.html" %}
   </head>
 
   <body>
-    {% include "header.html" %}
+    {% include "partials/header.html" %}
 
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
@@ -29,10 +29,10 @@
           <div class="row one-margin-bottom center">
             <div class="small-12 medium-8 small-centered columns">
               <h6 class="no-margin-bottom">
-                on {{ event.datetime_start|day }}
+                on {{ event.datetime_start|day:event.project.org.timezone }}
               </h6>
               <h6 class="no-margin-bottom">
-                from {{ event.datetime_start|time }} to {{ event.datetime_end|time }}
+                from {{ event.datetime_start|time:event.project.org.timezone }} to {{ event.datetime_end|time:event.project.org.timezone }}
               </h6>
               <h6 class="one-margin-bottom">at {{ event.location }}</h6>
             </div>
@@ -50,7 +50,7 @@
 
           <div class="three-halves-margin-top row left">
             <div class="small-10 medium-6 small-centered columns">
-              <h6 class="navy">Project description</h6>
+              <h6 class="navy">Event description</h6>
               <p class="grey"> {{ event.description }}</p>
             </div>
           </div>
@@ -60,12 +60,12 @@
               <h6 class="navy no-margin-bottom">
                 {{ form.contact_message.label }}
               </h6>
-              {{ form.contact_message }}
               {% if form.contact_message.help_text %}
                 <p class="small-text grey no-margin-bottom">
                   ({{ form.contact_message.help_text|safe }})
                 </p>
               {% endif %}
+              {{ form.contact_message }}
             </div>
           </div>
 
@@ -86,7 +86,7 @@
     <div id="bottom-stripe" class="full-width"></div>
 
     <div off-canvas="menu right shift" id="menu">
-      {% include "menu.html" %}
+      {% include 'partials/menu.html' %}
     </div>
 
     <div id="-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
