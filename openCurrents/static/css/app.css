@@ -878,7 +878,7 @@ a.list-group-item {
 }
 
 /* nonprofit */
-@media screen and (min-width: 42em) {
+
   #nonprofit {
     background: url(/static/img/hands.jpg) no-repeat top center fixed;
     -webkit-background-size: cover;
@@ -886,7 +886,6 @@ a.list-group-item {
     -o-background-size: cover;
     background-size: cover;
   }
-}
 
 /* confirm-account */
 
