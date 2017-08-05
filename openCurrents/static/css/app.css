@@ -880,7 +880,7 @@ a.list-group-item {
 /* nonprofit */
 
   #nonprofit {
-    background: url(/static/img/hands.jpg) no-repeat top center fixed;
+    background: url(/static/img/hands.jpg) no-repeat center 60px fixed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;

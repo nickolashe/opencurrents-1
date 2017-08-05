@@ -111,6 +111,10 @@ class CheckEmailPasswordView(TemplateView):
     template_name = 'check-email-password.html'
 
 
+class CommunitiesView(TemplateView):
+    template_name = 'communities.html'
+
+
 class ConfirmAccountView(TemplateView):
     template_name = 'confirm-account.html'
 
