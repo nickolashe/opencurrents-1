@@ -450,6 +450,7 @@ class CreateEventView(LoginRequiredMixin, SessionContextView, FormView):
             datetime_end=form_data['datetime_end'],
             coordinator_firstname=form_data['coordinator_firstname'],
             coordinator_email=form_data['coordinator_email'],
+            is_public=form_data['event_privacy'],
         )
         event.save()
 
@@ -486,10 +487,13 @@ class CreateEventView(LoginRequiredMixin, SessionContextView, FormView):
             )
         else:
             self.project = None
+        if str(self.request.POST['event-privacy-[]']) == '1':
+            data['event_privacy'] = True
+        else:
+            data['event_privacy'] = False
 
         # create an event for each location
         event_ids = map(lambda loc: self._create_event(loc, data), locations)
-        print(event_ids)
         return redirect('openCurrents:invite-volunteers',event_ids[0])
 
     def get_context_data(self, **kwargs):
