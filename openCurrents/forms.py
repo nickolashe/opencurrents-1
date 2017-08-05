@@ -124,7 +124,7 @@ class PasswordResetForm(forms.Form):
 
 class OrgSignupForm(forms.Form):
     org_name = forms.CharField(min_length=1)
-    org_website = forms.CharField(min_length=1)
+    org_website = forms.CharField(min_length=1,required=False)
     user_affiliation = forms.ChoiceField(
         choices=[
             ('employee', 'employee'),
@@ -214,10 +214,10 @@ class ProjectCreateForm(forms.Form):
     # )
 
     coordinator_firstname = forms.CharField(
-        widget=forms.TextInput(attrs={'placeholder': 'First name'})
+        widget=forms.TextInput(attrs={'placeholder': 'First name','value':''})
     )
     coordinator_email = forms.CharField(
-        widget=forms.TextInput(attrs={'placeholder': 'Email'})
+        widget=forms.TextInput(attrs={'placeholder': 'Email','value':''})
     )
 
     def clean(self):

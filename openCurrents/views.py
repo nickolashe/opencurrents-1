@@ -43,6 +43,7 @@ import mandrill
 import logging
 import pytz
 import uuid
+import decimal
 
 
 logging.basicConfig(level=logging.DEBUG, filename="log/views.log")
@@ -291,6 +292,8 @@ class VolunteersInvitedView(LoginRequiredMixin, SessionContextView, TemplateView
 
 class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'profile.html'
+    login_url = "/home/"
+    redirect_unauthenticated_users = True
 
     def get_context_data(self, **kwargs):
         context = super(ProfileView, self).get_context_data(**kwargs)
@@ -482,6 +485,8 @@ class CreateEventView(LoginRequiredMixin, SessionContextView, FormView):
         project_names = self._get_project_names()
 
         context['project_names'] = mark_safe(json.dumps(project_names))
+        context['form'].fields['coordinator_firstname'].widget.attrs['value'] = str(self.request.user.first_name)
+        context['form'].fields['coordinator_email'].widget.attrs['value'] = str(self.request.user.email)
 
         return context
 
@@ -494,8 +499,125 @@ class CreateEventView(LoginRequiredMixin, SessionContextView, FormView):
         return kwargs
 
 
-class EditEventView(TemplateView):
+class EditEventView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'edit-event.html'
+
+    def get_context_data(self, **kwargs):
+        #get the event id from admin-profile page and fetch the data need for the UI
+        context = super(EditEventView, self).get_context_data(**kwargs)
+        # event
+        event_id = kwargs.pop('event_id')
+        event = Event.objects.get(id=event_id)
+        context['event'] = event
+        context['start_time'] = str(event.datetime_start.time())
+        context['end_time'] = str(event.datetime_end.time())
+        context['date_start'] = str(event.datetime_start.date())
+        return context
+
+    def post(self, request, **kwargs):
+        #POST the modified data by the user to the models
+        post_data = self.request.POST
+        utc=pytz.UTC
+        event_id = kwargs.pop('event_id')
+        edit_event = Event.objects.get(id=event_id)
+        if 'save-button' in post_data:
+            #if the user hits save button
+            #print('save-button')
+            #print(edit_event.project.org.id)
+            k = []
+            Organisation = OrgUser.objects.get(user__id=self.request.user.id).org.name
+            if edit_event.location != str(post_data['project-location-1']) or\
+               edit_event.datetime_start.replace(tzinfo=utc) != datetime.combine(datetime.strptime(post_data['project-date'], '%Y-%m-%d'),\
+                  datetime.strptime(str(post_data['project-start']),'%H:%M%p').time()).replace(tzinfo=utc) or\
+               edit_event.project.name != str(post_data['project-name']):
+                #If some important data has been modified for the event
+                volunteers = OrgUser.objects.filter(org__id=edit_event.project.org.id)
+                volunteer_emails = [str(i.user.email) for i in volunteers]
+                for i in volunteer_emails:
+                    k.append({"email":i,"type":"to"})
+                try:
+                    sendBulkEmail(
+                        'edit-event',
+                        None,
+                        [
+                            {
+                                'name': 'ADMIN_FIRSTNAME',
+                                'content': self.request.user.first_name
+                            },
+                            {
+                                'name': 'ADMIN_LASTNAME',
+                                'content': self.request.user.last_name
+                            },
+                            {
+                                'name': 'EVENT_TITLE',
+                                'content': str(post_data['project-name'])
+                            },
+                            {
+                                'name': 'ORG_NAME',
+                                'content': Organisation
+                            },
+                            {
+                                'name': 'EVENT_LOCATION',
+                                'content': str(post_data['project-location-1'])
+                            },
+                            {
+                                'name': 'EVENT_DATE',
+                                'content': str(post_data['project-date'])
+                            },
+                            {
+                                'name':'EVENT_START_TIME',
+                                'content': str(post_data['project-start'])
+                            },
+                            {
+                                'name':'EVENT_END_TIME',
+                                'content': str(post_data['project-end'])
+                            },
+                            {
+                                'name': 'TITLE',
+                                'content': int(edit_event.project.name != str(post_data['project-name']))
+                            },
+                            {
+                                'name': 'LOCATION',
+                                'content': int(edit_event.location != str(post_data['project-location-1']))
+                            },
+                            {
+                                'name':'TIME',
+                                'content': int(edit_event.datetime_start.time().replace(tzinfo=utc) !=\
+                                    datetime.strptime(str(post_data['project-start']),'%H:%M%p').time().replace(tzinfo=utc))
+                            },
+                            {
+                                'name': 'EVENT_ID',
+                                'content': event_id
+                            }
+
+                        ],
+                        k,
+                        self.request.user.email
+                    )
+                except Exception as e:
+                    logger.error(
+                        'unable to send email: %s (%s)',
+                        e,
+                        type(e)
+                    )
+                    return redirect('openCurrents:500')
+
+            edit_event.description = str(post_data['project-description'])
+            edit_event.location = str(post_data['project-location-1'])
+            edit_event.coordinator_firstname = str(post_data['coordinator-name'])
+            edit_event.coordinator_email = str(post_data['coordinator-email'])
+            edit_event.datetime_start = datetime.combine(datetime.strptime(post_data['project-date'], '%Y-%m-%d'),\
+                datetime.strptime(str(post_data['project-start']),'%H:%M%p').time())
+            edit_event.datetime_end = datetime.combine(datetime.strptime(post_data['project-date'], '%Y-%m-%d'),\
+                datetime.strptime(str(post_data['project-end']),'%H:%M%p').time())
+            edit_event.save()
+            project = Project.objects.get(id = edit_event.project.id)
+            project.name = str(post_data['project-name'])
+            project.save()
+        elif 'del-button' in post_data:
+            #if the user hits delete button
+            edit_event.delete()
+        return redirect('openCurrents:admin-profile')
 
 
 # TODO: prioritize view by projects which user was invited to
@@ -592,46 +714,47 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
         try:
             event=Event.objects.get(id=event_create_id)
             try:
-                    sendBulkEmail(
-                        'invite-volunteer-event',
-                        None,
-                        [
-                            {
-                                'name': 'ADMIN_FIRSTNAME',
-                                'content': user.first_name
-                            },
-                            {
-                                'name': 'ADMIN_LASTNAME',
-                                'content': user.last_name
-                            },
-                            {
-                                'name': 'EVENT_TITLE',
-                                'content': event.project.name
-                            },
-                            {
-                                'name': 'ORG_NAME',
-                                'content': Organisation
-                            },
-                            {
-                                'name': 'EVENT_LOCATION',
-                                'content': event.location
-                            },
-                            {
-                                'name': 'EVENT_DATE',
-                                'content': str(event.datetime_start.date())
-                            },
-                            {
-                                'name':'EVENT_START_TIME',
-                                'content': str(event.datetime_start.time())
-                            },
-                            {
-                                'name':'EVENT_END_TIME',
-                                'content': str(event.datetime_end.time())
-                            },
-                        ],
-                        k,
-                        user.email
-                    )
+                tz = event.project.org.timezone
+                sendBulkEmail(
+                    'invite-volunteer-event',
+                    None,
+                    [
+                        {
+                            'name': 'ADMIN_FIRSTNAME',
+                            'content': user.first_name
+                        },
+                        {
+                            'name': 'ADMIN_LASTNAME',
+                            'content': user.last_name
+                        },
+                        {
+                            'name': 'EVENT_TITLE',
+                            'content': event.project.name
+                        },
+                        {
+                            'name': 'ORG_NAME',
+                            'content': Organisation
+                        },
+                        {
+                            'name': 'EVENT_LOCATION',
+                            'content': event.location
+                        },
+                        {
+                            'name': 'EVENT_DATE',
+                            'content': str(event.datetime_start.astimezone(pytz.timezone(tz)).date().strftime('%b %d, %Y'))
+                        },
+                        {
+                            'name':'EVENT_START_TIME',
+                            'content': str(event.datetime_start.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p'))
+                        },
+                        {
+                            'name':'EVENT_END_TIME',
+                            'content': str(event.datetime_end.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p'))
+                        },
+                    ],
+                    k,
+                    user.email
+                )
             except Exception as e:
                 logger.error(
                     'unable to send email: %s (%s)',
@@ -640,26 +763,26 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
                 )
         except Exception as e:
             try:
-                    sendBulkEmail(
-                        'invite-volunteer',
-                        None,
-                        [
-                            {
-                                'name': 'ADMIN_FIRSTNAME',
-                                'content': user.first_name
-                            },
-                            {
-                                'name': 'ADMIN_LASTNAME',
-                                'content': user.last_name
-                            },
-                            {
-                                'name': 'ORG_NAME',
-                                'content': Organisation
-                            }
-                        ],
-                        k,
-                        user.email
-                    )
+                sendBulkEmail(
+                    'invite-volunteer',
+                    None,
+                    [
+                        {
+                            'name': 'ADMIN_FIRSTNAME',
+                            'content': user.first_name
+                        },
+                        {
+                            'name': 'ADMIN_LASTNAME',
+                            'content': user.last_name
+                        },
+                        {
+                            'name': 'ORG_NAME',
+                            'content': Organisation
+                        }
+                    ],
+                    k,
+                    user.email
+                )
             except Exception as e:
                 logger.error(
                     'unable to send email: %s (%s)',
@@ -789,6 +912,7 @@ def event_checkin(request, pk):
         )
 
         if checkin:
+            # create volunteer UserTimeLog
             usertimelog = UserTimeLog(
                 user=User.objects.get(id=userid),
                 event=event,
@@ -799,6 +923,17 @@ def event_checkin(request, pk):
                 'at %s: checkin',
                 str(usertimelog.datetime_start)
             )
+
+            # create admin/coordinator UserTimeLog only if not already done
+            if not UserTimeLog.objects.filter(event__id=event.id, user__id=request.user.id):
+                usertimelog = UserTimeLog(
+                    user=User.objects.get(id=request.user.id),
+                    event=event,
+                    datetime_start=datetime.now(tz=pytz.UTC)
+                )
+                usertimelog.save()
+    
+
             return HttpResponse(status=201)
         else:
             usertimelog = UserTimeLog.objects.filter(
@@ -1564,6 +1699,11 @@ def process_org_signup(request):
             mission=form_data['org_mission'],
             reason=form_data['org_reason']
         )
+   
+        # if website was not left blank, check it's not already in use
+        if form_data['org_website'] != '' and Org.objects.filter(website=form_data['org_website']).exists():
+            return redirect('openCurrents:org-signup', status_msg='The website provided is already in use by another organization.')
+
         try:
             org.save()
         except IntegrityError:
@@ -1577,7 +1717,7 @@ def process_org_signup(request):
                 existing.reason = form_data['org_reason']
             existing.save()
 
-        org = Org.objects.get(website=form_data['org_website'])
+        org = Org.objects.get(name=form_data['org_name'])
         org_user = OrgUser(
             org=org,
             user=request.user,

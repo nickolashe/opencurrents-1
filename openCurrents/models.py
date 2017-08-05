@@ -26,7 +26,7 @@ def diffInHours(t1, t2):
 
 class Org(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    website = models.CharField(max_length=100, unique=True, null=True)
+    website = models.CharField(max_length=100, null=True, blank=True)
     status = models.CharField(max_length=50, null=True)
     mission = models.CharField(max_length=4096, null=True)
     reason = models.CharField(max_length=4096, null=True)
@@ -151,6 +151,7 @@ class Event(models.Model):
         (MANUAL, 'ManualTracking'),
         (GROUP, 'Group'),
     )
+
     event_type = models.CharField(
         max_length=2,
         choices=event_type_choices,
@@ -219,8 +220,6 @@ class UserTimeLog(models.Model):
     # start / end timestamps of the contributed time
     datetime_start = models.DateTimeField('start time')
     datetime_end = models.DateTimeField('end time', null=True, blank=True)
-
-    datetime_duration = models.DecimalField(max_digits=12, decimal_places=2, default=0.0)
 
     # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)
