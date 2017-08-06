@@ -72,7 +72,7 @@
             </div>
             <div class="center medium-4 columns">
               <p class="half-margin-bottom grey">Dedicated volunteers</p>
-              <input type="radio" id="benefit-btn-2" name="benefit-[]" value="" class="hidden styled-radio"/>
+              <input type="radio" id="benefit-btn-2" name="benefit-[]" value="" class="hidden styled-radio" checked />
                 <label for="benefit-btn-2" id="vol-button" class="benefit-icon button"><i class="fa fa-2x fa-users"></i></label>
             </div>
 
@@ -84,9 +84,9 @@
           </div>
 
           <div id="benefit-box" class="row center">
-            <p id="benefit-1" class="benefit-info one-margin-top center hidden"></p>
+            <p id="benefit-1" class="benefit-info one-margin-top center hidden">Record activity with minimal overhead. Check in volunteers at events with one click or approve the hours that volunteers submit.</p>
 
-            <p id="benefit-2" class="benefit-info one-margin-top center hidden">openCurrents enables social organizations to attract a whole new group of committed, quality volunteers.</p>
+            <p id="benefit-2" class="benefit-info one-margin-top center">openCurrents enables social organizations to attract a whole new group of committed, quality volunteers.</p>
 
             <p id="benefit-3" class="benefit-info center hidden">By accepting Currents, businesses can meaningfully engage their target audience and value their customers' favorite cause. Returns may increase as Currents become more valuable.</p>
           </div>
@@ -263,7 +263,7 @@
     <script type="text/javascript">
       $(document).ready(function(){
 
-        var val = 4;
+        var val = 2;
 
         $('#time-button').click(function(){
           $('#benefit-'+val+'').fadeOut(777, function(){
