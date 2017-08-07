@@ -259,6 +259,15 @@
 
     <script type="text/javascript">
       $(document).ready(function(){
+
+        if(!localStorage.viewed){
+          localStorage.viewed=1;
+          var open = true;
+        }
+        else{
+          var open = false;
+        }
+
         $('#rsvp-popup, #earn-currents-popup').popup({
           vertical: 'top',
           transition: 'all 0.75s',
@@ -275,24 +284,16 @@
     </script>
 
     <script type="text/javascript">
-      if(!localStorage.viewed){
-        localStorage.viewed=1;
-        var open = true;
-      }
-      else{
-        var open = false;
-      }
+      
+      if ({{app_hr}}){
+          $('#approve-hours-popup').popup({
+            vertical: 'top',
+            transition: 'all 0.75s',
+            scrolllock: true,
+            autoopen: true,
+          });
+        }
 
-      var u_t_l = {{app_hr}}
-      //alert(u_t_l)
-      if (u_t_l=='1'){
-        $('#approve-hours-popup').popup({
-          vertical: 'top',
-          transition: 'all 0.75s',
-          scrolllock: true,
-          autoopen: true,
-        });
-      }
     </script>
 
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
