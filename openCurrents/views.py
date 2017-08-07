@@ -342,7 +342,7 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
 
     def post(self, request):
         post_data = self.request.POST
-        k_dict = collections.OrderedDict([
+        k_dict = OrderedDict([
             #'admin-full-name',
             ('volunteer-first-name',0),
             ('volunteer-last-name',1),
@@ -401,20 +401,22 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
                     s_dt_db.replace(tzinfo=utc)==datetime.strptime(s_dt_ui, '%Y-%m-%d').replace(tzinfo=utc) ) \
                     and (e_dt_db.replace(tzinfo=utc) <datetime.strptime(e_dt_ui, '%Y-%m-%d').replace(tzinfo=utc)  or\
                     e_dt_db.replace(tzinfo=utc) ==datetime.strptime(e_dt_ui, '%Y-%m-%d').replace(tzinfo=utc) ):
-                        cleaned_list = [str(i.first_name), str(i.last_name), str(i.email), str(datetime_duration), str(j.event.datetime_start),\
-                            str(j.event.datetime_end), str(j.event.datetime_start).split(" ")[0], str(j.event.location), str(j.event.project.name)]
+                        cleaned_list = [i.first_name, i.last_name, i.email, datetime_duration, j.event.datetime_start,\
+                            j.event.datetime_end, j.event.datetime_start.date(), j.event.location, j.event.project.name]
                         for k in rem_index:
                             #delete the columns which were deselected by the user
                             del cleaned_list[k]
+                        cleaned_list = map(str, cleaned_list)
                         writer.writerow(cleaned_list)#write to the CSV file
                 else:
                     #if the user input in start-time is empty
                     if (str(j.event.datetime_end)<str(post_data['end-date']) or str(j.event.datetime_end)==str(post_data['end-date'])):
-                        cleaned_list = [str(i.first_name), str(i.last_name), str(i.email), str(datetime_duration), str(j.event.datetime_start),\
-                            str(j.event.datetime_end), str(j.event.datetime_start).split(" ")[0], str(j.event.location), str(j.event.project.name)]
+                        cleaned_list = [i.first_name, i.last_name, i.email, datetime_duration, j.event.datetime_start,\
+                            j.event.datetime_end, j.event.datetime_start.date(), j.event.location, j.event.project.name]
                         for k in rem_index:
                             #delete the columns which were deselected by the user
                             del cleaned_list[k]
+                        cleaned_list = map(str, cleaned_list)
                         writer.writerow(cleaned_list)#write to the CSV file
         return response#redirect('openCurrents:export-data')#
 
