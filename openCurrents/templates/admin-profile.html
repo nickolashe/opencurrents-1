@@ -22,10 +22,17 @@
             <!-- </span> -->
           </div>
 
+
+
           <div class="one-margin-top right medium-4 large-3 columns end">
             <!--h6 class="no-margin-bottom two-line-height">My hours tracked: [my]</h6-->
             <h6>Org hours tracked: {{ issued_total }}</h6>
-            <a href="{% url 'openCurrents:create-event' orgid %}" class="button round tiny">Create event</a>
+            <!--<a href="{% url 'openCurrents:create-event' orgid %}" class="button round tiny">Create event</a>-->
+            {% if user_time_log_status %}
+              <a href="{% url 'openCurrents:approve-hours' %}" class="button round tiny">Approve hours</a>
+            {% else %}
+              <a href="{% url 'openCurrents:create-event' orgid %}" class="button round tiny">Create event</a>
+            {% endif %}
           </div>
         </div>
 
@@ -216,12 +223,16 @@
 
     <script type="text/javascript">
       $(document).ready(function(){
-        $('#approve-hours-popup').popup({
-          vertical: 'top',
-          transition: 'all 0.75s',
-          scrolllock: true,
-          //autoopen: true,
-        });
+        // var u_t_l = {{user_time_log_status}}
+        // //alert(u_t_l)
+        // if (u_t_l=='1'){
+        //   $('#approve-hours-popup').popup({
+        //     vertical: 'top',
+        //     transition: 'all 0.75s',
+        //     scrolllock: true,
+        //     autoopen: true,
+        //   });
+        // }
       });
     </script>
 
