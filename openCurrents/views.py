@@ -384,7 +384,7 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
         writer = csv.writer(response)
         writer.writerow(k_dict.keys())
         for i in vol_personal_info:
-            usertimelog_info = UserTimeLog.objects.filter(user=i).filter(is_verified=True)
+            usertimelog_info = UserTimeLog.objects.filter(user=i,event__in=event_info).filter(is_verified=True)
             for j in usertimelog_info:
                 # Loop across all the users registered
                 try:
