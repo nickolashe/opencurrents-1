@@ -171,63 +171,30 @@
           </div>
         </div>
 
-        <ul id="benefits-small" class="accordion show-for-small-only" data-accordion data-allow-all-closed="true">
-          <li class="accordion-item is-active" data-accordion-item>
-            <a href="#" class="accordion-title">
-              <div class="center">
-                <p class="grey half-margin-bottom lead">Everyone.</p>
-                <button id="all-button" class="benefit-icon button">
-                  <i class="fa fa-2x fa-globe"></i>
-                </button>
-              </div>
-            </a>
-            <div class="accordion-content" data-tab-content>
-              When good work is rewarded, more good is given. Society as a whole benefits.
+        <div class="row show-for-small-only">
+          <div class="small-12 small-centered columns">
+            <div class="icon-box center">
+              <input type="radio" id="benefit-sm-1" name="benefit-sm-[]" value="" class="hidden styled-radio" checked/>
+                <label for="benefit-sm-1" id="vol-button" class="benefit-icon button"><i class="fa fa-2x fa-users"></i></label>
+              <p class="grey half-margin-bottom large-text">Dedicated volunteers</p>
+              <p class="benefits-detail">openCurrents enables social organizations to attract a whole new group of committed, quality volunteers.</p>
             </div>
-          </li>
 
-          <li class="accordion-item" data-accordion-item>
-            <a href="#" class="accordion-title">
-              <div class="icon-box center">
-                <button id="vol-button" class="benefit-icon button">
-                  <i class="fa fa-2x fa-users"></i>
-                </button>
-                <p class="grey half-margin-bottom">Volunteers</p>
-              </div>
-            </a>
-            <div class="accordion-content" data-tab-content>
-              Volunteers can spend earned Currents with participating businesses or can "give twice" by donating Currents back to organizations.
+            <div class="icon-box center">
+              <input type="radio" id="benefit-sm-2" name="benefit-sm-[]" value="" class="hidden styled-radio"/>
+                <label for="benefit-sm-2" id="time-button" class="benefit-icon button"><i class="fa fa-2x fa-clock-o"></i></label>
+              <p class="grey half-margin-bottom large-text">Easy hour tracking</p>
+              <p class="benefits-detail hidden">Record activity with minimal overhead. Check in volunteers at events with one click or approve the hours that volunteers submit.</p>
             </div>
-          </li>
 
-          <li class="accordion-item" data-accordion-item>
-            <a href="#" class="accordion-title">
-              <div class="icon-box center">
-                <button id="org-button" class="benefit-icon button">
-                  <i class="fa fa-2x fa-heartbeat"></i>
-                </button>
-                <p class="grey half-margin-bottom">Social organizations</p>
-              </div>
-            </a>
-            <div class="accordion-content" data-tab-content>
-              Currents can help social organizations recruit quality volunteers and raise additional funds.
+            <div class="icon-box center">
+              <input type="radio" id="benefit-sm-3" name="benefit-sm-[]" value="" class="hidden styled-radio"/>
+                <label for="benefit-sm-3" id="org-button" class="benefit-icon button"><i class="fa fa-2x fa-money"></i></label>
+              <p class="grey half-margin-bottom large-text">Fundraising opportunities</p>
+              <p class="benefits-detail hidden">Volunteers and businesses receive a tax deduction by donating Currents to nonprofits. Currents can later be converted to cash.</p>
             </div>
-          </li>
-
-          <li class="accordion-item" data-accordion-item>
-            <a href="#" class="accordion-title">
-              <div class="icon-box center">
-                <button id="biz-button" class="benefit-icon button">
-                  <i class="fa fa-2x fa-shopping-cart"></i>
-                </button>
-                <p class="grey half-margin-bottom">Businesses</p>
-              </div>
-            </a>
-            <div class="accordion-content" data-tab-content>
-              By accepting Currents, businesses become a supporter of every organization issuing Currents. They can meaningfully engage their target audience and may even earn a return as Currents become more valuable.
-            </div>
-          </li>
-        </ul>
+          </div>
+        </div>
 
         <div class="row two-margin-top">
           <div class="two-margin-bottom center small-centered medium-8 columns">
@@ -291,12 +258,6 @@
     </div>
 
     <script type="text/javascript" src="{% static "js/home.js" %}"></script>
-
-    <script type="text/javascript">
-      var elem = new Foundation.Accordion($("#benefits-small"));
-      var elem = new Foundation.Sticky($("#sticky-header"));
-    </script>
-
     <script type="text/javascript" src="{% static "js/history.js" %}"></script>
 
 <!--     <script type="text/javascript">
@@ -387,6 +348,13 @@
     <script type="text/javascript">
       $(document).ready(function(){
 
+        // small benefits box
+        $('.benefit-icon').click(function(){
+          $('.benefits-detail').slideUp();
+          $(this).siblings('.benefits-detail').slideDown();
+        });
+
+        // non-small benefits box
         var val = 4;
 
         $('#vol-button').click(function(){

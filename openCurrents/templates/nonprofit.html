@@ -34,11 +34,12 @@
       
       <div id="intro-1">
         <div id="1" class="header-spacer"></div>
-        <div class="row center">
+        <div class="row center collapse">
           <div class="medium-12 small-centered columns">
             <h1 id="home-tagline" class="white three-halves-margin-bottom">Record and reward</h1>
           </div>
         </div>
+
         <div class="row center">
           <div class="medium-8 small-centered columns">
             <h5 class="white one-margin-bottom">Track volunteer hours with ease. For each hour worked, volunteers earn 1 Current, which they can use for partial payment with participating businesses.</h5>
@@ -59,25 +60,25 @@
         <div id="2" class="header-spacer"></div>
         <div class="row center">
           <div class="medium-12 small-centered columns">
-            <h3 class="title">Benefits</h3>
+            <h3 class="title-sub">Benefits</h3>
           </div>
         </div>
 
-        <div class="hide-for-small-only">
+        <div class="hide-for-small-only half-margin-top">
           <div id="benefits-div" class="row three-halves-margin-bottom">
             <div class="center medium-4 columns">
-              <p class="half-margin-bottom grey">Easy hour tracking</p>
+              <p class="one-margin-bottom grey">Easy hour tracking</p>
               <input type="radio" id="benefit-btn-1" name="benefit-[]" value="" class="hidden styled-radio"/>
                 <label for="benefit-btn-1" id="time-button" class="benefit-icon button"><i class="fa fa-2x fa-clock-o"></i></label>
             </div>
             <div class="center medium-4 columns">
-              <p class="half-margin-bottom grey">Dedicated volunteers</p>
+              <p class="one-margin-bottom grey">Dedicated volunteers</p>
               <input type="radio" id="benefit-btn-2" name="benefit-[]" value="" class="hidden styled-radio" checked />
                 <label for="benefit-btn-2" id="vol-button" class="benefit-icon button"><i class="fa fa-2x fa-users"></i></label>
             </div>
 
             <div class="center medium-4 columns">
-              <p class="half-margin-bottom grey">Fundraising opportunities</p>
+              <p class="one-margin-bottom grey">Fundraising opportunities</p>
               <input type="radio" id="benefit-btn-3" name="benefit-[]" value="" class="hidden styled-radio"/>
                 <label for="benefit-btn-3" id="fund-button" class="benefit-icon button"><i class="fa fa-2x fa-money"></i></label>
             </div>
@@ -88,67 +89,38 @@
 
             <p id="benefit-2" class="benefit-info one-margin-top center">openCurrents enables social organizations to attract a whole new group of committed, quality volunteers.</p>
 
-            <p id="benefit-3" class="benefit-info center hidden">Volunteers and businesses can claim a tax deduction by donating Currents back to organizations. Currents can later be converted to cash.</p>
+            <p id="benefit-3" class="benefit-info one-margin-top center hidden">Volunteers and businesses receive a tax deduction by donating Currents to nonprofits. Currents can later be converted to cash.</p>
           </div>
         </div>
 
-        <ul id="benefits-small" class="accordion show-for-small-only" data-accordion data-allow-all-closed="true">
-          <li class="accordion-item" data-accordion-item>
-            <a href="#" class="accordion-title">
-              <div class="icon-box center">
-                <button id="vol-button" class="benefit-icon button">
-                  <i class="fa fa-2x fa-users"></i>
-                </button>
-                <p class="grey half-margin-bottom">Volunteers</p>
-              </div>
-            </a>
-            <div class="accordion-content" data-tab-content>
-              Volunteers can spend earned Currents with participating businesses or can "give twice" by donating Currents back to organizations.
+        <div class="row show-for-small-only">
+          <div class="small-12 small-centered columns">
+            <div class="icon-box center">
+              <input type="radio" id="benefit-sm-1" name="benefit-sm-[]" value="" class="hidden styled-radio" checked/>
+                <label for="benefit-sm-1" id="vol-button" class="benefit-icon button"><i class="fa fa-2x fa-users"></i></label>
+              <p class="grey half-margin-bottom large-text">Dedicated volunteers</p>
+              <p class="benefits-detail">openCurrents enables social organizations to attract a whole new group of committed, quality volunteers.</p>
             </div>
-          </li>
 
-          <li class="accordion-item" data-accordion-item>
-            <a href="#" class="accordion-title">
-              <div class="icon-box center">
-                <button id="org-button" class="benefit-icon button">
-                  <i class="fa fa-2x fa-heartbeat"></i>
-                </button>
-                <p class="grey half-margin-bottom">Social organizations</p>
-              </div>
-            </a>
-            <div class="accordion-content" data-tab-content>
-              Currents can help social organizations recruit quality volunteers and raise additional funds.
+            <div class="icon-box center">
+              <input type="radio" id="benefit-sm-2" name="benefit-sm-[]" value="" class="hidden styled-radio"/>
+                <label for="benefit-sm-2" id="time-button" class="benefit-icon button"><i class="fa fa-2x fa-clock-o"></i></label>
+              <p class="grey half-margin-bottom large-text">Easy hour tracking</p>
+              <p class="benefits-detail hidden">Record activity with minimal overhead. Check in volunteers at events with one click or approve the hours that volunteers submit.</p>
             </div>
-          </li>
 
-          <li class="accordion-item" data-accordion-item>
-            <a href="#" class="accordion-title">
-              <div class="icon-box center">
-                <button id="biz-button" class="benefit-icon button">
-                  <i class="fa fa-2x fa-shopping-cart"></i>
-                </button>
-                <p class="grey half-margin-bottom">Businesses</p>
-              </div>
-            </a>
-            <div class="accordion-content" data-tab-content>
-              By accepting Currents, businesses become a supporter of every organization issuing Currents. They can meaningfully engage their target audience and may even earn a return as Currents become more valuable.
+            <div class="icon-box center">
+              <input type="radio" id="benefit-sm-3" name="benefit-sm-[]" value="" class="hidden styled-radio"/>
+                <label for="benefit-sm-3" id="org-button" class="benefit-icon button"><i class="fa fa-2x fa-money"></i></label>
+              <p class="grey half-margin-bottom large-text">Fundraising opportunities</p>
+              <p class="benefits-detail hidden">Volunteers and businesses receive a tax deduction by donating Currents to nonprofits. Currents can later be converted to cash.</p>
             </div>
-          </li>
-        </ul> 
-
-        <p class="two-margin-top center"><a id="show-diagram" class="button round secondary">See how it works</a></p>
-
-        <img id="how-it-works-small" class="hidden diagram-div show-for-small-only one-margin-bottom" src="{% static "img/diagram-blue.jpg" %}"/>
-
-        <div class="row center one-margin-bottom">
-          <div class="small-centered columns">
-            {% include 'partials/home-diagram.html' %}
           </div>
         </div>
 
         <div class="row center">
           <div class="medium-6 large-4 small-centered columns">
-            <a href="#3" class="large-text"><p class="no-margin-bottom">Fundraising</p><i class="two-margin-bottom fa fa-lg fa-angle-down"></i></a>
+            <a href="#3" class="large-text"><p class="no-margin-bottom">Getting started</p><i class="two-margin-bottom fa fa-lg fa-angle-down"></i></a>
           </div>
         </div>
       </div>
@@ -158,14 +130,13 @@
 
         <div class="row center one-margin-top">
           <div class="medium-9 small-centered columns">
-            <h4 class="white title">We are on a mission to allow anyone<br class="hide-for-small-only" />to give good and thrive.</h4>
+            <h3 class="white title">Getting started</h3>
           </div>
         </div>
 
         <div class="row collapse">
           <div class="medium-9 small-centered columns">
-            <h4 class="home-quote white half-margin-bottom">"Money won't create success;<br/>the freedom to make it will."</h4>
-            <h4 class="home-quote white">- Nelson Mandela</h4>
+            
           </div>
         </div>
 
@@ -178,7 +149,7 @@
         <div class="row center three-halves-margin-top two-margin-bottom">
           <a class="signup-box_open clear button round large secondary">Our story</a>
 
-          <a href="#4" class="home-link white"><p class="no-margin-bottom">Who benefits?</p><i class="two-margin-bottom fa fa-lg fa-angle-down"></i></a>
+          <a href="#4" class="home-link white"><p class="no-margin-bottom">Join the community</p><i class="two-margin-bottom fa fa-lg fa-angle-down"></i></a>
         </div>
       </div>
 
@@ -245,11 +216,6 @@
     <script type="text/javascript" src="{% static "js/home.js" %}"></script>
 
     <script type="text/javascript">
-      var elem = new Foundation.Accordion($("#benefits-small"));
-      var elem = new Foundation.Sticky($("#sticky-header"));
-    </script>
-
-    <script type="text/javascript">
       $('#show-diagram').click(function(){
         $(this).parent().fadeOut(777, function(){
           $('.diagram-div').fadeIn(777);
@@ -263,6 +229,13 @@
     <script type="text/javascript">
       $(document).ready(function(){
 
+        // small benefits box
+        $('.benefit-icon').click(function(){
+          $('.benefits-detail').slideUp();
+          $(this).siblings('.benefits-detail').slideDown();
+        });
+
+        // non-small benefits box
         var val = 2;
 
         $('#time-button').click(function(){

@@ -67,7 +67,7 @@
 }
 
 .icon-box {
-  margin: 1rem 0.5rem 0;
+  margin: 1.5rem 0.5rem;
 }
 
 .intro-icon {
@@ -142,24 +142,6 @@
   border: 1px solid #1f4975;
   color: #1f4975;
   background-color: #ffffff;
-}
-
-#benefits-small {
-  background: none;
-}
-
-#benefits-small .accordion-title {
-  border: none;
-  background: none;
-  padding: 0.5rem;
-}
-
-#benefits-small .accordion-content {
-  background: none;
-  color: #1f4975;
-  text-align: center;
-  border: none;
-  padding-top: 0px;
 }
 
 #mission-box {
@@ -250,5 +232,10 @@ input.home-input::placeholder {
 
 .home-input:focus {
   background-color: transparent;
-  border-color: #24b2e7;
+  border-color: #ffffff;
 }
+
+/*#all-button {
+  background-color: #1f4975;
+  color: #ffffff;
+}*/

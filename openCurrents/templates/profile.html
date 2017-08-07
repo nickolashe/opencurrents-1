@@ -4,11 +4,11 @@
 <!DOCTYPE html>
 <html>
   <head>
-    {% include "partials/head.html" %}
+    {% include "head.html" %}
   </head>
 
   <body>
-    {% include "partials/header.html" %}
+    {% include "header.html" %}
 
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
@@ -178,7 +178,7 @@
     <div id="bottom-stripe" class="full-width"></div>
 
     <div off-canvas="menu right shift" id="menu">
-      {% include 'partials/menu.html' %}
+      {% include "menu.html" %}
     </div>
 
     <div id="welcome-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
@@ -240,17 +240,24 @@
         </div>
       </div>
     </div>
+    <div id="approve-hours-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h3 class="popup-title">Volunteers request approval</h3>
+      </div>
+
+      <div class="row center">
+        <div class="small-centered medium-10 columns">
+
+          <p class="three-halves-margin-bottom">Volunteers have tracked hours and need your signoff before Currents are issued to them. It is recommended that you approve volunteer hours once a week.</p>
+
+          <a href="{% url 'openCurrents:approve-hours' %}" class="button round">View requests</button>
+          <a><button class="approve-hours-popup_close button round secondary">Close</button></a>
+        </div>
+      </div>
+    </div>
 
 
     <script type="text/javascript">
-      if(!localStorage.viewed){
-        localStorage.viewed=1;
-        var open = true;
-      }
-      else{
-        var open = false;
-      }
-
       $(document).ready(function(){
         $('#rsvp-popup, #earn-currents-popup').popup({
           vertical: 'top',
@@ -265,6 +272,27 @@
           // autoopen: true,
         });
       });
+    </script>
+
+    <script type="text/javascript">
+      if(!localStorage.viewed){
+        localStorage.viewed=1;
+        var open = true;
+      }
+      else{
+        var open = false;
+      }
+
+      var u_t_l = {{app_hr}}
+      //alert(u_t_l)
+      if (u_t_l=='1'){
+        $('#approve-hours-popup').popup({
+          vertical: 'top',
+          transition: 'all 0.75s',
+          scrolllock: true,
+          autoopen: true,
+        });
+      }
     </script>
 
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
