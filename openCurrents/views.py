@@ -489,6 +489,13 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(ProfileView, self).get_context_data(**kwargs)
         try:
+            if kwargs.pop('app_hr') == u'True':
+                context['app_hr'] = 1
+            else:
+                context['app_hr'] = 0
+        except:
+            context['app_hr'] = 0
+        try:
             org_name = Org.objects.get(id=context['orgid']).name
             context['orgname'] = org_name
         except:
@@ -533,6 +540,7 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         ]
         context['events_upcoming'] = events_upcoming
         context['timezone'] = self.request.user.account.timezone
+
 
         return context
 
@@ -593,6 +601,27 @@ class AdminProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
             project__org__id=orgid,
             datetime_start__gte=datetime.now(tz=pytz.utc) + timedelta(hours=1)
         )
+
+        userid = self.request.user.id
+        #user = User.objects.get(id=userid)
+        org = OrgUser.objects.filter(user__id=userid)
+        if org:
+            orgid = org[0].org.id
+        projects = Project.objects.filter(org__id=orgid)
+        events = Event.objects.filter(
+            project__in=projects
+        ).filter(
+            event_type='MN'
+        )
+
+        # gather unverified time logs
+        timelogs = UserTimeLog.objects.filter(
+            event__in=events
+        ).filter(
+            is_verified=False
+        )
+
+        context['user_time_log_status'] = timelogs
 
         return context
 
@@ -1569,8 +1598,13 @@ def process_login(request):
             password=user_password
         )
         if user is not None and user.is_active:
+            today = date.today()
+            if (user.last_login.date())< today - timedelta(days=today.weekday()):
+                app_hr = 'True'
+            else:
+                app_hr = 'False'
             login(request, user)
-            return redirect('openCurrents:profile')
+            return redirect('openCurrents:profile', app_hr)
         else:
             return redirect('openCurrents:login', status_msg='Invalid login/password')
     else:
