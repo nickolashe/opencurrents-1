@@ -251,6 +251,8 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
         Takes request as input which is a comma separated string which is then split to form a list with data like
         ```['a@bc.com:1:7-20-2017','abc@gmail.com:0:7-22-2017',''...]```
         """
+        vols_approved = int(0)
+        vols_declined = int(0)
         post_data = self.request.POST['post-data']
 
         templist = post_data.split(',')#eg list: ['a@bc.com:1:7-20-2017','abc@gmail.com:0:7-22-2017',''...]
@@ -287,6 +289,7 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
 
                 #check if the volunteer is declined and delete the same
                 if i.split(':')[1] == '0':
+                    vols_declined += 1
                     time_log = UserTimeLog.objects.filter(user=user
                        ).filter(
                           datetime_start__lt=week_date + timedelta(days=7)
@@ -300,6 +303,7 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
                 #check if the volunteer is accepted and approve the same
                 elif i.split(':')[1] == '1' and i !='':
                     try:
+                        vols_approved += 1
                         time_log = UserTimeLog.objects.filter(user=user
                            ).filter(
                               datetime_start__lt=week_date + timedelta(days=7)
@@ -314,7 +318,7 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
                         return redirect('openCurrents:500')
                     logger.info('Approving timelog : %s',time_log)
                 
-        return redirect('openCurrents:approve-hours')
+        return redirect('openCurrents:approve-hours', vols_approved, vols_declined)
         #templist[:] = [item.split(':')[0] for item in templist if item != '' and item.split(':')[1]!='0']
         # try:
         #     for i in templist:

@@ -11,6 +11,28 @@
     
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
+
+          {{vols_approved|add:'0'}}
+          {{vols_declined|add:'0'}}
+
+          {% if not vols_approved or vols_declined %}
+            <div class="success row one-margin-top">
+              <div class="medium-8 columns small-centered">
+                {% if vols_approved|add:"0" >= 1 and vols_declined|add:"0" >= 1 %}
+                    You have approved {{ vols_approved }} and declined {{ vols_declined }} volunteers. Keep up the good work!
+
+                {% elif vols_approved|add:"0" >= 1 and vols_declined|add:"0" == 0 %}
+                    You have approved hours for {{ vols_approved }} volunteer{{ vols_approved|pluralize }}. Keep up the good work!
+
+                {% elif vols_approved|add:"0" == 0 and vols_declined|add:"0" >= 1 %}
+                    You have declined hours for {{ vols_declined }} volunteer{{ vols_declined|pluralize }}. Better luck next time!
+
+                {% endif %}
+              </div>
+            </div>
+{% endif %}
+
+
         <div class="row">
           <h2 class="title-sub">Approve hours</h2>
           {% for date in week %}
