@@ -313,6 +313,25 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
                         logger.info('Approving timelog Error: %s',e)
                         return redirect('openCurrents:500')
                     logger.info('Approving timelog : %s',time_log)
+
+        org = OrgUser.objects.filter(user__id=userid)
+        if org:
+            orgid = org[0].org.id
+        projects = Project.objects.filter(org__id=orgid)
+        events = Event.objects.filter(
+            project__in=projects
+        ).filter(
+            event_type='MN'
+        )
+
+        # gather unverified time logs
+        timelogs = UserTimeLog.objects.filter(
+            event__in=events
+        ).filter(
+            is_verified=False
+        )
+        if not timelogs:
+            return redirect('openCurrents:admin-profile')
                 
         return redirect('openCurrents:approve-hours')
         #templist[:] = [item.split(':')[0] for item in templist if item != '' and item.split(':')[1]!='0']
