@@ -12,10 +12,21 @@
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
 
-          {{vols_approved|add:'0'}}
-          {{vols_declined|add:'0'}}
 
-          {% if not vols_approved or vols_declined %}
+          {% for date in week %}
+            {% for key,val in date.iteritems %}
+              {% if key == "vols_approved" %}
+                 <input type="hidden" id="vols_approved_val" name="" value="{{val}}">
+                 make vols_approved variable  {{val}}
+              {% elif key == "vols_declined" %}
+                 <input type="hidden" id="vols_declined_val" name="" value="{{val}}">
+                 make vols_declined variable  {{val}}
+              {% endif %}
+            {% endfor %}
+          {% endfor %}
+
+
+          {% if vols_approved or vols_declined %}
             <div class="success row one-margin-top">
               <div class="medium-8 columns small-centered">
                 {% if vols_approved|add:"0" >= 1 and vols_declined|add:"0" >= 1 %}
@@ -30,7 +41,7 @@
                 {% endif %}
               </div>
             </div>
-{% endif %}
+          {% endif %}
 
 
         <div class="row">

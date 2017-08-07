@@ -141,7 +141,7 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
     template_name = 'approve-hours.html'
     context_object_name = 'week'
 
-    def get_queryset(self):
+    def get_queryset(self,**kwargs):
         userid = self.request.user.id
         #user = User.objects.get(id=userid)
         org = OrgUser.objects.filter(user__id=userid)
@@ -164,8 +164,10 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
         # week list holds dictionary ordered pairs for 7 days of timelogs
         week = []
 
-        # return nothing if unverified time logs not found
+        # return kwargs vols_approved and vols_declined if unverified time logs not found
         if not timelogs:
+            week = self.kwargs 
+            print(week)
             return week
         
         # find monday before oldest unverified time log
@@ -242,11 +244,12 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
             time_log_week[week_startdate_monday] = time_log
             week.append(time_log_week)
 
+        week.append(self.kwargs)
  
         logger.info('%s',week)
         return week
 
-    def post(self, request):
+    def post(self, request, **kwargs):
         """
         Takes request as input which is a comma separated string which is then split to form a list with data like
         ```['a@bc.com:1:7-20-2017','abc@gmail.com:0:7-22-2017',''...]```
