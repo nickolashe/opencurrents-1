@@ -244,6 +244,7 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
             time_log_week[week_startdate_monday] = time_log
             week.append(time_log_week)
 
+        # include post kwargs vols_approved vols_declined as last part of week
         week.append(self.kwargs)
  
         logger.info('%s',week)
@@ -273,7 +274,6 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
             """
             if i != '':
                 i = str(i)
-
                 #split the data for user, flag, and date info
                 user = User.objects.get(username=i.split(':')[0])
                 week_date = datetime.strptime( i.split(':')[2], '%m-%d-%Y')
