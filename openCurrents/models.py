@@ -57,15 +57,18 @@ class OrgUser(models.Model):
 
     class Meta:
         unique_together = ('user', 'org')
+        permissions = (
+            ('admin', 'User is org admin'),
+        )
 
     def __unicode__(self):
         return ' '.join([
-            'User',
             self.user.email,
             'is',
             str(self.affiliation),
             'at',
-            self.org.name
+            self.org.name,
+            '(approved)' if self.approved else '(unapproved)'
         ])
 
 
