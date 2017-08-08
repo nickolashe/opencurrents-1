@@ -216,6 +216,11 @@ class UserTimeLog(models.Model):
     user = models.ForeignKey(User)
     event = models.ForeignKey(Event)
     is_verified = models.BooleanField(default=False)
+    deferments = models.ManyToManyField(
+        User,
+        through='DeferredUserTime',
+        related_name='deferments'
+    )
 
     # start / end timestamps of the contributed time
     datetime_start = models.DateTimeField('start time')
@@ -248,6 +253,29 @@ class UserTimeLog(models.Model):
 
         status %= minutes
         return status
+
+
+class DeferredUserTime(models.Model):
+    user = models.ForeignKey(User)
+    usertimelog = models.ForeignKey(UserTimeLog)
+
+    # created / updated timestamps
+    date_created = models.DateTimeField('date created', auto_now_add=True)
+    date_updated = models.DateTimeField('date updated', auto_now=True)
+
+    class Meta:
+        unique_together = ('user', 'usertimelog')
+
+    def __unicode__(self):
+        return ' '.join([
+            self.event.project.org.name,
+            'admin',
+            self.user.email,
+            'deferred time by',
+            self.usertimelog.user.email,
+            'starting on',
+            str(self.usertimelog.datetime_start),
+        ])
 
 
 # verification tokens
