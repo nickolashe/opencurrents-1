@@ -17,6 +17,7 @@ from collections import OrderedDict
 from copy import deepcopy
 import math
 import re
+from django.db.models import Q
 
 from openCurrents import config
 from openCurrents.models import \
@@ -27,7 +28,8 @@ from openCurrents.models import \
     Project, \
     Event, \
     UserEventRegistration, \
-    UserTimeLog
+    UserTimeLog, \
+    DeferredUserTime
 
 from openCurrents.forms import \
     UserSignupForm, \
@@ -136,7 +138,6 @@ class InviteFriendsView(LoginRequiredMixin, SessionContextView, TemplateView):
 
         return context
 
-
 class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
     template_name = 'approve-hours.html'
     context_object_name = 'week'
@@ -173,10 +174,10 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
         week_startdate = oldest_timelog.datetime_start
         week_startdate_monday = week_startdate - timedelta(days=week_startdate.weekday())
         today = timezone.now()
-        #print(week_startdate_monday)
 
         # build one weeks worth of timelogs starting from the oldest monday
         time_log_week = OrderedDict()
+        get_defer_times = DeferredUserTime.objects.filter(user__id=userid)
         eventtimelogs = UserTimeLog.objects.filter(
             event__in=events
         ).filter(
@@ -187,6 +188,35 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
             is_verified=False
         )
 
+        for g_d_t in get_defer_times:
+            if g_d_t.usertimelog in list(eventtimelogs):
+                #list(eventtimelogs).remove(g_d_t.usertimelog)
+                eventtimelogs = eventtimelogs.filter(~Q(event=g_d_t.usertimelog.event))
+        k = 0
+        #Check for usertimelogs ahead for upto a month
+        while k<5:
+            if not eventtimelogs:
+                week_startdate_monday = week_startdate_monday + timedelta(days=7)
+                today = timezone.now()
+
+                # build one weeks worth of timelogs starting from the oldest monday
+                time_log_week = OrderedDict()
+                get_defer_times = DeferredUserTime.objects.filter(user__id=userid)
+                eventtimelogs = UserTimeLog.objects.filter(
+                    event__in=events
+                ).filter(
+                    datetime_start__lt=week_startdate_monday + timedelta(days=7) 
+                ).filter(
+                    datetime_start__gte=week_startdate_monday
+                ).filter(
+                    is_verified=False
+                )
+                for g_d_t in get_defer_times:
+                    if g_d_t.usertimelog in eventtimelogs:
+                        eventtimelogs = eventtimelogs.filter(~Q(event=g_d_t.usertimelog.event))
+                k += 1
+            else:
+                k=5
 
         time_log = OrderedDict()
         items = {'Total': 0}
@@ -298,7 +328,7 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
                           event__in=events).delete()
 
                 #check if the volunteer is accepted and approve the same
-                elif i.split(':')[1] == '1' and i !='':
+                elif i.split(':')[1] == '1':
                     try:
                         time_log = UserTimeLog.objects.filter(user=user
                            ).filter(
@@ -313,6 +343,24 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
                         logger.info('Approving timelog Error: %s',e)
                         return redirect('openCurrents:500')
                     logger.info('Approving timelog : %s',time_log)
+
+                #check if the volunteer is defered and add to defered user times
+                elif i.split(':')[1] == '2':
+                    time_log = UserTimeLog.objects.filter(user=user
+                           ).filter(
+                              datetime_start__lt=week_date + timedelta(days=7)
+                           ).filter(
+                              datetime_start__gte=week_date
+                           ).filter(
+                              is_verified=False
+                           ).filter(
+                              event__in=events)
+                    for time_def in time_log:
+                        defer_user_time = DeferredUserTime(
+                            user = User.objects.get(id=self.request.user.id),
+                            usertimelog = time_def
+                            )
+                        defer_user_time.save()
 
         org = OrgUser.objects.filter(user__id=userid)
         if org:
@@ -714,7 +762,6 @@ class CreateEventView(LoginRequiredMixin, SessionContextView, FormView):
 
         # create an event for each location
         event_ids = map(lambda loc: self._create_event(loc, data), locations)
-        print(event_ids)
         return redirect('openCurrents:invite-volunteers',event_ids[0])
 
     def get_context_data(self, **kwargs):
