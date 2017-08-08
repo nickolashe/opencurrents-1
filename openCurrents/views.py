@@ -313,6 +313,25 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
                         logger.info('Approving timelog Error: %s',e)
                         return redirect('openCurrents:500')
                     logger.info('Approving timelog : %s',time_log)
+
+        org = OrgUser.objects.filter(user__id=userid)
+        if org:
+            orgid = org[0].org.id
+        projects = Project.objects.filter(org__id=orgid)
+        events = Event.objects.filter(
+            project__in=projects
+        ).filter(
+            event_type='MN'
+        )
+
+        # gather unverified time logs
+        timelogs = UserTimeLog.objects.filter(
+            event__in=events
+        ).filter(
+            is_verified=False
+        )
+        if not timelogs:
+            return redirect('openCurrents:admin-profile')
                 
         return redirect('openCurrents:approve-hours')
         #templist[:] = [item.split(':')[0] for item in templist if item != '' and item.split(':')[1]!='0']
@@ -489,6 +508,13 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(ProfileView, self).get_context_data(**kwargs)
         try:
+            if kwargs.pop('app_hr') == u'True':
+                context['app_hr'] = 1
+            else:
+                context['app_hr'] = 0
+        except:
+            context['app_hr'] = 0
+        try:
             org_name = Org.objects.get(id=context['orgid']).name
             context['orgname'] = org_name
         except:
@@ -533,6 +559,7 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         ]
         context['events_upcoming'] = events_upcoming
         context['timezone'] = self.request.user.account.timezone
+
 
         return context
 
@@ -593,6 +620,27 @@ class AdminProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
             project__org__id=orgid,
             datetime_start__gte=datetime.now(tz=pytz.utc) + timedelta(hours=1)
         )
+
+        userid = self.request.user.id
+        #user = User.objects.get(id=userid)
+        org = OrgUser.objects.filter(user__id=userid)
+        if org:
+            orgid = org[0].org.id
+        projects = Project.objects.filter(org__id=orgid)
+        events = Event.objects.filter(
+            project__in=projects
+        ).filter(
+            event_type='MN'
+        )
+
+        # gather unverified time logs
+        timelogs = UserTimeLog.objects.filter(
+            event__in=events
+        ).filter(
+            is_verified=False
+        )
+
+        context['user_time_log_status'] = timelogs
 
         return context
 
@@ -1468,12 +1516,11 @@ def process_signup(request, referrer=None, endpoint=False, verify_email=True):
                 org = Org(name=org_name)
                 org.save()
 
-               # skip creation of an OrgUser from signup for now
-                #org_user = OrgUser(
-                #    user=user,
-                #    org=org
-                #)
-                #org_user.save()
+                org_user = OrgUser(
+                    user=user,
+                    org=org
+                )
+                org_user.save()
             except IntegrityError:
                 logger.info('org %s already exists', org_name)
 
@@ -1570,8 +1617,13 @@ def process_login(request):
             password=user_password
         )
         if user is not None and user.is_active:
+            today = date.today()
+            if (user.last_login.date())< today - timedelta(days=today.weekday()):
+                app_hr = 'True'
+            else:
+                app_hr = 'False'
             login(request, user)
-            return redirect('openCurrents:profile')
+            return redirect('openCurrents:profile', app_hr)
         else:
             return redirect('openCurrents:login', status_msg='Invalid login/password')
     else:
@@ -1910,27 +1962,25 @@ def process_org_signup(request):
             existing.save()
 
         org = Org.objects.get(name=form_data['org_name'])
-        # preventing automatic creation of OrgUser for now.
-        # OrgUser creation for org admins is under review
-        #org_user = OrgUser(
-        #    org=org,
-        #    user=request.user,
-        #    affiliation=form_data['user_affiliation']
-        #)
-        #try:
-        #    org_user.save()
-        #except IntegrityError:
-        #    logger.info(
-        #        'user %s is already affiliated with org %s',
-        #        request.user.email,
-        #        org.name
-        #    )
-        #    org_user = OrgUser.objects.get(
-        #        org=org,
-        #        user=request.user
-        #    )
-        #    org_user.affiliation = form_data['user_affiliation']
-        #    org_user.save()
+        org_user = OrgUser(
+            org=org,
+            user=request.user,
+            affiliation=form_data['user_affiliation']
+        )
+        try:
+            org_user.save()
+        except IntegrityError:
+            logger.info(
+                'user %s is already affiliated with org %s',
+                request.user.email,
+                org.name
+            )
+            org_user = OrgUser.objects.get(
+                org=org,
+                user=request.user
+            )
+            org_user.affiliation = form_data['user_affiliation']
+            org_user.save()
 
         logger.info(
             'Successfully created / updated org %s nominated by %s',
