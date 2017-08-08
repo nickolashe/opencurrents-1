@@ -258,15 +258,16 @@
 
 
     <script type="text/javascript">
-      if(!localStorage.viewed){
-        localStorage.viewed=1;
-        var open = true;
-      }
-      else{
-        var open = false;
-      }
-
       $(document).ready(function(){
+
+        if(!localStorage.viewed){
+          localStorage.viewed=1;
+          var open = true;
+        }
+        else{
+          var open = false;
+        }
+
         $('#rsvp-popup, #earn-currents-popup').popup({
           vertical: 'top',
           transition: 'all 0.75s',
@@ -279,8 +280,12 @@
           scrolllock: true,
           // autoopen: true,
         });
+      });
+    </script>
 
-        if ({{app_hr}}){
+    <script type="text/javascript">
+      
+      if ({{app_hr}}){
           $('#approve-hours-popup').popup({
             vertical: 'top',
             transition: 'all 0.75s',
@@ -289,7 +294,6 @@
           });
         }
 
-      });
     </script>
 
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>

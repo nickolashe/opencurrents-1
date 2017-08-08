@@ -257,6 +257,7 @@
 
       $('#location-box').on('click', 'i', function(){
         $(this).parent('div').slideUp();
+        $(this).parent('div').find('input').val('');
       });
 
       $(document).ready(function(){
