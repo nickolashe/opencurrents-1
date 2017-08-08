@@ -917,8 +917,8 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
             bulk_list = re.split(',| |\n',post_data['bulk-vol'])
             num_vols = len(bulk_list)
         for i in range(num_vols):
-            email_list = post_data['vol-email-'+str(i+1)]
             if post_data['bulk-vol'].encode('ascii','ignore') == '':
+                email_list = post_data['vol-email-'+str(i+1)]
                 if email_list != '':
                     if email_list not in user_list:
                         k.append({"email":email_list, "name":post_data['vol-name-'+str(i+1)],"type":"to"})
