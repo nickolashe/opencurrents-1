@@ -66,6 +66,7 @@ urlpatterns = [
     url(r'^profile/(?P<app_hr>(True|False))/$', views.ProfileView.as_view(), name='profile'),
     url(r'^profile/(?P<status_msg>.*)/$', views.ProfileView.as_view(), name='profile'),
     url(r'^admin-profile$', views.AdminProfileView.as_view(), name='admin-profile'),
+    url(r'^admin-profile/(?P<vols_approved>\d+)/(?P<vols_declined>\d+)/$', views.AdminProfileView.as_view(), name='admin-profile'),
     url(r'^edit-profile$', views.EditProfileView.as_view(), name='edit-profile'),
     url(r'^blog$', views.BlogView.as_view(), name='blog'),
     url(r'^marketplace$', views.MarketplaceView.as_view(), name='marketplace'),

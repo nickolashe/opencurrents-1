@@ -23,7 +23,7 @@
         {% endfor %}
 
         <div class ="row">
-          <div class="success row one-margin-top"> <span id="vols_status_msg"></span></h5> </div>
+          <div class="success row one-margin-top"> <span name="vols_status_msg" id="vols_status_msg"></span></h5> </div>
         </div>
 
         <div class="row">
@@ -224,7 +224,7 @@
     <script type="text/javascript">
       $(document).ready(function(){
         if (document.getElementById("vols_approved_val") === null || document.getElementById("vols_declined_val") === null){
-          
+
         }
         else{
           var vols_approved = document.getElementById("vols_approved_val").value;

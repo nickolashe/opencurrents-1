@@ -338,7 +338,7 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
             is_verified=False
         )
         if not timelogs:
-            return redirect('openCurrents:admin-profile')
+            return redirect('openCurrents:admin-profile', vols_approved, vols_declined)
                 
         return redirect('openCurrents:approve-hours', vols_approved, vols_declined)
         #templist[:] = [item.split(':')[0] for item in templist if item != '' and item.split(':')[1]!='0']
@@ -580,6 +580,11 @@ class AdminProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         org = Org.objects.get(pk=orgid)
         context['org_name'] = org.name
         context['timezone'] = org.timezone
+        try:
+            context['vols_approved'] = self.kwargs.pop('vols_approved')
+            context['vols_declined'] = self.kwargs.pop('vols_declined')
+        except:
+            pass
 
         verified_time = UserTimeLog.objects.filter(
             event__project__org__id=orgid
