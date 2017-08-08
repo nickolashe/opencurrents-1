@@ -1,7 +1,7 @@
 {% load staticfiles %}
 
 <header id="header" class="full-width row collapse js-close-any" canvas>
-  <div class="small-10 medium-9 medium-offset-1 columns">
+  <div class="small-6 small-offset-1 columns">
     {% if orgid %}
     <a href="{% url 'openCurrents:admin-profile' %}">
     {% elif request.user.is_authenticated %}
@@ -14,7 +14,8 @@
     </a>
   </div>
 
-  <div id="header-menu" class="small-2 columns right end">
+  <div class="small-3 columns center">
+    <a><i class="one-margin-right fa fa-lg fa-user-circle-o"></i></a>
     <a class="toggle-menu">
       {% include 'partials/tilde-menu.html' %}
     </a>
