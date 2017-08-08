@@ -191,9 +191,9 @@
       function dec_vol(k){//Declining volunteer on clicking decline button
 
         var decline = k.text.replace("Decline volunteer","").replaceAll(" ","").replaceAll("\n","");
-        var dec_0 = decline+':0:'
-        var dec_1 = decline+':1:'
-        document.getElementById('result_sel').value = document.getElementById('result_sel').value.replace(dec_0,"").replace(dec_1,"").replace(week_format,"").replace(decline,"");
+        var dec_0 = decline+':0:'+week_format;
+        var dec_1 = decline+':1:'+week_format;
+        document.getElementById('result_sel').value = document.getElementById('result_sel').value.replace(dec_0,"").replace(dec_1,"").replace(decline,"");
         document.getElementById('result_sel').value += decline+":0:"+week_format+",";
 
       }
@@ -201,9 +201,9 @@
       function acc_vol(vol){//Accept Volunteer on clicking Undo
 
         var accept = vol.text.replace("Undo","").replaceAll(" ","").replaceAll("\n","");
-        var acc_0 = accept+':0:'
-        var acc_1 = accept+':1:'
-        document.getElementById('result_sel').value = document.getElementById('result_sel').value.replace(acc_0,"").replace(acc_1,"").replace(week_format,"");
+        var acc_0 = accept+':0:'+week_format;
+        var acc_1 = accept+':1:'+week_format;
+        document.getElementById('result_sel').value = document.getElementById('result_sel').value.replace(acc_0,"").replace(acc_1,"");
         document.getElementById('result_sel').value += accept+":1:"+week_format+",";
 
       }
