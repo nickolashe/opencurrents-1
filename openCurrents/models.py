@@ -268,7 +268,7 @@ class DeferredUserTime(models.Model):
 
     def __unicode__(self):
         return ' '.join([
-            self.event.project.org.name,
+            self.usertimelog.event.project.org.name,
             'admin',
             self.user.email,
             'deferred time by',
