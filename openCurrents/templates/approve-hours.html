@@ -223,38 +223,40 @@
 
     <script type="text/javascript">
       $(document).ready(function(){
+        if (document.getElementById("vols_approved_val") === null || document.getElementById("vols_declined_val") === null){
+          alert("none")
+        }
+        else{
+          var vols_approved = document.getElementById("vols_approved_val").value;
+          var vols_declined = document.getElementById("vols_declined_val").value;
+        
 
-        var vols_approved = document.getElementById("vols_approved_val").value;
-        var vols_declined = document.getElementById("vols_declined_val").value;
-        if(vols_approved >= 1 && vols_declined > 1)
-        {
-           vols_status_msg_display = "You have approved " + vols_approved + " and declined " + vols_declined + " volunteers. Keep up the good work!"
+          if(vols_approved >= 1 && vols_declined > 1)
+          {
+             vols_status_msg_display = "You have approved " + vols_approved + " and declined " + vols_declined + " volunteers. Keep up the good work!"
+          }
+          else if(vols_approved >= 1 && vols_declined == 1)
+          {
+             vols_status_msg_display = "You have approved " + vols_approved + " and declined " + vols_declined + " volunteer. Keep up the good work!"
+          }
+          else if(vols_approved > 1 && vols_declined == 0)
+          {
+             vols_status_msg_display = "You have approved hours for " + vols_approved + " volunteers. Keep up the good work!"
+          }
+          else if(vols_approved == 1 && vols_declined == 0)
+          {
+             vols_status_msg_display = "You have approved hours for " + vols_approved + " volunteer. Keep up the good work!"
+          }
+          else if(vols_approved == 0 && vols_declined > 1)
+          {
+             vols_status_msg_display = "You have declined hours for " + vols_declined + " volunteers. Keep up the good work!"
+          }
+          else if(vols_approved == 0 && vols_declined == 1)
+          {
+             vols_status_msg_display = "You have declined hours for " + vols_declined + " volunteer. Keep up the good work!"
+          }
+          document.getElementById("vols_status_msg").innerHTML = vols_status_msg_display;
         }
-        else if(vols_approved >= 1 && vols_declined == 1)
-        {
-           vols_status_msg_display = "You have approved " + vols_approved + " and declined " + vols_declined + " volunteer. Keep up the good work!"
-        }
-        else if(vols_approved > 1 && vols_declined == 0)
-        {
-           vols_status_msg_display = "You have approved hours for " + vols_approved + " volunteers. Keep up the good work!"
-        }
-        else if(vols_approved == 1 && vols_declined == 0)
-        {
-           vols_status_msg_display = "You have approved hours for " + vols_approved + " volunteer. Keep up the good work!"
-        }
-        else if(vols_approved == 0 && vols_declined > 1)
-        {
-           vols_status_msg_display = "You have declined hours for " + vols_declined + " volunteers. Keep up the good work!"
-        }
-        else if(vols_approved == 0 && vols_declined == 1)
-        {
-           vols_status_msg_display = "You have declined hours for " + vols_declined + " volunteer. Keep up the good work!"
-        }
-        else
-        {
-           vols_status_msg_display = "N/A";
-        }
-        document.getElementById("vols_status_msg").innerHTML = vols_status_msg_display;
 
         var rep = $('.decline-volunteer').text().replaceAll("Decline volunteer\n","").replaceAll(" ","");
         var rep_list = rep.split("\n")
