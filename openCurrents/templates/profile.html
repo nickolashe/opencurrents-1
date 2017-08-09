@@ -63,14 +63,11 @@
             </div>
           </div>
         </div>
-
         
-
-        {% if events_upcoming %}
-          <div id="project-list" class="row full-width collapse left one-margin-top">
-            <div class="small-11 medium-10 large-8 small-centered columns">
-              <h6 class="one-margin-bottom">My volunteer events</h6>
-
+        <div class="row full-width collapse left one-margin-top">
+          <div class="small-11 medium-10 large-8 small-centered columns">
+            <h6 class="one-margin-bottom">My volunteer events</h6>
+            {% if events_upcoming %}
               {% for event in events_upcoming %}
                 {% if event.project.name != "ManualTracking" %}
                 <div class="row one-margin-bottom">
@@ -88,10 +85,12 @@
                 </div>
                 {% endif %}
               {% endfor %}
-
-            </div>
+            {% else %}
+              <p>You are not registered for any upcoming events. <a href="{% url 'openCurrents:upcoming-events' %}">Find one!</a></p>
+            {% endif %}
           </div>
-        {% endif %}
+        </div>
+        
 
         <!-- community feed code. Hardcoded not dynamic -->
         <!-- <div class="row full-width collapse one-margin-bottom">
@@ -258,15 +257,16 @@
 
 
     <script type="text/javascript">
-      if(!localStorage.viewed){
-        localStorage.viewed=1;
-        var open = true;
-      }
-      else{
-        var open = false;
-      }
-
       $(document).ready(function(){
+
+        if(!localStorage.viewed){
+          localStorage.viewed=1;
+          var open = true;
+        }
+        else{
+          var open = false;
+        }
+
         $('#rsvp-popup, #earn-currents-popup').popup({
           vertical: 'top',
           transition: 'all 0.75s',
@@ -279,8 +279,20 @@
           scrolllock: true,
           // autoopen: true,
         });
-
       });
+    </script>
+
+    <script type="text/javascript">
+
+      if ({{app_hr}}){
+          $('#approve-hours-popup').popup({
+            vertical: 'top',
+            transition: 'all 0.75s',
+            scrolllock: true,
+            autoopen: true,
+          });
+      }
+
     </script>
 
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
