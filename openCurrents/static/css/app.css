@@ -1445,11 +1445,10 @@ i:hover ~ .addtocalendar {
   right: 23px;
   top: 30px;
   width: 200px;
-  border: 1px solid #24b2e7;
+  border: 1px solid #cccccc;
   border-bottom: none;
   text-align: left;
-  background-color: #ffffff;
-  border-radius: 4px;
+  background-color: #fcfcfc;
   z-index: 100;
 }
 
@@ -1459,7 +1458,7 @@ i:hover ~ .addtocalendar {
 
 .mini-menu li {
   list-style-type: none;
-  border-bottom: 1px solid #24b2e7;
+  border-bottom: 1px solid #cccccc;
   padding-left: 10px;
 }
 
