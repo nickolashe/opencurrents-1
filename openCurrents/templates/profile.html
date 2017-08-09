@@ -4,11 +4,11 @@
 <!DOCTYPE html>
 <html>
   <head>
-    {% include "head.html" %}
+    {% include "partials/head.html" %}
   </head>
 
   <body>
-    {% include "header.html" %}
+    {% include "partials/header.html" %}
 
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
@@ -35,7 +35,7 @@
           <div class="one-margin-top right medium-4 large-3 columns end">
             <h6 class="inline">My Currents: </h6>
             <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
-            <h6 class="inline"> {{ user_balance }} </h6>
+            <h6 class="inline-block"> {{ user_balance }} </h6>
             <div class="no-margin-top row">
               <a class="earn-currents-popup_open button round tiny">Earn Currents</a>
               <!-- <a href="{% url 'openCurrents:marketplace' %}" class="button round secondary tiny">Redeem</a> -->
@@ -55,7 +55,7 @@
             <div class="half-margin-top">
               <h6 class="inline">My Currents: </h6>
               <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
-              <h6 class="inline"> {{ user_balance }} </h6>
+              <h6 class="inline-block"> {{ user_balance }} </h6>
               <div class="no-margin-top row">
                 <a class="earn-currents-popup_open button round tiny">Earn Currents</a>
                 <!-- <a href="{% url 'openCurrents:marketplace' %}" class="button round secondary tiny">Redeem</a> -->
@@ -63,14 +63,11 @@
             </div>
           </div>
         </div>
-
         
-
-        {% if events_upcoming %}
-          <div id="project-list" class="row full-width collapse left one-margin-top">
-            <div class="small-11 medium-10 large-8 small-centered columns">
-              <h6 class="one-margin-bottom">My volunteer events</h6>
-
+        <div class="row full-width collapse left one-margin-top">
+          <div class="small-11 medium-10 large-8 small-centered columns">
+            <h6 class="one-margin-bottom">My volunteer events</h6>
+            {% if events_upcoming %}
               {% for event in events_upcoming %}
                 {% if event.project.name != "ManualTracking" %}
                 <div class="row one-margin-bottom">
@@ -88,10 +85,12 @@
                 </div>
                 {% endif %}
               {% endfor %}
-
-            </div>
+            {% else %}
+              <p>You are not registered for any upcoming events. <a href="{% url 'openCurrents:upcoming-events' %}">Find one!</a></p>
+            {% endif %}
           </div>
-        {% endif %}
+        </div>
+        
 
         <!-- community feed code. Hardcoded not dynamic -->
         <!-- <div class="row full-width collapse one-margin-bottom">
@@ -170,7 +169,7 @@
       <!-- wrapper div-->
       </div>
 
-      {% include "footer.html" %}
+      {% include 'partials/footer.html' %}
 
     <!--container div -->
     </div>
@@ -178,7 +177,7 @@
     <div id="bottom-stripe" class="full-width"></div>
 
     <div off-canvas="menu right shift" id="menu">
-      {% include "menu.html" %}
+      {% include 'partials/menu.html' %}
     </div>
 
     <div id="welcome-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
@@ -259,6 +258,15 @@
 
     <script type="text/javascript">
       $(document).ready(function(){
+
+        if(!localStorage.viewed){
+          localStorage.viewed=1;
+          var open = true;
+        }
+        else{
+          var open = false;
+        }
+
         $('#rsvp-popup, #earn-currents-popup').popup({
           vertical: 'top',
           transition: 'all 0.75s',
@@ -275,24 +283,16 @@
     </script>
 
     <script type="text/javascript">
-      if(!localStorage.viewed){
-        localStorage.viewed=1;
-        var open = true;
-      }
-      else{
-        var open = false;
+
+      if ({{app_hr}}){
+          $('#approve-hours-popup').popup({
+            vertical: 'top',
+            transition: 'all 0.75s',
+            scrolllock: true,
+            autoopen: true,
+          });
       }
 
-      var u_t_l = {{app_hr}}
-      //alert(u_t_l)
-      if (u_t_l=='1'){
-        $('#approve-hours-popup').popup({
-          vertical: 'top',
-          transition: 'all 0.75s',
-          scrolllock: true,
-          autoopen: true,
-        });
-      }
     </script>
 
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>

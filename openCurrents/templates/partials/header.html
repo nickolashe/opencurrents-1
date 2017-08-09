@@ -1,7 +1,7 @@
 {% load staticfiles %}
 
 <header id="header" class="full-width row collapse js-close-any" canvas>
-  <div class="small-6 small-offset-1 columns">
+  <div class="small-7 medium-6 small-offset-1 columns">
     {% if orgid %}
     <a href="{% url 'openCurrents:admin-profile' %}">
     {% elif request.user.is_authenticated %}
@@ -14,10 +14,19 @@
     </a>
   </div>
 
-  <div class="small-3 columns center">
-    <a><i class="one-margin-right fa fa-lg fa-user-circle-o"></i></a>
-    <a class="toggle-menu">
+  <div class="small-3 medium-4 columns relative right end">
+    <div id="header-profile" class="hide-for-small-only hide-text">
+      <a>Danny Pernik</a>
+    </div>
+
+    <div id="header-profile-icon" class="show-for-small-only">
+      <a><i class="fa fa-lg fa-user-circle blue"></i><a>
+    </div>
+
+    <div>
+      <a class="toggle-menu">
       {% include 'partials/tilde-menu.html' %}
-    </a>
+      </a>
+    </div>
   </div>
 </header>
