@@ -892,6 +892,21 @@ class ProjectDetailsView(TemplateView):
 class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'invite-volunteers.html'
 
+
+    def get_context_data(self, **kwargs):
+        #check for event invite or normal invite to display skip button
+        context = super(InviteVolunteersView, self).get_context_data(**kwargs)
+        userid = self.request.user.id
+        context['userid'] = userid
+        try:
+            event_create_id = kwargs.pop('event_id').split('b')
+            context['skip'] = 1
+        except:
+            context['skip'] = 0
+
+        return context
+
+
     def post(self, request, *args, **kwargs):
         userid = self.request.user.id
         #print(kwargs)
