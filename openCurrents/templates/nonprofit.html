@@ -10,7 +10,7 @@
 
   <body id="nonprofit" class="splash" onunload=''>
     <header id="header" class="full-width row collapse js-close-any" canvas>
-      <div class="small-9 medium-4 small-offset-1 columns">
+      <div class="small-8 medium-4 small-offset-1 columns">
         <a href="{% url 'openCurrents:root' %}">
 
           <img id="header-logo" src="{% static 'img/oc-header-blue2.svg' %}" />
@@ -23,7 +23,7 @@
         <a href="{% url 'openCurrents:login' %}">Log in</a>
       </div>
 
-      <div id="header-menu" class="show-for-small-only small-2 columns center end">
+      <div class="show-for-small-only small-2 relative columns right end">
         <a class="toggle-menu">
           {% include 'partials/tilde-menu.html' %}
         </a>
