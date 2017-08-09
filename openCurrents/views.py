@@ -17,7 +17,6 @@ from collections import OrderedDict
 from copy import deepcopy
 import math
 import re
-from django.db.models import Q
 
 from openCurrents import config
 from openCurrents.models import \
@@ -175,48 +174,22 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
         week_startdate_monday = week_startdate - timedelta(days=week_startdate.weekday())
         today = timezone.now()
 
-        # build one weeks worth of timelogs starting from the oldest monday
-        time_log_week = OrderedDict()
-        get_defer_times = DeferredUserTime.objects.filter(user__id=userid)
-        eventtimelogs = UserTimeLog.objects.filter(
-            event__in=events
-        ).filter(
-            datetime_start__lt=week_startdate_monday + timedelta(days=7) 
-        ).filter(
-            datetime_start__gte=week_startdate_monday
-        ).filter(
-            is_verified=False
-        )
-
-        for g_d_t in get_defer_times:
-            if g_d_t.usertimelog in list(eventtimelogs):
-                #list(eventtimelogs).remove(g_d_t.usertimelog)
-                eventtimelogs = eventtimelogs.filter(~Q(event=g_d_t.usertimelog.event))
+        main_defer = self.defer_month(week_startdate_monday,today)
+        eventtimelogs = main_defer[0]
+        time_log_week = main_defer[1]
         k = 0
         #Check for usertimelogs ahead for upto a month
         while k<5:
             if not eventtimelogs:
                 week_startdate_monday = week_startdate_monday + timedelta(days=7)
                 today = timezone.now()
-
-                # build one weeks worth of timelogs starting from the oldest monday
-                time_log_week = OrderedDict()
-                get_defer_times = DeferredUserTime.objects.filter(user__id=userid)
-                eventtimelogs = UserTimeLog.objects.filter(
-                    event__in=events
-                ).filter(
-                    datetime_start__lt=week_startdate_monday + timedelta(days=7) 
-                ).filter(
-                    datetime_start__gte=week_startdate_monday
-                ).filter(
-                    is_verified=False
-                )
-                for g_d_t in get_defer_times:
-                    if g_d_t.usertimelog in eventtimelogs:
-                        eventtimelogs = eventtimelogs.filter(~Q(event=g_d_t.usertimelog.event))
+                local_defer = self.defer_month(week_startdate_monday,today)
+                eventtimelogs = local_defer[0]
+                time_log_week = local_defer[1]
                 k += 1
             else:
                 k=5
+        
 
         time_log = OrderedDict()
         items = {'Total': 0}
@@ -275,6 +248,37 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
  
         logger.info('%s',week)
         return week
+
+    def defer_month(self, week_startdate_monday, today):
+        # build one weeks worth of timelogs starting from the oldest monday
+        userid = self.request.user.id
+        org = OrgUser.objects.filter(user__id=userid)
+        if org:
+            orgid = org[0].org.id
+        projects = Project.objects.filter(org__id=orgid)
+        events = Event.objects.filter(
+            project__in=projects
+        ).filter(
+            event_type='MN'
+        )
+        time_log_week = OrderedDict()
+        get_defer_times = DeferredUserTime.objects.filter(user__id=userid)
+        eventtimelogs = UserTimeLog.objects.filter(
+            event__in=events
+        ).filter(
+            datetime_start__lt=week_startdate_monday + timedelta(days=7) 
+        ).filter(
+            datetime_start__gte=week_startdate_monday
+        ).filter(
+            is_verified=False
+        )
+        exclude_usertimelog = []
+        for g_d_t in get_defer_times:
+            if g_d_t.usertimelog in eventtimelogs:
+                #eventtimelogs = eventtimelogs.filter(~Q(event=g_d_t.usertimelog.event))
+                exclude_usertimelog.append(g_d_t.usertimelog.event)
+        eventtimelogs = eventtimelogs.exclude(event__in=exclude_usertimelog)
+        return [eventtimelogs,time_log_week]
 
     def post(self, request):
         """
