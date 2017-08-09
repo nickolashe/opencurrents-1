@@ -27,7 +27,7 @@
 
               {% if orgid %}
                 <h6 class="inline half-margin-right">{{orgname}}</h6>
-                <a href="{% url 'openCurrents:admin-profile' %}" class="button baseline round secondary tiny">Manage org</a>
+                <a href="{% url 'openCurrents:admin-profile' %}"><i class="fa fa-lg fa-gear"></i></a>
               {% endif %}
             <!-- </span> -->
           </div>
@@ -48,8 +48,8 @@
             <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="round" /> -->
             <h5 class="half-margin-top no-margin-bottom">{{ user.first_name }} {{ user.last_name }}</h5>
             {% if orgid %}
-              <h6>{{orgname}}</h6>
-              <a href="{% url 'openCurrents:admin-profile' %}" class="button round secondary tiny">Manage org</a>
+              <h6 class="inline half-margin-right">{{orgname}}</h6>
+              <a href="{% url 'openCurrents:admin-profile' %}"><i class="fa fa-lg fa-gear"></i></a>
             {% endif %}
 
             <div class="half-margin-top">
