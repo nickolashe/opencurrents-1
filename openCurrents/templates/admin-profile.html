@@ -24,7 +24,7 @@
                   You have approved hours for {{ vols_approved }} volunteer{{ vols_approved|pluralize }}. Keep up the good work!
 
               {% elif vols_approved|add:"0" == 0 and vols_declined|add:"0" >= 1 %}
-                  You have declined hours for {{ vols_declined }} volunteer{{ vols_declined|pluralize }}. Keep up the good work!
+                  You have declined hours for {{ vols_declined }} volunteer{{ vols_declined|pluralize }}. 
 
               {% endif %}
             </div>
