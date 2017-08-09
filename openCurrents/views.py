@@ -508,7 +508,7 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(ProfileView, self).get_context_data(**kwargs)
         try:
-            if kwargs.pop('app_hr') == u'True':
+            if kwargs.pop('app_hr') == u'1':
                 context['app_hr'] = 1
             else:
                 context['app_hr'] = 0
@@ -547,7 +547,7 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
                 #logger.debug('user %d already counted, skipping', timelog.user.id)
                 pass
 
-        context['user_balance'] = round(issued_total, 1)
+        context['user_balance'] = round(issued_total, 2)
 
         events_upcoming = [
             userreg.event
@@ -604,7 +604,7 @@ class AdminProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
                 #logger.info('user %d already counted, skipping', timelog.user.id)
                 pass
 
-        context['issued_total'] = round(issued_total, 1)
+        context['issued_total'] = round(issued_total, 2)
 
         # past, current and upcoming events for org
         context['events_past'] = Event.objects.filter(
@@ -1619,9 +1619,9 @@ def process_login(request):
         if user is not None and user.is_active:
             today = date.today()
             if (user.last_login.date())< today - timedelta(days=today.weekday()):
-                app_hr = 'True'
+                app_hr = '1'
             else:
-                app_hr = 'False'
+                app_hr = '0'
             login(request, user)
             return redirect('openCurrents:profile', app_hr)
         else:
