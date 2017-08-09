@@ -619,18 +619,18 @@ class AdminProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         context['issued_total'] = round(issued_total, 1)
 
         # past, current and upcoming events for org
-        context['events_past'] = Event.objects.filter(
+        context['events_group_past'] = Event.objects.filter(
             event_type='GR',
             project__org__id=orgid,
             datetime_end__lte=datetime.now(tz=pytz.utc)
         ).order_by('-datetime_start')[:3]
-        context['events_current'] = Event.objects.filter(
+        context['events_group_current'] = Event.objects.filter(
             event_type='GR',
             project__org__id=orgid,
             datetime_start__lte=datetime.now(tz=pytz.utc) + timedelta(hours=1),
             datetime_end__gte=datetime.now(tz=pytz.utc)
         )
-        context['events_upcoming'] = Event.objects.filter(
+        context['events_group_upcoming'] = Event.objects.filter(
             event_type='GR',
             project__org__id=orgid,
             datetime_start__gte=datetime.now(tz=pytz.utc) + timedelta(hours=1)
