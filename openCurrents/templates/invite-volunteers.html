@@ -19,6 +19,11 @@
         
         <div class="row">
           <h3 class="title-sub">Invite volunteers</h3>
+          {% if event_id %}
+            <p>to help {{ event.project.name }}</p>
+          {% else %}
+            <p>to track hours with openCurrents</p>
+          {% endif %}
           <a class="bulk-email-popup_open button round small">Copy/paste email list</a>
           <p class="">or add volunteers individually:</p>
         </div>
