@@ -69,10 +69,17 @@
           <a id="add-location">Add another location</a>
 
           <div class="row two-margin-top">
-            <input type="radio" id="event-privacy-1" name="event-privacy-[]" value="1" class="hidden styled-radio" checked/>
+            {% if event.is_public %}
+            <input type="radio" id="event-privacy-1" name="event-privacy" value="1" class="hidden styled-radio" checked/>
               <label for="event-privacy-1" class="button round secondary tiny">Public event</label>
-            <input type="radio" id="event-privacy-2" name="event-privacy-[]" value="2" class="hidden styled-radio"/>
+            <input type="radio" id="event-privacy-2" name="event-privacy" value="2" class="hidden styled-radio"/>
               <label for="event-privacy-2" class="button round secondary tiny">Invite only</label>
+            {% else %}
+              <input type="radio" id="event-privacy-1" name="event-privacy" value="1" class="hidden styled-radio"/>
+                <label for="event-privacy-1" class="button round secondary tiny">Public event</label>
+              <input type="radio" id="event-privacy-2" name="event-privacy" value="2" class="hidden styled-radio" checked/>
+              <label for="event-privacy-2" class="button round secondary tiny">Invite only</label>
+            {% endif %}
           </div>
 
           <div class="one-margin-top row left">

@@ -666,11 +666,18 @@ class CreateEventView(LoginRequiredMixin, SessionContextView, FormView):
             )
             project.save()
             self.project = project
+        event_privacy = self.request.POST['event-privacy']
+        if event_privacy == '1':
+            event_privacy_bool = True
+        elif event_privacy == '2':
+            event_privacy_bool = False
+        print(event_privacy_bool)
 
         event = Event(
             project=self.project,
             description=form_data['description'],
             location=location,
+            is_public=event_privacy_bool,
             datetime_start=form_data['datetime_start'],
             datetime_end=form_data['datetime_end'],
             coordinator_firstname=form_data['coordinator_firstname'],
@@ -849,6 +856,10 @@ class EditEventView(LoginRequiredMixin, SessionContextView, TemplateView):
                 datetime.strptime(str(post_data['project-start']),'%H:%M%p').time())
             edit_event.datetime_end = datetime.combine(datetime.strptime(post_data['project-date'], '%Y-%m-%d'),\
                 datetime.strptime(str(post_data['project-end']),'%H:%M%p').time())
+            if post_data['event-privacy'] == '1':
+                edit_event.is_public = True
+            elif post_data['event-privacy'] == '2':
+                edit_event.is_public = False
             edit_event.save()
             project = Project.objects.get(id = edit_event.project.id)
             project.name = str(post_data['project-name'])
