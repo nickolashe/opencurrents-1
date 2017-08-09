@@ -1472,6 +1472,10 @@ i:hover ~ .addtocalendar {
   color: #999999;
 }
 
+.location {
+  padding-right: 1.5rem;
+}
+
 /* upcoming-events */
 
 .upcoming-event {
