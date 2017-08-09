@@ -72,12 +72,6 @@
           </div>
         </div>
 
-        <div class="row full-width collapse">
-          <div class="columns">
-
-          </div>
-        </div>
-
         <!-- current events section -->
         {% if events_group_current %}
           <div id="live-event-list" class="left row full-width collapse one-margin-top">
@@ -86,7 +80,7 @@
 
               {% for event in events_group_current %}
                   <div class="row one-margin-top one-margin-bottom">
-                    <div class="left small-8 collapse columns">
+                    <div class="left small-8 columns">
                       Let's {{event.project.name}}!
                       on {{event.datetime_start|day:timezone}}
                       at {{event.datetime_start|time:timezone}}
@@ -94,7 +88,7 @@
                       at <strong>{{event.location}}</strong>
                     </div>
 
-                    <div class="right small-4 collapse columns">
+                    <div class="right small-4 columns">
                       <a href="{% url 'openCurrents:live-dashboard' event.id %}"/>
                         <button class="button round small">Start</button>
                       </a>
@@ -107,14 +101,14 @@
           <!--<p><a href="{% url 'openCurrents:live-dashboard' event_id=events_upcoming.0.id %}" class="button round small">Preview live dashboard</a></p>-->
         {% endif %}
 
-        {% if events_group_upcoming %}
-          <div id="upcoming-event-list" class="left row one-margin-top full-width collapse">
-            <div class="small-11 medium-10 large-8 small-centered columns">
-              <h6 class="one-margin-bottom">Our upcoming events</h6>
-
-              {% for event in events_group_upcoming %}
-                <div class="row one-margin-bottom">
-                  <div class="left small-8 collapse columns">
+        <div id="upcoming-event-list" class="left row one-margin-top full-width collapse">
+          <div class="small-11 medium-10 large-8 small-centered columns">
+            <h6 class="one-margin-bottom">Upcoming events</h6>
+            {% if events_upcoming %}
+              {% for event in events_upcoming %}
+                <div class="row hover-row one-margin-bottom">
+                  <div class="left small-9 columns">
+                    
                     Let's {{event.project.name}}!
                     on {{event.datetime_start|day:timezone}}
                     at {{event.datetime_start|time:timezone}}
@@ -122,16 +116,27 @@
                     at <strong>{{event.location}}</strong>
                   </div>
 
-                  <div class="right small-4 collapse columns">
-                    <a href="{% url 'openCurrents:live-dashboard' event.id %}" class="button round small">Preview</a>
-                    <a href="{% url 'openCurrents:edit-event' event.id%}" class="button round small">Edit</a>
+                  <div class="right relative small-2 columns end">
+                    <a class="mini-open"><i class="blue fa-chevron-circle-down fa fa-lg"></i></a>
+                    <ul class="mini-menu">
+                      <a href="{% url 'openCurrents:live-dashboard' event.id %}"><li>Preview live check-in</li></a>
+                      <a href="{% url 'openCurrents:invite-volunteers' event.id %}"><li>Invite volunteers</li></a>
+                      <a href="{% url 'openCurrents:event-detail' event.id %}"><li>View event details</li></a>
+                      <a href="{% url 'openCurrents:edit-event' event.id %}"><li>Edit event</li></a>
+                    </ul>
                   </div>
                 </div>
               {% endfor %}
-
-            </div>
+            {% else %}
+              <div class="row">
+                <div class="left small-12 columns">
+                  <p>{{ org_name }} has no upcoming events. <a href="{% url 'openCurrents:create-event' orgid %}">Create one!</a></p>
+                </div>
+              </div>
+            {% endif %}
           </div>
-        {% endif %}
+        </div>
+        
 
         {% if events_group_past %}
           <div id="past-event-list" class="left row one-margin-top full-width collapse">
@@ -237,16 +242,18 @@
 
     <script type="text/javascript">
       $(document).ready(function(){
-        // var u_t_l = {{user_time_log_status}}
-        // //alert(u_t_l)
-        // if (u_t_l=='1'){
-        //   $('#approve-hours-popup').popup({
-        //     vertical: 'top',
-        //     transition: 'all 0.75s',
-        //     scrolllock: true,
-        //     autoopen: true,
-        //   });
-        // }
+        $('.mini-open').click(function(){
+          $('.mini-menu').hide();
+          $(this).siblings('.mini-menu').toggle();
+          $(this).attr('visibility', 'visible');
+        });
+
+        $(document).click(function(e) {
+          var target = e.target;
+          if (!$(target).is('.mini-open') && !$(target).parents().is('.mini-open')) {
+            $('.mini-menu').hide();
+          }
+        });
       });
     </script>
 
