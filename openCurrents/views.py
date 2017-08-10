@@ -508,7 +508,7 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(ProfileView, self).get_context_data(**kwargs)
         try:
-            if kwargs.pop('app_hr') == u'True':
+            if kwargs.pop('app_hr') == u'1':
                 context['app_hr'] = 1
             else:
                 context['app_hr'] = 0
@@ -547,7 +547,7 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
                 #logger.debug('user %d already counted, skipping', timelog.user.id)
                 pass
 
-        context['user_balance'] = round(issued_total, 1)
+        context['user_balance'] = round(issued_total, 2)
 
         events_upcoming = [
             userreg.event
@@ -604,7 +604,7 @@ class AdminProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
                 #logger.info('user %d already counted, skipping', timelog.user.id)
                 pass
 
-        context['issued_total'] = round(issued_total, 1)
+        context['issued_total'] = round(issued_total, 2)
 
         # past, current and upcoming events for org
         context['events_past'] = Event.objects.filter(
@@ -1353,10 +1353,10 @@ def event_register_live(request, eventid):
         logger.info('User %s already registered for event %s', user.username, event.id)
         return HttpResponse(status=400)
     tz = event.project.org.timezone
-    event_ds = event.datetime_start.astimezone(pytz.timezone(tz)).time()
-    event_de = event.datetime_end.astimezone(pytz.timezone(tz)).time()
-    d_now = datetime.utcnow().replace(tzinfo=pytz.utc).astimezone(pytz.timezone(tz))
-    if d_now.time() < event_de and d_now.time() > event_ds and d_now.date() == event.datetime_start.astimezone(pytz.timezone(tz)).date():
+    event_ds = event.datetime_start.time()
+    event_de = event.datetime_end.time()
+    d_now = datetime.utcnow()
+    if d_now.time() < event_de and d_now.time() > event_ds and d_now.date() == event.datetime_start.date():
         event_status = '1'
     else:
         event_status = '0'
@@ -1632,9 +1632,9 @@ def process_login(request):
         if user is not None and user.is_active:
             today = date.today()
             if (user.last_login.date())< today - timedelta(days=today.weekday()):
-                app_hr = 'True'
+                app_hr = '1'
             else:
-                app_hr = 'False'
+                app_hr = '0'
             login(request, user)
             return redirect('openCurrents:profile', app_hr)
         else:
@@ -2002,7 +2002,7 @@ def process_org_signup(request):
         )
         return redirect(
             'openCurrents:profile',
-            status_msg='Thank you for nominating %s to openCurrents!' % org.name
+            status_msg='Thank you for registering %s with openCurrents!' % org.name
         )
 
     else:
