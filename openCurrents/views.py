@@ -1989,7 +1989,7 @@ def process_org_signup(request):
         )
         return redirect(
             'openCurrents:profile',
-            status_msg='Thank you for nominating %s to openCurrents!' % org.name
+            status_msg='Thank you for registering %s with openCurrents!' % org.name
         )
 
     else:
