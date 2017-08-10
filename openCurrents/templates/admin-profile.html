@@ -97,8 +97,6 @@
               {% endfor %}
             </div>
           </div>
-        {% elif events_group_upcoming %}
-          <!--<p><a href="{% url 'openCurrents:live-dashboard' event_id=events_upcoming.0.id %}" class="button round small">Preview live dashboard</a></p>-->
         {% endif %}
 
         <div id="upcoming-event-list" class="left row one-margin-top full-width collapse">
@@ -135,7 +133,7 @@
             {% endif %}
           </div>
         </div>
-        
+
 
         {% if events_group_past %}
           <div id="past-event-list" class="left row one-margin-top full-width collapse">
