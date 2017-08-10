@@ -89,12 +89,12 @@
         </div>
 
         <!-- current events section -->
-        {% if events_current %}
+        {% if events_group_current %}
           <div id="live-event-list" class="left row full-width collapse one-margin-top">
             <div class="small-11 medium-10 large-8 small-centered columns">
               <h6 class="one-margin-bottom">Events happening now</h6>
 
-              {% for event in events_current %}
+              {% for event in events_group_current %}
                   <div class="row one-margin-top one-margin-bottom">
                     <div class="left small-8 columns">
                       Let's {{event.project.name}}!
@@ -113,15 +113,13 @@
               {% endfor %}
             </div>
           </div>
-        {% elif events_upcoming %}
-          <!--<p><a href="{% url 'openCurrents:live-dashboard' event_id=events_upcoming.0.id %}" class="button round small">Preview live dashboard</a></p>-->
         {% endif %}
 
         <div id="upcoming-event-list" class="left row one-margin-top full-width collapse">
           <div class="small-11 medium-10 large-8 small-centered columns">
             <h6 class="one-margin-bottom">Upcoming events</h6>
-            {% if events_upcoming %}
-              {% for event in events_upcoming %}
+            {% if events_group_upcoming %}
+              {% for event in events_group_upcoming %}
                 <div class="row hover-row one-margin-bottom">
                   <div class="left small-9 columns">
                     Let's {{event.project.name}}!
@@ -151,14 +149,14 @@
             {% endif %}
           </div>
         </div>
-        
 
-        {% if events_past %}
+
+        {% if events_group_past %}
           <div id="past-event-list" class="left row one-margin-top full-width collapse">
             <div class="small-11 medium-10 large-8 small-centered columns">
               <h6 class="one-margin-bottom">Past events</h6>
 
-              {% for event in events_past %}
+              {% for event in events_group_past %}
                   <div class="row hover-row one-margin-bottom">
                     <div class="left input-left small-9 columns">
                       Let's {{event.project.name}}!
