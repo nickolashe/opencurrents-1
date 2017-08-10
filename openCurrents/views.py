@@ -1353,10 +1353,10 @@ def event_register_live(request, eventid):
         logger.info('User %s already registered for event %s', user.username, event.id)
         return HttpResponse(status=400)
     tz = event.project.org.timezone
-    event_ds = event.datetime_start.astimezone(pytz.timezone(tz)).time()
-    event_de = event.datetime_end.astimezone(pytz.timezone(tz)).time()
-    d_now = datetime.utcnow().replace(tzinfo=pytz.utc).astimezone(pytz.timezone(tz))
-    if d_now.time() < event_de and d_now.time() > event_ds and d_now.date() == event.datetime_start.astimezone(pytz.timezone(tz)).date():
+    event_ds = event.datetime_start.time()
+    event_de = event.datetime_end.time()
+    d_now = datetime.utcnow()
+    if d_now.time() < event_de and d_now.time() > event_ds and d_now.date() == event.datetime_start.date():
         event_status = '1'
     else:
         event_status = '0'
