@@ -416,6 +416,10 @@ class OrgSignupView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'org-signup.html'
 
 
+class OurStoryView(TemplateView):
+    template_name = 'our-story.html'
+
+
 class RequestCurrentsView(TemplateView):
     template_name = 'request-currents.html'
 

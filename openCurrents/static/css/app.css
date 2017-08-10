@@ -884,18 +884,6 @@ a.list-group-item {
     background-size: cover;
   }
 
-/*@media screen and (max-width: 51.9375em) {
-  #nonprofit .hide-for-small-only {
-    display: none !important;
-  }
-}
-
-@media screen and (max-width: 0em), screen and (min-width: 52em) {
-  #nonprofit .show-for-small-only {
-    display: none !important; 
-  }
-}*/
-
 /* business */
 
 #business {
