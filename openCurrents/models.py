@@ -215,7 +215,7 @@ class UserEventRegistration(models.Model):
 class UserTimeLog(models.Model):
     user = models.ForeignKey(User)
     event = models.ForeignKey(Event)
-    is_verified = models.BooleanField(default=True)
+    is_verified = models.BooleanField(default=False)
 
     # start / end timestamps of the contributed time
     datetime_start = models.DateTimeField('start time')
