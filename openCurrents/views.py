@@ -1339,9 +1339,9 @@ def event_register_live(request, eventid):
     userid = request.POST['userid']
     user = User.objects.get(id=userid)
     event = Event.objects.get(id=eventid)
-    user_events = UserEventRegistration.objects.values('user__id','event__id').filter(user__id = userid)
-    user_event_ids = [d for d in user_events if int(userid) == d['user__id'] and int(eventid) == d['event__id']]
-    if not user_event_ids:
+    user_events = UserEventRegistration.objects.values('user__id','event__id').filter(user__id = userid).filter(event__id = eventid)
+    #user_event_ids = [d for d in user_events if int(userid) == d['user__id'] and int(eventid) == d['event__id']]
+    if not user_events:
         user_event_registration = UserEventRegistration(
             user=user,
             event=event,
