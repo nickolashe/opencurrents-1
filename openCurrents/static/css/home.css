@@ -232,7 +232,7 @@ input.home-input::placeholder {
 
 .home-input:focus {
   background-color: transparent;
-  border-color: #ffffff;
+  border-color: #24b2e7;
 }
 
 /*#all-button {
