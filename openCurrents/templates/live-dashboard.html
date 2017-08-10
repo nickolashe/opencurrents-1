@@ -71,6 +71,7 @@
               </a>
 
               <p id="vol-error" class="small-text hidden alert">Name and email required</p>
+              <p id="vol-exist" class="small-text hidden alert">Volunteer already enrolled</p>
               <p id="email-error" class="small-text hidden alert">Invalid email address</p>
             </div>
           </div>
@@ -237,31 +238,45 @@
                 },
                 dataType : "json",
               }).complete(function( data ) {
-                $('#registered-volunteers').prepend(`
-                  <div class="row"> \
-                    <div class="left small-9 columns"> \
-                      <p class="half-margin-top"> \
-                        ${new_firstname} \
-                        ${new_lastname} \
-                      </p> \
+                let test_data = data;
+                if (test_data.responseJSON != undefined){
+                  $('#registered-volunteers').prepend(`
+                    <div class="row"> \
+                      <div class="left small-9 columns"> \
+                        <p class="half-margin-top"> \
+                          ${new_firstname} \
+                          ${new_lastname} \
+                        </p> \
+                      </div> \
+
+                      <div class="right small-3 columns"> \
+                          <input type="checkbox" id="vol-checkin-${userid}" name="vol-checkin-${userid}" value="${userid}" class="hidden"/> \
+                          <label class="large-icon" for="vol-checkin-${userid}"> \
+                            <i class="styled-checkbox fa fa-lg fa-check-circle"></i> \
+                          </label> \
+                      </div> \
                     </div> \
+                  `)
 
-                    <div class="right small-3 columns"> \
-                        <input type="checkbox" id="vol-checkin-${userid}" name="vol-checkin-${userid}" value="${userid}" class="hidden"/> \
-                        <label class="large-icon" for="vol-checkin-${userid}"> \
-                          <i class="styled-checkbox fa fa-lg fa-check-circle"></i> \
-                        </label> \
-                    </div> \
-                  </div> \
-                `)
+                  // clear form inputs
+                  $('#new-firstname').val('');
+                  $('#new-lastname').val('');
+                  $('#new-email').val('');
+                  $('#invite-optin').attr("checked", false);
 
-                // clear form inputs
-                $('#new-firstname').val('');
-                $('#new-lastname').val('');
-                $('#new-email').val('');
-
-                // bind new checkbox to checkin
-                $(`input[name='vol-checkin-${userid}']`).click(onCheckClick);
+                  // bind new checkbox to checkin
+                  $(`input[name='vol-checkin-${userid}']`).click(onCheckClick);
+                  if(test_data.responseJSON.event_status=='1'){
+                    $(`input[name='vol-checkin-${userid}']`).trigger('click')
+                  }
+                }
+                else{
+                  $('#new-firstname').val('');
+                  $('#new-lastname').val('');
+                  $('#new-email').val('');
+                  $('#invite-optin').attr("checked", false);
+                  $('#vol-exist').slideDown();
+                }
               });
             });
 

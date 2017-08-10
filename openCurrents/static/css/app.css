@@ -491,6 +491,10 @@ label {
   background-color: #888888;
 }
 
+.light-grey {
+  color: #aaaaaa;
+}
+
 .success {
   color: #009900;
 }
@@ -1217,12 +1221,47 @@ i:hover ~ .addtocalendar {
 
 /* admin-profile */
 
-#project-list {
+#live-project-list {
   font-size: 0.875rem;
 }
 
-#live-project-list {
-  font-size: 0.875rem;
+@media screen and (min-width: 42em) {
+  .mini-open {
+    visibility: hidden;
+    color: #24b2e7;
+  }
+}
+
+.hover-row:hover .mini-open {
+  visibility: visible;
+}
+
+.mini-menu {
+  display: none;
+  position: absolute;
+  right: 23px;
+  top: 30px;
+  width: 200px;
+  border: 1px solid #cccccc;
+  border-bottom: none;
+  text-align: left;
+  background-color: #fcfcfc;
+  z-index: 100;
+}
+
+.mini-menu a {
+  color: #888888;
+}
+
+.mini-menu li {
+  list-style-type: none;
+  border-bottom: 1px solid #cccccc;
+  padding-left: 10px;
+}
+
+.mini-menu li:hover {
+  background-color: #24b2e7;
+  color: #ffffff;
 }
 
 /* create-event */

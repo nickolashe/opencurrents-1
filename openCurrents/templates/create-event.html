@@ -33,14 +33,21 @@
         <form method="post">
           {% csrf_token %}
 
-          <!-- catch and display any top-level form errors -->
-          <!-- (as opposed to field-specific errors which are displayed next to each field) -->
-          {% if errors %}
-            <div class="row">
-              {% for error in errors %}
-                <p>
-                  {{ error }}
-                </p>
+          <!-- Catch and display field and non-field errors-->
+          {% if form.errors %}
+            <div class=row>
+              {% for field in form %}
+                  {% for error in field.errors %}
+                      <div class="alert alert-danger">
+                          {{ error }}
+                      </div>
+                  {% endfor %}
+              {% endfor %}
+
+              {% for error in form.non_field_errors %}
+                  <div class="alert alert-danger">
+                      {{ error }}
+                  </div>
               {% endfor %}
             </div>
           {% endif %}
@@ -110,7 +117,7 @@
             </div>
           </div>
 
-          <a id="add-location">Add another location</a>
+          <a id="add-location"><i class="fa fa-plus-circle half-margin-right"></i>Add another location</a>
 
           <div class="row three-halves-margin-top">
             <input type="radio" id="event-privacy-1" name="event-privacy-[]" value="1" class="hidden styled-radio" checked/>
