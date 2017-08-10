@@ -183,29 +183,17 @@
           var vols_declined = document.getElementById("vols_declined_val").value;
         
 
-          if(vols_approved >= 1 && vols_declined > 1)
+          if(vols_approved >= 1 && vols_declined >= 1)
           {
-             vols_status_msg_display = "You have approved " + vols_approved + " and declined " + vols_declined + " volunteers. Keep up the good work!"
+             vols_status_msg_display = "You have approved " +  vols_approved  + " and declined " +  vols_declined  +  " volunteer{{ vols_declined|pluralize }}. Keep up the good work!"
           }
-          else if(vols_approved >= 1 && vols_declined == 1)
+          else if(vols_approved >= 1 && vols_declined == 0)
           {
-             vols_status_msg_display = "You have approved " + vols_approved + " and declined " + vols_declined + " volunteer. Keep up the good work!"
+             vols_status_msg_display = "You have approved hours for " +  vols_approved  + " volunteer{{ vols_approved|pluralize }}. Keep up the good work!"
           }
-          else if(vols_approved > 1 && vols_declined == 0)
+          else if(vols_approved == 0 && vols_declined >= 1)
           {
-             vols_status_msg_display = "You have approved hours for " + vols_approved + " volunteers. Keep up the good work!"
-          }
-          else if(vols_approved == 1 && vols_declined == 0)
-          {
-             vols_status_msg_display = "You have approved hours for " + vols_approved + " volunteer. Keep up the good work!"
-          }
-          else if(vols_approved == 0 && vols_declined > 1)
-          {
-             vols_status_msg_display = "You have declined hours for " + vols_declined + " volunteers."
-          }
-          else if(vols_approved == 0 && vols_declined == 1)
-          {
-             vols_status_msg_display = "You have declined hours for " + vols_declined + " volunteer."
+             vols_status_msg_display = "You have declined hours for " + vols_declined + " volunteer{{vols_declined|pluralize}}."
           }
           document.getElementById("vols_status_msg").innerHTML = vols_status_msg_display;
         }
