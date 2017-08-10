@@ -1,14 +1,13 @@
 /* home */
 
-#home-quote {
+.home-quote {
   font-family: 'Alegreya Sans SC', sans-serif;
   font-weight: 300;
-  margin-top: 2rem;
 }
 
 /* small home */
 
-#home {
+.splash {
   display: block;
   overflow: visible;
   background-color: #24b2e7;
@@ -17,14 +16,13 @@
 }
 
 #home-logo {
-  width: 533px;
-  margin-bottom: 1rem;
   margin-top: 4rem;
+  width: 234px;
 }
 
 #home-tagline {
-  width: 533px; /* matches home-logo width to scale synchronously */
-  margin-bottom: 0rem;
+  line-height: 1.2;
+  margin-top: 4.5rem;
 }
 
 #home-symbol {
@@ -32,33 +30,33 @@
   height: 2rem;
 }
 
-#home .button:hover {
-  background-color: #1f4975;
-  border-color: #1f4975;
-}
-
-#home .button:focus {
-  background-color: #1f4975;
-  border-color: #1f4975;
-}
-
 .home-link {
   font-size: 1.125rem;
 }
 
-#home .home-link:hover {
+.splash .home-link:hover {
   color: #ffffff;
   font-weight: 500;
 }
 
-#home .home-link:active {
+.splash .home-link:active {
   color: #ffffff;
   font-weight: normal;
 }
 
-#home .home-link:focus {
+.splash .home-link:focus {
   color: #ffffff;
   font-weight: normal;
+}
+
+.button.clear:hover {
+  background-color: #24b2e7;
+  border-color: #24b2e7;
+}
+
+.button.clear:focus {
+  background-color: #24b2e7;
+  border-color: #24b2e7;
 }
 
 #back-button {
@@ -69,7 +67,7 @@
 }
 
 .icon-box {
-  margin: 1rem 0.5rem 0;
+  margin: 1.5rem 0.5rem;
 }
 
 .intro-icon {
@@ -77,8 +75,12 @@
   height: 77px;
   padding: 21px 0;
   border-radius: 99px;
-  border: 1px solid #ffffff;
+  border: 1px solid #1f4975;
+  color: #1f4975;
+  background-color: #ffffff;
   cursor: default;
+  display: inline-block;
+  margin: 0 0.25rem 1rem;
 }
 
 #arrow-1 {
@@ -132,48 +134,14 @@
   width: 100%;
 }
 
-#everyone-box {
-  background: none;
-}
-
-#everyone-box .accordion-title {
-  border: none;
-  background: none;
-  padding: 0.5rem;
-}
-
-#everyone-box .accordion-content {
-  background: none;
-  color: #ffffff;
-  text-align: center;
-  border: none;
-  padding-top: 0px;
-}
-
 .benefit-icon {
   width: 77px;
   height: 77px;
   padding: 21px 0;
   border-radius: 99px;
-  border: 1px solid #ffffff;
-}
-
-#benefits-small {
-  background: none;
-}
-
-#benefits-small .accordion-title {
-  border: none;
-  background: none;
-  padding: 0.5rem;
-}
-
-#benefits-small .accordion-content {
-  background: none;
-  color: #ffffff;
-  text-align: center;
-  border: none;
-  padding-top: 0px;
+  border: 1px solid #1f4975;
+  color: #1f4975;
+  background-color: #ffffff;
 }
 
 #mission-box {
@@ -186,30 +154,11 @@
 /* non-small home */
 @media screen and (min-width: 42em) {
   #home {
-    background: url(/static/img/wheelbarrow-blur.png) no-repeat center center fixed;
+    background: url(/static/img/wheelbarrow.jpg) no-repeat top center fixed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
     background-size: cover;
-  }
-
-  #home-logo {
-    margin-top: 8rem;
-    width: 444px;
-  }
-
-  #home-tagline {
-    width: 444px;
-  }
-
-  #home .button:hover {
-    background-color: #42bdea;
-    border-color: #42bdea;
-  }
-
-  #home .button:focus {
-    background-color: #42bdea;
-    border-color: #42bdea;
   }
 
   #signup-box .button:hover {
@@ -241,6 +190,7 @@
   #benefit-box {
     height: 99px;
     width: 488px;
+    margin: auto;
   }
 
   #mission-box {
@@ -248,11 +198,44 @@
   }
 }
 
-#intro-5-1, #intro-5-2, #intro-5-3 {
+#intro-1, #intro-2, #intro-3, #intro-4, #intro-5 {
   min-height: 100vh;
 }
 
-#intro-5-2 {
+#intro-2, #intro-4, #intro-6 {
   background-color: #ffffff;
   color: #1f4975;
 }
+
+.home-input {
+  background-color: transparent;
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+input.home-input::-webkit-input-placeholder {
+  color: #ffffff; }
+
+input.home-input::-moz-placeholder {
+  color: #ffffff; }
+
+input.home-input:-ms-input-placeholder {
+  color: #ffffff; }
+
+input.home-input::placeholder {
+  color: #ffffff; }
+
+.home-input:hover {
+  background-color: transparent;
+  border-color: #ffffff;
+}
+
+.home-input:focus {
+  background-color: transparent;
+  border-color: #24b2e7;
+}
+
+/*#all-button {
+  background-color: #1f4975;
+  color: #ffffff;
+}*/

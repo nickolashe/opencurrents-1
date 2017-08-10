@@ -108,8 +108,17 @@ class ResetPasswordView(TemplateView):
     template_name = 'reset-password.html'
 
 
+
+class BusinessView(TemplateView):
+    template_name = 'business.html'
+
+
 class CheckEmailPasswordView(TemplateView):
     template_name = 'check-email-password.html'
+
+
+class CommunitiesView(TemplateView):
+    template_name = 'communities.html'
 
 
 class ConfirmAccountView(TemplateView):
@@ -442,6 +451,11 @@ class NominationConfirmedView(TemplateView):
 class NominationEmailView(TemplateView):
     template_name = 'nomination-email.html'
 
+
+class NonprofitView(TemplateView):
+    template_name = 'nonprofit.html'
+
+
 class OfferView(TemplateView):
     template_name = 'offer.html'
 
@@ -452,6 +466,10 @@ class OrgHomeView(TemplateView):
 
 class OrgSignupView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'org-signup.html'
+
+
+class OurStoryView(TemplateView):
+    template_name = 'our-story.html'
 
 
 class RequestCurrentsView(TemplateView):
@@ -730,6 +748,7 @@ class CreateEventView(LoginRequiredMixin, SessionContextView, FormView):
             datetime_end=form_data['datetime_end'],
             coordinator_firstname=form_data['coordinator_firstname'],
             coordinator_email=form_data['coordinator_email'],
+            is_public=form_data['event_privacy'],
         )
         event.save()
 
@@ -766,6 +785,10 @@ class CreateEventView(LoginRequiredMixin, SessionContextView, FormView):
             )
         else:
             self.project = None
+        if str(self.request.POST['event-privacy-[]']) == '1':
+            data['event_privacy'] = True
+        else:
+            data['event_privacy'] = False
 
         # create an event for each location
         event_ids = map(lambda loc: self._create_event(loc, data), locations)
