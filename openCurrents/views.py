@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate, login, logout
+            irint(week)
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.shortcuts import render, redirect
@@ -167,7 +168,7 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
         # return kwargs vols_approved and vols_declined if unverified time logs not found
         if not timelogs:
             week = self.kwargs 
-            print(week)
+            #logger.info(week)
             return week
         
         # find monday before oldest unverified time log
