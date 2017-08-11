@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.shortcuts import render, redirect
 from django.views.generic import View, ListView, TemplateView, DetailView
 from django.views.generic.edit import FormView
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.safestring import mark_safe
@@ -618,6 +618,33 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
 
 class AdminProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'admin-profile.html'
+
+    def get(self, request, *args, **kwargs):
+        context = super(AdminProfileView, self).get_context_data(**kwargs)
+        orgid = context['orgid']
+   
+        #check that user is part of org_admins group
+        userid = self.request.user.id
+        user = User.objects.get(id=userid)
+        org_admins_name = 'admin_' + str(orgid)
+        logger.info('org_admins_name: %s',org_admins_name)
+
+        try:
+            org_admins = Group.objects.get(name=org_admins_name)
+        except:
+            logger.info("Org exists without an org_admins group.")
+            pass
+
+        if org_admins and not user.groups.filter(name=org_admins_name).exists():
+            logger.info("org admins group exists and user is not part of it.")
+            return redirect('openCurrents:500')
+        else:
+            return render(
+                request,
+                'admin-profile.html',
+                context
+            )
+
 
     def get_context_data(self, **kwargs):
         context = super(AdminProfileView, self).get_context_data(**kwargs)
@@ -1583,6 +1610,10 @@ def process_signup(request, referrer=None, endpoint=False, verify_email=True):
                 org = Org(name=org_name)
                 org.save()
 
+                org_admins_name = 'admin_' + str(org.id)
+                org_admins = Group(name=org_admins_name)
+                org_admins.save()
+
                 org_user = OrgUser(
                     user=user,
                     org=org
@@ -2017,6 +2048,12 @@ def process_org_signup(request):
 
         try:
             org.save()
+
+            org_admins_name = 'admin_' + str(org.id)
+            org_admins = Group(name=org_admins_name)
+            org_admins.save()
+
+
         except IntegrityError:
             logger.info('org at %s already exists', form_data['org_name'])
             existing = Org.objects.get(name=form_data['org_name'])
