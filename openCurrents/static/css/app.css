@@ -937,6 +937,14 @@ input.home-input::placeholder {
   background-size: cover;
 }
 
+.blue-box {
+  border: 1px solid #24b2e7;
+  border-radius: 4px;
+  padding: 0.5rem;
+}
+
+/* our-story */
+
 #our-story {
   background: url(/static/img/moab.jpg) no-repeat center center fixed;
   -webkit-background-size: cover;
