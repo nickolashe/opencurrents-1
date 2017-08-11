@@ -101,29 +101,29 @@
 #arrow-2 {
   height: 15px;
   position: absolute;
-  top: 144px;
-  right: 99px;
+  top: 160px;
+  right: 88px;
 }
 
 #arrow-3 {
   height: 19px;
   position: absolute;
-  bottom: 133px;
+  bottom: 117px;
   right: 155px;
 }
 
 #arrow-4 {
   height: 19px;
   position: absolute;
-  bottom: 133px;
+  bottom: 117px;
   left: 155px;
 }
 
 #arrow-5 {
   height: 15px;
   position: absolute;
-  top: 144px;
-  left: 88px;
+  top: 165px;
+  left: 83px;
 }
 
 #arrow-down {
