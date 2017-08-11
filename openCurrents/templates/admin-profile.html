@@ -71,13 +71,8 @@
         </div>
 
         <!-- current events section -->
-<<<<<<< HEAD
         {% if events_group_current %}
           <div id="live-event-list" class="left row full-width collapse one-margin-top">
-=======
-        {% if events_current %}
-          <div id="live-event-list" class="left row full-width collapse">
->>>>>>> 6ae1584a85f3c0a7af7ed0648ea30be143d8a486
             <div class="small-11 medium-10 large-8 small-centered columns">
               <h6 class="one-margin-bottom">Events happening now</h6>
 
@@ -102,7 +97,6 @@
           </div>
         {% endif %}
 
-<<<<<<< HEAD
         <div id="upcoming-event-list" class="left row one-margin-top full-width collapse">
           <div class="small-11 medium-10 large-8 small-centered columns">
             <h6 class="one-margin-bottom">Upcoming events</h6>
@@ -125,29 +119,6 @@
                       <a href="{% url 'openCurrents:event-detail' event.id %}"><li>View event details</li></a>
                       <a href="{% url 'openCurrents:edit-event' event.id %}"><li>Edit event</li></a>
                     </ul>
-=======
-        {% if events_upcoming %}
-          <div id="upcoming-event-list" class="left row full-width collapse">
-            <div class="small-11 medium-10 large-8 small-centered columns">
-              <h6 class="one-margin-bottom">Our upcoming events</h6>
-
-              {% for event in events_upcoming %}
-                {% if event.event_type != "MN" %}
-                  <div class="row one-margin-bottom">
-                    <div class="left small-8 collapse columns">
-                      Let's {{event.project.name}}!
-                      on {{event.datetime_start|day:timezone}}
-                      at {{event.datetime_start|time:timezone}}
-                      to {{event.datetime_end|time:timezone}}
-                      at <strong>{{event.location}}</strong>
-                    </div>
-
-                    <div class="right small-4 collapse columns">
-
-                      <a href="{% url 'openCurrents:live-dashboard' event.id %}" class="button round small">Preview</a>
-                      <a href="{% url 'openCurrents:edit-event' event.id%}" class="button round small">Edit</a>
-                    </div>
->>>>>>> 6ae1584a85f3c0a7af7ed0648ea30be143d8a486
                   </div>
                 </div>
               {% endfor %}
@@ -161,14 +132,8 @@
           </div>
         </div>
 
-
-<<<<<<< HEAD
         {% if events_group_past %}
           <div id="past-event-list" class="left row one-margin-top full-width collapse">
-=======
-        {% if events_past %}
-          <div id="past-event-list" class="left row full-width collapse">
->>>>>>> 6ae1584a85f3c0a7af7ed0648ea30be143d8a486
             <div class="small-11 medium-10 large-8 small-centered columns">
               <h6 class="one-margin-bottom">Past events</h6>
 
