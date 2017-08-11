@@ -167,7 +167,7 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
         # return nothing if unverified time logs not found
         if not timelogs:
             return week
-        
+
         # find monday before oldest unverified time log
         oldest_timelog = timelogs.order_by('datetime_start')[0]
         week_startdate = oldest_timelog.datetime_start
@@ -189,13 +189,13 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
                 k += 1
             else:
                 k=5
-        
+
 
         time_log = OrderedDict()
         items = {'Total': 0}
 
         for timelog in eventtimelogs:
-            user_email = timelog.user.email 
+            user_email = timelog.user.email
             name = User.objects.get(username = user_email).first_name +" "+User.objects.get(username = user_email).last_name
 
             # check if same day and duration longer than 15 min
@@ -245,7 +245,7 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
             time_log_week[week_startdate_monday] = time_log
             week.append(time_log_week)
 
- 
+
         logger.info('%s',week)
         return week
 
@@ -266,7 +266,7 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
         eventtimelogs = UserTimeLog.objects.filter(
             event__in=events
         ).filter(
-            datetime_start__lt=week_startdate_monday + timedelta(days=7) 
+            datetime_start__lt=week_startdate_monday + timedelta(days=7)
         ).filter(
             datetime_start__gte=week_startdate_monday
         ).filter(
@@ -306,8 +306,8 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
                 #split the data for user, flag, and date info
                 user = User.objects.get(username=i.split(':')[0])
                 week_date = datetime.strptime( i.split(':')[2], '%m-%d-%Y')
-                
-                #build manual tracking filter, currently only accessible by OrgUser...  
+
+                #build manual tracking filter, currently only accessible by OrgUser...
                 # userid = user.id
                 # org = OrgUser.objects.filter(user__id=userid)#queryset of Orgs
                 # for j in org:
@@ -384,7 +384,7 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
         )
         if not timelogs:
             return redirect('openCurrents:admin-profile')
-                
+
         return redirect('openCurrents:approve-hours')
         #templist[:] = [item.split(':')[0] for item in templist if item != '' and item.split(':')[1]!='0']
         # try:
@@ -931,6 +931,15 @@ class ProjectDetailsView(TemplateView):
 class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'invite-volunteers.html'
 
+    def get_context_data(self, **kwargs):
+        context = super(InviteVolunteersView, self).get_context_data(**kwargs)
+        try:
+            context['event'] = Event.objects.get(pk=context['event_id'])
+        except KeyError, Event.DoesNotExist:
+            pass
+
+        return context
+
     def post(self, request, *args, **kwargs):
         userid = self.request.user.id
         #print(kwargs)
@@ -1225,7 +1234,7 @@ def event_checkin(request, pk):
                     datetime_start=datetime.now(tz=pytz.UTC)
                 )
                 usertimelog.save()
-    
+
 
             return HttpResponse(status=201)
         else:
@@ -2010,7 +2019,7 @@ def process_org_signup(request):
             mission=form_data['org_mission'],
             reason=form_data['org_reason']
         )
-   
+
         # if website was not left blank, check it's not already in use
         if form_data['org_website'] != '' and Org.objects.filter(website=form_data['org_website']).exists():
             return redirect('openCurrents:org-signup', status_msg='The website provided is already in use by another organization.')

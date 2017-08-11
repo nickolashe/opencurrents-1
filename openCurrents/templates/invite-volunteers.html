@@ -5,10 +5,10 @@
   <head>
     {% include "head.html" %}
   </head>
-  
+
   <body>
     {% include "header.html" %}
-    
+
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
         {% if status_msg %}
@@ -16,13 +16,13 @@
           {{status_msg}}
         </div>
         {% endif %}
-        
+
         <div class="row">
           <h3 class="title-sub">Invite volunteers</h3>
           {% if event_id %}
-            <p>to help {{ event.project.name }}</p>
+            <p> to help <strong> {{ event.project.name }} </strong> </p>
           {% else %}
-            <p>to track hours with openCurrents</p>
+            <p> to track hours with openCurrents </p>
           {% endif %}
           <a class="bulk-email-popup_open button round small">Copy/paste email list</a>
           <p class="">or add volunteers individually:</p>
@@ -60,7 +60,7 @@
                 </div>
               </div>
             </div>
-            
+
             <!--<a href="{% url 'openCurrents:admin-profile' %}" class="button round secondary">Send invites</a>-->
             <button type='submit' id="button_1" class="button round secondary">Send invites<input type="hidden" id="count-vol" name="count-vol" value="3" /></button>
           </div>
@@ -68,20 +68,20 @@
           <input type="hidden" id="bulk-vol" name="bulk-vol" value="" />
         </form>
 
-        
+
         <div id="push"></div>
-    
+
       <!-- wrapper div-->
       </div>
-      
+
       {% include "footer.html" %}
-            
+
     <!--container div -->
     </div>
 
-    
+
     <div id="bottom-stripe" class="full-width"></div>
-    
+
     <div off-canvas="menu right shift" id="menu">
       {% include "menu.html" %}
     </div>
@@ -102,9 +102,9 @@
       </div>
     </div>
 
-   
-    
-    
+
+
+
     <script type="text/javascript">
       $(document).ready(function(){
 
@@ -130,10 +130,10 @@
 
           document.getElementById("bulk-vol").value = document.getElementById("bulk-emails").value;
           document.forms.theForm.submit();
-          
+
       }
     </script>
-    
+
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
   </body>
 </html>
