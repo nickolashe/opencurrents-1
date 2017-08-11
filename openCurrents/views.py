@@ -426,7 +426,9 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
                             #delete the columns which were deselected by the user
                             del cleaned_list[k]
                         cleaned_list = map(str, cleaned_list)
-                        writer.writerow(cleaned_list)#write to the CSV file
+                        reader = csv.reader(response)
+                        if self.user_per_event(reader, cleaned_list):
+                            writer.writerow(cleaned_list)#write to the CSV file
                 else:
                     #if the user input in start-time is empty
                     if (str(j.event.datetime_end)<str(post_data['end-date']) or str(j.event.datetime_end)==str(post_data['end-date'])):
@@ -436,8 +438,18 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
                             #delete the columns which were deselected by the user
                             del cleaned_list[k]
                         cleaned_list = map(str, cleaned_list)
-                        writer.writerow(cleaned_list)#write to the CSV file
+                        reader = csv.reader(response)
+                        if self.user_per_event(reader, cleaned_list):
+                            writer.writerow(cleaned_list)#write to the CSV file
         return response#redirect('openCurrents:export-data')#
+
+    def user_per_event(self, csvreader, cleaned_list):
+        #returns 0 if the record is duplicate else return 1
+        record_status = 1
+        for row in csvreader:
+            if cleaned_list == row:
+                record_status = 0
+        return record_status
 
 class FaqView(TemplateView):
     template_name = 'faq.html'
