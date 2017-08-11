@@ -27,7 +27,8 @@ from openCurrents.models import \
     Project, \
     Event, \
     UserEventRegistration, \
-    UserTimeLog
+    UserTimeLog, \
+    DeferredUserTime
 
 from openCurrents.forms import \
     UserSignupForm, \
@@ -136,7 +137,6 @@ class InviteFriendsView(LoginRequiredMixin, SessionContextView, TemplateView):
 
         return context
 
-
 class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
     template_name = 'approve-hours.html'
     context_object_name = 'week'
@@ -175,20 +175,23 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
         week_startdate = oldest_timelog.datetime_start
         week_startdate_monday = week_startdate - timedelta(days=week_startdate.weekday())
         today = timezone.now()
-        #print(week_startdate_monday)
 
-        # build one weeks worth of timelogs starting from the oldest monday
-        time_log_week = OrderedDict()
-        eventtimelogs = UserTimeLog.objects.filter(
-            event__in=events
-        ).filter(
-            datetime_start__lt=week_startdate_monday + timedelta(days=7)
-        ).filter(
-            datetime_start__gte=week_startdate_monday
-        ).filter(
-            is_verified=False
-        )
-
+        main_defer = self.defer_month(week_startdate_monday,today)
+        eventtimelogs = main_defer[0]
+        time_log_week = main_defer[1]
+        k = 0
+        #Check for usertimelogs ahead for upto a month
+        while k<5:
+            if not eventtimelogs:
+                week_startdate_monday = week_startdate_monday + timedelta(days=7)
+                today = timezone.now()
+                local_defer = self.defer_month(week_startdate_monday,today)
+                eventtimelogs = local_defer[0]
+                time_log_week = local_defer[1]
+                k += 1
+            else:
+                k=5
+        
 
         time_log = OrderedDict()
         items = {'Total': 0}
@@ -250,6 +253,37 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
         logger.info('%s',week)
         return week
 
+    def defer_month(self, week_startdate_monday, today):
+        # build one weeks worth of timelogs starting from the oldest monday
+        userid = self.request.user.id
+        org = OrgUser.objects.filter(user__id=userid)
+        if org:
+            orgid = org[0].org.id
+        projects = Project.objects.filter(org__id=orgid)
+        events = Event.objects.filter(
+            project__in=projects
+        ).filter(
+            event_type='MN'
+        )
+        time_log_week = OrderedDict()
+        get_defer_times = DeferredUserTime.objects.filter(user__id=userid)
+        eventtimelogs = UserTimeLog.objects.filter(
+            event__in=events
+        ).filter(
+            datetime_start__lt=week_startdate_monday + timedelta(days=7) 
+        ).filter(
+            datetime_start__gte=week_startdate_monday
+        ).filter(
+            is_verified=False
+        )
+        exclude_usertimelog = []
+        for g_d_t in get_defer_times:
+            if g_d_t.usertimelog in eventtimelogs:
+                #eventtimelogs = eventtimelogs.filter(~Q(event=g_d_t.usertimelog.event))
+                exclude_usertimelog.append(g_d_t.usertimelog.event)
+        eventtimelogs = eventtimelogs.exclude(event__in=exclude_usertimelog)
+        return [eventtimelogs,time_log_week]
+
     def post(self, request, **kwargs):
         """
         Takes request as input which is a comma separated string which is then split to form a list with data like
@@ -304,7 +338,7 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
                           event__in=events).delete()
 
                 #check if the volunteer is accepted and approve the same
-                elif i.split(':')[1] == '1' and i !='':
+                elif i.split(':')[1] == '1':
                     try:
                         vols_approved += 1
                         time_log = UserTimeLog.objects.filter(user=user
@@ -320,6 +354,24 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
                         logger.info('Approving timelog Error: %s',e)
                         return redirect('openCurrents:500')
                     logger.info('Approving timelog : %s',time_log)
+
+                #check if the volunteer is defered and add to defered user times
+                elif i.split(':')[1] == '2':
+                    time_log = UserTimeLog.objects.filter(user=user
+                           ).filter(
+                              datetime_start__lt=week_date + timedelta(days=7)
+                           ).filter(
+                              datetime_start__gte=week_date
+                           ).filter(
+                              is_verified=False
+                           ).filter(
+                              event__in=events)
+                    for time_def in time_log:
+                        defer_user_time = DeferredUserTime(
+                            user = User.objects.get(id=self.request.user.id),
+                            usertimelog = time_def
+                            )
+                        defer_user_time.save()
 
         org = OrgUser.objects.filter(user__id=userid)
         if org:
@@ -515,7 +567,7 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(ProfileView, self).get_context_data(**kwargs)
         try:
-            if kwargs.pop('app_hr') == u'True':
+            if kwargs.pop('app_hr') == u'1':
                 context['app_hr'] = 1
             else:
                 context['app_hr'] = 0
@@ -554,7 +606,7 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
                 #logger.debug('user %d already counted, skipping', timelog.user.id)
                 pass
 
-        context['user_balance'] = round(issued_total, 1)
+        context['user_balance'] = round(issued_total, 2)
 
         events_upcoming = [
             userreg.event
@@ -616,7 +668,7 @@ class AdminProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
                 #logger.info('user %d already counted, skipping', timelog.user.id)
                 pass
 
-        context['issued_total'] = round(issued_total, 1)
+        context['issued_total'] = round(issued_total, 2)
 
         # past, current and upcoming events for org
         context['events_group_past'] = Event.objects.filter(
@@ -729,7 +781,6 @@ class CreateEventView(LoginRequiredMixin, SessionContextView, FormView):
 
         # create an event for each location
         event_ids = map(lambda loc: self._create_event(loc, data), locations)
-        print(event_ids)
         return redirect('openCurrents:invite-volunteers',event_ids[0])
 
     def get_context_data(self, **kwargs):
@@ -1084,6 +1135,7 @@ class LiveDashboardView(LoginRequiredMixin, SessionContextView, TemplateView):
         )
         context['registered_users'] = registered_users
 
+
         # non-registered (existing) users
         unregistered_users = [
             ur_user
@@ -1092,7 +1144,6 @@ class LiveDashboardView(LoginRequiredMixin, SessionContextView, TemplateView):
             ])
         ]
         context['unregistered_users'] = unregistered_users
-
         # dict for looking up user data by lastname
         uu_lookup = dict([
             (user.last_name, {
@@ -1354,15 +1405,28 @@ def event_register_live(request, eventid):
     userid = request.POST['userid']
     user = User.objects.get(id=userid)
     event = Event.objects.get(id=eventid)
-    user_event_registration = UserEventRegistration(
-        user=user,
-        event=event,
-        is_confirmed=True
-    )
-    user_event_registration.save()
-    logger.info('User %s registered for event %s', user.username, event.id)
-
-    return HttpResponse({'userid': userid, 'eventid': eventid}, status=201)
+    user_events = UserEventRegistration.objects.values('user__id','event__id').filter(user__id = userid).filter(event__id = eventid)
+    #user_event_ids = [d for d in user_events if int(userid) == d['user__id'] and int(eventid) == d['event__id']]
+    if not user_events:
+        user_event_registration = UserEventRegistration(
+            user=user,
+            event=event,
+            is_confirmed=True
+        )
+        user_event_registration.save()
+        logger.info('User %s registered for event %s', user.username, event.id)
+    else:
+        logger.info('User %s already registered for event %s', user.username, event.id)
+        return HttpResponse(status=400)
+    tz = event.project.org.timezone
+    event_ds = event.datetime_start.time()
+    event_de = event.datetime_end.time()
+    d_now = datetime.utcnow()
+    if d_now.time() < event_de and d_now.time() > event_ds and d_now.date() == event.datetime_start.date():
+        event_status = '1'
+    else:
+        event_status = '0'
+    return HttpResponse(content=json.dumps({'userid': userid, 'eventid': eventid, 'event_status': event_status}), status=201)
 
 # resend the verification email to a user who hits the Resend button on their check-email page
 def process_resend_verification(request, user_email):
@@ -1634,9 +1698,9 @@ def process_login(request):
         if user is not None and user.is_active:
             today = date.today()
             if (user.last_login.date())< today - timedelta(days=today.weekday()):
-                app_hr = 'True'
+                app_hr = '1'
             else:
-                app_hr = 'False'
+                app_hr = '0'
             login(request, user)
             return redirect('openCurrents:profile', app_hr)
         else:
@@ -2004,7 +2068,7 @@ def process_org_signup(request):
         )
         return redirect(
             'openCurrents:profile',
-            status_msg='Thank you for nominating %s to openCurrents!' % org.name
+            status_msg='Thank you for registering %s with openCurrents!' % org.name
         )
 
     else:
