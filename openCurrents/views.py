@@ -77,6 +77,7 @@ class SessionContextView(View):
     def get_context_data(self, **kwargs):
         context = super(SessionContextView, self).get_context_data(**kwargs)
         userid = self.request.user.id
+        context['userid'] = userid
         org = None
         userorgs = OrgUser.objects.filter(user__id=userid)
         if userorgs:
@@ -244,8 +245,7 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
         if time_log:
             time_log_week[week_startdate_monday] = time_log
             week.append(time_log_week)
-
-
+ 
         logger.info('%s',week)
         return week
 
@@ -621,10 +621,21 @@ class AdminProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(AdminProfileView, self).get_context_data(**kwargs)
+        userid = context['userid']
         orgid = context['orgid']
         org = Org.objects.get(pk=orgid)
         context['org_name'] = org.name
         context['timezone'] = org.timezone
+
+        #find events made by the admin with notified=false
+        new_events = Event.objects.filter(project__org__id=orgid).filter(creator_id=userid).filter(notified=False)
+        num_events=len(new_events)
+
+        for event in new_events:
+            event.notified=True
+            event.save()
+
+        context['num_events'] = num_events
 
         verified_time = UserTimeLog.objects.filter(
             event__project__org__id=orgid
@@ -730,6 +741,7 @@ class CreateEventView(LoginRequiredMixin, SessionContextView, FormView):
             datetime_end=form_data['datetime_end'],
             coordinator_firstname=form_data['coordinator_firstname'],
             coordinator_email=form_data['coordinator_email'],
+            creator_id = self.userid
         )
         event.save()
 
@@ -741,6 +753,9 @@ class CreateEventView(LoginRequiredMixin, SessionContextView, FormView):
         # obtain orgid from the session context (provided by SessionContextView)
         orgid = context['orgid']
         self.orgid = orgid
+
+        userid = context['userid']
+        self.userid = userid
 
         projects = Project.objects.filter(
             org__id=self.orgid
@@ -769,7 +784,8 @@ class CreateEventView(LoginRequiredMixin, SessionContextView, FormView):
 
         # create an event for each location
         event_ids = map(lambda loc: self._create_event(loc, data), locations)
-        return redirect('openCurrents:invite-volunteers',event_ids[0])
+        e_ids = "b".join(str(x) for x in event_ids)
+        return redirect('openCurrents:invite-volunteers',e_ids)
 
     def get_context_data(self, **kwargs):
         context = super(CreateEventView, self).get_context_data()
@@ -931,14 +947,20 @@ class ProjectDetailsView(TemplateView):
 class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'invite-volunteers.html'
 
+
     def get_context_data(self, **kwargs):
+        #check for event invite or normal invite to display skip button
         context = super(InviteVolunteersView, self).get_context_data(**kwargs)
+        userid = self.request.user.id
+        context['userid'] = userid
         try:
-            context['event'] = Event.objects.get(pk=context['event_id'])
-        except KeyError, Event.DoesNotExist:
-            pass
+            event_create_id = kwargs.pop('event_id').split('b')
+            context['skip'] = 1
+        except:
+            context['skip'] = 0
 
         return context
+
 
     def post(self, request, *args, **kwargs):
         userid = self.request.user.id
@@ -947,50 +969,63 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
         post_data = self.request.POST
         event_create_id = None
         try:
-            event_create_id = kwargs.pop('event_id')
+            event_create_id = kwargs.pop('event_id').split('b')
         except:
             pass
 
         k = []
+        k_old = []
+        users = User.objects.values_list('username')
+        user_list = [str(''.join(j)) for j in users]
 
         OrgUsers = OrgUser.objects.filter(user__id=userid)
         if OrgUsers:
             Organisation = OrgUsers[0].org.name
         if post_data['bulk-vol'].encode('ascii','ignore') == '':
-            no_of_loops = int(post_data['count-vol'])
+            num_vols = int(post_data['count-vol'])
         else:
             bulk_list = re.split(',| |\n',post_data['bulk-vol'])
-            no_of_loops = len(bulk_list)
-        for i in range(no_of_loops):
+            num_vols = len(bulk_list)
+        for i in range(num_vols):
             if post_data['bulk-vol'].encode('ascii','ignore') == '':
-                if post_data['vol-email-'+str(i+1)] != '':
-                    k.append({"email":post_data['vol-email-'+str(i+1)],"type":"to"})
+                email_list = post_data['vol-email-'+str(i+1)]
+                if email_list != '':
+                    if email_list not in user_list:
+                        k.append({"email":email_list, "name":post_data['vol-name-'+str(i+1)],"type":"to"})
+                    elif email_list in user_list:
+                        k_old.append({"email":email_list, "name":post_data['vol-name-'+str(i+1)],"type":"to"})
                     user_new = None
                     try:
                         user_new = User(
-                            username=post_data['vol-email-'+str(i+1)],
-                            email=post_data['vol-email-'+str(i+1)]
+                            username=email_list,
+                            email=email_list
                             #first_name=user_firstname,
                             #last_name=user_lastname
                         )
                         user_new.save()
                     except Exception as e:
-                        pass
+                        user_new = User.objects.get(username=email_list)
 
                     if user_new and event_create_id:
                         try:
-                            user_event_registration = UserEventRegistration(
-                                user=user_new,
-                                event=Event.objects.get(id=event_create_id),
-                                is_confirmed=True
-                            )
-                            user_event_registration.save()
+                            multiple_event_reg = Event.objects.filter(id__in=event_create_id)
+                            for i in multiple_event_reg:
+                                user_event_registration = UserEventRegistration(
+                                    user=user_new,
+                                    event=i,
+                                    is_confirmed=True
+                                )
+                                user_event_registration.save()
                         except Exception as e:
                             logger.error('unable to register user for event')
                 else:
-                    no_of_loops -= 1
+                    num_vols -= 1
             elif post_data['bulk-vol'] != '':
-                k.append({"email":bulk_list[i].strip(),"type":"to"})
+                user_email = str(bulk_list[i].strip())
+                if str(bulk_list[i].strip()) != '' and bulk_list[i].strip() not in user_list:
+                    k.append({"email":user_email, "type":"to"})
+                elif bulk_list[i].strip() in user_list:
+                    k_old.append({"email":user_email, "type":"to"})
                 user_new = None
                 try:
                     user_new = User(
@@ -1001,62 +1036,108 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
                     )
                     user_new.save()
                 except Exception as e:
-                    pass
+                    user_new = User.objects.get(username=user_email)
 
                 if user_new and event_create_id:
                     try:
-                        user_event_registration = UserEventRegistration(
-                            user=user_new,
-                            event=Event.objects.get(event__id=event_create_id),
-                            is_confirmed=True
-                        )
-                        user_event_registration.save()
+                        multiple_event_reg = Event.objects.filter(id__in=event_create_id)
+                        for i in multiple_event_reg:
+                            user_event_registration = UserEventRegistration(
+                                user=user_new,
+                                event=i,
+                                is_confirmed=True
+                            )
+                            user_event_registration.save()
                     except Exception as e:
-                        pass
+                        logger.error('unable to register user for event')
         try:
-            event=Event.objects.get(id=event_create_id)
+            event=Event.objects.get(id=event_create_id[0])
+            events = Event.objects.filter(id__in=event_create_id)
+            loc = [str(i.location).split(',')[0] for i in events]
             try:
                 tz = event.project.org.timezone
-                sendBulkEmail(
-                    'invite-volunteer-event',
-                    None,
-                    [
-                        {
-                            'name': 'ADMIN_FIRSTNAME',
-                            'content': user.first_name
-                        },
-                        {
-                            'name': 'ADMIN_LASTNAME',
-                            'content': user.last_name
-                        },
-                        {
-                            'name': 'EVENT_TITLE',
-                            'content': event.project.name
-                        },
-                        {
-                            'name': 'ORG_NAME',
-                            'content': Organisation
-                        },
-                        {
-                            'name': 'EVENT_LOCATION',
-                            'content': event.location
-                        },
-                        {
-                            'name': 'EVENT_DATE',
-                            'content': str(event.datetime_start.astimezone(pytz.timezone(tz)).date().strftime('%b %d, %Y'))
-                        },
-                        {
-                            'name':'EVENT_START_TIME',
-                            'content': str(event.datetime_start.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p'))
-                        },
-                        {
-                            'name':'EVENT_END_TIME',
-                            'content': str(event.datetime_end.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p'))
-                        },
-                    ],
-                    k,
-                    user.email
-                )
+                if k:
+                    sendBulkEmail(
+                        'invite-volunteer-event-new',
+                        None,
+                        [
+                            {
+                                'name': 'ADMIN_FIRSTNAME',
+                                'content': user.first_name
+                            },
+                            {
+                                'name': 'ADMIN_LASTNAME',
+                                'content': user.last_name
+                            },
+                            {
+                                'name': 'EVENT_TITLE',
+                                'content': event.project.name
+                            },
+                            {
+                                'name': 'ORG_NAME',
+                                'content': Organisation
+                            },
+                            {
+                                'name': 'EVENT_LOCATION',
+                                'content': event.location
+                            },
+                            {
+                                'name': 'EVENT_DATE',
+                                'content': str(event.datetime_start.astimezone(pytz.timezone(tz)).date().strftime('%b %d, %Y'))
+                            },
+                            {
+                                'name':'EVENT_START_TIME',
+                                'content': str(event.datetime_start.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p'))
+                            },
+                            {
+                                'name':'EVENT_END_TIME',
+                                'content': str(event.datetime_end.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p'))
+                            },
+                        ],
+                        k,
+                        user.email
+                    )
+                if k_old:
+                    sendBulkEmail(
+                        'invite-volunteer-event-existing',
+                        None,
+                        [
+                            {
+                                'name': 'ADMIN_FIRSTNAME',
+                                'content': user.first_name
+                            },
+                            {
+                                'name': 'ADMIN_LASTNAME',
+                                'content': user.last_name
+                            },
+                            {
+                                'name': 'EVENT_TITLE',
+                                'content': event.project.name
+                            },
+                            {
+                                'name': 'ORG_NAME',
+                                'content': Organisation
+                            },
+                            {
+                                'name': 'EVENT_LOCATION',
+                                'content': event.location
+                            },
+                            {
+                                'name': 'EVENT_DATE',
+                                'content': str(event.datetime_start.astimezone(pytz.timezone(tz)).date().strftime('%b %d, %Y'))
+                            },
+                            {
+                                'name':'EVENT_START_TIME',
+                                'content': str(event.datetime_start.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p'))
+                            },
+                            {
+                                'name':'EVENT_END_TIME',
+                                'content': str(event.datetime_end.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p'))
+                            },
+                        ],
+                        k_old,
+                        user.email
+                    )
             except Exception as e:
                 logger.error(
                     'unable to send email: %s (%s)',
@@ -1091,7 +1172,7 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
                     e,
                     type(e)
                 )
-        return redirect('openCurrents:volunteers-invited', no_of_loops)
+        return redirect('openCurrents:admin-profile', num_vols)
 
 
 class EventCreatedView(TemplateView):
