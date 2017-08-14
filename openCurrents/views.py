@@ -514,6 +514,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         )
         event.save()
 
+        #If the time is same or within the range of already existing tracking
         track_exists_1 = UserTimeLog.objects.filter(
                 user = user
             ).filter(
@@ -521,6 +522,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             ).filter(
                 datetime_end__lte = form_data['datetime_end']
             )
+        #If the time is same or Part of it where start time is earlier and end time is greater than end time
         track_exists_2 = UserTimeLog.objects.filter(
                 user = user
             ).filter(
@@ -528,6 +530,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             ).filter(
                 datetime_end__gte = form_data['datetime_end']
             )
+        #If the time is same or Part of it where start time is earlier and end time falls in the range
         track_exists_3 = UserTimeLog.objects.filter(
                 user = user
             ).filter(
@@ -537,6 +540,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             ).filter(
                 datetime_end__gte = form_data['datetime_start']
             )
+        #If the time is same or Part of it where start time is greater but within the end-time and end time doesn't matter
         track_exists_4 = UserTimeLog.objects.filter(
                 user = user
             ).filter(
@@ -560,6 +564,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             self.status = False
 
     def get_context_data(self, **kwargs):
+        #Get the status msg from URL
         context = super(TimeTrackerView, self).get_context_data(**kwargs)
         try:
             context['status_msg'] = self.kwargs.pop('status_msg')
@@ -574,8 +579,10 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         data = form.cleaned_data
         self.track_hours(data)
         if self.status == True:
+            #if the tracked hour is not redundant
             return redirect('openCurrents:time-tracked')
         else:
+            #If the tracked hour is redundant
             status_time = 'It looks like you have already tracked your hours from '+\
                 str(data['time_start'])+' to '+str(data['time_end'])+' for this event.'
             return redirect('openCurrents:time-tracker',status_time)
