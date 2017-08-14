@@ -799,12 +799,13 @@ class EditEventView(LoginRequiredMixin, SessionContextView, TemplateView):
         #get the event id from admin-profile page and fetch the data need for the UI
         context = super(EditEventView, self).get_context_data(**kwargs)
         # event
+        tz = OrgUser.objects.get(user__id=self.request.user.id).org.timezone
         event_id = kwargs.pop('event_id')
         event = Event.objects.get(id=event_id)
         context['event'] = event
-        context['start_time'] = str(event.datetime_start.time())
-        context['end_time'] = str(event.datetime_end.time())
-        context['date_start'] = str(event.datetime_start.date())
+        context['start_time'] = str(event.datetime_start.astimezone(pytz.timezone(tz)).time())
+        context['end_time'] = str(event.datetime_end.astimezone(pytz.timezone(tz)).time())
+        context['date_start'] = str(event.datetime_start.astimezone(pytz.timezone(tz)).date())
         return context
 
     def post(self, request, **kwargs):
@@ -894,15 +895,16 @@ class EditEventView(LoginRequiredMixin, SessionContextView, TemplateView):
                         type(e)
                     )
                     return redirect('openCurrents:500')
+            tz = OrgUser.objects.get(user__id=self.request.user.id).org.timezone
 
             edit_event.description = str(post_data['project-description'])
             edit_event.location = str(post_data['project-location-1'])
             edit_event.coordinator_firstname = str(post_data['coordinator-name'])
             edit_event.coordinator_email = str(post_data['coordinator-email'])
-            edit_event.datetime_start = datetime.combine(datetime.strptime(post_data['project-date'], '%Y-%m-%d'),\
-                datetime.strptime(str(post_data['project-start']),'%H:%M%p').time())
-            edit_event.datetime_end = datetime.combine(datetime.strptime(post_data['project-date'], '%Y-%m-%d'),\
-                datetime.strptime(str(post_data['project-end']),'%H:%M%p').time())
+            edit_event.datetime_start = pytz.timezone(tz).localize(datetime.combine(datetime.strptime(post_data['project-date'], '%Y-%m-%d'),\
+                datetime.strptime(str(post_data['project-start']),'%H:%M%p').time()))
+            edit_event.datetime_end = pytz.timezone(tz).localize(datetime.combine(datetime.strptime(post_data['project-date'], '%Y-%m-%d'),\
+                datetime.strptime(str(post_data['project-end']),'%H:%M%p').time()))
             edit_event.save()
             project = Project.objects.get(id = edit_event.project.id)
             project.name = str(post_data['project-name'])
