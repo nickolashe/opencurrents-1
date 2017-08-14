@@ -152,7 +152,7 @@
 }
 
 #home {
-  background: url(/static/img/wheelbarrow.jpg) no-repeat bottom center fixed;
+  background: url(/static/img/wheelbarrow.jpg) no-repeat bottom center;
   background-attachment: fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
@@ -162,7 +162,7 @@
 
 @media (max-width: 41.9375em) {
   #home {
-    background-attachment: scroll;
+    height: 125%;
   }
 }
 
