@@ -1,4 +1,4 @@
-/* home */
+/* landing page backgrounds */
 
 @media screen and (min-width: 42em) {
   #home {
@@ -8,45 +8,30 @@
     -o-background-size: cover;
     background-size: cover;
   }
-}
 
-#home {
-  background: url(/static/img/wheelbarrow.jpg) center bottom fixed;
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
-}
+  #nonprofit {
+    background: url(/static/img/hands.jpg) no-repeat center 40px fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+  }
 
-/* nonprofit */
+  #business {
+    background: url(/static/img/market-pink.jpg) no-repeat right center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+  }
 
-#nonprofit {
-  background: url(/static/img/hands.jpg) no-repeat center 40px fixed;
-/*  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;*/
-}
-
-/* business */
-
-#business {
-  background: url(/static/img/market-pink.jpg) no-repeat right center fixed;
-/*  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;*/
-}
-
-
-/* our-story */
-
-#our-story {
-  background: url(/static/img/moab.jpg) no-repeat right center fixed;
-/*  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;*/
+  #our-story {
+    background: url(/static/img/moab.jpg) no-repeat right center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+  }
 }
 
 /* home nonprofit business and our-story */
@@ -60,6 +45,7 @@
 }
 
 @media (max-width: 41.9375em) {
+
   #home:after {
     content:"";
     position:fixed;
@@ -74,6 +60,51 @@
     -o-background-size: cover;
     background-size: cover;
   }
+
+  #nonprofit:after {
+    content:"";
+    position:fixed;
+    top:0;
+    height:100vh; 
+    left:0;
+    right:0;
+    z-index:-1;
+    background: url(/static/img/wheelbarrow.jpg) center 40px;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+  }
+
+  #business:after {
+    content:"";
+    position:fixed;
+    top:0;
+    height:100vh; 
+    left:0;
+    right:0;
+    z-index:-1;
+    background: url(/static/img/wheelbarrow.jpg) right center;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+  }
+
+  #our-story:after {
+    content:"";
+    position:fixed;
+    top:0;
+    height:100vh; 
+    left:0;
+    right:0;
+    z-index:-1;
+    background: url(/static/img/wheelbarrow.jpg) right center;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+  }  
 }
 
 #intro-1, #intro-2, #intro-3, #intro-4, #intro-5, #intro-6, #intro-7 {
