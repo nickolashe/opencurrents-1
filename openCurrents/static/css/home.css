@@ -65,7 +65,7 @@
   min-height: 100vh;
 }
 
-.splash:after {
+#home:after {
   content:"";
   position:fixed;
   top:0;
