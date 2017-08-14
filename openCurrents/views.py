@@ -64,6 +64,12 @@ def diffInMinutes(t1, t2):
 def diffInHours(t1, t2):
     return round((t2 - t1).total_seconds() / 3600, 1)
 
+# Create and save a new group for admins of a new org
+def new_org_admins_group(orgid):
+    org_admins_name = 'admin_' + str(orgid)
+    logger.info('Creating new org_admins group: %s',org_admins_name)
+    org_admins = Group(name=org_admins_name)
+    org_admins.save()
 
 class DatetimeEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -632,11 +638,11 @@ class AdminProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         try:
             org_admins = Group.objects.get(name=org_admins_name)
         except:
-            logger.info("Org exists without an org_admins group.")
-            pass
+            logger.error("Org exists without an org_admins group.")
+            return redirect('openCurrents:500')
 
         if org_admins and not user.groups.filter(name=org_admins_name).exists():
-            logger.info("org admins group exists and user is not part of it.")
+            logger.error("org admins group exists and user is not part of it.")
             return redirect('openCurrents:500')
         else:
             return render(
@@ -1609,10 +1615,9 @@ def process_signup(request, referrer=None, endpoint=False, verify_email=True):
             try:
                 org = Org(name=org_name)
                 org.save()
-
-                org_admins_name = 'admin_' + str(org.id)
-                org_admins = Group(name=org_admins_name)
-                org_admins.save()
+  
+                # Create and save a new group for admins of new org
+                new_org_admins_group(org.id)
 
                 org_user = OrgUser(
                     user=user,
@@ -2049,10 +2054,8 @@ def process_org_signup(request):
         try:
             org.save()
 
-            org_admins_name = 'admin_' + str(org.id)
-            org_admins = Group(name=org_admins_name)
-            org_admins.save()
-
+            # Create and save a new group for admins of new org
+            new_org_admins_group(org.id)
 
         except IntegrityError:
             logger.info('org at %s already exists', form_data['org_name'])
