@@ -13,7 +13,6 @@
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
 
-
         {% if vols_approved or vols_declined %}
           <div class="success row one-margin-top">
             <div class="medium-8 columns small-centered">
@@ -254,6 +253,14 @@
         });
       });
     </script>
+
+
+    <script type="text/javascript">
+      {% if forbidden %}
+        window.location.href = "{% url 'openCurrents:500' %}";
+      {% endif %} 
+    </script>
+
 
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
   </body>

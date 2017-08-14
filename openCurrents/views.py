@@ -625,31 +625,31 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
 class AdminProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'admin-profile.html'
 
-    def get(self, request, *args, **kwargs):
-        context = super(AdminProfileView, self).get_context_data(**kwargs)
-        orgid = context['orgid']
+    ##check that user is part of org_admins group
+    #def get(self, request, *args, **kwargs):
+    #    context = super(AdminProfileView, self).get_context_data(**kwargs)
+    #    orgid = context['orgid']
    
-        #check that user is part of org_admins group
-        userid = self.request.user.id
-        user = User.objects.get(id=userid)
-        org_admins_name = 'admin_' + str(orgid)
-        logger.info('org_admins_name: %s',org_admins_name)
+    #    userid = self.request.user.id
+    #    user = User.objects.get(id=userid)
+    #    org_admins_name = 'admin_' + str(orgid)
+    #    logger.info('org_admins_name: %s',org_admins_name)
 
-        try:
-            org_admins = Group.objects.get(name=org_admins_name)
-        except:
-            logger.error("Org exists without an org_admins group.")
-            return redirect('openCurrents:500')
+    #    try:
+    #        org_admins = Group.objects.get(name=org_admins_name)
+    #    except:
+    #        logger.error("Org exists without an org_admins group.")
+    #        return redirect('openCurrents:500')
 
-        if org_admins and not user.groups.filter(name=org_admins_name).exists():
-            logger.error("org admins group exists and user is not part of it.")
-            return redirect('openCurrents:500')
-        else:
-            return render(
-                request,
-                'admin-profile.html',
-                context
-            )
+    #    if org_admins and not user.groups.filter(name=org_admins_name).exists():
+    #        logger.error("org admins group exists and user is not part of it.")
+    #        return redirect('openCurrents:500')
+    #    else:
+    #        return render(
+    #            request,
+    #            'admin-profile.html',
+    #            context
+    #        )
 
 
     def get_context_data(self, **kwargs):
@@ -658,6 +658,21 @@ class AdminProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         org = Org.objects.get(pk=orgid)
         context['org_name'] = org.name
         context['timezone'] = org.timezone
+        userid = self.request.user.id
+        user = User.objects.get(id=userid)
+
+        try:
+            org_admins = Group.objects.get(name='admin_'+str(orgid))
+        except:
+            logger.error("Org exists without an org_admins group.")
+    #       return redirect('openCurrents:500')
+        
+        if org_admins and not user.groups.filter(name='admin_'+str(orgid)).exists():
+            logger.error("org admins group exists and user is not part of it.")
+            context['forbidden'] = True
+        else:
+            context['forbidden'] = False
+            
 
         verified_time = UserTimeLog.objects.filter(
             event__project__org__id=orgid
