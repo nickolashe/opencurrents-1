@@ -334,6 +334,13 @@
 
     </script>
 
+    <script type="text/javascript">
+      {% if forbidden %}
+        window.location.href = "{% url 'openCurrents:500' %}";
+      {% endif %} 
+    </script>
+
+
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
   </body>
 </html>

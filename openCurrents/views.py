@@ -1159,7 +1159,13 @@ class LiveDashboardView(LoginRequiredMixin, SessionContextView, TemplateView):
         # event
         event_id = kwargs.pop('event_id')
         event = Event.objects.get(id=event_id)
+        event_orgid = event.project.org.id
         context['event'] = event
+        # verify user is part of admin_<event_orgid> group
+        if not self.request.user.groups.filter(name='admin_'+str(event_orgid)).exists():
+            context['forbidden'] = True
+        else:
+            context['forbidden'] = False
 
         # registered users
         user_regs = UserEventRegistration.objects.filter(event__id=event_id)
