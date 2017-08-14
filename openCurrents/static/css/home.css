@@ -15,14 +15,6 @@
   min-height: 100vh;
 }
 
-#home {
-  background: url(/static/img/wheelbarrow.jpg) no-repeat bottom center fixed;
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
-}
-
 #home-logo {
   margin-top: 4rem;
   width: 234px;
@@ -157,6 +149,21 @@
   margin: auto;
   padding-left: 1.5rem;
   padding-right: 1.5rem;
+}
+
+#home {
+  background: url(/static/img/wheelbarrow.jpg) no-repeat bottom center fixed;
+  background-attachment: fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+@media (max-width: 41.9375em) {
+  #home {
+    background-attachment: scroll;
+  }
 }
 
 /* non-small home */
