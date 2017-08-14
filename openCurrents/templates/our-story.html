@@ -5,6 +5,7 @@
   <head>
     {% include "partials/head.html" %}
     <link href="{% static "css/home.css" %}" rel="stylesheet" type="text/css">
+    <link href="{% static "css/checkboxes.css" %}" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Alegreya+Sans+SC:300" rel="stylesheet">
   </head>
 
@@ -201,7 +202,8 @@
               
               <div class="small-12 columns">
                 <div class="checkbox center">
-                  <label class="white"><input type="checkbox" name="" checked />Send me monthly updates</label>
+                  <input type="checkbox" name="" id="monthly-update" class="custom-checkbox" checked />
+                    <label for="monthly-update" class="white">Send me monthly updates</label>
                 </div>
               </div>
             </div>
@@ -249,6 +251,13 @@
             </div>
             <div id="org-signup-name" class="small-12 columns hidden">
               <input type="text" name="org_name" placeholder="Organization name" tabindex="0" />
+            </div>
+
+            <div class="half-margin-top small-12 columns">
+              <div class="checkbox center">
+                <input type="checkbox" name="" id="monthly-update" class="custom-checkbox" checked />
+                  <label for="monthly-update" class="white">Send me monthly updates</label>
+              </div>
             </div>
           </div>
         </div>

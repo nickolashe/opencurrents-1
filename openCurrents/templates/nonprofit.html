@@ -5,6 +5,7 @@
   <head>
     {% include "partials/head.html" %}
     <link href="{% static "css/home.css" %}" rel="stylesheet" type="text/css">
+    <link href="{% static "css/checkboxes.css" %}" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Alegreya+Sans+SC:300" rel="stylesheet">
   </head>
 
@@ -31,7 +32,7 @@
       </div>
     </header>
 
-    <div id="nonprofit" class="js-close-any" canvas>
+    <div class="js-close-any" canvas>
       
       <div id="intro-1">
         <div id="1" class="header-spacer"></div>
@@ -177,7 +178,7 @@
         <div class="row collapse center">
           <div class="small-11 medium-6 small-centered columns">
             <h2 class="title-sub">Join openCurrents</h2>
-            <p class="large-text">Apply to be among the first organizations to issue Currents. We'll be in touch soon!</p> 
+            <p>Apply to be among the first organizations to issue Currents. We'll be in touch soon!</p> 
           </div>
         </div>
 
@@ -217,7 +218,8 @@
               
               <div class="small-12 columns">
                 <div class="checkbox center">
-                  <label class=""><input type="checkbox" name="" checked />Send me monthly updates</label>
+                  <input type="checkbox" name="" id="monthly-update" class="custom-checkbox" checked />
+                    <label for="monthly-update">Send me monthly updates</label>
                 </div>
               </div>
             </div>

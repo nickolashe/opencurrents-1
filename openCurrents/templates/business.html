@@ -5,6 +5,7 @@
   <head>
     {% include "partials/head.html" %}
     <link href="{% static "css/home.css" %}" rel="stylesheet" type="text/css">
+    <link href="{% static "css/checkboxes.css" %}" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Alegreya+Sans+SC:300" rel="stylesheet">
   </head>
 
@@ -174,17 +175,20 @@
 
         <div class="row two-margin-top">
           <div class="two-margin-bottom center small-centered medium-12 columns">
-            <div class="small-12 medium-4 columns">
+            <div class="relative small-12 medium-4 columns">
               <div class="row">
                 <div for="benefit-sm-1" class="intro-icon"><i class="fa fa-2x fa-user-plus"></i></div>
                 <p class="no-margin-bottom"><strong>Join the community</strong></p>
               </div>
               <div class="business-table row">
                 <p class="small-text">Create an account to start accepting Currents. We will be in touch to help you set up an offer in the marketplace.</p>
+                <img class="show-for-small-only business-arrow-sm" src="{% static "img/arrow-down.png" %}"/>
               </div>
+
+              <img class="hide-for-small-only business-arrow" src="{% static "img/arrow-1.png" %}"/>
             </div>
 
-            <div class="small-12 medium-4 columns">
+            <div class="relative small-12 medium-4 columns">
               <div class="row">
                 <div for="benefit-sm-1" class="intro-icon"><i class="fa fa-2x fa-credit-card"></i></div>
                 <p class="no-margin-bottom"><strong>Customer pays as usual</strong></p>
@@ -192,7 +196,10 @@
 
               <div class="business-table row">
                 <p class="small-text">Nothing changes at point of sale. Customer sends proof of purchase to openCurrents.</p>
+                <img class="show-for-small-only business-arrow-sm" src="{% static "img/arrow-down.png" %}"/>
               </div>
+
+              <img class="hide-for-small-only business-arrow" src="{% static "img/arrow-1.png" %}"/>
             </div>
 
             <div class="small-12 medium-4 columns">
@@ -221,7 +228,7 @@
         <div class="row collapse center">
           <div class="small-11 medium-6 small-centered columns">
             <h2 class="title-sub white">Join openCurrents</h2>
-            <p class="white large-text"> We'll be in touch soon!</p> 
+            <p class="white">Register now to get additional benefits as a pilot business. We'll be in touch soon!</p> 
           </div>
         </div>
 
@@ -248,7 +255,8 @@
               
               <div class="small-12 columns">
                 <div class="checkbox center">
-                  <label class="white"><input type="checkbox" name="" checked />Send me monthly updates</label>
+                  <input type="checkbox" name="" id="monthly-update" class="custom-checkbox" checked />
+                    <label for="monthly-update" class="white">Send me monthly updates</label>
                 </div>
               </div>
             </div>
@@ -298,14 +306,14 @@
             <div id="org-signup-name" class="small-12 columns hidden">
               <input type="text" name="org_name" placeholder="Organization name" tabindex="0" />
             </div>
-
-            <!--
-            <div class="small-12 columns">
+            
+            <div class="half-margin-top small-12 columns">
               <div class="checkbox center">
-                <label id=""><input type="checkbox" name="" id="" />Send me monthly updates</label>
+                <input type="checkbox" name="" id="monthly-update" class="custom-checkbox" checked />
+                  <label for="monthly-update">Send me monthly updates</label>
               </div>
             </div>
-            -->
+            
           </div>
         </div>
 

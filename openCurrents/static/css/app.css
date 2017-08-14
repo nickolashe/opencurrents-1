@@ -214,7 +214,7 @@ textarea:focus {
   border-bottom: 1px solid #1f4975;
 }
 
-input[type='checkbox']:checked + label {
+.styled-checkbox:checked + label {
   color: #24b2e7;
 }
 
@@ -225,6 +225,56 @@ input[type='checkbox']:checked + label {
 [type='radio'] {
   margin-bottom: 0.5rem;
 }
+
+/* custom checkboxes */
+
+.custom-checkbox {
+  position: absolute;
+  opacity: 0;
+}
+.custom-checkbox + label {
+  position: relative;
+  cursor: pointer;
+  padding: 0;
+}
+.custom-checkbox + label:before {
+  content: '';
+  margin-right: 10px;
+  display: inline-block;
+  vertical-align: text-top;
+  width: 18px;
+  height: 18px;
+  border-radius: 2px;
+  border: 1px solid #24b2e7;
+  background: white;
+}
+.custom-checkbox:hover + label:before {
+  background: #ffffff;
+}
+.custom-checkbox:checked + label:before {
+  background: #ffffff;
+}
+.custom-checkbox:disabled + label {
+  color: #b8b8b8;
+  cursor: auto;
+}
+.custom-checkbox:disabled + label:before {
+  box-shadow: none;
+  background: #ddd;
+}
+.custom-checkbox:checked + label:after {
+  position: absolute;
+  left: 1px;
+  top: -1px;
+/*  box-shadow: 2px 0 0 #24b2e7, 4px 0 0 #24b2e7, 4px -2px 0 #24b2e7, 4px -4px 0 #24b2e7, 4px -6px 0 #24b2e7, 4px -8px 0 #24b2e7;
+  -webkit-transform: rotate(45deg);
+          transform: rotate(45deg);*/
+  font-family: "FontAwesome";
+  content: "\f00c";
+  color: #24b2e7;
+}
+
+/* inputs */
 
 select {
   color: #1f4975;
@@ -253,7 +303,8 @@ textarea::-webkit-input-placeholder {
 
 input::-moz-placeholder,
 textarea::-moz-placeholder {
-  color: #999999; }
+  color: #999999;
+  opacity: 1;  }
 
 input:-ms-input-placeholder,
 textarea:-ms-input-placeholder {
@@ -522,6 +573,10 @@ label {
 
 .small-text {
   font-size: 0.875rem;
+}
+
+.base-text {
+  font-size: 1rem;
 }
 
 .large-text {
@@ -888,7 +943,8 @@ input.home-input::-webkit-input-placeholder {
   color: #ffffff; }
 
 input.home-input::-moz-placeholder {
-  color: #ffffff; }
+  color: #ffffff;
+}
 
 input.home-input:-ms-input-placeholder {
   color: #ffffff; }
@@ -906,6 +962,7 @@ input.home-input::placeholder {
   border-color: #24b2e7;
 }
 
+
 /* login */
 
 #remember-label {
@@ -919,13 +976,13 @@ input.home-input::placeholder {
 
 /* nonprofit */
 
-  #nonprofit {
-    background: url(/static/img/hands.jpg) no-repeat center 60px fixed;
-    -webkit-background-size: cover;
-    -moz-background-size: cover;
-    -o-background-size: cover;
-    background-size: cover;
-  }
+#nonprofit {
+  background: url(/static/img/hands.jpg) no-repeat center 30px fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
 
 /* business */
 
@@ -940,6 +997,18 @@ input.home-input::placeholder {
 .business-table {
   padding: 0 0.75rem;
   margin-top: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.business-arrow {
+  position: absolute;
+  right: 0;
+  top: 27px;
+  height: 20px;
+}
+
+.business-arrow-sm {
+  width: 20px;
 }
 
 /* our-story */

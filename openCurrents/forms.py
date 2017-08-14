@@ -184,7 +184,8 @@ class ProjectCreateForm(forms.Form):
         label='on',
         widget=forms.TextInput(attrs={
             'id': 'date_start',
-            'class': 'center'
+            'class': 'center',
+            'placeholder': 'yyyy-mm-dd'
         })
     )
     time_start = forms.CharField(
@@ -192,7 +193,7 @@ class ProjectCreateForm(forms.Form):
         widget=forms.TextInput(attrs={
             'id': 'time_start',
             'class': 'center',
-            'placeholder': '9:00 am'
+            'placeholder': '12:00pm'
         })
     )
     time_end = forms.CharField(
@@ -200,7 +201,7 @@ class ProjectCreateForm(forms.Form):
         widget=forms.TextInput(attrs={
             'id': 'time_end',
             'class': 'center',
-            'placeholder': '12:00 pm'
+            'placeholder': '2:00pm'
         })
     )
     # location = forms.CharField(

@@ -213,10 +213,11 @@
 
         $('#date_start').datepicker({
           dateFormat: 'yy-mm-dd',
-        }).datepicker("setDate", new Date());
+        });
 
         $('#time_start, #time_end').timepicker({
-          step: 15,
+          step: 30,
+          minTime: '12:00pm',
         });
       });
     </script>
