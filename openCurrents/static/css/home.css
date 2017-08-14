@@ -68,7 +68,7 @@
     left:0;
     right:0;
     z-index:-1;
-    background: url(/static/img/wheelbarrow.jpg) center bottom fixed;
+    background: url(/static/img/wheelbarrow.jpg) center bottom;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
