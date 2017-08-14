@@ -162,7 +162,7 @@
 
 @media (max-width: 41.9375em) {
   #home {
-    height: 125%;
+    background-size: auto 100%;
   }
 }
 
