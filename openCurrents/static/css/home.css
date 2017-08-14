@@ -1,7 +1,8 @@
 /* home */
 
 @media screen and (min-width: 42em) {
-  .splash {
+  #home {
+    background: url(/static/img/wheelbarrow.jpg) center bottom fixed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -11,6 +12,10 @@
 
 #home {
   background: url(/static/img/wheelbarrow.jpg) center bottom fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
 }
 
 /* nonprofit */
@@ -55,7 +60,7 @@
 }
 
 @media (max-width: 41.9375em) {
-  .splash:after {
+  #home:after {
     content:"";
     position:fixed;
     top:0;
@@ -63,7 +68,7 @@
     left:0;
     right:0;
     z-index:-1;
-    background-attachment: initial;
+    background: url(/static/img/wheelbarrow.jpg) center bottom fixed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
