@@ -484,7 +484,7 @@ class VerifyIdentityView(TemplateView):
 class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
     template_name = 'time-tracker.html'
     form_class = TrackVolunteerHours
-    success_url = '/time-tracked/'
+    #success_url = '/time-tracked/'
 
     def track_hours(self, form_data):
         userid = self.request.user.id
@@ -514,13 +514,58 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         )
         event.save()
 
-        track = UserTimeLog(
-            user=user,
-            event=event,
-            datetime_start=form_data['datetime_start'],
-            datetime_end=form_data['datetime_end']
+        track_exists_1 = UserTimeLog.objects.filter(
+                user = user
+            ).filter(
+                datetime_start__gte = form_data['datetime_start']
+            ).filter(
+                datetime_end__lte = form_data['datetime_end']
             )
-        track.save()
+        track_exists_2 = UserTimeLog.objects.filter(
+                user = user
+            ).filter(
+                datetime_start__lte = form_data['datetime_start']
+            ).filter(
+                datetime_end__gte = form_data['datetime_end']
+            )
+        track_exists_3 = UserTimeLog.objects.filter(
+                user = user
+            ).filter(
+                datetime_start__lte = form_data['datetime_start']
+            ).filter(
+                datetime_end__lte = form_data['datetime_end']
+            ).filter(
+                datetime_end__gte = form_data['datetime_start']
+            )
+        track_exists_4 = UserTimeLog.objects.filter(
+                user = user
+            ).filter(
+                datetime_start__gte = form_data['datetime_start']
+            ).filter(
+                datetime_end__gte = form_data['datetime_end']
+            ).filter(
+                datetime_start__lte = form_data['datetime_end']
+            )
+
+        if not track_exists_1 and not track_exists_2 and not track_exists_3 and not track_exists_4:
+            track = UserTimeLog(
+                user=user,
+                event=event,
+                datetime_start=form_data['datetime_start'],
+                datetime_end=form_data['datetime_end']
+                )
+            track.save()
+            self.status = True
+        else:
+            self.status = False
+
+    def get_context_data(self, **kwargs):
+        context = super(TimeTrackerView, self).get_context_data(**kwargs)
+        try:
+            context['status_msg'] = self.kwargs.pop('status_msg')
+        except:
+            pass
+        return context
 
 
     def form_valid(self, form):
@@ -528,7 +573,12 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         # It should return an HttpResponse.
         data = form.cleaned_data
         self.track_hours(data)
-        return redirect('openCurrents:time-tracked')
+        if self.status == True:
+            return redirect('openCurrents:time-tracked')
+        else:
+            status_time = 'It looks like you have already tracked your hours from '+\
+                str(data['time_start'])+' to '+str(data['time_end'])+' for this event.'
+            return redirect('openCurrents:time-tracker',status_time)
 
 
 
