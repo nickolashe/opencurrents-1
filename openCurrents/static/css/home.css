@@ -1,8 +1,7 @@
 /* home */
 
 @media screen and (min-width: 42em) {
-  #home {
-    background: url(/static/img/wheelbarrow.jpg) center bottom fixed;
+  .splash {
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -10,24 +9,28 @@
   }
 }
 
+#home {
+  background: url(/static/img/wheelbarrow.jpg) center bottom fixed;
+}
+
 /* nonprofit */
 
 #nonprofit {
   background: url(/static/img/hands.jpg) no-repeat center 40px fixed;
-  -webkit-background-size: cover;
+/*  -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
-  background-size: cover;
+  background-size: cover;*/
 }
 
 /* business */
 
 #business {
   background: url(/static/img/market-pink.jpg) no-repeat right center fixed;
-  -webkit-background-size: cover;
+/*  -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
-  background-size: cover;
+  background-size: cover;*/
 }
 
 
@@ -35,10 +38,10 @@
 
 #our-story {
   background: url(/static/img/moab.jpg) no-repeat right center fixed;
-  -webkit-background-size: cover;
+/*  -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
-  background-size: cover;
+  background-size: cover;*/
 }
 
 /* home nonprofit business and our-story */
@@ -52,7 +55,7 @@
 }
 
 @media (max-width: 41.9375em) {
-  #home:after {
+  .splash:after {
     content:"";
     position:fixed;
     top:0;
@@ -60,7 +63,6 @@
     left:0;
     right:0;
     z-index:-1;
-    background: url(/static/img/wheelbarrow.jpg) center bottom;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
