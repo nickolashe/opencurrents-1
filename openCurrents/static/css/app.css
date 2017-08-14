@@ -922,104 +922,16 @@ a.list-group-item {
   width: 70px; }
 
 
-/* home nonprofit business and our-story */
-
-#intro-1, #intro-2, #intro-3, #intro-4, #intro-5, #intro-6, #intro-7 {
-  min-height: 100vh;
-}
-
-#intro-2, #intro-4, #intro-6 {
-  background-color: #ffffff;
-  color: #1f4975;
-}
-
-.home-input {
-  background-color: transparent;
-  border-color: #ffffff;
-  color: #ffffff;
-}
-
-input.home-input::-webkit-input-placeholder {
-  color: #ffffff; }
-
-input.home-input::-moz-placeholder {
-  color: #ffffff;
-}
-
-input.home-input:-ms-input-placeholder {
-  color: #ffffff; }
-
-input.home-input::placeholder {
-  color: #ffffff; }
-
-.home-input:hover {
-  background-color: transparent;
-  border-color: #ffffff;
-}
-
-.home-input:focus {
-  background-color: transparent;
-  border-color: #24b2e7;
-}
-
-
 /* login */
 
-#remember-label {
-  padding-left: 0;
-}
+  #remember-label {
+    padding-left: 0;
+  }
 
-#remember-checkbox {
-  position: static;
-  margin-right: 1rem;
-}
-
-/* nonprofit */
-
-#nonprofit {
-  background: url(/static/img/hands.jpg) no-repeat center 30px fixed;
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
-}
-
-/* business */
-
-#business {
-  background: url(/static/img/market-pink.jpg) no-repeat right 10px fixed;
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
-}
-
-.business-table {
-  padding: 0 0.75rem;
-  margin-top: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.business-arrow {
-  position: absolute;
-  right: 0;
-  top: 27px;
-  height: 20px;
-}
-
-.business-arrow-sm {
-  width: 20px;
-}
-
-/* our-story */
-
-#our-story {
-  background: url(/static/img/moab.jpg) no-repeat center center fixed;
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
-}
+  #remember-checkbox {
+    position: static;
+    margin-right: 1rem;
+  }
 
 /* confirm-account */
 
