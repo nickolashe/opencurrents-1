@@ -1,11 +1,13 @@
 /* home */
 
-#home {
-  background: url(/static/img/wheelbarrow.jpg) center bottom fixed;
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
+@media screen and (min-width: 42em) {
+  #home {
+    background: url(/static/img/wheelbarrow.jpg) center bottom fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+  }
 }
 
 /* nonprofit */
@@ -28,22 +30,6 @@
   background-size: cover;
 }
 
-.business-table {
-  padding: 0 0.75rem;
-  margin-top: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.business-arrow {
-  position: absolute;
-  right: 0;
-  top: 27px;
-  height: 20px;
-}
-
-.business-arrow-sm {
-  width: 20px;
-}
 
 /* our-story */
 
@@ -65,14 +51,21 @@
   min-height: 100vh;
 }
 
-#home:after {
-  content:"";
-  position:fixed;
-  top:0;
-  height:100vh; 
-  left:0;
-  right:0;
-  z-index:-1;
+@media (max-width: 41.9375em) {
+  #home:after {
+    content:"";
+    position:fixed;
+    top:0;
+    height:100vh; 
+    left:0;
+    right:0;
+    z-index:-1;
+    background: url(/static/img/wheelbarrow.jpg) center bottom;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+  }
 }
 
 #intro-1, #intro-2, #intro-3, #intro-4, #intro-5, #intro-6, #intro-7 {
@@ -184,6 +177,24 @@ input.home-input::placeholder {
   cursor: default;
   display: inline-block;
   margin: 0 0.25rem 1rem;
+}
+
+
+.business-table {
+  padding: 0 0.75rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.business-arrow {
+  position: absolute;
+  right: 0;
+  top: 27px;
+  height: 20px;
+}
+
+.business-arrow-sm {
+  width: 20px;
 }
 
 #arrow-1 {
