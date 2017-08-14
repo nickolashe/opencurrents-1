@@ -85,39 +85,8 @@
         });
       });
     </script>
+    
+    <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
 
-
-    <script>
-      ( function ( $ ) {
-        // Initialize Slidebars
-        var controller = new slidebars();
-        controller.init();
-      } ) ( jQuery );
-    </script>
-
-    <script>
-      // Initialize Slidebars
-      var controller = new slidebars();
-      controller.init();
-
-      // Toggle Slidebars
-      $( '.toggle-menu' ).on( 'click', function ( event ) {
-        // Stop default action and bubbling
-        event.stopPropagation();
-        event.preventDefault();
-
-        // Toggle the Slidebar with id 'id-1'
-        controller.toggle( 'menu' );
-
-        // Close any
-        $( document ).on( 'click', '.js-close-any', function ( event ) {
-          if ( controller.getActiveSlidebar() ) {
-            event.preventDefault();
-            event.stopPropagation();
-            controller.close();
-          }
-        } );
-      } );
-    </script>
   </body>
 </html>
