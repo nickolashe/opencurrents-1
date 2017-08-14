@@ -69,7 +69,7 @@
     left:0;
     right:0;
     z-index:-1;
-    background: url(/static/img/wheelbarrow.jpg) center 40px;
+    background: url(/static/img/hands.jpg) center 40px;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -84,7 +84,7 @@
     left:0;
     right:0;
     z-index:-1;
-    background: url(/static/img/wheelbarrow.jpg) right center;
+    background: url(/static/img/market.jpg) right center;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -99,7 +99,7 @@
     left:0;
     right:0;
     z-index:-1;
-    background: url(/static/img/wheelbarrow.jpg) right center;
+    background: url(/static/img/moab.jpg) right center;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
