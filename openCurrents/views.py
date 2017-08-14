@@ -95,6 +95,9 @@ class SessionContextView(View):
 class HomeView(SessionContextView, TemplateView):
     template_name = 'home.html'
 
+class ForbiddenView(SessionContextView, TemplateView):
+    template_name = '403.html'
+
 class NotFoundView(SessionContextView, TemplateView):
     template_name = '404.html'
 
@@ -643,7 +646,7 @@ class AdminProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
 
     #    if org_admins and not user.groups.filter(name=org_admins_name).exists():
     #        logger.error("org admins group exists and user is not part of it.")
-    #        return redirect('openCurrents:500')
+    #        return redirect('openCurrents:403')
     #    else:
     #        return render(
     #            request,

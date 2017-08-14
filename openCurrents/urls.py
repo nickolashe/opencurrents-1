@@ -83,7 +83,8 @@ urlpatterns = [
         views.RegistrationConfirmedView.as_view(), name='registration-confirmed'),
 
 
-    #temp 404 and 500 views
+    #temp 403, 404 and 500 views
+    url(r'^403$', views.ForbiddenView.as_view(), name='403'),
     url(r'^404$', views.NotFoundView.as_view(), name='404'),
     url(r'^500$', views.ErrorView.as_view(), name='500'),
 
