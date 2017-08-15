@@ -71,7 +71,7 @@ urlpatterns = [
     url(r'^blog$', views.BlogView.as_view(), name='blog'),
     url(r'^marketplace$', views.MarketplaceView.as_view(), name='marketplace'),
     url(r'^edit-event/(?P<event_id>\d+)/$', views.EditEventView.as_view(), name='edit-event'),
-    url(r'^create-event/(?P<orgid>\d+)/$', views.CreateEventView.as_view(), name='create-event'),
+    url(r'^create-event/(?P<org_id>\d+)/$', views.CreateEventView.as_view(), name='create-event'),
     url(r'^project-details$', views.ProjectDetailsView.as_view(), name='project-details'),
     url(r'^invite-volunteers$', views.InviteVolunteersView.as_view(), name='invite-volunteers'),
     url(r'^invite-volunteers/(?P<event_id>[0-9a-z]+)/$', views.InviteVolunteersView.as_view(), name='invite-volunteers'),
@@ -85,7 +85,8 @@ urlpatterns = [
         views.RegistrationConfirmedView.as_view(), name='registration-confirmed'),
 
 
-    #temp 404 and 500 views
+    #temp 403, 404 and 500 views
+    url(r'^403$', views.ForbiddenView.as_view(), name='403'),
     url(r'^404$', views.NotFoundView.as_view(), name='404'),
     url(r'^500$', views.ErrorView.as_view(), name='500'),
 
