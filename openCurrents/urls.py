@@ -5,6 +5,7 @@ urlpatterns = [
     # template views
     url(r'^$', views.HomeView.as_view(), name='root'),
     url(r'^home/$', views.HomeView.as_view(), name='home'),
+    url(r'^home/(?P<referrer>[\w\.@\+\-]*)/(?P<f_name>.*)/$', views.HomeView.as_view(), name='home'),
     url(r'^home/(?P<referrer>[\w\.@\+\-]*)$', views.HomeView.as_view(), name='home'),
     url(r'^home/(?P<referrer>[\w\.@\+\-]*)/(?P<status_msg>.*)/$',
         views.HomeView.as_view(), name='home'),
@@ -67,14 +68,15 @@ urlpatterns = [
     url(r'^profile/(?P<status_msg>.*)/$', views.ProfileView.as_view(), name='profile'),
     url(r'^admin-profile$', views.AdminProfileView.as_view(), name='admin-profile'),
     url(r'^admin-profile/(?P<vols_approved>\d+)/(?P<vols_declined>\d+)/$', views.AdminProfileView.as_view(), name='admin-profile'),
+    url(r'^admin-profile/(?P<num_vols>\d+)/$', views.AdminProfileView.as_view(), name='admin-profile'),
     url(r'^edit-profile$', views.EditProfileView.as_view(), name='edit-profile'),
     url(r'^blog$', views.BlogView.as_view(), name='blog'),
     url(r'^marketplace$', views.MarketplaceView.as_view(), name='marketplace'),
     url(r'^edit-event/(?P<event_id>\d+)/$', views.EditEventView.as_view(), name='edit-event'),
-    url(r'^create-event/(?P<orgid>\d+)/$', views.CreateEventView.as_view(), name='create-event'),
+    url(r'^create-event/(?P<org_id>\d+)/$', views.CreateEventView.as_view(), name='create-event'),
     url(r'^project-details$', views.ProjectDetailsView.as_view(), name='project-details'),
     url(r'^invite-volunteers$', views.InviteVolunteersView.as_view(), name='invite-volunteers'),
-    url(r'^invite-volunteers/(?P<event_id>\d+)/$', views.InviteVolunteersView.as_view(), name='invite-volunteers'),
+    url(r'^invite-volunteers/(?P<event_id>[0-9a-z]+)/$', views.InviteVolunteersView.as_view(), name='invite-volunteers'),
     url(r'^volunteers-invited/(?P<vol_no>\d+)/$', views.VolunteersInvitedView.as_view(), name='volunteers-invited'),
     url(r'^event-created/(?P<project>\w+)/(?P<num_events>\d+)/$', views.EventCreatedView.as_view(), name='event-created'),
     url(r'^live-dashboard/(?P<event_id>\d+)/$',
@@ -85,7 +87,8 @@ urlpatterns = [
         views.RegistrationConfirmedView.as_view(), name='registration-confirmed'),
 
 
-    #temp 404 and 500 views
+    #temp 403, 404 and 500 views
+    url(r'^403$', views.ForbiddenView.as_view(), name='403'),
     url(r'^404$', views.NotFoundView.as_view(), name='404'),
     url(r'^500$', views.ErrorView.as_view(), name='500'),
 
