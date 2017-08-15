@@ -70,12 +70,12 @@
           <div id="benefits-div" class="row three-halves-margin-bottom">
             <div class="center medium-4 columns">
               <p class="one-margin-bottom grey">Easy hour tracking</p>
-              <input type="radio" id="benefit-btn-1" name="benefit-[]" value="" class="hidden styled-radio"/>
+              <input type="radio" id="benefit-btn-1" name="benefit-[]" value="" class="hidden styled-radio" checked />
                 <label for="benefit-btn-1" id="time-button" class="benefit-icon button"><i class="fa fa-2x fa-clock-o"></i></label>
             </div>
             <div class="center medium-4 columns">
               <p class="one-margin-bottom grey">Dedicated volunteers</p>
-              <input type="radio" id="benefit-btn-2" name="benefit-[]" value="" class="hidden styled-radio" checked />
+              <input type="radio" id="benefit-btn-2" name="benefit-[]" value="" class="hidden styled-radio" />
                 <label for="benefit-btn-2" id="vol-button" class="benefit-icon button"><i class="fa fa-2x fa-users"></i></label>
             </div>
 
@@ -87,9 +87,9 @@
           </div>
 
           <div id="benefit-box" class="row center">
-            <p id="benefit-1" class="benefit-info one-margin-top center hidden">Record and report volunteer activity seamlessly in one place. Check in volunteers at events with one click or approve hours submitted.</p>
+            <p id="benefit-1" class="benefit-info one-margin-top center">Record activity seamlessly in one place. Check in volunteers at events with one click or approve hours submitted. Alternatively, import hours from existing sources to reward your volunteers.</p>
 
-            <p id="benefit-2" class="benefit-info one-margin-top center">openCurrents enables social organizations to offer an incentive that attracts a whole new group of committed, quality volunteers.</p>
+            <p id="benefit-2" class="benefit-info one-margin-top center hidden">openCurrents enables social organizations to offer an incentive that attracts a whole new group of committed, quality volunteers.</p>
 
             <p id="benefit-3" class="benefit-info one-margin-top center hidden">Volunteers can choose to "give twice" by donating the value of Currents back to organizations.</p>
           </div>
@@ -98,17 +98,17 @@
         <div class="row show-for-small-only">
           <div class="small-12 small-centered columns">
             <div class="icon-box center">
-              <input type="radio" id="benefit-sm-1" name="benefit-sm-[]" value="" class="hidden styled-radio" checked/>
-                <label for="benefit-sm-1" id="vol-button" class="benefit-icon button"><i class="fa fa-2x fa-users"></i></label>
-              <p class="grey half-margin-bottom large-text">Dedicated volunteers</p>
-              <p class="benefits-detail">openCurrents enables social organizations to offer an incentive that attracts a whole new group of committed, quality volunteers.</p>
-            </div>
-
-            <div class="icon-box center">
-              <input type="radio" id="benefit-sm-2" name="benefit-sm-[]" value="" class="hidden styled-radio"/>
+              <input type="radio" id="benefit-sm-2" name="benefit-sm-[]" value="" class="hidden styled-radio" checked />
                 <label for="benefit-sm-2" id="time-button" class="benefit-icon button"><i class="fa fa-2x fa-clock-o"></i></label>
               <p class="grey half-margin-bottom large-text">Easy hour tracking</p>
               <p class="benefits-detail hidden">Record and report volunteer activity seamlessly in one place. Check in volunteers at events with one click or approve hours submitted.</p>
+            </div>
+
+            <div class="icon-box center">
+              <input type="radio" id="benefit-sm-1" name="benefit-sm-[]" value="" class="hidden styled-radio" />
+                <label for="benefit-sm-1" id="vol-button" class="benefit-icon button"><i class="fa fa-2x fa-users"></i></label>
+              <p class="grey half-margin-bottom large-text">Dedicated volunteers</p>
+              <p class="benefits-detail">openCurrents enables social organizations to offer an incentive that attracts a whole new group of committed, quality volunteers.</p>
             </div>
 
             <div class="icon-box center">
@@ -116,6 +116,22 @@
                 <label for="benefit-sm-3" id="org-button" class="benefit-icon button"><i class="fa fa-2x fa-money"></i></label>
               <p class="grey half-margin-bottom large-text">Fundraising opportunities</p>
               <p class="benefits-detail hidden">Volunteers can choose to "give twice" by donating the value of Currents back to organizations.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="row center two-margin-top two-margin-bottom">
+          <div class="small-10 medium-9 small-centered columns">
+            <div class="medium-5 columns one-margin-bottom">
+              <p class="half-margin-bottom"><strong>Easy event check-in</strong></p>
+              <img src="{% static 'img/check-in.png' %}" />
+            </div>
+
+            <div class="medium-2 columns half-margin-bottom">or</div>
+
+            <div class="medium-5 columns">
+              <p class="half-margin-bottom"><strong>Approve hours</strong></p>
+              <img src="{% static 'img/approve-hours.png' %}" />
             </div>
           </div>
         </div>
