@@ -249,6 +249,12 @@
           // autocomplete.inputId = inputs[i].id;
 
           google.maps.event.addListener(autocomplete);
+
+          google.maps.event.addDomListener(inputs[i], 'keydown', function(e) { 
+              if (e.keyCode == 13 && $('.pac-container:visible').length) { 
+                  e.preventDefault(); 
+              }
+          }); 
         }
       }
 
@@ -267,14 +273,14 @@
           </div>'
         );
         $('#location-'+id+'').slideDown();
-        initAutoComplete()
+        initAutoComplete();
       });
 
       $('#location-box').on('click', 'i', function(){
         $(this).parent('div').slideUp(function(){
           $(this).remove();
         });
-        // $(this).parent('div').find('input').val('');
+        
       });
 
       $(document).ready(function(){
