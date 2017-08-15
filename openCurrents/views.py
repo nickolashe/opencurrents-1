@@ -1674,21 +1674,15 @@ def process_signup(request, referrer=None, endpoint=False, verify_email=True):
         # try saving the user without password at this point
         user = None
         try:
-            user = User.objects.get(email=user_email)
-            if not user:
-                user = User(
-                    username=user_email,
-                    email=user_email,
-                    first_name=user_firstname,
-                    last_name=user_lastname
-                )
-                user.save()
-            elif user.has_usable_password():
-                logger.info('user %s already verified', user_email)
-                return redirect(
-                    'openCurrents:login',
-                    status_msg='User with this email already exists'
-                )
+            
+            user = User(
+                username=user_email,
+                email=user_email,
+                first_name=user_firstname,
+                last_name=user_lastname
+            )
+            user.save()
+                
         except IntegrityError:
             logger.info('user %s already exists', user_email)
 
