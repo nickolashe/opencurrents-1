@@ -884,6 +884,14 @@ class EditEventView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
         context['date_start'] = str(event.datetime_start.date())
         return context
 
+    def dispatch(self, request, *args, **kwargs):
+        event_id = kwargs.get('event_id')
+        event = Event.objects.get(id=event_id)
+        if timezone.now() > event.datetime_end:
+            return redirect('openCurrents:admin-profile')
+        else:
+            return super(EditEventView, self).dispatch(request, *args, **kwargs)
+
     def post(self, request, **kwargs):
         #POST the modified data by the user to the models
         post_data = self.request.POST
@@ -1248,7 +1256,7 @@ class EventDetailView(LoginRequiredMixin, SessionContextView, DetailView):
     def get_context_data(self, **kwargs):
         context = super(EventDetailView, self).get_context_data(**kwargs)
         context['form'] = EventRegisterForm()
-        
+
         # check if registered for the event
         is_registered = UserEventRegistration.objects.filter(user__id=self.request.user.id, event__id=context['event'].id, is_confirmed=True).exists()
     
