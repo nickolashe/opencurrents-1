@@ -49,7 +49,6 @@ class OrgUser(models.Model):
     user = models.ForeignKey(User)
     org = models.ForeignKey(Org)
     affiliation = models.CharField(max_length=50, null=True)
-    approved = models.BooleanField(default=False)
 
     # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)
@@ -57,9 +56,6 @@ class OrgUser(models.Model):
 
     class Meta:
         unique_together = ('user', 'org')
-        permissions = (
-            ('admin', 'User is org admin'),
-        )
 
     def __unicode__(self):
         return ' '.join([

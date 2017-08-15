@@ -50,7 +50,7 @@
             {% if user_time_log_status %}
               <a href="{% url 'openCurrents:approve-hours' %}" class="button round tiny">Approve hours</a>
             {% else %}
-              <a href="{% url 'openCurrents:create-event' orgid %}" class="button round tiny">Create event</a>
+              <a href="{% url 'openCurrents:create-event' org_id %}" class="button round tiny">Create event</a>
             {% endif %}
           </div>
         </div>
@@ -258,7 +258,7 @@
     <script type="text/javascript">
       {% if forbidden %}
         window.location.href = "{% url 'openCurrents:403' %}";
-      {% endif %} 
+      {% endif %}
     </script>
 
 

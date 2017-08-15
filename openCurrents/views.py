@@ -15,6 +15,8 @@ from django.template.context_processors import csrf
 from datetime import datetime, time, date
 from collections import OrderedDict
 from copy import deepcopy
+
+
 import math
 import re
 
@@ -88,9 +90,50 @@ class SessionContextView(View):
         if userorgs:
             org = userorgs[0].org
             context['orgid'] = org.id
+            context['org_id'] = org.id
 
         return context
 
+class OrgAdminPermissionMixin(LoginRequiredMixin):
+    def dispatch(self, request, *args, **kwargs):
+        user = request.user
+
+        # check if the user is logged in
+        if not user.is_authenticated():
+            return self.handle_no_permission(request)
+
+        # try to obtain user => org mapping
+        org_id = None
+        userorgs = OrgUser.objects.filter(user__id=user.id)
+        if userorgs:
+            org_id = userorgs[0].org.id
+
+        try:
+            event_id = kwargs.pop('event_id')
+            event = Event.objects.get(id=event_id)
+            org_id = event.project.org.id
+        except KeyError, Event.DoesNotExist:
+            pass
+
+        logger.debug('authorize request for org id %d', org_id)
+        org_admin_group_name = '_'.join(['admin', str(org_id)])
+
+        # group is supposed to exist at this point
+        try:
+            org_admin_group = Group.objects.get(name=org_admin_group_name)
+        except Group.DoesNotExist:
+            logger.error("org exists without an admin group")
+            return redirect('openCurrents:500')
+
+        # check if user is in org admin group
+        if not org_admin_group.user_set.filter(id=user.id):
+            logger.warning("insufficient permission for user %s", user.username)
+            return redirect('openCurrents:403')
+
+        # user has sufficient permissions
+        return super(OrgAdminPermissionMixin, self).dispatch(
+            request, *args, **kwargs
+        )
 
 class HomeView(SessionContextView, TemplateView):
     template_name = 'home.html'
@@ -146,7 +189,7 @@ class InviteFriendsView(LoginRequiredMixin, SessionContextView, TemplateView):
 
         return context
 
-class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
+class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
     template_name = 'approve-hours.html'
     context_object_name = 'week'
 
@@ -176,7 +219,7 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
         # return nothing if unverified time logs not found
         if not timelogs:
             return week
-        
+
         # find monday before oldest unverified time log
         oldest_timelog = timelogs.order_by('datetime_start')[0]
         week_startdate = oldest_timelog.datetime_start
@@ -198,13 +241,13 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
                 k += 1
             else:
                 k=5
-        
+
 
         time_log = OrderedDict()
         items = {'Total': 0}
 
         for timelog in eventtimelogs:
-            user_email = timelog.user.email 
+            user_email = timelog.user.email
             name = User.objects.get(username = user_email).first_name +" "+User.objects.get(username = user_email).last_name
 
             # check if same day and duration longer than 15 min
@@ -254,7 +297,7 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
             time_log_week[week_startdate_monday] = time_log
             week.append(time_log_week)
 
- 
+
         logger.info('%s',week)
         return week
 
@@ -275,7 +318,7 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
         eventtimelogs = UserTimeLog.objects.filter(
             event__in=events
         ).filter(
-            datetime_start__lt=week_startdate_monday + timedelta(days=7) 
+            datetime_start__lt=week_startdate_monday + timedelta(days=7)
         ).filter(
             datetime_start__gte=week_startdate_monday
         ).filter(
@@ -315,8 +358,8 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
                 #split the data for user, flag, and date info
                 user = User.objects.get(username=i.split(':')[0])
                 week_date = datetime.strptime( i.split(':')[2], '%m-%d-%Y')
-                
-                #build manual tracking filter, currently only accessible by OrgUser...  
+
+                #build manual tracking filter, currently only accessible by OrgUser...
                 # userid = user.id
                 # org = OrgUser.objects.filter(user__id=userid)#queryset of Orgs
                 # for j in org:
@@ -393,7 +436,7 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
         )
         if not timelogs:
             return redirect('openCurrents:admin-profile')
-                
+
         return redirect('openCurrents:approve-hours')
         #templist[:] = [item.split(':')[0] for item in templist if item != '' and item.split(':')[1]!='0']
         # try:
@@ -625,35 +668,8 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         return context
 
 
-class AdminProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
+class AdminProfileView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
     template_name = 'admin-profile.html'
-
-    ##check that user is part of org_admins group
-    #def get(self, request, *args, **kwargs):
-    #    context = super(AdminProfileView, self).get_context_data(**kwargs)
-    #    orgid = context['orgid']
-   
-    #    userid = self.request.user.id
-    #    user = User.objects.get(id=userid)
-    #    org_admins_name = 'admin_' + str(orgid)
-    #    logger.info('org_admins_name: %s',org_admins_name)
-
-    #    try:
-    #        org_admins = Group.objects.get(name=org_admins_name)
-    #    except:
-    #        logger.error("Org exists without an org_admins group.")
-    #        return redirect('openCurrents:500')
-
-    #    if org_admins and not user.groups.filter(name=org_admins_name).exists():
-    #        logger.error("org admins group exists and user is not part of it.")
-    #        return redirect('openCurrents:403')
-    #    else:
-    #        return render(
-    #            request,
-    #            'admin-profile.html',
-    #            context
-    #        )
-
 
     def get_context_data(self, **kwargs):
         context = super(AdminProfileView, self).get_context_data(**kwargs)
@@ -663,19 +679,6 @@ class AdminProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         context['timezone'] = org.timezone
         userid = self.request.user.id
         user = User.objects.get(id=userid)
-
-        try:
-            org_admins = Group.objects.get(name='admin_'+str(orgid))
-        except:
-            logger.error("Org exists without an org_admins group.")
-    #       return redirect('openCurrents:500')
-        
-        if org_admins and not user.groups.filter(name='admin_'+str(orgid)).exists():
-            logger.error("org admins group exists and user is not part of it.")
-            context['forbidden'] = True
-        else:
-            context['forbidden'] = False
-            
 
         verified_time = UserTimeLog.objects.filter(
             event__project__org__id=orgid
@@ -790,7 +793,7 @@ class CreateEventView(LoginRequiredMixin, SessionContextView, FormView):
         context = super(CreateEventView, self).get_context_data()
 
         # obtain orgid from the session context (provided by SessionContextView)
-        orgid = context['orgid']
+        orgid = context['org_id']
         self.orgid = orgid
 
         projects = Project.objects.filter(
@@ -839,7 +842,7 @@ class CreateEventView(LoginRequiredMixin, SessionContextView, FormView):
         Returns the keyword arguments for instantiating the form.
         """
         kwargs = super(CreateEventView, self).get_form_kwargs()
-        kwargs.update({'orgid': self.kwargs['orgid']})
+        kwargs.update({'orgid': self.kwargs['org_id']})
         return kwargs
 
 
@@ -979,7 +982,7 @@ class ProjectDetailsView(TemplateView):
     template_name = 'project-details.html'
 
 
-class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView):
+class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
     template_name = 'invite-volunteers.html'
 
     def post(self, request, *args, **kwargs):
@@ -1282,7 +1285,7 @@ def event_checkin(request, pk):
                     datetime_start=datetime.now(tz=pytz.UTC)
                 )
                 usertimelog.save()
-    
+
 
             return HttpResponse(status=201)
         else:
@@ -1639,7 +1642,7 @@ def process_signup(request, referrer=None, endpoint=False, verify_email=True):
             try:
                 org = Org(name=org_name)
                 org.save()
-  
+
                 # Create and save a new group for admins of new org
                 new_org_admins_group(org.id)
 
@@ -2070,7 +2073,7 @@ def process_org_signup(request):
             mission=form_data['org_mission'],
             reason=form_data['org_reason']
         )
-   
+
         # if website was not left blank, check it's not already in use
         if form_data['org_website'] != '' and Org.objects.filter(website=form_data['org_website']).exists():
             return redirect('openCurrents:org-signup', status_msg='The website provided is already in use by another organization.')
