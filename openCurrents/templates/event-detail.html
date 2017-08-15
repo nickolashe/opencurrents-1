@@ -60,7 +60,7 @@
               <h6 class="navy no-margin-bottom">
                 {% if coordinator %}
                   <h6 class="navy"> Contact Registered  Volunteers </h6>
-                  <p class="small-text grey no-margin-bottom"> See Registraints PLACEHOLDER TEXT </p>
+                  <button class="registraints-box_open button round small">See Registraints</button>
                 {% else %}
                   {{ form.contact_message.label }}
                 {% endif %}
@@ -97,6 +97,14 @@
 
     <div id="bottom-stripe" class="full-width"></div>
 
+    <div id="registraints-box" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h2 class="one-margin-top no-margin-bottom">List of confirmed registraints:</h2>
+        {{registraints}}
+      </div>
+    </div>
+
+
     <div off-canvas="menu right shift" id="menu">
       {% include "menu.html" %}
     </div>
@@ -125,6 +133,13 @@
           transition: 'all 0.75s',
           scrolllock: true,
         });
+
+        $('#registraints-box').popup({
+          vertical: 'top',
+          transition: 'all 0.75s',
+          scrolllock: false,
+        });
+
       });
     </script>
 

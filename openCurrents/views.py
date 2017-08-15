@@ -1278,8 +1278,21 @@ class EventDetailView(LoginRequiredMixin, SessionContextView, DetailView):
         context['registered'] = is_registered
         context['admin'] = is_admin
         context['coordinator'] = is_coord
-
+ 
+        # list of confirmed registered users 
+        context['registraints'] = ''
+        if(is_coord):
+            reg_list_uniques = []
+            reg_list = UserEventRegistration.objects.filter(event__id=context['event'].id, is_confirmed=True)
+            
+            for reg in reg_list: 
+                if(reg.user.email not in reg_list_uniques):
+                    reg_list_uniques.append(str(reg.user.email))
+                 
+            context['registraints'] = reg_list_uniques
+ 
         return context
+
 
 
 class LiveDashboardView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
