@@ -105,12 +105,19 @@ class OrgAdminPermissionMixin(LoginRequiredMixin):
 
         # try to obtain user => org mapping
         org_id = None
-        userorgs = OrgUser.objects.filter(user__id=user.id)
-        if userorgs:
-            org_id = userorgs[0].org.id
+        try:
+            org_id = kwargs['org_id']
+        except KeyError:
+            userorgs = OrgUser.objects.filter(user__id=user.id)
+            if userorgs:
+                org_id = userorgs[0].org.id
+
+        if org_id is None:
+            logger.error('user %d with no org', user.id)
+            return redirect('openCurrents:500')
 
         try:
-            event_id = kwargs.pop('event_id')
+            event_id = kwargs['event_id']
             event = Event.objects.get(id=event_id)
             org_id = event.project.org.id
         except KeyError, Event.DoesNotExist:
@@ -773,7 +780,7 @@ class BlogView(TemplateView):
     template_name = 'Blog.html'
 
 
-class CreateEventView(LoginRequiredMixin, SessionContextView, FormView):
+class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
     template_name = 'create-event.html'
     form_class = ProjectCreateForm
     #success_url = '/invite-volunteers/'
@@ -862,7 +869,7 @@ class CreateEventView(LoginRequiredMixin, SessionContextView, FormView):
         return kwargs
 
 
-class EditEventView(LoginRequiredMixin, SessionContextView, TemplateView):
+class EditEventView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
     template_name = 'edit-event.html'
 
     def get_context_data(self, **kwargs):
@@ -1245,7 +1252,7 @@ class EventDetailView(LoginRequiredMixin, SessionContextView, DetailView):
         return context
 
 
-class LiveDashboardView(LoginRequiredMixin, SessionContextView, TemplateView):
+class LiveDashboardView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
     template_name = 'live-dashboard.html'
 
     def get_context_data(self, **kwargs):
