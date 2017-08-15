@@ -60,7 +60,7 @@
               <h6 class="navy no-margin-bottom">
                 {% if coordinator %}
                   <h6 class="navy"> Contact Registered  Volunteers </h6>
-                  <button class="registraints-box_open button round small">See Registraints</button>
+                  <button class="registrants-box_open button round small">See Registrants</button>
                 {% else %}
                   {{ form.contact_message.label }}
                 {% endif %}
@@ -97,10 +97,10 @@
 
     <div id="bottom-stripe" class="full-width"></div>
 
-    <div id="registraints-box" class="modal center small-12 medium-9 large-7 small-centered columns">
+    <div id="registrants-box" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
-        <h2 class="one-margin-top no-margin-bottom">List of confirmed registraints:</h2>
-        {{registraints}}
+        <h2 class="one-margin-top no-margin-bottom">List of confirmed registrants:</h2>
+        {{registrants}}
       </div>
     </div>
 
@@ -134,7 +134,7 @@
           scrolllock: true,
         });
 
-        $('#registraints-box').popup({
+        $('#registrants-box').popup({
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: false,

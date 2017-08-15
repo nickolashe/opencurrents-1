@@ -1280,7 +1280,7 @@ class EventDetailView(LoginRequiredMixin, SessionContextView, DetailView):
         context['coordinator'] = is_coord
  
         # list of confirmed registered users 
-        context['registraints'] = ''
+        context['registrants'] = ''
         if(is_coord):
             reg_list_uniques = []
             reg_list = UserEventRegistration.objects.filter(event__id=context['event'].id, is_confirmed=True)
@@ -1289,7 +1289,7 @@ class EventDetailView(LoginRequiredMixin, SessionContextView, DetailView):
                 if(reg.user.email not in reg_list_uniques):
                     reg_list_uniques.append(str(reg.user.email))
                  
-            context['registraints'] = reg_list_uniques
+            context['registrants'] = reg_list_uniques
  
         return context
 
