@@ -145,6 +145,11 @@ class Event(models.Model):
     # coordinator contact info
     coordinator_firstname = models.CharField(max_length=128)
     coordinator_email = models.EmailField()
+    
+    # event creator userid and notification flag
+    creator_id = models.IntegerField(default=0)
+    notified = models.BooleanField(default=False)
+
     MANUAL = 'MN'
     GROUP = 'GR'
     event_type_choices = (
