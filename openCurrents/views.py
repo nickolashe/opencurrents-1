@@ -101,7 +101,7 @@ class OrgAdminPermissionMixin(LoginRequiredMixin):
 
         # check if the user is logged in
         if not user.is_authenticated():
-            return self.handle_no_permission(request)
+            return self.handle_no_permission()
 
         # try to obtain user => org mapping
         org_id = None
