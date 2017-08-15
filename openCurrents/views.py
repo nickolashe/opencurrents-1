@@ -1248,6 +1248,28 @@ class EventDetailView(LoginRequiredMixin, SessionContextView, DetailView):
     def get_context_data(self, **kwargs):
         context = super(EventDetailView, self).get_context_data(**kwargs)
         context['form'] = EventRegisterForm()
+        
+        # check if registered for the event
+        is_registered = UserEventRegistration.objects.filter(user__id=self.request.user.id, event__id=context['event'].id, is_confirmed=True).exists()
+    
+        # check if admin for the event's org
+        org_admin_group_name = '_'.join(['admin', str(context['event'].project.org.id)])
+
+        # group is supposed to exist at this point
+        try:
+            org_admin_group = Group.objects.get(name=org_admin_group_name)
+        except Group.DoesNotExist:
+            logger.error("org exists without an admin group")
+            return redirect('openCurrents:500')
+
+        is_admin = org_admin_group.user_set.filter(id=self.request.user.id).exists()
+
+        # check if event coordinator
+        is_coord = Event.objects.filter(id=context['event'].id,coordinator_email=self.request.user).exists()
+
+        context['registered'] = is_registered
+        context['admin'] = is_admin
+        context['coordinator'] = is_coord
 
         return context
 

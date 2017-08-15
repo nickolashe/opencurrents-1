@@ -58,11 +58,19 @@
           <div class="three-halves-margin-top row left">
             <div class="small-10 medium-6 small-centered columns">
               <h6 class="navy no-margin-bottom">
-                {{ form.contact_message.label }}
+                {% if coordinator %}
+                  <h6 class="navy"> Contact Registered  Volunteers </h6>
+                  <p class="small-text grey no-margin-bottom"> See Registraints PLACEHOLDER TEXT </p>
+                {% else %}
+                  {{ form.contact_message.label }}
+                {% endif %}
+
               </h6>
               {% if form.contact_message.help_text %}
                 <p class="small-text grey no-margin-bottom">
-                  ({{ form.contact_message.help_text|safe }})
+                  {% if not coordinator %}
+                    ({{ form.contact_message.help_text|safe }})
+                  {% endif %}
                 </p>
               {% endif %}
               {{ form.contact_message }}
@@ -70,7 +78,11 @@
           </div>
 
           <div class="three-halves-margin-top center">
-            <button type='submit' class="button round">Register</button>
+            {% if coordinator or admin or registered%}
+              <button type='submit' class="button round">Message</button>
+            {% else %}
+              <button type='submit' class="button round">Register</button>
+            {% endif %}
           </div>
 
           <div id="push"></div>
