@@ -799,7 +799,11 @@ class EditEventView(LoginRequiredMixin, SessionContextView, TemplateView):
         #get the event id from admin-profile page and fetch the data need for the UI
         context = super(EditEventView, self).get_context_data(**kwargs)
         # event
-        tz = OrgUser.objects.get(user__id=self.request.user.id).org.timezone
+        org_user = OrgUser.objects.filter(user__id=self.request.user.id)
+        if org_user:
+            tz = org_user[0].org.timezone
+        else:
+            tz = "America/Chicago"
         event_id = kwargs.pop('event_id')
         event = Event.objects.get(id=event_id)
         context['event'] = event
@@ -895,8 +899,11 @@ class EditEventView(LoginRequiredMixin, SessionContextView, TemplateView):
                         type(e)
                     )
                     return redirect('openCurrents:500')
-            tz = OrgUser.objects.get(user__id=self.request.user.id).org.timezone
-
+            org_user = OrgUser.objects.filter(user__id=self.request.user.id)
+            if org_user:
+                tz = org_user[0].org.timezone
+            else:
+                tz = "America/Chicago"
             edit_event.description = str(post_data['project-description'])
             edit_event.location = str(post_data['project-location-1'])
             edit_event.coordinator_firstname = str(post_data['coordinator-name'])
