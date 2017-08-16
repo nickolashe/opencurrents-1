@@ -78,9 +78,9 @@ class SessionContextView(View):
         context = super(SessionContextView, self).get_context_data(**kwargs)
         userid = self.request.user.id
         org = None
-        userorgs = OrgUser.objects.filter(user__id=userid)
+        userorgs = OrgUserInformation().get_org_user(self.request.user.id)
         if userorgs:
-            org = userorgs[0].org
+            org = OrgUserInformation().get_user_org(self.request.user.id)
             context['orgid'] = org.id
 
         return context
@@ -144,9 +144,9 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
     def get_queryset(self):
         userid = self.request.user.id
         #user = User.objects.get(id=userid)
-        org = OrgUser.objects.filter(user__id=userid)
+        org = OrgUserInformation().get_org_user(self.request.user.id)
         if org:
-            orgid = org[0].org.id
+            orgid = OrgUserInformation().get_user_org(self.request.user.id).id
         projects = Project.objects.filter(org__id=orgid)
         events = Event.objects.filter(
             project__in=projects
@@ -252,9 +252,9 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
     def defer_month(self, week_startdate_monday, today):
         # build one weeks worth of timelogs starting from the oldest monday
         userid = self.request.user.id
-        org = OrgUser.objects.filter(user__id=userid)
+        org = OrgUserInformation().get_org_user(self.request.user.id)
         if org:
-            orgid = org[0].org.id
+            orgid = OrgUserInformation().get_user_org(self.request.user.id).id
         projects = Project.objects.filter(org__id=orgid)
         events = Event.objects.filter(
             project__in=projects
@@ -290,9 +290,9 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
         templist = post_data.split(',')#eg list: ['a@bc.com:1:7-20-2017','abc@gmail.com:0:7-22-2017',''...]
         projects = []
         userid = self.request.user.id
-        org = OrgUser.objects.filter(user__id=userid)
+        org = OrgUserInformation().get_org_user(self.request.user.id)
         if org:
-            orgid = org[0].org.id
+            orgid = OrgUserInformation().get_user_org(self.request.user.id).id
         for i in templist:
             """
             eg for i:
@@ -366,9 +366,9 @@ class ApproveHoursView(LoginRequiredMixin, SessionContextView, ListView):
                             )
                         defer_user_time.save()
 
-        org = OrgUser.objects.filter(user__id=userid)
+        org = OrgUserInformation().get_org_user(self.request.user.id)
         if org:
-            orgid = org[0].org.id
+            orgid = OrgUserInformation().get_user_org(self.request.user.id).id
         projects = Project.objects.filter(org__id=orgid)
         events = Event.objects.filter(
             project__in=projects
@@ -449,6 +449,18 @@ class OfferView(TemplateView):
 class OrgHomeView(TemplateView):
     template_name = 'org-home.html'
 
+class OrgUserInformation():
+    def get_org_user(self, userid):
+        org_user = OrgUser.objects.filter(user__id=userid)
+        return org_user
+
+    def get_user_org(self, userid):
+        org_user = OrgUser.objects.filter(user__id=userid)
+        return org_user[0].org
+
+    def get_user_org_timezone(self, userid):
+        org_user = OrgUser.objects.filter(user__id=userid)
+        return org_user[0].org.timezone
 
 class OrgSignupView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'org-signup.html'
@@ -678,9 +690,9 @@ class AdminProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
 
         userid = self.request.user.id
         #user = User.objects.get(id=userid)
-        org = OrgUser.objects.filter(user__id=userid)
+        org = OrgUserInformation().get_org_user(self.request.user.id)
         if org:
-            orgid = org[0].org.id
+            orgid = OrgUserInformation().get_user_org(self.request.user.id).id
         projects = Project.objects.filter(org__id=orgid)
         events = Event.objects.filter(
             project__in=projects
@@ -799,9 +811,10 @@ class EditEventView(LoginRequiredMixin, SessionContextView, TemplateView):
         #get the event id from admin-profile page and fetch the data need for the UI
         context = super(EditEventView, self).get_context_data(**kwargs)
         # event
-        org_user = OrgUser.objects.filter(user__id=self.request.user.id)
+        
+        org_user = OrgUserInformation().get_org_user(self.request.user.id)
         if org_user:
-            tz = org_user[0].org.timezone
+            tz = OrgUserInformation().get_user_org_timezone(self.request.user.id)
         else:
             tz = "America/Chicago"
         event_id = kwargs.pop('event_id')
@@ -899,9 +912,9 @@ class EditEventView(LoginRequiredMixin, SessionContextView, TemplateView):
                         type(e)
                     )
                     return redirect('openCurrents:500')
-            org_user = OrgUser.objects.filter(user__id=self.request.user.id)
+            org_user = OrgUserInformation().get_org_user(self.request.user.id)
             if org_user:
-                tz = org_user[0].org.timezone
+                tz = OrgUserInformation().get_user_org_timezone(self.request.user.id)
             else:
                 tz = "America/Chicago"
             edit_event.description = str(post_data['project-description'])
@@ -953,9 +966,9 @@ class InviteVolunteersView(LoginRequiredMixin, SessionContextView, TemplateView)
 
         k = []
 
-        OrgUsers = OrgUser.objects.filter(user__id=userid)
+        OrgUsers = OrgUserInformation().get_org_user(self.request.user.id)
         if OrgUsers:
-            Organisation = OrgUsers[0].org.name
+            Organisation = OrgUserInformation().get_user_org(self.request.user.id).name
         if post_data['bulk-vol'].encode('ascii','ignore') == '':
             no_of_loops = int(post_data['count-vol'])
         else:
