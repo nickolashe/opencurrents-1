@@ -59,6 +59,7 @@ urlpatterns = [
     url(r'^user-home/(?P<status_msg>.*)/$', views.UserHomeView.as_view(), name='user-home'),
     url(r'^verify-identity$', views.VerifyIdentityView.as_view(), name='verify-identity'),
     url(r'^time-tracker$', views.TimeTrackerView.as_view(), name='time-tracker'),
+    url(r'^time-tracker/(?P<status_msg>.*)/$', views.TimeTrackerView.as_view(), name='time-tracker'),
     url(r'^time-tracked$', views.TimeTrackedView.as_view(), name='time-tracked'),
     url(r'^volunteering$', views.VolunteeringView.as_view(), name='volunteering'),
     url(r'^volunteer-requests$', views.VolunteerRequestsView.as_view(), name='volunteer-requests'),
