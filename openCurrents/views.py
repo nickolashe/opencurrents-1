@@ -435,6 +435,7 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
             event_type='MN'
         )
 
+
         # gather unverified time logs
         timelogs = UserTimeLog.objects.filter(
             event__in=events
@@ -837,12 +838,19 @@ class AdminProfileView(OrgAdminPermissionMixin, SessionContextView, TemplateView
             event_type='MN'
         )
 
+        get_defer_times = DeferredUserTime.objects.filter(user__id=userid)
+        exclude_usertimelog = []
         # gather unverified time logs
         timelogs = UserTimeLog.objects.filter(
             event__in=events
         ).filter(
             is_verified=False
         )
+        for g_d_t in get_defer_times:
+            if g_d_t.usertimelog in timelogs:
+                #eventtimelogs = eventtimelogs.filter(~Q(event=g_d_t.usertimelog.event))
+                exclude_usertimelog.append(g_d_t.usertimelog.event)
+        timelogs = timelogs.exclude(event__in=exclude_usertimelog)
 
         context['user_time_log_status'] = timelogs
 
@@ -1929,11 +1937,37 @@ def process_login(request):
             password=user_password
         )
         if user is not None and user.is_active:
-            today = date.today()
-            if (user.last_login.date())< today - timedelta(days=today.weekday()):
-                app_hr = '1'
-            else:
-                app_hr = '0'
+            userid = user.id
+            #user = User.objects.get(id=userid)
+            org = OrgUser.objects.filter(user__id=userid)
+            app_hr = '0'
+            if org:
+                orgid = org[0].org.id
+                projects = Project.objects.filter(org__id=orgid)
+                events = Event.objects.filter(
+                    project__in=projects
+                ).filter(
+                    event_type='MN'
+                )
+
+                get_defer_times = DeferredUserTime.objects.filter(user__id=userid)
+                exclude_usertimelog = []
+                # gather unverified time logs
+                timelogs = UserTimeLog.objects.filter(
+                    event__in=events
+                ).filter(
+                    is_verified=False
+                )
+                for g_d_t in get_defer_times:
+                    if g_d_t.usertimelog in timelogs:
+                        #eventtimelogs = eventtimelogs.filter(~Q(event=g_d_t.usertimelog.event))
+                        exclude_usertimelog.append(g_d_t.usertimelog.event)
+                timelogs = timelogs.exclude(event__in=exclude_usertimelog)
+                today = date.today()
+                if ((user.last_login.date())< today - timedelta(days=today.weekday()) and timelogs):
+                    app_hr = '1'
+                else:
+                    app_hr = '0'
             login(request, user)
             return redirect('openCurrents:profile', app_hr)
         else:
