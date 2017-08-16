@@ -26,7 +26,7 @@ def diffInHours(t1, t2):
 
 class Org(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    website = models.CharField(max_length=100, unique=True, null=True)
+    website = models.CharField(max_length=100, null=True, blank=True)
     status = models.CharField(max_length=50, null=True)
     mission = models.CharField(max_length=4096, null=True)
     reason = models.CharField(max_length=4096, null=True)
@@ -215,7 +215,7 @@ class UserEventRegistration(models.Model):
 class UserTimeLog(models.Model):
     user = models.ForeignKey(User)
     event = models.ForeignKey(Event)
-    is_verified = models.BooleanField(default=True)
+    is_verified = models.BooleanField(default=False)
 
     # start / end timestamps of the contributed time
     datetime_start = models.DateTimeField('start time')

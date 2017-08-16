@@ -124,7 +124,7 @@ class PasswordResetForm(forms.Form):
 
 class OrgSignupForm(forms.Form):
     org_name = forms.CharField(min_length=1)
-    org_website = forms.CharField(min_length=1)
+    org_website = forms.CharField(min_length=1,required=False)
     user_affiliation = forms.ChoiceField(
         choices=[
             ('employee', 'employee'),
@@ -227,16 +227,24 @@ class ProjectCreateForm(forms.Form):
         time_end = cleaned_data['time_end']
         tz = self.org.timezone
 
-        datetime_start = datetime.strptime(
-            ' '.join([date_start, time_start]),
-            '%Y-%m-%d %I:%M%p'
-        )
-        cleaned_data['datetime_start'] = pytz.timezone(tz).localize(datetime_start)
+        try:
+            datetime_start = datetime.strptime(
+                ' '.join([date_start, time_start]),
+                '%Y-%m-%d %I:%M%p'
+            )
+        except:
+            raise ValidationError(_('Bad date/start time format entered.'))
+     
 
-        datetime_end = datetime.strptime(
-            ' '.join([date_start, time_end]),
-            '%Y-%m-%d %I:%M%p'
-        )
+        try:
+            datetime_end = datetime.strptime(
+                ' '.join([date_start, time_end]),
+                '%Y-%m-%d %I:%M%p'
+            )
+        except:
+            raise ValidationError(_('Bad end time format entered.'))
+
+        cleaned_data['datetime_start'] = pytz.timezone(tz).localize(datetime_start)
         cleaned_data['datetime_end'] = pytz.timezone(tz).localize(datetime_end)
 
         if cleaned_data['datetime_start'] > cleaned_data['datetime_end']:
