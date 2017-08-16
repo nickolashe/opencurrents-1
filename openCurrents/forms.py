@@ -100,29 +100,29 @@ def validate_password_strength(new_password, new_password_confirm):
         min_length = 8
 
         if new_password and new_password_confirm and new_password != new_password_confirm:
-            raise ValidationError(_('Passwords don\'t match'))
+            raise ValidationError(_('Passwords don\'t match. Please check again.'))
 
         #check for minimum length
         if len(new_password) < min_length:
-            raise ValidationError(_('Password must be at least {0} characters '
+            raise ValidationError(_('Please make sure that the password has at least {0} characters '
                                     'long.').format(min_length))
 
         # check for digit
         if not any(char.isdigit() for char in new_password):
-            raise ValidationError(_('Password must contain at least 1 digit.'))
+            raise ValidationError(_('Please make sure that the password contains at least 1 digit.'))
 
         # check for letter
         if not any(char.isalpha() for char in new_password):
-            raise ValidationError(_('Password must contain at least 1 letter.'))
+            raise ValidationError(_('Please make sure that the password contains at least 1 letter.'))
 
         #check for special character
         specialChars = set(string.punctuation.replace("_", ""))
         if not any(char in specialChars for char in new_password):
-            raise ValidationError(_('Password must contain at least 1 special character.'))
+            raise ValidationError(_('Please make sure that the password contains at least 1 special character.'))
 
         #check for atleast 1 uppercase chanracter
         if not any(char.isupper() for char in new_password):
-            raise ValidationError(_('Password must contain at least 1 uppercase character.'))
+            raise ValidationError(_('Please make sure that the password contains at least 1 uppercase character.'))
 
 class EmailVerificationForm(forms.Form):
     user_password = forms.CharField(min_length=8)
@@ -136,7 +136,7 @@ class EmailVerificationForm(forms.Form):
         # check if passwords match
         user_password = cleaned_data.get('user_password')
         user_password_confirm = cleaned_data.get('user_password_confirm')
-        validate_password_strength(str(new_password), str(new_password_confirm))
+        validate_password_strength(str(user_password), str(user_password_confirm))
         # if user_password and user_password_confirm and user_password != user_password_confirm:
         #     raise ValidationError(_('Passwords don\'t match'))
         # if re.match(r'((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%]).{8,})', user_password):
