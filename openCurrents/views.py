@@ -15,6 +15,7 @@ from django.template.context_processors import csrf
 from datetime import datetime, time, date
 from collections import OrderedDict
 from copy import deepcopy
+from orgs import OrgUserInformation
 
 
 import math
@@ -108,9 +109,9 @@ class OrgAdminPermissionMixin(LoginRequiredMixin):
         try:
             org_id = kwargs['org_id']
         except KeyError:
-            userorgs = OrgUser.objects.filter(user__id=user.id)
+            userorgs = OrgUserInformation().get_org_user(self.request.user.id)
             if userorgs:
-                org_id = userorgs[0].org.id
+                org_id = OrgUserInformation().get_user_org(self.request.user.id).id
 
         if org_id is None:
             logger.error('user %d with no org', user.id)
