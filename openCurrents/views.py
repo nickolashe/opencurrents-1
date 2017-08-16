@@ -891,6 +891,7 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
             project=self.project,
             description=form_data['description'],
             location=location,
+            is_public=form_data['is_public'],
             datetime_start=form_data['datetime_start'],
             datetime_end=form_data['datetime_end'],
             coordinator_firstname=form_data['coordinator_firstname'],
@@ -950,6 +951,7 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
         context['project_names'] = mark_safe(json.dumps(project_names))
         context['form'].fields['coordinator_firstname'].widget.attrs['value'] = str(self.request.user.first_name)
         context['form'].fields['coordinator_email'].widget.attrs['value'] = str(self.request.user.email)
+        #ProjectCreateForm(initial={'is_public':'event-privacy-1'})
 
         return context
 
@@ -1073,6 +1075,10 @@ class EditEventView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
                 datetime.strptime(str(post_data['project-start']),'%H:%M%p').time())
             edit_event.datetime_end = datetime.combine(datetime.strptime(post_data['project-date'], '%Y-%m-%d'),\
                 datetime.strptime(str(post_data['project-end']),'%H:%M%p').time())
+            if post_data['event-privacy'] == '1':
+                edit_event.is_public = True
+            elif post_data['event-privacy'] == '2':
+                edit_event.is_public = False
             edit_event.save()
             project = Project.objects.get(id = edit_event.project.id)
             project.name = str(post_data['project-name'])
