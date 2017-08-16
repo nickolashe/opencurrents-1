@@ -507,7 +507,7 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
                 if post_data.get(i)==None or post_data.get(i)=='':
                     rem_index.append(k_dict[i])
                     del k_dict[i]
-                
+
         response = HttpResponse(content_type='text/csv')
         #print(datetime.now())
         response['Content-Disposition'] = 'attachment; filename="volunteer-data.csv"'
@@ -525,11 +525,12 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
                 if post_data['start-date'] != u'':
                     #if the user fill the start-time this condition is executed
                     s_dt_db = j.event.datetime_start
+                    logger.info(s_dt_db.tzinfo)
                     s_dt_ui = post_data['start-date']
                     e_dt_db = j.event.datetime_end
                     e_dt_ui = post_data['end-date']
-                    if ( s_dt_db >= datetime.strptime(s_dt_ui, '%Y-%m-%d') ) \
-                    and ( e_dt_db <= datetime.strptime(e_dt_ui, '%Y-%m-%d') ):
+                    if ( s_dt_db >= pytz.timezone(tz).localize(datetime.strptime(s_dt_ui, '%Y-%m-%d')) ) \
+                    and ( e_dt_db <= pytz.timezone(tz).localize(datetime.strptime(e_dt_ui, '%Y-%m-%d')) ):
                         cleaned_list = [i.first_name, i.last_name, i.email, datetime_duration, j.event.datetime_start,\
                             j.event.datetime_end, j.event.datetime_start.date(), j.event.location, j.event.project.name]
                         for k in rem_index:
