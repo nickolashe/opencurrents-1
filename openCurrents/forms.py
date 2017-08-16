@@ -313,18 +313,18 @@ class EventRegisterForm(forms.Form):
 
 class TrackVolunteerHours(forms.Form):
 
-    choices_init = [("select_org","Select organization")]
-    choices = [
-        (org.id, org.name)
-        for org in Org.objects.all().order_by('name')
-    ]
-    choices = choices_init + choices
-    org = forms.ChoiceField(
-        choices=choices,
-        widget=forms.Select(attrs={
-            'id': 'id_org_choice'
-        })
-    )
+    # choices_init = [("select_org","Select organization")]
+    # choices = [
+    #     (org.id, org.name)
+    #     for org in Org.objects.all().order_by('name')
+    # ]
+    # choices = choices_init + choices
+    # org = forms.ChoiceField(
+    #     choices=choices,
+    #     widget=forms.Select(attrs={
+    #         'id': 'id_org_choice'
+    #     })
+    # )
 
     description = forms.CharField(
         widget=forms.TextInput(attrs={
