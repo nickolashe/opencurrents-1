@@ -551,28 +551,6 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         org = Org.objects.get(id=form_data['org'])
         tz = org.timezone
 
-        try:
-            self.project = Project.objects.get(
-                    org__id=org.id,
-                    name='ManualTracking'
-                )
-        except:
-            project = Project(
-                org=org,
-                name='ManualTracking'
-            )
-            project.save()
-            self.project = project
-
-        event = Event(
-            project=self.project,
-            description=form_data['description'],
-            event_type="MN",
-            datetime_start=form_data['datetime_start'],
-            datetime_end=form_data['datetime_end']
-        )
-        event.save()
-
         #If the time is same or within the range of already existing tracking
         track_exists_1 = UserTimeLog.objects.filter(
                 user = user
@@ -610,17 +588,52 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                 datetime_start__lte = form_data['datetime_end']
             )
 
-        if not track_exists_1 and not track_exists_2 and not track_exists_3 and not track_exists_4:
-            track = UserTimeLog(
-                user=user,
-                event=event,
-                datetime_start=form_data['datetime_start'],
-                datetime_end=form_data['datetime_end']
+        track_existing_choices = [
+            track_exists_1,
+            track_exists_2,
+            track_exists_3,
+            track_exists_4
+        ]
+
+        for track in track_existing_choices:
+            if track:
+                self.isTimeLogValid = False
+                self.track_existing_datetime_start = track[0].datetime_start
+                self.track_existing_datetime_end = track[0].datetime_end
+                return
+
+        # only if time is valid, create manual tracking record
+        try:
+            self.project = Project.objects.get(
+                    org__id=org.id,
+                    name='ManualTracking'
                 )
-            track.save()
-            self.status = True
-        else:
-            self.status = False
+        except:
+            project = Project(
+                org=org,
+                name='ManualTracking'
+            )
+            project.save()
+            self.project = project
+
+        event = Event(
+            project=self.project,
+            description=form_data['description'],
+            event_type="MN",
+            datetime_start=form_data['datetime_start'],
+            datetime_end=form_data['datetime_end']
+        )
+        event.save()
+
+        usertimelog = UserTimeLog(
+            user=user,
+            event=event,
+            datetime_start=form_data['datetime_start'],
+            datetime_end=form_data['datetime_end']
+            )
+        usertimelog.save()
+        self.isTimeLogValid = True
+
 
     def get_context_data(self, **kwargs):
         #Get the status msg from URL
@@ -637,14 +650,21 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         # It should return an HttpResponse.
         data = form.cleaned_data
         self.track_hours(data)
-        if self.status == True:
-            #if the tracked hour is not redundant
+
+        if self.isTimeLogValid:
+            # tracked time is valid
             return redirect('openCurrents:time-tracked')
         else:
-            #If the tracked hour is redundant
-            status_time = 'It looks like you have already tracked your hours from '+\
-                str(data['time_start'])+' to '+str(data['time_end'])+' for this event.'
-            return redirect('openCurrents:time-tracker',status_time)
+            # tracked time overlaps with existing time log
+            status_time = ' '.join([
+                'You have already submitted hours from',
+                self.track_existing_datetime_start.strftime('%-I:%M %p'),
+                'to',
+                self.track_existing_datetime_end.strftime('%-I:%M %p'),
+                'on',
+                self.track_existing_datetime_start.strftime('%-m/%-d')
+            ])
+            return redirect('openCurrents:time-tracker', status_time)
 
 
 
