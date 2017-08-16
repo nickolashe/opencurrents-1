@@ -1674,7 +1674,7 @@ def process_signup(request, referrer=None, endpoint=False, verify_email=True):
         # try saving the user without password at this point
         user = None
         try:
-            
+
             user = User(
                 username=user_email,
                 email=user_email,
@@ -1682,7 +1682,7 @@ def process_signup(request, referrer=None, endpoint=False, verify_email=True):
                 last_name=user_lastname
             )
             user.save()
-                
+
         except IntegrityError:
             logger.info('user %s already exists', user_email)
 
@@ -1999,7 +1999,7 @@ def process_email_confirmation(request, user_email):
 
         # just report the first validation error
         errors = [
-            '%s: %s' % (field, error.messages[0])
+            error.messages[0]
             for field, le in form.errors.as_data().iteritems()
             for error in le
         ]
@@ -2079,7 +2079,7 @@ def password_reset_request(request):
     else:
         # just report the first validation error
         errors = [
-            '%s: %s' % (field, error.messages[0])
+            error.messages[0]
             for field, le in form.errors.as_data().iteritems()
             for error in le
         ]
@@ -2155,7 +2155,7 @@ def process_reset_password(request, user_email):
 
         # just report the first validation error
         errors = [
-            '%s: %s' % (field, error.messages[0])
+            error.messages[0]
             for field, le in form.errors.as_data().iteritems()
             for error in le
         ]
