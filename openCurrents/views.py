@@ -939,8 +939,8 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
 
         # create an event for each location
         event_ids = map(lambda loc: self._create_event(loc, data), locations)
-        e_ids = "b".join(str(x) for x in event_ids)
-        return redirect('openCurrents:invite-volunteers',e_ids)
+        #e_ids = "b".join(str(x) for x in event_ids)
+        return redirect('openCurrents:invite-volunteers',json.dumps(event_ids))
 
     def get_context_data(self, **kwargs):
         context = super(CreateEventView, self).get_context_data()
@@ -1113,9 +1113,10 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         context = super(InviteVolunteersView, self).get_context_data(**kwargs)
         userid = self.request.user.id
         context['userid'] = userid
+        context['skip'] = 0
         try:
-            event_create_id = kwargs.pop('event_id').split('b')
-            context['skip'] = 1
+            if kwargs.pop('event_ids'):
+                context['skip'] = 1
         except:
             context['skip'] = 0
 
@@ -1129,7 +1130,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         post_data = self.request.POST
         event_create_id = None
         try:
-            event_create_id = kwargs.pop('event_id').split('b')
+            event_create_id = json.loads(kwargs.pop('event_id'))
         except:
             pass
 
