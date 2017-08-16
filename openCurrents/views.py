@@ -374,6 +374,7 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
             ('event-name',8)
         ])
         utc=pytz.UTC
+        tz = 'America/Chicago'
         vol_personal_info = User.objects.all()
         if post_data['start-date'] != u'':
             event_info = Event.objects.filter(datetime_start__gte=post_data['start-date']).filter(datetime_end__lte=post_data['end-date'])
@@ -416,10 +417,8 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
                     s_dt_ui = post_data['start-date']
                     e_dt_db = j.event.datetime_end
                     e_dt_ui = post_data['end-date']
-                    if (s_dt_db.replace(tzinfo=utc) > datetime.strptime(s_dt_ui, '%Y-%m-%d').replace(tzinfo=utc)  or\
-                    s_dt_db.replace(tzinfo=utc)==datetime.strptime(s_dt_ui, '%Y-%m-%d').replace(tzinfo=utc) ) \
-                    and (e_dt_db.replace(tzinfo=utc) <datetime.strptime(e_dt_ui, '%Y-%m-%d').replace(tzinfo=utc)  or\
-                    e_dt_db.replace(tzinfo=utc) ==datetime.strptime(e_dt_ui, '%Y-%m-%d').replace(tzinfo=utc) ):
+                    if ( s_dt_db.astimezone(pytz.timezone(tz)) >= pytz.timezone(tz).localize(datetime.strptime(s_dt_ui, '%Y-%m-%d')) ) \
+                    and ( e_dt_db.astimezone(pytz.timezone(tz)) <= pytz.timezone(tz).localize(datetime.strptime(e_dt_ui, '%Y-%m-%d')) ):
                         cleaned_list = [i.first_name, i.last_name, i.email, datetime_duration, j.event.datetime_start,\
                             j.event.datetime_end, j.event.datetime_start.date(), j.event.location, j.event.project.name]
                         for k in rem_index:
@@ -431,7 +430,7 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
                             writer.writerow(cleaned_list)#write to the CSV file
                 else:
                     #if the user input in start-time is empty
-                    if (str(j.event.datetime_end)<str(post_data['end-date']) or str(j.event.datetime_end)==str(post_data['end-date'])):
+                    if str(j.event.datetime_end) <= str(post_data['end-date']):
                         cleaned_list = [i.first_name, i.last_name, i.email, datetime_duration, j.event.datetime_start,\
                             j.event.datetime_end, j.event.datetime_start.date(), j.event.location, j.event.project.name]
                         for k in rem_index:
