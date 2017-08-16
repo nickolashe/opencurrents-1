@@ -145,6 +145,14 @@ class OrgAdminPermissionMixin(LoginRequiredMixin):
 
 class HomeView(SessionContextView, TemplateView):
     template_name = 'home.html'
+    def dispatch(self, *args, **kwargs):
+        try:
+            #If there is session set for profile
+            if self.request.session['profile']:
+                return redirect('openCurrents:profile')
+        except:
+            #If no session set
+            return super(HomeView, self).dispatch(*args, **kwargs)
 
 class ForbiddenView(SessionContextView, TemplateView):
     template_name = '403.html'
@@ -1969,6 +1977,11 @@ def process_login(request):
                 else:
                     app_hr = '0'
             login(request, user)
+            try:
+                remember_me = request.POST['remember-me']
+                request.session['profile'] = 'True'#set the session for profile
+            except:
+                pass
             return redirect('openCurrents:profile', app_hr)
         else:
             return redirect('openCurrents:login', status_msg='Invalid login/password')
