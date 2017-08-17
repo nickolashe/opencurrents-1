@@ -484,8 +484,7 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
             ('location',7),
             ('event-name',8)
         ])
-        utc=pytz.UTC
-        tz = 'America/Chicago'
+        tz = OrgUserInformation().get_user_org(self.request.user.id).timezone
         vol_personal_info = User.objects.all()
         if post_data['start-date'] != u'':
             event_info = Event.objects.filter(datetime_start__gte=post_data['start-date']).filter(datetime_end__lte=post_data['end-date'])
