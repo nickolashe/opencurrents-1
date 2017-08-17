@@ -32,6 +32,14 @@
     -o-background-size: cover;
     background-size: cover;
   }
+
+  #volunteer {
+    background: url(/static/img/wheelbarrow.jpg) no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+  }
 }
 
 /* home nonprofit business and our-story */
