@@ -691,8 +691,8 @@ class TimeTrackedView(TemplateView):
     template_name = 'time-tracked.html'
 
 
-class VolunteeringView(TemplateView):
-    template_name = 'volunteering.html'
+class VolunteerView(TemplateView):
+    template_name = 'volunteer.html'
 
 
 class VolunteerRequestsView(TemplateView):
