@@ -1980,9 +1980,12 @@ def process_login(request):
                         exclude_usertimelog.append(g_d_t.usertimelog.event)
                 timelogs = timelogs.exclude(event__in=exclude_usertimelog)
                 today = date.today()
-                if ((user.last_login.date())< today - timedelta(days=today.weekday()) and timelogs):
-                    app_hr = '1'
-                else:
+                try:
+                    if ((user.last_login.date())< today - timedelta(days=today.weekday()) and timelogs):
+                        app_hr = '1'
+                    else:
+                        app_hr = '0'
+                except:
                     app_hr = '0'
             login(request, user)
             try:
