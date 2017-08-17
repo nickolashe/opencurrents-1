@@ -61,19 +61,26 @@
                 {% if coordinator %}
                   <h6 class="navy inline">Contact registered volunteers</h6>
                   <a class="registrants-box_open">See registrants</a>
+                {% elif is_admin_not_coord %}
+                  <h6 class="navy inline">Contact event coordinator</h6>
+                  <a class="registrants-box_open">See registrants</a>
                 {% else %}
-                  {{ form.contact_message.label }}
+                  {% if registered %}
+                    {{ form.contact_message.label }}
+                  {% endif %}
                 {% endif %}
 
               </h6>
-              {% if form.contact_message.help_text %}
-                <p class="small-text grey no-margin-bottom">
-                  {% if not coordinator %}
-                    ({{ form.contact_message.help_text|safe }})
-                  {% endif %}
-                </p>
+              {% if registered %}
+                {% if form.contact_message.help_text %}
+                  <p class="small-text grey no-margin-bottom">
+                    {% if not coordinator %}
+                      ({{ form.contact_message.help_text|safe }})
+                    {% endif %}
+                  </p>
+                {% endif %}
+                {{ form.contact_message }}
               {% endif %}
-              {{ form.contact_message }}
             </div>
           </div>
 
@@ -100,7 +107,7 @@
     <div id="registrants-box" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
         <h3 class="one-margin-top no-margin-bottom">Registered volunteers</h3>
-        {{ registrants }}
+        {{ registrants|join:", " }}
       </div>
     </div>
 

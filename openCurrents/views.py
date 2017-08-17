@@ -1278,6 +1278,10 @@ class EventDetailView(LoginRequiredMixin, SessionContextView, DetailView):
         context['registered'] = is_registered
         context['admin'] = is_admin
         context['coordinator'] = is_coord
+        if is_admin and not is_coord:
+            context['is_admin_not_coord'] = True
+        else:
+            context['is_admin_not_coord'] = False
  
         # list of confirmed registered users 
         context['registrants'] = ''
@@ -1473,62 +1477,173 @@ def event_register(request, pk):
 
         #check for existing registration
         event_records = UserEventRegistration.objects.filter(user__id=user.id, event__id=event.id, is_confirmed=True).exists()
-
-        user_event_registration = UserEventRegistration(
-            user=user,
-            event=event,
-            is_confirmed=True
-        )
-        user_event_registration.save()
+        try:
+            user_unregistered = UserEventRegistration.objects.filter(user__id=user.id, event__id=event.id, is_confirmed=False)
+            if user_unregistered:
+                #register the volunteer
+                user_unregistered.update(is_confirmed=True)
+        except Exception as e:
+            user_event_registration = UserEventRegistration(
+                user=user,
+                event=event,
+                is_confirmed=True
+            )
+            user_event_registration.save()
 
 
         # if the volunteer entered an optional contact message, send to project coordinator
+        is_coord = Event.objects.filter(id=event.id,coordinator_email=user.email).exists()
+        if OrgUser.objects.filter(user=user) and not is_coord:
+            is_admin_not_coord = True
+        else:
+            is_admin_not_coord = False
         if (message != ""):
             logger.info('User %s registered for event %s wants to send msg %s ', user.username, event.id, message)
+            if is_coord:
+                #contact all volunteers
+                reg_list_uniques = []
+                reg_list = UserEventRegistration.objects.filter(event__id=event.id, is_confirmed=True)
+                
+                for reg in reg_list: 
+                    if(reg.user.email not in reg_list_uniques):
+                        reg_list_uniques.append({"email":reg.user.email,"type":"to"})
+                try:
+                    sendBulkEmail(
+                        'volunteer-messaged',
+                        None,
+                        [
+                            {
+                                'name': 'USER_FIRSTNAME',
+                                'content': user.first_name
+                            },
+                            {
+                                'name': 'USER_LASTNAME',
+                                'content': user.last_name
+                            },
+                            {
+                                'name': 'USER_EMAIL',
+                                'content': user.email
+                            },
+                            {
+                                'name': 'ADMIN_FIRSTNAME',
+                                'content': event.coordinator_firstname
+                            },
+                            {
+                                'name': 'ADMIN_EMAIL',
+                                'content': event.coordinator_email
+                            },
+                            {
+                                'name': 'MESSAGE',
+                                'content': message
+                            },
+                            {
+                                'name': 'DATE',
+                                'content': json.dumps(event.datetime_start,cls=DatetimeEncoder).replace('"','')
+                            }
 
-            try:
-                sendContactEmail(
-                    'volunteer-messaged',
-                    None,
-                    [
-                        {
-                            'name': 'USER_FIRSTNAME',
-                            'content': user.first_name
-                        },
-                        {
-                            'name': 'USER_LASTNAME',
-                            'content': user.last_name
-                        },
-                        {
-                            'name': 'USER_EMAIL',
-                            'content': user.email
-                        },
-                        {
-                            'name': 'ADMIN_FIRSTNAME',
-                            'content': event.coordinator_firstname
-                        },
-                        {
-                            'name': 'ADMIN_EMAIL',
-                            'content': event.coordinator_email
-                        },
-                        {
-                            'name': 'MESSAGE',
-                            'content': message
-                        },
-                        {
-                            'name': 'DATE',
-                            'content': json.dumps(event.datetime_start,cls=DatetimeEncoder).replace('"','')
-                        }
-                    ],
-                    event.coordinator_email,
-                    user.email
-                )
-            except Exception as e:
-                logger.error(
-                    'unable to send contact email: %s (%s)',
-                    e.message,
-                    type(e)
-                )
+                        ],
+                        reg_list_uniques,
+                        user.email
+                    )
+                except Exception as e:
+                    print(e)
+                    logger.error(
+                        'unable to send email: %s (%s)',
+                        e,
+                        type(e)
+                    )
+                    return redirect('openCurrents:500')
+            elif is_admin_not_coord:
+                #contact coordinator as admin
+                print(event.coordinator_email)
+                try:
+                    sendContactEmail(
+                        'volunteer-messaged',
+                        None,
+                        [
+                            {
+                                'name': 'USER_FIRSTNAME',
+                                'content': user.first_name
+                            },
+                            {
+                                'name': 'USER_LASTNAME',
+                                'content': user.last_name
+                            },
+                            {
+                                'name': 'USER_EMAIL',
+                                'content': user.email
+                            },
+                            {
+                                'name': 'ADMIN_FIRSTNAME',
+                                'content': event.coordinator_firstname
+                            },
+                            {
+                                'name': 'ADMIN_EMAIL',
+                                'content': event.coordinator_email
+                            },
+                            {
+                                'name': 'MESSAGE',
+                                'content': message
+                            },
+                            {
+                                'name': 'DATE',
+                                'content': json.dumps(event.datetime_start,cls=DatetimeEncoder).replace('"','')
+                            }
+                        ],
+                        event.coordinator_email,
+                        user.email
+                    )
+                except Exception as e:
+                    logger.error(
+                        'unable to send contact email: %s (%s)',
+                        e.message,
+                        type(e)
+                    )
+            else:
+                #mesaage the coordinator as volunteer
+                try:
+                    sendContactEmail(
+                        'volunteer-messaged',
+                        None,
+                        [
+                            {
+                                'name': 'USER_FIRSTNAME',
+                                'content': user.first_name
+                            },
+                            {
+                                'name': 'USER_LASTNAME',
+                                'content': user.last_name
+                            },
+                            {
+                                'name': 'USER_EMAIL',
+                                'content': user.email
+                            },
+                            {
+                                'name': 'ADMIN_FIRSTNAME',
+                                'content': event.coordinator_firstname
+                            },
+                            {
+                                'name': 'ADMIN_EMAIL',
+                                'content': event.coordinator_email
+                            },
+                            {
+                                'name': 'MESSAGE',
+                                'content': message
+                            },
+                            {
+                                'name': 'DATE',
+                                'content': json.dumps(event.datetime_start,cls=DatetimeEncoder).replace('"','')
+                            }
+                        ],
+                        event.coordinator_email,
+                        user.email
+                    )
+                except Exception as e:
+                    logger.error(
+                        'unable to send contact email: %s (%s)',
+                        e.message,
+                        type(e)
+                    )
         elif(not event_records):
             logger.info('User %s registered for event %s with no optional msg %s ', user.username, event.id, message)
 

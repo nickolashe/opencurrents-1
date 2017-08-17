@@ -64,7 +64,6 @@ class OrgUser(models.Model):
             str(self.affiliation),
             'at',
             self.org.name,
-            '(approved)' if self.approved else '(unapproved)'
         ])
 
 
