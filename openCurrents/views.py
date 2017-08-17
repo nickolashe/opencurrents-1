@@ -659,6 +659,8 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         # It should return an HttpResponse.
         data = form.cleaned_data
         self.track_hours(data)
+        org = Org.objects.get(id=data['org'])
+        tz = org.timezone
 
         if self.isTimeLogValid:
             # tracked time is valid
@@ -667,9 +669,9 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             # tracked time overlaps with existing time log
             status_time = ' '.join([
                 'You have already submitted hours from',
-                self.track_existing_datetime_start.strftime('%-I:%M %p'),
+                self.track_existing_datetime_start.astimezone(pytz.timezone(tz)).strftime('%-I:%M %p'),
                 'to',
-                self.track_existing_datetime_end.strftime('%-I:%M %p'),
+                self.track_existing_datetime_end.astimezone(pytz.timezone(tz)).strftime('%-I:%M %p'),
                 'on',
                 self.track_existing_datetime_start.strftime('%-m/%-d')
             ])
