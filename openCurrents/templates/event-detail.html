@@ -64,7 +64,6 @@
                 {% elif is_admin_not_coord %}
                   <h6 class="navy inline">Contact event coordinator</h6>
                   <a class="registrants-box_open">See registrants</a>
-                  <textarea cols="40" id="id_contact_message" maxlength="16384" name="contact_message" rows="4"></textarea>
                 {% else %}
                   {{ form.contact_message.label }}
                 {% endif %}

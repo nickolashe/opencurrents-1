@@ -805,6 +805,34 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
             creator_id = self.userid
         )
         event.save()
+        try:
+            coord_user = User.objects.get(email=form_data['coordinator_email'])
+            if (coord_user.id != self.userid) and not OrgUser.objects.filter(user__id = coord_user.id).exists():
+                #send an invite to join to org as admin
+                try:
+                    sendTransactionalEmail(
+                        'verify-email',
+                        None,
+                        [
+                            {
+                                'name': 'FIRSTNAME',
+                                'content': form_data['coordinator_firstname']
+                            },
+                            {
+                                'name': 'EMAIL',
+                                'content': form_data['coordinator_email']
+                            }
+                        ],
+                        form_data['coordinator_email']
+                    )
+                except Exception as e:
+                    logger.error(
+                        'unable to send transactional email: %s (%s)',
+                        e.message,
+                        type(e)
+                    )
+        except:
+            pass
 
         return event.id
 
@@ -989,6 +1017,35 @@ class EditEventView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
             edit_event.datetime_end = datetime.combine(datetime.strptime(post_data['project-date'], '%Y-%m-%d'),\
                 datetime.strptime(str(post_data['project-end']),'%H:%M%p').time())
             edit_event.save()
+
+            try:
+                coord_user = User.objects.get(email=post_data['coordinator-email'])
+                if (coord_user.id != self.request.user.id) and not OrgUser.objects.filter(user__id = coord_user.id).exists():
+                    #send an invite to join to org as admin
+                    try:
+                        sendTransactionalEmail(
+                            'verify-email',
+                            None,
+                            [
+                                {
+                                    'name': 'FIRSTNAME',
+                                    'content': post_data['coordinator_firstname']
+                                },
+                                {
+                                    'name': 'EMAIL',
+                                    'content': post_data['coordinator_email']
+                                }
+                            ],
+                            post_data['coordinator_email']
+                        )
+                    except Exception as e:
+                        logger.error(
+                            'unable to send transactional email: %s (%s)',
+                            e.message,
+                            type(e)
+                        )
+            except:
+                pass
             project = Project.objects.get(id = edit_event.project.id)
             project.name = str(post_data['project-name'])
             project.save()
@@ -1269,15 +1326,19 @@ class EventDetailView(LoginRequiredMixin, SessionContextView, DetailView):
         except Group.DoesNotExist:
             logger.error("org exists without an admin group")
             return redirect('openCurrents:500')
+        if OrgUser.objects.filter(user__email = context['event'].coordinator_email).exists():
+            co_ordinator = False
+        else:
+            co_ordinator = True
 
         is_admin = org_admin_group.user_set.filter(id=self.request.user.id).exists()
 
         # check if event coordinator
-        is_coord = Event.objects.filter(id=context['event'].id,coordinator_email=self.request.user).exists()
+        is_coord = Event.objects.filter(id=context['event'].id,coordinator_email=context['event'].coordinator_email).exists()
 
         context['registered'] = is_registered
         context['admin'] = is_admin
-        context['coordinator'] = is_coord
+        context['coordinator'] = is_coord and co_ordinator
         if is_admin and not is_coord:
             context['is_admin_not_coord'] = True
         else:
@@ -1285,7 +1346,7 @@ class EventDetailView(LoginRequiredMixin, SessionContextView, DetailView):
  
         # list of confirmed registered users 
         context['registrants'] = ''
-        if(is_coord):
+        if(is_coord or is_admin):
             reg_list_uniques = []
             reg_list = UserEventRegistration.objects.filter(event__id=context['event'].id, is_confirmed=True)
             
