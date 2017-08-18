@@ -580,21 +580,21 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         track_exists_3 = UserTimeLog.objects.filter(
                 user = user
             ).filter(
-                datetime_start__lte = form_data['datetime_start']
+                datetime_start__lt = form_data['datetime_start']
             ).filter(
-                datetime_end__lte = form_data['datetime_end']
+                datetime_end__lt = form_data['datetime_end']
             ).filter(
-                datetime_end__gte = form_data['datetime_start']
+                datetime_end__gt = form_data['datetime_start']
             )
         #If the time is same or Part of it where start time is greater but within the end-time and end time doesn't matter
         track_exists_4 = UserTimeLog.objects.filter(
                 user = user
             ).filter(
-                datetime_start__gte = form_data['datetime_start']
+                datetime_start__gt = form_data['datetime_start']
             ).filter(
-                datetime_end__gte = form_data['datetime_end']
+                datetime_end__gt = form_data['datetime_end']
             ).filter(
-                datetime_start__lte = form_data['datetime_end']
+                datetime_start__lt = form_data['datetime_end']
             )
 
         track_existing_choices = [
