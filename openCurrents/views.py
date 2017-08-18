@@ -145,6 +145,14 @@ class OrgAdminPermissionMixin(LoginRequiredMixin):
 
 class HomeView(SessionContextView, TemplateView):
     template_name = 'home.html'
+    def dispatch(self, *args, **kwargs):
+        try:
+            #If there is session set for profile
+            if self.request.session['profile']:
+                return redirect('openCurrents:profile')
+        except:
+            #If no session set
+            return super(HomeView, self).dispatch(*args, **kwargs)
 
 class ForbiddenView(SessionContextView, TemplateView):
     template_name = '403.html'
@@ -669,6 +677,8 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         # It should return an HttpResponse.
         data = form.cleaned_data
         self.track_hours(data)
+        org = Org.objects.get(id=data['org'])
+        tz = org.timezone
 
         if self.isTimeLogValid:
             # tracked time is valid
@@ -677,9 +687,9 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             # tracked time overlaps with existing time log
             status_time = ' '.join([
                 'You have already submitted hours from',
-                self.track_existing_datetime_start.strftime('%-I:%M %p'),
+                self.track_existing_datetime_start.astimezone(pytz.timezone(tz)).strftime('%-I:%M %p'),
                 'to',
-                self.track_existing_datetime_end.strftime('%-I:%M %p'),
+                self.track_existing_datetime_end.astimezone(pytz.timezone(tz)).strftime('%-I:%M %p'),
                 'on',
                 self.track_existing_datetime_start.strftime('%-m/%-d')
             ])
@@ -901,6 +911,7 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
             project=self.project,
             description=form_data['description'],
             location=location,
+            is_public=form_data['is_public'],
             datetime_start=form_data['datetime_start'],
             datetime_end=form_data['datetime_end'],
             coordinator_firstname=form_data['coordinator_firstname'],
@@ -965,6 +976,7 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
         context['project_names'] = mark_safe(json.dumps(project_names))
         context['form'].fields['coordinator_firstname'].widget.attrs['value'] = str(self.request.user.first_name)
         context['form'].fields['coordinator_email'].widget.attrs['value'] = str(self.request.user.email)
+        #ProjectCreateForm(initial={'is_public':'event-privacy-1'})
 
         return context
 
@@ -1088,6 +1100,10 @@ class EditEventView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
                 datetime.strptime(str(post_data['project-start']),'%H:%M%p').time())
             edit_event.datetime_end = datetime.combine(datetime.strptime(post_data['project-date'], '%Y-%m-%d'),\
                 datetime.strptime(str(post_data['project-end']),'%H:%M%p').time())
+            if post_data['event-privacy'] == '1':
+                edit_event.is_public = True
+            elif post_data['event-privacy'] == '2':
+                edit_event.is_public = False
             edit_event.save()
             project = Project.objects.get(id = edit_event.project.id)
             project.name = str(post_data['project-name'])
@@ -1357,6 +1373,14 @@ class EventDetailView(LoginRequiredMixin, SessionContextView, DetailView):
         context = super(EventDetailView, self).get_context_data(**kwargs)
         context['form'] = EventRegisterForm()
 
+        # determine whether the user has already registered for the event
+        is_registered = UserEventRegistration.objects.filter(
+            user__id=self.request.user.id,
+            event__id=context['event'].id,
+            is_confirmed=True
+        ).exists()
+        context['is_registered'] = is_registered
+
         return context
 
 
@@ -1528,111 +1552,92 @@ def event_checkin(request, pk):
 
 @login_required
 def event_register(request, pk):
+    event = Event.objects.get(id=pk)
     form = EventRegisterForm(request.POST)
 
     # validate form data
     if form.is_valid():
         user = request.user
-        event = Event.objects.get(id=pk)
         message = form.cleaned_data['contact_message']
-
-        #check for existing registration
-        event_records = UserEventRegistration.objects.filter(user__id=user.id, event__id=event.id, is_confirmed=True).exists()
+        merge_var_list = [
+            {
+                'name': 'USER_FIRSTNAME',
+                'content': user.first_name
+            },
+            {
+                'name': 'USER_LASTNAME',
+                'content': user.last_name
+            },
+            {
+                'name': 'USER_EMAIL',
+                'content': user.email
+            },
+            {
+                'name': 'ADMIN_FIRSTNAME',
+                'content': event.coordinator_firstname
+            },
+            {
+                'name': 'ADMIN_EMAIL',
+                'content': event.coordinator_email
+            },
+            {
+                'name': 'DATE',
+                'content': json.dumps(event.datetime_start,cls=DatetimeEncoder).replace('"','')
+            }
+        ]
 
         user_event_registration = UserEventRegistration(
             user=user,
             event=event,
             is_confirmed=True
         )
-        user_event_registration.save()
 
+        was_registered = False
+        try:
+            user_event_registration.save()
+        except IntegrityError:
+            logger.info(
+                'User %s already registered for event %s',
+                user.username,
+                event.id
+            )
+            was_registered = True
 
-        # if the volunteer entered an optional contact message, send to project coordinator
-        if (message != ""):
-            logger.info('User %s registered for event %s wants to send msg %s ', user.username, event.id, message)
+        email_template = None
+        # if the volunteer entered a contact message, send to event coordinator
+        if message:
+            email_template = 'volunteer-messaged'
+            merge_var_list.append({
+                'name': 'MESSAGE',
+                'content': message
+            })
+            logger.info(
+                'User %s wants to send msg %s to coordinator of event %s',
+                user.username,
+                message,
+                event.id
+            )
+        # else send a message to coordinator if user has registered for event
+        elif not was_registered:
+            email_template = 'volunteer-registered'
+            logger.info(
+                'User %s registered for event %s',
+                user.username,
+                event.id
+            )
 
+        if email_template:
             try:
                 sendContactEmail(
-                    'volunteer-messaged',
+                    email_template,
                     None,
-                    [
-                        {
-                            'name': 'USER_FIRSTNAME',
-                            'content': user.first_name
-                        },
-                        {
-                            'name': 'USER_LASTNAME',
-                            'content': user.last_name
-                        },
-                        {
-                            'name': 'USER_EMAIL',
-                            'content': user.email
-                        },
-                        {
-                            'name': 'ADMIN_FIRSTNAME',
-                            'content': event.coordinator_firstname
-                        },
-                        {
-                            'name': 'ADMIN_EMAIL',
-                            'content': event.coordinator_email
-                        },
-                        {
-                            'name': 'MESSAGE',
-                            'content': message
-                        },
-                        {
-                            'name': 'DATE',
-                            'content': json.dumps(event.datetime_start,cls=DatetimeEncoder).replace('"','')
-                        }
-                    ],
+                    merge_var_list,
                     event.coordinator_email,
                     user.email
                 )
             except Exception as e:
                 logger.error(
-                    'unable to send contact email: %s (%s)',
-                    e.message,
-                    type(e)
-                )
-        elif(not event_records):
-            logger.info('User %s registered for event %s with no optional msg %s ', user.username, event.id, message)
-
-            try:
-                sendContactEmail(
-                    'volunteer-registered',
-                    None,
-                    [
-                        {
-                            'name': 'USER_FIRSTNAME',
-                            'content': user.first_name
-                        },
-                        {
-                            'name': 'USER_LASTNAME',
-                            'content': user.last_name
-                        },
-                        {
-                            'name': 'USER_EMAIL',
-                            'content': user.email
-                        },
-                        {
-                            'name': 'ADMIN_FIRSTNAME',
-                            'content': event.coordinator_firstname
-                        },
-                        {
-                            'name': 'ADMIN_EMAIL',
-                            'content': event.coordinator_email
-                        },
-                        {
-                            'name': 'DATE',
-                            'content': json.dumps(event.datetime_start,cls=DatetimeEncoder).replace('"','')
-                        }
-                    ],
-                    event.coordinator_email,
-                    user.email
-                )
-            except Exception as e:
-                logger.error(
-                    'unable to send contact email: %s (%s)',
+                    'unable to send email: %s (%s)',
                     e.message,
                     type(e)
                 )
@@ -1640,17 +1645,7 @@ def event_register(request, pk):
         return redirect('openCurrents:registration-confirmed', event.id)
     else:
         logger.error('Invalid form: %s', form.errors.as_data())
-
-        context = {
-            'form': form,
-            'errors': form.errors.as_data().values()[0][0]
-        }
-
-        return render(
-            request,
-            'openCurrents/event-detail.html',
-            context
-        )
+        return redirect('openCurrents:event-detail', event.id)
 
 
 @login_required
@@ -1987,11 +1982,19 @@ def process_login(request):
                         exclude_usertimelog.append(g_d_t.usertimelog.event)
                 timelogs = timelogs.exclude(event__in=exclude_usertimelog)
                 today = date.today()
-                if ((user.last_login.date())< today - timedelta(days=today.weekday()) and timelogs):
-                    app_hr = '1'
-                else:
+                try:
+                    if ((user.last_login.date())< today - timedelta(days=today.weekday()) and timelogs):
+                        app_hr = '1'
+                    else:
+                        app_hr = '0'
+                except:
                     app_hr = '0'
             login(request, user)
+            try:
+                remember_me = request.POST['remember-me']
+                request.session['profile'] = 'True'#set the session for profile
+            except:
+                pass
             return redirect('openCurrents:profile', app_hr)
         else:
             return redirect('openCurrents:login', status_msg='Invalid login/password')

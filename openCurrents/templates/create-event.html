@@ -288,6 +288,27 @@
         initAutoComplete();
 
       });
+
+      function getOppositePrivacyId(mine) {
+        return (mine === 'public_label') ? 'private_label' : 'public_label';
+      }
+
+      function flipButtonColors(me) {
+        var activeBackgroundColor = "#1f4975";
+        var inactiveBackgroundColor = "#ffffff";
+        var activeFontColor = "#ffffff";
+        var inactiveFontColor = "#24b2e7";
+
+        me.style.backgroundColor = activeBackgroundColor;
+        me.style.color = activeFontColor;
+        me.style.borderColor = activeFontColor;
+        var otherButtonLabel = `${getOppositePrivacyId(me.id)}`;
+        document.getElementById(otherButtonLabel).style.backgroundColor = inactiveBackgroundColor;
+        document.getElementById(otherButtonLabel).style.color = inactiveFontColor;
+        document.getElementById(otherButtonLabel).style.borderColor = inactiveFontColor;
+
+      }
+
     </script>
 
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>

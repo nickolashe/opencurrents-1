@@ -231,6 +231,15 @@ class ProjectCreateForm(forms.Form):
             'class': 'center'
         })
     )
+
+    CHOICES = [(True, 'event-privacy-1'), (False, 'event-privacy-2')]
+    
+    is_public = forms.ChoiceField(widget=forms.RadioSelect(
+        attrs={"class": "styled-radio"}), 
+        choices=CHOICES, 
+        initial='True'
+    )
+
     time_start = forms.CharField(
         label='from',
         widget=forms.TextInput(attrs={

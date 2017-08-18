@@ -69,7 +69,15 @@
 
           <a id="add-location"><i class="fa fa-plus-circle half-margin-right"></i>Add another location</a>
 
-          <div class="three-halves-margin-top row left">
+          <div class="row two-margin-top">
+            <input type="radio" id="event-privacy-1" name="event-privacy" value="1" class="hidden styled-radio" {% if event.is_public %} checked {% endif %}/>
+              <label for="event-privacy-1" class="button round secondary tiny">Public event</label>
+            <input type="radio" id="event-privacy-2" name="event-privacy" value="2" class="hidden styled-radio" {% if not event.is_public %} checked {% endif %}/>
+              <label for="event-privacy-2" class="button round secondary tiny">Invite only</label>
+
+          </div>
+
+          <div class="one-margin-top row left">
             <div class="small-12 medium-6 small-centered columns">
               <h6 class="navy no-margin-bottom">Project description</h6>
               <p class="small-text grey no-margin-bottom">What should volunteers know? What should they bring?</p>
