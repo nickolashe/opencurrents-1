@@ -217,6 +217,15 @@ class ProjectCreateForm(forms.Form):
             'placeholder': 'do some good'
         })
     )
+
+    CHOICES = [(True, ''), (False, '')]
+    
+    is_public = forms.ChoiceField(widget=forms.RadioSelect(
+        attrs={"class": "hidden styled-radio"}), 
+        choices=CHOICES, 
+        initial='True'
+    )
+
     description = forms.CharField(
         label='Project description',
         help_text='What should volunteers know? What should they bring?',
