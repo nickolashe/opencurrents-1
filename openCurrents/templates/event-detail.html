@@ -38,16 +38,6 @@
             </div>
           </div>
 
-<!--           <div class="row left">
-            <div class="small-10 medium-6 small-centered columns">
-              
-              <p class="grey">  </p>
-              <label><input name="location-[]" type="radio"/>(Location 1)</label>
-              <label><input name="location-[]" type="radio"/>(Location 2)</label>
-              <label><input name="location-[]" type="radio"/>(Location 3)</label>
-            </div>
-          </div> -->
-
           <div class="three-halves-margin-top row left">
             <div class="small-10 medium-6 small-centered columns">
               <h6 class="navy">Event description</h6>
@@ -83,11 +73,13 @@
           </div>
 
           <div class="three-halves-margin-top center">
-            {% if coordinator or admin or registered %}
-              <button type='submit' class="button round">Message</button>
-            {% else %}
-              <button type='submit' class="button round">Register</button>
-            {% endif %}
+            <button type='submit' class="button round">
+              {% if not is_registered %}
+                Register
+              {% else %}
+                Send
+              {% endif %}
+            </button>
           </div>
 
           <div id="push"></div>
