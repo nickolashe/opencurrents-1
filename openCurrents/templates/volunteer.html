@@ -21,7 +21,7 @@
       <div class="show-for-large one-margin-top medium-8 right columns end">
         <a href="{% url 'openCurrents:nonprofit' %}" class="three-halves-margin-right">For nonprofits</a>
         <a href="{% url 'openCurrents:business' %}" class="three-halves-margin-right">For businesses</a>
-        <a href="#1" class="three-halves-margin-right navy">For you</a>
+        <a href="#1" class="three-halves-margin-right navy">For volunteers</a>
         <a href="{% url 'openCurrents:our-story' %}" class="three-halves-margin-right">Our story</a>
         <a class="two-margin-right" href="{% url 'openCurrents:login' %}">Log in</a>
       </div>
@@ -45,13 +45,12 @@
         <div class="row center">
           <div class="medium-8 small-centered columns">
             <h5 class="white one-margin-bottom">We'd like to reward you for the good you give. For each hour you volunteer for a nonprofit, create and earn 1 Current.</h5>
-            <h5 class="white">Currents can be used with participating businesses for partial payment.</h5>
+            <h5 class="white">Use Currents with participating businesses, or "give twice" by donating them back to organizations.</h5>
           </div>
         </div>
 
         <div class="row center three-halves-margin-top two-margin-bottom">
           <div class="small-12 medium-6 large-4 small-centered columns">
-            <!-- <button class="signup-box_open button round large clear">Sign me up</button> -->
             <a class="signup-box_open button round clear large">Join the community</a>
 
             <a href="#2" class="home-link white"><p class="no-margin-bottom">Benefits</p><i class="half-margin-left fa fa-lg fa-angle-down"></i></a>
@@ -70,27 +69,37 @@
                 <div class="center medium-4 columns">
                   <p class="one-margin-bottom grey">Feel valued</p>
                   <input type="radio" id="benefit-btn-1" name="benefit-[]" value="" class="hidden styled-radio"/>
-                    <label for="benefit-btn-1" id="reward-button" class="benefit-icon button"><i class="fa fa-2x fa-heartbeat"></i></label>
+                    <label for="benefit-btn-1" id="button-1" class="benefit-icon button"><i class="fa fa-2x fa-heart"></i></label>
                 </div>
                 <div class="center medium-4 columns">
-                  <p class="one-margin-bottom grey">Get paid</p>
+                  <p class="one-margin-bottom grey">Earn Currents</p>
                   <input type="radio" id="benefit-btn-2" name="benefit-[]" value="" class="hidden styled-radio" checked />
-                    <label for="benefit-btn-2" id="vol-button" class="benefit-icon button"><i class="fa fa-2x fa-users"></i></label>
+                    <label for="benefit-btn-2" id="button-2" class="benefit-icon button">
+                      <svg id="home-symbol" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" viewBox="0 0 140 140.13137">
+                        <g transform="translate(-396.62 -884.72)" fill="none">
+                          <circle cx="466.69" transform="scale(1,-1)" cy="-954.78" r="0" stroke-width="11" />
+                          <g transform="translate(11.475)">
+                            <path d="m509.65 149.95a64.066 64.066 0 0 1 -42.959 16.538 64.066 64.066 0 0 1 -64.066 -64.066 64.066 64.066 0 0 1 64.066 -64.066 64.066 64.066 0 0 1 42.961 16.539" transform="translate(0 852.36)" stroke-width="12"/>
+                            <circle stroke-width="11" cy="954.78" cx="466.69" r="34.558" />
+                          </g>
+                        </g>
+                      </svg>
+                    </label>
                 </div>
 
                 <div class="center medium-4 columns">
-                  <p class="one-margin-bottom grey">Give twice</p>
+                  <p class="one-margin-bottom grey">Show your work</p>
                   <input type="radio" id="benefit-btn-3" name="benefit-[]" value="" class="hidden styled-radio"/>
-                    <label for="benefit-btn-3" id="tax-button" class="benefit-icon button"><i class="fa fa-2x fa-money"></i></label>
+                    <label for="benefit-btn-3" id="button-3" class="benefit-icon button"><i class="fa fa-2x fa-comments"></i></label>
                 </div>
               </div>
 
               <div id="benefit-box" class="row center">
-                <p id="benefit-1" class="benefit-info one-margin-top center hidden">We are more committed to doing our best when we receive value in exchange for our effort. Plus it's more fun.</p>
+                <p id="benefit-1" class="benefit-info one-margin-top center hidden">We are more determined to do our best when we receive value in exchange for our effort. And with openCurrents, it's more fun.</p>
 
-                <p id="benefit-2" class="benefit-info one-margin-top center">Receive the most exciting new currency in town by simply doing good work and recording your hours.</p>
+                <p id="benefit-2" class="benefit-info one-margin-top center">Create and receive the most exciting new currency in town by simply doing good work and recording your hours.</p>
 
-                <p id="benefit-3" class="benefit-info one-margin-top center hidden">You can always opt-in to convert your Currents to tax deductions, all while gaining new customers.</p>
+                <p id="benefit-3" class="benefit-info one-margin-top center hidden">Build your social impact portfolio with every hour that you contribute to the greater good. Share your progress and see what others are doing too.</p>
               </div>
             </div>
 
@@ -98,23 +107,33 @@
               <div class="small-12 small-centered columns">
                 <div class="icon-box center">
                   <input type="radio" id="benefit-sm-1" name="benefit-sm-[]" value="" class="hidden styled-radio" checked/>
-                    <label for="benefit-sm-1" class="benefit-icon button"><i class="fa fa-2x fa-heartbeat"></i></label>
-                  <p class="grey half-margin-bottom large-text">Create community</p>
-                  <p class="benefits-detail">Have a direct impact on your community by valuing the time new and existing customers give towards the greater good.</p>
+                    <label for="benefit-sm-1" class="benefit-icon button">
+                      <svg id="home-symbol" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" viewBox="0 0 140 140.13137">
+                        <g transform="translate(-396.62 -884.72)" stroke="#1f4975" fill="none">
+                          <circle cx="466.69" transform="scale(1,-1)" cy="-954.78" r="0" stroke-width="11" />
+                          <g transform="translate(11.475)">
+                            <path d="m509.65 149.95a64.066 64.066 0 0 1 -42.959 16.538 64.066 64.066 0 0 1 -64.066 -64.066 64.066 64.066 0 0 1 64.066 -64.066 64.066 64.066 0 0 1 42.961 16.539" transform="translate(0 852.36)" stroke-width="12"/>
+                            <circle stroke-width="11" cy="954.78" cx="466.69" r="34.558" />
+                          </g>
+                        </g>
+                      </svg>
+                    </label>
+                  <p class="grey half-margin-bottom large-text">Earn Currents</p>
+                  <p class="benefits-detail">Create and receive the most exciting new currency in town by simply doing good work and recording your hours.</p>
                 </div>
 
                 <div class="icon-box center">
                   <input type="radio" id="benefit-sm-2" name="benefit-sm-[]" value="" class="hidden styled-radio"/>
-                    <label for="benefit-sm-2" class="benefit-icon button"><i class="fa fa-2x fa-users"></i></label>
-                  <p class="grey half-margin-bottom large-text">Increase customer loyalty</p>
-                  <p class="benefits-detail hidden">New and existing customers will be thrilled that you value the time they give to the cause they care most about.</p>
+                    <label for="benefit-sm-2" class="benefit-icon button"><i class="fa fa-2x fa-heart"></i></label>
+                  <p class="grey half-margin-bottom large-text">Feel valued</p>
+                  <p class="benefits-detail hidden">We are more determined to do our best when we receive value in exchange for our effort. And with openCurrents, it's more fun.</p>
                 </div>
 
                 <div class="icon-box center">
                   <input type="radio" id="benefit-sm-3" name="benefit-sm-[]" value="" class="hidden styled-radio"/>
-                    <label for="benefit-sm-3" class="benefit-icon button"><i class="fa fa-2x fa-money"></i></label>
-                  <p class="grey half-margin-bottom large-text">Receive tax deduction</p>
-                  <p class="benefits-detail hidden">You can always opt-in to convert your Currents to tax deductions, all while gaining new customers.</p>
+                    <label for="benefit-sm-3" class="benefit-icon button"><i class="fa fa-2x fa-comments"></i></label>
+                  <p class="grey half-margin-bottom large-text">Show your work</p>
+                  <p class="benefits-detail hidden">Build your social impact portfolio with every hour that you contribute to the greater good. Share your progress and see what others are doing too.</p>
                 </div>
               </div>
             </div>
@@ -137,10 +156,10 @@
           </div>
         </div>
 
-        <div class="row center collapse">
+        <div class="row center half-margin-top collapse">
           <div class="small-11 small-centered columns">
-            <h3 class="home-quote white half-margin-bottom">"Business is heroic because it<br class="hide-for-small-only"> lifts people out of poverty <br class="hide-for-small-only">and creates prosperity."</h3>
-            <h4 class="home-quote white">- John Mackey, CEO of Whole Foods</h4>
+            <h3 class="home-quote white half-margin-bottom">“We make a living by what we get. <br class="hide-for-small-only">We make a life by what we give.”</h3>
+            <h4 class="home-quote white">- Winston Churchill</h4>
           </div>
         </div>
 
@@ -170,7 +189,7 @@
         <div id="4" class="header-spacer"></div>
         <div class="row center">
           <div class="medium-8 small-centered columns">
-            <h3 class="title-sub">Hassle free exchange</h3>
+            <h3 class="title-sub">Getting started</h3>
           </div>
         </div>
 
@@ -178,11 +197,11 @@
           <div class="two-margin-bottom center small-centered medium-12 columns">
             <div class="relative small-12 medium-4 columns">
               <div class="row">
-                <div for="benefit-sm-1" class="intro-icon"><i class="fa fa-2x fa-user-plus"></i></div>
-                <p class="no-margin-bottom"><strong>Join the community</strong></p>
+                <div for="benefit-sm-1" class="intro-icon"><i class="fa fa-2x fa-clock-o"></i></div>
+                <p class="no-margin-bottom"><strong>Record hours</strong></p>
               </div>
               <div class="business-table row">
-                <p class="small-text">Create an account to start accepting Currents. We will be in touch to help you set up an offer in the marketplace.</p>
+                <p class="small-text">Create an account and start investing time for the greater good. Register for an event or submit your own hours for approval.</p>
                 <img class="show-for-small-only business-arrow-sm" src="{% static "img/arrow-down.png" %}"/>
               </div>
 
@@ -191,12 +210,22 @@
 
             <div class="relative small-12 medium-4 columns">
               <div class="row">
-                <div for="benefit-sm-1" class="intro-icon"><i class="fa fa-2x fa-credit-card"></i></div>
-                <p class="no-margin-bottom"><strong>Customer pays full price</strong></p>
+                <div for="benefit-sm-1" class="intro-icon">
+                  <svg id="home-symbol" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" viewBox="0 0 140 140.13137">
+                    <g transform="translate(-396.62 -884.72)" stroke="#1f4975" fill="none">
+                      <circle cx="466.69" transform="scale(1,-1)" cy="-954.78" r="0" stroke-width="11" />
+                      <g transform="translate(11.475)">
+                        <path d="m509.65 149.95a64.066 64.066 0 0 1 -42.959 16.538 64.066 64.066 0 0 1 -64.066 -64.066 64.066 64.066 0 0 1 64.066 -64.066 64.066 64.066 0 0 1 42.961 16.539" transform="translate(0 852.36)" stroke-width="12"/>
+                        <circle stroke-width="11" cy="954.78" cx="466.69" r="34.558" />
+                      </g>
+                    </g>
+                  </svg>
+                </div>
+                <p class="no-margin-bottom"><strong>Create Currents</strong></p>
               </div>
 
               <div class="business-table row">
-                <p class="small-text">Nothing changes at point of sale. Customer sends proof of purchase to openCurrents.</p>
+                <p class="small-text">Earn a Current for every hour you give.  Freely exchange Currents with peers or participating businesses as partial payment.</p>
                 <img class="show-for-small-only business-arrow-sm" src="{% static "img/arrow-down.png" %}"/>
               </div>
 
@@ -205,12 +234,12 @@
 
             <div class="small-12 medium-4 columns">
               <div class="row">
-                <div for="benefit-sm-1" class="intro-icon"><i class="fa fa-2x fa-envelope-open"></i></div>
-                <p class="no-margin-bottom"><strong>Receive monthly invoice</strong>
+                <div for="benefit-sm-1" class="intro-icon"><i class="fa fa-2x fa-money"></i></div>
+                <p class="no-margin-bottom"><strong>Get cash back</strong>
               </div>
 
               <div class="business-table row">
-                <p class="small-text">We total your monthly activity, pay discounts to customers, and send Currents to your account. </p>
+                <p class="small-text">You will receive cash back when paying to participating businesses, or pay Currents to friends directly.</p>
               </div>
             </div>
           </div>
@@ -228,8 +257,7 @@
 
         <div class="row collapse center">
           <div class="small-11 medium-6 small-centered columns">
-            <h2 class="title-sub white">Join openCurrents</h2>
-            <p class="white">Register now to get additional benefits as a pilot business. We'll be in touch soon!</p> 
+            <h2 class="title white">Join openCurrents</h2>
           </div>
         </div>
 
@@ -249,16 +277,12 @@
               <div class="input-left small-12 columns">
                 <input class="home-input lead center" type="email" name="user_email" placeholder="Email address" required />
               </div>
-
-              <div class="small-12 columns">
-                <input class="home-input lead center" type="text" name="org_name" placeholder="Business name" />
-              </div>
             </div>
           </div>
 
           <div class="row one-margin-top two-margin-bottom center">
             <div class="medium-6 small-centered columns">
-              <input type="submit" class="button large round clear" value="Register"/>
+              <input type="submit" class="button large round clear" value="I'm in!"/>
               <a href="javascript:void(Tawk_API.toggle())" class="large-text white home-link"><p class="no-margin-bottom">I have a question<i class="half-margin-left fa fa-angle-right"></i></p></a>
             </div>
           </div>
@@ -296,10 +320,7 @@
             </div>
             <div class="small-12 columns">
               <input type="email" name="user_email" placeholder="Email address" class="large-text center" tabindex="0" required />
-            </div>
-            <div class="small-12 columns">
-              <input type="text" name="org_name" placeholder="Business name" class="large-text center" tabindex="0" />
-            </div>            
+            </div>      
           </div>
         </div>
 
@@ -410,23 +431,23 @@
         // non-small benefits box
         var val = 2;
 
-        $('#reward-button').click(function(){
-          $('#benefit-'+val+'').fadeOut(777, function(){
-            $('#benefit-1').fadeIn(777);
+        $('#button-1').click(function(){
+          $('#benefit-'+val+'').fadeOut(555, function(){
+            $('#benefit-1').fadeIn(555);
           });
           val = 1;
         });
 
-        $('#vol-button').click(function(){
-          $('#benefit-'+val+'').fadeOut(777, function(){
-            $('#benefit-2').fadeIn(777);
+        $('#button-2').click(function(){
+          $('#benefit-'+val+'').fadeOut(555, function(){
+            $('#benefit-2').fadeIn(555);
           });
           val = 2;
         });
 
-        $('#tax-button').click(function(){
-          $('#benefit-'+val+'').fadeOut(777, function(){
-            $('#benefit-3').fadeIn(777);
+        $('#button-3').click(function(){
+          $('#benefit-'+val+'').fadeOut(555, function(){
+            $('#benefit-3').fadeIn(555);
           });
           val = 3;
         });

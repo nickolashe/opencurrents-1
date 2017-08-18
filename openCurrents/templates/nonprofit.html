@@ -21,7 +21,7 @@
       <div class="show-for-large one-margin-top medium-8 right columns end">
         <a href="#1" class="three-halves-margin-right navy">For nonprofits</a>
         <a href="{% url 'openCurrents:business' %}" class="three-halves-margin-right">For businesses</a>
-        <a href="{% url 'openCurrents:volunteer' %}" class="three-halves-margin-right">For you</a>
+        <a href="{% url 'openCurrents:volunteer' %}" class="three-halves-margin-right">For volunteers</a>
         <a href="{% url 'openCurrents:our-story' %}" class="three-halves-margin-right">Our story</a>
         <a class="two-margin-right" href="{% url 'openCurrents:login' %}">Log in</a>
       </div>
@@ -89,7 +89,7 @@
           </div>
 
           <div id="benefit-box" class="row center">
-            <p id="benefit-1" class="benefit-info one-margin-top center">Record activity seamlessly in one place. Check in volunteers at events with one click or approve hours submitted. Alternatively, import hours from existing sources to reward your volunteers.</p>
+            <p id="benefit-1" class="benefit-info one-margin-top center">Record activity seamlessly in one place. Check in volunteers at events with one click or approve hours submitted. Alternatively, import hours from existing sources to generate Currents.</p>
 
             <p id="benefit-2" class="benefit-info one-margin-top center hidden">openCurrents enables social organizations to offer an incentive that attracts a whole new group of committed, quality volunteers.</p>
 
@@ -103,7 +103,7 @@
               <input type="radio" id="benefit-sm-2" name="benefit-sm-[]" value="" class="hidden styled-radio" checked />
                 <label for="benefit-sm-2" id="time-button" class="benefit-icon button"><i class="fa fa-2x fa-clock-o"></i></label>
               <p class="grey half-margin-bottom large-text">Easy hour tracking</p>
-              <p class="benefits-detail hidden">Record and report volunteer activity seamlessly in one place. Check in volunteers at events with one click or approve hours submitted.</p>
+              <p class="benefits-detail hidden">Record volunteer activity seamlessly in one place. Check in volunteers at events with one click or approve hours submitted. Alternatively, import hours from existing sources to generate Currents.</p>
             </div>
 
             <div class="icon-box center">
@@ -154,7 +154,7 @@
           </div>
         </div>
 
-        <div class="row center collapse">
+        <div class="row center half-margin-top collapse">
           <div class="medium-9 small-centered columns">
           <h3 class="home-quote white half-margin-bottom">"I can cast a stone to create a ripple."</h3>
             <h3 class="home-quote white">- Mother Theresa</h3>
@@ -298,25 +298,25 @@
         });
 
         // non-small benefits box
-        var val = 2;
+        var val = 1;
 
         $('#time-button').click(function(){
-          $('#benefit-'+val+'').fadeOut(777, function(){
-            $('#benefit-1').fadeIn(777);
+          $('#benefit-'+val+'').fadeOut(444, function(){
+            $('#benefit-1').fadeIn(444);
           });
           val = 1;
         });
 
         $('#vol-button').click(function(){
-          $('#benefit-'+val+'').fadeOut(777, function(){
-            $('#benefit-2').fadeIn(777);
+          $('#benefit-'+val+'').fadeOut(444, function(){
+            $('#benefit-2').fadeIn(444);
           });
           val = 2;
         });
 
         $('#fund-button').click(function(){
-          $('#benefit-'+val+'').fadeOut(777, function(){
-            $('#benefit-3').fadeIn(777);
+          $('#benefit-'+val+'').fadeOut(444, function(){
+            $('#benefit-3').fadeIn(444);
           });
           val = 3;
         });
