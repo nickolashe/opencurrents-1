@@ -5,10 +5,10 @@
   <head>
     {% include "head.html" %}
   </head>
-
+  
   <body>
     {% include "header.html" %}
-
+    
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
         {% if status_msg %}
@@ -16,52 +16,56 @@
           {{status_msg}}
         </div>
         {% endif %}
-
+        
         <div class="row">
-          <h3 class="title">Volunteers invited</h3>
+          <h3 class="title">Oops! What just happened??</h3>
         </div>
-
+        
         <div class="row one-margin-bottom center">
           <div class="small-12 medium-8 small-centered columns">
-            <p>You've invited {{vol_no}} volunteers to record hours with openCurrents. Nicely done!</p>
-
-            <a href="{% url 'openCurrents:admin-profile' %}" class="button round">Go home</a>
+            <p class="three-halves-margin-bottom">Don't worry, everything is going to be fine. And no, it's not your fault - it's ours. But really, we want to know - what did you do to arrive here? Please click the chat bubble at the bottom right to describe what happened. And then you can go home. Thank you!</p>
+            <a href="javascript:void(Tawk_API.toggle())" class="button round">Share feedback</a>
+            {% if orgid %}
+            <a href="{% url 'openCurrents:admin-profile' %}" class="button round secondary">Go home</a>
+            {% else %}
+            <a href="{% url 'openCurrents:profile' %}" class="button round secondary">Go home</a>
+            {% endif %}
           </div>
         </div>
-
+        
         <div id="push"></div>
-
+    
       <!-- wrapper div-->
       </div>
-
+      
       {% include "footer.html" %}
-
+            
     <!--container div -->
     </div>
-
+    
     <div id="bottom-stripe" class="full-width"></div>
-
+    
     <div off-canvas="menu right shift" id="menu">
       {% include "menu.html" %}
     </div>
-
+  
     <div id="-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
         <h3 class="popup-title"></h3>
       </div>
-
+      
       <div class="row">
         <div class="small-centered medium-10 columns">
-
+          
           <p></p>
-
+          
           <button class="tax-id-popup_close button round">Okay</button>
           <a><button class="button round secondary"></button></a>
         </div>
       </div>
     </div>
-
-
+    
+    
     <script type="text/javascript">
       $(document).ready(function(){
         $('#').popup({
@@ -71,7 +75,7 @@
         });
       });
     </script>
-
+    
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
   </body>
 </html>

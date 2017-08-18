@@ -27,13 +27,21 @@
               <div class="small-12 medium-6 small-centered columns">
                 <input type="email" name="user_email" class="center" placeholder="Email address"/>
                 <input type="password" name="user_password" class="center" placeholder="Password"/>
-                <!--<div class="checkbox center">
-                  <label id="remember-label" class="lead"><input type="checkbox" name="remember-checkbox" id="remember-checkbox" />Remember my email address</label>
-                </div>-->
               </div>
             </div>
-            <div class="row center one-margin-top">
+            <div class="row center">
+              <div class="checkbox one-margin-bottom">
+                <input type="checkbox" name="remember-me" id="remember-me" class="custom-checkbox" />
+                  <label for="remember-me">Keep me logged in</label>
+              </div>
+
               <button type="submit" class="button round">Enter</button>
+            </div>
+
+            <div class="row center one-margin-top">
+              <a class="forgotpassword-box_open">Forgot password?</a>
+            </div>
+
             </div>
         </form>
 
@@ -51,6 +59,37 @@
       <div off-canvas="menu right shift" id="menu">
         {% include "menu.html" %}
       </div>
+
+    <div id="forgotpassword-box" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h2 class="one-margin-top no-margin-bottom">Request password reset</h2>
+      </div>
+
+      <form method="post" action="{% url 'openCurrents:password_reset_request' %}"> 
+        {% csrf_token %}
+        <div class="row three-halves-margin-bottom half-margin-top">
+          <div class="center small-12 medium-9 small-centered columns">
+            <div class="small-12 columns">
+              <input type="email" name="user_email" class="centered" placeholder="Email address"/>
+              <input type="submit" class="button large round" value="Enter"/>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+
+   <script type="text/javascript"> 
+     $(document).ready(function(){
+
+        $('#forgotpassword-box').popup({
+          vertical: 'top',
+          transition: 'all 0.75s',
+          scrolllock: false,
+        });
+      });
+    </script>
+
 
     <script>
       ( function ( $ ) {
