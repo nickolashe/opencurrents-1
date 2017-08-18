@@ -26,7 +26,7 @@ def diffInHours(t1, t2):
 
 class Org(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    website = models.CharField(max_length=100, unique=True, null=True)
+    website = models.CharField(max_length=100, null=True, blank=True)
     status = models.CharField(max_length=50, null=True)
     mission = models.CharField(max_length=4096, null=True)
     reason = models.CharField(max_length=4096, null=True)
@@ -59,7 +59,6 @@ class OrgUser(models.Model):
 
     def __unicode__(self):
         return ' '.join([
-            'User',
             self.user.email,
             'is',
             str(self.affiliation),
@@ -145,12 +144,18 @@ class Event(models.Model):
     # coordinator contact info
     coordinator_firstname = models.CharField(max_length=128)
     coordinator_email = models.EmailField()
+
+    # event creator userid and notification flag
+    creator_id = models.IntegerField(default=0)
+    notified = models.BooleanField(default=False)
+
     MANUAL = 'MN'
     GROUP = 'GR'
     event_type_choices = (
         (MANUAL, 'ManualTracking'),
         (GROUP, 'Group'),
     )
+
     event_type = models.CharField(
         max_length=2,
         choices=event_type_choices,
@@ -212,15 +217,18 @@ class UserEventRegistration(models.Model):
 
 
 class UserTimeLog(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    is_verified = models.BooleanField(default=True)
+    user = models.ForeignKey(User)
+    event = models.ForeignKey(Event)
+    is_verified = models.BooleanField(default=False)
+    deferments = models.ManyToManyField(
+        User,
+        through='DeferredUserTime',
+        related_name='deferments'
+    )
 
     # start / end timestamps of the contributed time
     datetime_start = models.DateTimeField('start time')
     datetime_end = models.DateTimeField('end time', null=True, blank=True)
-
-    datetime_duration = models.DecimalField(max_digits=12, decimal_places=2, default=0.0)
 
     # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)
@@ -251,6 +259,29 @@ class UserTimeLog(models.Model):
         return status
 
 
+class DeferredUserTime(models.Model):
+    user = models.ForeignKey(User)
+    usertimelog = models.ForeignKey(UserTimeLog)
+
+    # created / updated timestamps
+    date_created = models.DateTimeField('date created', auto_now_add=True)
+    date_updated = models.DateTimeField('date updated', auto_now=True)
+
+    class Meta:
+        unique_together = ('user', 'usertimelog')
+
+    def __unicode__(self):
+        return ' '.join([
+            self.usertimelog.event.project.org.name,
+            'admin',
+            self.user.email,
+            'deferred time by',
+            self.usertimelog.user.email,
+            'starting on',
+            str(self.usertimelog.datetime_start),
+        ])
+
+
 # verification tokens
 class Token(models.Model):
     email = models.EmailField()
@@ -262,7 +293,7 @@ class Token(models.Model):
     referrer = models.ForeignKey(
         User,
         null=True,
-        on_delete=models.CASCADE        
+        on_delete=models.CASCADE
     )
 
     # token expiration timestamp

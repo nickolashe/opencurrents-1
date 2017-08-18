@@ -12,6 +12,13 @@
 
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
+
+        {% if status_msg %}
+        <div class="success row half-margin-top">
+          {{status_msg}}
+        </div>
+        {% endif %}
+
         <div class="hide-for-small-only row full-width collapse two-margin-top">
           <div class="left medium-6 medium-offset-1 large-5 large-offset-2 columns">
             <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="fit-left round" />
@@ -51,19 +58,16 @@
               <h6 class="inline"> {{ user_balance }} </h6>
               <div class="no-margin-top row">
                 <a class="earn-currents-popup_open button round tiny">Earn Currents</a>
-                <a href="{% url 'openCurrents:marketplace' %}" class="button round secondary tiny">Redeem</a>
+                <!-- <a href="{% url 'openCurrents:marketplace' %}" class="button round secondary tiny">Redeem</a> -->
               </div>
             </div>
           </div>
         </div>
-
         
-
-        {% if events_upcoming %}
-          <div id="project-list" class="row full-width collapse left one-margin-top">
-            <div class="small-11 medium-10 large-8 small-centered columns">
-              <h6 class="one-margin-bottom">My volunteer events</h6>
-
+        <div class="row full-width collapse left one-margin-top">
+          <div class="small-11 medium-10 large-8 small-centered columns">
+            <h6 class="one-margin-bottom">My volunteer events</h6>
+            {% if events_upcoming %}
               {% for event in events_upcoming %}
                 {% if event.project.name != "ManualTracking" %}
                 <div class="row one-margin-bottom">
@@ -81,10 +85,12 @@
                 </div>
                 {% endif %}
               {% endfor %}
-
-            </div>
+            {% else %}
+              <p>You are not registered for any upcoming events. <a href="{% url 'openCurrents:upcoming-events' %}">Find one!</a></p>
+            {% endif %}
           </div>
-        {% endif %}
+        </div>
+        
 
         <!-- community feed code. Hardcoded not dynamic -->
         <!-- <div class="row full-width collapse one-margin-bottom">
@@ -233,18 +239,34 @@
         </div>
       </div>
     </div>
+    <div id="approve-hours-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h3 class="popup-title">Volunteers request approval</h3>
+      </div>
+
+      <div class="row center">
+        <div class="small-centered medium-10 columns">
+
+          <p class="three-halves-margin-bottom">Volunteers have tracked hours and need your signoff before Currents are issued to them. It is recommended that you approve volunteer hours once a week.</p>
+
+          <a href="{% url 'openCurrents:approve-hours' %}" class="button round">View requests</button>
+          <a><button class="approve-hours-popup_close button round secondary">Close</button></a>
+        </div>
+      </div>
+    </div>
 
 
     <script type="text/javascript">
-      if(!localStorage.viewed){
-        localStorage.viewed=1;
-        var open = true;
-      }
-      else{
-        var open = false;
-      }
-
       $(document).ready(function(){
+
+        if(!localStorage.viewed){
+          localStorage.viewed=1;
+          var open = true;
+        }
+        else{
+          var open = false;
+        }
+
         $('#rsvp-popup, #earn-currents-popup').popup({
           vertical: 'top',
           transition: 'all 0.75s',
@@ -258,6 +280,18 @@
           // autoopen: true,
         });
       });
+    </script>
+
+    <script type="text/javascript">
+
+      if ({{app_hr}}){
+          $('#approve-hours-popup').popup({
+            vertical: 'top',
+            transition: 'all 0.75s',
+            scrolllock: true,
+            autoopen: true,
+          });
+      }
     </script>
 
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
