@@ -52,6 +52,8 @@
   min-height: 100vh;
 }
 
+
+/* small */
 @media (max-width: 41.9375em) {
 
   #home:after {
@@ -122,7 +124,7 @@
     left:0;
     right:0;
     z-index:-1;
-    background: url(/static/img/kids.jpg) center center;
+    background: url(/static/img/tree.jpg) center 60px;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
