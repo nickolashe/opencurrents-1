@@ -46,7 +46,7 @@ class Org(models.Model):
 
 # user-org affiliations
 class OrgUser(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     org = models.ForeignKey(Org)
     affiliation = models.CharField(max_length=50, null=True)
 
@@ -63,7 +63,7 @@ class OrgUser(models.Model):
             'is',
             str(self.affiliation),
             'at',
-            self.org.name,
+            self.org.name
         ])
 
 
@@ -137,14 +137,14 @@ class ManualTracking(models.Model):
 '''
 
 class Event(models.Model):
-    project = models.ForeignKey(Project)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
     description = models.CharField(max_length=8192)
     location = models.CharField(max_length=1024)
 
     # coordinator contact info
     coordinator_firstname = models.CharField(max_length=128)
     coordinator_email = models.EmailField()
-    
+
     # event creator userid and notification flag
     creator_id = models.IntegerField(default=0)
     notified = models.BooleanField(default=False)
@@ -200,13 +200,16 @@ class ProjectTemplate(models.Model):
 
 
 class UserEventRegistration(models.Model):
-    user = models.ForeignKey(User)
-    event = models.ForeignKey(Event)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
     is_confirmed = models.BooleanField(default=False)
 
     # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)
     date_updated = models.DateTimeField('date updated', auto_now=True)
+
+    class Meta:
+        unique_together = ('user', 'event')
 
     def __unicode__(self):
         return ' '.join([
@@ -290,7 +293,11 @@ class Token(models.Model):
     token_type = models.CharField(max_length=20)
 
     # referring user
-    referrer = models.ForeignKey(User, null=True)
+    referrer = models.ForeignKey(
+        User,
+        null=True,
+        on_delete=models.CASCADE
+    )
 
     # token expiration timestamp
     date_expires = models.DateTimeField(
