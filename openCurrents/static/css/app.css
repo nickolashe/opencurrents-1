@@ -1260,15 +1260,8 @@ i:hover ~ .addtocalendar {
   font-size: 0.875rem;
 }
 
-@media screen and (min-width: 42em) {
-  .mini-open {
-    visibility: hidden;
-    color: #24b2e7;
-  }
-}
-
-.hover-row:hover .mini-open {
-  visibility: visible;
+.mini-open {
+  
 }
 
 .mini-menu {
