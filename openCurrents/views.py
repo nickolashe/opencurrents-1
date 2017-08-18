@@ -898,7 +898,6 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
             datetime_end=form_data['datetime_end'],
             coordinator_firstname=form_data['coordinator_firstname'],
             coordinator_email=form_data['coordinator_email'],
-            creator_id = self.userid
         )
         event.save()
         try:
@@ -906,21 +905,51 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
             if (coord_user.id != self.userid) and not OrgUser.objects.filter(user__id = coord_user.id).exists():
                 #send an invite to join to org as admin
                 try:
-                    sendTransactionalEmail(
-                        'verify-email',
-                        None,
-                        [
-                            {
-                                'name': 'FIRSTNAME',
-                                'content': form_data['coordinator_firstname']
-                            },
-                            {
-                                'name': 'EMAIL',
-                                'content': form_data['coordinator_email']
-                            }
-                        ],
-                        form_data['coordinator_email']
-                    )
+                    admin_user = User.objects.get(id=self.userid)
+                    sendContactEmail(
+                            'invite-admin',
+                            None,
+                            [
+                                {
+                                    'name': 'FNAME',
+                                    'content': form_data['coordinator_firstname']
+                                },
+                                {
+                                    'name': 'ADMIN_FNAME',
+                                    'content': admin_user.first_name
+                                },
+                                {
+                                    'name': 'ADMIN_LNAME',
+                                    'content': admin_user.last_name
+                                },
+                                {
+                                    'name': 'EVENT',
+                                    'content': True
+                                },
+                                {
+                                    'name': 'ORG_NAME',
+                                    'content': Org.objects.get(id=self.orgid).name
+                                },
+                                {
+                                    'name': 'DATE',
+                                    'content': form_data['datetime_start'].date()
+                                },
+                                {
+                                    'name': 'START_TIME',
+                                    'content': form_data['datetime_start'].time()
+                                },
+                                {
+                                    'name': 'END_TIME',
+                                    'content': form_data['datetime_start'].time()
+                                },
+                                {
+                                    'name': 'EMAIL',
+                                    'content': form_data['coordinator_email']
+                                }
+                            ],
+                            form_data['coordinator_email'],
+                            admin_user.email
+                        )
                 except Exception as e:
                     logger.error(
                         'unable to send transactional email: %s (%s)',
@@ -1124,20 +1153,49 @@ class EditEventView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
                 if (coord_user.id != self.request.user.id) and not OrgUser.objects.filter(user__id = coord_user.id).exists():
                     #send an invite to join to org as admin
                     try:
-                        sendTransactionalEmail(
-                            'verify-email',
+                        sendContactEmail(
+                            'invite-admin',
                             None,
                             [
                                 {
-                                    'name': 'FIRSTNAME',
-                                    'content': post_data['coordinator_firstname']
+                                    'name': 'FNAME',
+                                    'content': str(post_data['coordinator-name'])
+                                },
+                                {
+                                    'name': 'ADMIN_FNAME',
+                                    'content': self.request.user.first_name
+                                },
+                                {
+                                    'name': 'ADMIN_LNAME',
+                                    'content': self.request.user.last_name
+                                },
+                                {
+                                    'name': 'EVENT',
+                                    'content': True
+                                },
+                                {
+                                    'name': 'ORG_NAME',
+                                    'content': Organisation
+                                },
+                                {
+                                    'name': 'DATE',
+                                    'content': str(post_data['project-date'])
+                                },
+                                {
+                                    'name': 'START_TIME',
+                                    'content': str(post_data['project-start'])
+                                },
+                                {
+                                    'name': 'END_TIME',
+                                    'content': str(post_data['project-end'])
                                 },
                                 {
                                     'name': 'EMAIL',
-                                    'content': post_data['coordinator_email']
+                                    'content': post_data['coordinator-email']
                                 }
                             ],
-                            post_data['coordinator_email']
+                            post_data['coordinator-email'],
+                            self.request.user.email
                         )
                     except Exception as e:
                         logger.error(
@@ -1441,7 +1499,7 @@ class EventDetailView(LoginRequiredMixin, SessionContextView, DetailView):
         # check if event coordinator
         is_coord = Event.objects.filter(id=context['event'].id,coordinator_email=context['event'].coordinator_email).exists()
 
-        context['registered'] = is_registered
+        context['is_registered'] = is_registered
         context['admin'] = is_admin
         context['coordinator'] = is_coord and co_ordinator
         if is_admin and not is_coord:
@@ -1663,7 +1721,33 @@ def event_register(request, pk):
             is_admin_not_coord = True
         else:
             is_admin_not_coord = False
-        if (message != ""):
+        merge_var_list = [
+            {
+                'name': 'USER_FIRSTNAME',
+                'content': user.first_name
+            },
+            {
+                'name': 'USER_LASTNAME',
+                'content': user.last_name
+            },
+            {
+                'name': 'USER_EMAIL',
+                'content': user.email
+            },
+            {
+                'name': 'ADMIN_FIRSTNAME',
+                'content': event.coordinator_firstname
+            },
+            {
+                'name': 'ADMIN_EMAIL',
+                'content': event.coordinator_email
+            },
+            {
+                'name': 'DATE',
+                'content': json.dumps(event.datetime_start,cls=DatetimeEncoder).replace('"','')
+            }
+        ]
+        if message:
             logger.info('User %s registered for event %s wants to send msg %s ', user.username, event.id, message)
             if is_coord:
                 #contact all volunteers
@@ -1674,45 +1758,16 @@ def event_register(request, pk):
                     if(reg.user.email not in reg_list_uniques):
                         reg_list_uniques.append({"email":reg.user.email,"type":"to"})
                 try:
+                    merge_var_list.append("{'name': 'MESSAGE','content': "+message+"}")
                     sendBulkEmail(
                         'volunteer-messaged',
                         None,
-                        [
-                            {
-                                'name': 'USER_FIRSTNAME',
-                                'content': user.first_name
-                            },
-                            {
-                                'name': 'USER_LASTNAME',
-                                'content': user.last_name
-                            },
-                            {
-                                'name': 'USER_EMAIL',
-                                'content': user.email
-                            },
-                            {
-                                'name': 'ADMIN_FIRSTNAME',
-                                'content': event.coordinator_firstname
-                            },
-                            {
-                                'name': 'ADMIN_EMAIL',
-                                'content': event.coordinator_email
-                            },
-                            {
-                                'name': 'MESSAGE',
-                                'content': message
-                            },
-                            {
-                                'name': 'DATE',
-                                'content': json.dumps(event.datetime_start,cls=DatetimeEncoder).replace('"','')
-                            }
-
-                        ],
+                        merge_var_list,
                         reg_list_uniques,
                         user.email
                     )
+                    email_template = ''
                 except Exception as e:
-                    print(e)
                     logger.error(
                         'unable to send email: %s (%s)',
                         e,
@@ -1721,96 +1776,14 @@ def event_register(request, pk):
                     return redirect('openCurrents:500')
             elif is_admin_not_coord:
                 #contact coordinator as admin
-                print(event.coordinator_email)
-                try:
-                    sendContactEmail(
-                        'volunteer-messaged',
-                        None,
-                        [
-                            {
-                                'name': 'USER_FIRSTNAME',
-                                'content': user.first_name
-                            },
-                            {
-                                'name': 'USER_LASTNAME',
-                                'content': user.last_name
-                            },
-                            {
-                                'name': 'USER_EMAIL',
-                                'content': user.email
-                            },
-                            {
-                                'name': 'ADMIN_FIRSTNAME',
-                                'content': event.coordinator_firstname
-                            },
-                            {
-                                'name': 'ADMIN_EMAIL',
-                                'content': event.coordinator_email
-                            },
-                            {
-                                'name': 'MESSAGE',
-                                'content': message
-                            },
-                            {
-                                'name': 'DATE',
-                                'content': json.dumps(event.datetime_start,cls=DatetimeEncoder).replace('"','')
-                            }
-                        ],
-                        event.coordinator_email,
-                        user.email
-                    )
-                except Exception as e:
-                    logger.error(
-                        'unable to send contact email: %s (%s)',
-                        e.message,
-                        type(e)
-                    )
+                email_template = 'volunteer-messaged'
+                merge_var_list.append({'name': 'MESSAGE','content': message})
             else:
                 #mesaage the coordinator as volunteer
-                try:
-                    sendContactEmail(
-                        'volunteer-messaged',
-                        None,
-                        [
-                            {
-                                'name': 'USER_FIRSTNAME',
-                                'content': user.first_name
-                            },
-                            {
-                                'name': 'USER_LASTNAME',
-                                'content': user.last_name
-                            },
-                            {
-                                'name': 'USER_EMAIL',
-                                'content': user.email
-                            },
-                            {
-                                'name': 'ADMIN_FIRSTNAME',
-                                'content': event.coordinator_firstname
-                            },
-                            {
-                                'name': 'ADMIN_EMAIL',
-                                'content': event.coordinator_email
-                            },
-                            {
-                                'name': 'MESSAGE',
-                                'content': message
-                            },
-                            {
-                                'name': 'DATE',
-                                'content': json.dumps(event.datetime_start,cls=DatetimeEncoder).replace('"','')
-                            }
-                        ],
-                        event.coordinator_email,
-                        user.email
-                    )
-                except Exception as e:
-                    logger.error(
-                        'unable to send contact email: %s (%s)',
-                        e.message,
-                        type(e)
-                    )
+                email_template = 'volunteer-messaged'
+                merge_var_list.append({'name': 'MESSAGE','content': message})
         elif(not event_records):
+            email_template = 'volunteer-registered'
             logger.info('User %s registered for event %s with no optional msg %s ', user.username, event.id, message)
 
         if email_template:
