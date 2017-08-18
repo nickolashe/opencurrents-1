@@ -38,7 +38,7 @@
 
                              {% for k, v in value.iteritems %} 
                                {% if k != "Total" and v != 0 and k != "name" %}   
-                                 <p>{{k}}<span>{{v}}  hrs</span></p>
+                                 <p>{{k}}, {{v.1}}<span>{{v.0}}  hrs</span></p>
                                  <!--<p>Wednesday<span>2 hrs</span></p>
                                  <p>Thursday<span>3 hrs</span></p>-->
                                {% endif %}
