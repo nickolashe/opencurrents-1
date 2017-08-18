@@ -34,7 +34,7 @@
   }
 
   #volunteer {
-    background: url(/static/img/wheelbarrow.jpg) no-repeat center center fixed;
+    background: url(/static/img/kids.jpg) no-repeat center center fixed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -122,7 +122,7 @@
     left:0;
     right:0;
     z-index:-1;
-    background: url(/static/img/wheelbarrow.jpg) center bottom;
+    background: url(/static/img/kids.jpg) center center;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
