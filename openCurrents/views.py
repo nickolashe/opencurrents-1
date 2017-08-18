@@ -1350,6 +1350,14 @@ class EventDetailView(LoginRequiredMixin, SessionContextView, DetailView):
         context = super(EventDetailView, self).get_context_data(**kwargs)
         context['form'] = EventRegisterForm()
 
+        # determine whether the user has already registered for the event
+        is_registered = UserEventRegistration.objects.filter(
+            user__id=self.request.user.id,
+            event__id=context['event'].id,
+            is_confirmed=True
+        ).exists()
+        context['is_registered'] = is_registered
+
         return context
 
 
@@ -1521,111 +1529,92 @@ def event_checkin(request, pk):
 
 @login_required
 def event_register(request, pk):
+    event = Event.objects.get(id=pk)
     form = EventRegisterForm(request.POST)
 
     # validate form data
     if form.is_valid():
         user = request.user
-        event = Event.objects.get(id=pk)
         message = form.cleaned_data['contact_message']
-
-        #check for existing registration
-        event_records = UserEventRegistration.objects.filter(user__id=user.id, event__id=event.id, is_confirmed=True).exists()
+        merge_var_list = [
+            {
+                'name': 'USER_FIRSTNAME',
+                'content': user.first_name
+            },
+            {
+                'name': 'USER_LASTNAME',
+                'content': user.last_name
+            },
+            {
+                'name': 'USER_EMAIL',
+                'content': user.email
+            },
+            {
+                'name': 'ADMIN_FIRSTNAME',
+                'content': event.coordinator_firstname
+            },
+            {
+                'name': 'ADMIN_EMAIL',
+                'content': event.coordinator_email
+            },
+            {
+                'name': 'DATE',
+                'content': json.dumps(event.datetime_start,cls=DatetimeEncoder).replace('"','')
+            }
+        ]
 
         user_event_registration = UserEventRegistration(
             user=user,
             event=event,
             is_confirmed=True
         )
-        user_event_registration.save()
 
+        was_registered = False
+        try:
+            user_event_registration.save()
+        except IntegrityError:
+            logger.info(
+                'User %s already registered for event %s',
+                user.username,
+                event.id
+            )
+            was_registered = True
 
-        # if the volunteer entered an optional contact message, send to project coordinator
-        if (message != ""):
-            logger.info('User %s registered for event %s wants to send msg %s ', user.username, event.id, message)
+        email_template = None
+        # if the volunteer entered a contact message, send to event coordinator
+        if message:
+            email_template = 'volunteer-messaged'
+            merge_var_list.append({
+                'name': 'MESSAGE',
+                'content': message
+            })
+            logger.info(
+                'User %s wants to send msg %s to coordinator of event %s',
+                user.username,
+                message,
+                event.id
+            )
+        # else send a message to coordinator if user has registered for event
+        elif not was_registered:
+            email_template = 'volunteer-registered'
+            logger.info(
+                'User %s registered for event %s',
+                user.username,
+                event.id
+            )
 
+        if email_template:
             try:
                 sendContactEmail(
-                    'volunteer-messaged',
+                    email_template,
                     None,
-                    [
-                        {
-                            'name': 'USER_FIRSTNAME',
-                            'content': user.first_name
-                        },
-                        {
-                            'name': 'USER_LASTNAME',
-                            'content': user.last_name
-                        },
-                        {
-                            'name': 'USER_EMAIL',
-                            'content': user.email
-                        },
-                        {
-                            'name': 'ADMIN_FIRSTNAME',
-                            'content': event.coordinator_firstname
-                        },
-                        {
-                            'name': 'ADMIN_EMAIL',
-                            'content': event.coordinator_email
-                        },
-                        {
-                            'name': 'MESSAGE',
-                            'content': message
-                        },
-                        {
-                            'name': 'DATE',
-                            'content': json.dumps(event.datetime_start,cls=DatetimeEncoder).replace('"','')
-                        }
-                    ],
+                    merge_var_list,
                     event.coordinator_email,
                     user.email
                 )
             except Exception as e:
                 logger.error(
-                    'unable to send contact email: %s (%s)',
-                    e.message,
-                    type(e)
-                )
-        elif(not event_records):
-            logger.info('User %s registered for event %s with no optional msg %s ', user.username, event.id, message)
-
-            try:
-                sendContactEmail(
-                    'volunteer-registered',
-                    None,
-                    [
-                        {
-                            'name': 'USER_FIRSTNAME',
-                            'content': user.first_name
-                        },
-                        {
-                            'name': 'USER_LASTNAME',
-                            'content': user.last_name
-                        },
-                        {
-                            'name': 'USER_EMAIL',
-                            'content': user.email
-                        },
-                        {
-                            'name': 'ADMIN_FIRSTNAME',
-                            'content': event.coordinator_firstname
-                        },
-                        {
-                            'name': 'ADMIN_EMAIL',
-                            'content': event.coordinator_email
-                        },
-                        {
-                            'name': 'DATE',
-                            'content': json.dumps(event.datetime_start,cls=DatetimeEncoder).replace('"','')
-                        }
-                    ],
-                    event.coordinator_email,
-                    user.email
-                )
-            except Exception as e:
-                logger.error(
-                    'unable to send contact email: %s (%s)',
+                    'unable to send email: %s (%s)',
                     e.message,
                     type(e)
                 )
@@ -1633,17 +1622,7 @@ def event_register(request, pk):
         return redirect('openCurrents:registration-confirmed', event.id)
     else:
         logger.error('Invalid form: %s', form.errors.as_data())
-
-        context = {
-            'form': form,
-            'errors': form.errors.as_data().values()[0][0]
-        }
-
-        return render(
-            request,
-            'openCurrents/event-detail.html',
-            context
-        )
+        return redirect('openCurrents:event-detail', event.id)
 
 
 @login_required
