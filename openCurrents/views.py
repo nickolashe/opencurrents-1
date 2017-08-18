@@ -862,7 +862,7 @@ class AdminProfileView(OrgAdminPermissionMixin, SessionContextView, TemplateView
                 exclude_usertimelog.append(g_d_t.usertimelog.event)
         timelogs = timelogs.exclude(event__in=exclude_usertimelog)
 
-        context['user_time_log_status'] = timelogs
+        context['user_time_log_status'] = timelogs.exists()
 
         return context
 

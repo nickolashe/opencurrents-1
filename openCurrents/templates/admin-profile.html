@@ -12,6 +12,8 @@
 
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
+          <div id="status_msg" class="alert row half-margin-top">
+          </div>
 
           {% if num_events or num_vols %}
             <div class="success row one-margin-top">
@@ -63,7 +65,7 @@
           <div class="one-margin-top right medium-4 large-3 columns end">
             <!--h6 class="no-margin-bottom two-line-height">My hours tracked: [my_total]</h6-->
             <h6>Org hours tracked: {{ issued_total }}</h6>
-              <a href="{% url 'openCurrents:approve-hours' %}" class="button round tiny">Approve hours</a>
+              <a href="{% if user_time_log_status %}{% url 'openCurrents:approve-hours' %}{% else %}javascript:status(){% endif %}" class="button round tiny">Approve hours</a>
           </div>
         </div>
 
@@ -263,6 +265,9 @@
           }
         });
       });
+      function status(){
+        $('#status_msg').html("You already have all the hours approved.");
+      }
     </script>
 
 
