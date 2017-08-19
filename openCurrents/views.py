@@ -98,7 +98,7 @@ class SessionContextView(View):
 
         is_admin = False
         admin_org_group_names = [
-            '_'.join(['admin', str(userorg.id)])
+            '_'.join(['admin', str(userorg.org.id)])
             for userorg in userorgs
         ]
         admin_org_groups = Group.objects.filter(
@@ -108,7 +108,6 @@ class SessionContextView(View):
         if admin_org_groups:
             is_admin = True
         context['is_admin'] = is_admin
-
         return context
 
 class OrgAdminPermissionMixin(LoginRequiredMixin):
