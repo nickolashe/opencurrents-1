@@ -88,8 +88,8 @@ class SessionContextView(View):
         context['userid'] = userid
         org = None
         userorgs = OrgUser.objects.filter(
-            user__id=userid,
-            affiliation__in=['leader', 'employee']
+            user__id=userid
+            # affiliation__in=['leader', 'employee']
         )
         if userorgs:
             org = userorgs[0].org
