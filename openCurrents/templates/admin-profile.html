@@ -12,6 +12,42 @@
 
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
+
+          {% if num_events or num_vols %}
+            <div class="success row one-margin-top">
+              <div class="medium-8 columns small-centered">
+                {% if num_events|add:"0" >= 1 and num_vols|add:"0" >= 1 %}
+                    You have created events at {{ num_events }} location{{ num_events|pluralize }} and registered {{ num_vols }} volunteer{{ num_vols|pluralize }} to the event. Nice!
+
+                {% elif num_events|add:"0" >= 1 and num_vols|add:"0" == 0 %}
+                    You have created events at {{ num_events }} location{{ num_events|pluralize }}. Nice!
+
+                {% elif num_events|add:"0" == 0 and num_vols|add:"0" >= 1 %}
+                    You have invited {{ num_vols  }} volunteer{{ num_vols|pluralize }} to the openCurrents community. Nice!
+
+                {% endif %}
+              </div>
+            </div>
+          {% endif %}
+
+        {% if vols_approved or vols_declined %}
+          <div class="success row one-margin-top">
+            <div class="medium-8 columns small-centered">
+              {% if vols_approved|add:"0" >= 1 and vols_declined|add:"0" >= 1 %}
+                  You have approved {{ vols_approved }} and declined {{ vols_declined }} volunteer{{ vols_declined|pluralize }}. Keep up the good work!
+
+              {% elif vols_approved|add:"0" >= 1 and vols_declined|add:"0" == 0 %}
+                  You have approved hours for {{ vols_approved }} volunteer{{ vols_approved|pluralize }}. Keep up the good work!
+
+              {% elif vols_approved|add:"0" == 0 and vols_declined|add:"0" >= 1 %}
+                  You have declined hours for {{ vols_declined }} volunteer{{ vols_declined|pluralize }}.
+
+              {% endif %}
+            </div>
+          </div>
+        {% endif %}
+
+
         <div class="hide-for-small-only row full-width collapse two-margin-top">
           <div class="left medium-6 medium-offset-1 large-5 large-offset-2 columns">
             <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="fit-left round" />
@@ -22,10 +58,17 @@
             <!-- </span> -->
           </div>
 
+
+
           <div class="one-margin-top right medium-4 large-3 columns end">
             <!--h6 class="no-margin-bottom two-line-height">My hours tracked: [my]</h6-->
             <h6>Org hours tracked: {{ issued_total }}</h6>
-            <a href="{% url 'openCurrents:create-event' orgid %}" class="button round tiny">Create event</a>
+            <!--<a href="{% url 'openCurrents:create-event' orgid %}" class="button round tiny">Create event</a>-->
+            {% if user_time_log_status %}
+              <a href="{% url 'openCurrents:approve-hours' %}" class="button round tiny">Approve hours</a>
+            {% else %}
+              <a href="{% url 'openCurrents:create-event' org_id %}" class="button round tiny">Create event</a>
+            {% endif %}
           </div>
         </div>
 
@@ -45,22 +88,15 @@
           </div>
         </div>
 
-        <div class="row full-width collapse">
-          <div class="columns">
-
-          </div>
-        </div>
-
         <!-- current events section -->
-        {% if events_current %}
+        {% if events_group_current %}
           <div id="live-event-list" class="left row full-width collapse one-margin-top">
             <div class="small-11 medium-10 large-8 small-centered columns">
               <h6 class="one-margin-bottom">Events happening now</h6>
 
-              {% for event in events_current %}
-                {% if event.event_type != "MN" %}
+              {% for event in events_group_current %}
                   <div class="row one-margin-top one-margin-bottom">
-                    <div class="left small-8 collapse columns">
+                    <div class="left small-8 columns">
                       Let's {{event.project.name}}!
                       on {{event.datetime_start|day:timezone}}
                       at {{event.datetime_start|time:timezone}}
@@ -68,57 +104,61 @@
                       at <strong>{{event.location}}</strong>
                     </div>
 
-                    <div class="right small-4 collapse columns">
+                    <div class="right small-4 columns">
                       <a href="{% url 'openCurrents:live-dashboard' event.id %}"/>
                         <button class="button round small">Start</button>
                       </a>
                     </div>
                   </div>
-                {% endif %}
               {% endfor %}
             </div>
           </div>
-        {% elif events_upcoming %}
-          <!--<p><a href="{% url 'openCurrents:live-dashboard' event_id=events_upcoming.0.id %}" class="button round small">Preview live dashboard</a></p>-->
         {% endif %}
 
-        {% if events_upcoming %}
-          <div id="upcoming-event-list" class="left row one-margin-top full-width collapse">
-            <div class="small-11 medium-10 large-8 small-centered columns">
-              <h6 class="one-margin-bottom">Our upcoming events</h6>
-
-              {% for event in events_upcoming %}
-                {% if event.event_type != "MN" %}
-                  <div class="row one-margin-bottom">
-                    <div class="left small-8 collapse columns">
-                      Let's {{event.project.name}}!
-                      on {{event.datetime_start|day:timezone}}
-                      at {{event.datetime_start|time:timezone}}
-                      to {{event.datetime_end|time:timezone}}
-                      at <strong>{{event.location}}</strong>
-                    </div>
-
-                    <div class="right small-4 collapse columns">
-                      <a href="{% url 'openCurrents:live-dashboard' event.id %}" class="button round small">Preview</a>
-                      <a href="{% url 'openCurrents:edit-event' event.id%}" class="button round small">Edit</a>
-                    </div>
+        <div id="upcoming-event-list" class="left row one-margin-top full-width collapse">
+          <div class="small-11 medium-10 large-8 small-centered columns">
+            <h6 class="one-margin-bottom">Upcoming events</h6>
+            {% if events_group_upcoming %}
+              {% for event in events_group_upcoming %}
+                <div class="row hover-row one-margin-bottom">
+                  <div class="left small-9 columns">
+                    Let's {{event.project.name}}!
+                    on {{event.datetime_start|day:timezone}}
+                    at {{event.datetime_start|time:timezone}}
+                    to {{event.datetime_end|time:timezone}}
+                    at <strong>{{event.location}}</strong>
                   </div>
-                {% endif %}
+
+                  <div class="right relative small-2 columns end">
+                    <a class="mini-open"><i class="blue fa-chevron-circle-down fa fa-lg"></i></a>
+                    <ul class="mini-menu">
+                      <a href="{% url 'openCurrents:live-dashboard' event.id %}"><li>Preview live check-in</li></a>
+                      <a href="{% url 'openCurrents:invite-volunteers' event.id %}"><li>Invite volunteers</li></a>
+                      <a href="{% url 'openCurrents:event-detail' event.id %}"><li>View event details</li></a>
+                      <a href="{% url 'openCurrents:edit-event' event.id %}"><li>Edit event</li></a>
+                    </ul>
+                  </div>
+                </div>
               {% endfor %}
-
-            </div>
+            {% else %}
+              <div class="row">
+                <div class="left small-12 columns">
+                  <p>{{ org_name }} has no upcoming events. <a href="{% url 'openCurrents:create-event' orgid %}">Create one!</a></p>
+                </div>
+              </div>
+            {% endif %}
           </div>
-        {% endif %}
+        </div>
 
-        {% if events_past %}
+
+        {% if events_group_past %}
           <div id="past-event-list" class="left row one-margin-top full-width collapse">
             <div class="small-11 medium-10 large-8 small-centered columns">
               <h6 class="one-margin-bottom">Past events</h6>
 
-              {% for event in events_past %}
-                {% if event.event_type != "MN" %}
-                  <div class="row one-margin-bottom">
-                    <div class="left input-left small-8 collapse columns">
+              {% for event in events_group_past %}
+                  <div class="row hover-row one-margin-bottom">
+                    <div class="left input-left small-9 columns">
                       Let's {{event.project.name}}!
                       on {{event.datetime_start|day:timezone}}
                       at {{event.datetime_start|time:timezone}}
@@ -126,13 +166,13 @@
                       at <strong>{{event.location}}</strong>
                     </div>
 
-                    <div class="right input-right small-4 collapse columns">
-                      <a href="{% url 'openCurrents:live-dashboard' event.id %}"/>
-                        <button class="button round small secondary">Attendees</button>
-                      </a>
+                    <div class="right relative small-2 columns end">
+                      <a class="mini-open"><i class="blue fa-chevron-circle-down fa fa-lg"></i></a>
+                      <ul class="mini-menu">
+                        <a href="{% url 'openCurrents:live-dashboard' event.id %}"><li>Review attendees</li></a>
+                      </ul>
                     </div>
                   </div>
-                {% endif %}
               {% endfor %}
 
             </div>
@@ -216,14 +256,28 @@
 
     <script type="text/javascript">
       $(document).ready(function(){
-        $('#approve-hours-popup').popup({
-          vertical: 'top',
-          transition: 'all 0.75s',
-          scrolllock: true,
-          //autoopen: true,
+        $('.mini-open').click(function(){
+          $('.mini-menu').hide();
+          $(this).siblings('.mini-menu').toggle();
+          $(this).attr('visibility', 'visible');
+        });
+
+        $(document).click(function(e) {
+          var target = e.target;
+          if (!$(target).is('.mini-open') && !$(target).parents().is('.mini-open')) {
+            $('.mini-menu').hide();
+          }
         });
       });
     </script>
+
+
+    <script type="text/javascript">
+      {% if forbidden %}
+        window.location.href = "{% url 'openCurrents:403' %}";
+      {% endif %}
+    </script>
+
 
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
   </body>
