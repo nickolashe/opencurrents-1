@@ -1371,6 +1371,12 @@ class LiveDashboardView(OrgAdminPermissionMixin, SessionContextView, TemplateVie
         # event
         event_id = kwargs.pop('event_id')
         event = Event.objects.get(id=event_id)
+        tz = 'America/Chicago'
+        if event.datetime_start > pytz.utc.localize(datetime.now()):
+            context['checkin_buttons'] = True
+        else:
+            context['checkin_buttons'] = False
+        print(context['checkin_buttons'])
         event_orgid = event.project.org.id
         context['event'] = event
         # verify user is part of admin_<event_orgid> group

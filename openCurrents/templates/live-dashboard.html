@@ -124,13 +124,14 @@
                   </div>
 
                   <div class="right small-3 columns">
-                    <input type="checkbox" id="vol-checkin-{{ user.id }}" name="vol-checkin-{{ user.id }}" value="{{ user.id }}" class="hidden"
+                    <input {% if checkin_buttons %}disabled{% endif %} type="checkbox" id="vol-checkin-{{ user.id }}" name="vol-checkin-{{ user.id }}" value="{{ user.id }}" class=" hidden checkin-checkbox"
                       {% if user.id in checkedin_users %}
                         checked
                       {% endif %}
                     />
+                    
                     <label class="large-icon" for="vol-checkin-{{ user.id }}">
-                      <i class="styled-checkbox fa fa-lg fa-check-circle"></i>
+                      <i class="fa fa-lg fa-check-circle"></i>
                     </label>
                   </div>
 
@@ -250,7 +251,7 @@
                       </div> \
 
                       <div class="right small-3 columns"> \
-                          <input type="checkbox" id="vol-checkin-${userid}" name="vol-checkin-${userid}" value="${userid}" class="hidden"/> \
+                          <input {% if checkin_buttons %}disabled{% endif %} type="checkbox" id="vol-checkin-${userid}" name="vol-checkin-${userid}" value="${userid}" class="hidden checkin-checkbox"/> \
                           <label class="large-icon" for="vol-checkin-${userid}"> \
                             <i class="styled-checkbox fa fa-lg fa-check-circle"></i> \
                           </label> \

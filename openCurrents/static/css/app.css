@@ -222,7 +222,7 @@ textarea:focus {
   border-bottom: 1px solid #1f4975;
 }
 
-.styled-checkbox:checked + label {
+.checkin-checkbox:checked + label {
   color: #24b2e7;
 }
 
