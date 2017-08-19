@@ -911,7 +911,7 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
             project=self.project,
             description=form_data['description'],
             location=location,
-            is_public=form_data['is_public'],
+            is_public=form_data['event_privacy'],
             datetime_start=form_data['datetime_start'],
             datetime_end=form_data['datetime_end'],
             coordinator_firstname=form_data['coordinator_firstname'],
@@ -956,7 +956,7 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
             )
         else:
             self.project = None
-        if str(self.request.POST['event-privacy-[]']) == '1':
+        if str(self.request.POST['is_public']) == '1':
             data['event_privacy'] = True
         else:
             data['event_privacy'] = False
