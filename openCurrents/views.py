@@ -9,7 +9,7 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.safestring import mark_safe
 from django.utils import timezone
-from django.db.models import F, Max
+from django.db.models import F, Q, Max
 from django.views.decorators.csrf import csrf_exempt,csrf_protect
 from django.template.context_processors import csrf
 from datetime import datetime, time, date
@@ -123,7 +123,7 @@ class OrgAdminPermissionMixin(LoginRequiredMixin):
         except KeyError, Event.DoesNotExist:
             pass
 
-        logger.debug('authorize request for org id %d', org_id)
+        #logger.debug('authorize request for org id %d', org_id)
         org_admin_group_name = '_'.join(['admin', str(org_id)])
 
         # group is supposed to exist at this point
@@ -1119,8 +1119,35 @@ class UpcomingEventsView(LoginRequiredMixin, SessionContextView, ListView):
     context_object_name = 'events'
 
     def get_queryset(self):
+        # show all public events plus private event for orgs the user is admin for
+        userid = self.request.user.id
+
+        # fetch orguser records
+        orguser_recs = OrgUser.objects.filter(user__id=userid)
+        orgs = [rec.org for rec in orguser_recs]
+
+        # list of org admin group names
+        org_admin_group_names = [
+            '_'.join(['admin', str(org.id)])
+            for org in orgs
+        ]
+
+        # list of org admin groups
+        org_admin_groups = Group.objects.filter(
+            name__in=org_admin_group_names,
+            user__id=userid
+        )
+
+        # admin's org ids
+        admin_org_ids = [
+            group.name.split('_')[1]
+            for group in org_admin_groups
+        ]
+
         return Event.objects.filter(
             datetime_end__gte=datetime.now()
+        ).filter(
+            Q(is_public=True) | Q(is_public=False, project__org__id__in=admin_org_ids)
         )
 
 
