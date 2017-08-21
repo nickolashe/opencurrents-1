@@ -4,10 +4,10 @@ class OrgUserInfo(object):
         self.orgusers = OrgUser.objects.filter(user__id=userid)
 
     def get_orguser(self):
-        return self.orgusers ? self.orgusers[0] : None
+        return self.orgusers[0] if self.orgusers else None
 
     def get_org(self):
-        return self.orgusers ? self.orgusers[0].org : None
+        return self.orgusers[0].org if self.orgusers else None
 
     def get_org_timezone(self, userid):
-        return self.orgusers ? self.orgusers[0].org.timezone : None
+        return self.orgusers[0].org.timezone if self.orgusers else None
