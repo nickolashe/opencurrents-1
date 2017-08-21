@@ -69,7 +69,7 @@
                                    </label>
                                  <input type="radio" id="decline-vol-1" name="vol-status-1" class="vol-radio hidden"/>
                                    <label for="decline-vol-1">
-                                     <a onclick="dec_vol(this)" class="decline-volunteer button round tiny alert">Decline volunteer
+                                     <a onclick="dec_vol(this)" class="decline-volunteer button round tiny alert">Decline hours
                                        <span style="display:none">{{key}}</span>
                                      </a>
                                    </label>
@@ -146,7 +146,7 @@
 
       function dec_vol(k){//Declining volunteer on clicking decline button
 
-        var decline = k.text.replace("Decline volunteer","").replaceAll(" ","").replaceAll("\n","");
+        var decline = k.text.replace("Decline hours","").replaceAll(" ","").replaceAll("\n","");
 
         var dec_0 = decline+':0:'+week_format
         var dec_1 = decline+':1:'+week_format
@@ -224,7 +224,7 @@
           document.getElementById("vols_status_msg").innerHTML = vols_status_msg_display;
         }
 
-        var rep = $('.decline-volunteer').text().replaceAll("Decline volunteer\n","").replaceAll(" ","");
+        var rep = $('.decline-volunteer').text().replaceAll("Decline hours\n","").replaceAll(" ","");
         var rep_list = rep.split("\n")
         var today = new Date();
         var app_week = String(getMonday(today)).split(" ");
