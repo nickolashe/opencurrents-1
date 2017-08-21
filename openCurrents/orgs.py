@@ -1,3 +1,6 @@
+from openCurrents.models import \
+    OrgUser
+
 class OrgUserInfo(object):
     def __init__(self, userid):
         self.userid = userid
