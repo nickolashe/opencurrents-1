@@ -1806,6 +1806,8 @@ def process_signup(request, referrer=None, endpoint=False, verify_email=True):
                             token=token,
                             #status_msg=errors[0]
                         )
+                elif endpoint:
+                    return HttpResponse(user.id, status=200)
                 elif user.has_usable_password():
                     logger.info('user %s already verified', user_email)
                     return redirect(
