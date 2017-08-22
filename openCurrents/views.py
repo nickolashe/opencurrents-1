@@ -1900,6 +1900,33 @@ def process_signup(request, referrer=None, endpoint=False, verify_email=True):
                     org=org
                 )
                 org_user.save()
+                sendTransactionalEmail(
+                    'new-org-registered',
+                    None,
+                    [
+                        {
+                            'name': 'FNAME',
+                            'content': user_firstname
+                        },
+                        {
+                            'name': 'LNAME',
+                            'content': user_firstname
+                        },
+                        {
+                            'name': 'EMAIL',
+                            'content': user_email
+                        },
+                        {
+                            'name': 'ORG_NAME',
+                            'content': org_name
+                        },
+                        {
+                            'name': 'ORG_STATUS',
+                            'content': request.POST['org_type']
+                        }
+                    ],
+                    'bizdev@opencurrents.com'
+                )
             except IntegrityError:
                 logger.info('org %s already exists', org_name)
 
