@@ -27,37 +27,30 @@
 
         <form action ="" method="post">
           {% csrf_token %}
-          <div id="choose-org" class="half-margin-top row center">
-            <div class="center medium-6 small-centered columns">
+          <div class="half-margin-top row center">
+            <div class="center medium-8 small-centered columns">
+              <div class="row">
+                <div class="small-6 columns">
+                  {{form.org}}
+                </div>
 
-                <h6 class="subtitle">for</h6>
+                <div class="small-6 columns">
+                  <select>
+                    <option disabled selected hidden>Select admin</option>
+                    <option>Org admin 1</option>
+                    <option>Org admin 2</option>
+                    <option>Org admin 3</option>
+                    <option>Someone else</option>
+                  </select>
+                </div>
+              </div>
 
-                <!--<select id="user-orgs" class="two-margin-bottom">
-                  <option disabled selected hidden>Select organization</option>
-                   all requested orgs should appear here unless org declines a volunteer
-
-
-                </select>-->
-                {{form.org}}
-
-                <a href="{% url 'openCurrents:org-signup' %}" class="add-org-popup_open button round secondary" tabindex=0>Nominate an organization</a>
+                <!-- <a href="{% url 'openCurrents:org-signup' %}" class="add-org-popup_open button round secondary" tabindex=0>Nominate an organization</a> -->
             </div>
           </div>
 
-          <!--<div class="row center one-margin-top">
-            <button type="submit" class="button round">Clock in</button>
-          </div>-->
-
-
-
-            <!-- catch and display any top-level form errors -->
-            <!-- (as opposed to field-specific errors which are displayed next to each field) -->
-
-
-          <div id="track-time" class="row hidden">
+          <div class="row">
             <div class="left medium-8 small-centered columns">
-
-              <h6 class="subtitle">for <span id="org-name"></span><a id="undo-org" class="small-text half-margin-left">Undo</a></h6>
 
               <div id="manual-tracking">
                 <div class="row">
@@ -67,19 +60,19 @@
                   </div>
 
                   <div class="small-12 medium-4 columns">
-                    {{form.date_start.label}}
+                    <label>{{form.date_start.label}}</label>
                     <!--<input type="text" id="volunteer-date" name="volunteer-date" placeholder="yyyy-mm-dd"/>-->
                     {{ form.date_start }}
                   </div>
 
                   <div class="small-6 medium-4 columns">
-                    {{ form.time_start.label }}
+                    <label>{{ form.time_start.label }}</label>
                     <!--<input type="text" id="start-time" name="" value="12:00:00"/>-->
                     {{ form.time_start }}
                   </div>
 
                   <div class="small-6 medium-4 columns">
-                    {{ form.time_end.label }}
+                    <label>{{ form.time_end.label }}</label>
                     <!--<input type="text" id="end-time" name="" value="12:00:00"/>-->
                     {{ form.time_end }}
                   </div>
@@ -201,31 +194,31 @@
 
     <script type="text/javascript">
 
-      $('select').on('change', function(){
-        var selected = $(this).find('option:selected').text();
-        document.getElementById('org-name').innerHTML = selected;
+      // $('select').on('change', function(){
+      //   var selected = $(this).find('option:selected').text();
+      //   document.getElementById('org-name').innerHTML = selected;
 
-        $('#choose-org').fadeOut(777, function(){
-          $('#track-time').fadeIn(777);
-        });
-        var sel = document.getElementById("id_org_choice");
-        var input = sel.options[sel.selectedIndex].text;
+      //   $('#choose-org').fadeOut(777, function(){
+      //     $('#track-time').fadeIn(777);
+      //   });
+      //   var sel = document.getElementById("id_org_choice");
+      //   var input = sel.options[sel.selectedIndex].text;
 
 
-      });
+      // });
 
-      $('#undo-org').click(function(){
-        $('#track-time').fadeOut(777, function(){
-          $('#choose-org').fadeIn(777);
-        });
+      // $('#undo-org').click(function(){
+      //   $('#track-time').fadeOut(777, function(){
+      //     $('#choose-org').fadeIn(777);
+      //   });
 
-        $('option').prop('selected', function() {
-            return this.defaultSelected;
-        });
-      });
+      //   $('option').prop('selected', function() {
+      //       return this.defaultSelected;
+      //   });
+      // });
     </script>
 
-    <script type="text/javascript">
+<!--     <script type="text/javascript">
       $('#clock-in').on('click', function(){
         var minutesLabel = document.getElementById("minutes");
         var secondsLabel = document.getElementById("seconds");
@@ -261,7 +254,7 @@
         }
       });
 
-    </script>
+    </script> -->
 
     <script type="text/javascript">
       var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
