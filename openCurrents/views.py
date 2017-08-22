@@ -241,8 +241,8 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
         # find monday before oldest unverified time log
         oldest_timelog = timelogs.order_by('datetime_start')[0]
         week_startdate = oldest_timelog.datetime_start
-        week_startdate_monday = week_startdate - timedelta(days=week_startdate.weekday())
-        today = timezone.now()
+        week_startdate_monday = (week_startdate - timedelta(days=week_startdate.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
+        today = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
 
         main_defer = self.defer_month(week_startdate_monday,today)
         eventtimelogs = main_defer[0]
@@ -342,9 +342,9 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
         eventtimelogs = UserTimeLog.objects.filter(
             event__in=events
         ).filter(
-            datetime_start__lt=week_startdate_monday + timedelta(days=7)
+            datetime_start__lt = week_startdate_monday + timedelta(days=7)
         ).filter(
-            datetime_start__gte=week_startdate_monday
+            datetime_start__gt = week_startdate_monday
         ).filter(
             is_verified=False
         )
