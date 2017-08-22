@@ -123,7 +123,7 @@ class OrgAdminPermissionMixin(LoginRequiredMixin):
         except KeyError, Event.DoesNotExist:
             pass
 
-        logger.debug('authorize request for org id %d', org_id)
+        #logger.debug('authorize request for org id %d', org_id)
         org_admin_group_name = '_'.join(['admin', str(org_id)])
 
         # group is supposed to exist at this point
@@ -371,7 +371,7 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
             i.split(':')[1] = '0' | '1'
             i.split(':')[2] = '7-31-2017'
             """
-            if i != '':
+            if i:
                 i = str(i)
 
                 #split the data for user, flag, and date info
@@ -711,7 +711,7 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(ProfileView, self).get_context_data(**kwargs)
         try:
-            if kwargs.pop('app_hr') == u'1':
+            if kwargs.pop('app_hr') == '1':
                 context['app_hr'] = 1
             else:
                 context['app_hr'] = 0
@@ -945,8 +945,8 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
 
         # create an event for each location
         event_ids = map(lambda loc: self._create_event(loc, data), locations)
-        e_ids = "b".join(str(x) for x in event_ids)
-        return redirect('openCurrents:invite-volunteers',e_ids)
+        #e_ids = "b".join(str(x) for x in event_ids)
+        return redirect('openCurrents:invite-volunteers',json.dumps(event_ids))
 
     def get_context_data(self, **kwargs):
         context = super(CreateEventView, self).get_context_data()
@@ -1119,10 +1119,18 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         context = super(InviteVolunteersView, self).get_context_data(**kwargs)
         userid = self.request.user.id
         context['userid'] = userid
+        context['skip'] = 0
         try:
-            event_create_id = kwargs.pop('event_id').split('b')
-            context['skip'] = 1
-        except:
+            event_ids = kwargs.pop('event_ids')
+            if event_ids:
+                event = Event.objects.filter(
+                    id__in=json.loads(event_ids)
+                ).first()
+                if not event:
+                    raise KeyError
+                context['event_project_name'] = event.project.name
+                context['skip'] = 1
+        except KeyError:
             context['skip'] = 0
 
         return context
@@ -1135,7 +1143,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         post_data = self.request.POST
         event_create_id = None
         try:
-            event_create_id = kwargs.pop('event_id').split('b')
+            event_create_id = json.loads(kwargs.pop('event_id'))
         except:
             pass
 
@@ -1220,46 +1228,47 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
             event=Event.objects.get(id=event_create_id[0])
             events = Event.objects.filter(id__in=event_create_id)
             loc = [str(i.location).split(',')[0] for i in events]
+            email_template_merge_vars = [
+                {
+                    'name': 'ADMIN_FIRSTNAME',
+                    'content': user.first_name
+                },
+                {
+                    'name': 'ADMIN_LASTNAME',
+                    'content': user.last_name
+                },
+                {
+                    'name': 'EVENT_TITLE',
+                    'content': event.project.name
+                },
+                {
+                    'name': 'ORG_NAME',
+                    'content': Organisation
+                },
+                {
+                    'name': 'EVENT_LOCATION',
+                    'content': event.location
+                },
+                {
+                    'name': 'EVENT_DATE',
+                    'content': str(event.datetime_start.astimezone(pytz.timezone(tz)).date().strftime('%b %d, %Y'))
+                },
+                {
+                    'name':'EVENT_START_TIME',
+                    'content': str(event.datetime_start.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p'))
+                },
+                {
+                    'name':'EVENT_END_TIME',
+                    'content': str(event.datetime_end.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p'))
+                },
+            ]
             try:
                 tz = event.project.org.timezone
                 if k:
                     sendBulkEmail(
                         'invite-volunteer-event-new',
                         None,
-                        [
-                            {
-                                'name': 'ADMIN_FIRSTNAME',
-                                'content': user.first_name
-                            },
-                            {
-                                'name': 'ADMIN_LASTNAME',
-                                'content': user.last_name
-                            },
-                            {
-                                'name': 'EVENT_TITLE',
-                                'content': event.project.name
-                            },
-                            {
-                                'name': 'ORG_NAME',
-                                'content': Organisation
-                            },
-                            {
-                                'name': 'EVENT_LOCATION',
-                                'content': event.location
-                            },
-                            {
-                                'name': 'EVENT_DATE',
-                                'content': str(event.datetime_start.astimezone(pytz.timezone(tz)).date().strftime('%b %d, %Y'))
-                            },
-                            {
-                                'name':'EVENT_START_TIME',
-                                'content': str(event.datetime_start.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p'))
-                            },
-                            {
-                                'name':'EVENT_END_TIME',
-                                'content': str(event.datetime_end.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p'))
-                            },
-                        ],
+                        email_template_merge_vars,
                         k,
                         user.email
                     )
@@ -1267,40 +1276,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                     sendBulkEmail(
                         'invite-volunteer-event-existing',
                         None,
-                        [
-                            {
-                                'name': 'ADMIN_FIRSTNAME',
-                                'content': user.first_name
-                            },
-                            {
-                                'name': 'ADMIN_LASTNAME',
-                                'content': user.last_name
-                            },
-                            {
-                                'name': 'EVENT_TITLE',
-                                'content': event.project.name
-                            },
-                            {
-                                'name': 'ORG_NAME',
-                                'content': Organisation
-                            },
-                            {
-                                'name': 'EVENT_LOCATION',
-                                'content': event.location
-                            },
-                            {
-                                'name': 'EVENT_DATE',
-                                'content': str(event.datetime_start.astimezone(pytz.timezone(tz)).date().strftime('%b %d, %Y'))
-                            },
-                            {
-                                'name':'EVENT_START_TIME',
-                                'content': str(event.datetime_start.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p'))
-                            },
-                            {
-                                'name':'EVENT_END_TIME',
-                                'content': str(event.datetime_end.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p'))
-                            },
-                        ],
+                        email_template_merge_vars,
                         k_old,
                         user.email
                     )
@@ -1655,7 +1631,7 @@ def event_register_live(request, eventid):
         event_status = '1'
     else:
         event_status = '0'
-    return HttpResponse(content=json.dumps({'userid': userid, 'eventid': eventid, 'event_status': event_status}), status=201)
+    return HttpResponse(content = json.dumps({'userid': userid, 'eventid': eventid, 'event_status': event_status}), status=201)
 
 # resend the verification email to a user who hits the Resend button on their check-email page
 def process_resend_verification(request, user_email):
@@ -1965,13 +1941,10 @@ def process_login(request):
                         exclude_usertimelog.append(g_d_t.usertimelog.event)
                 timelogs = timelogs.exclude(event__in=exclude_usertimelog)
                 today = date.today()
-                try:
-                    if ((user.last_login.date())< today - timedelta(days=today.weekday()) and timelogs):
-                        app_hr = '1'
-                    else:
-                        app_hr = '0'
-                except:
-                    app_hr = '0'
+                if ((user.last_login.date())< today - timedelta(days=today.weekday()) and timelogs):
+                    app_hr = json.dumps('1')
+                else:
+                    app_hr = json.dumps('0')
             login(request, user)
             try:
                 remember_me = request.POST['remember-me']
