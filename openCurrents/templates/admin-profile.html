@@ -36,10 +36,10 @@
           <div class="success row one-margin-top">
             <div class="medium-8 columns small-centered">
               {% if vols_approved|add:"0" >= 1 and vols_declined|add:"0" >= 1 %}
-                  You have approved {{ vols_approved }} and declined {{ vols_declined }} volunteer{{ vols_declined|pluralize }}. Keep up the good work!
+                  You have approved hours for {{ vols_approved }} volunteer{{ vols_approved|pluralize }} and declined hours for {{ vols_declined }} volunteer{{ vols_declined|pluralize }}. Nice!
 
               {% elif vols_approved|add:"0" >= 1 and vols_declined|add:"0" == 0 %}
-                  You have approved hours for {{ vols_approved }} volunteer{{ vols_approved|pluralize }}. Keep up the good work!
+                  You have approved hours for {{ vols_approved }} volunteer{{ vols_approved|pluralize }}. Nice!
 
               {% elif vols_approved|add:"0" == 0 and vols_declined|add:"0" >= 1 %}
                   You have declined hours for {{ vols_declined }} volunteer{{ vols_declined|pluralize }}.
@@ -269,14 +269,6 @@
         $('#status_msg').html("You already have all the hours approved.");
       }
     </script>
-
-
-    <script type="text/javascript">
-      {% if forbidden %}
-        window.location.href = "{% url 'openCurrents:403' %}";
-      {% endif %}
-    </script>
-
 
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
   </body>
