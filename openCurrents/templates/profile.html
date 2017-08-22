@@ -25,7 +25,7 @@
             <span class="input-sizer"> -->
               <h5 class="one-margin-top no-margin-bottom">{{ user.first_name }} {{ user.last_name }}</h5>
 
-              {% if orgid %}
+              {% if is_admin %}
                 <h6 class="inline half-margin-right">{{orgname}}</h6>
                 <a href="{% url 'openCurrents:admin-profile' %}"><i class="fa fa-lg fa-gear"></i></a>
               {% endif %}
@@ -46,10 +46,17 @@
         <div class="show-for-small-only row one-margin-top">
           <div class="columns">
             <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="round" /> -->
+<<<<<<< HEAD
             <h4 class="half-margin-top no-margin-bottom">{{ user.first_name }} {{ user.last_name }}</h4>
             {% if orgid %}
               <h6 class="inline half-margin-right">{{orgname}}</h6>
               <a href="{% url 'openCurrents:admin-profile' %}"><i class="fa fa-lg fa-gear"></i></a>
+=======
+            <h5 class="half-margin-top no-margin-bottom">{{ user.first_name }} {{ user.last_name }}</h5>
+            {% if is_admin %}
+              <h6>{{orgname}}</h6>
+              <a href="{% url 'openCurrents:admin-profile' %}" class="button round secondary tiny">Manage org</a>
+>>>>>>> nicko
             {% endif %}
 
             <div class="half-margin-top">

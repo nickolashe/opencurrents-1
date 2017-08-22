@@ -87,12 +87,27 @@ class SessionContextView(View):
         userid = self.request.user.id
         context['userid'] = userid
         org = None
-        userorgs = OrgUser.objects.filter(user__id=userid)
+        userorgs = OrgUser.objects.filter(
+            user__id=userid
+            # affiliation__in=['leader', 'employee']
+        )
         if userorgs:
             org = userorgs[0].org
             context['orgid'] = org.id
             context['org_id'] = org.id
 
+        is_admin = False
+        admin_org_group_names = [
+            '_'.join(['admin', str(userorg.org.id)])
+            for userorg in userorgs
+        ]
+        admin_org_groups = Group.objects.filter(
+            name__in=admin_org_group_names,
+            user__id=userid
+        )
+        if admin_org_groups:
+            is_admin = True
+        context['is_admin'] = is_admin
         return context
 
 class OrgAdminPermissionMixin(LoginRequiredMixin):
