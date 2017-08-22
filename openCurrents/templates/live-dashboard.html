@@ -124,11 +124,12 @@
                   </div>
 
                   <div class="right small-3 columns">
-                    <input type="checkbox" id="vol-checkin-{{ user.id }}" name="vol-checkin-{{ user.id }}" value="{{ user.id }}" class="checkin-checkbox hidden"
+                    <input {% if checkin_disabled %}disabled{% endif %} type="checkbox" id="vol-checkin-{{ user.id }}" name="vol-checkin-{{ user.id }}" value="{{ user.id }}" class=" hidden checkin-checkbox"
                       {% if user.id in checkedin_users %}
                         checked
                       {% endif %}
                     />
+
                     <label class="large-icon" for="vol-checkin-{{ user.id }}">
                       <i class="fa fa-lg fa-check-circle"></i>
                     </label>
@@ -208,7 +209,7 @@
             let new_email = $('#new-email').val();
             let invite_optin = $('#invite-optin').prop('checked');
             let process_signup_url;
-            
+
             if (invite_optin) {
               process_signup_url = "{% url 'openCurrents:process_signup' endpoint=True verify_email=True %}"
             }
@@ -250,7 +251,8 @@
                       </div> \
 
                       <div class="right small-3 columns"> \
-                          <input type="checkbox" id="vol-checkin-${userid}" name="vol-checkin-${userid}" value="${userid}" class="checkin-checkbox hidden"/> \
+                          <input {% if checkin_disabled %}disabled{% endif %} type="checkbox" id="vol-checkin-${userid}" name="vol-checkin-${userid}" value="${userid}" class="hidden checkin-checkbox"/> \
+
                           <label class="large-icon" for="vol-checkin-${userid}"> \
                             <i class="fa fa-lg fa-check-circle"></i> \
                           </label> \
@@ -333,13 +335,6 @@
       });
 
     </script>
-
-    <script type="text/javascript">
-      {% if forbidden %}
-        window.location.href = "{% url 'openCurrents:403' %}";
-      {% endif %} 
-    </script>
-
 
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
   </body>

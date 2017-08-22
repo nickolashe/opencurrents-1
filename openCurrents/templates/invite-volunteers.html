@@ -20,8 +20,8 @@
 
         <div class="row">
           <h3 class="title-sub">Invite volunteers</h3>
-          {% if event_id %}
-            <p> to help <strong> {{ event.project.name }} </strong> </p>
+          {% if event_project_name %}
+            <p> to help <strong> {{ event_project_name }} </strong> </p>
           {% else %}
             <p> to track hours with openCurrents </p>
           {% endif %}
@@ -68,11 +68,11 @@
 
           <!--<p><a href="{% url 'openCurrents:admin-profile' num_vols=0 %}">Skip for now</a></p>-->
           {% if skip == 1 %}
-            <a href="{% url 'openCurrents:admin-profile' %}" class="button round secondary">Skip</a>
+            <a href="{% url 'openCurrents:admin-profile' num_vols=0 %}" class="button round secondary">Skip</a>
           {% endif %}
           <input type="hidden" id="bulk-vol" name="bulk-vol" value="" />
         </form>
-        
+
         <div id="push"></div>
 
       <!-- wrapper div-->
@@ -102,7 +102,7 @@
 
           <!--<p class="three-halves-margin-top"><a onclick="$(this).closest('form').submit()" href="" class="button round">Send invites</a></p>-->
         <button type='submit' name="button_2" onclick="submit_from_bulk()" class="button round">Send invites</button>
-        
+
         </div>
       </div>
     </div>
