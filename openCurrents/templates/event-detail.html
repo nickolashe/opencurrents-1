@@ -76,7 +76,7 @@
 
           <div class="three-halves-margin-top center">
             <button type='submit' class="button round">
-              {% if not is_registered %}
+              {% if not is_registered and not coordinator %}
                 Register
               {% else %}
                 Send
