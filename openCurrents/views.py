@@ -1758,7 +1758,7 @@ def event_register(request, pk):
                     if(reg.user.email not in reg_list_uniques):
                         reg_list_uniques.append({"email":reg.user.email,"type":"to"})
                 try:
-                    merge_var_list.append({'name': 'MESSAGE','content': "+message+"})
+                    merge_var_list.append({'name': 'MESSAGE','content': message})
                     sendBulkEmail(
                         'volunteer-messaged',
                         None,
