@@ -25,11 +25,8 @@
           <div class="small-12 medium-8 small-centered columns">
             <p class="three-halves-margin-bottom">You tried to access a resource that you don't have access to</p>
             <a href="javascript:void(Tawk_API.toggle())" class="button round">Share feedback</a>
-            {% if is_admin %}
-            <a href="{% url 'openCurrents:admin-profile' %}" class="button round secondary">Go home</a>
-            {% else %}
-            <a href="{% url 'openCurrents:profile' %}" class="button round secondary">Go home</a>
-            {% endif %}
+
+            <a href="{% url 'openCurrents:profile' %}" class="button round secondary">Back to profile</a>
           </div>
         </div>
 
