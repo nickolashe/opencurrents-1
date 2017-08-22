@@ -1699,6 +1699,13 @@ def event_register(request, pk):
             if user_unregistered:
                 #register the volunteer
                 user_unregistered.update(is_confirmed=True)
+            else:
+                user_event_registration = UserEventRegistration(
+                    user=user,
+                    event=event,
+                    is_confirmed=True
+                )
+                user_event_registration.save()
         except Exception as e:
             user_event_registration = UserEventRegistration(
                 user=user,
