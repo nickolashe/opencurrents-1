@@ -1489,23 +1489,15 @@ class EventDetailView(LoginRequiredMixin, SessionContextView, DetailView):
         except Group.DoesNotExist:
             logger.error("org exists without an admin group")
             return redirect('openCurrents:500')
-        if OrgUser.objects.filter(user__email = context['event'].coordinator_email).exists():
-            co_ordinator = False
-        else:
-            co_ordinator = True
 
         is_admin = org_admin_group.user_set.filter(id=self.request.user.id).exists()
 
         # check if event coordinator
-        is_coord = Event.objects.filter(id=context['event'].id,coordinator_email=context['event'].coordinator_email).exists()
+        is_coord = Event.objects.filter(id=context['event'].id,coordinator_email=self.request.user.email).exists()
 
         context['is_registered'] = is_registered
         context['admin'] = is_admin
-        context['coordinator'] = is_coord and co_ordinator
-        if is_admin and not is_coord:
-            context['is_admin_not_coord'] = True
-        else:
-            context['is_admin_not_coord'] = False
+        context['coordinator'] = is_coord
  
         # list of confirmed registered users 
         context['registrants'] = ''
