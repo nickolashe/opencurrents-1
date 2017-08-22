@@ -123,7 +123,7 @@ class OrgAdminPermissionMixin(LoginRequiredMixin):
         except KeyError, Event.DoesNotExist:
             pass
 
-        logger.debug('authorize request for org id %d', org_id)
+        #logger.debug('authorize request for org id %d', org_id)
         org_admin_group_name = '_'.join(['admin', str(org_id)])
 
         # group is supposed to exist at this point
@@ -366,6 +366,9 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
         post_data = self.request.POST['post-data']
 
         templist = post_data.split(',')#eg list: ['a@bc.com:1:7-20-2017','abc@gmail.com:0:7-22-2017',''...]
+        logger.info(
+            'templist: %s', templist
+        )
         projects = []
         userid = self.request.user.id
         org = OrgUser.objects.filter(user__id=userid)
@@ -455,13 +458,15 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
             event_type='MN'
         )
 
-
         # gather unverified time logs
         timelogs = UserTimeLog.objects.filter(
             event__in=events
         ).filter(
             is_verified=False
+        ).exclude(
+            deferments__id=userid
         )
+
         if not timelogs:
             return redirect('openCurrents:admin-profile', vols_approved, vols_declined)
 
