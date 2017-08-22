@@ -145,6 +145,7 @@ class OrgAdminPermissionMixin(LoginRequiredMixin):
 
 class HomeView(SessionContextView, TemplateView):
     template_name = 'home.html'
+
     def dispatch(self, *args, **kwargs):
         try:
             #If there is session set for profile
@@ -1344,6 +1345,14 @@ class EventDetailView(LoginRequiredMixin, SessionContextView, DetailView):
 class LiveDashboardView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
     template_name = 'live-dashboard.html'
 
+    def dispatch(self, *args, **kwargs):
+        try:
+            event_id = kwargs.get('event_id')
+            event = Event.objects.get(id=event_id)
+            return super(LiveDashboardView, self).dispatch(*args, **kwargs)
+        except Event.DoesNotExist:
+            return redirect('openCurrents:404')
+
     def get_context_data(self, **kwargs):
         context = super(LiveDashboardView, self).get_context_data(**kwargs)
         context['form'] = UserSignupForm()
@@ -1351,13 +1360,13 @@ class LiveDashboardView(OrgAdminPermissionMixin, SessionContextView, TemplateVie
         # event
         event_id = kwargs.pop('event_id')
         event = Event.objects.get(id=event_id)
-        event_orgid = event.project.org.id
         context['event'] = event
-        # verify user is part of admin_<event_orgid> group
-        if not self.request.user.groups.filter(name='admin_'+str(event_orgid)).exists():
-            context['forbidden'] = True
+
+        # disable checkin if event is too far in future
+        if event.datetime_start > datetime.now(tz=pytz.UTC) + timedelta(minutes=15):
+            context['checkin_disabled'] = True
         else:
-            context['forbidden'] = False
+            context['checkin_disabled'] = False
 
         # registered users
         user_regs = UserEventRegistration.objects.filter(event__id=event_id)
