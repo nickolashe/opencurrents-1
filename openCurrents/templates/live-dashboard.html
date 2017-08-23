@@ -4,7 +4,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    {% include "head.html" %}
+    {% include "partials/head.html" %}
 
     <link href="{% static 'css/auto-complete.css' %}" rel="stylesheet" type="text/css">
 
@@ -12,7 +12,7 @@
   </head>
 
   <body>
-    {% include "header.html" %}
+    {% include "partials/header.html" %}
 
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
@@ -71,6 +71,7 @@
               </a>
 
               <p id="vol-error" class="small-text hidden alert">Name and email required</p>
+              <p id="vol-exist" class="small-text hidden alert">Volunteer already enrolled</p>
               <p id="email-error" class="small-text hidden alert">Invalid email address</p>
             </div>
           </div>
@@ -123,13 +124,14 @@
                   </div>
 
                   <div class="right small-3 columns">
-                    <input type="checkbox" id="vol-checkin-{{ user.id }}" name="vol-checkin-{{ user.id }}" value="{{ user.id }}" class="hidden"
+                    <input {% if checkin_disabled %}disabled{% endif %} type="checkbox" id="vol-checkin-{{ user.id }}" name="vol-checkin-{{ user.id }}" value="{{ user.id }}" class=" hidden checkin-checkbox"
                       {% if user.id in checkedin_users %}
                         checked
                       {% endif %}
                     />
+
                     <label class="large-icon" for="vol-checkin-{{ user.id }}">
-                      <i class="styled-checkbox fa fa-lg fa-check-circle"></i>
+                      <i class="fa fa-lg fa-check-circle"></i>
                     </label>
                   </div>
 
@@ -148,7 +150,7 @@
       <!-- wrapper div-->
       </div>
 
-      {% include "footer.html" %}
+      {% include 'partials/footer.html' %}
 
     <!--container div -->
     </div>
@@ -156,7 +158,7 @@
     <div id="bottom-stripe" class="full-width"></div>
 
     <div off-canvas="menu right shift" id="menu">
-      {% include "menu.html" %}
+      {% include 'partials/menu.html' %}
     </div>
 
     <script type="text/javascript">
@@ -207,7 +209,7 @@
             let new_email = $('#new-email').val();
             let invite_optin = $('#invite-optin').prop('checked');
             let process_signup_url;
-            
+
             if (invite_optin) {
               process_signup_url = "{% url 'openCurrents:process_signup' endpoint=True verify_email=True %}"
             }
@@ -237,31 +239,46 @@
                 },
                 dataType : "json",
               }).complete(function( data ) {
-                $('#registered-volunteers').prepend(`
-                  <div class="row"> \
-                    <div class="left small-9 columns"> \
-                      <p class="half-margin-top"> \
-                        ${new_firstname} \
-                        ${new_lastname} \
-                      </p> \
+                let test_data = data;
+                if (test_data.responseJSON != undefined){
+                  $('#registered-volunteers').prepend(`
+                    <div class="row"> \
+                      <div class="left small-9 columns"> \
+                        <p class="half-margin-top"> \
+                          ${new_firstname} \
+                          ${new_lastname} \
+                        </p> \
+                      </div> \
+
+                      <div class="right small-3 columns"> \
+                          <input {% if checkin_disabled %}disabled{% endif %} type="checkbox" id="vol-checkin-${userid}" name="vol-checkin-${userid}" value="${userid}" class="hidden checkin-checkbox"/> \
+
+                          <label class="large-icon" for="vol-checkin-${userid}"> \
+                            <i class="fa fa-lg fa-check-circle"></i> \
+                          </label> \
+                      </div> \
                     </div> \
+                  `)
 
-                    <div class="right small-3 columns"> \
-                        <input type="checkbox" id="vol-checkin-${userid}" name="vol-checkin-${userid}" value="${userid}" class="hidden"/> \
-                        <label class="large-icon" for="vol-checkin-${userid}"> \
-                          <i class="styled-checkbox fa fa-lg fa-check-circle"></i> \
-                        </label> \
-                    </div> \
-                  </div> \
-                `)
+                  // clear form inputs
+                  $('#new-firstname').val('');
+                  $('#new-lastname').val('');
+                  $('#new-email').val('');
+                  $('#invite-optin').attr("checked", false);
 
-                // clear form inputs
-                $('#new-firstname').val('');
-                $('#new-lastname').val('');
-                $('#new-email').val('');
-
-                // bind new checkbox to checkin
-                $(`input[name='vol-checkin-${userid}']`).click(onCheckClick);
+                  // bind new checkbox to checkin
+                  $(`input[name='vol-checkin-${userid}']`).click(onCheckClick);
+                  if(test_data.responseJSON.event_status=='1'){
+                    $(`input[name='vol-checkin-${userid}']`).trigger('click')
+                  }
+                }
+                else{
+                  $('#new-firstname').val('');
+                  $('#new-lastname').val('');
+                  $('#new-email').val('');
+                  $('#invite-optin').attr("checked", false);
+                  $('#vol-exist').slideDown();
+                }
               });
             });
 

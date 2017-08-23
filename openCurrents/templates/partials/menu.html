@@ -1,0 +1,48 @@
+{% if request.user.is_authenticated %}
+  <a class="list-group-item" href="{% url 'openCurrents:profile' %}">
+    <i class="half-margin-right fa-fw fa fa-user"></i>
+    Profile
+  </a>
+
+  {% if is_admin %}
+    <a class="list-group-item" href="{% url 'openCurrents:org-signup' %}">
+      <i class="half-margin-right fa-fw fa fa-calendar"></i>
+      Create an event
+    </a>
+
+    <a class="list-group-item" href="{% url 'openCurrents:process_logout' %}">
+      <i class="half-margin-right fa-fw fa fa-user-plus"></i>
+      Invite volunteers
+    </a>
+  {% endif %}
+
+
+  <a class="list-group-item" href="{% url 'openCurrents:org-signup' %}">
+    <i class="half-margin-right fa-fw fa fa-heartbeat"></i>
+    Nominate an org
+  </a>
+
+  <a class="list-group-item" href="{% url 'openCurrents:process_logout' %}">
+    <i class="half-margin-right fa-fw fa fa-sign-out"></i>
+    Log out
+  </a>
+{% else %}
+  <a class="list-group-item" href="{% url 'openCurrents:home' %}">
+    <i class="half-margin-right fa-fw fa fa-home"></i>
+    Home
+  </a>
+  <a class="list-group-item" href="{% url 'openCurrents:login' %}">
+    <i class="half-margin-right fa-fw fa fa-sign-in"></i>
+    Log in
+  </a>
+{% endif %}
+
+<!--  <a class="list-group-item" href="{% url 'openCurrents:send-currents' %}">
+    <i class="half-margin-right fa-fw fa fa-long-arrow-right"></i>
+    Send Currents
+  </a>
+
+  <a class="list-group-item" href="{% url 'openCurrents:request-currents' %}">
+    <i class="half-margin-right fa-fw fa fa-long-arrow-left"></i>
+    Request Currents
+  </a>-->

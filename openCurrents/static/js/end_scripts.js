@@ -28,7 +28,7 @@ $( '.toggle-menu' ).on( 'click', function ( event ) {
   controller.toggle( 'menu' );
   
   // Close any
-  $( document ).on( 'click', '.js-close-any', function ( event ) {
+  $( document ).on( 'touchend click', '.js-close-any', function ( event ) {
     if ( controller.getActiveSlidebar() ) {
       event.preventDefault();
       event.stopPropagation();

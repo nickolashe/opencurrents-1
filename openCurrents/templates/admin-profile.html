@@ -4,24 +4,42 @@
 <!DOCTYPE html>
 <html>
   <head>
-    {% include "head.html" %}
+    {% include "partials/head.html" %}
   </head>
 
   <body>
-    {% include "header.html" %}
+    {% include "partials/header.html" %}
 
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
+          <div id="status_msg" class="alert row half-margin-top">
+          </div>
 
+          {% if num_events or num_vols %}
+            <div class="success row one-margin-top">
+              <div class="medium-8 columns small-centered">
+                {% if num_events|add:"0" >= 1 and num_vols|add:"0" >= 1 %}
+                    You have created events at {{ num_events }} location{{ num_events|pluralize }} and registered {{ num_vols }} volunteer{{ num_vols|pluralize }} to the event. Nice!
+
+                {% elif num_events|add:"0" >= 1 and num_vols|add:"0" == 0 %}
+                    You have created events at {{ num_events }} location{{ num_events|pluralize }}. Nice!
+
+                {% elif num_events|add:"0" == 0 and num_vols|add:"0" >= 1 %}
+                    You have invited {{ num_vols  }} volunteer{{ num_vols|pluralize }} to the openCurrents community. Nice!
+
+                {% endif %}
+              </div>
+            </div>
+          {% endif %}
 
         {% if vols_approved or vols_declined %}
           <div class="success row one-margin-top">
             <div class="medium-8 columns small-centered">
               {% if vols_approved|add:"0" >= 1 and vols_declined|add:"0" >= 1 %}
-                  You have approved {{ vols_approved }} and declined {{ vols_declined }} volunteer{{ vols_declined|pluralize }}. Keep up the good work!
+                  You have approved hours for {{ vols_approved }} volunteer{{ vols_approved|pluralize }} and declined hours for {{ vols_declined }} volunteer{{ vols_declined|pluralize }}. Nice!
 
               {% elif vols_approved|add:"0" >= 1 and vols_declined|add:"0" == 0 %}
-                  You have approved hours for {{ vols_approved }} volunteer{{ vols_approved|pluralize }}. Keep up the good work!
+                  You have approved hours for {{ vols_approved }} volunteer{{ vols_approved|pluralize }}. Nice!
 
               {% elif vols_approved|add:"0" == 0 and vols_declined|add:"0" >= 1 %}
                   You have declined hours for {{ vols_declined }} volunteer{{ vols_declined|pluralize }}.
@@ -32,53 +50,48 @@
         {% endif %}
 
 
-        <div class="hide-for-small-only row full-width collapse two-margin-top">
+        <div class="hide-for-small-only row full-width collapse two-margin-top one-margin-bottom">
           <div class="left medium-6 medium-offset-1 large-5 large-offset-2 columns">
             <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="fit-left round" />
             <span class="input-sizer"> -->
               <h5 class="one-margin-top no-margin-bottom">{{ user.first_name }} {{ user.last_name }}</h5>
               <h6>{{org_name}}</h6>
-              <a href="{% url 'openCurrents:invite-volunteers' %}" class="button secondary tiny round">Invite volunteers</a>
+              <a href="{% url 'openCurrents:create-event' orgid %}" {% if user_time_log_status %} class="button secondary tiny round" {% else %} class="button tiny round" {% endif %}>Create event</a>
             <!-- </span> -->
           </div>
 
 
 
           <div class="one-margin-top right medium-4 large-3 columns end">
-            <!--h6 class="no-margin-bottom two-line-height">My hours tracked: [my]</h6-->
+            <!--h6 class="no-margin-bottom two-line-height">My hours tracked: [my_total]</h6-->
+
             <h6>Org hours tracked: {{ issued_total }}</h6>
-            <!--<a href="{% url 'openCurrents:create-event' orgid %}" class="button round tiny">Create event</a>-->
-            {% if user_time_log_status %}
-              <a href="{% url 'openCurrents:approve-hours' %}" class="button round tiny">Approve hours</a>
-            {% else %}
-              <a href="{% url 'openCurrents:create-event' orgid %}" class="button round tiny">Create event</a>
-            {% endif %}
+              <a {% if user_time_log_status %} href="{% url 'openCurrents:approve-hours' %}" class="button round tiny"{% else %} href="javascript:status()" class="button round tiny secondary"{% endif %}">Approve hours</a>
           </div>
         </div>
 
-        <div class="show-for-small-only row one-margin-top">
+        <div class="show-for-small-only row one-margin-top one-margin-bottom">
           <div class="columns">
             <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="round" /> -->
             <h5 class="half-margin-top no-margin-bottom">{{ user.first_name }} {{ user.last_name }}</h5>
             <h6>{{org_name}}</h6>
-            <a href="{% url 'openCurrents:create-event' orgid %}" class="button round tiny">Create event</a>
-            <a href="{% url 'openCurrents:invite-volunteers' %}" class="button secondary tiny round">Invite volunteers</a>
 
             <div class="half-margin-top">
-              <h6 class="no-margin-bottom">My hours tracked: [ my_total ]</h6>
-              <h6>Org hours tracked: {{ issued_total }}</h6>
-              <a href="{% url 'openCurrents:create-event' orgid %}" class="button round tiny">Create event</a>
+              <!-- <h6 class="no-margin-bottom">My hours tracked: 10.0</h6> -->
+              <h6 class="one-margin-bottom">Org hours tracked: {{ issued_total }}</h6>
+              <a href="{% url 'openCurrents:create-event' orgid %}" {% if user_time_log_status %} class="button secondary tiny round" {% else %} class="button tiny round" {% endif %}>Create event</a>
+              <a {% if user_time_log_status %} href="{% url 'openCurrents:approve-hours' %}" class="button round tiny"{% else %} href="javascript:status()" class="button round tiny secondary"{% endif %}">Approve hours</a>
             </div>
           </div>
         </div>
 
         <!-- current events section -->
-        {% if events_current %}
+        {% if events_group_current %}
           <div id="live-event-list" class="left row full-width collapse one-margin-top">
             <div class="small-11 medium-10 large-8 small-centered columns">
               <h6 class="one-margin-bottom">Events happening now</h6>
 
-              {% for event in events_current %}
+              {% for event in events_group_current %}
                   <div class="row one-margin-top one-margin-bottom">
                     <div class="left small-8 columns">
                       Let's {{event.project.name}}!
@@ -97,15 +110,13 @@
               {% endfor %}
             </div>
           </div>
-        {% elif events_upcoming %}
-          <!--<p><a href="{% url 'openCurrents:live-dashboard' event_id=events_upcoming.0.id %}" class="button round small">Preview live dashboard</a></p>-->
         {% endif %}
 
         <div id="upcoming-event-list" class="left row one-margin-top full-width collapse">
           <div class="small-11 medium-10 large-8 small-centered columns">
             <h6 class="one-margin-bottom">Upcoming events</h6>
-            {% if events_upcoming %}
-              {% for event in events_upcoming %}
+            {% if events_group_upcoming %}
+              {% for event in events_group_upcoming %}
                 <div class="row hover-row one-margin-bottom">
                   <div class="left small-9 columns">
                     Let's {{event.project.name}}!
@@ -118,10 +129,10 @@
                   <div class="right relative small-2 columns end">
                     <a class="mini-open"><i class="blue fa-chevron-circle-down fa fa-lg"></i></a>
                     <ul class="mini-menu">
-                      <a href="{% url 'openCurrents:live-dashboard' event.id %}"><li>Preview live check-in</li></a>
-                      <a href="{% url 'openCurrents:invite-volunteers' event.id %}"><li>Invite volunteers</li></a>
                       <a href="{% url 'openCurrents:event-detail' event.id %}"><li>View event details</li></a>
+                      <a href="{% url 'openCurrents:invite-volunteers' event.id %}"><li>Invite volunteers</li></a>
                       <a href="{% url 'openCurrents:edit-event' event.id %}"><li>Edit event</li></a>
+                      <a href="{% url 'openCurrents:live-dashboard' event.id %}"><li>Preview live check-in</li></a>
                     </ul>
                   </div>
                 </div>
@@ -135,14 +146,13 @@
             {% endif %}
           </div>
         </div>
-        
 
-        {% if events_past %}
+        {% if events_group_past %}
           <div id="past-event-list" class="left row one-margin-top full-width collapse">
             <div class="small-11 medium-10 large-8 small-centered columns">
               <h6 class="one-margin-bottom">Past events</h6>
 
-              {% for event in events_past %}
+              {% for event in events_group_past %}
                   <div class="row hover-row one-margin-bottom">
                     <div class="left input-left small-9 columns">
                       Let's {{event.project.name}}!
@@ -212,7 +222,7 @@
       <!-- wrapper div-->
       </div>
 
-      {% include "footer.html" %}
+      {% include 'partials/footer.html' %}
 
     <!--container div -->
     </div>
@@ -220,7 +230,7 @@
     <div id="bottom-stripe" class="full-width"></div>
 
     <div off-canvas="menu right shift" id="menu">
-      {% include "menu.html" %}
+      {% include 'partials/menu.html' %}
     </div>
 
     <div id="approve-hours-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
@@ -255,6 +265,9 @@
           }
         });
       });
+      function status(){
+        $('#status_msg').html("You already have all the hours approved.");
+      }
     </script>
 
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
