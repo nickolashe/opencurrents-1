@@ -3,12 +3,13 @@
 <!DOCTYPE html>
 <html>
   <head>
-    {% include "head.html" %}
+    {% include "partials/head.html" %}
   </head>
 
   <body>
-    {% include "header.html" %}
 
+    {% include "partials/header.html" %}
+    
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
         {% if status_msg %}
@@ -19,8 +20,8 @@
 
         <div class="row">
           <h3 class="title-sub">Invite volunteers</h3>
-          {% if event_id %}
-            <p> to help <strong> {{ event.project.name }} </strong> </p>
+          {% if event_project_name %}
+            <p> to help <strong> {{ event_project_name }} </strong> </p>
           {% else %}
             <p> to track hours with openCurrents </p>
           {% endif %}
@@ -71,14 +72,14 @@
           {% endif %}
           <input type="hidden" id="bulk-vol" name="bulk-vol" value="" />
         </form>
-        
+
         <div id="push"></div>
 
       <!-- wrapper div-->
       </div>
-
-      {% include "footer.html" %}
-
+      
+      {% include 'partials/footer.html' %}
+            
     <!--container div -->
     </div>
 
@@ -86,7 +87,7 @@
     <div id="bottom-stripe" class="full-width"></div>
 
     <div off-canvas="menu right shift" id="menu">
-      {% include "menu.html" %}
+      {% include 'partials/menu.html' %}
     </div>
 
     <div id="bulk-email-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
@@ -101,7 +102,7 @@
 
           <!--<p class="three-halves-margin-top"><a onclick="$(this).closest('form').submit()" href="" class="button round">Send invites</a></p>-->
         <button type='submit' name="button_2" onclick="submit_from_bulk()" class="button round">Send invites</button>
-        
+
         </div>
       </div>
     </div>
