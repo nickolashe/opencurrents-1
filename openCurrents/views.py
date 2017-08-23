@@ -1926,7 +1926,7 @@ def process_login(request):
             userid = user.id
             #user = User.objects.get(id=userid)
             org = OrgUser.objects.filter(user__id=userid)
-            app_hr = '0'
+            app_hr = 0
             if org:
                 orgid = org[0].org.id
                 projects = Project.objects.filter(org__id=orgid)
@@ -1951,9 +1951,9 @@ def process_login(request):
                 timelogs = timelogs.exclude(event__in=exclude_usertimelog)
                 today = date.today()
                 if ((user.last_login.date())< today - timedelta(days=today.weekday()) and timelogs):
-                    app_hr = json.dumps('1')
+                    app_hr = json.dumps(1)
                 else:
-                    app_hr = json.dumps('0')
+                    app_hr = json.dumps(0)
             login(request, user)
             try:
                 remember_me = request.POST['remember-me']
