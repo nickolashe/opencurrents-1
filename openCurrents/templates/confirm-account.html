@@ -3,16 +3,16 @@
 <!DOCTYPE html>
 <html>
   <head>
-    {% include "head.html" %}
+    {% include "partials/head.html" %}
   </head>
 
   <body>
-    {% include "header.html" %}
+    {% include "partials/header.html" %}
 
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
         <div class="row">
-            <h2 class="title-sub">Confirm account</h2>
+            <h3 class="title-sub">Confirm account</h3>
         </div>
 
         {% if status_msg %}
@@ -45,16 +45,17 @@
             </div>
           </div>
 
-          <label class="one-margin-bottom">8+ chars including UPPER, lower, 123, %#@!</label>
+          <label class="half-margin-bottom">8+ chars including UPPER, lower, 123, %#@!</label>
 
           <div class="row center">
-            <div class="checkbox">
-              <label id=""><input type="checkbox" name="monthly_updates" checked id="" />Send me monthly updates</label>
-            </div>
+            <div class="small-12 columns">
+              <div class="checkbox one-margin-bottom">
+                <input type="checkbox" name="" id="monthly-update" class="custom-checkbox" checked />
+                  <label for="monthly-update">Send me monthly updates</label>
+              </div>
 
-            <input type="submit" class="button round" value="Finish"/>
-            <!-- <button class="resend-email_open button round secondary">Resend email</button>
-            <p class="">or <a class="change-email_open">change email address</a></p> -->
+              <input type="submit" class="button round" value="Finish"/>
+            </div>
           </div>
         </form>
 
@@ -83,7 +84,7 @@
 
       </div>
 
-      {% include "footer.html" %}
+      {% include 'partials/footer.html' %}
 
     <!--container div -->
     </div>
@@ -91,10 +92,8 @@
     <div id="bottom-stripe" class="full-width"></div>
 
     <div off-canvas="menu right shift" id="menu">
-      {% include "menu.html" %}
+      {% include 'partials/menu.html' %}
     </div>
-
-
 
     <script type="text/javascript">
       $(document).ready(function(){
@@ -106,37 +105,7 @@
       });
     </script>
 
-    <script>
-      ( function ( $ ) {
-        // Initialize Slidebars
-        var controller = new slidebars();
-        controller.init();
-      } ) ( jQuery );
-    </script>
-
-    <script>
-      // Initialize Slidebars
-      var controller = new slidebars();
-      controller.init();
-
-      // Toggle Slidebars
-      $( '.toggle-menu' ).on( 'click', function ( event ) {
-        // Stop default action and bubbling
-        event.stopPropagation();
-        event.preventDefault();
-
-        // Toggle the Slidebar with id 'id-1'
-        controller.toggle( 'menu' );
-
-        // Close any
-        $( document ).on( 'click', '.js-close-any', function ( event ) {
-          if ( controller.getActiveSlidebar() ) {
-            event.preventDefault();
-            event.stopPropagation();
-            controller.close();
-          }
-        } );
-      } );
-    </script>
+    <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
+    
   </body>
 </html>

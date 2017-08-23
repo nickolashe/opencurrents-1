@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    {% include "head.html" %}
+    {% include "partials/head.html" %}
 
     <script type="text/javascript" src="{% static 'js/jquery.timepicker.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/jquery-ui-datepicker.js' %}"></script>
@@ -13,7 +13,8 @@
   </head>
 
   <body>
-    {% include "header.html" %}
+
+    {% include "partials/header.html" %}  
 
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
@@ -68,7 +69,15 @@
 
           <a id="add-location"><i class="fa fa-plus-circle half-margin-right"></i>Add another location</a>
 
-          <div class="three-halves-margin-top row left">
+          <div class="row two-margin-top">
+            <input type="radio" id="event-privacy-1" name="event-privacy" value="1" class="hidden styled-radio" {% if event.is_public %} checked {% endif %}/>
+              <label for="event-privacy-1" class="button round secondary tiny">Public event</label>
+            <input type="radio" id="event-privacy-2" name="event-privacy" value="2" class="hidden styled-radio" {% if not event.is_public %} checked {% endif %}/>
+              <label for="event-privacy-2" class="button round secondary tiny">Invite only</label>
+
+          </div>
+
+          <div class="one-margin-top row left">
             <div class="small-12 medium-6 small-centered columns">
               <h6 class="navy no-margin-bottom">Project description</h6>
               <p class="small-text grey no-margin-bottom">What should volunteers know? What should they bring?</p>
@@ -119,7 +128,7 @@
       <!-- wrapper div-->
       </div>
 
-      {% include "footer.html" %}
+      {% include 'partials/footer.html' %}
 
     <!--container div -->
     </div>
@@ -127,7 +136,7 @@
     <div id="bottom-stripe" class="full-width"></div>
 
     <div off-canvas="menu right shift" id="menu">
-      {% include "menu.html" %}
+      {% include 'partials/menu.html' %}
     </div>
 
     <div id="template-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
@@ -160,7 +169,7 @@
         });
 
         $('#project-start, #project-end').timepicker({
-          step: 15,
+          step: 30,
         });
       });
 
