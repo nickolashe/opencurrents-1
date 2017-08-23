@@ -1,30 +1,185 @@
-/* home */
+/* landing page backgrounds */
 
-#home-quote {
-  font-family: 'Alegreya Sans SC', sans-serif;
-  font-weight: 300;
-  margin-top: 2rem;
+@media screen and (min-width: 42em) {
+  #home {
+    background: url(/static/img/wheelbarrow.jpg) center bottom fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+  }
+
+  #nonprofit {
+    background: url(/static/img/hands.jpg) no-repeat center 40px fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+  }
+
+  #business {
+    background: url(/static/img/market.jpg) no-repeat right center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+  }
+
+  #our-story {
+    background: url(/static/img/moab.jpg) no-repeat right center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+  }
+
+  #volunteer {
+    background: url(/static/img/tree.jpg) no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+  }
 }
 
-/* small home */
+/* home nonprofit business and our-story */
 
-#home {
+.splash {
   display: block;
   overflow: visible;
-  background-color: #24b2e7;
+  background-color: #ffffff;
   color: #ffffff;
   min-height: 100vh;
 }
 
+
+/* small */
+@media (max-width: 41.9375em) {
+
+  #home:after {
+    content:"";
+    position:fixed;
+    top:0;
+    height:100vh; 
+    left:0;
+    right:0;
+    z-index:-1;
+    background: url(/static/img/wheelbarrow.jpg) center bottom;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+  }
+
+  #nonprofit:after {
+    content:"";
+    position:fixed;
+    top:0;
+    height:100vh; 
+    left:0;
+    right:0;
+    z-index:-1;
+    background: url(/static/img/hands.jpg) center 40px;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+  }
+
+  #business:after {
+    content:"";
+    position:fixed;
+    top:0;
+    height:100vh; 
+    left:0;
+    right:0;
+    z-index:-1;
+    background: url(/static/img/market.jpg) right center;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+  }
+
+  #our-story:after {
+    content:"";
+    position:fixed;
+    top:0;
+    height:100vh; 
+    left:0;
+    right:0;
+    z-index:-1;
+    background: url(/static/img/moab.jpg) right center;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+  }
+
+  #volunteer:after {
+    content:"";
+    position:fixed;
+    top:0;
+    height:100vh; 
+    left:0;
+    right:0;
+    z-index:-1;
+    background: url(/static/img/tree.jpg) center 60px;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+  }  
+}
+
+#intro-1, #intro-2, #intro-3, #intro-4, #intro-5, #intro-6, #intro-7 {
+  min-height: 100vh;
+}
+
+#intro-2, #intro-4, #intro-6 {
+  background-color: #ffffff;
+  color: #1f4975;
+}
+
+.home-input {
+  background-color: transparent;
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+input.home-input::-webkit-input-placeholder {
+  color: #ffffff; }
+
+input.home-input::-moz-placeholder {
+  color: #ffffff;
+}
+
+input.home-input:-ms-input-placeholder {
+  color: #ffffff; }
+
+input.home-input::placeholder {
+  color: #ffffff; }
+
+.home-input:hover {
+  background-color: transparent;
+  border-color: #ffffff;
+}
+
+.home-input:focus {
+  background-color: transparent;
+  border-color: #24b2e7;
+}
+
+/* small home */
+
 #home-logo {
-  width: 533px;
-  margin-bottom: 1rem;
   margin-top: 4rem;
+  width: 234px;
 }
 
 #home-tagline {
-  width: 533px; /* matches home-logo width to scale synchronously */
-  margin-bottom: 0rem;
+  line-height: 1.2;
+  margin-top: 2.5rem;
 }
 
 #home-symbol {
@@ -32,33 +187,46 @@
   height: 2rem;
 }
 
-#home .button:hover {
-  background-color: #1f4975;
-  border-color: #1f4975;
+.benefit-icon #home-symbol {
+  stroke: #1f4975;
 }
 
-#home .button:focus {
-  background-color: #1f4975;
-  border-color: #1f4975;
+.benefit-icon:hover #home-symbol g, .styled-radio:checked + label #home-symbol g {
+  stroke: #ffffff;
 }
 
 .home-link {
   font-size: 1.125rem;
 }
 
-#home .home-link:hover {
+.home-quote {
+  font-family: 'Alegreya Sans SC', sans-serif;
+  font-weight: 300;
+}
+
+.splash .home-link:hover {
   color: #ffffff;
   font-weight: 500;
 }
 
-#home .home-link:active {
+.splash .home-link:active {
   color: #ffffff;
   font-weight: normal;
 }
 
-#home .home-link:focus {
+.splash .home-link:focus {
   color: #ffffff;
   font-weight: normal;
+}
+
+.button.clear:hover {
+  background-color: #24b2e7;
+  border-color: #24b2e7;
+}
+
+.button.clear:focus {
+  background-color: #24b2e7;
+  border-color: #24b2e7;
 }
 
 #back-button {
@@ -69,7 +237,7 @@
 }
 
 .icon-box {
-  margin: 1rem 0.5rem 0;
+  margin: 1.5rem 0.5rem;
 }
 
 .intro-icon {
@@ -77,8 +245,30 @@
   height: 77px;
   padding: 21px 0;
   border-radius: 99px;
-  border: 1px solid #ffffff;
+  border: 1px solid #1f4975;
+  color: #1f4975;
+  background-color: #ffffff;
   cursor: default;
+  display: inline-block;
+  margin: 0 0.25rem 1rem;
+}
+
+
+.business-table {
+  padding: 0 0.75rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.business-arrow {
+  position: absolute;
+  right: 0;
+  top: 27px;
+  height: 20px;
+}
+
+.business-arrow-sm {
+  width: 20px;
 }
 
 #arrow-1 {
@@ -91,29 +281,29 @@
 #arrow-2 {
   height: 15px;
   position: absolute;
-  top: 144px;
-  right: 99px;
+  top: 160px;
+  right: 88px;
 }
 
 #arrow-3 {
   height: 19px;
   position: absolute;
-  bottom: 133px;
+  bottom: 117px;
   right: 155px;
 }
 
 #arrow-4 {
   height: 19px;
   position: absolute;
-  bottom: 133px;
+  bottom: 117px;
   left: 155px;
 }
 
 #arrow-5 {
   height: 15px;
   position: absolute;
-  top: 144px;
-  left: 88px;
+  top: 165px;
+  left: 83px;
 }
 
 #arrow-down {
@@ -132,48 +322,14 @@
   width: 100%;
 }
 
-#everyone-box {
-  background: none;
-}
-
-#everyone-box .accordion-title {
-  border: none;
-  background: none;
-  padding: 0.5rem;
-}
-
-#everyone-box .accordion-content {
-  background: none;
-  color: #ffffff;
-  text-align: center;
-  border: none;
-  padding-top: 0px;
-}
-
 .benefit-icon {
   width: 77px;
   height: 77px;
   padding: 21px 0;
   border-radius: 99px;
-  border: 1px solid #ffffff;
-}
-
-#benefits-small {
-  background: none;
-}
-
-#benefits-small .accordion-title {
-  border: none;
-  background: none;
-  padding: 0.5rem;
-}
-
-#benefits-small .accordion-content {
-  background: none;
-  color: #ffffff;
-  text-align: center;
-  border: none;
-  padding-top: 0px;
+  border: 1px solid #1f4975;
+  color: #1f4975;
+  background-color: #ffffff;
 }
 
 #mission-box {
@@ -183,33 +339,12 @@
   padding-right: 1.5rem;
 }
 
+
 /* non-small home */
 @media screen and (min-width: 42em) {
-  #home {
-    background: url(/static/img/wheelbarrow-blur.png) no-repeat center center fixed;
-    -webkit-background-size: cover;
-    -moz-background-size: cover;
-    -o-background-size: cover;
-    background-size: cover;
-  }
-
-  #home-logo {
-    margin-top: 8rem;
-    width: 444px;
-  }
 
   #home-tagline {
-    width: 444px;
-  }
-
-  #home .button:hover {
-    background-color: #42bdea;
-    border-color: #42bdea;
-  }
-
-  #home .button:focus {
-    background-color: #42bdea;
-    border-color: #42bdea;
+    margin-top: 4.5rem;
   }
 
   #signup-box .button:hover {
@@ -241,18 +376,10 @@
   #benefit-box {
     height: 99px;
     width: 488px;
+    margin: auto;
   }
 
   #mission-box {
     width: 433px;
   }
-}
-
-#intro-5-1, #intro-5-2, #intro-5-3 {
-  min-height: 100vh;
-}
-
-#intro-5-2 {
-  background-color: #ffffff;
-  color: #1f4975;
 }

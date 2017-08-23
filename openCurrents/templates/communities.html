@@ -1,0 +1,100 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    {% include "partials/head.html" %}
+  </head>
+  
+  <body>
+    {% include "partials/header.html" %}
+    
+    <div id="container" class="js-close-any" canvas="container">
+      <div id="wrapper">
+        {% if status_msg %}
+        <div class="alert row half-margin-top">
+          {{status_msg}}
+        </div>
+        {% endif %}
+        
+        <div class="row">
+          <h3 class="title-sub">My communities</h3>
+          <h5>
+        </div>
+        
+        <div class="row one-margin-bottom center">
+          <div class="medium-9 small-centered columns">
+            <input type="checkbox" name="communities" id="community-1" class="hidden" />
+              <label class="tag button small round" for="community-1">Austin, TX</label>
+
+            <input type="checkbox" name="communities" id="community-2" class="hidden" />
+              <label class="tag button small round" for="community-2">Earth</label>
+
+            <input type="checkbox" name="communities" id="community-3" class="hidden" />
+              <label class="tag button small round" for="community-3">Fire</label>
+
+            <input type="checkbox" name="communities" id="community-4" class="hidden" />
+              <label class="tag button small round" for="community-4">Water</label>
+
+            <input type="checkbox" name="communities" id="community-5" class="hidden" />
+              <label class="tag button small round" for="community-5">Evolutionaries</label>
+
+            <input type="checkbox" name="communities" id="community-6" class="hidden" />
+              <label class="tag button small round" for="community-6"></label>
+
+            <input type="checkbox" name="communities" id="community-7" class="hidden" />
+              <label class="tag button small round" for="community-7">Create art</label>
+
+            <input type="checkbox" name="communities" id="community-8" class="hidden" />
+              <label class="tag button small round" for="community-8">Create art</label>
+
+            <input type="checkbox" name="communities" id="community-9" class="hidden" />
+              <label class="tag button small round" for="community-9">Create art</label>
+          </div>
+        </div>
+        
+        <div id="push"></div>
+    
+      <!-- wrapper div-->
+      </div>
+      
+      {% include 'partials/footer.html' %}
+            
+    <!--container div -->
+    </div>
+    
+    <div id="bottom-stripe" class="full-width"></div>
+    
+    <div off-canvas="menu right shift" id="menu">
+      {% include 'partials/menu.html' %}
+    </div>
+  
+    <div id="-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h3 class="popup-title"></h3>
+      </div>
+      
+      <div class="row">
+        <div class="small-centered medium-10 columns">
+          
+          <p></p>
+          
+          <button class="-popup_close button round">Close</button>
+        </div>
+      </div>
+    </div>
+    
+    
+    <script type="text/javascript">
+      $(document).ready(function(){
+        $('#').popup({
+          vertical: 'top',
+          transition: 'all 0.75s',
+          scrolllock: true,
+        });
+      });
+    </script>
+    
+    <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
+  </body>
+</html>
