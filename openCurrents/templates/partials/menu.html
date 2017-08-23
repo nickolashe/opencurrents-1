@@ -5,12 +5,12 @@
   </a>
 
   {% if is_admin %}
-    <a class="list-group-item" href="{% url 'openCurrents:org-signup' %}">
+    <a class="list-group-item" href="{% url 'openCurrents:create-event' orgid %}">
       <i class="half-margin-right fa-fw fa fa-calendar"></i>
       Create an event
     </a>
 
-    <a class="list-group-item" href="{% url 'openCurrents:process_logout' %}">
+    <a class="list-group-item" href="{% url 'openCurrents:invite-volunteers' %}">
       <i class="half-margin-right fa-fw fa fa-user-plus"></i>
       Invite volunteers
     </a>
