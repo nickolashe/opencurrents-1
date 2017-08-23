@@ -40,7 +40,9 @@ class Org(models.Model):
     def __unicode__(self):
         return ' '.join([
             str(self.status),
-            str(self.name)
+            str(self.name),
+            'with id',
+            str(self.id)
         ])
 
 
