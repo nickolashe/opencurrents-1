@@ -222,7 +222,7 @@ textarea:focus {
   border-bottom: 1px solid #1f4975;
 }
 
-.styled-checkbox:checked + label {
+.checkin-checkbox:checked + label {
   color: #24b2e7;
 }
 
@@ -1258,17 +1258,6 @@ i:hover ~ .addtocalendar {
 
 #live-project-list {
   font-size: 0.875rem;
-}
-
-@media screen and (min-width: 42em) {
-  .mini-open {
-    visibility: hidden;
-    color: #24b2e7;
-  }
-}
-
-.hover-row:hover .mini-open {
-  visibility: visible;
 }
 
 .mini-menu {

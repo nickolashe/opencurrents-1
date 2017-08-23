@@ -3,11 +3,11 @@
 <!DOCTYPE html>
 <html>
   <head>
-    {% include "head.html" %}
+    {% include "partials/head.html" %}
   </head>
 
   <body>
-    {% include "header.html" %}
+    {% include "partials/header.html" %}
 
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
@@ -26,14 +26,14 @@
           <div class="row one-margin-top">
             <div class="small-12 medium-8 small-centered columns">
               <div class="input-left small-6 columns">
-                <input type="text" name="user_firstname" placeholder="First name" tabindex="1" />
+                <input type="text" name="user_firstname" class="lead center" placeholder="First name" tabindex="1" />
               </div>
 
               <div class="input-right small-6 columns">
-                <input type="text" name="user_lastname" placeholder="Last name" tabindex="2" />
+                <input type="text" name="user_lastname" class="lead center" placeholder="Last name" tabindex="2" />
               </div>
               <div class="small-12 columns">
-                <input type="email" name="user_email" placeholder="Email address" tabindex="3" />
+                <input type="email" name="user_email" class="lead center" placeholder="Email address" tabindex="3" />
               </div>
             </div>
           </div>
@@ -46,7 +46,7 @@
 
       </div>
 
-      {% include "footer.html" %}
+      {% include 'partials/footer.html' %}
 
     <!--container div -->
     </div>
@@ -54,7 +54,7 @@
     <div id="bottom-stripe" class="full-width"></div>
 
     <div off-canvas="menu right shift" id="menu">
-      {% include "menu.html" %}
+      {% include 'partials/menu.html' %}
     </div>
 
     <script>
