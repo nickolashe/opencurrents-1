@@ -27,9 +27,35 @@
 
         <form action ="" method="post">
           {% csrf_token %}
-          <div class="half-margin-top row center">
-            <div class="center medium-8 small-centered columns">
+
+          <div class="row">
+            <div class="left medium-8 small-centered columns">
               <div class="row">
+                <div class="three-halves-margin-top two-margin-bottom small-12 columns">
+                  <!--<input type="text" name="" class="center large-text" placeholder="Description of work"/>-->
+                  {{ form.description }}
+                </div>
+
+                <div class="small-12 medium-4 columns">
+                  <label>{{form.date_start.label}}</label>
+                  <!--<input type="text" id="volunteer-date" name="volunteer-date" placeholder="yyyy-mm-dd"/>-->
+                  {{ form.date_start }}
+                </div>
+
+                <div class="small-6 medium-4 columns">
+                  <label>{{ form.time_start.label }}</label>
+                  <!--<input type="text" id="start-time" name="" value="12:00:00"/>-->
+                  {{ form.time_start }}
+                </div>
+
+                <div class="small-6 medium-4 columns">
+                  <label>{{ form.time_end.label }}</label>
+                  <!--<input type="text" id="end-time" name="" value="12:00:00"/>-->
+                  {{ form.time_end }}
+                </div>
+              </div>
+
+              <div class="row one-margin-top">
                 <div class="small-6 columns">
                   {{form.org}}
                 </div>
@@ -44,45 +70,11 @@
                   </select>
                 </div>
               </div>
-
-                <!-- <a href="{% url 'openCurrents:org-signup' %}" class="add-org-popup_open button round secondary" tabindex=0>Nominate an organization</a> -->
             </div>
-          </div>
 
-          <div class="row">
-            <div class="left medium-8 small-centered columns">
-
-              <div id="manual-tracking">
-                <div class="row">
-                  <div class="three-halves-margin-top two-margin-bottom small-12 columns">
-                    <!--<input type="text" name="" class="center large-text" placeholder="Description of work"/>-->
-                    {{ form.description }}
-                  </div>
-
-                  <div class="small-12 medium-4 columns">
-                    <label>{{form.date_start.label}}</label>
-                    <!--<input type="text" id="volunteer-date" name="volunteer-date" placeholder="yyyy-mm-dd"/>-->
-                    {{ form.date_start }}
-                  </div>
-
-                  <div class="small-6 medium-4 columns">
-                    <label>{{ form.time_start.label }}</label>
-                    <!--<input type="text" id="start-time" name="" value="12:00:00"/>-->
-                    {{ form.time_start }}
-                  </div>
-
-                  <div class="small-6 medium-4 columns">
-                    <label>{{ form.time_end.label }}</label>
-                    <!--<input type="text" id="end-time" name="" value="12:00:00"/>-->
-                    {{ form.time_end }}
-                  </div>
-                </div>
-              </div>
-
-              <div class="row center one-margin-top">
-                <!--<a href="{% url 'openCurrents:time-tracked' %}" class="button round">Save</a>-->
-                <button type='submit' class="one-margin-top button round">Save</button>
-              </div>
+            <div class="row center one-margin-top">
+              <!--<a href="{% url 'openCurrents:time-tracked' %}" class="button round">Save</a>-->
+              <button type='submit' class="one-margin-top button round">Save</button>
             </div>
           </div>
 
@@ -104,7 +96,44 @@
       {% include "menu.html" %}
     </div>
 
-    <div id="add-org-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+    <div id="nominate-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h3 class="popup-title">Nominate an organization</h3>
+        <div class="medium-10 medium-offset-1 columns end">
+          <p>Do you give time with a social organization not listed here? Fill out this form and we'll get in touch. If you want to mention openCurrents to your volunteer coordinator, we'd appreciate it!</p>
+        </div>
+      </div>
+
+      <form method="post" action="">
+        {% csrf_token %}
+        <div class="row three-halves-margin-bottom half-margin-top">
+          <div class="center small-12 medium-9 small-centered columns">
+
+            <div id="org-signup-name" class="small-12 columns hidden">
+              <input type="text" name="org_name" placeholder="Organization name" tabindex="0" />
+            </div>
+
+            <div class="input-left small-6 columns">
+              <input type="text" name="contact_firstname" placeholder="Organizer First name" tabindex="0" />
+            </div>
+
+            <div class="input-right small-6 columns">
+              <input type="text" name="contact_lastname" placeholder="Organizer Last name" tabindex="0" />
+            </div>
+
+            <div class="small-12 columns">
+              <input type="email" name="contact_email" placeholder="Email address" tabindex="0" />
+            </div>
+          </div>
+        </div>
+
+        <div class="row center half-margin-top">
+          <input type="submit" class="button round" value="Nominate"/>
+          <a class="nominate-popup_close button round secondary">Cancel</a>
+        </div>
+      </form>
+
+    <!-- <div id="add-org-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
         <h3 class="popup-title">Volunteer request</h3>
         <div class="medium-10 medium-offset-1 columns end">
@@ -112,7 +141,7 @@
         </div>
       </div>
 
-      <!--<form>-->
+      <!--<form>
         <div class="row">
           <div class="small-12 medium-8 medium-offset-2 columns end">
             <label for="all-orgs" class="inline">Organization name</label>
@@ -132,8 +161,8 @@
           <a id="add-org" type="submit" class="save-org add-org-popup_close button round">Request approval</a>
           <a href="{% url 'openCurrents:org-signup' %}" class="button round secondary">Nominate new org</a>
         </div>
-      <!--</form>-->
-    </div>
+      <!--</form>
+    </div> -->
 
     <script type="text/javascript">
       $(document).ready(function(){
@@ -150,10 +179,16 @@
           step: 15,
         });
 
-        $('#add-org-popup').popup({
+        $('#nominate-popup').popup({
           vertical: 'top',
           transition: 'all 0.75s',
-          scrolllock: true,
+          scrolllock: false,
+        });
+
+        $('#choose-org').on('change', function(){
+          if($(this).val() == "other-org") {
+            $('#nominate-popup').popup('show');
+          }
         });
 
         document.getElementById('id_org_choice').options[0].disabled = true;
@@ -194,29 +229,7 @@
 
     <script type="text/javascript">
 
-      $('#choose-org').on('change', function(){
-        if($(this).val() == "other-org") {
-          $('#').fadeOut(777, function(){
-            $('#').fadeIn(777);
-          });
-        }
 
-        
-        var sel = document.getElementById("id_org_choice");
-        var input = sel.options[sel.selectedIndex].text;
-
-
-      });
-
-      $('#undo-org').click(function(){
-        $('#track-time').fadeOut(777, function(){
-          $('#choose-org').fadeIn(777);
-        });
-
-        $('option').prop('selected', function() {
-            return this.defaultSelected;
-        });
-      });
     </script>
 
 <!--     <script type="text/javascript">
