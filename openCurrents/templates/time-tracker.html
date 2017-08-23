@@ -22,7 +22,7 @@
               {{status_msg}}
             </div>
           {% endif %}
-          <h3 class="title-sub">Track volunteer time</h3>
+          <h3 class="title-sub">Record volunteer hours</h3>
         </div>
 
         <form action ="" method="post">
@@ -35,12 +35,12 @@
                 </div>
 
                 <div class="small-6 columns">
-                  <select>
+                  <select id="choose-org">
                     <option disabled selected hidden>Select admin</option>
                     <option>Org admin 1</option>
                     <option>Org admin 2</option>
                     <option>Org admin 3</option>
-                    <option>Someone else</option>
+                    <option value="other-org">Someone else</option>
                   </select>
                 </div>
               </div>
@@ -194,28 +194,29 @@
 
     <script type="text/javascript">
 
-      // $('select').on('change', function(){
-      //   var selected = $(this).find('option:selected').text();
-      //   document.getElementById('org-name').innerHTML = selected;
+      $('#choose-org').on('change', function(){
+        if($(this).val() == "other-org") {
+          $('#').fadeOut(777, function(){
+            $('#').fadeIn(777);
+          });
+        }
 
-      //   $('#choose-org').fadeOut(777, function(){
-      //     $('#track-time').fadeIn(777);
-      //   });
-      //   var sel = document.getElementById("id_org_choice");
-      //   var input = sel.options[sel.selectedIndex].text;
+        
+        var sel = document.getElementById("id_org_choice");
+        var input = sel.options[sel.selectedIndex].text;
 
 
-      // });
+      });
 
-      // $('#undo-org').click(function(){
-      //   $('#track-time').fadeOut(777, function(){
-      //     $('#choose-org').fadeIn(777);
-      //   });
+      $('#undo-org').click(function(){
+        $('#track-time').fadeOut(777, function(){
+          $('#choose-org').fadeIn(777);
+        });
 
-      //   $('option').prop('selected', function() {
-      //       return this.defaultSelected;
-      //   });
-      // });
+        $('option').prop('selected', function() {
+            return this.defaultSelected;
+        });
+      });
     </script>
 
 <!--     <script type="text/javascript">
