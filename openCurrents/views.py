@@ -90,12 +90,27 @@ class SessionContextView(View):
         userid = self.request.user.id
         context['userid'] = userid
         org = None
-        userorgs = OrgUser.objects.filter(user__id=userid)
+        userorgs = OrgUser.objects.filter(
+            user__id=userid
+            # affiliation__in=['leader', 'employee']
+        )
         if userorgs:
             org = userorgs[0].org
             context['orgid'] = org.id
             context['org_id'] = org.id
 
+        is_admin = False
+        admin_org_group_names = [
+            '_'.join(['admin', str(userorg.org.id)])
+            for userorg in userorgs
+        ]
+        admin_org_groups = Group.objects.filter(
+            name__in=admin_org_group_names,
+            user__id=userid
+        )
+        if admin_org_groups:
+            is_admin = True
+        context['is_admin'] = is_admin
         return context
 
 class OrgAdminPermissionMixin(LoginRequiredMixin):
@@ -888,7 +903,7 @@ class AdminProfileView(OrgAdminPermissionMixin, SessionContextView, TemplateView
                 exclude_usertimelog.append(g_d_t.usertimelog.event)
         timelogs = timelogs.exclude(event__in=exclude_usertimelog)
 
-        context['user_time_log_status'] = timelogs
+        context['user_time_log_status'] = timelogs.exists()
 
         return context
 
@@ -1879,6 +1894,33 @@ def process_signup(request, referrer=None, endpoint=False, verify_email=True):
                     org=org
                 )
                 org_user.save()
+                sendTransactionalEmail(
+                    'new-org-registered',
+                    None,
+                    [
+                        {
+                            'name': 'FNAME',
+                            'content': user_firstname
+                        },
+                        {
+                            'name': 'LNAME',
+                            'content': user_firstname
+                        },
+                        {
+                            'name': 'EMAIL',
+                            'content': user_email
+                        },
+                        {
+                            'name': 'ORG_NAME',
+                            'content': org_name
+                        },
+                        {
+                            'name': 'ORG_STATUS',
+                            'content': request.POST['org_type']
+                        }
+                    ],
+                    'bizdev@opencurrents.com'
+                )
             except IntegrityError:
                 logger.info('org %s already exists', org_name)
 

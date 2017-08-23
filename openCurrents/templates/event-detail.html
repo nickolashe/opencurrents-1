@@ -52,7 +52,7 @@
               </h6>
               {% if form.contact_message.help_text %}
                 <p class="small-text grey no-margin-bottom">
-                  ({{ form.contact_message.help_text|safe }})
+                  {{ form.contact_message.help_text|safe }}
                 </p>
               {% endif %}
               {{ form.contact_message }}
