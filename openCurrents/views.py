@@ -69,9 +69,12 @@ def diffInHours(t1, t2):
 # Create and save a new group for admins of a new org
 def new_org_admins_group(orgid):
     org_admins_name = 'admin_' + str(orgid)
-    logger.info('Creating new org_admins group: %s',org_admins_name)
+    logger.info('Creating new org_admins group: %s', org_admins_name)
     org_admins = Group(name=org_admins_name)
-    org_admins.save()
+    try:
+        org_admins.save()
+    except IntegrityError:
+        logger.info('org %s already exists', orgid)
 
 class DatetimeEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -2017,7 +2020,7 @@ def process_login(request):
             userid = user.id
             #user = User.objects.get(id=userid)
             org = OrgUser.objects.filter(user__id=userid)
-            app_hr = '0'
+            app_hr = 0
             if org:
                 orgid = org[0].org.id
                 projects = Project.objects.filter(org__id=orgid)
@@ -2042,9 +2045,8 @@ def process_login(request):
                 timelogs = timelogs.exclude(event__in=exclude_usertimelog)
                 today = date.today()
                 if ((user.last_login.date())< today - timedelta(days=today.weekday()) and timelogs):
-                    app_hr = json.dumps('1')
-                else:
-                    app_hr = json.dumps('0')
+                    app_hr = 1
+
             login(request, user)
             try:
                 remember_me = request.POST['remember-me']
@@ -2173,14 +2175,7 @@ def process_email_confirmation(request, user_email):
 
         login(request, user)
 
-        try:
-            org_user = OrgUser.objects.get(user=user)
-            org_name = org_user.org.name
-            return redirect('openCurrents:org-signup', org_name=org_name)
-
-        except:
-            logger.info('No org association')
-            return redirect('openCurrents:profile')
+        return redirect('openCurrents:profile')
 
     #if form was invalid for bad password, still need to preserve token
     else:
