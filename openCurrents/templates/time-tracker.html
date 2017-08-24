@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    {% include "head.html" %}
+    {% include "partials/head.html" %}
 
     <script type="text/javascript" src="{% static 'js/jquery.timepicker.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/jquery-ui-datepicker.js' %}"></script>
@@ -12,7 +12,7 @@
   </head>
 
   <body>
-    {% include "header.html" %}
+    {% include "partials/header.html" %}
 
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
@@ -69,6 +69,7 @@
                     <option value="other-org">Someone else</option>
                   </select> -->
                   {{form.admin}}
+
                 </div>
               </div>
             </div>
@@ -86,7 +87,7 @@
       <!-- wrapper div-->
       </div>
 
-      {% include "footer.html" %}
+      {% include 'partials/footer.html' %}
 
     <!--container div -->
     </div>
@@ -94,7 +95,7 @@
     <div id="bottom-stripe" class="full-width"></div>
 
     <div off-canvas="menu right shift" id="menu">
-      {% include "menu.html" %}
+      {% include 'partials/menu.html' %}
     </div>
 
     <div id="nominate-popup" class="modal center small-12 medium-9 large-7 small-centered columns">

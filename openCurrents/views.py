@@ -9,7 +9,7 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.safestring import mark_safe
 from django.utils import timezone
-from django.db.models import F, Max
+from django.db.models import F, Q, Max
 from django.views.decorators.csrf import csrf_exempt,csrf_protect
 from django.template.context_processors import csrf
 from datetime import datetime, time, date
@@ -30,7 +30,7 @@ from openCurrents.models import \
     Event, \
     UserEventRegistration, \
     UserTimeLog, \
-    DeferredUserTime
+    AdminActionUserTime
 
 from openCurrents.forms import \
     UserSignupForm, \
@@ -75,9 +75,12 @@ def org_user_list(request):
 # Create and save a new group for admins of a new org
 def new_org_admins_group(orgid):
     org_admins_name = 'admin_' + str(orgid)
-    logger.info('Creating new org_admins group: %s',org_admins_name)
+    logger.info('Creating new org_admins group: %s', org_admins_name)
     org_admins = Group(name=org_admins_name)
-    org_admins.save()
+    try:
+        org_admins.save()
+    except IntegrityError:
+        logger.info('org %s already exists', orgid)
 
 class DatetimeEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -93,13 +96,29 @@ class SessionContextView(View):
         userid = self.request.user.id
         context['userid'] = userid
         org = None
-        userorgs = OrgUser.objects.filter(user__id=userid)
+        userorgs = OrgUser.objects.filter(
+            user__id=userid
+            # affiliation__in=['leader', 'employee']
+        )
         if userorgs:
             org = userorgs[0].org
             context['orgid'] = org.id
             context['org_id'] = org.id
 
+        is_admin = False
+        admin_org_group_names = [
+            '_'.join(['admin', str(userorg.org.id)])
+            for userorg in userorgs
+        ]
+        admin_org_groups = Group.objects.filter(
+            name__in=admin_org_group_names,
+            user__id=userid
+        )
+        if admin_org_groups:
+            is_admin = True
+        context['is_admin'] = is_admin
         return context
+
 
 class OrgAdminPermissionMixin(LoginRequiredMixin):
     def dispatch(self, request, *args, **kwargs):
@@ -149,6 +168,7 @@ class OrgAdminPermissionMixin(LoginRequiredMixin):
             request, *args, **kwargs
         )
 
+
 class HomeView(SessionContextView, TemplateView):
     template_name = 'home.html'
 
@@ -161,11 +181,14 @@ class HomeView(SessionContextView, TemplateView):
             #If no session set
             return super(HomeView, self).dispatch(*args, **kwargs)
 
+
 class ForbiddenView(SessionContextView, TemplateView):
     template_name = '403.html'
 
+
 class NotFoundView(SessionContextView, TemplateView):
     template_name = '404.html'
+
 
 class ErrorView(SessionContextView, TemplateView):
     template_name = '500.html'
@@ -183,8 +206,16 @@ class ResetPasswordView(TemplateView):
     template_name = 'reset-password.html'
 
 
+class BusinessView(TemplateView):
+    template_name = 'business.html'
+
+
 class CheckEmailPasswordView(TemplateView):
     template_name = 'check-email-password.html'
+
+
+class CommunitiesView(TemplateView):
+    template_name = 'communities.html'
 
 
 class ConfirmAccountView(TemplateView):
@@ -211,6 +242,7 @@ class InviteFriendsView(LoginRequiredMixin, SessionContextView, TemplateView):
             context['balance_pending'] = 0
 
         return context
+
 
 class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
     template_name = 'approve-hours.html'
@@ -340,7 +372,7 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
             event_type='MN'
         )
         time_log_week = OrderedDict()
-        get_defer_times = DeferredUserTime.objects.filter(user__id=userid)
+        get_defer_times = AdminActionUserTime.objects.filter(user__id=userid)
         eventtimelogs = UserTimeLog.objects.filter(
             event__in=events
         ).filter(
@@ -438,7 +470,7 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
                            ).filter(
                               event__in=events)
                     for time_def in time_log:
-                        defer_user_time = DeferredUserTime(
+                        defer_user_time = AdminActionUserTime(
                             user = User.objects.get(id=self.request.user.id),
                             usertimelog = time_def
                             )
@@ -465,19 +497,12 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
             return redirect('openCurrents:admin-profile')
 
         return redirect('openCurrents:approve-hours')
-        #templist[:] = [item.split(':')[0] for item in templist if item != '' and item.split(':')[1]!='0']
-        # try:
-        #     for i in templist:
-        #         user = User.objects.get(username=i)
-        #         time_log = UserTimeLog.objects.filter(user=user).update(is_verified = True);
-        #     return redirect('openCurrents:hours-approved')
-        # except:
-        #     return redirect('openCurrents:500')
 
     def get_hours_rounded(self, datetime_start, datetime_end):
         # h, m, s = time_str.split(':')
         # return float(h) + float(m)/60 + float(s)/3600
         return math.ceil((datetime_end - datetime_start).total_seconds() / 3600 * 4) / 4
+
 
 class CausesView(TemplateView):
     template_name = 'causes.html'
@@ -486,8 +511,10 @@ class CausesView(TemplateView):
 class EditHoursView(TemplateView):
     template_name = 'edit-hours.html'
 
+
 class ExportDataView(TemplateView):
     template_name = 'export-data.html'
+
 
 class FaqView(TemplateView):
     template_name = 'faq.html'
@@ -500,11 +527,14 @@ class FindOrgsView(TemplateView):
 class HoursApprovedView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'hours-approved.html'
 
+
 class InventoryView(TemplateView):
     template_name = 'Inventory.html'
 
+
 class MarketplaceView(TemplateView):
     template_name = 'marketplace.html'
+
 
 class MissionView(TemplateView):
     template_name = 'mission.html'
@@ -521,6 +551,11 @@ class NominationConfirmedView(TemplateView):
 class NominationEmailView(TemplateView):
     template_name = 'nomination-email.html'
 
+
+class NonprofitView(TemplateView):
+    template_name = 'nonprofit.html'
+
+
 class OfferView(TemplateView):
     template_name = 'offer.html'
 
@@ -533,12 +568,17 @@ class OrgSignupView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'org-signup.html'
 
 
+class OurStoryView(TemplateView):
+    template_name = 'our-story.html'
+
+
 class RequestCurrentsView(TemplateView):
     template_name = 'request-currents.html'
 
 
 class SellView(TemplateView):
     template_name = 'sell.html'
+
 
 class SendCurrentsView(TemplateView):
     template_name = 'send-currents.html'
@@ -563,7 +603,6 @@ class VerifyIdentityView(TemplateView):
 class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
     template_name = 'time-tracker.html'
     form_class = TrackVolunteerHours
-    #success_url = '/time-tracked/'
 
     def track_hours(self, form_data):
         userid = self.request.user.id
@@ -628,7 +667,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                     org__id=org.id,
                     name='ManualTracking'
                 )
-        except:
+        except Project.DoesNotExist:
             project = Project(
                 org=org,
                 name='ManualTracking'
@@ -661,7 +700,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         context = super(TimeTrackerView, self).get_context_data(**kwargs)
         try:
             context['status_msg'] = self.kwargs.pop('status_msg')
-        except:
+        except KeyError:
             pass
         return context
 
@@ -695,12 +734,13 @@ class TimeTrackedView(TemplateView):
     template_name = 'time-tracked.html'
 
 
-class VolunteeringView(TemplateView):
-    template_name = 'volunteering.html'
+class VolunteerView(TemplateView):
+    template_name = 'volunteer.html'
 
 
 class VolunteerRequestsView(TemplateView):
     template_name = 'volunteer-requests.html'
+
 
 class VolunteersInvitedView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'volunteers-invited.html'
@@ -710,7 +750,6 @@ class VolunteersInvitedView(LoginRequiredMixin, SessionContextView, TemplateView
         return context
 
 
-
 class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'profile.html'
     login_url = "/home/"
@@ -718,18 +757,18 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(ProfileView, self).get_context_data(**kwargs)
-        try:
-            if kwargs.pop('app_hr') == '1':
-                context['app_hr'] = 1
-            else:
-                context['app_hr'] = 0
-        except:
+        if kwargs.has_key('app_hr') and kwargs['app_hr'] == '1':
+            context['app_hr'] = 1
+        else:
             context['app_hr'] = 0
+
         try:
             org_name = Org.objects.get(id=context['orgid']).name
             context['orgname'] = org_name
-        except:
+        except Org.DoesNotExist:
             pass
+
+        # calculate user balance in currents
         userid = self.request.user.id
         verified_times = UserTimeLog.objects.filter(
             user_id=userid
@@ -745,21 +784,9 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
                 event_user.add(timelog.event.id)
                 issued_total += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
 
-                # if timelog.datetime_end and timelog.datetime_end < timelog.event.datetime_end + timedelta(hours=1):
-                #     # users checked within 1 hour after the event
-                #     issued_total += (timelog.datetime_end - timelog.datetime_start).total_seconds() / 3600
-                # elif timelog.datetime_start <= timelog.event.datetime_end:
-                #     # users that have not been checked out, use event end time
-                #     issued_total += (timelog.event.datetime_end - timelog.datetime_start).total_seconds() / 3600
-                # else:
-                #     # if users post-added, use the event duration
-                #     issued_total += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
-            else:
-                #logger.debug('user %d already counted, skipping', timelog.user.id)
-                pass
-
         context['user_balance'] = round(issued_total, 2)
 
+        # upcoming events user is registered for
         events_upcoming = [
             userreg.event
             for userreg in UserEventRegistration.objects.filter(
@@ -770,7 +797,6 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         ]
         context['events_upcoming'] = events_upcoming
         context['timezone'] = self.request.user.account.timezone
-
 
         return context
 
@@ -788,16 +814,22 @@ class AdminProfileView(OrgAdminPermissionMixin, SessionContextView, TemplateView
         userid = self.request.user.id
         user = User.objects.get(id=userid)
 
-        #find events made by the admin with notified=false
-        new_events = Event.objects.filter(project__org__id=orgid).filter(creator_id=userid).filter(notified=False)
+        # find events created by admin that they have not been notified of
+        new_events = Event.objects.filter(
+            project__org__id=orgid
+        ).filter(
+            creator_id=userid
+        ).filter(
+            notified=False
+        )
         num_events=len(new_events)
+        context['num_events'] = num_events
 
         for event in new_events:
             event.notified=True
             event.save()
 
-        context['num_events'] = num_events
-
+        # calculate total currents verified by admin's org
         verified_time = UserTimeLog.objects.filter(
             event__project__org__id=orgid
         ).filter(
@@ -815,33 +847,24 @@ class AdminProfileView(OrgAdminPermissionMixin, SessionContextView, TemplateView
                 org_event_user[timelog.event.id].add(timelog.user.id)
                 issued_total += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
 
-                # if timelog.datetime_end and timelog.datetime_end < timelog.event.datetime_end + timedelta(hours=1):
-                #     # users checked within 1 hour after the event
-                #     issued_total += (timelog.datetime_end - timelog.datetime_start).total_seconds() / 3600
-                # elif timelog.datetime_start <= timelog.event.datetime_end:
-                #     # users that have not been checked out, use event end time
-                #     issued_total += (timelog.event.datetime_end - timelog.datetime_start).total_seconds() / 3600
-                # else:
-                #     # if users post-added, use the event duration
-                #     issued_total += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
-            else:
-                #logger.info('user %d already counted, skipping', timelog.user.id)
-                pass
-
         context['issued_total'] = round(issued_total, 2)
 
-        # past, current and upcoming events for org
+        # past org events
         context['events_group_past'] = Event.objects.filter(
             event_type='GR',
             project__org__id=orgid,
             datetime_end__lte=datetime.now(tz=pytz.utc)
         ).order_by('-datetime_start')[:3]
+
+        # current org events
         context['events_group_current'] = Event.objects.filter(
             event_type='GR',
             project__org__id=orgid,
             datetime_start__lte=datetime.now(tz=pytz.utc) + timedelta(hours=1),
             datetime_end__gte=datetime.now(tz=pytz.utc)
         )
+
+        # upcoming org events
         context['events_group_upcoming'] = Event.objects.filter(
             event_type='GR',
             project__org__id=orgid,
@@ -849,7 +872,6 @@ class AdminProfileView(OrgAdminPermissionMixin, SessionContextView, TemplateView
         )
 
         userid = self.request.user.id
-        #user = User.objects.get(id=userid)
         org = OrgUser.objects.filter(user__id=userid)
         if org:
             orgid = org[0].org.id
@@ -860,9 +882,9 @@ class AdminProfileView(OrgAdminPermissionMixin, SessionContextView, TemplateView
             event_type='MN'
         )
 
-        get_defer_times = DeferredUserTime.objects.filter(user__id=userid)
+        # determine whether there are any unverified timelogs for admin
+        get_defer_times = AdminActionUserTime.objects.filter(user__id=userid)
         exclude_usertimelog = []
-        # gather unverified time logs
         timelogs = UserTimeLog.objects.filter(
             event__in=events
         ).filter(
@@ -870,11 +892,10 @@ class AdminProfileView(OrgAdminPermissionMixin, SessionContextView, TemplateView
         )
         for g_d_t in get_defer_times:
             if g_d_t.usertimelog in timelogs:
-                #eventtimelogs = eventtimelogs.filter(~Q(event=g_d_t.usertimelog.event))
                 exclude_usertimelog.append(g_d_t.usertimelog.event)
         timelogs = timelogs.exclude(event__in=exclude_usertimelog)
 
-        context['user_time_log_status'] = timelogs
+        context['user_time_log_status'] = timelogs.exists()
 
         return context
 
@@ -890,7 +911,6 @@ class BlogView(TemplateView):
 class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
     template_name = 'create-event.html'
     form_class = ProjectCreateForm
-    #success_url = '/invite-volunteers/'
 
     def _create_event(self, location, form_data):
         if not self.project:
@@ -905,7 +925,7 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
             project=self.project,
             description=form_data['description'],
             location=location,
-            is_public=form_data['is_public'],
+            is_public=form_data['event_privacy'],
             datetime_start=form_data['datetime_start'],
             datetime_end=form_data['datetime_end'],
             coordinator_firstname=form_data['coordinator_firstname'],
@@ -918,8 +938,6 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
 
     def _get_project_names(self):
         context = super(CreateEventView, self).get_context_data()
-
-        # obtain orgid from the session context (provided by SessionContextView)
         orgid = context['org_id']
         self.orgid = orgid
 
@@ -951,10 +969,18 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
         else:
             self.project = None
 
+        # public boolean - needs to handled through forms
+        if str(self.request.POST['is_public']) == '1':
+            data['event_privacy'] = True
+        else:
+            data['event_privacy'] = False
+
         # create an event for each location
         event_ids = map(lambda loc: self._create_event(loc, data), locations)
-        #e_ids = "b".join(str(x) for x in event_ids)
-        return redirect('openCurrents:invite-volunteers',json.dumps(event_ids))
+        return redirect(
+            'openCurrents:invite-volunteers',
+            json.dumps(event_ids)
+        )
 
     def get_context_data(self, **kwargs):
         context = super(CreateEventView, self).get_context_data()
@@ -965,7 +991,6 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
         context['project_names'] = mark_safe(json.dumps(project_names))
         context['form'].fields['coordinator_firstname'].widget.attrs['value'] = str(self.request.user.first_name)
         context['form'].fields['coordinator_email'].widget.attrs['value'] = str(self.request.user.email)
-        #ProjectCreateForm(initial={'is_public':'event-privacy-1'})
 
         return context
 
@@ -978,37 +1003,35 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
         return kwargs
 
 
+# needs to be implemented using UpdateView
 class EditEventView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
     template_name = 'edit-event.html'
 
     def get_context_data(self, **kwargs):
-        #get the event id from admin-profile page and fetch the data need for the UI
         context = super(EditEventView, self).get_context_data(**kwargs)
-        # event
         event_id = kwargs.pop('event_id')
         event = Event.objects.get(id=event_id)
         context['event'] = event
         context['start_time'] = str(event.datetime_start.time())
         context['end_time'] = str(event.datetime_end.time())
         context['date_start'] = str(event.datetime_start.date())
+
         return context
 
     def post(self, request, **kwargs):
-        #POST the modified data by the user to the models
-        post_data = self.request.POST
         utc=pytz.UTC
         event_id = kwargs.pop('event_id')
         edit_event = Event.objects.get(id=event_id)
+
+        # save button - needs to handled through forms
+        post_data = self.request.POST
         if 'save-button' in post_data:
-            #if the user hits save button
-            #print('save-button')
-            #print(edit_event.project.org.id)
             k = []
             Organisation = OrgUser.objects.get(user__id=self.request.user.id).org.name
             if edit_event.location != str(post_data['project-location-1']) or\
-               edit_event.datetime_start.replace(tzinfo=utc) != datetime.combine(datetime.strptime(post_data['project-date'], '%Y-%m-%d'),\
+                edit_event.datetime_start.replace(tzinfo=utc) != datetime.combine(datetime.strptime(post_data['project-date'], '%Y-%m-%d'),\
                   datetime.strptime(str(post_data['project-start']),'%H:%M%p').time()).replace(tzinfo=utc) or\
-               edit_event.project.name != str(post_data['project-name']):
+                edit_event.project.name != str(post_data['project-name']):
                 #If some important data has been modified for the event
                 volunteers = OrgUser.objects.filter(org__id=edit_event.project.org.id)
                 volunteer_emails = [str(i.user.email) for i in volunteers]
@@ -1089,17 +1112,22 @@ class EditEventView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
                 datetime.strptime(str(post_data['project-start']),'%H:%M%p').time())
             edit_event.datetime_end = datetime.combine(datetime.strptime(post_data['project-date'], '%Y-%m-%d'),\
                 datetime.strptime(str(post_data['project-end']),'%H:%M%p').time())
+
+            # needs to be handled using forms
             if post_data['event-privacy'] == '1':
                 edit_event.is_public = True
             elif post_data['event-privacy'] == '2':
                 edit_event.is_public = False
             edit_event.save()
+
             project = Project.objects.get(id = edit_event.project.id)
             project.name = str(post_data['project-name'])
             project.save()
         elif 'del-button' in post_data:
-            #if the user hits delete button
+            # user hit delete button
+            # needs to be handled using forms
             edit_event.delete()
+
         return redirect('openCurrents:admin-profile')
 
 
@@ -1109,8 +1137,35 @@ class UpcomingEventsView(LoginRequiredMixin, SessionContextView, ListView):
     context_object_name = 'events'
 
     def get_queryset(self):
+        # show all public events plus private event for orgs the user is admin for
+        userid = self.request.user.id
+
+        # fetch orguser records
+        orguser_recs = OrgUser.objects.filter(user__id=userid)
+        orgs = [rec.org for rec in orguser_recs]
+
+        # list of org admin group names
+        org_admin_group_names = [
+            '_'.join(['admin', str(org.id)])
+            for org in orgs
+        ]
+
+        # list of org admin groups
+        org_admin_groups = Group.objects.filter(
+            name__in=org_admin_group_names,
+            user__id=userid
+        )
+
+        # admin's org ids
+        admin_org_ids = [
+            group.name.split('_')[1]
+            for group in org_admin_groups
+        ]
+
         return Event.objects.filter(
             datetime_end__gte=datetime.now()
+        ).filter(
+            Q(is_public=True) | Q(is_public=False, project__org__id__in=admin_org_ids)
         )
 
 
@@ -1121,9 +1176,8 @@ class ProjectDetailsView(TemplateView):
 class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
     template_name = 'invite-volunteers.html'
 
-
     def get_context_data(self, **kwargs):
-        #check for event invite or normal invite to display skip button
+        # skip context param determines whether we show skip button or not
         context = super(InviteVolunteersView, self).get_context_data(**kwargs)
         userid = self.request.user.id
         context['userid'] = userid
@@ -1146,7 +1200,6 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
 
     def post(self, request, *args, **kwargs):
         userid = self.request.user.id
-        #print(kwargs)
         user = User.objects.get(id=userid)
         post_data = self.request.POST
         event_create_id = None
@@ -1181,8 +1234,6 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                         user_new = User(
                             username=email_list,
                             email=email_list
-                            #first_name=user_firstname,
-                            #last_name=user_lastname
                         )
                         user_new.save()
                     except Exception as e:
@@ -1213,8 +1264,6 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                     user_new = User(
                         username=user_email,
                         email=user_email
-                        #first_name=user_firstname,
-                        #last_name=user_lastname
                     )
                     user_new.save()
                 except Exception as e:
@@ -1322,6 +1371,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                     e,
                     type(e)
                 )
+
         return redirect('openCurrents:admin-profile', num_vols)
 
 
@@ -1385,7 +1435,6 @@ class LiveDashboardView(OrgAdminPermissionMixin, SessionContextView, TemplateVie
         )
         context['registered_users'] = registered_users
 
-
         # non-registered (existing) users
         unregistered_users = [
             ur_user
@@ -1394,6 +1443,7 @@ class LiveDashboardView(OrgAdminPermissionMixin, SessionContextView, TemplateVie
             ])
         ]
         context['unregistered_users'] = unregistered_users
+
         # dict for looking up user data by lastname
         uu_lookup = dict([
             (user.last_name, {
@@ -1402,7 +1452,6 @@ class LiveDashboardView(OrgAdminPermissionMixin, SessionContextView, TemplateVie
             })
             for user in unregistered_users
         ])
-
         context['uu_lookup'] = mark_safe(json.dumps(uu_lookup))
 
         # identify users that are checked in
@@ -1467,7 +1516,7 @@ def event_checkin(request, pk):
         )
 
         if checkin:
-            # create volunteer UserTimeLog
+            # volunteer checkin
             usertimelog = UserTimeLog(
                 user=User.objects.get(id=userid),
                 event=event,
@@ -1479,7 +1528,7 @@ def event_checkin(request, pk):
                 str(usertimelog.datetime_start)
             )
 
-            # create admin/coordinator UserTimeLog only if not already done
+            # credit admin/coordinator only if not already done
             if not UserTimeLog.objects.filter(event__id=event.id, user__id=request.user.id):
                 usertimelog = UserTimeLog(
                     user=User.objects.get(id=request.user.id),
@@ -1491,6 +1540,7 @@ def event_checkin(request, pk):
 
             return HttpResponse(status=201)
         else:
+            # volunteer checkout
             usertimelog = UserTimeLog.objects.filter(
                 event__id=pk
             ).filter(
@@ -1627,7 +1677,6 @@ def event_register_live(request, eventid):
     user = User.objects.get(id=userid)
     event = Event.objects.get(id=eventid)
     user_events = UserEventRegistration.objects.values('user__id','event__id').filter(user__id = userid).filter(event__id = eventid)
-    #user_event_ids = [d for d in user_events if int(userid) == d['user__id'] and int(eventid) == d['event__id']]
     if not user_events:
         user_event_registration = UserEventRegistration(
             user=user,
@@ -1639,6 +1688,7 @@ def event_register_live(request, eventid):
     else:
         logger.info('User %s already registered for event %s', user.username, event.id)
         return HttpResponse(status=400)
+
     tz = event.project.org.timezone
     event_ds = event.datetime_start.time()
     event_de = event.datetime_end.time()
@@ -1648,6 +1698,7 @@ def event_register_live(request, eventid):
     else:
         event_status = '0'
     return HttpResponse(content = json.dumps({'userid': userid, 'eventid': eventid, 'event_status': event_status}), status=201)
+
 
 # resend the verification email to a user who hits the Resend button on their check-email page
 def process_resend_verification(request, user_email):
@@ -1726,8 +1777,6 @@ def process_resend_password(request, user_email):
     return redirect('openCurrents:check-email-password', user_email, status)
 
 
-
-
 def process_signup(request, referrer=None, endpoint=False, verify_email=True):
     form = UserSignupForm(request.POST)
 
@@ -1796,7 +1845,6 @@ def process_signup(request, referrer=None, endpoint=False, verify_email=True):
                             'openCurrents:confirm-account',
                             email=user_email,
                             token=token,
-                            #status_msg=errors[0]
                         )
                 elif endpoint:
                     return HttpResponse(user.id, status=200)
@@ -1807,6 +1855,7 @@ def process_signup(request, referrer=None, endpoint=False, verify_email=True):
                         status_msg='User with this email already exists'
                     )
             except:
+                # if the above raised exception, why are we returning status 200?
                 if endpoint:
                     return HttpResponse(user.id, status=200)
 
@@ -1834,6 +1883,33 @@ def process_signup(request, referrer=None, endpoint=False, verify_email=True):
                     org=org
                 )
                 org_user.save()
+                sendTransactionalEmail(
+                    'new-org-registered',
+                    None,
+                    [
+                        {
+                            'name': 'FNAME',
+                            'content': user_firstname
+                        },
+                        {
+                            'name': 'LNAME',
+                            'content': user_firstname
+                        },
+                        {
+                            'name': 'EMAIL',
+                            'content': user_email
+                        },
+                        {
+                            'name': 'ORG_NAME',
+                            'content': org_name
+                        },
+                        {
+                            'name': 'ORG_STATUS',
+                            'content': request.POST['org_type']
+                        }
+                    ],
+                    'bizdev@opencurrents.com'
+                )
             except IntegrityError:
                 logger.info('org %s already exists', org_name)
 
@@ -1905,7 +1981,7 @@ def process_signup(request, referrer=None, endpoint=False, verify_email=True):
             form.errors.as_data()
         )
 
-        # just report the first validation error
+        # report the first validation error
         errors = [
             '%s: %s' % (field, error.messages[0])
             for field, le in form.errors.as_data().iteritems()
@@ -1931,7 +2007,6 @@ def process_login(request):
         )
         if user is not None and user.is_active:
             userid = user.id
-            #user = User.objects.get(id=userid)
             org = OrgUser.objects.filter(user__id=userid)
             app_hr = 0
             if org:
@@ -1943,9 +2018,10 @@ def process_login(request):
                     event_type='MN'
                 )
 
-                get_defer_times = DeferredUserTime.objects.filter(user__id=userid)
+                # determine unverified time
+                # we have exact same code in admin-profile - lets factor out into a function or class
+                get_defer_times = AdminActionUserTime.objects.filter(user__id=userid)
                 exclude_usertimelog = []
-                # gather unverified time logs
                 timelogs = UserTimeLog.objects.filter(
                     event__in=events
                 ).filter(
@@ -1953,7 +2029,6 @@ def process_login(request):
                 )
                 for g_d_t in get_defer_times:
                     if g_d_t.usertimelog in timelogs:
-                        #eventtimelogs = eventtimelogs.filter(~Q(event=g_d_t.usertimelog.event))
                         exclude_usertimelog.append(g_d_t.usertimelog.event)
                 timelogs = timelogs.exclude(event__in=exclude_usertimelog)
                 today = date.today()
@@ -1961,11 +2036,13 @@ def process_login(request):
                     app_hr = json.dumps(1)
                 else:
                     app_hr = json.dumps(0)
+
             login(request, user)
             try:
+                # set the session var to keep the user logged in
                 remember_me = request.POST['remember-me']
-                request.session['profile'] = 'True'#set the session for profile
-            except:
+                request.session['profile'] = 'True'
+            except KeyError:
                 pass
             return redirect('openCurrents:profile', app_hr)
         else:
@@ -1976,7 +2053,7 @@ def process_login(request):
             form.errors.as_data()
         )
 
-        # just report the first validation error
+        # report the first validation error
         errors = [
             '%s: %s' % (field, error.messages[0])
             for field, le in form.errors.as_data().iteritems()
@@ -2089,14 +2166,7 @@ def process_email_confirmation(request, user_email):
 
         login(request, user)
 
-        try:
-            org_user = OrgUser.objects.get(user=user)
-            org_name = org_user.org.name
-            return redirect('openCurrents:org-signup', org_name=org_name)
-
-        except:
-            logger.info('No org association')
-            return redirect('openCurrents:profile')
+        return redirect('openCurrents:profile')
 
     #if form was invalid for bad password, still need to preserve token
     else:
@@ -2106,7 +2176,7 @@ def process_email_confirmation(request, user_email):
             form.errors.as_data()
         )
 
-        # just report the first validation error
+        # report the first validation error
         errors = [
             error.messages[0]
             for field, le in form.errors.as_data().iteritems()
@@ -2186,7 +2256,7 @@ def password_reset_request(request):
 
     # could not read email
     else:
-        # just report the first validation error
+        # report the first validation error
         errors = [
             error.messages[0]
             for field, le in form.errors.as_data().iteritems()
@@ -2194,8 +2264,6 @@ def password_reset_request(request):
         ]
         status_msg=errors[0]
         return redirect('openCurrents:login')
-
-
 
 
 def process_reset_password(request, user_email):
@@ -2262,7 +2330,7 @@ def process_reset_password(request, user_email):
             form.errors.as_data()
         )
 
-        # just report the first validation error
+        # report the first validation error
         errors = [
             error.messages[0]
             for field, le in form.errors.as_data().iteritems()
@@ -2270,7 +2338,6 @@ def process_reset_password(request, user_email):
         ]
         status_msg=errors[0]
         return redirect('openCurrents:reset-password', user_email, token, status_msg )
-
 
 
 @login_required
@@ -2346,7 +2413,7 @@ def process_org_signup(request):
             form.errors.as_data()
         )
 
-        # just report the first validation error
+        # report the first validation error
         errors = [
             '%s: %s' % (field, error.messages[0])
             for field, le in form.errors.as_data().iteritems()
