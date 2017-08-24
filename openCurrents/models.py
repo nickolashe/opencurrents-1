@@ -270,7 +270,8 @@ class AdminActionUserTime(models.Model):
     action_type_choices = (
         ('app', 'approved'),
         ('def', 'deferred'),
-        ('dec', 'declined')
+        ('dec', 'declined'),
+        ('req', 'approval_request')
     )
     action_type = models.CharField(
         max_length=3,
