@@ -99,7 +99,7 @@ class SessionContextView(View):
         is_admin = False
         admin_org_group_names = [
             '_'.join(['admin', str(userorg.org.id)])
-            for userorg in userorgs
+            for userorg in orguser.get_orguser()
         ]
         admin_org_groups = Group.objects.filter(
             name__in=admin_org_group_names,

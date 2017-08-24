@@ -7,7 +7,7 @@ class OrgUserInfo(object):
         self.orgusers = OrgUser.objects.filter(user__id=userid)
 
     def get_orguser(self):
-        return self.orgusers[0] if self.orgusers else None
+        return self.orgusers if self.orgusers else None
 
     def get_org(self):
         return self.orgusers[0].org if self.orgusers else None
