@@ -60,14 +60,15 @@
                   {{form.org}}
                 </div>
 
-                <div class="small-6 columns">
-                  <select id="choose-org">
+                <div class="disabled small-6 columns">
+                  <!-- <select id="choose-org">
                     <option disabled selected hidden>Select admin</option>
                     <option>Org admin 1</option>
                     <option>Org admin 2</option>
                     <option>Org admin 3</option>
                     <option value="other-org">Someone else</option>
-                  </select>
+                  </select> -->
+                  {{form.admin}}
                 </div>
               </div>
             </div>
@@ -141,7 +142,7 @@
         </div>
       </div>
 
-      <!--<form>
+      <form>
         <div class="row">
           <div class="small-12 medium-8 medium-offset-2 columns end">
             <label for="all-orgs" class="inline">Organization name</label>
@@ -161,11 +162,12 @@
           <a id="add-org" type="submit" class="save-org add-org-popup_close button round">Request approval</a>
           <a href="{% url 'openCurrents:org-signup' %}" class="button round secondary">Nominate new org</a>
         </div>
-      <!--</form>
+      </form>
     </div> -->
 
     <script type="text/javascript">
       $(document).ready(function(){
+        $('#id_admin_choice').append(`<option disabled selected hidden>Select admin</option>`)
 
         $("#volunteer-date").mask("9999-99-99");
 
@@ -185,7 +187,7 @@
           scrolllock: false,
         });
 
-        $('#choose-org').on('change', function(){
+        $('#id_admin_choice').on('change', function(){
           if($(this).val() == "other-org") {
             $('#nominate-popup').popup('show');
           }
@@ -194,6 +196,9 @@
         document.getElementById('id_org_choice').options[0].disabled = true;
         document.getElementById('id_org_choice').options[0].selected = true;
         document.getElementById('id_org_choice').options[0].setAttribute("hidden", true);
+        // document.getElementById('id_admin_choice').options[0].disabled = true;
+        // document.getElementById('id_admin_choice').options[0].selected = true;
+        // document.getElementById('id_admin_choice').options[0].setAttribute("hidden", true);
 
         // $.ajax
         // (
@@ -223,6 +228,33 @@
         // );
 
         //$( "#id_userorgs option[value='sel_org']" ).selected=true;
+        $('#id_org_choice').change(function(){
+          var e = document.getElementById('id_org_choice');
+          var strOrg = e.options[e.selectedIndex].text;
+          $.ajax
+          (
+            {
+              url: "{% url 'openCurrents:org_user_list' %}",
+              type:"POST",
+              async:false,
+              data : {
+                  csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
+                  org: strOrg
+              },
+              dataType : "json"
+            }
+          ).complete(function( data ) {
+              let test_data = data;
+              if (test_data.responseJSON != undefined){
+                var admin_list = test_data.responseJSON['admin']
+                for(var i=0;i<admin_list.length;i++){
+                  $('#id_admin_choice').append(`<option>`+admin_list[i]+`</option>`)
+                }
+                $('#id_admin_choice').append(`<option value="other-org">Someone else</option>`)
+              }
+            });
+          }
+        )
 
       });
     </script>

@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext as _
 from django.forms import ModelForm
 
-from openCurrents.models import Project, Org, OrgUser
+from openCurrents.models import Project, Org, OrgUser, User
 
 from datetime import datetime
 
@@ -333,6 +333,20 @@ class TrackVolunteerHours(forms.Form):
             'id': 'id_org_choice'
         })
     )
+    
+    #choices_init_admin = [("select_admin","Select admin")]
+    # choices_admin = [
+    #     (user.id, user.username)
+    #     for user in User.objects.all().filter().order_by('username')
+    # ]
+    choices_admin = [("select_admin","Select admin")]
+    #choices_admin = choices_init_admin + choices_admin
+    admin = forms.CharField(
+        #choices=choices_admin,
+        widget=forms.Select(attrs={
+            'id': 'id_admin_choice'
+        })
+    )
 
     description = forms.CharField(
         widget=forms.TextInput(attrs={
@@ -375,6 +389,7 @@ class TrackVolunteerHours(forms.Form):
         time_start = cleaned_data['time_start']
         time_end = cleaned_data['time_end']
         self.org = Org.objects.get(id=cleaned_data['org'])
+        #admin = cleaned_data['admin']
         tz = self.org.timezone
 
         datetime_start = datetime.strptime(

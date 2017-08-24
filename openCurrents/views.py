@@ -66,6 +66,12 @@ def diffInMinutes(t1, t2):
 def diffInHours(t1, t2):
     return round((t2 - t1).total_seconds() / 3600, 1)
 
+def org_user_list(request):
+    input_org = request.POST['org']
+    org_user = OrgUser.objects.filter(org__name = input_org)
+    org_user_list = [orguser.user.username for orguser in org_user]
+    return HttpResponse(content = json.dumps({'admin': org_user_list}), status=201)
+
 # Create and save a new group for admins of a new org
 def new_org_admins_group(orgid):
     org_admins_name = 'admin_' + str(orgid)
@@ -629,6 +635,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             )
             project.save()
             self.project = project
+
 
         event = Event(
             project=self.project,
