@@ -1749,34 +1749,34 @@ def event_register(request, pk):
         message = form.cleaned_data['contact_message']
 
         #check for existing registration
-        event_records = UserEventRegistration.objects.filter(user__id=user.id, event__id=event.id, is_confirmed=True).exists()
-        try:
-            user_unregistered = UserEventRegistration.objects.filter(user__id=user.id, event__id=event.id, is_confirmed=False)
-            if user_unregistered:
-                #register the volunteer
-                user_unregistered.update(is_confirmed=True)
-            else:
+        is_registered = UserEventRegistration.objects.filter(user__id=user.id, event__id=event.id, is_confirmed=True).exists()
+        #check if the user is project coordinator
+        is_coord = Event.objects.filter(id=event.id,coordinator_email=user.email).exists()
+
+        #update is_confirmed=True or create new UserEventRegistration if needed
+        if not is_coord and not is_registered:
+            try:
+                user_unregistered = UserEventRegistration.objects.filter(user__id=user.id, event__id=event.id, is_confirmed=False)
+                if user_unregistered:
+                    #register the volunteer
+                    user_unregistered.update(is_confirmed=True)
+                else:
+                    user_event_registration = UserEventRegistration(
+                        user=user,
+                        event=event,
+                        is_confirmed=True
+                    )
+                    user_event_registration.save()
+            except Exception as e:
                 user_event_registration = UserEventRegistration(
                     user=user,
                     event=event,
                     is_confirmed=True
                 )
                 user_event_registration.save()
-        except Exception as e:
-            user_event_registration = UserEventRegistration(
-                user=user,
-                event=event,
-                is_confirmed=True
-            )
-            user_event_registration.save()
 
 
-        # if the volunteer entered an optional contact message, send to project coordinator
-        is_coord = Event.objects.filter(id=event.id,coordinator_email=user.email).exists()
-        if OrgUser.objects.filter(user=user) and not is_coord:
-            is_admin_not_coord = True
-        else:
-            is_admin_not_coord = False
+        # if an optional contact message was entered, send to project coordinator or registrants if user is_coord
         merge_var_list = [
             {
                 'name': 'USER_FIRSTNAME',
@@ -1816,7 +1816,7 @@ def event_register(request, pk):
                 try:
                     merge_var_list.append({'name': 'MESSAGE','content': message})
                     sendBulkEmail(
-                        'volunteer-messaged',
+                        'coordinator-messaged',
                         None,
                         merge_var_list,
                         reg_list_uniques,
@@ -1830,16 +1830,15 @@ def event_register(request, pk):
                         type(e)
                     )
                     return redirect('openCurrents:500')
-            elif is_admin_not_coord:
-                #contact coordinator as admin
+            elif is_registered:
+                #message the coordinator as volunteer
                 email_template = 'volunteer-messaged'
                 merge_var_list.append({'name': 'MESSAGE','content': message})
-            else:
-                #mesaage the coordinator as volunteer
-                email_template = 'volunteer-messaged'
-                merge_var_list.append({'name': 'MESSAGE','content': message})
-        elif(not event_records):
-            email_template = 'volunteer-registered'
+                merge_var_list.append({'name': 'REGISTERED','content': False})
+        #if no message was entered and a new UserEventRegistration was created
+        elif(not is_registered and not is_coord):
+            email_template = 'volunteer-messaged'
+            merge_var_list.append({'name': 'REGISTERED','content': True})
             logger.info('User %s registered for event %s with no optional msg %s ', user.username, event.id, message)
 
         if email_template:
@@ -1858,7 +1857,7 @@ def event_register(request, pk):
                     type(e)
                 )
 
-        return redirect('openCurrents:registration-confirmed', event.id)
+        return redirect('openCurrents:registration-confirmed', event.id) #TODO add a redirect for coordinator who doesn't register
     else:
         logger.error('Invalid form: %s', form.errors.as_data())
         return redirect('openCurrents:event-detail', event.id)
