@@ -230,6 +230,11 @@
 
         //$( "#id_userorgs option[value='sel_org']" ).selected=true;
         $('#id_org_choice').change(function(){
+          $('#id_admin_choice')
+            .find('option')
+            .remove()
+            .end()
+            .append('<option disabled selected hidden>Select admin</option>');
           var e = document.getElementById('id_org_choice');
           var strOrg = e.options[e.selectedIndex].text;
           $.ajax
