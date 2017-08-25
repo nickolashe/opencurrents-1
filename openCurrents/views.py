@@ -1826,7 +1826,7 @@ def event_register(request, pk):
                 
                 for reg in reg_list: 
                     if(reg.user.email not in reg_list_uniques):
-                        reg_list_uniques.append({"name":reg.user.first_name,"email":reg.user.email,"type":"to"})
+                        reg_list_uniques.append({"email":reg.user.email, "name":reg.user.first_name,"type":"to"})
                 try:
                     merge_var_list.append({'name': 'MESSAGE','content': message})
                     sendBulkEmail(
