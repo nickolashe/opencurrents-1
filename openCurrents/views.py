@@ -1552,6 +1552,7 @@ class EventDetailView(LoginRequiredMixin, SessionContextView, DetailView):
         context['registrants'] = ''
         if(is_coord or is_admin):
             reg_list_uniques = []
+            reg_list_names = []
             reg_list = UserEventRegistration.objects.filter(event__id=context['event'].id, is_confirmed=True)
             
             for reg in reg_list: 
@@ -1559,7 +1560,12 @@ class EventDetailView(LoginRequiredMixin, SessionContextView, DetailView):
                     reg_list_uniques.append(str(reg.user.email))
                  
             context['registrants'] = reg_list_uniques
+
+            for email in reg_list_uniques:
+                reg_list_names.append( str(User.objects.get(email=email).first_name + " " + User.objects.get(email=email).last_name))
  
+            context['registrants_names'] = reg_list_names
+
         return context
 
 
@@ -1776,6 +1782,12 @@ def event_register(request, pk):
                 user_event_registration.save()
 
 
+        coord_email = event.coordinator_email
+        coord_user = User.objects.get(email=coord_email)
+        coord_last_name = coord_user.last_name
+        org_name = event.project.org.name
+
+
         # if an optional contact message was entered, send to project coordinator or registrants if user is_coord
         merge_var_list = [
             {
@@ -1795,6 +1807,14 @@ def event_register(request, pk):
                 'content': event.coordinator_firstname
             },
             {
+                'name': 'ADMIN_LASTNAME',
+                'content': coord_last_name
+            },
+            {
+                'name': 'ORG_NAME',
+                'content': org_name
+            },
+            {
                 'name': 'ADMIN_EMAIL',
                 'content': event.coordinator_email
             },
@@ -1812,7 +1832,7 @@ def event_register(request, pk):
                 
                 for reg in reg_list: 
                     if(reg.user.email not in reg_list_uniques):
-                        reg_list_uniques.append({"email":reg.user.email,"type":"to"})
+                        reg_list_uniques.append({"email":reg.user.email, "name":reg.user.first_name,"type":"to"})
                 try:
                     merge_var_list.append({'name': 'MESSAGE','content': message})
                     sendBulkEmail(
@@ -1831,14 +1851,19 @@ def event_register(request, pk):
                     )
                     return redirect('openCurrents:500')
             elif is_registered:
-                #message the coordinator as volunteer
+                #message the coordinator as an already registered volunteer
                 email_template = 'volunteer-messaged'
                 merge_var_list.append({'name': 'MESSAGE','content': message})
-                merge_var_list.append({'name': 'REGISTERED','content': False})
+                merge_var_list.append({'name': 'REGISTER','content': False})
+            elif not is_registered:
+                #message the coordinator as a new volunteer
+                email_template = 'volunteer-messaged'
+                merge_var_list.append({'name': 'MESSAGE','content': message})
+                merge_var_list.append({'name': 'REGISTER','content': True})
         #if no message was entered and a new UserEventRegistration was created
         elif(not is_registered and not is_coord):
-            email_template = 'volunteer-messaged'
-            merge_var_list.append({'name': 'REGISTERED','content': True})
+            email_template = 'volunteer-registered'
+            merge_var_list.append({'name': 'REGISTER','content': True})
             logger.info('User %s registered for event %s with no optional msg %s ', user.username, event.id, message)
 
         if email_template:
