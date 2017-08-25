@@ -304,25 +304,25 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
             name = User.objects.get(username = user_email).first_name +" "+User.objects.get(username = user_email).last_name
 
             # check if same day and duration longer than 15 min
-            if timelog.datetime_start.date() == timelog.datetime_end.date() and timelog.datetime_end - timelog.datetime_start >= timedelta(minutes=15):
+            if timelog.usertimelog.datetime_start.date() == timelog.usertimelog.datetime_end.date() and timelog.usertimelog.datetime_end - timelog.usertimelog.datetime_start >= timedelta(minutes=15):
                 if user_email not in time_log:
                     time_log[user_email] = OrderedDict(items)
                 time_log[user_email]["name"] = name
 
                 # time in hours rounded to nearest 15 min
-                rounded_time = self.get_hours_rounded(timelog.datetime_start, timelog.datetime_end)
+                rounded_time = self.get_hours_rounded(timelog.usertimelog.datetime_start, timelog.usertimelog.datetime_end)
 
                 # use day of week and date as key
-                date_key = timelog.datetime_start.strftime('%A, %m/%d')
+                date_key = timelog.usertimelog.datetime_start.strftime('%A, %m/%d')
                 if date_key not in time_log[user_email]:
                     time_log[user_email][date_key] = [0]
 
                 # add the time to the corresponding date_key and total
                 tz = org.get_org().timezone
-                st_time = timelog.datetime_start.astimezone(pytz.timezone(tz)).time().strftime('%-I:%M %p')
-                end_time = timelog.datetime_end.astimezone(pytz.timezone(tz)).time().strftime('%-I:%M %p')
+                st_time = timelog.usertimelog.datetime_start.astimezone(pytz.timezone(tz)).time().strftime('%-I:%M %p')
+                end_time = timelog.usertimelog.datetime_end.astimezone(pytz.timezone(tz)).time().strftime('%-I:%M %p')
                 time_log[user_email][date_key][0] += rounded_time
-                time_log[user_email][date_key].append(st_time+" - "+end_time+": "+str(timelog.event.description))
+                time_log[user_email][date_key].append(st_time+" - "+end_time+": "+str(timelog.usertimelog.event.description))
                 time_log[user_email]['Total'] += rounded_time
             else:
                 # Multiple day volunteering
@@ -390,26 +390,43 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
 
     def get_requested_vols(self, week_date, events, user=None):
         #provides the requested volunteers for both GET and POST (DRY)
-        get_defer_times = AdminActionUserTime.objects.all()
-        eventtimelogs = UserTimeLog.objects.filter(
-            event__in=events
+        # get_requested_vol_times = AdminActionUserTime.objects.all()
+        # eventtimelogs = UserTimeLog.objects.filter(
+        #     event__in=events
+        # ).filter(
+        #     datetime_start__lt=week_date + timedelta(days=7)
+        # ).filter(
+        #     datetime_start__gte=week_date
+        # ).filter(
+        #     is_verified=False
+        # )
+        # if user:
+        #     eventtimelogs = eventtimelogs.filter(user=user)
+        # exclude_usertimelog = []
+
+        # for g_r_t in get_requested_vol_times:
+        #     if g_r_t.usertimelog in eventtimelogs:
+        #         #eventtimelogs = eventtimelogs.filter(~Q(event=g_d_t.usertimelog.event))
+        #         if g_r_t.user.id != self.request.user.id or g_r_t.action_type != 'req':
+        #             exclude_usertimelog.append(g_r_t.usertimelog.id)
+        # return eventtimelogs.exclude(id__in=exclude_usertimelog)
+        get_requested_vol_times = AdminActionUserTime.objects.filter(
+            usertimelog__event__in=events
         ).filter(
-            datetime_start__lt=week_date + timedelta(days=7)
+            usertimelog__datetime_start__lt=week_date + timedelta(days=7)
         ).filter(
-            datetime_start__gte=week_date
+            usertimelog__datetime_start__gte=week_date
         ).filter(
-            is_verified=False
+            usertimelog__is_verified=False
+        ).filter(
+            user__id=self.request.user.id
+        ).filter(
+            action_type='req'
         )
         if user:
-            eventtimelogs = eventtimelogs.filter(user=user)
-        exclude_usertimelog = []
+            get_requested_vol_times = get_requested_vol_times.filter(usertimelog__user=user)
+        return get_requested_vol_times
 
-        for g_d_t in get_defer_times:
-            if g_d_t.usertimelog in eventtimelogs:
-                #eventtimelogs = eventtimelogs.filter(~Q(event=g_d_t.usertimelog.event))
-                if g_d_t.user.id != self.request.user.id or g_d_t.action_type != 'req':
-                    exclude_usertimelog.append(g_d_t.usertimelog.id)
-        return eventtimelogs.exclude(id__in=exclude_usertimelog)
 
     def post(self, request):
         """
@@ -462,7 +479,7 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
                     #    ).filter(
                     #       event__in=events).delete()
                     declined = self.get_requested_vols(week_date,events,user)
-                    AdminActionUserTime.objects.filter(usertimelog__in=declined).update(action_type = 'dec')
+                    declined.update(action_type = 'dec')
 
                 #check if the volunteer is accepted and approve the same
                 elif i.split(':')[1] == '1':
@@ -485,12 +502,34 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
                         #         if g_d_t.user.id != userid or g_d_t.action_type != 'req':
                         #             exclude_usertimelog.append(g_d_t.usertimelog.id)
                         approved = self.get_requested_vols(week_date,events,user)
-                        AdminActionUserTime.objects.filter(usertimelog__in=approved).update(action_type = 'app')
-                        time_log = approved.update(is_verified=True)
+                        usertimel = UserTimeLog.objects.prefetch_related('adminactionusertime_set').filter(
+                                event__in=events
+                            ).filter(
+                                datetime_start__lt=week_date + timedelta(days=7)
+                            ).filter(
+                                datetime_start__gte=week_date
+                            ).filter(
+                                is_verified=False
+                            ).filter(
+                                adminactionusertime__user__id=self.request.user.id
+                            ).filter(
+                                adminactionusertime__action_type='app'
+                        )
+                        approved.update(action_type = 'app')
+                        usertimel.update(is_verified=True)
+                        # for i in approved:
+                        #     i.usertimelog.is_verified=True
+                        #     i.action_type = 'app'
+                        #     i.usertimelog.save()
+                        #     i.save()
+                        #i.usertimelog.update(is_verified=True)
+                        #approved.update(action_type = 'app')
+                        #approved.update(usertimelog__is_verified=True)
                     except Exception as e:
+                        print(e)
                         logger.info('Approving timelog Error: %s',e)
                         return redirect('openCurrents:500')
-                    logger.info('Approving timelog : %s',time_log)
+                    logger.info('Approving timelog : %s',approved)
 
                 #check if the volunteer is defered and add to defered user times
                 elif i.split(':')[1] == '2':
@@ -505,7 +544,7 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
                     #           event__in=events)
                     defered = self.get_requested_vols(week_date,events,user)
                     #time_log = approved.update(is_verified=True)
-                    AdminActionUserTime.objects.filter(usertimelog__in=defered).update(action_type = 'def')
+                    defered.update(action_type = 'def')
 
         org = OrgUserInfo(userid)
         orgid = org.get_org().id
