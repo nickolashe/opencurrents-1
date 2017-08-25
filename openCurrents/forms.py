@@ -345,6 +345,7 @@ class TrackVolunteerHours(forms.Form):
     #choices_admin = choices_init_admin + choices_admin
     admin = forms.CharField(
         #choices=choices_admin,
+        required=False,
         widget=forms.Select(attrs={
             'id': 'id_admin_choice'
         })
@@ -390,9 +391,12 @@ class TrackVolunteerHours(forms.Form):
         date_start = cleaned_data['date_start']
         time_start = cleaned_data['time_start']
         time_end = cleaned_data['time_end']
-        self.org = Org.objects.get(id=cleaned_data['org'])
-        #admin = cleaned_data['admin']
-        tz = self.org.timezone
+        try:
+            self.org = Org.objects.get(id=cleaned_data['org'])
+            #admin = cleaned_data['admin']
+            tz = self.org.timezone
+        except KeyError:
+            raise ValidationError(_('Select the Org you worked for'))
 
         datetime_start = datetime.strptime(
             ' '.join([date_start, time_start]),
@@ -405,9 +409,9 @@ class TrackVolunteerHours(forms.Form):
             '%Y-%m-%d %I:%M%p'
         )
         cleaned_data['datetime_end'] = pytz.timezone(tz).localize(datetime_end)
-
-        if cleaned_data['datetime_start'] > cleaned_data['datetime_end']:
-            raise ValidationError(_('Start time needs to occur before End time'))
+        if datetime_end == datetime_start:
+            raise ValidationError(_('Please select a valid time'))
+            
 
         return cleaned_data
 

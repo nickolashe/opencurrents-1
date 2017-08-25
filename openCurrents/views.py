@@ -405,8 +405,9 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
             is_verified=False
         )
         if user:
-            eventtimelogs.filter(user=user)
+            eventtimelogs = eventtimelogs.filter(user=user)
         exclude_usertimelog = []
+
         for g_d_t in get_defer_times:
             if g_d_t.usertimelog in eventtimelogs:
                 #eventtimelogs = eventtimelogs.filter(~Q(event=g_d_t.usertimelog.event))
@@ -499,21 +500,18 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
 
                 #check if the volunteer is defered and add to defered user times
                 elif i.split(':')[1] == '2':
-                    time_log = UserTimeLog.objects.filter(user=user
-                           ).filter(
-                              datetime_start__lt=week_date + timedelta(days=7)
-                           ).filter(
-                              datetime_start__gte=week_date
-                           ).filter(
-                              is_verified=False
-                           ).filter(
-                              event__in=events)
-                    for time_def in time_log:
-                        defer_user_time = AdminActionUserTime(
-                            user = User.objects.get(id=self.request.user.id),
-                            usertimelog = time_def
-                            )
-                        defer_user_time.save()
+                    # time_log = UserTimeLog.objects.filter(user=user
+                    #        ).filter(
+                    #           datetime_start__lt=week_date + timedelta(days=7)
+                    #        ).filter(
+                    #           datetime_start__gte=week_date
+                    #        ).filter(
+                    #           is_verified=False
+                    #        ).filter(
+                    #           event__in=events)
+                    defered = self.get_requested_vols(week_date,events,user)
+                    #time_log = approved.update(is_verified=True)
+                    AdminActionUserTime.objects.filter(usertimelog__in=defered).update(action_type = 'def')
 
         org = OrgUser.objects.filter(user__id=userid)
         if org:
@@ -730,14 +728,24 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             datetime_end=form_data['datetime_end']
             )
         usertimelog.save()
-        admin_user = User.objects.get(username = form_data['admin'])
+        if form_data['admin']:
+            admin_user = User.objects.get(username = form_data['admin'])
 
-        actiontimelog = AdminActionUserTime(
-            user = admin_user,
-            usertimelog = usertimelog,
-            action_type = 'req'
-        )
-        actiontimelog.save()
+            actiontimelog = AdminActionUserTime(
+                user = admin_user,
+                usertimelog = usertimelog,
+                action_type = 'req'
+            )
+            actiontimelog.save()
+        else:
+            admin_user = OrgUser.objects.filter(org__id = org.id)
+            for admin in admin_user:
+                actiontimelog = AdminActionUserTime(
+                    user = admin.user,
+                    usertimelog = usertimelog,
+                    action_type = 'req'
+                )
+                actiontimelog.save()
 
         self.isTimeLogValid = True
 
