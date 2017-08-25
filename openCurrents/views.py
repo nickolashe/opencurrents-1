@@ -318,7 +318,7 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
                     time_log[user_email][date_key] = [0]
 
                 # add the time to the corresponding date_key and total
-                tz = org[0].org.timezone
+                tz = org.get_org().timezone
                 st_time = timelog.datetime_start.astimezone(pytz.timezone(tz)).time().strftime('%-I:%M %p')
                 end_time = timelog.datetime_end.astimezone(pytz.timezone(tz)).time().strftime('%-I:%M %p')
                 time_log[user_email][date_key][0] += rounded_time
@@ -485,8 +485,8 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
                         #         if g_d_t.user.id != userid or g_d_t.action_type != 'req':
                         #             exclude_usertimelog.append(g_d_t.usertimelog.id)
                         approved = self.get_requested_vols(week_date,events,user)
-                        time_log = approved.update(is_verified=True)
                         AdminActionUserTime.objects.filter(usertimelog__in=approved).update(action_type = 'app')
+                        time_log = approved.update(is_verified=True)
                     except Exception as e:
                         logger.info('Approving timelog Error: %s',e)
                         return redirect('openCurrents:500')
