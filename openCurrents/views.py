@@ -1776,6 +1776,12 @@ def event_register(request, pk):
                 user_event_registration.save()
 
 
+        coord_email = event.coordinator_email
+        coord_user = User.objects.get(email=coord_email)
+        coord_last_name = coord_user.last_name
+        org_name = event.project.org.name
+
+
         # if an optional contact message was entered, send to project coordinator or registrants if user is_coord
         merge_var_list = [
             {
@@ -1793,6 +1799,14 @@ def event_register(request, pk):
             {
                 'name': 'ADMIN_FIRSTNAME',
                 'content': event.coordinator_firstname
+            },
+            {
+                'name': 'ADMIN_LASTNAME',
+                'content': coord_last_name
+            },
+            {
+                'name': 'ORG_NAME',
+                'content': org_name
             },
             {
                 'name': 'ADMIN_EMAIL',
