@@ -67,6 +67,7 @@ def diffInHours(t1, t2):
     return round((t2 - t1).total_seconds() / 3600, 1)
 
 def org_user_list(request):
+    #returns the list of Org users for the provided org
     input_org = request.POST['org']
     org_user = OrgUser.objects.filter(org__name = input_org)
     org_user_list = [orguser.user.username for orguser in org_user]
@@ -394,6 +395,7 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
         return [eventtimelogs,time_log_week]
 
     def get_requested_vols(self, week_date, events, user=None):
+        #provides the requested volunteers for both GET and POST (DRY)
         get_defer_times = AdminActionUserTime.objects.all()
         eventtimelogs = UserTimeLog.objects.filter(
             event__in=events
