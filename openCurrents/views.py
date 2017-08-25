@@ -1826,7 +1826,7 @@ def event_register(request, pk):
                 
                 for reg in reg_list: 
                     if(reg.user.email not in reg_list_uniques):
-                        reg_list_uniques.append({"email":reg.user.email,"type":"to"})
+                        reg_list_uniques.append({"name":reg.user.first_name,"email":reg.user.email,"type":"to"})
                 try:
                     merge_var_list.append({'name': 'MESSAGE','content': message})
                     sendBulkEmail(
@@ -1845,14 +1845,19 @@ def event_register(request, pk):
                     )
                     return redirect('openCurrents:500')
             elif is_registered:
-                #message the coordinator as volunteer
+                #message the coordinator as an already registered volunteer
                 email_template = 'volunteer-messaged'
                 merge_var_list.append({'name': 'MESSAGE','content': message})
-                merge_var_list.append({'name': 'REGISTERED','content': False})
+                merge_var_list.append({'name': 'REGISTER','content': False})
+            elif not is_registered:
+                #message the coordinator as a new volunteer
+                email_template = 'volunteer-messaged'
+                merge_var_list.append({'name': 'MESSAGE','content': message})
+                merge_var_list.append({'name': 'REGISTER','content': True})
         #if no message was entered and a new UserEventRegistration was created
         elif(not is_registered and not is_coord):
-            email_template = 'volunteer-messaged'
-            merge_var_list.append({'name': 'REGISTERED','content': True})
+            email_template = 'volunteer-registered'
+            merge_var_list.append({'name': 'REGISTER','content': True})
             logger.info('User %s registered for event %s with no optional msg %s ', user.username, event.id, message)
 
         if email_template:
