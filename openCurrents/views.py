@@ -1846,12 +1846,12 @@ def event_register(request, pk):
                     return redirect('openCurrents:500')
             elif is_registered:
                 #message the coordinator as an already registered volunteer
-                email_template = 'volunteer-messaged'
+                email_template = 'volunteer-messaged-test'
                 merge_var_list.append({'name': 'MESSAGE','content': message})
                 merge_var_list.append({'name': 'REGISTER','content': False})
             elif not is_registered:
                 #message the coordinator as a new volunteer
-                email_template = 'volunteer-messaged'
+                email_template = 'volunteer-messaged-test'
                 merge_var_list.append({'name': 'MESSAGE','content': message})
                 merge_var_list.append({'name': 'REGISTER','content': True})
         #if no message was entered and a new UserEventRegistration was created
