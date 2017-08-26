@@ -68,7 +68,7 @@
 
           <!--<p><a href="{% url 'openCurrents:admin-profile' num_vols=0 %}">Skip for now</a></p>-->
           {% if skip == 1 %}
-            <a href="{% url 'openCurrents:admin-profile' num_vols=0 %}" class="button round secondary">Skip</a>
+            <a href="{% url 'openCurrents:admin-profile' num_vols=0 %}">Skip for now</a>
           {% endif %}
           <input type="hidden" id="bulk-vol" name="bulk-vol" value="" />
         </form>
