@@ -189,6 +189,12 @@
           scrolllock: false,
         });
 
+        $('#choose-org').on('change', function(){
+          if($(this).val() == "other-org") {
+            $('#nominate-popup').popup('show');
+          }
+        });
+
         document.getElementById('id_org_choice').options[0].disabled = true;
         document.getElementById('id_org_choice').options[0].selected = true;
         document.getElementById('id_org_choice').options[0].setAttribute("hidden", true);

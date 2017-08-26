@@ -595,7 +595,7 @@ label {
   font-weight: 700;
 }
 
-.hide-text {
+.trim-text {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

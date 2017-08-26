@@ -203,6 +203,10 @@ class ResetPasswordView(TemplateView):
     template_name = 'reset-password.html'
 
 
+class AssignAdminsView(TemplateView):
+    template_name = 'assign-admins.html'
+
+
 class BusinessView(TemplateView):
     template_name = 'business.html'
 
