@@ -12,5 +12,11 @@ class OrgUserInfo(object):
     def get_org(self):
         return self.orgusers[0].org if self.orgusers else None
 
+    def get_org_id(self):
+        return self.orgusers[0].org.id if self.orgusers else None
+
+    def get_org_name(self):
+        return self.orgusers[0].org.name if self.orgusers else None
+
     def get_org_timezone(self, userid):
-        return self.orgusers[0].org.timezone if self.orgusers else None
+        return self.orgusers[0].org.timezone if self.orgusers else 'America/Chicago'
