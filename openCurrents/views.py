@@ -988,7 +988,7 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
                         e.message,
                         type(e)
                     )
-        except:
+        except Exception as e:
             pass
 
         return event.id
@@ -1243,7 +1243,7 @@ class EditEventView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
                             e.message,
                             type(e)
                         )
-            except:
+            except Exception as e:
                 pass
             project = Project.objects.get(id = edit_event.project.id)
             project.name = str(post_data['project-name'])
