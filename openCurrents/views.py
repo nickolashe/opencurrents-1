@@ -502,18 +502,20 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
                         #         if g_d_t.user.id != userid or g_d_t.action_type != 'req':
                         #             exclude_usertimelog.append(g_d_t.usertimelog.id)
                         approved = self.get_requested_vols(week_date,events,user)
-                        usertimel = UserTimeLog.objects.prefetch_related('adminactionusertime_set').filter(
-                                event__in=events
-                            ).filter(
-                                datetime_start__lt=week_date + timedelta(days=7)
-                            ).filter(
-                                datetime_start__gte=week_date
-                            ).filter(
-                                is_verified=False
-                            ).filter(
-                                adminactionusertime__user__id=self.request.user.id
-                            ).filter(
-                                adminactionusertime__action_type='app'
+                        usertimel = UserTimeLog.objects.prefetch_related(
+                            'adminactionusertime_set'
+                        ).filter(
+                            event__in=events
+                        ).filter(
+                            datetime_start__lt=week_date + timedelta(days=7)
+                        ).filter(
+                            datetime_start__gte=week_date
+                        ).filter(
+                            is_verified=False
+                        ).filter(
+                            adminactionusertime__user__id=self.request.user.id
+                        ).filter(
+                            adminactionusertime__action_type='app'
                         )
                         approved.update(action_type = 'app')
                         usertimel.update(is_verified=True)
@@ -971,19 +973,26 @@ class AdminProfileView(OrgAdminPermissionMixin, SessionContextView, TemplateView
         )
 
         # determine whether there are any unverified timelogs for admin
-        get_defer_times = AdminActionUserTime.objects.filter(user__id=userid)
-        exclude_usertimelog = []
-        timelogs = UserTimeLog.objects.filter(
+        usertimelogs = UserTimeLog.objects.filter(
             event__in=events
-        ).filter(
-            is_verified=False
+        ).annotate(
+            last_action_created=Max('adminactionusertime__date_created')
         )
-        for g_d_t in get_defer_times:
-            if g_d_t.usertimelog in timelogs:
-                exclude_usertimelog.append(g_d_t.usertimelog.event)
-        timelogs = timelogs.exclude(event__in=exclude_usertimelog)
 
-        context['user_time_log_status'] = timelogs.exists()
+        # admin-specific requests
+        admin_requested_hours = AdminActionUserTime.objects.filter(
+            user_id=userid
+        ).filter(
+            date_created__in=[
+                utl.last_action_created for utl in usertimelogs
+            ]
+        ).filter(
+            action_type='req'
+        )
+
+        # TODO: check for non-admin-specific requests that have not been deferred by admin
+
+        context['user_time_log_status'] = admin_requested_hours.exists()
 
         return context
 
