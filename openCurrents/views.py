@@ -98,10 +98,9 @@ class SessionContextView(View):
         userid = self.request.user.id
         context['userid'] = userid
         orguser = OrgUserInfo(userid)
-        org = orguser.get_org()
-        if org:
-            context['orgid'] = org.id
-            context['org_id'] = org.id
+        orgid = orguser.get_org_id()
+        context['orgid'] = orgid
+        context['org_id'] = orgid
 
         is_admin = False
         admin_org_group_names = [
@@ -114,6 +113,7 @@ class SessionContextView(View):
         )
         if admin_org_groups:
             is_admin = True
+
         context['is_admin'] = is_admin
         return context
 
@@ -132,7 +132,7 @@ class OrgAdminPermissionMixin(LoginRequiredMixin):
             org_id = kwargs['org_id']
         except KeyError:
             userorgs = OrgUserInfo(self.request.user.id)
-            org_id = userorgs.get_org().id
+            org_id = userorgs.get_org_id()
 
         if org_id is None:
             logger.error('user %d with no org', user.id)
@@ -253,7 +253,7 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
         userid = self.request.user.id
         #user = User.objects.get(id=userid)
         org = OrgUserInfo(userid)
-        orgid = org.get_org().id
+        orgid = org.get_org_id()
         projects = Project.objects.filter(org__id=orgid)
         events = Event.objects.filter(
             project__in=projects
@@ -365,7 +365,7 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
         # build one weeks worth of timelogs starting from the oldest monday
         userid = self.request.user.id
         org = OrgUserInfo(userid)
-        orgid = org.get_org().id
+        orgid = org.get_org_id()
         projects = Project.objects.filter(org__id=orgid)
         events = Event.objects.filter(
             project__in=projects
@@ -444,7 +444,7 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
         projects = []
         userid = self.request.user.id
         org = OrgUserInfo(userid)
-        orgid = org.get_org().id
+        orgid = org.get_org_id()
         for i in templist:
             """
             eg for i:
@@ -553,7 +553,7 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
                     defered.update(action_type = 'def')
 
         org = OrgUserInfo(userid)
-        orgid = org.get_org().id
+        orgid = org.get_org_id()
         projects = Project.objects.filter(org__id=orgid)
         events = Event.objects.filter(
             project__in=projects
@@ -965,10 +965,8 @@ class AdminProfileView(OrgAdminPermissionMixin, SessionContextView, TemplateView
         )
 
         userid = self.request.user.id
-
-        #user = User.objects.get(id=userid)
         org = OrgUserInfo(userid)
-        orgid = org.get_org().id
+        orgid = org.get_org_id()
         projects = Project.objects.filter(org__id=orgid)
         events = Event.objects.filter(
             project__in=projects
@@ -1112,10 +1110,7 @@ class EditEventView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
         context = super(EditEventView, self).get_context_data(**kwargs)
         # event
         org_user = OrgUserInfo(self.request.user.id)
-        if org_user:
-            tz = org_user.get_org_timezone(self.request.user.id)
-        else:
-            tz = "America/Chicago"
+        tz = org_user.get_org_timezone(self.request.user.id)
         event_id = kwargs.pop('event_id')
         event = Event.objects.get(id=event_id)
         context['event'] = event
@@ -1210,10 +1205,8 @@ class EditEventView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
                     )
                     return redirect('openCurrents:500')
             org_user = OrgUserInfo(self.request.user.id)
-            if org_user:
-                tz = org_user.get_org_timezone(self.request.user.id)
-            else:
-                tz = "America/Chicago"
+            tz = org_user.get_org_timezone(self.request.user.id)
+
             edit_event.description = str(post_data['project-description'])
             edit_event.location = str(post_data['project-location-1'])
             edit_event.coordinator_firstname = str(post_data['coordinator-name'])
@@ -1325,7 +1318,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
 
         OrgUsers = OrgUserInfo(self.request.user.id)
         if OrgUsers:
-            Organisation = OrgUsers.get_org().name
+            Organisation = OrgUsers.get_org_name()
         if post_data['bulk-vol'].encode('ascii','ignore') == '':
             num_vols = int(post_data['count-vol'])
         else:
