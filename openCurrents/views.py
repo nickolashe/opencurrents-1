@@ -1545,17 +1545,16 @@ class EventDetailView(LoginRequiredMixin, SessionContextView, DetailView):
         # list of confirmed registered users 
         context['registrants'] = ''
         if(is_coord or is_admin):
-            reg_list_uniques = []
+            reg_list = []
             reg_list_names = []
-            reg_list = UserEventRegistration.objects.filter(event__id=context['event'].id, is_confirmed=True)
+            reg_objects = UserEventRegistration.objects.filter(event__id=context['event'].id, is_confirmed=True)
             
-            for reg in reg_list: 
-                if(reg.user.email not in reg_list_uniques):
-                    reg_list_uniques.append(str(reg.user.email))
+            for reg in reg_objects: 
+                reg_list.append(str(reg.user.email))
                  
-            context['registrants'] = reg_list_uniques
+            context['registrants'] = reg_list
 
-            for email in reg_list_uniques:
+            for email in reg_list:
                 reg_list_names.append( str(User.objects.get(email=email).first_name + " " + User.objects.get(email=email).last_name))
  
             context['registrants_names'] = reg_list_names
