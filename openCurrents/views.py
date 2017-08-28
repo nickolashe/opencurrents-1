@@ -543,7 +543,6 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
                         #approved.update(action_type = 'app')
                         #approved.update(usertimelog__is_verified=True)
                     except Exception as e:
-                        print(e)
                         logger.info('Approving timelog Error: %s',e)
                         return redirect('openCurrents:500')
                     logger.info('Approving timelog : %s',approved)
@@ -778,33 +777,47 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             )
         usertimelog.save()
         if form_data['admin']:
-            admin_user = User.objects.get(username = form_data['admin'])
+            try:
+                admin_user = User.objects.get(username = form_data['admin'])
 
-            actiontimelog = AdminActionUserTime(
-                user = admin_user,
-                usertimelog = usertimelog,
-                action_type = 'req'
-            )
-            actiontimelog.save()
-        else:
-            admin_user = OrgUser.objects.filter(org__id = org.id)
-            for admin in admin_user:
                 actiontimelog = AdminActionUserTime(
-                    user = admin.user,
+                    user = admin_user,
                     usertimelog = usertimelog,
                     action_type = 'req'
                 )
                 actiontimelog.save()
+            except:
+                self.user_all_admin(org.id,usertimelog)
+                pass
+        else:
+            self.user_all_admin(org.id,usertimelog)
 
         self.isTimeLogValid = True
+
+    def user_all_admin(self, orgid, usertimelog):
+        #get and save the usertimelog for all admins in the ORG with orgid
+        admin_user = OrgUser.objects.filter(org__id = orgid)
+        for admin in admin_user:
+            actiontimelog = AdminActionUserTime(
+                user = admin.user,
+                usertimelog = usertimelog,
+                action_type = 'req'
+            )
+            actiontimelog.save()
+        return True
 
 
     def get_context_data(self, **kwargs):
         #Get the status msg from URL
         context = super(TimeTrackerView, self).get_context_data(**kwargs)
+        userid = self.request.user.id
+        usertimelog = UserTimeLog.objects.filter(user__id=userid).order_by('datetime_start').reverse()[0]
+        actiontimelog = AdminActionUserTime.objects.filter(usertimelog = usertimelog)
         try:
+            context['orgid'] = actiontimelog[0].usertimelog.event.project.org.id
+            context['admin_name'] = actiontimelog[0].user.username
             context['status_msg'] = self.kwargs.pop('status_msg')
-        except KeyError:
+        except:
             pass
         return context
 

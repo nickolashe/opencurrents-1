@@ -76,7 +76,7 @@
 
             <div class="row center one-margin-top">
               <!--<a href="{% url 'openCurrents:time-tracked' %}" class="button round">Save</a>-->
-              <a type='submit' class="one-margin-top button round">Submit for approval</a>
+              <input type='submit' value="Submit for approval" class="one-margin-top button round"></input>
               <p><a class="nominate-popup_open">Nominate an organization</a></p>
             </div>
           </div>
@@ -198,6 +198,7 @@
         document.getElementById('id_org_choice').options[0].disabled = true;
         document.getElementById('id_org_choice').options[0].selected = true;
         document.getElementById('id_org_choice').options[0].setAttribute("hidden", true);
+        $("#id_org_choice").val({{orgid}});
         // document.getElementById('id_admin_choice').options[0].disabled = true;
         // document.getElementById('id_admin_choice').options[0].selected = true;
         // document.getElementById('id_admin_choice').options[0].setAttribute("hidden", true);
@@ -255,13 +256,21 @@
               if (test_data.responseJSON != undefined){
                 var admin_list = test_data.responseJSON['admin']
                 for(var i=0;i<admin_list.length;i++){
-                  $('#id_admin_choice').append(`<option>`+admin_list[i]+`</option>`)
+                  $('#id_admin_choice').append(`<option value=`+admin_list[i]+`>`+admin_list[i]+`</option>`)
                 }
-                $('#id_admin_choice').append(`<option value="other-org">Someone else</option>`)
+                $('#id_admin_choice').append(`<option >Someone else</option>`)
               }
             });
           }
         )
+
+      $("#id_org_choice").trigger('change');
+      if ("{{admin_name}}"){
+        $('#id_admin_choice').val("{{admin_name}}")//.val("karthikbm01@gmail.com")        
+      }
+      else{
+        
+      }
 
       });
     </script>
