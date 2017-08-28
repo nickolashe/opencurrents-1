@@ -50,10 +50,10 @@
               <h6 class="navy no-margin-bottom">
                 {% if coordinator %}
                   <h6 class="navy inline">Contact registered volunteers</h6>
-                  <a class="registrants-box_open">See registrants</a>
+                  <a class="registrants-box_open no-wrap">See registrants</a>
                 {% elif admin %}
                   <h6 class="navy inline">Contact event coordinator</h6>
-                  <a class="registrants-box_open">See registrants</a>
+                  <a class="registrants-box_open no-wrap">See registrants</a>
                 {% elif is_registered %}
                   <h6 class="navy inline">Contact event coordinator</h6>
                 {% else %}
@@ -97,15 +97,22 @@
     <div id="bottom-stripe" class="full-width"></div>
 
     <div id="registrants-box" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <h3 class="popup-title center">Registered volunteers</h3>
       <div class="row center">
-        <h3 class="one-margin-top no-margin-bottom">Registered volunteers</h3>
-          <ul>
-            {% for name in registrants_names %}
-              <li class="no-bullet">{{ name }}</li>
-            {% endfor %}
+        <div class="small-10 medium-6 small-centered columns">
+          <ul class="left">
+            {% if registrants %}
+              {% for name in registrants_names %}
+                <li class="no-bullet">{{ name }}</li>
+              {% endfor %}
+            {% else %}
+              <li class="no-bullet">No volunteers have registered yet.</li>
+            {% endif %}
           </ul>
           
-          <a class="registrants-box_close button round">Close</a>
+          <a href="{% url 'openCurrents:invite-volunteers' event.id %}" class="button round small">Invite volunteers</a>
+          <a class="registrants-box_close button round small secondary">Close</a>
+        </div>
       </div>
     </div>
 
