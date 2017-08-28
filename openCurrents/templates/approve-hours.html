@@ -67,12 +67,12 @@
                                {% endfor %}
 
                                <p class="edit-volunteer center">
-                                 <input type="radio" id="defer-vol-1" name="vol-status-1" class="vol-radio hidden" />
+                                 <!-- <input type="radio" id="defer-vol-1" name="vol-status-1" class="vol-radio hidden" />
                                    <label for="defer-vol-1">
                                       <a onclick="def_vol(this)" class="defer-volunteer button round tiny caution" tabindex="0">Defer hours
                                       <span style="display:none">{{key}}</span>
                                    </a>
-                                   </label>
+                                   </label> -->
                                  <input type="radio" id="decline-vol-1" name="vol-status-1" class="vol-radio hidden"/>
                                    <label for="decline-vol-1">
                                      <a onclick="dec_vol(this)" class="decline-volunteer button round tiny alert">Decline hours
@@ -85,9 +85,9 @@
                                <span style="display:none">{{key}}</span>
                                </a></p>
 
-                               <p class="volunteer-deferred hidden caution">Volunteer deferred. <a onclick="def_undo_vol(this)" class="undo-defer">Undo
+                               <!-- <p class="volunteer-deferred hidden caution">Volunteer deferred. <a onclick="def_undo_vol(this)" class="undo-defer">Undo
                               <span style="display:none">{{key}}</span>
-                             </a></p>
+                             </a></p> -->
                              </div>
                            </li>
                          {% endfor %}
