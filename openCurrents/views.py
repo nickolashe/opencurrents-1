@@ -811,9 +811,9 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         #Get the status msg from URL
         context = super(TimeTrackerView, self).get_context_data(**kwargs)
         userid = self.request.user.id
-        usertimelog = UserTimeLog.objects.filter(user__id=userid).order_by('datetime_start').reverse()[0]
-        actiontimelog = AdminActionUserTime.objects.filter(usertimelog = usertimelog)
         try:
+            usertimelog = UserTimeLog.objects.filter(user__id=userid).order_by('datetime_start').reverse()[0]
+            actiontimelog = AdminActionUserTime.objects.filter(usertimelog = usertimelog)
             context['orgid'] = actiontimelog[0].usertimelog.event.project.org.id
             context['admin_name'] = actiontimelog[0].user.username
             context['status_msg'] = self.kwargs.pop('status_msg')
