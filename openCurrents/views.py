@@ -72,7 +72,7 @@ def org_user_list(request):
     input_org = request.POST['org']
     org_user = OrgUser.objects.filter(org__name = input_org)
     org_user_list = [orguser.user.username for orguser in org_user]
-    return HttpResponse(content = json.dumps({'admin': org_user_list}), status=201)
+    return HttpResponse(content = json.dumps({'admin': org_user_list}), status=200)
 
 # Create and save a new group for admins of a new org
 def new_org_admins_group(orgid):
@@ -262,13 +262,21 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
         )
 
         # gather unverified time logs
-        actiontimelog = AdminActionUserTime.objects.filter(user__id=userid).filter(action_type='req')
+        #actiontimelog = AdminActionUserTime.objects.filter(user__id=userid).filter(action_type='req')
         # timelogs = UserTimeLog.objects.filter(
         #     event__in=events
         # ).filter(
         #     is_verified=False
         # )
-        timelogs = actiontimelog.filter(usertimelog__event__in=events).filter(usertimelog__is_verified = False)
+        timelogs = AdminActionUserTime.objects.filter(
+            user__id=userid
+        ).filter(
+            action_type='req'
+        ).filter(
+            usertimelog__event__in=events
+        ).filter(
+            usertimelog__is_verified = False
+        )
 
         # week list holds dictionary ordered pairs for 7 days of timelogs
         week = []
@@ -283,18 +291,20 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
         week_startdate_monday = week_startdate - timedelta(days=week_startdate.weekday())
         today = timezone.now()
 
-        main_defer = self.defer_month(week_startdate_monday,today)
-        eventtimelogs = main_defer[0]
-        time_log_week = main_defer[1]
+        #get the weeks timelog; week starting from "week_startdate_monday"
+        main_timelog = self.weeks_timelog(week_startdate_monday,today)
+        eventtimelogs = main_timelog[0]
+        time_log_week = main_timelog[1]
         k = 0
         #Check for usertimelogs ahead for upto a month
         while k<5:
             if not eventtimelogs:
                 week_startdate_monday = week_startdate_monday + timedelta(days=7)
                 today = timezone.now()
-                local_defer = self.defer_month(week_startdate_monday,today)
-                eventtimelogs = local_defer[0]
-                time_log_week = local_defer[1]
+                #get the weeks timelog till it's not empty for a month; week starting from "week_startdate_monday"
+                local_timelog = self.weeks_timelog(week_startdate_monday,today)
+                eventtimelogs = local_timelog[0]
+                time_log_week = local_timelog[1]
                 k += 1
             else:
                 k=5
@@ -306,27 +316,28 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
         for timelog in eventtimelogs:
             user_email = timelog.user.email
             name = User.objects.get(username = user_email).first_name +" "+User.objects.get(username = user_email).last_name
+            user_timelog = timelog.usertimelog
 
             # check if same day and duration longer than 15 min
-            if timelog.usertimelog.datetime_start.date() == timelog.usertimelog.datetime_end.date() and timelog.usertimelog.datetime_end - timelog.usertimelog.datetime_start >= timedelta(minutes=15):
+            if user_timelog.datetime_start.date() == user_timelog.datetime_end.date() and user_timelog.datetime_end - user_timelog.datetime_start >= timedelta(minutes=15):
                 if user_email not in time_log:
                     time_log[user_email] = OrderedDict(items)
                 time_log[user_email]["name"] = name
 
                 # time in hours rounded to nearest 15 min
-                rounded_time = self.get_hours_rounded(timelog.usertimelog.datetime_start, timelog.usertimelog.datetime_end)
+                rounded_time = self.get_hours_rounded(user_timelog.datetime_start, user_timelog.datetime_end)
 
                 # use day of week and date as key
-                date_key = timelog.usertimelog.datetime_start.strftime('%A, %m/%d')
+                date_key = user_timelog.datetime_start.strftime('%A, %m/%d')
                 if date_key not in time_log[user_email]:
                     time_log[user_email][date_key] = [0]
 
                 # add the time to the corresponding date_key and total
                 tz = org.get_org().timezone
-                st_time = timelog.usertimelog.datetime_start.astimezone(pytz.timezone(tz)).time().strftime('%-I:%M %p')
-                end_time = timelog.usertimelog.datetime_end.astimezone(pytz.timezone(tz)).time().strftime('%-I:%M %p')
+                st_time = user_timelog.datetime_start.astimezone(pytz.timezone(tz)).time().strftime('%-I:%M %p')
+                end_time = user_timelog.datetime_end.astimezone(pytz.timezone(tz)).time().strftime('%-I:%M %p')
                 time_log[user_email][date_key][0] += rounded_time
-                time_log[user_email][date_key].append(st_time+" - "+end_time+": "+str(timelog.usertimelog.event.description))
+                time_log[user_email][date_key].append(st_time+" - "+end_time+": "+str(user_timelog.event.description))
                 time_log[user_email]['Total'] += rounded_time
             else:
                 # Multiple day volunteering
@@ -361,7 +372,7 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
         logger.info('%s',week)
         return week
 
-    def defer_month(self, week_startdate_monday, today):
+    def weeks_timelog(self, week_startdate_monday, today):
         # build one weeks worth of timelogs starting from the oldest monday
         userid = self.request.user.id
         org = OrgUserInfo(userid)
@@ -428,7 +439,7 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
             action_type='req'
         )
         if user:
-            get_requested_vol_times = get_requested_vol_times.filter(usertimelog__user=user)
+            get_requested_vol_times = get_requested_vol_times.filter(usertimelog__user__id=user.id)
         return get_requested_vol_times
 
 
