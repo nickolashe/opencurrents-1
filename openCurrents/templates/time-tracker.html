@@ -72,12 +72,22 @@
 
                 </div>
               </div>
+
+              <div id="new-admin" class="row hidden">
+                <div class="small-6 columns">
+                  <input type="text" placeholder="Admin first name" />
+                </div>
+
+                <div class="small-6 columns">
+                  <input type="text" placeholder="Admin email" />
+                </div>
+              </div> 
             </div>
 
             <div class="row center one-margin-top">
               <!--<a href="{% url 'openCurrents:time-tracked' %}" class="button round">Save</a>-->
               <a type='submit' class="one-margin-top button round">Submit for approval</a>
-              <p><a class="nominate-popup_open">Nominate an organization</a></p>
+              <p><a class="nominate-popup_open">Organization not listed?</a></p>
             </div>
           </div>
 
@@ -103,7 +113,7 @@
       <div class="row center">
         <h3 class="popup-title">Nominate an organization</h3>
         <div class="medium-10 medium-offset-1 columns end">
-          <p>Do you give time with a social organization not listed here? Fill out this form and we'll get in touch. If you want to mention openCurrents to your volunteer coordinator, we'd appreciate it!</p>
+          <p>Do you give time with a social organization not listed here? Fill out this form and we'll reach out to your volunteer coordinator. If you tell them about openCurrents, they'll be more likely to get onboard!</p>
         </div>
       </div>
 
@@ -116,16 +126,12 @@
               <input type="text" name="org_name" placeholder="Organization name" class="center" tabindex="0" />
             </div>
 
-            <div class="input-left small-6 columns">
-              <input type="text" name="contact_firstname" placeholder="Organizer First name" class="center" tabindex="0" />
-            </div>
-
-            <div class="input-right small-6 columns">
-              <input type="text" name="contact_lastname" placeholder="Organizer Last name" class="center" tabindex="0" />
+            <div class="input-left small-12 columns">
+              <input type="text" name="contact_firstname" placeholder="Coordinator name" class="center" tabindex="0" />
             </div>
 
             <div class="small-12 columns">
-              <input type="email" name="contact_email" placeholder="Email address" class="center" tabindex="0" />
+              <input type="email" name="contact_email" placeholder="Coordinator email address" class="center" tabindex="0" />
             </div>
           </div>
         </div>
@@ -135,6 +141,18 @@
           <a class="nominate-popup_close button round secondary">Cancel</a>
         </div>
       </form>
+    </div>
+
+    <div id="no-admin-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h3 class="popup-title">Please contact organization</h3>
+        <div class="medium-10 medium-offset-1 columns end">
+          <p>You'll need to know who will approve your hours before tracking your time. Please contact the organization to ask for the name of your openCurrents admin.</p>
+          <a href="{% url 'openCurrents:profile' %}" class="button round">Back to profile</a>
+          <a class="no-org-popup_close button round secondary">Cancel</a>
+        </div>
+      </div>
+    </div>
 
     <!-- <div id="add-org-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
@@ -183,15 +201,15 @@
           step: 15,
         });
 
-        $('#nominate-popup').popup({
+        $('#nominate-popup, #no-admin-popup').popup({
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: false,
         });
 
         $('#choose-org').on('change', function(){
-          if($(this).val() == "other-org") {
-            $('#nominate-popup').popup('show');
+          if($(this).val() == "not-sure") {
+            $('#no-admin-popup').popup('show');
           }
         });
 
