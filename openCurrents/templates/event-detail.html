@@ -99,7 +99,13 @@
     <div id="registrants-box" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
         <h3 class="one-margin-top no-margin-bottom">Registered volunteers</h3>
-        {{ registrants_names|join:", " }}
+          <ul>
+            {% for name in registrants_names %}
+              <li class="no-bullet">{{ name }}</li>
+            {% endfor %}
+          </ul>
+          
+          <a class="registrants-box_close button round">Close</a>
       </div>
     </div>
 
