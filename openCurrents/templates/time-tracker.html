@@ -207,9 +207,13 @@
           scrolllock: false,
         });
 
-        $('#choose-org').on('change', function(){
+        $('#id_admin_choice').on('change', function(){
           if($(this).val() == "not-sure") {
             $('#no-admin-popup').popup('show');
+          }
+
+          else if ($(this).val() == "other-admin") {
+            $('#new-admin').slideDown();
           }
         });
 
@@ -276,7 +280,8 @@
                 for(var i=0;i<admin_list.length;i++){
                   $('#id_admin_choice').append(`<option value=`+admin_list[i]+`>`+admin_list[i]+`</option>`)
                 }
-                $('#id_admin_choice').append(`<option >Someone else</option>`)
+                $('#id_admin_choice').append(`<option value="other-admin">Someone else</option>`),
+                $('#id_admin_choice').append(`<option value="not-sure">Not sure</option>`)
               }
             });
           }
