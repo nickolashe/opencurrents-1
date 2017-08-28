@@ -278,7 +278,7 @@
               if (test_data.responseJSON != undefined){
                 var admin_list = test_data.responseJSON['admin']
                 for(var i=0;i<admin_list.length;i++){
-                  $('#id_admin_choice').append(`<option value=`+admin_list[i]+`>`+admin_list[i]+`</option>`)
+                  $('#id_admin_choice').append(`<option value=`+admin_list[i]+`>`+admin_list[i].split(':')[0]+` `+admin_list[i].split(':')[1]+`</option>`)
                 }
                 $('#id_admin_choice').append(`<option value="other-admin">Someone else</option>`),
                 $('#id_admin_choice').append(`<option value="not-sure">Not sure</option>`)
