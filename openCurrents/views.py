@@ -933,8 +933,9 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
         )
         event.save()
         try:
+            orguser = OrgUserInfo(self.userid)
             coord_user = User.objects.get(email=form_data['coordinator_email'])
-            if (coord_user.id != self.userid) and not OrgUser.objects.filter(user__id = coord_user.id).exists():
+            if (coord_user.id != self.userid) and not OrgUserInfo(coord_user.id).exists():
                 #send an invite to join to org as admin
                 try:
                     admin_user = User.objects.get(id=self.userid)
@@ -1516,6 +1517,8 @@ class EventDetailView(LoginRequiredMixin, SessionContextView, DetailView):
         context = super(EventDetailView, self).get_context_data(**kwargs)
         context['form'] = EventRegisterForm()
 
+        orguser = OrgUserInfo(self.request.user.id)
+
         # determine whether the user has already registered for the event
         is_registered = UserEventRegistration.objects.filter(
             user__id=self.request.user.id,
@@ -1524,27 +1527,18 @@ class EventDetailView(LoginRequiredMixin, SessionContextView, DetailView):
         ).exists()
 
         # check if admin for the event's org
-        org_admin_group_name = '_'.join(['admin', str(context['event'].project.org.id)])
-
-        # group is supposed to exist at this point
-        try:
-            org_admin_group = Group.objects.get(name=org_admin_group_name)
-        except Group.DoesNotExist:
-            logger.error("org exists without an admin group")
-            return redirect('openCurrents:500')
-
-        is_admin = org_admin_group.user_set.filter(id=self.request.user.id).exists()
+        is_org_admin=orguser.is_org_admin(context['event'].project.org.id)
 
         # check if event coordinator
         is_coord = Event.objects.filter(id=context['event'].id,coordinator_email=self.request.user.email).exists()
 
         context['is_registered'] = is_registered
-        context['admin'] = is_admin
+        context['admin'] = is_org_admin
         context['coordinator'] = is_coord
  
         # list of confirmed registered users 
         context['registrants'] = ''
-        if(is_coord or is_admin):
+        if(is_coord or is_org_admin):
             reg_list = []
             reg_list_names = []
             reg_objects = UserEventRegistration.objects.filter(event__id=context['event'].id, is_confirmed=True)
