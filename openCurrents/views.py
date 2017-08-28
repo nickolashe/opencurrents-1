@@ -1205,7 +1205,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         post_data = self.request.POST
         event_create_id = None
         try:
-            event_create_id = json.loads(kwargs.pop('event_id'))
+            event_create_id = json.loads(kwargs.pop('event_ids'))
         except:
             pass
 
