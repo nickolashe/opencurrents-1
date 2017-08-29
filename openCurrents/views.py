@@ -73,7 +73,6 @@ def org_user_list(request):
     input_org = request.POST['org']
     org_user = OrgUser.objects.filter(org__name = input_org)
     org_user_list = [orguser.user.first_name+":"+orguser.user.last_name for orguser in org_user]
-    print(json.dumps({'admin': org_user_list}))
     return HttpResponse(content = json.dumps({'admin': org_user_list}), status=200)
 
 # Create and save a new group for admins of a new org
@@ -781,32 +780,102 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         if form_data['admin']:
             try:
                 admin_user = User.objects.get(username = form_data['admin'])
-
-                actiontimelog = AdminActionUserTime(
-                    user = admin_user,
-                    usertimelog = usertimelog,
-                    action_type = 'req'
-                )
-                actiontimelog.save()
+                self.user_admin(org.id,usertimelog,admin_user)
             except:
-                self.user_all_admin(org.id,usertimelog)
-                pass
+                if form_data['admin'] == 'other-admin':
+                    admin_name = self.request.POST['admin_fname']
+                    admin_email = self.request.POST['admin_email']
+                    if admin_email:
+                        user = self.user_orguser(org,admin_email,admin_name)
+                        self.user_admin(org.id,usertimelog,user)
+                        self.isTimeLogValid = True
+                        return
+                    else:
+                        self.isTimeLogValid = -1
+                        return
+                elif form_data['admin'] == 'not-sure':
+                    self.isTimeLogValid = -1
+                    return
         else:
-            self.user_all_admin(org.id,usertimelog)
+            self.isTimeLogValid = -1
+            return
 
         self.isTimeLogValid = True
 
-    def user_all_admin(self, orgid, usertimelog):
+    def user_admin(self, orgid, usertimelog,admin):
         #get and save the usertimelog for all admins in the ORG with orgid
-        admin_user = OrgUser.objects.filter(org__id = orgid)
-        for admin in admin_user:
-            actiontimelog = AdminActionUserTime(
-                user = admin.user,
-                usertimelog = usertimelog,
-                action_type = 'req'
-            )
-            actiontimelog.save()
+        #admin_user = OrgUser.objects.filter(org__id = orgid)
+        #for admin in admin_user:
+        actiontimelog = AdminActionUserTime(
+            user = admin,
+            usertimelog = usertimelog,
+            action_type = 'req'
+        )
+        actiontimelog.save()
         return True
+
+    def user_orguser(self,org,admin_email,admin_name):
+        try:
+            user_new = User.objects.get(username = admin_email)
+        except:
+            user_new = User(
+                username=admin_email,
+                email=admin_email,
+                first_name=admin_name
+            )
+            user_new.save()
+            try:
+                sendContactEmail(
+                    'invite-admin',
+                    None,
+                    [
+                        {
+                            'name': 'FNAME',
+                            'content': admin_name
+                        },
+                        {
+                            'name': 'ADMIN_FNAME',
+                            'content': self.request.user.first_name
+                        },
+                        {
+                            'name': 'ADMIN_LNAME',
+                            'content': self.request.user.last_name
+                        },
+                        {
+                            'name': 'EVENT',
+                            'content': False
+                        },
+                        {
+                            'name': 'ORG_NAME',
+                            'content': org.name
+                        },
+                        {
+                            'name': 'EMAIL',
+                            'content': admin_email
+                        }
+                    ],
+                    admin_email,
+                    self.request.user.email
+                )
+            except Exception as e:
+                logger.error(
+                    'unable to send transactional email: %s (%s)',
+                    e.message,
+                    type(e)
+                )
+        try:
+            org_user = OrgUser(
+                org=org,
+                user=user_new
+            )
+            org_user.save()
+        except Exception as e:
+            logger.error(
+                'Org user already present: %s (%s)',
+                e.message,
+                type(e)
+            )
+        return user_new
 
 
     def get_context_data(self, **kwargs):
@@ -831,10 +900,11 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         self.track_hours(data)
         org = Org.objects.get(id=data['org'])
         tz = org.timezone
-
-        if self.isTimeLogValid:
+        if self.isTimeLogValid and self.isTimeLogValid != -1:
             # tracked time is valid
             return redirect('openCurrents:time-tracked')
+        elif self.isTimeLogValid == -1:
+            return redirect('openCurrents:time-tracker', "You must know your admin. Sorry!")
         else:
             # tracked time overlaps with existing time log
             status_time = ' '.join([
