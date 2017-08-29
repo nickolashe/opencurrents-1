@@ -359,7 +359,8 @@ class TrackVolunteerHours(forms.Form):
         #choices=choices_admin,
         required=False,
         widget=forms.Select(attrs={
-            'id': 'id_admin_choice'
+            'id': 'id_admin_choice',
+            'disabled': True
         })
     )
 

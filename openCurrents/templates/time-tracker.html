@@ -60,7 +60,7 @@
                   {{form.org}}
                 </div>
 
-                <div class="disabled small-6 columns">
+                <div class="small-6 columns">
                   {{form.admin}}
                 </div>
               </div>
@@ -258,7 +258,7 @@
             .find('option')
             .remove()
             .end()
-            .append('<option disabled selected hidden>Select admin</option>');
+            .append('<option disabled selected>Select admin</option>');
           var e = document.getElementById('id_org_choice');
           var strOrg = e.options[e.selectedIndex].text;
           $.ajax
