@@ -1191,7 +1191,7 @@ class EditEventView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
 
             try:
                 coord_user = User.objects.get(email=post_data['coordinator-email'])
-                if (coord_user.id != self.request.user.id) and not OrgUser.objects.filter(user__id = coord_user.id).exists():
+                if (coord_user.id != self.request.user.id) and not OrgUserInfo(coord_user.id).get_orguser():
                     #send an invite to join to org as admin
                     try:
                         sendContactEmail(
