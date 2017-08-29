@@ -86,7 +86,7 @@
 
             <div class="row center one-margin-top">
               <!--<a href="{% url 'openCurrents:time-tracked' %}" class="button round">Save</a>-->
-              <a type='submit' class="one-margin-top button round">Submit for approval</a>
+              <input type='submit' value="Submit for approval" class="one-margin-top button round"></input>
               <p><a class="nominate-popup_open">Organization not listed?</a></p>
             </div>
           </div>
@@ -113,7 +113,7 @@
       <div class="row center">
         <h3 class="popup-title">Nominate an organization</h3>
         <div class="medium-10 medium-offset-1 columns end">
-          <p>Do you give time with a social organization not listed here? Fill out this form and we'll reach out to your volunteer coordinator. If you tell them about openCurrents, they'll be more likely to get onboard!</p>
+          <p>As a member of this community, you can help us grow by inviting an organization for which you volunteer. Fill out this form and we'll reach out to your volunteer coordinator, but feel free to contact them personally as well.</p>
         </div>
       </div>
 
@@ -123,7 +123,7 @@
           <div class="center small-12 medium-9 small-centered columns">
 
             <div id="org-signup-name" class="small-12 columns">
-              <input type="text" name="org_name" placeholder="Organization name" class="center" tabindex="0" />
+              <input type="text" name="org_name" placeholder="Organization name" class="center" tabindex="0" required />
             </div>
 
             <div class="input-left small-12 columns">
@@ -207,15 +207,20 @@
           scrolllock: false,
         });
 
-        $('#choose-org').on('change', function(){
+        $('#id_admin_choice').on('change', function(){
           if($(this).val() == "not-sure") {
             $('#no-admin-popup').popup('show');
+          }
+
+          else if ($(this).val() == "other-admin") {
+            $('#new-admin').slideDown();
           }
         });
 
         document.getElementById('id_org_choice').options[0].disabled = true;
         document.getElementById('id_org_choice').options[0].selected = true;
         document.getElementById('id_org_choice').options[0].setAttribute("hidden", true);
+        $("#id_org_choice").val({{orgid}});
         // document.getElementById('id_admin_choice').options[0].disabled = true;
         // document.getElementById('id_admin_choice').options[0].selected = true;
         // document.getElementById('id_admin_choice').options[0].setAttribute("hidden", true);
@@ -273,13 +278,22 @@
               if (test_data.responseJSON != undefined){
                 var admin_list = test_data.responseJSON['admin']
                 for(var i=0;i<admin_list.length;i++){
-                  $('#id_admin_choice').append(`<option>`+admin_list[i]+`</option>`)
+                  $('#id_admin_choice').append(`<option value=`+admin_list[i]+`>`+admin_list[i].split(':')[0]+` `+admin_list[i].split(':')[1]+`</option>`)
                 }
-                $('#id_admin_choice').append(`<option value="other-org">Someone else</option>`)
+                $('#id_admin_choice').append(`<option value="other-admin">Someone else</option>`),
+                $('#id_admin_choice').append(`<option value="not-sure">Not sure</option>`)
               }
             });
           }
         )
+
+      $("#id_org_choice").trigger('change');
+      if ("{{admin_name}}"){
+        $('#id_admin_choice').val("{{admin_name}}")//.val("karthikbm01@gmail.com")        
+      }
+      else{
+        
+      }
 
       });
     </script>
