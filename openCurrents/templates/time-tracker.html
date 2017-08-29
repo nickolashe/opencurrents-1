@@ -71,7 +71,7 @@
                 </div>
 
                 <div class="small-6 columns">
-                  <input type="text" name="admin_email" placeholder="Admin email" />
+                  <input id="admin-email" type="text" name="admin_email" placeholder="Admin email" />
                 </div>
               </div> 
             </div>
@@ -206,17 +206,18 @@
 
           if ($(this).val() == "other-admin") {
             $('#new-admin').slideDown();
+            $('#admin-email').prop('required', true);
           }
 
           else {
             $('#new-admin').slideUp();
+            $('#admin-email').prop('required', false);
           }
         });
 
         document.getElementById('id_org_choice').options[0].disabled = true;
         document.getElementById('id_org_choice').options[0].selected = true;
-        document.getElementById('id_org_choice').options[0].setAttribute("hidden", true);
-        
+
         {% if org_stat_id %}
           $("#id_org_choice").val({{org_stat_id}});
         {% endif %}
