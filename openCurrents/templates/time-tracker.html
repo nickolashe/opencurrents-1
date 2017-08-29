@@ -220,7 +220,9 @@
         document.getElementById('id_org_choice').options[0].disabled = true;
         document.getElementById('id_org_choice').options[0].selected = true;
         document.getElementById('id_org_choice').options[0].setAttribute("hidden", true);
-        $("#id_org_choice").val({{orgid}});
+        {% if org_stat_id %}
+          $("#id_org_choice").val({{org_stat_id}});
+        {% endif %}
         // document.getElementById('id_admin_choice').options[0].disabled = true;
         // document.getElementById('id_admin_choice').options[0].selected = true;
         // document.getElementById('id_admin_choice').options[0].setAttribute("hidden", true);
@@ -286,14 +288,15 @@
             });
           }
         )
-
-      $("#id_org_choice").trigger('change');
-      if ("{{admin_name}}"){
-        $('#id_admin_choice').val("{{admin_name}}")//.val("karthikbm01@gmail.com")        
-      }
-      else{
-        
-      }
+      {% if org_stat_id %}
+        $("#id_org_choice").trigger('change');
+        if ("{{admin_name}}"){
+          $('#id_admin_choice').val("{{admin_name}}")//.val("karthikbm01@gmail.com")        
+        }
+        else{
+          
+        }
+      {% endif %}
 
       });
     </script>

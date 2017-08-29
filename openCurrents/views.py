@@ -885,11 +885,13 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         try:
             usertimelog = UserTimeLog.objects.filter(user__id=userid).order_by('datetime_start').reverse()[0]
             actiontimelog = AdminActionUserTime.objects.filter(usertimelog = usertimelog)
-            context['orgid'] = actiontimelog[0].usertimelog.event.project.org.id
+            context['org_stat_id'] = actiontimelog[0].usertimelog.event.project.org.id
             context['admin_name'] = actiontimelog[0].user.first_name+":"+actiontimelog[0].user.last_name
             context['status_msg'] = self.kwargs.pop('status_msg')
+        except KeyError:
+                pass
         except:
-            pass
+            context['org_stat_id'] = ''
         return context
 
 
