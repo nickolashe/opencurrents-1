@@ -1538,7 +1538,7 @@ class EventDetailView(LoginRequiredMixin, SessionContextView, DetailView):
  
         # list of confirmed registered users 
         context['registrants'] = ''
-        if(is_coord or is_org_admin):
+        if is_coord or is_org_admin:
             reg_list = []
             reg_list_names = []
             reg_objects = UserEventRegistration.objects.filter(event__id=context['event'].id, is_confirmed=True)
@@ -1554,7 +1554,6 @@ class EventDetailView(LoginRequiredMixin, SessionContextView, DetailView):
             context['registrants_names'] = reg_list_names
 
         return context
-
 
 
 class LiveDashboardView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
@@ -1848,7 +1847,7 @@ def event_register(request, pk):
                 merge_var_list.append({'name': 'MESSAGE','content': message})
                 merge_var_list.append({'name': 'REGISTER','content': True})
         #if no message was entered and a new UserEventRegistration was created
-        elif(not is_registered and not is_coord):
+        elif not is_registered and not is_coord:
             email_template = 'volunteer-registered'
             merge_var_list.append({'name': 'REGISTER','content': True})
             logger.info('User %s registered for event %s with no optional msg %s ', user.username, event.id, message)
