@@ -72,7 +72,7 @@ def org_user_list(request):
     #returns the list of Org users for the provided org
     input_org = request.POST['org']
     org_user = OrgUser.objects.filter(org__name = input_org)
-    org_user_list = [orguser.user.first_name+":"+orguser.user.last_name for orguser in org_user]
+    org_user_list = [orguser.user.first_name+":"+orguser.user.last_name for orguser in org_user if not request.user ]
     return HttpResponse(content = json.dumps({'admin': org_user_list}), status=200)
 
 # Create and save a new group for admins of a new org
@@ -886,8 +886,11 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             usertimelog = UserTimeLog.objects.filter(user__id=userid).order_by('datetime_start').reverse()[0]
             actiontimelog = AdminActionUserTime.objects.filter(usertimelog = usertimelog)
             context['org_stat_id'] = actiontimelog[0].usertimelog.event.project.org.id
-            context['admin_name'] = actiontimelog[0].user.first_name+":"+actiontimelog[0].user.last_name
             context['status_msg'] = self.kwargs.pop('status_msg')
+            if context['org_stat_id']==userid:
+                context['org_stat_id'] = ''
+            else:
+                context['admin_name'] = actiontimelog[0].user.first_name+":"+actiontimelog[0].user.last_name
         except KeyError:
                 pass
         except:
