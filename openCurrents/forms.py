@@ -168,8 +168,8 @@ class PasswordResetForm(forms.Form):
 
 class OrgNominationForm(forms.Form):
     org_name = forms.CharField(min_length=1,required=True)
-    contact_name = forms.CharField(min_length=1,required=True)
-    contact_email = forms.CharField(min_length=1,required=True)
+    contact_name = forms.CharField(min_length=1,required=False)
+    contact_email = forms.CharField(min_length=1,required=False)
 
     def clean(self):
         cleaned_data = super(OrgNominationForm, self).clean()
