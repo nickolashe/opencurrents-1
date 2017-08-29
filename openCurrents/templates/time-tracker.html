@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    {% include "head.html" %}
+    {% include "partials/head.html" %}
 
     <script type="text/javascript" src="{% static 'js/jquery.timepicker.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/jquery-ui-datepicker.js' %}"></script>
@@ -12,7 +12,7 @@
   </head>
 
   <body>
-    {% include "header.html" %}
+    {% include "partials/header.html" %}
 
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
@@ -67,19 +67,19 @@
                   </div>
 
                   <div class="small-12 medium-4 columns">
-                    {{form.date_start.label}}
+                    <p class="grey no-margin-bottom">{{form.date_start.label}}</p>
                     <!--<input type="text" id="volunteer-date" name="volunteer-date" placeholder="yyyy-mm-dd"/>-->
                     {{ form.date_start }}
                   </div>
 
                   <div class="small-6 medium-4 columns">
-                    {{ form.time_start.label }}
+                    <p class="grey no-margin-bottom">{{ form.time_start.label }}</p>
                     <!--<input type="text" id="start-time" name="" value="12:00:00"/>-->
                     {{ form.time_start }}
                   </div>
 
                   <div class="small-6 medium-4 columns">
-                    {{ form.time_end.label }}
+                    <p class="grey no-margin-bottom">{{ form.time_end.label }}</p>
                     <!--<input type="text" id="end-time" name="" value="12:00:00"/>-->
                     {{ form.time_end }}
                   </div>
@@ -100,7 +100,7 @@
       <!-- wrapper div-->
       </div>
 
-      {% include "footer.html" %}
+      {% include 'partials/footer.html' %}
 
     <!--container div -->
     </div>
@@ -108,7 +108,7 @@
     <div id="bottom-stripe" class="full-width"></div>
 
     <div off-canvas="menu right shift" id="menu">
-      {% include "menu.html" %}
+      {% include 'partials/menu.html' %}
     </div>
 
     <div id="add-org-popup" class="modal center small-12 medium-9 large-7 small-centered columns">

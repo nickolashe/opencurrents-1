@@ -217,6 +217,15 @@ class ProjectCreateForm(forms.Form):
             'placeholder': 'do some good'
         })
     )
+
+    CHOICES = [(True, 'event-privacy-1'), (False, 'event-privacy-2')]
+    
+    is_public = forms.ChoiceField(widget=forms.RadioSelect(
+        attrs={"class": "hidden styled-radio"}), 
+        choices=CHOICES, 
+        initial='True'
+    )
+
     description = forms.CharField(
         label='Project description',
         help_text='What should volunteers know? What should they bring?',
@@ -231,6 +240,8 @@ class ProjectCreateForm(forms.Form):
             'class': 'center'
         })
     )
+
+
     time_start = forms.CharField(
         label='from',
         widget=forms.TextInput(attrs={

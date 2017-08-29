@@ -3,131 +3,109 @@
 <!DOCTYPE html>
 <html>
   <head>
-    {% include "head.html" %}
+    {% include "partials/head.html" %}
   </head>
   
   <body>
-    {% include "header.html" %}
+    {% include "partials/header.html" %}
     
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
+
+        {% for date in week %}
+          {% for key,val in date.iteritems %}
+            {% if key == "vols_approved" %}
+               <input type="hidden" id="vols_approved_val" name="" value="{{val}}">
+            {% elif key == "vols_declined" %}
+               <input type="hidden" id="vols_declined_val" name="" value="{{val}}">
+            {% endif %}
+          {% endfor %}
+        {% endfor %}
+
+        <div class ="row">
+          <div class="success row one-margin-top"> <span name="vols_status_msg" id="vols_status_msg"></span></h5> </div>
+        </div>
+
         <div class="row">
           <h2 class="title-sub">Approve hours</h2>
           {% for date in week %}
-          <h5 class="subtitle">for the week of <span id="week_display"></span></h5>
-        </div>
-        
-          <form action ="" method="post">
-             {% csrf_token %}
-             <div class="row left one-margin-top one-margin-bottom">
-               <div class="small-12 medium-8 small-centered columns">
-                 <ul id="volunteer-list" class="accordion" data-accordion data-allow-all-closed="true">
-                   {% for key_m, value_m in date.iteritems %}
+            {% if not forloop.last %}
+            <h5 class="subtitle">for the week of <span id="week_display"></span></h5>
+          </div>
+          
+            <form action ="" method="post">
+               {% csrf_token %}
+               <div class="row left one-margin-top one-margin-bottom">
+                 <div class="small-12 medium-8 small-centered columns">
+                   <ul id="volunteer-list" class="accordion" data-accordion data-allow-all-closed="true">
+                     {% for key_m, value_m in date.iteritems %}
 
-                     <input type="hidden" id="week_display_draft" name="" value="{{key_m}}">
-                     <input type="hidden" id="week_month" name="" value="{{key_m.date.month}}-{{key_m.date.day}}-{{key_m.date.year}}"> 
-                        
-                     {% for key,value in value_m.iteritems %}
-                         <li class="accordion-item" data-accordion-item>  
-                           <a href="#" class="accordion-title">{% for k, v in value.items %} {% if k == "name" %} {{v}} {% endif %}{% endfor %}
-                             <span class="float-right">
-                               {% for k, v in value.items %} {% if k == "Total" %} {{v}} {% endif %}{% endfor %} hrs
-                             </span>
-                           </a>
-                           <div class="accordion-content" data-tab-content>
+                       <input type="hidden" id="week_display_draft" name="" value="{{key_m}}">
+                       <input type="hidden" id="week_month" name="" value="{{key_m.date.month}}-{{key_m.date.day}}-{{key_m.date.year}}"> 
+                          
+                       {% for key,value in value_m.iteritems %}
+                           <li class="accordion-item {% if forloop.first %}is-active{% endif %}" data-accordion-item>  
+                             <a href="#" class="accordion-title">{% for k, v in value.items %} {% if k == "name" %} {{v}} {% endif %}{% endfor %}
+                               <span class="float-right">
+                                 {% for k, v in value.items %} {% if k == "Total" %} {{v}} {% endif %}{% endfor %} hrs
+                               </span>
+                             </a>
+                             <div class="accordion-content" data-tab-content>
 
-                             {% for k, v in value.iteritems %} 
-                               {% if k != "Total" and v != 0 and k != "name" %}   
-                                 <p>{{k}}<span>{{v}}  hrs</span></p>
-                                 <!--<p>Wednesday<span>2 hrs</span></p>
-                                 <p>Thursday<span>3 hrs</span></p>-->
-                               {% endif %}
-                             {% endfor %}
+                               {% for k, v in value.iteritems %} 
+                                 {% if k != "Total" and v != 0 and k != "name" %}   
+                                  <div class="row">   
+                                    <div class="small-9 columns">
+                                      <p class="no-margin-bottom">{{k}}</p>
+                                      <p class="half-margin-left">{{v|slice:"1:"|join:"<br> "}}</p>
+                                    </div>
+                                    <div class="right small-3 columns">
+                                      <p>{{v.0}}  hrs</p>
+                                    </div>
+                                  </div>
+                                 {% endif %}
+                               {% endfor %}
 
-                             <p class="edit-volunteer center">
-                               <input type="radio" id="defer-vol-1" name="vol-status-1" class="vol-radio hidden" />
-                                 <label for="defer-vol-1">
-                                   <a onclick="def_vol(this)" class="defer-volunteer button round tiny caution" tabindex="0">Defer volunteer
-                                    <span style="display:none">{{key}}</span>
+                               <p class="edit-volunteer center">
+                                 <!-- <input type="radio" id="defer-vol-1" name="vol-status-1" class="vol-radio hidden" />
+                                   <label for="defer-vol-1">
+                                      <a onclick="def_vol(this)" class="defer-volunteer button round tiny caution" tabindex="0">Defer hours
+                                      <span style="display:none">{{key}}</span>
                                    </a>
-                                 </label>
-                               <input type="radio" id="decline-vol-1" name="vol-status-1" class="vol-radio hidden"/>
-                                 <label for="decline-vol-1">
-                                   <a onclick="dec_vol(this)" class="decline-volunteer button round tiny alert">Decline volunteer
-                                     <span style="display:none">{{key}}</span>
-                                   </a>
-                                 </label>
-                             </p>
+                                   </label> -->
+                                 <input type="radio" id="decline-vol-1" name="vol-status-1" class="vol-radio hidden"/>
+                                   <label for="decline-vol-1">
+                                     <a onclick="dec_vol(this)" class="decline-volunteer button round tiny alert">Decline hours
+                                       <span style="display:none">{{key}}</span>
+                                     </a>
+                                   </label>
+                               </p>
 
-                             <p class="volunteer-declined hidden alert">Volunteer declined. <a onclick="acc_vol(this)" class="undo-decline">Undo
+                               <p class="volunteer-declined hidden alert">Volunteer declined. <a onclick="acc_vol(this)" class="undo-decline">Undo
+                               <span style="display:none">{{key}}</span>
+                               </a></p>
+
+                               <!-- <p class="volunteer-deferred hidden caution">Volunteer deferred. <a onclick="def_undo_vol(this)" class="undo-defer">Undo
                               <span style="display:none">{{key}}</span>
-                             </a></p>
+                             </a></p> -->
+                             </div>
+                           </li>
+                         {% endfor %}
+                     {% endfor %}  
 
-                             <p class="volunteer-deferred hidden caution">Volunteer deferred. <a onclick="def_undo_vol(this)" class="undo-defer">Undo
-                              <span style="display:none">{{key}}</span>
-                             </a></p>
-                           </div>
-                         </li>
-                       {% endfor %}
-                   {% endfor %}  
-
-
-                   <!--<li class="accordion-item is-active" data-accordion-item>  
-                     <a href="#" class="accordion-title">Max Tattenbach<span class="float-right">9 hrs</span></a>
-                     <div class="accordion-content" data-tab-content>
-                       <p>Monday<span>3 hrs</span></p>
-                       <p>Wednesday<span>2 hrs</span></p>
-                       <p>Thursday<span>4 hrs</span></p>
-                       <p class="edit-volunteer center">
-                         <input type="radio" id="defer-vol-2" name="vol-status-2" class="vol-radio hidden"/>
-                         <label for="defer-vol-2">
-                           <a class="defer-volunteer button round tiny caution" tabindex="0">Defer volunteer</a>
-                         </label>
-
-                         <input type="radio" id="decline-vol-2" name="vol-status-2" class="vol-radio hidden"/>
-                           <label for="decline-vol-2">
-                             <a class="decline-volunteer button round tiny alert">Decline volunteer</a>
-                           </label>
-                       </p>
-
-                       <p class="volunteer-declined hidden alert">Volunteer declined. <a class="undo-decline">Undo</a></p>
-
-                       <p class="volunteer-deferred hidden caution">Volunteer deferred. <a class="undo-defer">Undo</a></p>
-                     </div>
-                   </li>
-
-                   <li class="accordion-item" data-accordion-item>  
-                     <a href="#" class="accordion-title">Nicko Shestopalov<span class="float-right">10 hrs</span></a>
-                     <div class="accordion-content" data-tab-content>
-                       <p>Monday<span>3 hrs</span></p>
-                       <p>Wednesday<span>3 hrs</span></p>
-                       <p>Thursday<span>4 hrs</span></p>
-                       <p class="edit-volunteer center">
-                         <input type="radio" id="defer-vol-3" name="vol-status-3" class="vol-radio hidden"/>
-                         <label for="defer-vol-3">
-                           <a class="defer-volunteer button round tiny caution" tabindex="0">Defer volunteer</a>
-                         </label>
-
-                         <input type="radio" id="decline-vol-3" name="vol-status-3" class="vol-radio hidden"/>
-                         <label for="decline-vol-3">
-                           <a class="decline-volunteer button round tiny alert">Decline volunteer</a>
-                         </label>
-                       </p>
-
-                       <p class="volunteer-declined hidden alert">Volunteer declined. <a class="undo-decline">Undo</a></p>
-
-                       <p class="volunteer-deferred hidden caution">Volunteer deferred. <a class="undo-defer">Undo</a></p>
-                     </div>
-                   </li>-->
-                 </ul>
+                   </ul>
+                 </div>
                </div>
-             </div>
-             <input type="hidden" id="result_sel" name="post-data" value="" /><!--<input type="hidden" id="result_sel" name="post-data" value="" />-->
-             <div class="row center">
-               <!--<a href="{% url 'openCurrents:hours-approved' %}" onclick="test()" class="button round">Approve hours</a>-->
-               <button type='submit' class="one-margin-top button round">Confirm hours</button>
-             </div>
-          </form>
+               <input type="hidden" id="result_sel" name="post-data" value="" /><!---->
+               <div class="row center">
+                <div class="small-12 medium-8 small-centered columns">
+                 <!--<a href="{% url 'openCurrents:hours-approved' %}" onclick="test()" class="button round">Approve hours</a>-->
+                 <p class="no-margin-bottom">Hours will be approved unless you decline them. To see hours for additional weeks, please review this week first.</p>
+                 <button type='submit' class="one-margin-top button round">Confirm</button>
+                </div>
+               </div>
+            </form>
+          {% endif %}
         {% endfor %}  
         
         <div id="push"></div>
@@ -135,7 +113,7 @@
       <!-- wrapper div-->
       </div>
       
-      {% include "footer.html" %}
+      {% include 'partials/footer.html' %}
             
     <!--container div -->
     </div>
@@ -143,7 +121,7 @@
     <div id="bottom-stripe" class="full-width"></div>
     
     <div off-canvas="menu right shift" id="menu">
-      {% include "menu.html" %}
+      {% include 'partials/menu.html' %}
     </div>
   
     <div id="-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
@@ -177,7 +155,7 @@
 
       function dec_vol(k){//Declining volunteer on clicking decline button
 
-        var decline = k.text.replace("Decline volunteer","").replaceAll(" ","").replaceAll("\n","");
+        var decline = k.text.replace("Decline hours","").replaceAll(" ","").replaceAll("\n","");
         var dec_0 = decline+':0:'+week_format
         var dec_1 = decline+':1:'+week_format
         var dec_2 = decline+':2:'+week_format
@@ -189,6 +167,7 @@
       function acc_vol(vol){//Accept Volunteer on clicking Undo
 
         var accept = vol.text.replace("Undo","").replaceAll(" ","").replaceAll("\n","");
+
         var acc_0 = accept+':0:'+week_format
         var acc_1 = accept+':1:'+week_format
         var acc_2 = accept+':2:'+week_format
@@ -198,7 +177,7 @@
       }
 
       function def_vol(vol){//defer a volunteer for this particular admin
-        var defer = vol.text.replace("Defer volunteer","").replaceAll(" ","").replaceAll("\n","");
+        var defer = vol.text.replace("Defer hours","").replaceAll(" ","").replaceAll("\n","");
         var def_0 = defer+':0:'+week_format
         var def_1 = defer+':1:'+week_format
         var def_2 = defer+':2:'+week_format
@@ -230,8 +209,30 @@
 
     <script type="text/javascript">
       $(document).ready(function(){
+        if (document.getElementById("vols_approved_val") === null || document.getElementById("vols_declined_val") === null){
 
-        var rep = $('.decline-volunteer').text().replaceAll("Decline volunteer\n","").replaceAll(" ","");
+        }
+        else{
+          var vols_approved = document.getElementById("vols_approved_val").value;
+          var vols_declined = document.getElementById("vols_declined_val").value;
+        
+
+          if(vols_approved >= 1 && vols_declined >= 1)
+          {
+             vols_status_msg_display = "You have approved " +  vols_approved  + " and declined " +  vols_declined  +  " volunteer{{ vols_declined|pluralize }}. Keep up the good work!"
+          }
+          else if(vols_approved >= 1 && vols_declined == 0)
+          {
+             vols_status_msg_display = "You have approved hours for " +  vols_approved  + " volunteer{{ vols_approved|pluralize }}. Keep up the good work!"
+          }
+          else if(vols_approved == 0 && vols_declined >= 1)
+          {
+             vols_status_msg_display = "You have declined hours for " + vols_declined + " volunteer{{vols_declined|pluralize}}."
+          }
+          document.getElementById("vols_status_msg").innerHTML = vols_status_msg_display;
+        }
+
+        var rep = $('.decline-volunteer').text().replaceAll("Decline hours\n","").replaceAll(" ","");
         var rep_list = rep.split("\n")
         var today = new Date();
         var app_week = String(getMonday(today)).split(" ");
