@@ -12,7 +12,9 @@
 
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
-          <div id="status_msg" class="alert row half-margin-top">
+          <div class="row">
+            <div id="status_msg" class="status-msg success small-10 small-centered columns">
+            </div>
           </div>
 
           {% if num_events or num_vols %}
@@ -266,7 +268,7 @@
         });
       });
       function status(){
-        $('#status_msg').html("You already have all the hours approved.");
+        $('#status_msg').html("You have reviewed all hours submitted to you. Nicely done!");
       }
     </script>
 

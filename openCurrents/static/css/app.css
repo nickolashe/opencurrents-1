@@ -692,13 +692,20 @@ label {
 .header-spacer {
   height: 60px;
 }
+@media screen and (max-width: 41.9375em) {
+  .status-msg {
+    margin-top: 1rem;
+  }
+}
 
-.status-msg {
-  position: absolute;
-  top: 70px;
-  left: 50%;
-  -webkit-transform: translateX(-50%);
-  transform: translateX(-50%)
+@media screen and (min-width: 42em) {
+  .status-msg {
+    position: absolute;
+    top: 76px;
+    left: 50%;
+    -webkit-transform: translateX(-50%);
+    transform: translateX(-50%)
+  }
 }
 
 #tilde-menu {
