@@ -166,6 +166,11 @@ class PasswordResetForm(forms.Form):
         # else:
         #     raise ValidationError(_('Password does\'nt meet the required criterion.'))
 
+class OrgNominationForm(forms.Form):
+    org_name = forms.CharField(min_length=1)
+    coordinator_name = forms.CharField(min_length=1)
+    coordinator_email = forms.CharField(min_length=1)
+
 class OrgSignupForm(forms.Form):
     org_name = forms.CharField(min_length=1)
     org_website = forms.CharField(min_length=1,required=False)

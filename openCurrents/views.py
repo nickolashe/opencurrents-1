@@ -2108,6 +2108,15 @@ def process_signup(request, referrer=None, endpoint=False, verify_email=True):
             return redirect('openCurrents:signup', status_msg=errors[0])
 
 
+def process_OrgNomination(request):
+    form = OrgNominationForm(request.POST)
+
+    if form.is_valid():
+    
+    
+        return redirect('openCurrents:profile', status_msg="Thank you for nominating orgname! We will reach out soon!")
+
+
 def process_login(request):
     form = UserLoginForm(request.POST)
 
