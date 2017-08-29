@@ -101,7 +101,6 @@ urlpatterns = [
         views.event_register_live, name='event_register_live'),
     url(r'^event_checkin/(?P<pk>\d+)/$', views.event_checkin, name='event_checkin'),
     url(r'^process_login/$', views.process_login, name='process_login'),
-    url(r'^org_user_list/$', views.org_user_list, name='org_user_list'),
     url(r'^process_logout/$', views.process_logout, name='process_logout'),
     url(r'^process_resend_verification/(?P<user_email>[\w\.@\+\-]+)/$', views.process_resend_verification, name='process_resend_verification'),
     url(r'^process_resend_password/(?P<user_email>[\w\.@\+\-]+)/$', views.process_resend_password, name='process_resend_password'),
