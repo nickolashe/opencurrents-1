@@ -693,6 +693,14 @@ label {
   height: 60px;
 }
 
+.status-msg {
+  position: absolute;
+  top: 70px;
+  left: 50%;
+  -webkit-transform: translateX(-50%);
+  transform: translateX(-50%)
+}
+
 #tilde-menu {
   position: absolute;
   height: 15px;
@@ -720,6 +728,7 @@ label {
 
 #wrapper {
   padding-top: 60px;
+  position: relative;
 }
 
 /* non-small header */
