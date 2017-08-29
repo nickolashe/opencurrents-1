@@ -997,7 +997,7 @@ class EditEventView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
         # event
         org_user = OrgUserInfo(self.request.user.id)
         tz = org_user.get_org_timezone(self.request.user.id)
-        event_id = kwargs.pop('event_id')
+        event_id = kwargs.pop('event_ids')[0]
         event = Event.objects.get(id=event_id)
         context['event'] = event
         context['start_time'] = str(event.datetime_start.astimezone(pytz.timezone(tz)).time())
@@ -1007,7 +1007,7 @@ class EditEventView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
 
     def post(self, request, **kwargs):
         utc=pytz.UTC
-        event_id = kwargs.pop('event_id')
+        event_id = kwargs.pop('event_ids')[0]
         edit_event = Event.objects.get(id=event_id)
 
         # save button - needs to handled through forms
@@ -1173,6 +1173,11 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         context['skip'] = 0
         try:
             event_ids = kwargs.pop('event_ids')
+            if type(json.loads(event_ids)) == list:
+                pass
+            else:
+                event_ids = '['+event_ids+']'
+                event_ids = unicode(event_ids)
             if event_ids:
                 event = Event.objects.filter(
                     id__in=json.loads(event_ids)
@@ -1193,7 +1198,13 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         post_data = self.request.POST
         event_create_id = None
         try:
-            event_create_id = json.loads(kwargs.pop('event_ids'))
+            event_create_id = kwargs.pop('event_ids')
+            if type(json.loads(event_create_id)) == list:
+                pass
+            else:
+                event_create_id = '['+event_create_id+']'
+                event_create_id = unicode(event_create_id)
+            event_create_id = json.loads(event_create_id)
         except:
             pass
 
@@ -1274,6 +1285,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
             event=Event.objects.get(id=event_create_id[0])
             events = Event.objects.filter(id__in=event_create_id)
             loc = [str(i.location).split(',')[0] for i in events]
+            tz = event.project.org.timezone
             email_template_merge_vars = [
                 {
                     'name': 'ADMIN_FIRSTNAME',
@@ -1309,7 +1321,6 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                 },
             ]
             try:
-                tz = event.project.org.timezone
                 if k:
                     sendBulkEmail(
                         'invite-volunteer-event-new',
