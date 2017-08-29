@@ -13,8 +13,12 @@
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
           <div class="row">
-            <div id="status_msg" class="status-msg success small-10 small-centered columns">
+            <div id="status_msg" class="success one-margin-top small-10 small-centered medium-8 columns">
             </div>
+
+<!--             <div class="small-2 right columns end">
+              <i class="fa fa-times success"></i>
+            </div> -->
           </div>
 
           {% if num_events or num_vols %}
@@ -269,6 +273,7 @@
       });
       function status(){
         $('#status_msg').html("You have reviewed all hours submitted to you. Nicely done!");
+        // $('#status_msg').parent().slideDown();
       }
     </script>
 
