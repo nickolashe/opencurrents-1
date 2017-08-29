@@ -875,6 +875,40 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                 e.message,
                 type(e)
             )
+        try:
+            sendTransactionalEmail(
+                'new-admin-invited',
+                None,
+                [
+                    {
+                        'name': 'ORG_NAME',
+                        'content': org.name
+                    },
+                    {
+                        'name': 'ADMIN_NAME',
+                        'content': admin_name
+                    },
+                    {
+                        'name': 'ADMIN_EMAIL',
+                        'content': admin_email
+                    },
+                    {
+                        'name': 'FNAME',
+                        'content': self.request.user.first_name
+                    },
+                    {
+                        'name': 'LNAME',
+                        'content': self.request.user.last_name
+                    }
+                ],
+                'bizdev@opencurrents.com'
+            )
+        except Exception as e:
+                logger.error(
+                    'unable to send transactional email: %s (%s)',
+                    e.message,
+                    type(e)
+                )
         return user_new
 
 
