@@ -44,7 +44,7 @@
                        <input type="hidden" id="week_month" name="" value="{{key_m.date.month}}-{{key_m.date.day}}-{{key_m.date.year}}"> 
                           
                        {% for key,value in value_m.iteritems %}
-                           <li class="accordion-item" data-accordion-item>  
+                           <li class="accordion-item {% if forloop.first %}is-active{% endif %}" data-accordion-item>  
                              <a href="#" class="accordion-title">{% for k, v in value.items %} {% if k == "name" %} {{v}} {% endif %}{% endfor %}
                                <span class="float-right">
                                  {% for k, v in value.items %} {% if k == "Total" %} {{v}} {% endif %}{% endfor %} hrs
