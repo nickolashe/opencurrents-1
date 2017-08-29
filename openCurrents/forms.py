@@ -167,9 +167,16 @@ class PasswordResetForm(forms.Form):
         #     raise ValidationError(_('Password does\'nt meet the required criterion.'))
 
 class OrgNominationForm(forms.Form):
-    org_name = forms.CharField(min_length=1)
-    coordinator_name = forms.CharField(min_length=1)
-    coordinator_email = forms.CharField(min_length=1)
+    org_name = forms.CharField(min_length=1,required=True)
+    contact_name = forms.CharField(min_length=1,required=True)
+    contact_email = forms.CharField(min_length=1,required=True)
+
+    def clean(self):
+        cleaned_data = super(OrgNominationForm, self).clean()
+        org_name = cleaned_data['org_name']
+        contact_name = cleaned_data['contact_name']
+        contact_email = cleaned_data['contact_email']
+
 
 class OrgSignupForm(forms.Form):
     org_name = forms.CharField(min_length=1)

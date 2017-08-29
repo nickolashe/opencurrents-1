@@ -43,6 +43,7 @@ from openCurrents.forms import \
     ProjectCreateForm, \
     EventRegisterForm, \
     EventCheckinForm, \
+    OrgNominationForm, \
     TrackVolunteerHours
 
 from datetime import datetime, timedelta
@@ -2112,10 +2113,41 @@ def process_OrgNomination(request):
     form = OrgNominationForm(request.POST)
 
     if form.is_valid():
-    
-    
-        return redirect('openCurrents:profile', status_msg="Thank you for nominating orgname! We will reach out soon!")
+        org_name = form.cleaned_data['org_name']
+        contact_name = form.cleaned_data['contact_name']
+        contact_email = form.cleaned_data['contact_email']
 
+        sendTransactionalEmail(
+            'new-org-nominated',
+            None,
+            [
+                {
+                    'name': 'FNAME',
+                    'content': request.user.first_name
+                },
+                {
+                    'name': 'LNAME',
+                    'content': request.user.last_name
+                },
+                {
+                    'name': 'COORD_NAME',
+                    'content': contact_name
+                },
+                {
+                    'name': 'COORD_EMAIL',
+                    'content': contact_email
+                },
+                {
+                    'name': 'ORG_NAME',
+                    'content': org_name
+                }
+            ],
+            'bizdev@opencurrents.com'
+                )
+
+        return redirect('openCurrents:profile', status_msg='Thank you for nominating %s! We will reach out soon.' % org_name)
+
+    return redirect('openCurrents:profile', status_msg="bad form!")
 
 def process_login(request):
     form = UserLoginForm(request.POST)
