@@ -16,7 +16,7 @@
             <h3 class="title-sub">Nominate an organization</h3>
             <p>As a member of this community, you can help us grow by inviting an organization. Fill out this form and we'll reach out, but feel free to contact them personally as well.</p>
 
-            <form method="post" action="/process_signup/">
+            <form method="post" action="{% url "openCurrents:process_OrgNomination" %}">
               {% csrf_token %}
               <div class="row three-halves-margin-bottom three-halves-margin-top">
                 <div class="center small-12 medium-9 small-centered columns">
@@ -26,7 +26,7 @@
                   </div>
 
                   <div class="small-12 columns">
-                    <input type="text" name="contact_firstname" placeholder="Contact name" class="center" tabindex="0" />
+                    <input type="text" name="contact_name" placeholder="Contact name" class="center" tabindex="0" />
                   </div>
 
                   <div class="small-12 columns">
