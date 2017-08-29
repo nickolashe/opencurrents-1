@@ -935,7 +935,7 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
         try:
             orguser = OrgUserInfo(self.userid)
             coord_user = User.objects.get(email=form_data['coordinator_email'])
-            if (coord_user.id != self.userid) and not OrgUserInfo(coord_user.id).exists():
+            if (coord_user.id != self.userid) and not OrgUserInfo(coord_user.id).get_orguser():
                 #send an invite to join to org as admin
                 try:
                     admin_user = User.objects.get(id=self.userid)
