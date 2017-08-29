@@ -67,11 +67,11 @@
 
               <div id="new-admin" class="row hidden">
                 <div class="small-6 columns">
-                  <input type="text" placeholder="Admin first name" />
+                  <input type="text" name="admin_fname" placeholder="Admin first name" />
                 </div>
 
                 <div class="small-6 columns">
-                  <input type="text" placeholder="Admin email" />
+                  <input type="text" name="admin_email" placeholder="Admin email" />
                 </div>
               </div> 
             </div>
@@ -109,7 +109,7 @@
         </div>
       </div>
 
-      <form method="post" action="/process_signup/">
+      <form method="post" action="{% url "openCurrents:process_OrgNomination" %}">
         {% csrf_token %}
         <div class="row three-halves-margin-bottom half-margin-top">
           <div class="center small-12 medium-9 small-centered columns">
@@ -118,8 +118,8 @@
               <input type="text" name="org_name" placeholder="Organization name" class="center" tabindex="0" required />
             </div>
 
-            <div class="small-12 columns">
-              <input type="text" name="contact_firstname" placeholder="Coordinator name" class="center" tabindex="0" />
+            <div class="input-left small-12 columns">
+              <input type="text" name="contact_name" placeholder="Coordinator name" class="center" tabindex="0" />
             </div>
 
             <div class="small-12 columns">
@@ -215,8 +215,11 @@
 
         document.getElementById('id_org_choice').options[0].disabled = true;
         document.getElementById('id_org_choice').options[0].selected = true;
+        document.getElementById('id_org_choice').options[0].setAttribute("hidden", true);
         
-        $("#id_org_choice").val({{orgid}});
+        {% if org_stat_id %}
+          $("#id_org_choice").val({{org_stat_id}});
+        {% endif %}
         // document.getElementById('id_admin_choice').options[0].disabled = true;
         // document.getElementById('id_admin_choice').options[0].selected = true;
         // document.getElementById('id_admin_choice').options[0].setAttribute("hidden", true);
@@ -282,14 +285,15 @@
             });
           }
         )
-
-      $("#id_org_choice").trigger('change');
-      if ("{{admin_name}}"){
-        $('#id_admin_choice').val("{{admin_name}}")//.val("karthikbm01@gmail.com")        
-      }
-      else{
-        
-      }
+      {% if org_stat_id %}
+        $("#id_org_choice").trigger('change');
+        if ("{{admin_name}}"){
+          $('#id_admin_choice').val("{{admin_name}}")//.val("karthikbm01@gmail.com")        
+        }
+        else{
+          
+        }
+      {% endif %}
 
       });
     </script>
