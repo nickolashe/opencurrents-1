@@ -250,7 +250,7 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
     template_name = 'approve-hours.html'
     context_object_name = 'week'
 
-    def get_queryset(self):
+    def get_queryset(self,**kwargs):
         userid = self.request.user.id
         #user = User.objects.get(id=userid)
         org = OrgUserInfo(userid)
@@ -282,15 +282,17 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
         # week list holds dictionary ordered pairs for 7 days of timelogs
         week = []
 
-        # return nothing if unverified time logs not found
+        # return kwargs vols_approved and vols_declined if unverified time logs not found
         if not timelogs:
+            week = self.kwargs
+            #logger.info(week)
             return week
 
         # find monday before oldest unverified time log
-        oldest_timelog = timelogs.order_by('usertimelog__datetime_start')[0]
-        week_startdate = oldest_timelog.usertimelog.datetime_start
-        week_startdate_monday = week_startdate - timedelta(days=week_startdate.weekday())
-        today = timezone.now()
+        oldest_timelog = timelogs.order_by('datetime_start')[0]
+        week_startdate = oldest_timelog.datetime_start
+        week_startdate_monday = (week_startdate - timedelta(days=week_startdate.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
+        today = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
 
         #get the weeks timelog; week starting from "week_startdate_monday"
         main_timelog = self.weeks_timelog(week_startdate_monday,today)
@@ -370,6 +372,9 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
             time_log_week[week_startdate_monday] = time_log
             week.append(time_log_week)
 
+        # include post kwargs vols_approved vols_declined as last part of week
+        week.append(self.kwargs)
+
         logger.info('%s',week)
         return week
 
@@ -444,15 +449,20 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
         return get_requested_vol_times
 
 
-    def post(self, request):
+    def post(self, request, **kwargs):
         """
         Takes request as input which is a comma separated string which is then split to form a list with data like
         ```['a@bc.com:1:7-20-2017','abc@gmail.com:0:7-22-2017',''...]```
         """
+        vols_approved = int(0)
+        vols_declined = int(0)
         post_data = self.request.POST['post-data']
 
 
         templist = post_data.split(',')#eg list: ['a@bc.com:1:7-20-2017','abc@gmail.com:0:7-22-2017',''...]
+        logger.info(
+            'templist: %s', templist
+        )
         projects = []
         userid = self.request.user.id
         org = OrgUserInfo(userid)
@@ -466,7 +476,6 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
             """
             if i:
                 i = str(i)
-
                 #split the data for user, flag, and date info
                 user = User.objects.get(username=i.split(':')[0])
                 week_date = datetime.strptime( i.split(':')[2], '%m-%d-%Y')
@@ -496,6 +505,7 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
                     #       event__in=events).delete()
                     declined = self.get_requested_vols(week_date,events,user)
                     declined.update(action_type = 'dec')
+                    vols_declined += 1
 
                 #check if the volunteer is accepted and approve the same
                 elif i.split(':')[1] == '1':
@@ -543,6 +553,7 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
                         #i.usertimelog.update(is_verified=True)
                         #approved.update(action_type = 'app')
                         #approved.update(usertimelog__is_verified=True)
+                        vols_approved += 1
                     except Exception as e:
                         logger.info('Approving timelog Error: %s',e)
                         return redirect('openCurrents:500')
@@ -572,17 +583,27 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
             event_type='MN'
         )
 
-
         # gather unverified time logs
         timelogs = UserTimeLog.objects.filter(
             event__in=events
         ).filter(
             is_verified=False
+        ).exclude(
+            deferments__id=userid
         )
-        if not timelogs:
-            return redirect('openCurrents:admin-profile')
 
-        return redirect('openCurrents:approve-hours')
+        if not timelogs:
+            return redirect('openCurrents:admin-profile', vols_approved, vols_declined)
+
+        return redirect('openCurrents:approve-hours', vols_approved, vols_declined)
+        #templist[:] = [item.split(':')[0] for item in templist if item != '' and item.split(':')[1]!='0']
+        # try:
+        #     for i in templist:
+        #         user = User.objects.get(username=i)
+        #         time_log = UserTimeLog.objects.filter(user=user).update(is_verified = True);
+        #     return redirect('openCurrents:hours-approved')
+        # except:
+        #     return redirect('openCurrents:500')
 
     def get_hours_rounded(self, datetime_start, datetime_end):
         # h, m, s = time_str.split(':')
@@ -1039,7 +1060,12 @@ class AdminProfileView(OrgAdminPermissionMixin, SessionContextView, TemplateView
         org = Org.objects.get(pk=orgid)
         context['org_name'] = org.name
         context['timezone'] = org.timezone
-        userid = self.request.user.id
+        try:
+            context['vols_approved'] = self.kwargs.pop('vols_approved')
+            context['vols_declined'] = self.kwargs.pop('vols_declined')
+        except:
+            pass
+
         user = User.objects.get(id=userid)
 
         # find events created by admin that they have not been notified of
@@ -1442,7 +1468,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         post_data = self.request.POST
         event_create_id = None
         try:
-            event_create_id = json.loads(kwargs.pop('event_id'))
+            event_create_id = json.loads(kwargs.pop('event_ids'))
         except:
             pass
 
