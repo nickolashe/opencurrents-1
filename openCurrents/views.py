@@ -1,6 +1,7 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render, redirect
 from django.views.generic import View, ListView, TemplateView, DetailView
 from django.views.generic.edit import FormView
@@ -989,7 +990,9 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
                         e.message,
                         type(e)
                     )
-        except Exception as e:
+        # if given coordinator_email does not exist as a user object
+        except ObjectDoesNotExist:
+            logger.info("Given coordinator_email does not exist as a User object")
             pass
 
         return event.id
