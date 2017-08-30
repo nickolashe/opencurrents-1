@@ -1752,26 +1752,17 @@ def event_register(request, pk):
 
         #update is_confirmed=True or create new UserEventRegistration if needed
         if not is_coord and not is_registered:
-            try:
-                user_unregistered = UserEventRegistration.objects.filter(user__id=user.id, event__id=event.id, is_confirmed=False)
-                if user_unregistered:
-                    #register the volunteer
-                    user_unregistered.update(is_confirmed=True)
-                else:
-                    user_event_registration = UserEventRegistration(
-                        user=user,
-                        event=event,
-                        is_confirmed=True
-                    )
-                    user_event_registration.save()
-            except Exception as e:
+            user_unregistered = UserEventRegistration.objects.filter(user__id=user.id, event__id=event.id, is_confirmed=False)
+            if user_unregistered:
+                #register the volunteer
+                user_unregistered.update(is_confirmed=True)
+            else:
                 user_event_registration = UserEventRegistration(
                     user=user,
                     event=event,
                     is_confirmed=True
                 )
                 user_event_registration.save()
-
 
         coord_email = event.coordinator_email
         coord_user = User.objects.get(email=coord_email)
