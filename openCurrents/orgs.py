@@ -19,7 +19,7 @@ class OrgUserInfo(object):
     def get_org_name(self):
         return self.orgusers[0].org.name if self.orgusers else None
 
-    def get_org_timezone(self, userid):
+    def get_org_timezone(self):
         return self.orgusers[0].org.timezone if self.orgusers else 'America/Chicago'
 
     def is_org_admin(self, orgid):

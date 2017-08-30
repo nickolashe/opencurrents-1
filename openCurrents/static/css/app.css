@@ -305,6 +305,13 @@ select:focus {
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='32' height='24' viewBox='0 0 32 24'><polygon points='0,0 32,0 16,24' style='fill: #r1f4975'></polygon></svg>");
 }
 
+select[disabled] {
+  color: #999999;
+  border-color: #999999;
+  background-color: #ffffff;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='32' height='24' viewBox='0 0 32 24'><polygon points='0,0 32,0 16,24' style='fill: #999999'></polygon></svg>");
+}
+
 input::-webkit-input-placeholder,
 textarea::-webkit-input-placeholder {
   color: #999999; }
@@ -595,7 +602,7 @@ label {
   font-weight: 700;
 }
 
-.hide-text {
+.trim-text {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
