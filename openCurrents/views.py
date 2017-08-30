@@ -537,7 +537,7 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
             ('location',7),
             ('event-name',8)
         ])
-        tz = OrgUserInformation().get_user_org(self.request.user.id).timezone
+        tz = OrgUserInfo(self.request.user.id).get_org().timezone
         vol_personal_info = User.objects.all()
         if post_data['start-date'] != u'':
             event_info = Event.objects.filter(datetime_start__gte=post_data['start-date']).filter(datetime_end__lte=post_data['end-date'])
@@ -594,7 +594,7 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
                             writer.writerow(cleaned_list)#write to the CSV file
                 else:
                     #if the user input in start-time is empty
-                    if j.event.datetime_end <= datetime.strptime(post_data['end-date'], '%Y-%m-%d'):
+                    if j.event.datetime_end <= pytz.timezone(tz).localize(datetime.strptime(post_data['end-date'], '%Y-%m-%d')):
                         cleaned_list = [i.first_name, i.last_name, i.email, datetime_duration, j.event.datetime_start,\
                             j.event.datetime_end, j.event.datetime_start.date(), j.event.location, j.event.project.name]
                         for k in rem_index:
