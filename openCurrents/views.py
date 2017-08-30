@@ -1,6 +1,7 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render, redirect
 from django.views.generic import View, ListView, TemplateView, DetailView
 from django.views.generic.edit import FormView
@@ -950,6 +951,67 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
             creator_id = self.userid
         )
         event.save()
+        try:
+            orguser = OrgUserInfo(self.userid)
+            coord_user = User.objects.get(email=form_data['coordinator_email'])
+            if (coord_user.id != self.userid) and not OrgUserInfo(coord_user.id).get_orguser():
+                #send an invite to join to org as admin
+                try:
+                    admin_user = User.objects.get(id=self.userid)
+                    sendContactEmail(
+                            'invite-admin',
+                            None,
+                            [
+                                {
+                                    'name': 'FNAME',
+                                    'content': form_data['coordinator_firstname']
+                                },
+                                {
+                                    'name': 'ADMIN_FNAME',
+                                    'content': admin_user.first_name
+                                },
+                                {
+                                    'name': 'ADMIN_LNAME',
+                                    'content': admin_user.last_name
+                                },
+                                {
+                                    'name': 'EVENT',
+                                    'content': True
+                                },
+                                {
+                                    'name': 'ORG_NAME',
+                                    'content': Org.objects.get(id=self.orgid).name
+                                },
+                                {
+                                    'name': 'DATE',
+                                    'content': form_data['datetime_start'].date()
+                                },
+                                {
+                                    'name': 'START_TIME',
+                                    'content': form_data['datetime_start'].time()
+                                },
+                                {
+                                    'name': 'END_TIME',
+                                    'content': form_data['datetime_start'].time()
+                                },
+                                {
+                                    'name': 'EMAIL',
+                                    'content': form_data['coordinator_email']
+                                }
+                            ],
+                            form_data['coordinator_email'],
+                            admin_user.email
+                        )
+                except Exception as e:
+                    logger.error(
+                        'unable to send transactional email: %s (%s)',
+                        e.message,
+                        type(e)
+                    )
+        # if given coordinator_email does not exist as a user object
+        except ObjectDoesNotExist:
+            logger.info("Given coordinator_email does not exist as a User object")
+            pass
 
         return event.id
 
@@ -1035,6 +1097,14 @@ class EditEventView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
         context['end_time'] = str(event.datetime_end.astimezone(pytz.timezone(tz)).time())
         context['date_start'] = str(event.datetime_start.astimezone(pytz.timezone(tz)).date())
         return context
+
+    def dispatch(self, request, *args, **kwargs):
+        event_id = kwargs.get('event_id')
+        event = Event.objects.get(id=event_id)
+        if timezone.now() > event.datetime_end:
+            return redirect('openCurrents:admin-profile')
+        else:
+            return super(EditEventView, self).dispatch(request, *args, **kwargs)
 
     def post(self, request, **kwargs):
         #POST the modified data by the user to the models
@@ -1139,6 +1209,66 @@ class EditEventView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
             elif post_data['event-privacy'] == '2':
                 edit_event.is_public = False
             edit_event.save()
+
+            try:
+                coord_user = User.objects.get(email=post_data['coordinator-email'])
+                if (coord_user.id != self.request.user.id) and not OrgUserInfo(coord_user.id).get_orguser():
+                    #send an invite to join to org as admin
+                    try:
+                        sendContactEmail(
+                            'invite-admin',
+                            None,
+                            [
+                                {
+                                    'name': 'FNAME',
+                                    'content': str(post_data['coordinator-name'])
+                                },
+                                {
+                                    'name': 'ADMIN_FNAME',
+                                    'content': self.request.user.first_name
+                                },
+                                {
+                                    'name': 'ADMIN_LNAME',
+                                    'content': self.request.user.last_name
+                                },
+                                {
+                                    'name': 'EVENT',
+                                    'content': True
+                                },
+                                {
+                                    'name': 'ORG_NAME',
+                                    'content': Organisation
+                                },
+                                {
+                                    'name': 'DATE',
+                                    'content': str(post_data['project-date'])
+                                },
+                                {
+                                    'name': 'START_TIME',
+                                    'content': str(post_data['project-start'])
+                                },
+                                {
+                                    'name': 'END_TIME',
+                                    'content': str(post_data['project-end'])
+                                },
+                                {
+                                    'name': 'EMAIL',
+                                    'content': post_data['coordinator-email']
+                                }
+                            ],
+                            post_data['coordinator-email'],
+                            self.request.user.email
+                        )
+                    except Exception as e:
+                        logger.error(
+                            'unable to send transactional email: %s (%s)',
+                            e.message,
+                            type(e)
+                        )
+            # if given coordinator_email does not exist as a user object
+            except ObjectDoesNotExist:
+                logger.info("Given coordinator_email does not exist as a User object")
+                pass
             project = Project.objects.get(id = edit_event.project.id)
             project.name = str(post_data['project-name'])
             project.save()
@@ -1410,13 +1540,41 @@ class EventDetailView(LoginRequiredMixin, SessionContextView, DetailView):
         context = super(EventDetailView, self).get_context_data(**kwargs)
         context['form'] = EventRegisterForm()
 
+        orguser = OrgUserInfo(self.request.user.id)
+
         # determine whether the user has already registered for the event
         is_registered = UserEventRegistration.objects.filter(
             user__id=self.request.user.id,
             event__id=context['event'].id,
             is_confirmed=True
         ).exists()
+
+        # check if admin for the event's org
+        is_org_admin=orguser.is_org_admin(context['event'].project.org.id)
+
+        # check if event coordinator
+        is_coord = Event.objects.filter(id=context['event'].id,coordinator_email=self.request.user.email).exists()
+
         context['is_registered'] = is_registered
+        context['admin'] = is_org_admin
+        context['coordinator'] = is_coord
+ 
+        # list of confirmed registered users 
+        context['registrants'] = ''
+        if is_coord or is_org_admin:
+            reg_list = []
+            reg_list_names = []
+            reg_objects = UserEventRegistration.objects.filter(event__id=context['event'].id, is_confirmed=True)
+            
+            for reg in reg_objects: 
+                reg_list.append(str(reg.user.email))
+                 
+            context['registrants'] = reg_list
+
+            for email in reg_list:
+                reg_list_names.append( str(User.objects.get(email=email).first_name + " " + User.objects.get(email=email).last_name))
+ 
+            context['registrants_names'] = reg_list_names
 
         return context
 
@@ -1604,6 +1762,33 @@ def event_register(request, pk):
     if form.is_valid():
         user = request.user
         message = form.cleaned_data['contact_message']
+
+        #check for existing registration
+        is_registered = UserEventRegistration.objects.filter(user__id=user.id, event__id=event.id, is_confirmed=True).exists()
+        #check if the user is project coordinator
+        is_coord = Event.objects.filter(id=event.id,coordinator_email=user.email).exists()
+
+        #update is_confirmed=True or create new UserEventRegistration if needed
+        if not is_coord and not is_registered:
+            user_unregistered = UserEventRegistration.objects.filter(user__id=user.id, event__id=event.id, is_confirmed=False)
+            if user_unregistered:
+                #register the volunteer
+                user_unregistered.update(is_confirmed=True)
+            else:
+                user_event_registration = UserEventRegistration(
+                    user=user,
+                    event=event,
+                    is_confirmed=True
+                )
+                user_event_registration.save()
+
+        coord_email = event.coordinator_email
+        coord_user = User.objects.get(email=coord_email)
+        coord_last_name = coord_user.last_name
+        org_name = event.project.org.name
+
+
+        # if an optional contact message was entered, send to project coordinator or registrants if user is_coord
         merge_var_list = [
             {
                 'name': 'USER_FIRSTNAME',
@@ -1622,6 +1807,14 @@ def event_register(request, pk):
                 'content': event.coordinator_firstname
             },
             {
+                'name': 'ADMIN_LASTNAME',
+                'content': coord_last_name
+            },
+            {
+                'name': 'ORG_NAME',
+                'content': org_name
+            },
+            {
                 'name': 'ADMIN_EMAIL',
                 'content': event.coordinator_email
             },
@@ -1630,46 +1823,48 @@ def event_register(request, pk):
                 'content': json.dumps(event.datetime_start,cls=DatetimeEncoder).replace('"','')
             }
         ]
-
-        user_event_registration = UserEventRegistration(
-            user=user,
-            event=event,
-            is_confirmed=True
-        )
-
-        was_registered = False
-        try:
-            user_event_registration.save()
-        except IntegrityError:
-            logger.info(
-                'User %s already registered for event %s',
-                user.username,
-                event.id
-            )
-            was_registered = True
-
-        email_template = None
-        # if the volunteer entered a contact message, send to event coordinator
         if message:
-            email_template = 'volunteer-messaged'
-            merge_var_list.append({
-                'name': 'MESSAGE',
-                'content': message
-            })
-            logger.info(
-                'User %s wants to send msg %s to coordinator of event %s',
-                user.username,
-                message,
-                event.id
-            )
-        # else send a message to coordinator if user has registered for event
-        elif not was_registered:
+            logger.info('User %s registered for event %s wants to send msg %s ', user.username, event.id, message)
+            if is_coord:
+                #contact all volunteers
+                reg_list_uniques = []
+                reg_list = UserEventRegistration.objects.filter(event__id=event.id, is_confirmed=True)
+                
+                for reg in reg_list: 
+                    if(reg.user.email not in reg_list_uniques):
+                        reg_list_uniques.append({"email":reg.user.email, "name":reg.user.first_name,"type":"to"})
+                try:
+                    merge_var_list.append({'name': 'MESSAGE','content': message})
+                    sendBulkEmail(
+                        'coordinator-messaged',
+                        None,
+                        merge_var_list,
+                        reg_list_uniques,
+                        user.email
+                    )
+                    email_template = ''
+                except Exception as e:
+                    logger.error(
+                        'unable to send email: %s (%s)',
+                        e,
+                        type(e)
+                    )
+                    return redirect('openCurrents:500')
+            elif is_registered:
+                #message the coordinator as an already registered volunteer
+                email_template = 'volunteer-messaged'
+                merge_var_list.append({'name': 'MESSAGE','content': message})
+                merge_var_list.append({'name': 'REGISTER','content': False})
+            elif not is_registered:
+                #message the coordinator as a new volunteer
+                email_template = 'volunteer-messaged'
+                merge_var_list.append({'name': 'MESSAGE','content': message})
+                merge_var_list.append({'name': 'REGISTER','content': True})
+        #if no message was entered and a new UserEventRegistration was created
+        elif not is_registered and not is_coord:
             email_template = 'volunteer-registered'
-            logger.info(
-                'User %s registered for event %s',
-                user.username,
-                event.id
-            )
+            merge_var_list.append({'name': 'REGISTER','content': True})
+            logger.info('User %s registered for event %s with no optional msg %s ', user.username, event.id, message)
 
         if email_template:
             try:
@@ -1687,7 +1882,7 @@ def event_register(request, pk):
                     type(e)
                 )
 
-        return redirect('openCurrents:registration-confirmed', event.id)
+        return redirect('openCurrents:registration-confirmed', event.id) #TODO add a redirect for coordinator who doesn't register
     else:
         logger.error('Invalid form: %s', form.errors.as_data())
         return redirect('openCurrents:event-detail', event.id)

@@ -647,6 +647,10 @@ label {
   white-space: nowrap;
 }
 
+.no-bullet {
+  list-style-type: none;
+}
+
 .arrow-cursor {
   cursor: default;
 }
