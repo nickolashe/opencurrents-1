@@ -1247,7 +1247,9 @@ class EditEventView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
                             e.message,
                             type(e)
                         )
-            except Exception as e:
+            # if given coordinator_email does not exist as a user object
+            except ObjectDoesNotExist:
+                logger.info("Given coordinator_email does not exist as a User object")
                 pass
             project = Project.objects.get(id = edit_event.project.id)
             project.name = str(post_data['project-name'])
