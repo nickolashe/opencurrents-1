@@ -897,7 +897,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         else:
             return redirect(
                 'openCurrents:time-tracker',
-                'You must know your admin. Sorry!'
+                'Please select an admin to continue!'
             )
 
 
