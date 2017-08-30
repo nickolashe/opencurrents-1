@@ -258,7 +258,7 @@
             .find('option')
             .remove()
             .end()
-            .append('<option disabled selected>Select admin</option>');
+            .append('<option value="sel-admin" disabled selected >Select admin</option>');
           var e = document.getElementById('id_org_choice');
           var strOrg = e.options[e.selectedIndex].text;
           $.ajax
@@ -292,7 +292,7 @@
           $('#id_admin_choice').val("{{admin_name}}")//.val("karthikbm01@gmail.com")        
         }
         else{
-          
+
         }
       {% endif %}
 
