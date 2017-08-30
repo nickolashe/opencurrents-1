@@ -1,3 +1,4 @@
+from django.contrib.auth.models import Group
 from openCurrents.models import \
     OrgUser
 
@@ -20,3 +21,11 @@ class OrgUserInfo(object):
 
     def get_org_timezone(self):
         return self.orgusers[0].org.timezone if self.orgusers else 'America/Chicago'
+
+    def is_org_admin(self, orgid):
+        admin_org_group_name = ['_'.join(['admin', str(orgid)])]
+        admin_org_group = Group.objects.filter(
+            name__in=admin_org_group_name,
+            user__id=self.userid
+        ).exists()
+        return True if admin_org_group else False
