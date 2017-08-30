@@ -220,6 +220,7 @@
 
         {% if org_stat_id %}
           $("#id_org_choice").val({{org_stat_id}});
+          $("#id_admin_choice").prop('disabled', false);
         {% endif %}
         // document.getElementById('id_admin_choice').options[0].disabled = true;
         // document.getElementById('id_admin_choice').options[0].selected = true;
@@ -294,6 +295,7 @@
               // add two non-admin specific options
               $('#id_admin_choice').append(`<option value="other-admin">Someone else</option>`),
               $('#id_admin_choice').append(`<option value="not-sure">Not sure</option>`)
+              $("#id_admin_choice").prop('disabled', false);
             });
           }
         )
