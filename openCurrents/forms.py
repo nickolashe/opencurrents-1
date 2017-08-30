@@ -348,16 +348,10 @@ class TrackVolunteerHours(forms.Form):
         })
     )
     
-    #choices_init_admin = [("select_admin","Select admin")]
-    # choices_admin = [
-    #     (user.id, user.username)
-    #     for user in User.objects.all().filter().order_by('username')
-    # ]
     choices_admin = [("select_admin","Select admin")]
-    #choices_admin = choices_init_admin + choices_admin
     admin = forms.CharField(
         #choices=choices_admin,
-        required=False,
+        required=True,
         widget=forms.Select(attrs={
             'id': 'id_admin_choice'
         })
@@ -408,7 +402,7 @@ class TrackVolunteerHours(forms.Form):
             #admin = cleaned_data['admin']
             tz = self.org.timezone
         except KeyError:
-            raise ValidationError(_('Select the Org you worked for'))
+            raise ValidationError(_('Select the organization you volunteered for'))
 
         datetime_start = datetime.strptime(
             ' '.join([date_start, time_start]),

@@ -252,36 +252,47 @@
         // );
 
         //$( "#id_userorgs option[value='sel_org']" ).selected=true;
-        $('#id_org_choice').change(function(){
+        let orgSelect = $('#id_org_choice');
+        orgSelect.change(function(){
           $('#id_admin_choice')
             .find('option')
             .remove()
             .end()
             .append('<option value="sel-admin" disabled selected >Select admin</option>');
-          var e = document.getElementById('id_org_choice');
-          var strOrg = e.options[e.selectedIndex].text;
+
+          let orgId = orgSelect.val();
+          let csrf_token = document.getElementsByName(
+            'csrfmiddlewaretoken'
+          )[0].value;
+          let orgUserListUrl = `/org_user_list/${orgId}`;
+
           $.ajax
           (
             {
-              url: "{% url 'openCurrents:org_user_list' %}",
-              type:"POST",
-              async:false,
-              data : {
-                  csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
-                  org: strOrg
-              },
-              dataType : "json"
+              url: orgUserListUrl,
+              type: 'GET',
+              async: false,
+              data : {csrfmiddlewaretoken: csrf_token},
+              dataType : 'json'
             }
-          ).complete(function( data ) {
-              let test_data = data;
-              if (test_data.responseJSON != undefined){
-                var admin_list = test_data.responseJSON['admin']
-                for(var i=0;i<admin_list.length;i++){
-                  $('#id_admin_choice').append(`<option value=`+admin_list[i]+`>`+admin_list[i].split(':')[0]+` `+admin_list[i].split(':')[1]+`</option>`)
-                }
-                $('#id_admin_choice').append(`<option value="other-admin">Someone else</option>`),
-                $('#id_admin_choice').append(`<option value="not-sure">Not sure</option>`)
-              }
+          ).complete(function( res ) {
+              let data = res.responseJSON;
+
+              // populate select with org admin names
+              Object.keys(data).forEach(function (adminId) {
+                  let adminFirstName = data[adminId].firstname;
+                  let adminLastName = data[adminId].lastname;
+
+                  $('#id_admin_choice').append(
+                    `<option value=${adminId}> 
+                      ${adminFirstName} ${adminLastName}
+                    </option>`
+                  );
+              });
+
+              // add two non-admin specific options
+              $('#id_admin_choice').append(`<option value="other-admin">Someone else</option>`),
+              $('#id_admin_choice').append(`<option value="not-sure">Not sure</option>`)
             });
           }
         )
