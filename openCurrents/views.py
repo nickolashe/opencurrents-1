@@ -1,7 +1,7 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render, redirect
 from django.views.generic import View, ListView, TemplateView, DetailView
 from django.views.generic.edit import FormView
@@ -906,7 +906,6 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             status_msg = None
             try:
                 status_msg = status[1]
-                logger.info('status_msg: %s', status_msg)
             except Exception:
                 pass
 
