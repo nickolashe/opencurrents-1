@@ -340,7 +340,7 @@ class TrackVolunteerHours(forms.Form):
         (orguser.org.id, orguser.org.name)
         for orguser in OrgUser.objects.all().order_by('org__name')
     ]
-    choices = choices_init + list(set(choices))
+    choices = choices_init + list(choices)
     org = forms.ChoiceField(
         choices=choices,
         widget=forms.Select(attrs={
@@ -398,28 +398,42 @@ class TrackVolunteerHours(forms.Form):
         date_start = cleaned_data['date_start']
         time_start = cleaned_data['time_start']
         time_end = cleaned_data['time_end']
+
+        # assert org
         try:
             self.org = Org.objects.get(id=cleaned_data['org'])
-            #admin = cleaned_data['admin']
             tz = self.org.timezone
         except KeyError:
             raise ValidationError(_('Select the organization you volunteered for'))
 
-        datetime_start = datetime.strptime(
-            ' '.join([date_start, time_start]),
-            '%Y-%m-%d %I:%M%p'
-        )
+        # parse start time
+        try:
+            datetime_start = datetime.strptime(
+                ' '.join([date_start, time_start]),
+                '%Y-%m-%d %I:%M%p'
+            )
+        except Exception as e:
+            raise ValidationError(_('Invalid start time'))
+
+        # localize start time to org's timezone
         cleaned_data['datetime_start'] = pytz.timezone(tz).localize(datetime_start)
 
-        datetime_end = datetime.strptime(
-            ' '.join([date_start, time_end]),
-            '%Y-%m-%d %I:%M%p'
-        )
-        cleaned_data['datetime_end'] = pytz.timezone(tz).localize(datetime_end)
-        if datetime_end == datetime_start:
-            raise ValidationError(_('Please select a valid time'))
-            
+        # parse end time
+        try:
+            datetime_end = datetime.strptime(
+                ' '.join([date_start, time_end]),
+                '%Y-%m-%d %I:%M%p'
+            )
+        except Exception as e:
+            raise ValidationError(_('Invalid end time'))
 
+        # localize end time to org's timezone
+        cleaned_data['datetime_end'] = pytz.timezone(tz).localize(datetime_end)
+
+        # check: start time before end time
+        if datetime_end <= datetime_start:
+            raise ValidationError(_('Start time must be before end time'))
+            
         return cleaned_data
 
 
