@@ -1,7 +1,7 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.shortcuts import render, redirect
 from django.views.generic import View, ListView, TemplateView, DetailView
 from django.views.generic.edit import FormView
@@ -695,8 +695,10 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                     'on',
                     track_existing_datetime_start.strftime('%-m/%-d')
                 ])
+                logger.info(status_time)
 
-                return redirect('openCurrents:time-tracker', status_time)
+                #return redirect('openCurrents:time-tracker', status_time)
+                return False, status_time
 
         if form_data['admin'].isdigit():
             # create admin-specific approval request
@@ -744,10 +746,14 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                 #self.create_approval_request(org.id,usertimelog,user)
                 return True
             else:
-                return False
+                return False, 'Please enter admin\'s email'
 
         elif form_data['admin'] == 'not-sure':
-            return False
+            status_msg = ' '.join([
+                'You can submit hours for review by organization admin\'s registered on openCurrents.',
+                'You can also invite new admins to the platform.'
+            ])
+            return False, status_msg
 
     def create_approval_request(self, orgid, usertimelog, admin_id):
         # save admin-specific request for approval of hours
@@ -891,14 +897,22 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         org = Org.objects.get(id=data['org'])
         tz = org.timezone
 
-        isTimeLogValid = self.track_hours(data)
-        if isTimeLogValid:
+        status = self.track_hours(data)
+        isValid = status[0]
+        if isValid:
             # tracked time is valid
             return redirect('openCurrents:time-tracked')
         else:
+            status_msg = None
+            try:
+                status_msg = status[1]
+                logger.info('status_msg: %s', status_msg)
+            except Exception:
+                pass
+
             return redirect(
                 'openCurrents:time-tracker',
-                'Please select an admin to continue!'
+                status_msg=status_msg
             )
 
 
