@@ -340,7 +340,7 @@ class TrackVolunteerHours(forms.Form):
         (orguser.org.id, orguser.org.name)
         for orguser in OrgUser.objects.all().order_by('org__name')
     ]
-    choices = choices_init + list(choices)
+    choices = choices_init + list(set(choices))
     org = forms.ChoiceField(
         choices=choices,
         widget=forms.Select(attrs={
