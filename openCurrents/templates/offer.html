@@ -17,11 +17,133 @@
         </div>
         {% endif %}
         
-        <div class="row">
-          <h3 class="title">We offer...</h3>
+        <div class="row two-margin-top two-margin-bottom">
+          <div class="small-12 medium-9 small-centered columns">
+            <div class="row collapse">
+              <div class="small-3 columns">
+                <div id="progress-1" class="progress-counter progress-highlight">
+                  <h6>1</h6>
+                </div>
+                <label class="small-text blue">Set goods</label>
+              </div>
+
+              <div class="small-3 columns">
+                <div id="progress-2" class="progress-counter">
+                  <h6>2</h6>
+                </div>
+                <label class="small-text">Set offers</label>
+              </div>
+
+              <div class="small-3 columns">
+                <div id="progress-3" class="progress-counter">
+                  <h6>3</h6>
+                </div>
+                <label class="small-text">Set limit</label>
+              </div>
+
+              <div class="small-3 columns">
+                <div id="progress-4" class="progress-counter">
+                  <h6>4</h6>
+                </div>
+                <label class="small-text">Confirm</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="offer-1">
+          <div class="row">
+            <div class="small-12 medium-10 small-centered columns">
+              <h5>For which types of goods will you accept Currents?</h5>
+            </div>
+          </div>
+
+          <div class="row one-margin-top">
+            <div class="small-12 medium-10 small-centered columns">
+              <input type="radio" id="all-goods" name="good-types" value="" class="hidden styled-radio" checked/>
+                <label for="all-goods" class="button round secondary small">All goods</label>
+              <input type="radio" id="products-only" name="good-types" value="" class="hidden styled-radio"/>
+                <label for="products-only" class="button round secondary small">Products only</label>
+              <input type="radio" id="services-only" name="good-types" value="" class="hidden styled-radio"/>
+                <label for="services-only" class="button round secondary small">Services only</label>
+              <input type="radio" id="specific-goods" name="good-types" value="" class="hidden styled-radio"/>
+                <label for="specific-goods" class="button round secondary small">Specific goods</label>
+            </div>
+          </div>
+
+          <div class="row left one-margin-top">
+            <div id="goods-detail-div" class="small-11 medium-8 small-centered columns">
+              <p id="all-detail" class="goods-detail no-margin-bottom"><strong>All goods</strong><br/>
+              Accept Currents for partial payment of everything you offer. If you'd like to set different offers for different types of goods, select "Specific goods".</p>
+
+              <p id="products-detail" class="goods-detail no-margin-bottom hidden"><strong>Products only</strong><br/>
+              Accept Currents for partial payment of physical products only. If you want to set different offers for different products, select "Specific goods".
+              </p>
+
+              <p id="services-detail" class="goods-detail no-margin-bottom hidden"><strong>Services only</strong><br/>
+              Accept Currents for partial payment of services only. If you want to set different orders for different services, select "Specific goods".
+              </p>
+
+              <p id="specific-detail" class="goods-detail no-margin-bottom hidden"><strong>Specific goods</strong><br/>
+              Accept Currents for partial payment of specific products and services. You will be able to set different offers for each item or category you list.
+              </p>
+            </div>
+          </div>
+
+          <div class="row two-margin-top">
+            <a class="next-offer button round">Next</a>
+          </div>
+        </div>
+
+        <div id="offer-2" class="">
+          <div class="row">
+            <div class="small-12 medium-10 small-centered columns">
+              <h5>Offer details</h5>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="small-12 medium-10 small-centered columns">
+              <div class="row">
+                <div class="small-6 columns">
+                  <input id="product-name-1" type="text" placeholder="Item name"/>
+                </div>
+                
+                <div class="currency-input small-3 columns">
+                  <span class="dollar-placeholder">$</span>
+                  <input id="dollar-price-1" class="dollar-price" type="number" placeholder="10"/>
+                </div>
+                
+                <div class="currency-input small-3 columns">
+                  <img class="current-placeholder" src="{% static 'img/symbol.svg' %}"/>
+                  
+                  <input id="current-price-1" class="current-price" type="number" placeholder="1"/>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row two-margin-top">
+            <a class="prev-offer button round secondary">Back</a>
+            <a class="next-offer button round">Next</a>
+          </div>
+        </div>
+
+        <div id="offer-3">
+          <div class="row two-margin-top">
+            <a class="prev-offer button round secondary">Back</a>
+            <a class="next-offer button round">Next</a>
+          </div>
+        </div>
+
+        <div id="offer-4">
+          <div class="row two-margin-top">
+            <a class="prev-offer button round secondary">Back</a>
+            <a class="button round">Confirm offer</a>
+          </div>
         </div>
         
-        <div class="row center">
+        <!-- <div class="row center">
           <div class="center small-12 medium-6 small-centered columns">
             <input type="number" id="discount-amount" name="discount-amount" class="inline" placeholder="#">
             <select id="discount-type" name="discount-type" class="inline">
@@ -35,9 +157,9 @@
 
             <p class="large-text">up to <input type="number" id="max-currents" name="max-currents" class="inline large-text" placeholder="#" value="1"> Currents per customer per day</p>
           </div>
-        </div>
+        </div> -->
 
-        <div class="row">
+        <!-- <div class="row">
           <div class="small-12 medium-5 small-centered columns">
             <label><input type="checkbox" id="min-purchase" name="min-purchase"/>Minimum purchase required</label>
 
@@ -45,7 +167,7 @@
 
             <a href="" class="three-halves-margin-top button round">Create offer</a>
           </div>
-        </div>
+        </div> -->
         
         <div id="push"></div>
     
@@ -88,8 +210,74 @@
           scrolllock: true,
         });
 
-        $('#min-purchase').change(function(){
-          $('#min-purchase-div')[this.checked ? "slideDown" : "slideUp"]();
+        // Change goods-detail with click
+        $('#all-goods').click(function(){
+          $('.goods-detail').hide();
+          $('#all-detail').show();
+        });
+
+        $('#products-only').click(function(){
+          $('.goods-detail').hide();
+          $('#products-detail').show();
+        });
+
+        $('#services-only').click(function(){
+          $('.goods-detail').hide();
+          $('#services-detail').show();
+        });
+
+        $('#specific-goods').click(function(){
+          $('.goods-detail').hide();
+          $('#specific-detail').show();
+        });
+        
+        // Slide left on 'Next'
+        var page = 1;
+
+        $('.next-offer').click(function() {
+          var $lefty = $('#offer-'+page+'');
+          var $righty = $('#offer-'+(page+1)+'');
+
+          $righty.show()
+
+          $lefty.animate({
+            left: parseInt(-$lefty.outerWidth())
+          }, 777);
+          $righty.animate({
+            left: 0
+          }, 777);
+
+          setTimeout(function() {
+              $lefty.hide();
+          }, 1000);
+
+          $('#progress-'+page+'').removeClass('progress-highlight').siblings('label').removeClass('blue');
+          $('#progress-'+(page+1)+'').addClass('progress-highlight').siblings('label').addClass('blue');
+
+          page ++;
+        });
+
+        // Slide right on 'Back'
+        $('.prev-offer').click(function() {
+          var $lefty = $('#offer-'+(page-1)+'');
+          var $righty = $('#offer-'+page+'');
+
+          $lefty.show();
+          $lefty.animate({
+            left: 0
+          }, 777);
+          $righty.animate({
+            left: parseInt($lefty.outerWidth())
+          }, 777);
+
+          setTimeout(function() {
+              $righty.hide();
+          }, 1000);
+
+          $('#progress-'+(page-1)+'').addClass('progress-highlight').siblings('label').addClass('blue');
+          $('#progress-'+page+'').removeClass('progress-highlight').siblings('label').removeClass('blue');
+
+          page --;
         });
       });
     </script>
