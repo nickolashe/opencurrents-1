@@ -822,18 +822,6 @@ a.list-group-item {
   display: none;
 }
 
-/* Error messages */
-
-.errorlist {
-  list-style-type: none;
-  display: inline-block;
-  margin-left: 0;
-}
-
-.invalid-input {
-  border-color: #890045;
-}
-
 /* Titles */
 .title {
   margin-top: 2.5rem;
