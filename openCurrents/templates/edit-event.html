@@ -105,9 +105,17 @@
 
           <div class="row">
             <div class="small-6 small-centered columns">
-              <input type='submit' name='save-button' class="one-margin-top button round" value="Save"></button>
-              <input type='submit' name='del-button' class="one-margin-top button round" value="Delete"></button>
-              <p><a class="template-popup_open">Save template...</a></p>
+              <input type='submit' name='save-button' class="one-margin-top button round" value="Save event">
+              <p><a class="button round tiny alert">Delete event</a></p>
+             <!--  <p><a class="template-popup_open">Save template...</a></p> -->
+            </div>
+          </div>
+
+          <div class="delete-event-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+            <div class="row center">
+              <h3 class="popup-title">Are you sure?</h3>
+              <input type='submit' name='del-button' class="button round alert" value="Yes, delete event">
+              <a class="button round secondary">Cancel</a>
             </div>
           </div>
         </form>
@@ -157,7 +165,7 @@
 
     <script type="text/javascript">
       $(document).ready(function(){
-        $('#template-popup').popup({
+        $('#template-popup, #delete-event-popup').popup({
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: true,
