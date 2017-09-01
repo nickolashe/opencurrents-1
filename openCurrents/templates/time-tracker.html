@@ -1,4 +1,5 @@
 {% load staticfiles %}
+{% load tags %}
 
 <!DOCTYPE html>
 <html>
@@ -17,16 +18,31 @@
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
         <div class="row">
-          {% if status_msg %}
-            <div class="alert row one-margin-bottom">
-              {{status_msg}}
-            </div>
-          {% endif %}
           <h3 class="title-sub">Record volunteer hours</h3>
+
+            {% if status_msg %}
+              <div class="alert row one-margin-bottom">
+                {{status_msg}}
+              </div>
+            {% endif %}
         </div>
 
         <form action ="" method="post">
           {% csrf_token %}
+
+          {% if form.errors %}
+            <div class="row">
+              {% for field, error in form.errors.iteritems %}
+                <div class="center alert">
+                  {% if field != '__all__' %}
+                    {{ field|addstr:': '}} {{ error }}
+                  {% else %}
+                    {{ error }}
+                  {% endif %}
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
 
           <div class="row">
             <div class="left medium-8 small-centered columns">
