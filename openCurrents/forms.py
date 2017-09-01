@@ -335,6 +335,8 @@ class EventRegisterForm(forms.Form):
 
 class TrackVolunteerHours(forms.Form):
 
+    error_css_class = 'form-error'
+
     choices_init = [("select_org","Select organization")]
     choices = [
         (orguser.org.id, orguser.org.name)
@@ -392,6 +394,14 @@ class TrackVolunteerHours(forms.Form):
             'value': '12:00:00'
         })
     )
+
+    def is_valid(self):
+        super(TrackVolunteerHours, self).is_valid()
+        for f in self.fields:
+         if self.fields[f].error_messages is not None:
+             for k, v in self.fields[f].error_messages.iteritems():
+                 logger.debug(': '.join([f, str(k), str(v)]))
+             self.fields[f].widget.attrs['class'] = 'invalid-input'
 
     def clean(self):
         cleaned_data = super(TrackVolunteerHours, self).clean()
