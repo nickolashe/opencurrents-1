@@ -35,6 +35,7 @@ urlpatterns = [
     url(r'^invite-friends/(?P<referrer>[\w\.@\+\-]*)$',
         views.InviteFriendsView.as_view(), name='invite-friends'),
     url(r'^approve-hours$', views.ApproveHoursView.as_view(), name='approve-hours'),
+    url(r'^approve-hours/(?P<vols_approved>\d+)/(?P<vols_declined>\d+)/$', views.ApproveHoursView.as_view(), name='approve-hours'),
     url(r'^causes$', views.CausesView.as_view(), name='causes'),
     url(r'^edit-hours$', views.EditHoursView.as_view(), name='edit-hours'),
     url(r'^export-data$', views.ExportDataView.as_view(), name='export-data'),
@@ -72,6 +73,7 @@ urlpatterns = [
     url(r'^profile/(?P<app_hr>(1|0))/$', views.ProfileView.as_view(), name='profile'),
     url(r'^profile/(?P<status_msg>.*)/$', views.ProfileView.as_view(), name='profile'),
     url(r'^admin-profile$', views.AdminProfileView.as_view(), name='admin-profile'),
+    url(r'^admin-profile/(?P<vols_approved>\d+)/(?P<vols_declined>\d+)/$', views.AdminProfileView.as_view(), name='admin-profile'),
     url(r'^admin-profile/(?P<num_vols>\d+)/$', views.AdminProfileView.as_view(), name='admin-profile'),
     url(r'^edit-profile$', views.EditProfileView.as_view(), name='edit-profile'),
     url(r'^blog$', views.BlogView.as_view(), name='blog'),
@@ -98,11 +100,13 @@ urlpatterns = [
 
 
     # functional views
+    url(r'^event_checkin/(?P<pk>\d+)/$', views.event_checkin, name='event_checkin'),
     url(r'^event_register/(?P<pk>\d+)/$', views.event_register, name='event_register'),
     url(r'^event_register_live/(?P<eventid>\d+)/$',
         views.event_register_live, name='event_register_live'),
-    url(r'^event_checkin/(?P<pk>\d+)/$', views.event_checkin, name='event_checkin'),
+    url(r'^org_user_list/(?P<org_id>\d+)/$', views.org_user_list, name='org_user_list'),
     url(r'^process_login/$', views.process_login, name='process_login'),
+    url(r'^process_OrgNomination/$', views.process_OrgNomination, name='process_OrgNomination'),
     url(r'^process_logout/$', views.process_logout, name='process_logout'),
     url(r'^process_resend_verification/(?P<user_email>[\w\.@\+\-]+)/$', views.process_resend_verification, name='process_resend_verification'),
     url(r'^process_resend_password/(?P<user_email>[\w\.@\+\-]+)/$', views.process_resend_password, name='process_resend_password'),
