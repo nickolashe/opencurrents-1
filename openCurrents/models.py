@@ -227,7 +227,7 @@ class UserTimeLog(models.Model):
     is_verified = models.BooleanField(default=False)
     deferments = models.ManyToManyField(
         User,
-        through='DeferredUserTime',
+        through='AdminActionUserTime',
         related_name='deferments'
     )
 
@@ -255,7 +255,7 @@ class UserTimeLog(models.Model):
         if self.datetime_end:
             minutes = ' '.join([
                 str(diffInHours(self.datetime_start, self.datetime_end)),
-                'min.'
+                'hours'
             ])
         else:
             minutes = '(but has not been checked out)'
@@ -264,23 +264,34 @@ class UserTimeLog(models.Model):
         return status
 
 
-class DeferredUserTime(models.Model):
+class AdminActionUserTime(models.Model):
     user = models.ForeignKey(User)
     usertimelog = models.ForeignKey(UserTimeLog)
+    action_type_choices = (
+        ('app', 'approved'),
+        ('def', 'deferred'),
+        ('dec', 'declined'),
+        ('req', 'approval_request')
+    )
+    action_type = models.CharField(
+        max_length=3,
+        choices=action_type_choices
+    )
 
     # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)
     date_updated = models.DateTimeField('date updated', auto_now=True)
 
     class Meta:
-        unique_together = ('user', 'usertimelog')
+        unique_together = ('action_type', 'user', 'usertimelog')
 
     def __unicode__(self):
         return ' '.join([
             self.usertimelog.event.project.org.name,
             'admin',
             self.user.email,
-            'deferred time by',
+            self.action_type,
+            'time by',
             self.usertimelog.user.email,
             'starting on',
             str(self.usertimelog.datetime_start),

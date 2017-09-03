@@ -42,7 +42,7 @@
                   You have approved hours for {{ vols_approved }} volunteer{{ vols_approved|pluralize }}. Nice!
 
               {% elif vols_approved|add:"0" == 0 and vols_declined|add:"0" >= 1 %}
-                  You have declined hours for {{ vols_declined }} volunteer{{ vols_declined|pluralize }}.
+                  You have declined hours for {{ vols_declined }} volunteer{{ vols_declined|pluralize }}. 
 
               {% endif %}
             </div>
@@ -119,6 +119,7 @@
               {% for event in events_group_upcoming %}
                 <div class="row hover-row one-margin-bottom">
                   <div class="left small-9 columns">
+                    
                     Let's {{event.project.name}}!
                     on {{event.datetime_start|day:timezone}}
                     at {{event.datetime_start|time:timezone}}
@@ -162,13 +163,12 @@
                       at <strong>{{event.location}}</strong>
                     </div>
 
-                    <div class="right relative small-2 columns end">
-                      <a class="mini-open"><i class="blue fa-chevron-circle-down fa fa-lg"></i></a>
-                      <ul class="mini-menu">
-                        <a href="{% url 'openCurrents:live-dashboard' event.id %}"><li>Review attendees</li></a>
-                      </ul>
-                    </div>
+                  <div class="right input-right small-4 collapse columns">
+                    <a href="{% url 'openCurrents:live-dashboard' event.id %}"/>
+                      <button class="button round small secondary">Attendees</button>
+                    </a>
                   </div>
+                </div>
               {% endfor %}
 
             </div>
@@ -266,7 +266,7 @@
         });
       });
       function status(){
-        $('#status_msg').html("You already have all the hours approved.");
+        $('#status_msg').html("You have reviewed all hours submitted to you. Nicely done!");
       }
     </script>
 
