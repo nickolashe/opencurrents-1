@@ -355,7 +355,8 @@ label {
 }
 
 .styled-radio + label {
-  margin-right: 0.5rem;
+  margin-right: 0.25rem;
+  margin-left: 0.25rem;
   margin-bottom: 1rem;
 }
 
