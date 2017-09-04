@@ -65,7 +65,7 @@
               {% if form.contact_message.help_text %}
                 <p class="small-text grey no-margin-bottom">
                   {% if not coordinator %}
-                    ({{ form.contact_message.help_text|safe }})
+                    {{ form.contact_message.help_text|safe }}
                   {% endif %}
                 </p>
               {% endif %}
