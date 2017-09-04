@@ -19,5 +19,9 @@ def time(val, tz='UTC'):
 
 @register.filter
 def keyvalue(d, key):
-    logger.info(key)
     return d[key]
+
+@register.filter
+def addstr(arg1, arg2):
+    """concatenate arg1 & arg2"""
+    return str(arg1) + str(arg2)

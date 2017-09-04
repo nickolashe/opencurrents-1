@@ -44,7 +44,7 @@
                        <input type="hidden" id="week_month" name="" value="{{key_m.date.month}}-{{key_m.date.day}}-{{key_m.date.year}}"> 
                           
                        {% for key,value in value_m.iteritems %}
-                           <li class="accordion-item" data-accordion-item>  
+                           <li class="accordion-item {% if forloop.first %}is-active{% endif %}" data-accordion-item>  
                              <a href="#" class="accordion-title">{% for k, v in value.items %} {% if k == "name" %} {{v}} {% endif %}{% endfor %}
                                <span class="float-right">
                                  {% for k, v in value.items %} {% if k == "Total" %} {{v}} {% endif %}{% endfor %} hrs
@@ -67,12 +67,12 @@
                                {% endfor %}
 
                                <p class="edit-volunteer center">
-                                 <input type="radio" id="defer-vol-1" name="vol-status-1" class="vol-radio hidden" />
+                                 <!-- <input type="radio" id="defer-vol-1" name="vol-status-1" class="vol-radio hidden" />
                                    <label for="defer-vol-1">
                                       <a onclick="def_vol(this)" class="defer-volunteer button round tiny caution" tabindex="0">Defer hours
                                       <span style="display:none">{{key}}</span>
                                    </a>
-                                   </label>
+                                   </label> -->
                                  <input type="radio" id="decline-vol-1" name="vol-status-1" class="vol-radio hidden"/>
                                    <label for="decline-vol-1">
                                      <a onclick="dec_vol(this)" class="decline-volunteer button round tiny alert">Decline hours
@@ -85,9 +85,9 @@
                                <span style="display:none">{{key}}</span>
                                </a></p>
 
-                               <p class="volunteer-deferred hidden caution">Volunteer deferred. <a onclick="def_undo_vol(this)" class="undo-defer">Undo
+                               <!-- <p class="volunteer-deferred hidden caution">Volunteer deferred. <a onclick="def_undo_vol(this)" class="undo-defer">Undo
                               <span style="display:none">{{key}}</span>
-                             </a></p>
+                             </a></p> -->
                              </div>
                            </li>
                          {% endfor %}
@@ -100,8 +100,8 @@
                <div class="row center">
                 <div class="small-12 medium-8 small-centered columns">
                  <!--<a href="{% url 'openCurrents:hours-approved' %}" onclick="test()" class="button round">Approve hours</a>-->
-                 <p class="no-margin-bottom">Hours will be approved unless you decline them. To see hours for additional weeks, please review this week first.</p>
-                 <button type='submit' class="one-margin-top button round">Confirm</button>
+                 <p class="no-margin-bottom">To see hours for additional weeks, please approve or decline the hours for this week first.</p>
+                 <button type='submit' class="one-margin-top button round">Approve</button>
                 </div>
                </div>
             </form>
