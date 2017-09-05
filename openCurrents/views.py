@@ -733,7 +733,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             usertimelog.save()
             self.create_approval_request(org.id, usertimelog, form_data['admin'])
 
-            return True
+            return True, None
 
         elif form_data['admin'] == 'other-admin':
             # TODO (@karbmk): switch to using forms
@@ -744,7 +744,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
 
                 # as of now, do not submit hours prior to admin registering
                 #self.create_approval_request(org.id,usertimelog,user)
-                return True
+                return True, None
             else:
                 return False, 'Please enter admin\'s email'
 
