@@ -2389,10 +2389,18 @@ def process_signup(request, referrer=None, endpoint=False, verify_email=True):
         if endpoint:
             return HttpResponse(user.id, status=201)
         else:
-            return redirect(
-               'openCurrents:check-email',
-               user_email
-            )
+            if org_name:
+                return redirect(
+                   'openCurrents:check-email',
+                   user_email,
+                   1
+                )
+            else:
+                return redirect(
+                   'openCurrents:check-email',
+                   user_email,
+                )
+                
 
     # fail with form validation error
     else:
