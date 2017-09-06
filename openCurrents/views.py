@@ -992,6 +992,7 @@ class AdminProfileView(OrgAdminPermissionMixin, SessionContextView, TemplateView
     def get_context_data(self, **kwargs):
         context = super(AdminProfileView, self).get_context_data(**kwargs)
         userid = context['userid']
+        admin_id = self.request.user.id
         orgid = context['orgid']
         org = Org.objects.get(pk=orgid)
         context['org_name'] = org.name
@@ -1031,13 +1032,24 @@ class AdminProfileView(OrgAdminPermissionMixin, SessionContextView, TemplateView
             for event in Event.objects.filter(project__org__id=orgid)
         ])
 
-        issued_total = 0
+        issued_by_all = 0
+        issued_by_admin = 0
+
         for timelog in verified_time:
             if not timelog.user.id in org_event_user[timelog.event.id]:
                 org_event_user[timelog.event.id].add(timelog.user.id)
-                issued_total += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
+                event_hours = (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
+                issued_by_all += event_hours
 
-        context['issued_total'] = round(issued_total, 2)
+                admin_approved_actions = timelog.adminactionusertime_set.filter(
+                    user_id=admin_id,
+                    action_type='app' 
+                )
+                if admin_approved_actions:
+                    issued_by_admin += event_hours
+
+        context['issued_by_all'] = round(issued_by_all, 2)
+        context['issued_by_admin'] = round(issued_by_admin, 2)
 
         # past org events
         context['events_group_past'] = Event.objects.filter(
@@ -1847,6 +1859,7 @@ class AddVolunteersView(TemplateView):
 @login_required
 def event_checkin(request, pk):
     form = EventCheckinForm(request.POST)
+    admin_id = request.user.id
 
     # validate form data
     if form.is_valid():
@@ -1860,12 +1873,8 @@ def event_checkin(request, pk):
         except:
             logger.error(
                 'Checkin attempted for non-existent event, userid: %s',
-                request.user.id
+                admin_id
             )
-
-            context = {
-                'errors': 'Checkin attempted for non-existent event'
-            }
 
             return HttpResponse(status=404)
 
@@ -1882,6 +1891,15 @@ def event_checkin(request, pk):
                 datetime_start=datetime.now(tz=pytz.UTC)
             )
             usertimelog.save()
+
+            # admin action record
+            actiontimelog = AdminActionUserTime(
+                user_id=admin_id,
+                usertimelog=usertimelog,
+                action_type='app'
+            )
+            actiontimelog.save()
+
             clogger.info(
                 'at %s: checkin',
                 str(usertimelog.datetime_start)
@@ -1897,6 +1915,13 @@ def event_checkin(request, pk):
                 )
                 usertimelog.save()
 
+                # admin action record
+                actiontimelog = AdminActionUserTime(
+                    user_id=admin_id,
+                    usertimelog=usertimelog,
+                    action_type='app'
+                )
+                actiontimelog.save()
 
             return HttpResponse(status=201)
         else:

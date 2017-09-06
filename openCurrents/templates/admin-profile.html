@@ -65,7 +65,9 @@
           <div class="one-margin-top right medium-4 large-3 columns end">
             <!--h6 class="no-margin-bottom two-line-height">My hours tracked: [my_total]</h6-->
 
-            <h6>Org hours tracked: {{ issued_total }}</h6>
+            <h6>Org hours tracked: {{ issued_by_all }}</h6>
+            <h6>Hours tracked by me: {{ issued_by_admin }}</h6>
+
               <a {% if user_time_log_status %} href="{% url 'openCurrents:approve-hours' %}" class="button round tiny"{% else %} href="javascript:status()" class="button round tiny secondary"{% endif %}">Approve hours</a>
           </div>
         </div>
@@ -78,7 +80,12 @@
 
             <div class="half-margin-top">
               <!-- <h6 class="no-margin-bottom">My hours tracked: 10.0</h6> -->
-              <h6 class="one-margin-bottom">Org hours tracked: {{ issued_total }}</h6>
+              <h6 class="one-margin-bottom">
+                Org hours tracked: {{ issued_by_all }}
+              </h6>
+              <h6 class="one-margin-bottom">
+                Hours tracked by me: {{ issued_by_admin }}
+              </h6>              
               <a href="{% url 'openCurrents:create-event' orgid %}" {% if user_time_log_status %} class="button secondary tiny round" {% else %} class="button tiny round" {% endif %}>Create event</a>
               <a {% if user_time_log_status %} href="{% url 'openCurrents:approve-hours' %}" class="button round tiny"{% else %} href="javascript:status()" class="button round tiny secondary"{% endif %}">Approve hours</a>
             </div>
