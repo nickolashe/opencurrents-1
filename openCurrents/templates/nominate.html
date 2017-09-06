@@ -13,16 +13,33 @@
       <div id="wrapper">
         <div class="row center">
           <div class="small-12 medium-8 small-centered columns">
-            <h3 class="title">Nominate an organization</h3>
-            <p>Do you know an employee of a nonprofit or social business? Might they like to give currency to low-paid staff at no extra cost? Tell them about openCurrents, and receive 3 Currents when the organization's leader activates the account.</p>
+            <h3 class="title-sub">Nominate an organization</h3>
+            <p>As a member of this community, you can help us grow by inviting an organization. Fill out this form and we'll reach out, but feel free to contact them personally as well.</p>
 
-            <p class="no-margin-bottom">Share your referral link to get credit:</p>
-            <p class="half-margin-bottom">
-              <span id="ref-link"><strong><a href="">www.opencurrents.com/invite/{{referrer}}</a></strong></span><button id="copy-link" data-text-swap="Copied" data-clipboard-target="ref-link" class="one-margin-left one-margin-top button round small secondary">Copy link</button>
-            </p>
+            <form method="post" action="{% url "openCurrents:process_OrgNomination" %}">
+              {% csrf_token %}
+              <div class="row three-halves-margin-bottom three-halves-margin-top">
+                <div class="center small-12 medium-9 small-centered columns">
 
-            <p>or send an email:</p>
-            <a href="{% url 'openCurrents:nomination-email' %}"><button class="button round">Preview email</button></a>
+                  <div id="org-signup-name" class="small-12 columns">
+                    <input type="text" name="org_name" placeholder="Organization name" class="center" tabindex="0" required />
+                  </div>
+
+                  <div class="small-12 columns">
+                    <input type="text" name="contact_name" placeholder="Contact name" class="center" tabindex="0" />
+                  </div>
+
+                  <div class="small-12 columns">
+                    <input type="email" name="contact_email" placeholder="Contact email address" class="center" tabindex="0" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="row center half-margin-top">
+                <input type="submit" class="button round" value="Nominate"/>
+                <p><a href="{% url 'openCurrents:profile' %}">Back to profile</a></p>
+              </div>
+            </form>
           </div>
         </div>
 

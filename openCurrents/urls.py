@@ -11,6 +11,7 @@ urlpatterns = [
         views.HomeView.as_view(), name='home'),
     url(r'^invite/(?P<referrer>[\w\.@\+\-]*)$', views.HomeView.as_view(), name='invite'),
     url(r'^check-email/(?P<user_email>[\w\.@\+\-]+)/$', views.CheckEmailView.as_view(), name='check-email'),
+    url(r'^check-email/(?P<user_email>[\w\.@\+\-]+)/(?P<orgid>\d+)/$', views.CheckEmailView.as_view(), name='check-email'),
     url(r'^check-email/(?P<user_email>[\w\.@\+\-]+)/(?P<status>.*)/$', views.CheckEmailView.as_view(), name='check-email'),
     url(r'^communities/$', views.CommunitiesView.as_view(), name='communities'),
     url(r'^reset-password/(?P<user_email>[\w\.@\+\-]+)/$', views.ResetPasswordView.as_view(), name='reset-password'),
@@ -63,7 +64,7 @@ urlpatterns = [
     url(r'^user-home/$', views.UserHomeView.as_view(), name='user-home'),
     url(r'^user-home/(?P<status_msg>.*)/$', views.UserHomeView.as_view(), name='user-home'),
     url(r'^verify-identity$', views.VerifyIdentityView.as_view(), name='verify-identity'),
-    url(r'^time-tracker$', views.TimeTrackerView.as_view(), name='time-tracker'),
+    url(r'^time-tracker/$', views.TimeTrackerView.as_view(), name='time-tracker'),
     url(r'^time-tracker/(?P<status_msg>.*)/$', views.TimeTrackerView.as_view(), name='time-tracker'),
     url(r'^time-tracked$', views.TimeTrackedView.as_view(), name='time-tracked'),
     url(r'^volunteer$', views.VolunteerView.as_view(), name='volunteer'),
@@ -99,11 +100,13 @@ urlpatterns = [
 
 
     # functional views
+    url(r'^event_checkin/(?P<pk>\d+)/$', views.event_checkin, name='event_checkin'),
     url(r'^event_register/(?P<pk>\d+)/$', views.event_register, name='event_register'),
     url(r'^event_register_live/(?P<eventid>\d+)/$',
         views.event_register_live, name='event_register_live'),
-    url(r'^event_checkin/(?P<pk>\d+)/$', views.event_checkin, name='event_checkin'),
+    url(r'^org_user_list/(?P<org_id>\d+)/$', views.org_user_list, name='org_user_list'),
     url(r'^process_login/$', views.process_login, name='process_login'),
+    url(r'^process_OrgNomination/$', views.process_OrgNomination, name='process_OrgNomination'),
     url(r'^process_logout/$', views.process_logout, name='process_logout'),
     url(r'^process_resend_verification/(?P<user_email>[\w\.@\+\-]+)/$', views.process_resend_verification, name='process_resend_verification'),
     url(r'^process_resend_password/(?P<user_email>[\w\.@\+\-]+)/$', views.process_resend_password, name='process_resend_password'),

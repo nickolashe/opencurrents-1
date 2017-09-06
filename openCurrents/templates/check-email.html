@@ -12,13 +12,16 @@
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
         <div class="row">
-          <h3 class="title-sub">Check your email</h3>
-          <p class="two-margin-bottom">To confirm your account, click the link in the email that we just sent to <strong>{{ user_email }}</strong>.</p>
+          <div class="medium-8 small-centered columns">
+            <h3 class="title">Check your email</h3>
+
+            <p>So good of you to join us! {% if orgid %}We've created your personal account and will be in touch with next steps. {% endif %}To verify your email, click the link that we just sent to <strong>{{ user_email }}</strong>.</p>
+          </div>
         </div>
 
           <form method="post" action="{% url 'openCurrents:process_resend_verification' user_email %}">
                   {% csrf_token %}
-                  <div class="row center half-margin-top">
+                  <div class="row center one-margin-top">
                     <input type="submit" class="resend-email_open button round" value="Resend email"/>
                   </div>
           </form>
