@@ -1123,7 +1123,7 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
             project=self.project,
             description=form_data['description'],
             location=location,
-            is_public=form_data['event_privacy'],
+            is_public=form_data['is_public'],
             datetime_start=form_data['datetime_start'],
             datetime_end=form_data['datetime_end'],
             coordinator_firstname=form_data['coordinator_firstname'],
@@ -1131,6 +1131,7 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
             creator_id = self.userid
         )
         event.save()
+
         try:
             orguser = OrgUserInfo(self.userid)
             coord_user = User.objects.get(email=form_data['coordinator_email'])
@@ -1188,10 +1189,9 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
                         e.message,
                         type(e)
                     )
-        # if given coordinator_email does not exist as a user object
+        # if given coordinator_email does not exist
         except ObjectDoesNotExist:
-            logger.info("Given coordinator_email does not exist as a User object")
-            pass
+            logger.debug('Coordinator does not exist')
 
         return event.id
 
@@ -1218,24 +1218,19 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
             for (key, val) in self.request.POST.iteritems()
             if 'event-location' in key
         ]
-        data = form.cleaned_data
-        if data['project_name'] in project_names:
+        form_data = form.cleaned_data
+        if form_data['project_name'] in project_names:
             logger.info('event found')
             self.project = Project.objects.get(
                 org__id=self.orgid,
-                name=data['project_name']
+                name=form_data['project_name']
             )
         else:
             self.project = None
 
-        # public boolean - needs to handled through forms
-        if str(self.request.POST['is_public']) == '1':
-            data['event_privacy'] = True
-        else:
-            data['event_privacy'] = False
-
         # create an event for each location
-        event_ids = map(lambda loc: self._create_event(loc, data), locations)
+        event_ids = map(lambda loc: self._create_event(loc, form_data), locations)
+
         return redirect(
             'openCurrents:invite-volunteers',
             json.dumps(event_ids)
