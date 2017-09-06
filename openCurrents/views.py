@@ -1317,12 +1317,12 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
 
         # public boolean - needs to handled through forms
         if str(self.request.POST['is_public']) == '1':
-            data['event_privacy'] = True
+            form_data['event_privacy'] = True
         else:
-            data['event_privacy'] = False
+            form_data['event_privacy'] = False
 
         # create an event for each location
-        event_ids = map(lambda loc: self._create_event(loc, data), locations)
+        event_ids = map(lambda loc: self._create_event(loc, form_data), locations)
         return redirect(
             'openCurrents:invite-volunteers',
             json.dumps(event_ids)
