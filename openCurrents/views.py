@@ -524,17 +524,6 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
             vols_approved,
             vols_declined
         )
-        #return redirect('openCurrents:approve-hours')
-        return redirect('openCurrents:approve-hours', vols_approved, vols_declined)
-        #templist[:] = [item.split(':')[0] for item in templist if item != '' and item.split(':')[1]!='0']
-        # try:
-        #     for i in templist:
-        #         user = User.objects.get(username=i)
-        #         time_log = UserTimeLog.objects.filter(user=user).update(is_verified = True);
-        #     return redirect('openCurrents:hours-approved')
-        # except:
-        #     return redirect('openCurrents:500')
-
 
     def get_hours_rounded(self, datetime_start, datetime_end):
         return math.ceil((datetime_end - datetime_start).total_seconds() / 3600 * 4) / 4
