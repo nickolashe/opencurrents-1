@@ -783,7 +783,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         if doInvite:
             try:
                 sendContactEmail(
-                    'invite-admin',
+                    'volunteer-invites-admin',
                     None,
                     [
                         {
