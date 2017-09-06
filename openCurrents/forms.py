@@ -289,6 +289,8 @@ class ProjectCreateForm(forms.Form):
 
     def clean(self):
         cleaned_data = super(ProjectCreateForm, self).clean()
+        #logger.info('is_public: %s', cleaned_data['is_public'])
+
         date_start = cleaned_data['date_start']
         time_start = cleaned_data['time_start']
         time_end = cleaned_data['time_end']
