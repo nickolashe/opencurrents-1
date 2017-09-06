@@ -1315,12 +1315,6 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
         else:
             self.project = None
 
-        # public boolean - needs to handled through forms
-        if str(self.request.POST['is_public']) == '1':
-            form_data['event_privacy'] = True
-        else:
-            form_data['event_privacy'] = False
-
         # create an event for each location
         event_ids = map(lambda loc: self._create_event(loc, form_data), locations)
         return redirect(
