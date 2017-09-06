@@ -1878,6 +1878,7 @@ def event_checkin(request, pk):
             usertimelog = UserTimeLog(
                 user=User.objects.get(id=userid),
                 event=event,
+                is_verified=True,
                 datetime_start=datetime.now(tz=pytz.UTC)
             )
             usertimelog.save()
@@ -1891,6 +1892,7 @@ def event_checkin(request, pk):
                 usertimelog = UserTimeLog(
                     user=User.objects.get(id=request.user.id),
                     event=event,
+                    is_verified=True,                    
                     datetime_start=datetime.now(tz=pytz.UTC)
                 )
                 usertimelog.save()
@@ -1922,12 +1924,6 @@ def event_checkin(request, pk):
 
     else:
         logger.error('Invalid form: %s', form.errors.as_data())
-
-        context = {
-            'form': form,
-            'errors': form.errors.as_data().values()[0][0]
-        }
-
         return HttpResponse(status=400)
 
 
