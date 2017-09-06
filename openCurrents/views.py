@@ -767,6 +767,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         return True
 
     def invite_new_admin(self, org, admin_email, admin_name):
+        user_new = None
         doInvite = False
         try:
             user_new = User.objects.get(username = admin_email)
@@ -782,20 +783,20 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
 
         if doInvite:
             try:
-                sendContactEmail(
-                    'invite-admin',
+                sendTransactionalEmail(
+                    'volunteer-invites-admin',
                     None,
                     [
                         {
-                            'name': 'FNAME',
+                            'name': 'ADMIN_FNAME',
                             'content': admin_name
                         },
                         {
-                            'name': 'ADMIN_FNAME',
+                            'name': 'FNAME',
                             'content': self.request.user.first_name
                         },
                         {
-                            'name': 'ADMIN_LNAME',
+                            'name': 'LNAME',
                             'content': self.request.user.last_name
                         },
                         {
@@ -811,8 +812,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                             'content': admin_email
                         }
                     ],
-                    admin_email,
-                    self.request.user.email
+                    admin_email
                 )
             except Exception as e:
                 logger.error(
