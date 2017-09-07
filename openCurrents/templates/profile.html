@@ -73,8 +73,9 @@
                 <div class="row one-margin-bottom">
                   <div class="left small-9 columns">
                     <strong>Let's {{event.project.name}}!</strong>
+                    with {{event.project.org.name}} 
                     on {{event.datetime_start|day:timezone}}
-                    at {{event.datetime_start|time:timezone}}
+                    from {{event.datetime_start|time:timezone}}
                     to {{event.datetime_end|time:timezone}}
                     at {{event.location}}
                   </div>
