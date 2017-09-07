@@ -45,7 +45,7 @@ from openCurrents.forms import \
     EventRegisterForm, \
     EventCheckinForm, \
     OrgNominationForm, \
-    TrackVolunteerHours
+    TimeTrackerForm
 
 from datetime import datetime, timedelta
 
@@ -630,7 +630,7 @@ class VerifyIdentityView(TemplateView):
 
 class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
     template_name = 'time-tracker.html'
-    form_class = TrackVolunteerHours
+    form_class = TimeTrackerForm
 
     def track_hours(self, form_data):
         userid = self.request.user.id
