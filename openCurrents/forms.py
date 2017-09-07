@@ -1,9 +1,10 @@
 from django import forms
+from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext as _
 from django.forms import ModelForm
 
-from openCurrents.models import Project, Org, OrgUser, User
+from openCurrents.models import Project, Org, OrgUser
 
 from datetime import datetime
 
@@ -335,16 +336,32 @@ class EventRegisterForm(forms.Form):
     )
 
 
-class TrackVolunteerHours(forms.Form):
+class TimeTrackerForm(forms.Form):
 
-    choices_init = [("select_org","Select organization")]
-    choices = [
-        (orguser.org.id, orguser.org.name)
-        for orguser in OrgUser.objects.all().order_by('org__name')
+    choices_init = [("select_org", "Select organization")]
+
+    # obtain the list of orgs with at least one approved admin
+    orgs_approved_admins = Group.objects.filter(
+        user__isnull=False
+    ).filter(
+        name__startswith='admin_'
+    )
+
+    org_ids = [
+        int(org_admin_group.name.split('_')[1])
+        for org_admin_group in orgs_approved_admins
     ]
-    choices = choices_init + list(set(choices))
+    choices_orgs_approved_admins = [
+        (org.id, org.name)
+        for org in Org.objects.filter(
+            id__in=org_ids
+        ).order_by(
+            'name'
+        )
+    ]
+
     org = forms.ChoiceField(
-        choices=choices,
+        choices=choices_init + choices_orgs_approved_admins,
         widget=forms.Select(attrs={
             'id': 'id_org_choice'
         })
@@ -396,7 +413,7 @@ class TrackVolunteerHours(forms.Form):
     )
 
     def clean(self):
-        cleaned_data = super(TrackVolunteerHours, self).clean()
+        cleaned_data = super(TimeTrackerForm, self).clean()
         date_start = cleaned_data['date_start']
         time_start = cleaned_data['time_start']
         time_end = cleaned_data['time_end']
