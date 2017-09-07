@@ -29,7 +29,7 @@
                 {% if event.event_type != "MN" %}
                   <div class="upcoming-event">
                     <div class="input-left small-9 columns">
-                      <strong><a href="{% url 'openCurrents:event-detail' event.id %}"> {{ event.project.name }} </a></strong>
+                      <strong>Let's <a href="{% url 'openCurrents:event-detail' event.id %}"> {{ event.project.name }}! </a></strong>
                       with <strong> {{ event.project.org.name }}</strong>
                       on {{ event.datetime_start|day }}
                       {{ event.datetime_start|time }} -
