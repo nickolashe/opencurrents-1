@@ -655,6 +655,10 @@ label {
   white-space: nowrap;
 }
 
+.hidden-overflow {
+  overflow: hidden;
+}
+
 .no-bullet {
   list-style-type: none;
 }
@@ -1101,7 +1105,7 @@ a.list-group-item {
 
 .dollar-price {
   text-indent: 11px;
-  width: 44px;
+  width: 46px;
 }
 
 .current-price {
@@ -1418,12 +1422,7 @@ input[type="checkbox"] + label.vol-arrived {
   display: none;
 }
 
-#offer-value-title {
-  position: absolute;
-  right: 111px;
-}
-
-#discount-amount {
+.discount-amount {
   width: 34px;
   margin-top: 0;
 }
