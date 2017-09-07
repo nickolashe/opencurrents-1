@@ -2167,9 +2167,9 @@ def org_user_list(request, org_id):
             'firstname': orguser.user.first_name,
             'lastname': orguser.user.last_name
         })
-        #':'.join([orguser.user.first_name, orguser.user.last_name])
         for orguser in org_user
-        if orguser.user.id != request.user.id
+        # include current userid, instead disable it in select GUI
+        #if orguser.user.id != request.user.id
     ])
 
     return HttpResponse(
