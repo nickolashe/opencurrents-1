@@ -103,7 +103,6 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 0.875rem;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
-  margin-top: -3px;
 }
 
 .button {
@@ -306,6 +305,13 @@ select:focus {
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='32' height='24' viewBox='0 0 32 24'><polygon points='0,0 32,0 16,24' style='fill: #r1f4975'></polygon></svg>");
 }
 
+select[disabled] {
+  color: #999999;
+  border-color: #999999;
+  background-color: #ffffff;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='32' height='24' viewBox='0 0 32 24'><polygon points='0,0 32,0 16,24' style='fill: #999999'></polygon></svg>");
+}
+
 input::-webkit-input-placeholder,
 textarea::-webkit-input-placeholder {
   color: #999999; }
@@ -349,7 +355,8 @@ label {
 }
 
 .styled-radio + label {
-  margin-right: 0.5rem;
+  margin-right: 0.25rem;
+  margin-left: 0.25rem;
   margin-bottom: 1rem;
 }
 
@@ -596,7 +603,7 @@ label {
   font-weight: 700;
 }
 
-.hide-text {
+.trim-text {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -646,6 +653,10 @@ label {
 
 .no-wrap {
   white-space: nowrap;
+}
+
+.no-bullet {
+  list-style-type: none;
 }
 
 .arrow-cursor {
@@ -814,6 +825,15 @@ a.list-group-item {
   background-color: #ffffff;
   margin-top: 4rem;
   display: none;
+}
+
+/* Error messages */
+
+.errorlist {
+  list-style-type: none;
+  display: inline-block;
+  margin-left: 0;
+  margin-bottom: 0.5rem;
 }
 
 /* Titles */
@@ -1265,6 +1285,11 @@ i:hover ~ .addtocalendar {
 }
 
 /* admin-profile */
+
+#org-hours-total {
+  margin-top: 1.25rem;
+  margin-bottom: 0;
+}
 
 #live-project-list {
   font-size: 0.875rem;

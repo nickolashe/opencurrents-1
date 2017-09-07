@@ -75,6 +75,7 @@
             <input type="radio" id="event-privacy-2" name="event-privacy" value="2" class="hidden styled-radio" {% if not event.is_public %} checked {% endif %}/>
               <label for="event-privacy-2" class="button round secondary tiny">Invite only</label>
 
+            <a class="privacy-info-popup_open"><i class="half-margin-left fa fa-lg fa-question-circle grey"></i></a>
           </div>
 
           <div class="one-margin-top row left">
@@ -105,9 +106,17 @@
 
           <div class="row">
             <div class="small-6 small-centered columns">
-              <input type='submit' name='save-button' class="one-margin-top button round" value="Save"></button>
-              <input type='submit' name='del-button' class="one-margin-top button round" value="Delete"></button>
-              <p><a class="template-popup_open">Save template...</a></p>
+              <input type='submit' name='save-button' class="one-margin-top button round" value="Save event">
+              <p><a class="button round tiny alert">Delete event</a></p>
+             <!--  <p><a class="template-popup_open">Save template...</a></p> -->
+            </div>
+          </div>
+
+          <div class="delete-event-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+            <div class="row center">
+              <h3 class="popup-title">Are you sure?</h3>
+              <input type='submit' name='del-button' class="button round alert" value="Yes, delete event">
+              <a class="button round secondary">Cancel</a>
             </div>
           </div>
         </form>
@@ -154,10 +163,29 @@
       </div>
     </div>
 
+    <div id="privacy-info-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h3 class="popup-title">Public or private?</h3>
+      </div>
+
+      <div class="row left">
+        <div class="small-centered medium-10 columns">
+          <p><strong>Public events</strong><br/>
+          Select "Public" if you would like this event to be seen by anyone looking for volunteer opportunities.
+          </p>
+
+          <p><strong>Invite only events</strong><br/>
+          Select "Invite only" if you would like this event to only be available to people you invite. It will not be displayed as an upcoming event to volunteers you don't invite.
+          </p>
+
+          <p class="center three-halves-margin-top"><a class="privacy-info-popup_close button round">Got it</a></p>
+        </div>
+      </div>
+    </div>
 
     <script type="text/javascript">
       $(document).ready(function(){
-        $('#template-popup').popup({
+        $('#template-popup, #privacy-info-popup, #delete-event-popup').popup({
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: true,

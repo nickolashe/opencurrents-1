@@ -178,8 +178,9 @@ input.home-input::placeholder {
 }
 
 #home-tagline {
-  line-height: 1.2;
-  margin-top: 2.5rem;
+  font-size: 1.875rem;
+  margin-top: 3.5rem;
+  margin-bottom: 1.25rem;
 }
 
 #home-symbol {
@@ -345,6 +346,8 @@ input.home-input::placeholder {
 
   #home-tagline {
     margin-top: 4.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 2.75rem;
   }
 
   #signup-box .button:hover {

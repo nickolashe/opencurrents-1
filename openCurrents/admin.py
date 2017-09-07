@@ -9,7 +9,7 @@ from openCurrents.models import Account, \
     Event, \
     UserEventRegistration, \
     UserTimeLog, \
-    DeferredUserTime
+    AdminActionUserTime
 
 admin.site.register(Account)
 admin.site.register(Org)
@@ -19,4 +19,4 @@ admin.site.register(Project)
 admin.site.register(Event)
 admin.site.register(UserEventRegistration)
 admin.site.register(UserTimeLog)
-admin.site.register(DeferredUserTime)
+admin.site.register(AdminActionUserTime)
