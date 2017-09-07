@@ -293,6 +293,7 @@ select {
   border: none;
   border-bottom: 1px solid #24b2e7;
   line-height: inherit;
+  height: auto;
 }
 
 select:hover {
@@ -654,7 +655,11 @@ label {
 .fit-left {
   float: left;
   display: inline-block;
-  margin-top: 0.5rem;
+}
+
+.fit-right {
+  float: right;
+  display: inline-block;
 }
 
 .input-sizer {
@@ -1051,7 +1056,6 @@ a.list-group-item {
 
 .currency-input {
   position: relative;
-  padding-left: 0.25rem;
 }
 
 .current-placeholder {
@@ -1059,19 +1063,25 @@ a.list-group-item {
   position: absolute;
   top: 10px;
   left: 10px;
-  color: #999999;
+}
+
+.value-placeholder {
+  display: inline-block;
+  position: absolute;
+  top: 7px;
+  left: 55px;
 }
 
 .dollar-placeholder {
   position: absolute;
   top: 8px;
-  left: 15px;
+  left: 14px;
   color: #999999;
 }
 
 .dollar-price {
-  text-indent: 20px;
-  min-width: 60px;
+  text-indent: 11px;
+  width: 44px;
 }
 
 .current-price {
@@ -1383,14 +1393,14 @@ input[type="checkbox"] + label.vol-arrived {
   display: none;
 }
 
-/*#discount-amount {
-  width: 50px;
-  padding-bottom: 0.375rem
+#offer-value-title {
+  position: absolute;
+  right: 111px;
 }
 
-#discount-type {
-  width: 111px;
-  margin-left: 0.5rem;
+#discount-amount {
+  width: 34px;
+  margin-top: 0;
 }
 
 #item-name {

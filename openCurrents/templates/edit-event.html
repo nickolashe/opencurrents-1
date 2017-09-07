@@ -32,14 +32,14 @@
           <div class="row one-margin-bottom">
             <div class="small-12 medium-6 small-centered columns">
 
-              <h6 class="fit-left navy">Let's...</h6>
+              <h6 class="fit-left navy half-margin-top">Let's...</h6>
               <span class="input-sizer"><input name="project-name" class="center" type="text" placeholder="do some good" value="{{ event.project.name }}"/></span>
             </div>
           </div>
 
           <div class="row one-margin-bottom">
             <div class="small-8 medium-4 small-centered columns">
-              <h6 class="fit-left navy">on</h6>
+              <h6 class="fit-left navy half-margin-top">on</h6>
               <span class="input-sizer"><input name="project-date" id="project-date" class="center" type="text" placeholder="yyyy-mm-dd" value="{{date_start}}" /></span>
             </div>
           </div>
@@ -48,12 +48,12 @@
             <div class="small-12 medium-6 small-centered columns">
               <div class="row">
                 <div class="input-left small-6 columns">
-                  <h6 class="fit-left navy">from</h6>
+                  <h6 class="fit-left navy half-margin-top">from</h6>
                   <span class="input-sizer"><input name="project-start" id="project-start" class="center" type="text" placeholder="12:00 pm" value="{{ start_time }}" /></span>
                 </div>
 
                 <div class="input-right small-6 columns">
-                  <h6 class="fit-left navy">to</h6>
+                  <h6 class="fit-left navy half-margin-top">to</h6>
                   <span class="input-sizer"><input name="project-end" id="project-end" class="center" type="text" placeholder="12:00 pm" value="{{end_time}}" /></span>
                 </div>
               </div>
@@ -62,7 +62,7 @@
 
           <div class="row center">
             <div id="location-box" class="small-8 medium-4 small-centered columns">
-              <h6 class="fit-left navy">at</h6>
+              <h6 class="fit-left navy half-margin-top">at</h6>
               <span class="input-sizer"><input name="project-location-1" id="project-location-1" type="text" class="center" placeholder="location" value="{{event.location}}"/></span>
             </div>
           </div>
@@ -181,7 +181,7 @@
       $('#add-location').click(function(){
         id ++;
 
-        $('#location-box').append('<div id="location-'+id+'" class="relative hidden"><h6 class="fit-left navy">&</h6><span class="input-sizer"><input name="project-location-'+id+'" id="project-location-'+id+'" type="text" class="center" placeholder="location"/></span><i class="remove-location fa fa-times-circle"></i></div>');
+        $('#location-box').append('<div id="location-'+id+'" class="relative hidden"><h6 class="fit-left navy half-margin-top">&</h6><span class="input-sizer"><input name="project-location-'+id+'" id="project-location-'+id+'" type="text" class="center" placeholder="location"/></span><i class="remove-location fa fa-times-circle"></i></div>');
         $('#location-'+id+'').slideDown();
 
       });

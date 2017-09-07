@@ -98,32 +98,76 @@
         <div id="offer-2" class="">
           <div class="row">
             <div class="small-12 medium-10 small-centered columns">
-              <h5>Offer details</h5>
+              <h5 class="half-margin-bottom">Offer details</h5>
+              <p class="grey">Example: "We offer 20% off Products at $10 per Current"
             </div>
           </div>
 
           <div class="row">
-            <div class="small-12 medium-10 small-centered columns">
+            <div class="small-12 medium-9 small-centered columns">
+              <div class="row left">
+                <div class="input-left small-4 medium-3 columns">
+                  <p><strong>Discount</strong></p>
+                </div>
+
+                <div class="input-right relative small-8 medium-9 columns">
+                  <p><strong>Item name</strong>
+                  <span id="offer-value-title"><strong>Value</strong><i class="grey half-margin-left fa fa-lg fa-question-circle"></i></span>
+                  </p>
+                </div>
+              </div>
+
               <div class="row">
-                <div class="small-6 columns">
-                  <input id="product-name-1" type="text" placeholder="Item name"/>
+                <div class="input-left small-4 medium-3 columns">
+                  <input name="discount-amount" id="discount-amount" type="number" class="fit-left qtr-margin-right" placeholder="20" value="20"/>
+                  <span class="input-sizer"><select name="discount-type">
+                    <option selected>% off</option>
+                    <option>$ off</option>
+                  </select></span>
                 </div>
-                
-                <div class="currency-input small-3 columns">
-                  <span class="dollar-placeholder">$</span>
-                  <input id="dollar-price-1" class="dollar-price" type="number" placeholder="10"/>
-                </div>
-                
-                <div class="currency-input small-3 columns">
-                  <img class="current-placeholder" src="{% static 'img/symbol.svg' %}"/>
+
+                <div class="input-middle small-8 medium-9 columns">
+                  <span class="fit-right">
+                    <span class="dollar-placeholder">$</span>
+                    <input id="current-price-1" class="dollar-price fit-left" type="number" placeholder="10" value="10"/>
+                  </span>
+                  <span class="input-sizer"><input id="good-name-1" type="text" placeholder="Item or category name" value="Products"/></span>
                   
-                  <input id="current-price-1" class="current-price" type="number" placeholder="1"/>
+
+                  <div class="value-placeholder"><span class="grey">per </span><img src="{% static 'img/symbol.svg' %}"/></div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="input-left small-4 medium-3 columns">
+                  <input name="discount-amount" id="discount-amount" type="number" class="fit-left qtr-margin-right" placeholder="20" value="20"/>
+                  <span class="input-sizer"><select name="discount-type">
+                    <option selected>% off</option>
+                    <option>$ off</option>
+                  </select></span>
+                </div>
+
+                <div class="input-middle small-4 medium-6 columns">
+                  <input id="good-name-1" type="text" placeholder="Item or category name" value="Products"/>
+                </div>
+                
+                <div class="currency-input input-right small-4 medium-3 columns">
+                  <span class="dollar-placeholder">$</span>
+                  <input id="current-price-1" class="dollar-price fit-left" type="number" placeholder="10" value="10"/>
+
+                  <div class="value-placeholder"><span class="grey">per </span><img src="{% static 'img/symbol.svg' %}"/></div>
+                </div>
+              </div>
+
+              <div class="row left half-margin-top">
+                <div class="columns">
+                  <a><i class="fa fa-plus-circle half-margin-right"></i>Add item or category</a>
                 </div>
               </div>
             </div>
           </div>
 
-          <div class="row two-margin-top">
+          <div class="row one-margin-top">
             <a class="prev-offer button round secondary">Back</a>
             <a class="next-offer button round">Next</a>
           </div>

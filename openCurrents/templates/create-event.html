@@ -55,7 +55,7 @@
           <div class="row one-margin-bottom">
             <div class="small-12 medium-6 small-centered columns">
               {{ form.project_name.errors }}
-              <h6 class="fit-left navy">{{ form.project_name.label }}</h6>
+              <h6 class="fit-left navy half-margin-top">{{ form.project_name.label }}</h6>
               <span class="input-sizer"> {{ form.project_name }} </span>
               {% if form.project_name.help_text %}
                 <p class="small">
@@ -68,7 +68,7 @@
           <div class="row one-margin-bottom">
             <div class="small-8 medium-4 small-centered columns">
               {{ form.date_start.errors }}
-              <h6 class="fit-left navy"> {{ form.date_start.label }} </h6>
+              <h6 class="fit-left navy half-margin-top"> {{ form.date_start.label }} </h6>
               <span class="input-sizer"> {{ form.date_start }} </span>
               {% if form.date_start.help_text %}
                 <p class="small">
@@ -83,7 +83,7 @@
               <div class="row">
                 <div class="input-left small-6 columns">
                   {{ form.time_start.errors }}
-                  <h6 class="fit-left navy"> {{ form.time_start.label }} </h6>
+                  <h6 class="fit-left navy half-margin-top"> {{ form.time_start.label }} </h6>
                   <span class="input-sizer"> {{ form.time_start }} </span>
                   {% if form.time_start.help_text %}
                     <p class="small">
@@ -94,7 +94,7 @@
 
                 <div class="input-right small-6 columns">
                   {{ form.time_end.errors }}
-                  <h6 class="fit-left navy"> {{ form.time_end.label }} </h6>
+                  <h6 class="fit-left navy half-margin-top"> {{ form.time_end.label }} </h6>
                   <span class="input-sizer"> {{ form.time_end }} </span>
                   {% if form.time_end.help_text %}
                     <p class="small">
@@ -109,7 +109,7 @@
           <div class="row no-margin-bottom center">
             <div id="location-box" class="small-8 medium-4 small-centered columns">
               <div id="location-1">
-                <h6 class="fit-left navy"> at </h6>
+                <h6 class="fit-left navy half-margin-top"> at </h6>
                 <span class="input-sizer">
                   <input class="location center" name="event-location-1" placeholder="location" type="text" required>
                 </span>
@@ -266,7 +266,7 @@
 
         $('#location-box').append(
           '<div id="location-'+id+'" class="relative hidden"> \
-              <h6 class="fit-left navy">&</h6> \
+              <h6 class="fit-left navy half-margin-top">&</h6> \
               <span class="input-sizer"> \
                 <input class="location center" name="event-location-'+id+'" placeholder="location" type="text" required> \
               </span> \
