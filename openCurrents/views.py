@@ -625,6 +625,10 @@ class MissionView(TemplateView):
     template_name = 'mission.html'
 
 
+class MyHoursView(TemplateView):
+    template_name = 'my-hours.html'
+
+
 class NominateView(TemplateView):
     template_name = 'nominate.html'
 
