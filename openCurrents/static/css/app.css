@@ -103,7 +103,6 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 0.875rem;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
-  margin-top: -3px;
 }
 
 .button {
@@ -1276,6 +1275,11 @@ i:hover ~ .addtocalendar {
 }
 
 /* admin-profile */
+
+#org-hours-total {
+  margin-top: 1.25rem;
+  margin-bottom: 0;
+}
 
 #live-project-list {
   font-size: 0.875rem;
