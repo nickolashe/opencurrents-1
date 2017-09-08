@@ -115,7 +115,7 @@
                 </div>
 
                 <div class="input-right small-4 medium-3 columns">
-                  <p><strong>Value</strong><i class="grey half-margin-left fa fa-lg fa-question-circle"></i></p>
+                  <p><strong>Value</strong><a class="value-info-popup_open"><i class="grey half-margin-left fa fa-lg fa-question-circle"></i></a></p>
                 </div>
               </div>
 
@@ -231,18 +231,22 @@
       {% include 'partials/menu.html' %}
     </div>
   
-    <div id="-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+    <div id="value-info-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
-        <h3 class="popup-title"></h3>
+        <h4 class="popup-title">How to value Currents</h4>
       </div>
       
       <div class="row">
         <div class="small-centered medium-10 columns">
           
-          <p></p>
+          <p>In order to accept Currents from customers, you'll need to set how much a Current is worth. Since each Current is created from an hour of work, we suggest a starting value of $10 per Current (or $10 per hour).</p>
+
+          <p>You are welcome to value Currents however you choose. Please note, however, that the more you value you give for Currents, the higher priority your offer will receive in the marketplace - meaning more customers will see your business.</p>
           
-          <button class="tax-id-popup_close button round">Okay</button>
-          <a><button class="button round secondary"></button></a>
+          <p class="center three-halves-margin-top">
+            <a class="value-info-popup_close button round">Got it</a>
+            <a href="javascript:void(Tawk_API.toggle())" class="button round secondary">Contact us</a>
+          </p>
         </div>
       </div>
     </div>
@@ -250,7 +254,7 @@
     
     <script type="text/javascript">
       $(document).ready(function(){
-        $('#').popup({
+        $('#value-info-popup').popup({
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: true,
