@@ -345,7 +345,7 @@ class TimeTrackerForm(forms.Form):
         user__isnull=False
     ).filter(
         name__startswith='admin_'
-    )
+    ).distinct()
 
     org_ids = [
         int(org_admin_group.name.split('_')[1])
