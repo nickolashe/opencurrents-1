@@ -31,7 +31,7 @@
                 <div id="progress-2" class="progress-counter">
                   <h6>2</h6>
                 </div>
-                <label class="small-text">Set offers</label>
+                <label class="small-text">Set value</label>
               </div>
 
               <div class="small-3 columns">
@@ -54,11 +54,91 @@
         <div id="offer-1">
           <div class="row">
             <div class="small-12 medium-10 small-centered columns">
-              <h5>For which types of goods will you accept Currents?</h5>
+              <h5 class="one-margin-bottom">For which goods will you accept Currents?</h5>
             </div>
           </div>
 
-          <div class="row one-margin-top">
+          <input type="radio" id="offer-cat-1" name="offer-cat-1" class="vol-radio hidden" checked/>
+          <input type="radio" id="offer-cat-2" name="offer-cat-2" class="vol-radio hidden" checked/>
+
+          <div class="row">
+            <div class="small-12 medium-6 small-centered columns">
+              <div class="row center hidden half-margin-bottom">
+                <a id="offer-products">Accept Currents for products</a>
+              </div>
+
+              <div id="products-row" class="row">
+                <div class="input-left small-5 columns">
+                  <input name="discount-amount-cat-1" type="number" class="fit-left qtr-margin-right discount-amount" placeholder="20" value="20"/>
+                  <span class="input-sizer"><select name="discount-type-cat-1">
+                    <option selected>% off</option>
+                    <option>$ off</option>
+                  </select></span>
+                </div>
+
+                <div class="input-right small-7 columns">
+                  <div class="relative">
+                    <input id="cat-name-1" name="cat-name-1" type="text" placeholder="Category name" value="Products"/>
+                    <i id="remove-cat-1" class="remove-input alert fa fa-times"></i>
+                  </div>
+                </div>
+                
+                <!-- <div class="currency-input input-right small-4 medium-3 columns">
+                  <span class="dollar-placeholder">$</span>
+                  <input id="current-price-1" class="dollar-price" type="number" placeholder="10" value="10"/>
+
+                  <div class="value-placeholder"><span class="grey">per </span><img src="{% static 'img/symbol.svg' %}"/></div>
+                </div> -->
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="small-12 medium-6 small-centered columns">
+              <div class="row center hidden half-margin-bottom">
+                <a id="offer-services">Accept Currents for services</a>
+              </div>
+
+              <div id="services-row" class="row">
+                <div class="input-left small-5 columns">
+                  <input name="discount-amount-cat-2" type="number" class="fit-left qtr-margin-right discount-amount" placeholder="20" value="20"/>
+                  <span class="input-sizer"><select name="discount-type-cat-2">
+                    <option selected>% off</option>
+                    <option>$ off</option>
+                  </select></span>
+                </div>
+
+                <div class="input-right small-7 columns">
+                  <div class="relative">
+                    <input name="cat-name-2" type="text" placeholder="Category name" value="Services"/>
+                    <i id="remove-cat-2" class="remove-input alert fa fa-times"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="small-12 medium-8 small-centered columns">
+              <div id="item-headers" class="row one-margin-top left hidden">
+                <div class="input-left small-4 large-3 columns">
+                  <p><strong>Discount</strong></p>
+                </div>
+
+                <div class="input-middle small-4 medium-5 large-6 columns">
+                  <p><strong>Item name</strong></p>
+                </div>
+
+                <div class="input-right small-4 medium-3 columns">
+                  <p><strong>Shelf price</strong><a class="value-info-popup_open"></a></p>
+                </div>
+              </div>
+
+              <a id="add-item"><i class="half-margin-top fa fa-plus-circle half-margin-right"></i>Add specific item</a>
+            </div>
+          </div>
+
+          <!-- <div class="row one-margin-top">
             <div class="small-12 medium-10 small-centered columns">
               <input type="radio" id="all-goods" name="good-types" value="" class="hidden styled-radio" checked/>
                 <label for="all-goods" class="button round secondary small">All goods</label>
@@ -88,9 +168,9 @@
               Accept Currents for partial payment of specific products and services. You will be able to set different offers for each item or category you list.
               </p>
             </div>
-          </div>
+          </div> -->
 
-          <div class="row two-margin-top">
+          <div class="row three-halves-margin-top">
             <a class="next-offer button round">Next</a>
           </div>
         </div>
@@ -100,72 +180,6 @@
             <div class="small-12 medium-10 small-centered columns">
               <h5 class="half-margin-bottom">Offer details</h5>
               <p class="grey">Example: "We offer 20% off Products at $10 per Current"
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="small-12 medium-8 large-7 small-centered columns">
-              <div class="row left">
-                <div class="input-left small-4 large-3 columns">
-                  <p><strong>Discount</strong></p>
-                </div>
-
-                <div class="input-middle small-4 medium-5 large-6 columns">
-                  <p><strong>Item name</strong></p>
-                </div>
-
-                <div class="input-right small-4 medium-3 columns">
-                  <p><strong>Value</strong><a class="value-info-popup_open"><i class="grey half-margin-left fa fa-lg fa-question-circle"></i></a></p>
-                </div>
-              </div>
-
-              <div class="row">
-                <div class="input-left small-4 large-3 columns">
-                  <input name="discount-amount-1" id="discount-amount-1" type="number" class="fit-left qtr-margin-right discount-amount" placeholder="20" value="20"/>
-                  <span class="input-sizer"><select name="discount-type">
-                    <option selected>% off</option>
-                    <option>$ off</option>
-                  </select></span>
-                </div>
-
-                <div class="input-middle small-4 medium-5 large-6 columns">
-                  <input id="good-name-1" name="good-name-1" type="text" placeholder="Item or category name" value="Products"/>
-                </div>
-                
-                <div class="currency-input input-right small-4 medium-3 columns">
-                  <span class="dollar-placeholder">$</span>
-                  <input id="current-price-1" class="dollar-price" type="number" placeholder="10" value="10"/>
-
-                  <div class="value-placeholder"><span class="grey">per </span><img src="{% static 'img/symbol.svg' %}"/></div>
-                </div>
-              </div>
-
-              <div class="row">
-                <div class="input-left small-4 large-3 columns">
-                  <input name="discount-amount-2" id="discount-amount-2" type="number" class="fit-left qtr-margin-right discount-amount" placeholder="20" value="20"/>
-                  <span class="input-sizer"><select name="discount-type">
-                    <option selected>% off</option>
-                    <option>$ off</option>
-                  </select></span>
-                </div>
-
-                <div class="input-middle small-4 medium-5 large-6 columns">
-                  <input id="good-name-2" type="text" placeholder="Item or category name" value="Services"/>
-                </div>
-                
-                <div class="currency-input input-right small-4 medium-3 columns">
-                  <span class="dollar-placeholder">$</span>
-                  <input id="current-value-2" name="current-value-2" class="dollar-price" type="number" placeholder="10" value="10"/>
-
-                  <div class="value-placeholder"><span class="grey">per </span><img src="{% static 'img/symbol.svg' %}"/></div>
-                </div>
-              </div>
-
-              <div class="row left half-margin-top">
-                <div class="columns">
-                  <a><i class="fa fa-plus-circle half-margin-right"></i>Add item or category</a>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -258,6 +272,49 @@
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: true,
+        });
+
+        // Add specific item
+        var id = 1
+
+        $('#add-item').click(function(){
+          $('#item-headers').slideDown();
+          $(this).before('<div id="item-'+id+'" name="item-'+id+'" class="row hidden"><div class="input-left small-4 large-3 columns"><input name="item-'+id+'-discount" type="number" class="fit-left qtr-margin-right discount-amount" placeholder="20" value="20"/><span class="input-sizer"><select name="discount-type-'+id+'"><option selected>% off</option><option>$ off</option></select></span></div><div class="input-middle small-4 medium-5 large-6 columns"><input name="item-'+id+'-name" type="text" placeholder="Item name"/></div><div class="currency-input input-right small-4 medium-3 columns"><div class="relative"><span class="dollar-placeholder">$</span><input name="item-'+id+'-price" class="dollar-price" type="number" placeholder="10"/><i class="remove-input alert fa fa-times"></i></div></div></div>');
+          $('#item-'+id+'').slideDown();
+
+          id ++
+        });
+
+        // Add products category
+        $('#offer-products').click(function(){
+          $(this).parent().slideUp();
+          $(this).parent().after('<div id="products-row" class="row hidden"><div class="input-left small-5 columns"><input name="discount-amount-cat-1" type="number" class="fit-left qtr-margin-right discount-amount" placeholder="20" value="20"/><span class="input-sizer"><select name="discount-type-cat-1"><option selected>% off</option><option>$ off</option></select></span></div><div class="input-right small-7 columns"><div class="relative"><input name="cat-name-1" type="text" placeholder="Category name" value="Products"/><i id="remove-cat-1" class="remove-input alert fa fa-times"></i></div></div></div>');
+          $('#products-row').slideDown();
+          $('#offer-cat-1').prop('checked', true);
+        });
+
+        // Add services category
+        $('#offer-services').click(function(){
+          $(this).parent().slideUp();
+          $(this).parent().after('<div id="services-row" class="row hidden"><div class="input-left small-5 columns"><input name="discount-amount-cat-2" type="number" class="fit-left qtr-margin-right discount-amount" placeholder="20" value="20"/><span class="input-sizer"><select name="discount-type-cat-2"><option selected>% off</option><option>$ off</option></select></span></div><div class="input-right small-7 columns"><div class="relative"><input name="cat-name-2" type="text" placeholder="Category name" value="Services"/><i id="remove-cat-2" class="remove-input alert fa fa-times"></i></div></div></div>');
+          $('#services-row').slideDown();
+          $('#offer-cat-2').prop('checked', true);
+        });
+
+        // Remove item
+        $('body').on('click', '.remove-input', function(){
+          $(this).closest('.row').slideUp(function(){
+            $(this).remove();
+          });
+          $(this).closest('.row').siblings('.hidden').slideDown();
+        });
+
+        $('body').on('click', '#remove-cat-1', function(){
+          $('#offer-cat-1').prop('checked', false);
+        });
+
+        $('body').on('click', '#remove-cat-2', function(){
+          $('#offer-cat-2').prop('checked', false);
         });
 
         // Change goods-detail with click

@@ -1099,13 +1099,12 @@ a.list-group-item {
 .dollar-placeholder {
   position: absolute;
   top: 8px;
-  left: 14px;
+  left: 7px;
   color: #999999;
 }
 
 .dollar-price {
   text-indent: 11px;
-  width: 46px;
 }
 
 .current-price {
@@ -1329,11 +1328,11 @@ i:hover ~ .addtocalendar {
 
 /* create-event */
 
-.remove-location {
+.remove-input {
   position: absolute;
-  top: 14px;
+  top: 13px;
   right: 5px;
-  color: #999999;
+  cursor: pointer;
 }
 
 .location {
