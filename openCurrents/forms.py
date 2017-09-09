@@ -338,30 +338,37 @@ class EventRegisterForm(forms.Form):
 
 class TimeTrackerForm(forms.Form):
 
-    choices_init = [("select_org", "Select organization")]
+    # important to have the list generated dynamically in the init
+    # to force update on each page refresh
+    def __init__(self, *args, **kwargs):
+        super(TimeTrackerForm, self).__init__(*args, **kwargs)
 
-    # obtain the list of orgs with at least one approved admin
-    orgs_approved_admins = Group.objects.filter(
-        user__isnull=False
-    ).filter(
-        name__startswith='admin_'
-    ).distinct()
+        # obtain the list of orgs with at least one approved admin
+        orgs_approved_admins = Group.objects.filter(
+            user__isnull=False
+        ).filter(
+            name__startswith='admin_'
+        ).distinct()
 
-    org_ids = [
-        int(org_admin_group.name.split('_')[1])
-        for org_admin_group in orgs_approved_admins
-    ]
-    choices_orgs_approved_admins = [
-        (org.id, org.name)
-        for org in Org.objects.filter(
-            id__in=org_ids
-        ).order_by(
-            'name'
-        )
-    ]
+        org_ids = [
+            int(org_admin_group.name.split('_')[1])
+            for org_admin_group in orgs_approved_admins
+        ]
+        choices_orgs_approved_admins = [
+            (org.id, org.name)
+            for org in Org.objects.filter(
+                id__in=org_ids
+            ).order_by(
+                'name'
+            )
+        ]
+
+        # build the dynamic choices list
+        self.fields['org'].choices += choices_orgs_approved_admins
+
 
     org = forms.ChoiceField(
-        choices=choices_init + choices_orgs_approved_admins,
+        choices=[("select_org", "Select organization")],
         widget=forms.Select(attrs={
             'id': 'id_org_choice'
         })
