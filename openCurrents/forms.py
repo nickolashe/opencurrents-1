@@ -363,8 +363,7 @@ class TimeTrackerForm(forms.Form):
     org = forms.ChoiceField(
         choices=choices_init + choices_orgs_approved_admins,
         widget=forms.Select(attrs={
-            'id': 'id_org_choice',
-            'autocomplete': 'off'
+            'id': 'id_org_choice'
         })
     )
     
@@ -374,8 +373,7 @@ class TimeTrackerForm(forms.Form):
         required=True,
         widget=forms.Select(attrs={
             'id': 'id_admin_choice',
-            'disabled': True,
-            'autocomplete': 'off'
+            'disabled': True
         })
     )
 
