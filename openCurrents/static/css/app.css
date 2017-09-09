@@ -1315,11 +1315,11 @@ i:hover ~ .addtocalendar {
 
 /* create-event */
 
-.remove-location {
+.remove-input {
   position: absolute;
   top: 14px;
   right: 5px;
-  color: #999999;
+  cursor: pointer;
 }
 
 .location {
