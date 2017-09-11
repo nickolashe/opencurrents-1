@@ -302,8 +302,10 @@ class ProjectCreateForm(forms.Form):
                 ' '.join([date_start, time_start]),
                 '%Y-%m-%d %I:%M%p'
             )
-        except:
-            raise ValidationError(_('Bad date/start time format entered.'))
+        except Exception as e:
+            error_msg = 'Invalid event start time'
+            logger.debug('%s: %s', error_msg, e.message)
+            raise ValidationError(_(error_msg))
      
 
         try:
@@ -311,8 +313,10 @@ class ProjectCreateForm(forms.Form):
                 ' '.join([date_start, time_end]),
                 '%Y-%m-%d %I:%M%p'
             )
-        except:
-            raise ValidationError(_('Bad end time format entered.'))
+        except Exception as e:
+            error_msg = 'Invalid event end time'
+            logger.debug('%s: %s', error_msg, e.message)
+            raise ValidationError(_(error_msg))
 
         cleaned_data['datetime_start'] = pytz.timezone(tz).localize(datetime_start)
         cleaned_data['datetime_end'] = pytz.timezone(tz).localize(datetime_end)
