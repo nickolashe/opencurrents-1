@@ -246,36 +246,6 @@
           $("#id_org_choice").val({{org_stat_id}});
           $("#id_admin_choice").prop('disabled', false);
         {% endif %}
-        // document.getElementById('id_admin_choice').options[0].disabled = true;
-        // document.getElementById('id_admin_choice').options[0].selected = true;
-        // document.getElementById('id_admin_choice').options[0].setAttribute("hidden", true);
-
-        // $.ajax
-        // (
-        //   {
-        //     type:"GET",
-        //     url:"../../orgs_list/",
-        //     async:false,
-        //     success:function(response){
-        //     //var obj = $.parseJSON(response);
-        //     //alert(typeof(response.split(",")[0]));
-        //     option_list = response.split(",")
-        //     //alert(option_list.length)
-        //     //var sel = document.getElementById("user-orgs");
-        //     var sel = document.getElementById("user-orgs");
-        //     for(var i=0;i<option_list.length;i++)
-        //     {
-        //       var option = document.createElement("option");
-        //       option.text = option_list[i];
-        //       sel.appendChild(option);
-        //     }
-        //
-        //     },
-        //     error:function(response){
-        //       alert("error")
-        //     }
-        //   }
-        // );
 
         //$( "#id_userorgs option[value='sel_org']" ).selected=true;
         let orgSelect = $('#id_org_choice');
@@ -314,6 +284,11 @@
                       ${adminFirstName} ${adminLastName}
                     </option>`
                   );
+
+                  // disable the option if admin is the user
+                  if (adminId == {{user.id}}) {
+                    $('#id_admin_choice option[value="'+adminId+'"]').attr("disabled", true);
+                  }
               });
 
               // add two non-admin specific options
