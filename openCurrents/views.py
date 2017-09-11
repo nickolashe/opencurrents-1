@@ -2020,6 +2020,10 @@ def event_register(request, pk):
             {
                 'name': 'DATE',
                 'content': json.dumps(event.datetime_start,cls=DatetimeEncoder).replace('"','')
+            },
+            {
+                'name': 'EVENT_ID',
+                'content': event.id
             }
         ]
         if message:
