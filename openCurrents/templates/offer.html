@@ -20,47 +20,61 @@
         <div class="row two-margin-top two-margin-bottom">
           <div class="small-12 medium-9 small-centered columns">
             <div class="row collapse">
-              <div class="small-4 columns">
+              <div class="small-3 columns">
                 <div id="progress-1" class="progress-counter progress-highlight">
                   <h6>1</h6>
                 </div>
-                <label class="small-text blue">Set goods</label>
+                <label class="small-text blue">Set offers</label>
               </div>
 
-              <div class="small-4 columns">
+              <div class="small-3 columns">
                 <div id="progress-2" class="progress-counter">
                   <h6>2</h6>
+                </div>
+                <label class="small-text">Set value</label>
+              </div>
+
+              <div class="small-3 columns">
+                <div id="progress-3" class="progress-counter">
+                  <h6>3</h6>
                 </div>
                 <label class="small-text">Set limit</label>
               </div>
 
-              <div class="small-4 columns">
-                <div id="progress-3" class="progress-counter">
-                  <h6>3</h6>
-                </div>
-                <label class="small-text">Confirm</label>
-              </div>
-
-              <!-- <div class="small-3 columns">
+              <div class="small-3 columns">
                 <div id="progress-4" class="progress-counter">
                   <h6>4</h6>
                 </div>
                 <label class="small-text">Confirm</label>
-              </div> -->
+              </div>
             </div>
           </div>
         </div>
 
         <div id="offer-1">
           <div class="row one-margin-bottom">
-            <div class="small-12 medium-10 small-centered columns">
-              <h5 class="">For which goods will you accept Currents?</h5>
+            <div class="small-12 medium-11 small-centered columns">
+              <h5 class="">How much of purchase will you accept in Currents?</h5>
               <a class="offer-info-popup_open"><i class="half-margin-right fa fa-lg fa-question-circle"></i>How it works</a>
             </div>
           </div>
 
           <input type="radio" id="offer-cat-1" name="offer-cat-1" class="vol-radio hidden" checked/>
           <input type="radio" id="offer-cat-2" name="offer-cat-2" class="vol-radio hidden" checked/>
+
+          <div class="row left">
+            <div class="small-12 medium-6 small-centered columns">
+              <div class="row">
+                <div class="input-left small-5 columns">
+                  <p><strong>Offer</strong></p>
+                </div>
+
+                <div class="input-right small-7 columns">
+                  <p><strong>Item or category</strong></p>
+                </div>
+              </div>
+            </div>
+          </div>
 
           <div class="row">
             <div class="small-12 medium-6 small-centered columns">
@@ -72,8 +86,8 @@
                 <div class="input-left small-5 columns">
                   <input name="discount-amount-cat-1" type="number" class="fit-left qtr-margin-right discount-amount" placeholder="20" value="20"/>
                   <span class="input-sizer"><select name="discount-type-cat-1">
-                    <option selected>% off</option>
-                    <option>$ off</option>
+                    <option selected>% of</option>
+                    <option>$ of</option>
                   </select></span>
                 </div>
 
@@ -97,8 +111,8 @@
                 <div class="input-left small-5 columns">
                   <input name="discount-amount-cat-2" type="number" class="fit-left qtr-margin-right discount-amount" placeholder="20" value="20"/>
                   <span class="input-sizer"><select name="discount-type-cat-2">
-                    <option selected>% off</option>
-                    <option>$ off</option>
+                    <option selected>% of</option>
+                    <option>$ of</option>
                   </select></span>
                 </div>
 
@@ -114,92 +128,73 @@
 
           <div class="row">
             <div class="small-12 medium-8 small-centered columns">
-              <div id="item-headers" class="row one-margin-top left hidden">
-                <div class="input-left small-4 large-3 columns">
-                  <p><strong>Discount</strong></p>
-                </div>
-
-                <div class="input-middle small-4 medium-5 large-6 columns">
-                  <p><strong>Item name</strong></p>
-                </div>
-
-                <div class="input-right small-4 medium-3 columns">
-                  <p><strong>Shelf price</strong><a class="value-info-popup_open"></a></p>
-                </div>
-              </div>
 
               <a id="add-item"><i class="half-margin-top fa fa-plus-circle half-margin-right"></i>Add specific item</a>
+
+              <div class="row one-margin-top">
+                <a class="prev-offer button round secondary">Back</a>
+                <a class="next-offer button round">Next</a>
+              </div>
             </div>
-          </div>
-
-          <!-- <div class="row one-margin-top">
-            <div class="small-12 medium-10 small-centered columns">
-              <input type="radio" id="all-goods" name="good-types" value="" class="hidden styled-radio" checked/>
-                <label for="all-goods" class="button round secondary small">All goods</label>
-              <input type="radio" id="products-only" name="good-types" value="" class="hidden styled-radio"/>
-                <label for="products-only" class="button round secondary small">Products only</label>
-              <input type="radio" id="services-only" name="good-types" value="" class="hidden styled-radio"/>
-                <label for="services-only" class="button round secondary small">Services only</label>
-              <input type="radio" id="specific-goods" name="good-types" value="" class="hidden styled-radio"/>
-                <label for="specific-goods" class="button round secondary small">Specific goods</label>
-            </div>
-          </div>
-
-          <div class="row left one-margin-top">
-            <div id="goods-detail-div" class="small-11 medium-8 small-centered columns">
-              <p id="all-detail" class="goods-detail no-margin-bottom"><strong>All goods</strong><br/>
-              Accept Currents for partial payment of everything you offer. If you'd like to set different offers for different types of goods, select "Specific goods".</p>
-
-              <p id="products-detail" class="goods-detail no-margin-bottom hidden"><strong>Products only</strong><br/>
-              Accept Currents for partial payment of physical products only. If you want to set different offers for different products, select "Specific goods".
-              </p>
-
-              <p id="services-detail" class="goods-detail no-margin-bottom hidden"><strong>Services only</strong><br/>
-              Accept Currents for partial payment of services only. If you want to set different orders for different services, select "Specific goods".
-              </p>
-
-              <p id="specific-detail" class="goods-detail no-margin-bottom hidden"><strong>Specific goods</strong><br/>
-              Accept Currents for partial payment of specific products and services. You will be able to set different offers for each item or category you list.
-              </p>
-            </div>
-          </div> -->
-
-          <div class="row three-halves-margin-top">
-            <a class="next-offer button round">Next</a>
           </div>
         </div>
 
-        <div id="offer-2" class="">
-          <!-- <div class="row">
+        <div id="offer-2">
+          <div class="row">
             <div class="small-12 medium-8 small-centered columns">
-              <h5 class="one-margin-bottom">How much do you value an hour of volunteer work?</h5>
+              <h5 class="one-margin-bottom">Value of Currents for pilot phase</h5>
+              <p class="">As a starting point, Currents are valued at $10 each - or $10 per hour of volunteer work. You'll be able to change this value later if you wish.</p>
 
-              <p class="">This determines how many Currents you receive for the discount you offer. Since each Current is created from an hour of work, we suggest a starting value of $10 per Current (or $10 per hour). Right now the community average is $[10] per Current.</p>
+              <div class="row">
+                <div class="medium-10 small-centered columns">
+                  <p class="">Example: For a [20%] discount on a $10 item at $10 per Current, you would receive $8 and <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/> [0.2]</span>)</p>
+                </div>
+              </div>
 
-              <p class="half-margin-bottom">[Business name] accepts Currents at:</p>
-            </div>
-          </div>
-
-          <div class="row collapse">
-            <div class="small-centered small-6 medium-4 columns">
-              <div class="value-div">
-                <span class="dollar-placeholder large-text">$</span>
-                <input id="current-price-1" class="dollar-price large-text" type="number" placeholder="10" value="10"/>
-                <div class="value-placeholder"><span class="grey large-text">per </span><img class="large-text-symbol" src="{% static 'img/symbol.svg' %}"/></div>
+              <div class="row three-halves-margin-top">
+                <a class="prev-offer button round secondary">Back</a>
+                <a class="next-offer button round">Agree</a>
               </div>
             </div>
           </div>
+        </div>
 
-          <div class="row">
-            <div class="small-12 medium-5 small-centered columns">
-              <p class="grey">(If you give [20%] off a $10 item at $[10] per Current, you would receive $8 and <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> [0.2]</span>)
+        <!-- <div class="row">
+          <div class="small-12 medium-8 small-centered columns">
+            <h5 class="one-margin-bottom">How much do you value an hour of volunteer work?</h5>
+
+            <p class="">This determines how many Currents you receive for the discount you offer. Since each Current is created from an hour of work, we suggest a starting value of $10 per Current (or $10 per hour). Right now the community average is $[10] per Current.</p>
+
+            <p class="half-margin-bottom">[Business name] accepts Currents at:</p>
+          </div>
+        </div>
+
+        <div class="row collapse">
+          <div class="small-centered small-6 medium-4 columns">
+            <div class="value-div">
+              <span class="dollar-placeholder large-text">$</span>
+              <input id="current-price-1" class="dollar-price large-text" type="number" placeholder="10" value="10"/>
+              <div class="value-placeholder"><span class="grey large-text">per </span><img class="large-text-symbol" src="{% static 'img/symbol.svg' %}"/></div>
             </div>
-          </div> -->
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="small-12 medium-5 small-centered columns">
+            <p class="grey">(If you give [20%] off a $10 item at $[10] per Current, you would receive $8 and <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> [0.2]</span>)
+          </div>
+        </div> -->
+
+        <div id="offer-3">
+          <div class="row">
+            <div class="small-12 medium-11 small-centered columns">
+              <h5 class="one-margin-bottom">Do you want to limit the number of transactions you accept?</h5>
+            </div>
+          </div>
 
           <div class="row">
             <div class="small-12 medium-8 small-centered columns">
-              <h5 class="one-margin-bottom">Do you want to limit the number of Currents you accept?</h5>
-              <p>Accept all customers who wish to buy from you, or set a monthly limit.</p>
+              <p>Accept all customers who wish to spend Currents with you, or set a monthly limit:</p>
               <span class="">
                 <input type="radio" name="limit-currents" id="limit-currents-no" class="hidden styled-radio" checked />
                   <label for="limit-currents-no" class="button round secondary tiny">No limit</label>
@@ -210,21 +205,13 @@
               </span>
 
               <div id="monthly-limit-div" class="row center hidden">
-                <span>[Business name] will accept </span>
+                <span>[Business name] will accept up to </span>
                 <div id="monthly-limit-input" class="relative inline-block">
-                  <img class="current-placeholder" src="{% static 'img/symbol.svg' %}"/>
+                  <!-- <img class="current-placeholder" src="{% static 'img/symbol.svg' %}"/> -->
                   
-                  <input id="monthly-limit" name="monthly-limit" class="current-price" type="number" placeholder="50" />
+                  <input id="monthly-limit" name="monthly-limit" type="number" placeholder="100" />
                 </div>
-                <span> per month</span>
-              </div>
-
-              <p class="grey half-margin-top">Note: As a starting point, Currents are valued at $10 each - or $10 for each hour of volunteer work. You'll be able to change this value later if you wish.</p>
-
-              <div class="row">
-                <div class="medium-10 small-centered columns">
-                  <p class="grey">Example: For a [20%] discount on a $10 item at $10 per Current, you would receive $8 and <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> [0.2]</span>)</p>
-                </div>
+                <span> transactions per month</span>
               </div>
             </div>
           </div>
@@ -235,7 +222,7 @@
           </div>
         </div>
 
-        <div id="offer-3">
+        <div id="offer-4">
           <div class="row left">
             <div class="small-12 medium-8 small-centered columns">
               <h5 class="one-margin-bottom center">Confirm offer details</h5>
