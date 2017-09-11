@@ -69,6 +69,10 @@ h1, h2, h3, h4, h5, h6 {
   height: 1.25rem;
 }
 
+.large-text-symbol {
+  height: 1.5rem;
+}
+
 
 /* Lead text for non-small screens */
 @media screen and (min-width: 42em) {
@@ -97,10 +101,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .button.small {
-  font-size: 0.875rem; }
+  font-size: 0.9375rem; }
 
 .button.tiny {
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
 }
@@ -355,8 +359,8 @@ label {
 }
 
 .styled-radio + label {
-  margin-right: 0.25rem;
-  margin-left: 0.25rem;
+  margin-right: 0.5rem;
+  margin-left: 0.5rem;
   margin-bottom: 1rem;
 }
 
@@ -1078,38 +1082,52 @@ a.list-group-item {
   stroke: #1f4975;
 }
 
-.currency-input {
-  position: relative;
-}
-
 .current-placeholder {
   display: inline-block;
   position: absolute;
   top: 10px;
-  left: 10px;
+  left: 4px;
+}
+
+.value-div {
+  position: relative;
+  width: 123px;
+  margin: auto;
 }
 
 .value-placeholder {
   display: inline-block;
   position: absolute;
   top: 7px;
-  left: 55px;
+  left: 66px;
 }
 
 .dollar-placeholder {
   position: absolute;
   top: 8px;
-  left: 7px;
+  left: 5px;
   color: #999999;
 }
 
 .dollar-price {
-  text-indent: 11px;
+  text-indent: 13px;
+  width: 60px;
+}
+
+.item-price {
+  text-indent: 13px;
 }
 
 .current-price {
-  text-indent: 28px;
-  min-width: 60px;
+  text-indent: 22px;
+}
+
+.usd-circle {
+  font-size: 7rem;
+}
+
+.usd-icon {
+  font-size: 3rem;
 }
 
 /* sell */
@@ -1434,6 +1452,10 @@ input[type="checkbox"] + label.vol-arrived {
 #current-value {
   width: 40px;
   margin-left: 0.25rem;
+}
+
+#monthly-limit {
+  width: 67px;
 }
 
 #max-currents {
