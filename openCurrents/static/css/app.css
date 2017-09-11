@@ -69,6 +69,10 @@ h1, h2, h3, h4, h5, h6 {
   height: 1.25rem;
 }
 
+.large-text-symbol {
+  height: 1.5rem;
+}
+
 
 /* Lead text for non-small screens */
 @media screen and (min-width: 42em) {
@@ -97,13 +101,12 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .button.small {
-  font-size: 0.875rem; }
+  font-size: 0.9375rem; }
 
 .button.tiny {
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
-  margin-top: -3px;
 }
 
 .button {
@@ -293,6 +296,7 @@ select {
   border: none;
   border-bottom: 1px solid #24b2e7;
   line-height: inherit;
+  height: auto;
 }
 
 select:hover {
@@ -303,6 +307,13 @@ select:hover {
 select:focus {
   border-color: #1f4975;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='32' height='24' viewBox='0 0 32 24'><polygon points='0,0 32,0 16,24' style='fill: #r1f4975'></polygon></svg>");
+}
+
+select[disabled] {
+  color: #999999;
+  border-color: #999999;
+  background-color: #ffffff;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='32' height='24' viewBox='0 0 32 24'><polygon points='0,0 32,0 16,24' style='fill: #999999'></polygon></svg>");
 }
 
 input::-webkit-input-placeholder,
@@ -349,6 +360,7 @@ label {
 
 .styled-radio + label {
   margin-right: 0.5rem;
+  margin-left: 0.5rem;
   margin-bottom: 1rem;
 }
 
@@ -647,6 +659,14 @@ label {
   white-space: nowrap;
 }
 
+.hidden-overflow {
+  overflow: hidden;
+}
+
+.no-bullet {
+  list-style-type: none;
+}
+
 .arrow-cursor {
   cursor: default;
 }
@@ -654,7 +674,11 @@ label {
 .fit-left {
   float: left;
   display: inline-block;
-  margin-top: 0.5rem;
+}
+
+.fit-right {
+  float: right;
+  display: inline-block;
 }
 
 .input-sizer {
@@ -810,6 +834,15 @@ a.list-group-item {
   background-color: #ffffff;
   margin-top: 4rem;
   display: none;
+}
+
+/* Error messages */
+
+.errorlist {
+  list-style-type: none;
+  display: inline-block;
+  margin-left: 0;
+  margin-bottom: 0.5rem;
 }
 
 /* Titles */
@@ -1050,34 +1083,52 @@ a.list-group-item {
   stroke: #1f4975;
 }
 
-.currency-input {
-  position: relative;
-  padding-left: 0.25rem;
-}
-
 .current-placeholder {
   display: inline-block;
   position: absolute;
   top: 10px;
-  left: 10px;
-  color: #999999;
+  left: 4px;
+}
+
+.value-div {
+  position: relative;
+  width: 123px;
+  margin: auto;
+}
+
+.value-placeholder {
+  display: inline-block;
+  position: absolute;
+  top: 7px;
+  left: 66px;
 }
 
 .dollar-placeholder {
   position: absolute;
   top: 8px;
-  left: 15px;
+  left: 5px;
   color: #999999;
 }
 
 .dollar-price {
-  text-indent: 20px;
-  min-width: 60px;
+  text-indent: 13px;
+  width: 60px;
+}
+
+.item-price {
+  text-indent: 13px;
 }
 
 .current-price {
-  text-indent: 28px;
-  min-width: 60px;
+  text-indent: 22px;
+}
+
+.usd-circle {
+  font-size: 7rem;
+}
+
+.usd-icon {
+  font-size: 3rem;
 }
 
 /* sell */
@@ -1257,6 +1308,11 @@ i:hover ~ .addtocalendar {
 
 /* admin-profile */
 
+#org-hours-total {
+  margin-top: 1.25rem;
+  margin-bottom: 0;
+}
+
 #live-project-list {
   font-size: 0.875rem;
 }
@@ -1291,11 +1347,11 @@ i:hover ~ .addtocalendar {
 
 /* create-event */
 
-.remove-location {
+.remove-input {
   position: absolute;
-  top: 14px;
+  top: 13px;
   right: 5px;
-  color: #999999;
+  cursor: pointer;
 }
 
 .location {
@@ -1342,14 +1398,51 @@ input[type="checkbox"] + label.vol-arrived {
 
 /* offer */
 
-#discount-amount {
-  width: 50px;
-  padding-bottom: 0.375rem
+.progress-counter {
+  width: 33px;
+  height: 33px;
+  border-radius: 99px;
+  border: 1px solid #999999;
+  margin: auto;
+  margin-bottom: 0.5rem;
 }
 
-#discount-type {
-  width: 111px;
-  margin-left: 0.5rem;
+.progress-counter h6 {
+  font-size: 1.125rem;
+  padding-top: 0.125rem;
+}
+
+.progress-highlight {
+  background-color: #24b2e7;
+  border-color: #24b2e7;
+}
+
+.progress-highlight h6 {
+  color: #ffffff;
+}
+
+#goods-detail-div {
+  border: 1px solid #cccccc;
+  border-radius: 5px;
+  padding: 1rem;
+}
+
+#offer-1 {
+  position: absolute;
+  left: 0;
+  width: 100%;
+}
+
+#offer-2, #offer-3, #offer-4 {
+  position: absolute;
+  width: 100%;
+  left: 100%;
+  display: none;
+}
+
+.discount-amount {
+  width: 34px;
+  margin-top: 0;
 }
 
 #item-name {
@@ -1362,10 +1455,14 @@ input[type="checkbox"] + label.vol-arrived {
   margin-left: 0.25rem;
 }
 
+#monthly-limit {
+  width: 67px;
+}
+
 #max-currents {
   width: 40px;
 }
 
 #min-purchase-amount {
   width: 44px;
-}
+}*/

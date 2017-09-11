@@ -1,4 +1,5 @@
 {% load staticfiles %}
+{% load tags %}
 
 <!DOCTYPE html>
 <html>
@@ -17,16 +18,38 @@
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
         <div class="row">
+
           {% if status_msg %}
             <div class="alert row">
               {{status_msg}}
             </div>
           {% endif %}
+
           <h3 class="title-sub">Record volunteer hours</h3>
+
+            {% if status_msg %}
+              <div class="alert row one-margin-bottom">
+                {{status_msg}}
+              </div>
+            {% endif %}
         </div>
 
         <form action ="" method="post">
           {% csrf_token %}
+
+          {% if form.errors %}
+            <div class="row">
+              {% for field, error in form.errors.iteritems %}
+                <div class="center alert">
+                  {% if field != '__all__' %}
+                    {{ field|addstr:': '}} {{ error }}
+                  {% else %}
+                    {{ error }}
+                  {% endif %}
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
 
           <div class="row">
             <div class="left medium-8 small-centered columns">
@@ -60,26 +83,18 @@
                   {{form.org}}
                 </div>
 
-                <div class="disabled small-6 columns">
-                  <!-- <select id="choose-org">
-                    <option disabled selected hidden>Select admin</option>
-                    <option>Org admin 1</option>
-                    <option>Org admin 2</option>
-                    <option>Org admin 3</option>
-                    <option value="other-org">Someone else</option>
-                  </select> -->
+                <div class="small-6 columns">
                   {{form.admin}}
-
                 </div>
               </div>
 
               <div id="new-admin" class="row hidden">
                 <div class="small-6 columns">
-                  <input type="text" placeholder="Admin first name" />
+                  <input type="text" name="admin_fname" placeholder="Admin first name" />
                 </div>
 
                 <div class="small-6 columns">
-                  <input type="text" placeholder="Admin email" />
+                  <input id="admin-email" type="text" name="admin_email" placeholder="Admin email" />
                 </div>
               </div> 
             </div>
@@ -113,21 +128,21 @@
       <div class="row center">
         <h3 class="popup-title">Nominate an organization</h3>
         <div class="medium-10 medium-offset-1 columns end">
-          <p>Do you give time with a social organization not listed here? Fill out this form and we'll reach out to your volunteer coordinator. If you tell them about openCurrents, they'll be more likely to get onboard!</p>
+          <p>As a member of this community, you can help us grow by inviting an organization for which you volunteer. Fill out this form and we'll reach out to your volunteer coordinator, but feel free to contact them personally as well.</p>
         </div>
       </div>
 
-      <form method="post" action="/process_signup/">
+      <form method="post" action="{% url "openCurrents:process_OrgNomination" %}">
         {% csrf_token %}
         <div class="row three-halves-margin-bottom half-margin-top">
           <div class="center small-12 medium-9 small-centered columns">
 
             <div id="org-signup-name" class="small-12 columns">
-              <input type="text" name="org_name" placeholder="Organization name" class="center" tabindex="0" />
+              <input type="text" name="org_name" placeholder="Organization name" class="center" tabindex="0" required />
             </div>
 
             <div class="input-left small-12 columns">
-              <input type="text" name="contact_firstname" placeholder="Coordinator name" class="center" tabindex="0" />
+              <input type="text" name="contact_name" placeholder="Coordinator name" class="center" tabindex="0" />
             </div>
 
             <div class="small-12 columns">
@@ -199,6 +214,7 @@
 
         $('#start-time, #end-time').timepicker({
           step: 15,
+          minTime: '7:00am',
         });
 
         $('#nominate-popup, #no-admin-popup').popup({
@@ -212,15 +228,24 @@
             $('#no-admin-popup').popup('show');
           }
 
-          else if ($(this).val() == "other-admin") {
+          if ($(this).val() == "other-admin") {
             $('#new-admin').slideDown();
+            $('#admin-email').prop('required', true);
+          }
+
+          else {
+            $('#new-admin').slideUp();
+            $('#admin-email').prop('required', false);
           }
         });
 
         document.getElementById('id_org_choice').options[0].disabled = true;
         document.getElementById('id_org_choice').options[0].selected = true;
-        document.getElementById('id_org_choice').options[0].setAttribute("hidden", true);
-        $("#id_org_choice").val({{orgid}});
+
+        {% if org_stat_id %}
+          $("#id_org_choice").val({{org_stat_id}});
+          $("#id_admin_choice").prop('disabled', false);
+        {% endif %}
         // document.getElementById('id_admin_choice').options[0].disabled = true;
         // document.getElementById('id_admin_choice').options[0].selected = true;
         // document.getElementById('id_admin_choice').options[0].setAttribute("hidden", true);
@@ -253,47 +278,60 @@
         // );
 
         //$( "#id_userorgs option[value='sel_org']" ).selected=true;
-        $('#id_org_choice').change(function(){
+        let orgSelect = $('#id_org_choice');
+        orgSelect.change(function(){
           $('#id_admin_choice')
             .find('option')
             .remove()
             .end()
-            .append('<option disabled selected hidden>Select admin</option>');
-          var e = document.getElementById('id_org_choice');
-          var strOrg = e.options[e.selectedIndex].text;
+            .append('<option value="sel-admin" disabled selected >Select admin</option>');
+
+          let orgId = orgSelect.val();
+          let csrf_token = document.getElementsByName(
+            'csrfmiddlewaretoken'
+          )[0].value;
+          let orgUserListUrl = `/org_user_list/${orgId}`;
+
           $.ajax
           (
             {
-              url: "{% url 'openCurrents:org_user_list' %}",
-              type:"POST",
-              async:false,
-              data : {
-                  csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
-                  org: strOrg
-              },
-              dataType : "json"
+              url: orgUserListUrl,
+              type: 'GET',
+              async: false,
+              data : {csrfmiddlewaretoken: csrf_token},
+              dataType : 'json'
             }
-          ).complete(function( data ) {
-              let test_data = data;
-              if (test_data.responseJSON != undefined){
-                var admin_list = test_data.responseJSON['admin']
-                for(var i=0;i<admin_list.length;i++){
-                  $('#id_admin_choice').append(`<option value=`+admin_list[i]+`>`+admin_list[i]+`</option>`)
-                }
-                $('#id_admin_choice').append(`<option value="other-admin">Someone else</option>`),
-                $('#id_admin_choice').append(`<option value="not-sure">Not sure</option>`)
-              }
+          ).complete(function( res ) {
+              let data = res.responseJSON;
+
+              // populate select with org admin names
+              Object.keys(data).forEach(function (adminId) {
+                  let adminFirstName = data[adminId].firstname;
+                  let adminLastName = data[adminId].lastname;
+
+                  $('#id_admin_choice').append(
+                    `<option value=${adminId}> 
+                      ${adminFirstName} ${adminLastName}
+                    </option>`
+                  );
+              });
+
+              // add two non-admin specific options
+              $('#id_admin_choice').append(`<option value="other-admin">Someone else</option>`),
+              $('#id_admin_choice').append(`<option value="not-sure">Not sure</option>`)
+              $("#id_admin_choice").prop('disabled', false);
             });
           }
         )
+      {% if org_stat_id %}
+        $("#id_org_choice").trigger('change');
+        if ("{{admin_name}}"){
+          $('#id_admin_choice').val("{{admin_name}}")//.val("karthikbm01@gmail.com")        
+        }
+        else{
 
-      $("#id_org_choice").trigger('change');
-      if ("{{admin_name}}"){
-        $('#id_admin_choice').val("{{admin_name}}")//.val("karthikbm01@gmail.com")        
-      }
-      else{
-        
-      }
+        }
+      {% endif %}
 
       });
     </script>

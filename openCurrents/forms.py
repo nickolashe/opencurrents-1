@@ -166,6 +166,18 @@ class PasswordResetForm(forms.Form):
         # else:
         #     raise ValidationError(_('Password does\'nt meet the required criterion.'))
 
+class OrgNominationForm(forms.Form):
+    org_name = forms.CharField(min_length=1,required=True)
+    contact_name = forms.CharField(min_length=1,required=False)
+    contact_email = forms.CharField(min_length=1,required=False)
+
+    def clean(self):
+        cleaned_data = super(OrgNominationForm, self).clean()
+        org_name = cleaned_data['org_name']
+        contact_name = cleaned_data['contact_name']
+        contact_email = cleaned_data['contact_email']
+
+
 class OrgSignupForm(forms.Form):
     org_name = forms.CharField(min_length=1)
     org_website = forms.CharField(min_length=1,required=False)
@@ -277,6 +289,8 @@ class ProjectCreateForm(forms.Form):
 
     def clean(self):
         cleaned_data = super(ProjectCreateForm, self).clean()
+        #logger.info('is_public: %s', cleaned_data['is_public'])
+
         date_start = cleaned_data['date_start']
         time_start = cleaned_data['time_start']
         time_end = cleaned_data['time_end']
@@ -336,18 +350,13 @@ class TrackVolunteerHours(forms.Form):
         })
     )
     
-    #choices_init_admin = [("select_admin","Select admin")]
-    # choices_admin = [
-    #     (user.id, user.username)
-    #     for user in User.objects.all().filter().order_by('username')
-    # ]
     choices_admin = [("select_admin","Select admin")]
-    #choices_admin = choices_init_admin + choices_admin
     admin = forms.CharField(
         #choices=choices_admin,
-        required=False,
+        required=True,
         widget=forms.Select(attrs={
-            'id': 'id_admin_choice'
+            'id': 'id_admin_choice',
+            'disabled': True
         })
     )
 
@@ -391,28 +400,42 @@ class TrackVolunteerHours(forms.Form):
         date_start = cleaned_data['date_start']
         time_start = cleaned_data['time_start']
         time_end = cleaned_data['time_end']
+
+        # assert org
         try:
             self.org = Org.objects.get(id=cleaned_data['org'])
-            #admin = cleaned_data['admin']
             tz = self.org.timezone
         except KeyError:
-            raise ValidationError(_('Select the Org you worked for'))
+            raise ValidationError(_('Select the organization you volunteered for'))
 
-        datetime_start = datetime.strptime(
-            ' '.join([date_start, time_start]),
-            '%Y-%m-%d %I:%M%p'
-        )
+        # parse start time
+        try:
+            datetime_start = datetime.strptime(
+                ' '.join([date_start, time_start]),
+                '%Y-%m-%d %I:%M%p'
+            )
+        except Exception as e:
+            raise ValidationError(_('Invalid start time'))
+
+        # localize start time to org's timezone
         cleaned_data['datetime_start'] = pytz.timezone(tz).localize(datetime_start)
 
-        datetime_end = datetime.strptime(
-            ' '.join([date_start, time_end]),
-            '%Y-%m-%d %I:%M%p'
-        )
-        cleaned_data['datetime_end'] = pytz.timezone(tz).localize(datetime_end)
-        if datetime_end == datetime_start:
-            raise ValidationError(_('Please select a valid time'))
-            
+        # parse end time
+        try:
+            datetime_end = datetime.strptime(
+                ' '.join([date_start, time_end]),
+                '%Y-%m-%d %I:%M%p'
+            )
+        except Exception as e:
+            raise ValidationError(_('Invalid end time'))
 
+        # localize end time to org's timezone
+        cleaned_data['datetime_end'] = pytz.timezone(tz).localize(datetime_end)
+
+        # check: start time before end time
+        if datetime_end <= datetime_start:
+            raise ValidationError(_('Start time must be before end time'))
+            
         return cleaned_data
 
 

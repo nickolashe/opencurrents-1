@@ -255,7 +255,7 @@ class UserTimeLog(models.Model):
         if self.datetime_end:
             minutes = ' '.join([
                 str(diffInHours(self.datetime_start, self.datetime_end)),
-                'min.'
+                'hours'
             ])
         else:
             minutes = '(but has not been checked out)'

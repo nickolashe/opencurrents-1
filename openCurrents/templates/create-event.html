@@ -55,7 +55,7 @@
           <div class="row one-margin-bottom">
             <div class="small-12 medium-6 small-centered columns">
               {{ form.project_name.errors }}
-              <h6 class="fit-left navy">{{ form.project_name.label }}</h6>
+              <h6 class="fit-left navy half-margin-top">{{ form.project_name.label }}</h6>
               <span class="input-sizer"> {{ form.project_name }} </span>
               {% if form.project_name.help_text %}
                 <p class="small">
@@ -68,7 +68,7 @@
           <div class="row one-margin-bottom">
             <div class="small-8 medium-4 small-centered columns">
               {{ form.date_start.errors }}
-              <h6 class="fit-left navy"> {{ form.date_start.label }} </h6>
+              <h6 class="fit-left navy half-margin-top"> {{ form.date_start.label }} </h6>
               <span class="input-sizer"> {{ form.date_start }} </span>
               {% if form.date_start.help_text %}
                 <p class="small">
@@ -83,7 +83,7 @@
               <div class="row">
                 <div class="input-left small-6 columns">
                   {{ form.time_start.errors }}
-                  <h6 class="fit-left navy"> {{ form.time_start.label }} </h6>
+                  <h6 class="fit-left navy half-margin-top"> {{ form.time_start.label }} </h6>
                   <span class="input-sizer"> {{ form.time_start }} </span>
                   {% if form.time_start.help_text %}
                     <p class="small">
@@ -94,7 +94,7 @@
 
                 <div class="input-right small-6 columns">
                   {{ form.time_end.errors }}
-                  <h6 class="fit-left navy"> {{ form.time_end.label }} </h6>
+                  <h6 class="fit-left navy half-margin-top"> {{ form.time_end.label }} </h6>
                   <span class="input-sizer"> {{ form.time_end }} </span>
                   {% if form.time_end.help_text %}
                     <p class="small">
@@ -109,7 +109,7 @@
           <div class="row no-margin-bottom center">
             <div id="location-box" class="small-8 medium-4 small-centered columns">
               <div id="location-1">
-                <h6 class="fit-left navy"> at </h6>
+                <h6 class="fit-left navy half-margin-top"> at </h6>
                 <span class="input-sizer">
                   <input class="location center" name="event-location-1" placeholder="location" type="text" required>
                 </span>
@@ -125,6 +125,8 @@
 
               {{form.is_public.1.tag}}
               <label for="id_is_public_1" class="button round secondary tiny">Invite only</label>
+
+              <a class="privacy-info-popup_open"><i class="half-margin-left fa fa-lg fa-question-circle grey"></i></a>
           </div>
 
           <div class="three-halves-margin-top row left">
@@ -202,10 +204,30 @@
       </div-->
     </div>
 
+    <div id="privacy-info-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h3 class="popup-title">Public or private?</h3>
+      </div>
+
+      <div class="row left">
+        <div class="small-centered medium-10 columns">
+          <p><strong>Public events</strong><br/>
+          Select "Public" if you would like this event to be seen by anyone looking for volunteer opportunities.
+          </p>
+
+          <p><strong>Invite only events</strong><br/>
+          Select "Invite only" if you would like this event to only be available to people you invite. It will not be displayed as an upcoming event to volunteers you don't invite.
+          </p>
+
+          <p class="center three-halves-margin-top"><a class="privacy-info-popup_close button round">Got it</a></p>
+        </div>
+      </div>
+    </div>
+
 
     <script type="text/javascript">
       $(document).ready(function(){
-        $('#template-popup').popup({
+        $('#template-popup, #privacy-info-popup').popup({
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: true,
@@ -218,7 +240,7 @@
 
         $('#time_start, #time_end').timepicker({
           step: 30,
-          minTime: '12:00pm',
+          minTime: '7:00am',
         });
       });
     </script>
@@ -266,11 +288,11 @@
 
         $('#location-box').append(
           '<div id="location-'+id+'" class="relative hidden"> \
-              <h6 class="fit-left navy">&</h6> \
+              <h6 class="fit-left navy half-margin-top">&</h6> \
               <span class="input-sizer"> \
                 <input class="location center" name="event-location-'+id+'" placeholder="location" type="text" required> \
               </span> \
-              <i class="remove-location fa fa-times-circle"></i> \
+              <i class="remove-input grey fa fa-times-circle"></i> \
           </div>'
         );
         $('#location-'+id+'').slideDown();

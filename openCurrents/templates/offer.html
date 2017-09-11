@@ -17,11 +17,254 @@
         </div>
         {% endif %}
         
-        <div class="row">
-          <h3 class="title">We offer...</h3>
+        <div class="row two-margin-top two-margin-bottom">
+          <div class="small-12 medium-9 small-centered columns">
+            <div class="row collapse">
+              <div class="small-4 columns">
+                <div id="progress-1" class="progress-counter progress-highlight">
+                  <h6>1</h6>
+                </div>
+                <label class="small-text blue">Set goods</label>
+              </div>
+
+              <div class="small-4 columns">
+                <div id="progress-2" class="progress-counter">
+                  <h6>2</h6>
+                </div>
+                <label class="small-text">Set limit</label>
+              </div>
+
+              <div class="small-4 columns">
+                <div id="progress-3" class="progress-counter">
+                  <h6>3</h6>
+                </div>
+                <label class="small-text">Confirm</label>
+              </div>
+
+              <!-- <div class="small-3 columns">
+                <div id="progress-4" class="progress-counter">
+                  <h6>4</h6>
+                </div>
+                <label class="small-text">Confirm</label>
+              </div> -->
+            </div>
+          </div>
         </div>
+
+        <div id="offer-1">
+          <div class="row one-margin-bottom">
+            <div class="small-12 medium-10 small-centered columns">
+              <h5 class="">For which goods will you accept Currents?</h5>
+              <a class="offer-info-popup_open"><i class="half-margin-right fa fa-lg fa-question-circle"></i>How it works</a>
+            </div>
+          </div>
+
+          <input type="radio" id="offer-cat-1" name="offer-cat-1" class="vol-radio hidden" checked/>
+          <input type="radio" id="offer-cat-2" name="offer-cat-2" class="vol-radio hidden" checked/>
+
+          <div class="row">
+            <div class="small-12 medium-6 small-centered columns">
+              <div class="row center hidden half-margin-bottom">
+                <a id="offer-products">Accept Currents for products</a>
+              </div>
+
+              <div id="products-row" class="row">
+                <div class="input-left small-5 columns">
+                  <input name="discount-amount-cat-1" type="number" class="fit-left qtr-margin-right discount-amount" placeholder="20" value="20"/>
+                  <span class="input-sizer"><select name="discount-type-cat-1">
+                    <option selected>% off</option>
+                    <option>$ off</option>
+                  </select></span>
+                </div>
+
+                <div class="input-right small-7 columns">
+                  <div class="relative">
+                    <input id="cat-name-1" name="cat-name-1" type="text" placeholder="Category name" value="Products"/>
+                    <i id="remove-cat-1" class="remove-input alert fa fa-times"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="small-12 medium-6 small-centered columns">
+              <div class="row center hidden half-margin-bottom">
+                <a id="offer-services">Accept Currents for services</a>
+              </div>
+
+              <div id="services-row" class="row">
+                <div class="input-left small-5 columns">
+                  <input name="discount-amount-cat-2" type="number" class="fit-left qtr-margin-right discount-amount" placeholder="20" value="20"/>
+                  <span class="input-sizer"><select name="discount-type-cat-2">
+                    <option selected>% off</option>
+                    <option>$ off</option>
+                  </select></span>
+                </div>
+
+                <div class="input-right small-7 columns">
+                  <div class="relative">
+                    <input name="cat-name-2" type="text" placeholder="Category name" value="Services"/>
+                    <i id="remove-cat-2" class="remove-input alert fa fa-times"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="small-12 medium-8 small-centered columns">
+              <div id="item-headers" class="row one-margin-top left hidden">
+                <div class="input-left small-4 large-3 columns">
+                  <p><strong>Discount</strong></p>
+                </div>
+
+                <div class="input-middle small-4 medium-5 large-6 columns">
+                  <p><strong>Item name</strong></p>
+                </div>
+
+                <div class="input-right small-4 medium-3 columns">
+                  <p><strong>Shelf price</strong><a class="value-info-popup_open"></a></p>
+                </div>
+              </div>
+
+              <a id="add-item"><i class="half-margin-top fa fa-plus-circle half-margin-right"></i>Add specific item</a>
+            </div>
+          </div>
+
+          <!-- <div class="row one-margin-top">
+            <div class="small-12 medium-10 small-centered columns">
+              <input type="radio" id="all-goods" name="good-types" value="" class="hidden styled-radio" checked/>
+                <label for="all-goods" class="button round secondary small">All goods</label>
+              <input type="radio" id="products-only" name="good-types" value="" class="hidden styled-radio"/>
+                <label for="products-only" class="button round secondary small">Products only</label>
+              <input type="radio" id="services-only" name="good-types" value="" class="hidden styled-radio"/>
+                <label for="services-only" class="button round secondary small">Services only</label>
+              <input type="radio" id="specific-goods" name="good-types" value="" class="hidden styled-radio"/>
+                <label for="specific-goods" class="button round secondary small">Specific goods</label>
+            </div>
+          </div>
+
+          <div class="row left one-margin-top">
+            <div id="goods-detail-div" class="small-11 medium-8 small-centered columns">
+              <p id="all-detail" class="goods-detail no-margin-bottom"><strong>All goods</strong><br/>
+              Accept Currents for partial payment of everything you offer. If you'd like to set different offers for different types of goods, select "Specific goods".</p>
+
+              <p id="products-detail" class="goods-detail no-margin-bottom hidden"><strong>Products only</strong><br/>
+              Accept Currents for partial payment of physical products only. If you want to set different offers for different products, select "Specific goods".
+              </p>
+
+              <p id="services-detail" class="goods-detail no-margin-bottom hidden"><strong>Services only</strong><br/>
+              Accept Currents for partial payment of services only. If you want to set different orders for different services, select "Specific goods".
+              </p>
+
+              <p id="specific-detail" class="goods-detail no-margin-bottom hidden"><strong>Specific goods</strong><br/>
+              Accept Currents for partial payment of specific products and services. You will be able to set different offers for each item or category you list.
+              </p>
+            </div>
+          </div> -->
+
+          <div class="row three-halves-margin-top">
+            <a class="next-offer button round">Next</a>
+          </div>
+        </div>
+
+        <div id="offer-2" class="">
+          <!-- <div class="row">
+            <div class="small-12 medium-8 small-centered columns">
+              <h5 class="one-margin-bottom">How much do you value an hour of volunteer work?</h5>
+
+              <p class="">This determines how many Currents you receive for the discount you offer. Since each Current is created from an hour of work, we suggest a starting value of $10 per Current (or $10 per hour). Right now the community average is $[10] per Current.</p>
+
+              <p class="half-margin-bottom">[Business name] accepts Currents at:</p>
+            </div>
+          </div>
+
+          <div class="row collapse">
+            <div class="small-centered small-6 medium-4 columns">
+              <div class="value-div">
+                <span class="dollar-placeholder large-text">$</span>
+                <input id="current-price-1" class="dollar-price large-text" type="number" placeholder="10" value="10"/>
+                <div class="value-placeholder"><span class="grey large-text">per </span><img class="large-text-symbol" src="{% static 'img/symbol.svg' %}"/></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="small-12 medium-5 small-centered columns">
+              <p class="grey">(If you give [20%] off a $10 item at $[10] per Current, you would receive $8 and <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> [0.2]</span>)
+            </div>
+          </div> -->
+
+          <div class="row">
+            <div class="small-12 medium-8 small-centered columns">
+              <h5 class="one-margin-bottom">Do you want to limit the number of Currents you accept?</h5>
+              <p>Accept all customers who wish to buy from you, or set a monthly limit.</p>
+              <span class="">
+                <input type="radio" name="limit-currents" id="limit-currents-no" class="hidden styled-radio" checked />
+                  <label for="limit-currents-no" class="button round secondary tiny">No limit</label>
+              </span>
+              <span class="">
+                <input type="radio" name="limit-currents" id="limit-currents-yes" class="hidden styled-radio" />
+                  <label for="limit-currents-yes" class="button round secondary tiny">Monthly limit</label>
+              </span>
+
+              <div id="monthly-limit-div" class="row center hidden">
+                <span>[Business name] will accept </span>
+                <div id="monthly-limit-input" class="relative inline-block">
+                  <img class="current-placeholder" src="{% static 'img/symbol.svg' %}"/>
+                  
+                  <input id="monthly-limit" name="monthly-limit" class="current-price" type="number" placeholder="50" />
+                </div>
+                <span> per month</span>
+              </div>
+
+              <p class="grey half-margin-top">Note: As a starting point, Currents are valued at $10 each - or $10 for each hour of volunteer work. You'll be able to change this value later if you wish.</p>
+
+              <div class="row">
+                <div class="medium-10 small-centered columns">
+                  <p class="grey">Example: For a [20%] discount on a $10 item at $10 per Current, you would receive $8 and <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> [0.2]</span>)</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row one-margin-top">
+            <a class="prev-offer button round secondary">Back</a>
+            <a class="next-offer button round">Next</a>
+          </div>
+        </div>
+
+        <div id="offer-3">
+          <div class="row left">
+            <div class="small-12 medium-8 small-centered columns">
+              <h5 class="one-margin-bottom center">Confirm offer details</h5>
+              <p>As an authorized representative of [Business Name], I agree to accept [a maximum of] Currents [per month] as partial payment for the following products and services:</p>
+              
+              <ul>
+                <li>[20%] of [Products]</li>
+                <li>[20%] of [Services]</li>
+                <li>[20%] of [Item 1]</li>
+              </ul>
+                
+              <p>Customers will pay full price at point of sale and provide openCurrents with proof of purchase. At the end of the month, openCurrents will invoice [Business Name] for the total amount discounted to customers, then reimburse customers the discounted amount. For every $10 discounted, [Business Name] can choose to receive 1 Current or claim a $10 charitable donation.</p>
+            </div>
+          </div>
+
+          <div class="row one-margin-top">
+            <a class="prev-offer button round secondary">Back</a>
+            <a class="button round">Confirm offer</a>
+          </div>
+        </div>
+
+        <!-- <div id="offer-4">
+          <div class="row two-margin-top">
+            <a class="prev-offer button round secondary">Back</a>
+            
+          </div>
+        </div> -->
         
-        <div class="row center">
+        <!-- <div class="row center">
           <div class="center small-12 medium-6 small-centered columns">
             <input type="number" id="discount-amount" name="discount-amount" class="inline" placeholder="#">
             <select id="discount-type" name="discount-type" class="inline">
@@ -35,9 +278,9 @@
 
             <p class="large-text">up to <input type="number" id="max-currents" name="max-currents" class="inline large-text" placeholder="#" value="1"> Currents per customer per day</p>
           </div>
-        </div>
+        </div> -->
 
-        <div class="row">
+        <!-- <div class="row">
           <div class="small-12 medium-5 small-centered columns">
             <label><input type="checkbox" id="min-purchase" name="min-purchase"/>Minimum purchase required</label>
 
@@ -45,7 +288,7 @@
 
             <a href="" class="three-halves-margin-top button round">Create offer</a>
           </div>
-        </div>
+        </div> -->
         
         <div id="push"></div>
     
@@ -63,18 +306,20 @@
       {% include 'partials/menu.html' %}
     </div>
   
-    <div id="-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+    <div id="value-info-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
-        <h3 class="popup-title"></h3>
+        <h4 class="popup-title">How to value Currents</h4>
       </div>
-      
+      <p>You are welcome to value Currents however you choose. Please note, however, that the more you value you give for Currents, the higher priority your offer will receive in the marketplace - meaning more customers will see your business.</p>
       <div class="row">
         <div class="small-centered medium-10 columns">
           
-          <p></p>
           
-          <button class="tax-id-popup_close button round">Okay</button>
-          <a><button class="button round secondary"></button></a>
+          
+          <p class="center three-halves-margin-top">
+            <a class="value-info-popup_close button round">Got it</a>
+            <a href="javascript:void(Tawk_API.toggle())" class="button round secondary">Contact us</a>
+          </p>
         </div>
       </div>
     </div>
@@ -82,14 +327,136 @@
     
     <script type="text/javascript">
       $(document).ready(function(){
-        $('#').popup({
+        $('#value-info-popup').popup({
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: true,
         });
 
-        $('#min-purchase').change(function(){
-          $('#min-purchase-div')[this.checked ? "slideDown" : "slideUp"]();
+        // Add specific item
+        var id = 1
+
+        $('#add-item').click(function(){
+          $('#item-headers').slideDown();
+          $(this).before('<div id="item-'+id+'" name="item-'+id+'" class="row hidden"><div class="input-left small-4 large-3 columns"><input name="item-'+id+'-discount" type="number" class="fit-left qtr-margin-right discount-amount" placeholder="20" value="20"/><span class="input-sizer"><select name="discount-type-'+id+'"><option selected>% off</option><option>$ off</option></select></span></div><div class="input-middle small-4 medium-5 large-6 columns"><input name="item-'+id+'-name" type="text" placeholder="Item name"/></div><div class="currency-input input-right small-4 medium-3 columns"><div class="relative"><span class="dollar-placeholder">$</span><input name="item-'+id+'-price" class="item-price" type="number" placeholder="10"/><i class="remove-input alert fa fa-times"></i></div></div></div>');
+          $('#item-'+id+'').slideDown();
+
+          id ++
+        });
+
+        // Add products category
+        $('#offer-products').click(function(){
+          $(this).parent().slideUp();
+          $(this).parent().after('<div id="products-row" class="row hidden"><div class="input-left small-5 columns"><input name="discount-amount-cat-1" type="number" class="fit-left qtr-margin-right discount-amount" placeholder="20" value="20"/><span class="input-sizer"><select name="discount-type-cat-1"><option selected>% off</option><option>$ off</option></select></span></div><div class="input-right small-7 columns"><div class="relative"><input name="cat-name-1" type="text" placeholder="Category name" value="Products"/><i id="remove-cat-1" class="remove-input alert fa fa-times"></i></div></div></div>');
+          $('#products-row').slideDown();
+          $('#offer-cat-1').prop('checked', true);
+        });
+
+        // Add services category
+        $('#offer-services').click(function(){
+          $(this).parent().slideUp();
+          $(this).parent().after('<div id="services-row" class="row hidden"><div class="input-left small-5 columns"><input name="discount-amount-cat-2" type="number" class="fit-left qtr-margin-right discount-amount" placeholder="20" value="20"/><span class="input-sizer"><select name="discount-type-cat-2"><option selected>% off</option><option>$ off</option></select></span></div><div class="input-right small-7 columns"><div class="relative"><input name="cat-name-2" type="text" placeholder="Category name" value="Services"/><i id="remove-cat-2" class="remove-input alert fa fa-times"></i></div></div></div>');
+          $('#services-row').slideDown();
+          $('#offer-cat-2').prop('checked', true);
+        });
+
+        // Remove item
+        $('body').on('click', '.remove-input', function(){
+          $(this).closest('.row').slideUp(function(){
+            $(this).remove();
+          });
+          $(this).closest('.row').siblings('.hidden').slideDown();
+        });
+
+        // Remove products offer
+        $('body').on('click', '#remove-cat-1', function(){
+          $('#offer-cat-1').prop('checked', false);
+        });
+
+        // Remove services offer
+        $('body').on('click', '#remove-cat-2', function(){
+          $('#offer-cat-2').prop('checked', false);
+        });
+
+        // Show/hide monthly limit input
+        $('#limit-currents-yes').click(function(){
+          $('#monthly-limit-div').slideDown();
+        });
+
+        $('#limit-currents-no').click(function(){
+          $('#monthly-limit-div').slideUp(function(){
+            $('#monthly-limit').val('');
+          });
+        });
+
+        // Change goods-detail with click
+        // $('#all-goods').click(function(){
+        //   $('.goods-detail').hide();
+        //   $('#all-detail').show();
+        // });
+
+        // $('#products-only').click(function(){
+        //   $('.goods-detail').hide();
+        //   $('#products-detail').show();
+        // });
+
+        // $('#services-only').click(function(){
+        //   $('.goods-detail').hide();
+        //   $('#services-detail').show();
+        // });
+
+        // $('#specific-goods').click(function(){
+        //   $('.goods-detail').hide();
+        //   $('#specific-detail').show();
+        // });
+        
+        // Slide left on 'Next'
+        var page = 1;
+
+        $('.next-offer').click(function() {
+          var $lefty = $('#offer-'+page+'');
+          var $righty = $('#offer-'+(page+1)+'');
+
+          $righty.show()
+
+          $lefty.animate({
+            left: parseInt(-$lefty.outerWidth())
+          }, 777);
+          $righty.animate({
+            left: 0
+          }, 777);
+
+          setTimeout(function() {
+              $lefty.hide();
+          }, 1000);
+
+          $('#progress-'+page+'').removeClass('progress-highlight').siblings('label').removeClass('blue');
+          $('#progress-'+(page+1)+'').addClass('progress-highlight').siblings('label').addClass('blue');
+
+          page ++;
+        });
+
+        // Slide right on 'Back'
+        $('.prev-offer').click(function() {
+          var $lefty = $('#offer-'+(page-1)+'');
+          var $righty = $('#offer-'+page+'');
+
+          $lefty.show();
+          $lefty.animate({
+            left: 0
+          }, 777);
+          $righty.animate({
+            left: parseInt($lefty.outerWidth())
+          }, 777);
+
+          setTimeout(function() {
+              $righty.hide();
+          }, 1000);
+
+          $('#progress-'+(page-1)+'').addClass('progress-highlight').siblings('label').addClass('blue');
+          $('#progress-'+page+'').removeClass('progress-highlight').siblings('label').removeClass('blue');
+
+          page --;
         });
       });
     </script>
