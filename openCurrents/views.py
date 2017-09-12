@@ -1514,7 +1514,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
             if type(json.loads(event_ids)) == list:
                 pass
             else:
-                event_ids = '['+event_ids+']'
+                event_ids = [int(event_ids)]
                 event_ids = unicode(event_ids)
             if event_ids:
                 event = Event.objects.filter(
@@ -1540,7 +1540,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
             if type(json.loads(event_create_id)) == list:
                 pass
             else:
-                event_create_id = '['+event_create_id+']'
+                event_create_id = [int(event_create_id)]
                 event_create_id = unicode(event_create_id)
             event_create_id = json.loads(event_create_id)
         except:
