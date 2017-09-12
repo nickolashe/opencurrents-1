@@ -54,13 +54,13 @@
         <div id="offer-1">
           <div class="row one-margin-bottom">
             <div class="small-12 medium-11 small-centered columns">
-              <h5 class="">How much of purchase will you accept in Currents?</h5>
+              <h5 class="">How much of a purchase will you accept in Currents?</h5>
               <a class="offer-info-popup_open"><i class="half-margin-right fa fa-lg fa-question-circle"></i>How it works</a>
             </div>
           </div>
 
-          <input type="radio" id="offer-cat-1" name="offer-cat-1" class="vol-radio hidden" checked/>
-          <input type="radio" id="offer-cat-2" name="offer-cat-2" class="vol-radio hidden" checked/>
+          <!-- <input type="radio" id="offer-cat-1" name="offer-cat-1" class="vol-radio hidden" checked/>
+          <input type="radio" id="offer-cat-2" name="offer-cat-2" class="vol-radio hidden" checked/> -->
 
           <div class="row left">
             <div class="small-12 medium-6 small-centered columns">
@@ -76,16 +76,23 @@
             </div>
           </div>
 
-          <div class="row">
+          <!-- <div class="row">
             <div class="small-12 medium-6 small-centered columns">
               <div class="row center hidden half-margin-bottom">
                 <a id="offer-products">Accept Currents for products</a>
               </div>
+              <div class="row center hidden half-margin-bottom">
+                <a id="offer-services">Accept Currents for services</a>
+              </div> 
+            </div>
+          </div> -->
 
-              <div id="products-row" class="row">
+          <div class="row">
+            <div class="small-12 medium-6 small-centered columns">
+              <div class="row">
                 <div class="input-left small-5 columns">
-                  <input name="discount-amount-cat-1" type="number" class="fit-left qtr-margin-right discount-amount" placeholder="20" value="20"/>
-                  <span class="input-sizer"><select name="discount-type-cat-1">
+                  <input name="discount-amount-1" type="number" class="fit-left qtr-margin-right discount-amount" placeholder="20" value="20"/>
+                  <span class="input-sizer"><select name="discount-type-1">
                     <option selected>% of</option>
                     <option>$ of</option>
                   </select></span>
@@ -93,21 +100,13 @@
 
                 <div class="input-right small-7 columns">
                   <div class="relative">
-                    <input id="cat-name-1" name="cat-name-1" type="text" placeholder="Category name" value="Products"/>
-                    <i id="remove-cat-1" class="remove-input alert fa fa-times"></i>
+                    <input name="item-name-1" type="text" placeholder="Item or category" value="All products"/>
+                    <i class="remove-input alert fa fa-times"></i>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
 
-          <div class="row">
-            <div class="small-12 medium-6 small-centered columns">
-              <div class="row center hidden half-margin-bottom">
-                <a id="offer-services">Accept Currents for services</a>
-              </div>
-
-              <div id="services-row" class="row">
+              <div class="row">
                 <div class="input-left small-5 columns">
                   <input name="discount-amount-cat-2" type="number" class="fit-left qtr-margin-right discount-amount" placeholder="20" value="20"/>
                   <span class="input-sizer"><select name="discount-type-cat-2">
@@ -118,18 +117,13 @@
 
                 <div class="input-right small-7 columns">
                   <div class="relative">
-                    <input name="cat-name-2" type="text" placeholder="Category name" value="Services"/>
-                    <i id="remove-cat-2" class="remove-input alert fa fa-times"></i>
+                    <input name="cat-name-2" type="text" placeholder="Item or category" value="All services"/>
+                    <i class="remove-input alert fa fa-times"></i>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
 
-          <div class="row">
-            <div class="small-12 medium-8 small-centered columns">
-
-              <a id="add-item"><i class="half-margin-top fa fa-plus-circle half-margin-right"></i>Add specific item</a>
+              <a id="add-item"><i class="half-margin-top fa fa-plus-circle half-margin-right"></i>Add item or category</a>
 
               <div class="row one-margin-top">
                 <a class="prev-offer button round secondary">Back</a>
@@ -143,7 +137,7 @@
           <div class="row">
             <div class="small-12 medium-8 small-centered columns">
               <h5 class="one-margin-bottom">Value of Currents for pilot phase</h5>
-              <p class="">As a starting point, Currents are valued at $10 each - or $10 per hour of volunteer work. You'll be able to change this value later if you wish.</p>
+              <p class="">As a starting point, Currents are valued at $10 each - or $10 per hour of volunteer work. You'll be able to change this value at a later date if you wish.</p>
 
               <div class="row">
                 <div class="medium-10 small-centered columns">
@@ -188,7 +182,7 @@
         <div id="offer-3">
           <div class="row">
             <div class="small-12 medium-11 small-centered columns">
-              <h5 class="one-margin-bottom">Do you want to limit the number of transactions you accept?</h5>
+              <h5 class="one-margin-bottom">Do you want to limit the number of transactions?</h5>
             </div>
           </div>
 
@@ -292,6 +286,24 @@
     <div off-canvas="menu right shift" id="menu">
       {% include 'partials/menu.html' %}
     </div>
+
+    <div id="offer-info-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h4 class="popup-title">How transactions work</h4>
+      </div>
+      <div class="row">
+        <div class="small-centered medium-10 columns">
+          <p>To make it as easy as possible to get started with openCurrents, nothing changes at point of sale. Customers will pay full price at point of sale and provide openCurrents with proof of purchase.</p>
+
+          <p>At the end of the month, we will invoice you the total amount discounted to customers, then reimburse customers and deduct their Currents. For every $10 discounted, you will have the choice to receive 1 Current or claim a $10 charitable donation.</p>
+
+          <p class="center three-halves-margin-top">
+            <a class="offer-info-popup_close button round">Got it</a>
+            <a href="javascript:void(Tawk_API.toggle())" class="button round secondary">Contact us</a>
+          </p>
+        </div>
+      </div>
+    </div>
   
     <div id="value-info-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
@@ -300,9 +312,6 @@
       <p>You are welcome to value Currents however you choose. Please note, however, that the more you value you give for Currents, the higher priority your offer will receive in the marketplace - meaning more customers will see your business.</p>
       <div class="row">
         <div class="small-centered medium-10 columns">
-          
-          
-          
           <p class="center three-halves-margin-top">
             <a class="value-info-popup_close button round">Got it</a>
             <a href="javascript:void(Tawk_API.toggle())" class="button round secondary">Contact us</a>
@@ -314,37 +323,20 @@
     
     <script type="text/javascript">
       $(document).ready(function(){
-        $('#value-info-popup').popup({
+        $('#value-info-popup, #offer-info-popup').popup({
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: true,
         });
 
-        // Add specific item
-        var id = 1
+        // Add item
+        var id = 3
 
         $('#add-item').click(function(){
-          $('#item-headers').slideDown();
-          $(this).before('<div id="item-'+id+'" name="item-'+id+'" class="row hidden"><div class="input-left small-4 large-3 columns"><input name="item-'+id+'-discount" type="number" class="fit-left qtr-margin-right discount-amount" placeholder="20" value="20"/><span class="input-sizer"><select name="discount-type-'+id+'"><option selected>% off</option><option>$ off</option></select></span></div><div class="input-middle small-4 medium-5 large-6 columns"><input name="item-'+id+'-name" type="text" placeholder="Item name"/></div><div class="currency-input input-right small-4 medium-3 columns"><div class="relative"><span class="dollar-placeholder">$</span><input name="item-'+id+'-price" class="item-price" type="number" placeholder="10"/><i class="remove-input alert fa fa-times"></i></div></div></div>');
+          $(this).before('<div id="item-'+id+'" class="row hidden"><div class="input-left small-5 columns"><input name="discount-amount-'+id+'" type="number" class="fit-left qtr-margin-right discount-amount" placeholder="20" value="20"/><span class="input-sizer"><select name="discount-type-'+id+'"><option selected>% of</option><option>$ of</option></select></span></div><div class="input-right small-7 columns"><div class="relative"><input name="item-name-'+id+'" type="text" placeholder="Item or category" /><i id="remove-cat-1" class="remove-input alert fa fa-times"></i></div></div></div>');
           $('#item-'+id+'').slideDown();
 
           id ++
-        });
-
-        // Add products category
-        $('#offer-products').click(function(){
-          $(this).parent().slideUp();
-          $(this).parent().after('<div id="products-row" class="row hidden"><div class="input-left small-5 columns"><input name="discount-amount-cat-1" type="number" class="fit-left qtr-margin-right discount-amount" placeholder="20" value="20"/><span class="input-sizer"><select name="discount-type-cat-1"><option selected>% off</option><option>$ off</option></select></span></div><div class="input-right small-7 columns"><div class="relative"><input name="cat-name-1" type="text" placeholder="Category name" value="Products"/><i id="remove-cat-1" class="remove-input alert fa fa-times"></i></div></div></div>');
-          $('#products-row').slideDown();
-          $('#offer-cat-1').prop('checked', true);
-        });
-
-        // Add services category
-        $('#offer-services').click(function(){
-          $(this).parent().slideUp();
-          $(this).parent().after('<div id="services-row" class="row hidden"><div class="input-left small-5 columns"><input name="discount-amount-cat-2" type="number" class="fit-left qtr-margin-right discount-amount" placeholder="20" value="20"/><span class="input-sizer"><select name="discount-type-cat-2"><option selected>% off</option><option>$ off</option></select></span></div><div class="input-right small-7 columns"><div class="relative"><input name="cat-name-2" type="text" placeholder="Category name" value="Services"/><i id="remove-cat-2" class="remove-input alert fa fa-times"></i></div></div></div>');
-          $('#services-row').slideDown();
-          $('#offer-cat-2').prop('checked', true);
         });
 
         // Remove item
@@ -352,17 +344,6 @@
           $(this).closest('.row').slideUp(function(){
             $(this).remove();
           });
-          $(this).closest('.row').siblings('.hidden').slideDown();
-        });
-
-        // Remove products offer
-        $('body').on('click', '#remove-cat-1', function(){
-          $('#offer-cat-1').prop('checked', false);
-        });
-
-        // Remove services offer
-        $('body').on('click', '#remove-cat-2', function(){
-          $('#offer-cat-2').prop('checked', false);
         });
 
         // Show/hide monthly limit input
