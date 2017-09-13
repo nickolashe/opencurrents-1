@@ -1441,8 +1441,18 @@ input[type="checkbox"] + label.vol-arrived {
 }
 
 .discount-amount {
-  width: 34px;
+  width: 55px;
   margin-top: 0;
+}
+
+.input-icon-right {
+  position: absolute;
+  right: 5px;
+  top: 8px;
+}
+
+#item-title {
+  margin-left: 2.25rem;
 }
 
 #item-name {
@@ -1465,4 +1475,4 @@ input[type="checkbox"] + label.vol-arrived {
 
 #min-purchase-amount {
   width: 44px;
-}*/
+}

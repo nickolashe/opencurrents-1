@@ -55,7 +55,7 @@
           <div class="row one-margin-bottom">
             <div class="small-12 medium-11 small-centered columns">
               <h5 class="">What share of purchases will you accept in Currents?</h5>
-              <!-- <a class="offer-info-popup_open"><i class="half-margin-right fa fa-lg fa-question-circle"></i>How it works</a> -->
+              <a class="offer-info-popup_open"><i class="half-margin-right fa fa-lg fa-question-circle"></i>How it works</a>
             </div>
           </div>
 
@@ -65,59 +65,56 @@
           <div class="row left">
             <div class="small-12 medium-6 small-centered columns">
               <div class="row">
-                <div class="input-left small-5 columns">
+                <div class="input-left small-3 columns">
                   <p><strong><img class="" src="{% static 'img/symbol-navy.svg' %}"/> share</strong></p>
                 </div>
 
-                <div class="input-right small-7 columns">
-                  <p><strong>Item or category</strong></p>
+                <div class="input-right small-9 columns">
+                  <p id="item-title"><strong>Item or category</strong></p>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- <div class="row">
-            <div class="small-12 medium-6 small-centered columns">
-              <div class="row center hidden half-margin-bottom">
-                <a id="offer-products">Accept Currents for products</a>
-              </div>
-              <div class="row center hidden half-margin-bottom">
-                <a id="offer-services">Accept Currents for services</a>
-              </div> 
-            </div>
-          </div> -->
-
           <div class="row">
             <div class="small-12 medium-6 small-centered columns">
-              <div class="row">
-                <div class="input-left small-5 columns">
-                  <input name="discount-amount-1" type="number" class="fit-left qtr-margin-right discount-amount" placeholder="20" value="20"/>
-                  <span class="input-sizer"><select name="discount-type-1">
+              <div id="item-1" class="row collapse">
+                <div class="input-left small-3 columns">
+                  <div class="relative">
+                    <input name="discount-amount-1" type="number" class="fit-left qtr-margin-right" placeholder="20" value="20"/>
+                    <span class="input-icon-right">%</span>
+                  </div>
+                  <!-- <span class="input-sizer"><select name="discount-type-1">
                     <option selected>% of</option>
                     <option>$ of</option>
-                  </select></span>
+                  </select></span> -->
                 </div>
 
-                <div class="input-right small-7 columns">
-                  <div class="relative">
-                    <input name="item-name-1" type="text" placeholder="Item or category" value="All products"/>
+                <div class="input-right small-9 columns">
+                  <div class="fit-left half-margin-top half-margin-right half-margin-left">of</div>
+                  <div class="relative input-sizer">
+                    <input name="item-name-1" type="text" placeholder="Item or category name" value="All products"/>
                     <i class="remove-input alert fa fa-times"></i>
                   </div>
                 </div>
               </div>
 
-              <div class="row">
-                <div class="input-left small-5 columns">
-                  <input name="discount-amount-cat-2" type="number" class="fit-left qtr-margin-right discount-amount" placeholder="20" value="20"/>
-                  <span class="input-sizer"><select name="discount-type-cat-2">
+              <div id="item-2" class="row collapse">
+                <div class="input-left small-3 columns">
+                  <div class="relative">
+                    <input name="discount-amount-2" type="number" class="fit-left qtr-margin-right" placeholder="20" value="20"/>
+                    <span class="input-icon-right">%</span>
+                  </div>
+                  <!-- <span class="input-sizer"><select name="discount-type-1">
                     <option selected>% of</option>
                     <option>$ of</option>
-                  </select></span>
+                  </select></span> -->
                 </div>
 
-                <div class="input-right small-7 columns">
-                  <div class="relative">
-                    <input name="cat-name-2" type="text" placeholder="Item or category" value="All services"/>
+                <div class="input-right small-9 columns">
+                  <div class="fit-left half-margin-top half-margin-right half-margin-left">of</div>
+                  <div class="relative input-sizer">
+                    <input name="item-name-2" type="text" placeholder="Item or category name" value="All services"/>
                     <i class="remove-input alert fa fa-times"></i>
                   </div>
                 </div>
@@ -293,7 +290,7 @@
       </div>
       <div class="row">
         <div class="small-centered medium-10 columns">
-          <p>To make it as easy as possible to get started with openCurrents, nothing changes at point of sale. Customers will pay full price at point of sale and provide openCurrents with proof of purchase.</p>
+          <p>To make it as easy as possible to accept Currents, nothing changes at point of sale. Customers will pay full price and provide openCurrents with proof of purchase.</p>
 
           <p>At the end of the month, we will invoice you the total amount discounted to customers, then reimburse customers and deduct their Currents. For every $10 discounted, you will have the choice to receive 1 Current or claim a $10 charitable donation.</p>
 
@@ -333,7 +330,7 @@
         var id = 3
 
         $('#add-item').click(function(){
-          $(this).before('<div id="item-'+id+'" class="row hidden"><div class="input-left small-5 columns"><input name="discount-amount-'+id+'" type="number" class="fit-left qtr-margin-right discount-amount" placeholder="20" value="20"/><span class="input-sizer"><select name="discount-type-'+id+'"><option selected>% of</option><option>$ of</option></select></span></div><div class="input-right small-7 columns"><div class="relative"><input name="item-name-'+id+'" type="text" placeholder="Item or category" /><i id="remove-cat-1" class="remove-input alert fa fa-times"></i></div></div></div>');
+          $(this).before('<div id="item-'+id+'" class="row collapse hidden"><div class="input-left small-3 columns"><div class="relative"><input name="discount-amount-'+id+'" type="number" class="fit-left qtr-margin-right" placeholder="20" value="20"/><span class="input-icon-right">%</span></div></div><div class="input-right small-9 columns"><div class="fit-left half-margin-top half-margin-right half-margin-left">of</div><div class="relative input-sizer"><input name="item-name-'+id+'" type="text" placeholder="Item or category name" /><i class="remove-input alert fa fa-times"></i></div></div></div>');
           $('#item-'+id+'').slideDown();
 
           id ++
