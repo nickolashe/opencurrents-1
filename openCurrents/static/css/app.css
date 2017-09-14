@@ -88,16 +88,8 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 1rem;
 }
 
-/* Large buttons on small screens */
 .button.large {
   font-size: 1.125rem;
-}
-
-/* Large buttons on non-small screens */
-@media screen and (min-width: 42em) {
-  .button.large {
-    font-size: 1.25rem;
-  }
 }
 
 .button.small {
@@ -649,6 +641,21 @@ label {
 
 .hidden {
   display: none;
+}
+
+.hidden-file {
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: -1;
+}
+
+.hidden-file:focus + label {
+  background-color: #1f4975;
+  color: #ffffff;
+  border-color: #1f4975;
 }
 
 .underline {
@@ -1476,3 +1483,5 @@ input[type="checkbox"] + label.vol-arrived {
 #min-purchase-amount {
   width: 44px;
 }
+
+/* redeem-currents */
