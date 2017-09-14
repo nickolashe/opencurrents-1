@@ -116,7 +116,7 @@
                 <div class="input-right small-9 columns">
                   <div class="fit-left half-margin-top one-margin-right one-margin-left">of</div>
                   <div class="relative input-sizer">
-                    <input name="item-name-1" type="text" placeholder="Item or category name" value="All products"/>
+                    <input name="item-name-1" type="text" placeholder="Item or category name" value="All products" class="good-cat" />
                     <i class="remove-input alert fa fa-times"></i>
                   </div>
                 </div>
@@ -137,13 +137,13 @@
                 <div class="input-right small-9 columns">
                   <div class="fit-left half-margin-top one-margin-right one-margin-left">of</div>
                   <div class="relative input-sizer">
-                    <input name="item-name-2" type="text" placeholder="Item or category name" value="All services"/>
+                    <input name="item-name-2" type="text" placeholder="Item or category name" value="All services" class="good-cat" />
                     <i class="remove-input alert fa fa-times"></i>
                   </div>
                 </div>
               </div>
 
-              <a id="add-item"><i class="half-margin-top fa fa-plus-circle half-margin-right"></i>Add item or category</a>
+              <a id="add-item" class="hidden"><i class="half-margin-top fa fa-plus-circle half-margin-right"></i>Add item or category</a>
 
               <div class="row one-margin-top">
                 <a class="prev-offer button round secondary">Back</a>
@@ -344,6 +344,12 @@
           $(this).closest('.row').slideUp(function(){
             $(this).remove();
           });
+          $('#add-item').slideDown();
+        });
+
+        // Show add-item if products/services edited
+        $('.good-cat').change(function(){
+          $('#add-item').slideDown();
         });
 
         // Show/hide monthly limit input
