@@ -138,7 +138,6 @@ class EmailVerificationForm(forms.Form):
         user_password = cleaned_data.get('user_password')
         user_password_confirm = cleaned_data.get('user_password_confirm')
         validate_password_strength(str(user_password), str(user_password_confirm))
-        monthly_updates = cleaned_data['monthly_updates']
         # if user_password and user_password_confirm and user_password != user_password_confirm:
         #     raise ValidationError(_('Passwords don\'t match'))
         # if re.match(r'((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%]).{8,})', user_password):
