@@ -58,7 +58,7 @@
 
               <p>To make it as easy as possible to accept Currents, nothing changes at point of sale. Customers will pay full price and provide openCurrents with proof of purchase.</p>
 
-              <p>At the end of the month, we will invoice you the total amount discounted to customers, then reimburse customers and deduct their Currents. For every $10 discounted, you will have the choice to receive 1 Current or claim a $10 charitable donation.</p>
+              <p>At the end of the month, we will invoice you the total value of Currents accepted, then reimburse customers and deduct their Currents. For each Current received, you can either keep the Current or claim a $10 charitable donation. (Initial value: $10 per <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/> 1</span> )</p>
 
               <div class="row">
                 <div class="medium-10 small-centered columns">
@@ -143,7 +143,7 @@
                 </div>
               </div>
 
-              <a id="add-item" class="hidden"><i class="half-margin-top fa fa-plus-circle half-margin-right"></i>Add item or category</a>
+              <a id="add-item" class=""><i class="half-margin-top fa fa-plus-circle half-margin-right"></i>Add item or category</a>
 
               <div class="row one-margin-top">
                 <a class="prev-offer button round secondary">Back</a>
@@ -295,7 +295,7 @@
         <div class="small-centered medium-10 columns">
           <p>To make it as easy as possible to accept Currents, nothing changes at point of sale. Customers will pay full price and provide openCurrents with proof of purchase.</p>
 
-          <p>At the end of the month, we will invoice you the total amount discounted to customers, then reimburse customers and deduct their Currents. For every $10 discounted, you will have the choice to receive 1 Current or claim a $10 charitable donation.</p>
+          <p>At the end of the month, we will invoice you the total dollar value of Currents accepted (starting value: $10 per Current), then reimburse customers and deduct their Currents. For each Current accepted, you can choose to receive that Current or claim a $10 charitable donation.</p>
 
           <p class="center three-halves-margin-top">
             <a class="offer-info-popup_close button round">Got it</a>
@@ -388,49 +388,53 @@
         var page = 1;
 
         $('.next-offer').click(function() {
-          var $lefty = $('#offer-'+page+'');
-          var $righty = $('#offer-'+(page+1)+'');
+          if (page < 4) {
+            var $lefty = $('#offer-'+page+'');
+            var $righty = $('#offer-'+(page+1)+'');
 
-          $righty.show()
+            $righty.show()
 
-          $lefty.animate({
-            left: parseInt(-$lefty.outerWidth())
-          }, 777);
-          $righty.animate({
-            left: 0
-          }, 777);
+            $lefty.animate({
+              left: parseInt(-$lefty.outerWidth())
+            }, 777);
+            $righty.animate({
+              left: 0
+            }, 777);
 
-          setTimeout(function() {
-              $lefty.hide();
-          }, 1000);
+            setTimeout(function() {
+                $lefty.hide();
+            }, 1000);
 
-          $('#progress-'+page+'').removeClass('progress-highlight').siblings('label').removeClass('blue');
-          $('#progress-'+(page+1)+'').addClass('progress-highlight').siblings('label').addClass('blue');
+            $('#progress-'+page+'').removeClass('progress-highlight').siblings('label').removeClass('blue');
+            $('#progress-'+(page+1)+'').addClass('progress-highlight').siblings('label').addClass('blue');
 
-          page ++;
+            page ++;
+          }
         });
 
         // Slide right on 'Back'
         $('.prev-offer').click(function() {
-          var $lefty = $('#offer-'+(page-1)+'');
-          var $righty = $('#offer-'+page+'');
+          if (page > 1) {
+            var $lefty = $('#offer-'+(page-1)+'');
+            var $righty = $('#offer-'+page+'');
 
-          $lefty.show();
-          $lefty.animate({
-            left: 0
-          }, 777);
-          $righty.animate({
-            left: parseInt($lefty.outerWidth())
-          }, 777);
+            $lefty.show();
+            $lefty.animate({
+              left: 0
+            }, 777);
+            $righty.animate({
+              left: parseInt($lefty.outerWidth())
+            }, 777);
 
-          setTimeout(function() {
-              $righty.hide();
-          }, 1000);
+            setTimeout(function() {
+                $righty.hide();
+            }, 1000);
 
-          $('#progress-'+(page-1)+'').addClass('progress-highlight').siblings('label').addClass('blue');
-          $('#progress-'+page+'').removeClass('progress-highlight').siblings('label').removeClass('blue');
-
-          page --;
+            $('#progress-'+(page-1)+'').addClass('progress-highlight').siblings('label').addClass('blue');
+            $('#progress-'+page+'').removeClass('progress-highlight').siblings('label').removeClass('blue');
+          
+            page --;
+          }
         });
       });
     </script>
