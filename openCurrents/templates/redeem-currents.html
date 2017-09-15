@@ -60,7 +60,6 @@
           </div>
 
           <div class="row one-margin-top">
-            <a class="prev-offer button round secondary">Back</a>
             <a class="next-offer button round">Next</a>
           </div>
         </div>
@@ -69,10 +68,11 @@
           <div class="row">
             <div class="small-12 medium-8 small-centered columns">
               <h4 class="">Upload receipt</h4>
-              <p class="three-halves-margin-bottom">We need to show [Fast Folks] that you purchased [flat fixes] to get you reimbursed.</p>
+              <p class="three-halves-margin-bottom">To get you reimbursed, we need to show [Fast Folks] that you purchased [flat fixes].</p>
               <input type="file" accept="image/*" capture="camera" id="upload-receipt" name="upload-receipt" class="hidden-file" data-multiple-caption="{count} files selected" multiple />
               <label for="upload-receipt" class="button round small"><i class="one-margin-right fa fa-upload"></i><span>Choose an image...</span></label>
-              <p class="half-margin-top"><a class="no-receipt-popup_open button round small secondary">I don't have a receipt</a></p>
+              <p class="small-text grey">PNG, JPEG, and GIF accepted</p>
+              <p class="half-margin-top"><a class="no-receipt-popup_open">I don't have a receipt</a></p>
 
               <textarea id="no-receipt-input" class="hidden" rows="3" placeholder="When did you purchase? Who took your order? Did you purchase anything besides [flat fixes]?"></textarea>
             </div>
@@ -89,7 +89,12 @@
             <div class="small-12 medium-8 small-centered columns">
               <h4 class="">Confirm exchange</h4>
               <p class="one-margin-bottom">I agree to give <img class="" src="{% static 'img/symbol-navy.svg' %}"/> [X] to [Fast Folks Bike Shop] in exchange for $[Y].</p>
-              <a type="submit" class="button round">Confirm</a>
+              <p>I understand that $[Y] will be added to my Pending Dollars total until I request to have my balance transferred to my bank account.</p>
+
+              <div class="row three-halves-margin-top">
+                <a class="prev-offer button round secondary">Back</a>
+                <a type="submit" class="button round">Confirm</a>
+              </div>
             </div>
           </div>
         </div>
