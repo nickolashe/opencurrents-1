@@ -16,20 +16,85 @@
           {{status_msg}}
         </div>
         {% endif %}
-        
-        <div class="row">
-          <h3 class="title-sub">Redeem Currents</h3>
-          <h6>for [50% of flat fixes with <strong>Fast Folks Bike Shop</strong>]</h6>
-        </div>
-        
-        <div class="row one-margin-bottom center">
-          <div class="small-12 medium-8 small-centered columns">
-            <p class="three-halves-margin-bottom"><strong>Note:</strong> Please pay full price at [Fast Folks] and upload your receipt here. We will then send you cash back in exchange for Currents at the end of the month. <span class="no-wrap"><a class="redeem-info-popup_open">Learn more</a></span></p>
-            <input type="file" accept="image/*" capture="camera" id="upload-receipt" name="upload-receipt" class="hidden-file" data-multiple-caption="{count} files selected" multiple />
-            <label for="upload-receipt" class="button round secondary small"><i class="half-margin-right fa fa-upload"></i><span>Choose a file...</span></label>
-            <p class="one-margin-top"><a type="submit" class="button round large">Upload receipt</a></p>
+
+        <div class="row two-margin-top two-margin-bottom">
+          <div class="small-12 medium-9 small-centered columns">
+            <div class="row collapse">
+              <div class="small-4 columns">
+                <div id="progress-1" class="progress-counter progress-highlight">
+                  <h6>1</h6>
+                </div>
+                <label class="small-text blue">Purchase</label>
+              </div>
+
+              <div class="small-4 columns">
+                <div id="progress-2" class="progress-counter">
+                  <h6>2</h6>
+                </div>
+                <label class="small-text">Add receipt</label>
+              </div>
+
+              <div class="small-4 columns">
+                <div id="progress-3" class="progress-counter">
+                  <h6>3</h6>
+                </div>
+                <label class="small-text">Confirm</label>
+              </div>
+            </div>
           </div>
         </div>
+
+        <div id="offer-1">
+          <div class="row">
+            <div class="small-12 medium-8 small-centered columns">
+              <h4 class="">Pay shelf price</h4>
+              <h6 class="three-halves-margin-bottom">for [flat fixes with Fast Folks Bike Shop]</h6>
+              <p><strong>Ask for your receipt!</strong> At the end of the month, we will reimburse [50%] of your purchase and deduct equivalent Currents from your account. <a class="redeem-info-popup_open no-wrap">Why am I paying full price?</a></p>
+
+              <span>Price of [flat fixes] before tax:</span>
+              <div class="relative inline-block">
+                <span class="input-icon-left grey">$</span>
+                <input type="number" id="shelf-price" name="shelf-price" />
+              </div>
+            </div>
+          </div>
+
+          <div class="row one-margin-top">
+            <a class="prev-offer button round secondary">Back</a>
+            <a class="next-offer button round">Next</a>
+          </div>
+        </div>
+
+        <div id="offer-2">
+          <div class="row">
+            <div class="small-12 medium-8 small-centered columns">
+              <h4 class="">Upload receipt</h4>
+              <p class="three-halves-margin-bottom">We need to show [Fast Folks] that you purchased [flat fixes] to get you reimbursed.</p>
+              <input type="file" accept="image/*" capture="camera" id="upload-receipt" name="upload-receipt" class="hidden-file" data-multiple-caption="{count} files selected" multiple />
+              <label for="upload-receipt" class="button round small"><i class="one-margin-right fa fa-upload"></i><span>Choose an image...</span></label>
+              <p class="half-margin-top"><a class="no-receipt-popup_open button round small secondary">I don't have a receipt</a></p>
+
+              <textarea id="no-receipt-input" class="hidden" rows="3" placeholder="When did you purchase? Who took your order? Did you purchase anything besides [flat fixes]?"></textarea>
+            </div>
+          </div>
+
+          <div class="row one-margin-top">
+            <a class="prev-offer button round secondary">Back</a>
+            <a class="next-offer button round">Next</a>
+          </div>
+        </div>
+
+        <div id="offer-3">
+          <div class="row">
+            <div class="small-12 medium-8 small-centered columns">
+              <h4 class="">Confirm exchange</h4>
+              <p class="one-margin-bottom">I agree to give <img class="" src="{% static 'img/symbol-navy.svg' %}"/> [X] to [Fast Folks Bike Shop] in exchange for $[Y].</p>
+              <a type="submit" class="button round">Confirm</a>
+            </div>
+          </div>
+        </div>
+        
+
         
         <div id="push"></div>
     
@@ -64,14 +129,93 @@
         </div>
       </div>
     </div>
+
+    <div id="no-receipt-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h3 class="popup-title">I don't have a receipt</h3>
+      </div>
+      
+      <div class="row center">
+        <div class="small-centered medium-10 columns">
+          <p>Without a receipt, [Fast Folks] is unlikely to accept Currents for partial payment. Please give any details that may help the business verify your purchase:</p>
+          <textarea id="no-receipt-text" rows="3" placeholder="When did you purchase? Who took your order? Did you purchase anything besides [flat fixes]?"></textarea>
+
+          <button class="no-receipt-popup_close half-margin-top button round">Continue</button>
+        </div>
+      </div>
+    </div>
     
     
     <script type="text/javascript">
       $(document).ready(function(){
-        $('#redeem-info-popup').popup({
+        $('#redeem-info-popup, #no-receipt-popup').popup({
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: true,
+        });
+
+        $('#no-receipt-popup').popup({
+          vertical: 'top',
+          transition: 'all 0.75s',
+          scrolllock: true,
+          // Copy input value from popup to form input
+          onclose: function() {
+            var text = $('#no-receipt-text').val();
+            $('#no-receipt-input').val(text);
+          }
+        });
+
+        // Slide left on 'Next'
+        var page = 1;
+
+        $('.next-offer').click(function() {
+          if (page < 3) {
+            var $lefty = $('#offer-'+page+'');
+            var $righty = $('#offer-'+(page+1)+'');
+
+            $righty.show()
+
+            $lefty.animate({
+              left: parseInt(-$lefty.outerWidth())
+            }, 777);
+            $righty.animate({
+              left: 0
+            }, 777);
+
+            setTimeout(function() {
+                $lefty.hide();
+            }, 1000);
+
+            $('#progress-'+page+'').removeClass('progress-highlight').siblings('label').removeClass('blue');
+            $('#progress-'+(page+1)+'').addClass('progress-highlight').siblings('label').addClass('blue');
+
+            page ++;
+          }
+        });
+
+        // Slide right on 'Back'
+        $('.prev-offer').click(function() {
+          if (page > 1) {
+            var $lefty = $('#offer-'+(page-1)+'');
+            var $righty = $('#offer-'+page+'');
+
+            $lefty.show();
+            $lefty.animate({
+              left: 0
+            }, 777);
+            $righty.animate({
+              left: parseInt($lefty.outerWidth())
+            }, 777);
+
+            setTimeout(function() {
+                $righty.hide();
+            }, 1000);
+
+            $('#progress-'+(page-1)+'').addClass('progress-highlight').siblings('label').addClass('blue');
+            $('#progress-'+page+'').removeClass('progress-highlight').siblings('label').removeClass('blue');
+          
+            page --;
+          }
         });
 
         // Display filename in upload-receipt label

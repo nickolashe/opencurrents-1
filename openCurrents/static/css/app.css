@@ -1458,6 +1458,12 @@ input[type="checkbox"] + label.vol-arrived {
   top: 8px;
 }
 
+.input-icon-left {
+  position: absolute;
+  left: 5px;
+  top: 8px;
+}
+
 #item-title {
   margin-left: 3rem;
 }
@@ -1485,3 +1491,8 @@ input[type="checkbox"] + label.vol-arrived {
 }
 
 /* redeem-currents */
+
+#shelf-price {
+  width: 77px;
+  text-indent: 11px;
+}
