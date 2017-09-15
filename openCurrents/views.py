@@ -197,10 +197,8 @@ class CheckEmailView(TemplateView):
 class ResetPasswordView(TemplateView):
     template_name = 'reset-password.html'
 
-
 class AssignAdminsView(TemplateView):
     template_name = 'assign-admins.html'
-
 
 class BusinessView(TemplateView):
     template_name = 'business.html'
@@ -526,7 +524,6 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
             vols_approved,
             vols_declined
         )
-
 
     def get_hours_rounded(self, datetime_start, datetime_end):
         return math.ceil((datetime_end - datetime_start).total_seconds() / 3600 * 4) / 4
@@ -1084,6 +1081,7 @@ class AdminProfileView(OrgAdminPermissionMixin, SessionContextView, TemplateView
         userid = self.request.user.id
         org = OrgUserInfo(userid)
         orgid = org.get_org_id()
+
         projects = Project.objects.filter(org__id=orgid)
         events = Event.objects.filter(
             project__in=projects
@@ -1093,6 +1091,7 @@ class AdminProfileView(OrgAdminPermissionMixin, SessionContextView, TemplateView
 
         # determine whether there are any unverified timelogs for admin
         usertimelogs = UserTimeLog.objects.filter(
+
             event__in=events
         ).filter(
             is_verified=False
@@ -1250,7 +1249,6 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
 
         # create an event for each location
         event_ids = map(lambda loc: self._create_event(loc, form_data), locations)
-
         return redirect(
             'openCurrents:invite-volunteers',
             json.dumps(event_ids)
@@ -1304,7 +1302,7 @@ class EditEventView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
 
     def post(self, request, **kwargs):
         utc=pytz.UTC
-        event_id = kwargs.pop('event_id')
+        event_id = kwargs.pop('event_ids')[0]
         edit_event = Event.objects.get(id=event_id)
 
         # save button - needs to handled through forms
@@ -1405,7 +1403,6 @@ class EditEventView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
             elif post_data['event-privacy'] == '2':
                 edit_event.is_public = False
             edit_event.save()
-
             coord_user = None
             coord_email = post_data['coordinator-email']
             try:
@@ -1534,6 +1531,11 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         context['skip'] = 0
         try:
             event_ids = kwargs.pop('event_ids')
+            if type(json.loads(event_ids)) == list:
+                pass
+            else:
+                event_ids = [int(event_ids)]
+                event_ids = unicode(event_ids)
             if event_ids:
                 event = Event.objects.filter(
                     id__in=json.loads(event_ids)
@@ -1554,7 +1556,13 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         post_data = self.request.POST
         event_create_id = None
         try:
-            event_create_id = json.loads(kwargs.pop('event_ids'))
+            event_create_id = kwargs.pop('event_ids')
+            if type(json.loads(event_create_id)) == list:
+                pass
+            else:
+                event_create_id = [int(event_create_id)]
+                event_create_id = unicode(event_create_id)
+            event_create_id = json.loads(event_create_id)
         except:
             pass
 
@@ -1635,6 +1643,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
             event=Event.objects.get(id=event_create_id[0])
             events = Event.objects.filter(id__in=event_create_id)
             loc = [str(i.location).split(',')[0] for i in events]
+            tz = event.project.org.timezone
             email_template_merge_vars = [
                 {
                     'name': 'ADMIN_FIRSTNAME',
@@ -1670,7 +1679,6 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                 },
             ]
             try:
-                tz = event.project.org.timezone
                 if k:
                     sendBulkEmail(
                         'invite-volunteer-event-new',
@@ -2028,6 +2036,10 @@ def event_register(request, pk):
             {
                 'name': 'DATE',
                 'content': json.dumps(event.datetime_start,cls=DatetimeEncoder).replace('"','')
+            },
+            {
+                'name': 'EVENT_ID',
+                'content': event.id
             }
         ]
         if message:
