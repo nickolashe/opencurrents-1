@@ -114,7 +114,7 @@
           <input type="checkbox" id="admin-warning-check" name="admin-warning-check" class="custom-checkbox" /><label for="admin-warning-check">I confirm that I am only inviting authorized admins of [Org name]</label>
           
           <div class="row one-margin-top">
-            <a type="submit" class="button round">Send</a>
+            <a id="submit-form" class="button round">Send</a>
             <a class="admin-warning-popup_close button round secondary">Go back</a>
           </div>
         </div>
@@ -146,6 +146,10 @@
       $('#bulk-send-button').click(function() {
         var text = $('#bulk-emails').val();
         $('#bulk-emails-submit').val(text);
+      });
+
+      $('#submit-form').click(function(){
+        $('#invite-admins-form').submit();
       });
 
       // function submit_from_bulk(){
