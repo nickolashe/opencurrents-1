@@ -601,6 +601,10 @@ class OurStoryView(TemplateView):
     template_name = 'our-story.html'
 
 
+class PublicRecordView(TemplateView):
+    template_name = 'public-record.html'
+
+
 class RedeemCurrentsView(TemplateView):
     template_name = 'redeem-currents.html'
 

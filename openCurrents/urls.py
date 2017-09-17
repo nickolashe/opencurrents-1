@@ -56,6 +56,7 @@ urlpatterns = [
     url(r'^org-signup/(?P<org_name>.*)/(?P<status_msg>.*)/$',
         views.OrgSignupView.as_view(), name='org-signup'),
     url(r'^our-story', views.OurStoryView.as_view(), name='our-story'),
+    url(r'^public-record', views.PublicRecordView.as_view(), name='public-record'),
     url(r'^redeem-currents$', views.RedeemCurrentsView.as_view(), name='redeem-currents'),
     url(r'^request-currents$', views.RequestCurrentsView.as_view(), name='request-currents'),
     url(r'^sell$', views.SellView.as_view(), name='sell'),
