@@ -43,6 +43,7 @@ urlpatterns = [
     url(r'^find-orgs$', views.FindOrgsView.as_view(), name='find-orgs'),
     url(r'^hours-approved$', views.HoursApprovedView.as_view(), name='hours-approved'),
     url(r'^inventory$', views.InventoryView.as_view(), name='inventory'),
+    url(r'^invite-admins$', views.InviteAdminsView.as_view(), name='invite-admins'),
     url(r'^leaderboard', views.LeaderboardView.as_view(), name='leaderboard'),
     url(r'^mission$', views.MissionView.as_view(), name='mission'),
     url(r'^my-hours$', views.MyHoursView.as_view(), name='my-hours'),

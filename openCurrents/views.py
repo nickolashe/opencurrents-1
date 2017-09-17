@@ -553,8 +553,12 @@ class HoursApprovedView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'hours-approved.html'
 
 
+class InviteAdminsView(TemplateView):
+    template_name = 'invite-admins.html'
+
+
 class InventoryView(TemplateView):
-    template_name = 'Inventory.html'
+    template_name = 'inventory.html'
 
 
 class LeaderboardView(TemplateView):
