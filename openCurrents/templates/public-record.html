@@ -4,6 +4,9 @@
 <html>
   <head>
     {% include "partials/head.html" %}
+
+    <script type="text/javascript" src="{% static 'js/jquery-ui-datepicker.js' %}"></script>
+    <link href="{% static 'css/jquery-ui-datepicker.css' %}" rel="stylesheet" type="text/css">
   </head>
   
   <body>
@@ -177,25 +180,55 @@
         <h3 class="popup-title">Export data</h3>
       </div>
 
+      <div class="row">
+        <div class="small-centered small-10 medium-7 columns">
+          <p class="fit-left grey large-text half-margin-top half-margin-right">for</p>
+          <span class="input-sizer"><select class="large-text">
+            <option selected>All organizations</option>
+            <option>(List of orgs)</option>
+          </select></span>
+        </div>
+      </div>
+
       <div class="row one-margin-top">
         <div class="small-centered medium-10 columns">
           <div class="left small-8 medium-6 medium-offset-1 columns">
+            <p class="half-margin-bottom"><input type="checkbox" name="org-name" id="org-name" class="custom-checkbox" checked/><label for="org-name" >Organization name</label></p>
+            <p class="half-margin-bottom"><input type="checkbox" name="vol-name" id="vol-name" class="custom-checkbox" checked/><label for="vol-name" >Volunteer name</label></p>
             <p class="half-margin-bottom"><input type="checkbox" name="date" id="date" class="custom-checkbox" checked/><label for="date" >Event date</label></p>
-            <p class="half-margin-bottom"><input type="checkbox" name="start-time" id="start-time" class="custom-checkbox" checked/><label for="start-time">Start time</label></p>
-            <p class="half-margin-bottom"><input type="checkbox" name="end-time" id="end-time" class="custom-checkbox" checked/><label for="end-time">End time</label></p>
+            <p class="half-margin-bottom"><input type="checkbox" name="description"  id="description" class="custom-checkbox" checked/><label for="description">Event description</label></p>
+            
           </div>
 
           <div class="left small-8 medium-5 columns">
-            <p class="half-margin-bottom"><input type="checkbox" name="description"  id="description" class="custom-checkbox" checked/><label for="description">Event description</label></p>
+            <p class="half-margin-bottom"><input type="checkbox" name="start-time" id="start-time" class="custom-checkbox" checked/><label for="start-time">Start time</label></p>
+            <p class="half-margin-bottom"><input type="checkbox" name="end-time" id="end-time" class="custom-checkbox" checked/><label for="end-time">End time</label></p>
             <p class="half-margin-bottom"><input type="checkbox" name="location" id="location" class="custom-checkbox" checked/><label for="location">Event location</label></p>
             <p class="half-margin-bottom"><input type="checkbox" name="admin-full-name" id="admin-full-name" class="custom-checkbox" checked/><label for="admin-full-name">Admin name</label></p>
           </div>
         </div>
       </div>
+
+      <div class="row one-margin-top">
+        <div class="medium-8 small-centered columns">
+          <p>Set the date range for which you would like to export data (leave start date blank to export from the earliest records):</p>
+
+          <div class="left small-6 columns">
+            <label>Start date</label>
+            <input type="text" id="start-range" name="start-range" placeholder="yyyy-mm-dd"/>
+          </div>
+
+          <div class="left small-6 columns">
+            <label>End date</label>
+            <input type="text" id="end-range" name="end-range" placeholder="yyyy-mm-dd"/>
+          </div>
+        </div>
+      </div>
       
-      <div class="row">
+      <div class="row one-margin-top center">
         <div class="small-centered medium-10 columns">
-          <button class="-popup_close button round">Close</button>
+          <a type="submit" class="button round">Export</a>
+          <button class="public-export-popup_close button round secondary">Cancel</button>
         </div>
       </div>
     </div>
@@ -224,6 +257,16 @@
             $('#record-label').text('accepted');
           }
         });
+
+        $('#start-range').datepicker({ 
+          dateFormat: 'yy-mm-dd',
+          maxDate: 0,
+        })
+
+        $('#end-range').datepicker({ 
+          dateFormat: 'yy-mm-dd',
+          maxDate: 0,
+        }).datepicker("setDate", new Date());
       });
     </script>
     
