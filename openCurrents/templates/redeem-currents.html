@@ -225,8 +225,15 @@
 
         // Display filename in upload-receipt label
         $('#upload-receipt').change(function(){
-            var fileName = $(this).val().split('\\').pop();;
+          var fileName = $(this).val().split('\\').pop();;
+
+          if (fileName != '') {
             $(this).siblings('label').find('span').text(fileName);
+          }
+
+          else {
+            $(this).siblings('label').find('span').text('Choose an image...');
+          }
         });
       });
     </script>

@@ -150,8 +150,8 @@
             {% include 'partials/pagination.html' %}
 
             <div class="row three-halves-margin-top">
-              <a class="export-popup button round">Export data</a>
-              <a class="button round secondary">Back to profile</a>
+              <a class="public-export-popup_open button round">Export data</a>
+              <a href="{% url 'openCurrents:profile' %}" class="button round secondary">Back to profile</a>
             </div>
           </div>
         </div>
@@ -172,25 +172,37 @@
       {% include 'partials/menu.html' %}
     </div>
   
-    <div id="-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+    <div id="public-export-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
-        <h3 class="popup-title"></h3>
+        <h3 class="popup-title">Export data</h3>
+      </div>
+
+      <div class="row one-margin-top">
+        <div class="small-centered medium-10 columns">
+          <div class="left small-8 medium-6 medium-offset-1 columns">
+            <p class="half-margin-bottom"><input type="checkbox" name="date" id="date" class="custom-checkbox" checked/><label for="date" >Event date</label></p>
+            <p class="half-margin-bottom"><input type="checkbox" name="start-time" id="start-time" class="custom-checkbox" checked/><label for="start-time">Start time</label></p>
+            <p class="half-margin-bottom"><input type="checkbox" name="end-time" id="end-time" class="custom-checkbox" checked/><label for="end-time">End time</label></p>
+          </div>
+
+          <div class="left small-8 medium-5 columns">
+            <p class="half-margin-bottom"><input type="checkbox" name="description"  id="description" class="custom-checkbox" checked/><label for="description">Event description</label></p>
+            <p class="half-margin-bottom"><input type="checkbox" name="location" id="location" class="custom-checkbox" checked/><label for="location">Event location</label></p>
+            <p class="half-margin-bottom"><input type="checkbox" name="admin-full-name" id="admin-full-name" class="custom-checkbox" checked/><label for="admin-full-name">Admin name</label></p>
+          </div>
+        </div>
       </div>
       
       <div class="row">
         <div class="small-centered medium-10 columns">
-          
-          <p></p>
-          
           <button class="-popup_close button round">Close</button>
         </div>
       </div>
     </div>
     
-    
     <script type="text/javascript">
       $(document).ready(function(){
-        $('#').popup({
+        $('#public-export-popup').popup({
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: true,
