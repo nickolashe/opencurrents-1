@@ -19,36 +19,32 @@
         {% endif %}
 
         <div class="row">
-          <h3 class="title-sub">Invite volunteers</h3>
-          {% if event_project_name %}
-            <p>to help <strong>{{ event_project_name }}</strong></p>
-          {% else %}
-            <p>to join the openCurrents community</p>
-          {% endif %}
+          <h3 class="title-sub">Invite admins</h3>
+            <p> to manage [Org name] on openCurrents</p>
           <a class="bulk-email-popup_open button round small secondary">Copy/paste email list</a>
-          <p class="">or add volunteers individually:</p>
+          <p>or add admins individually:</p>
         </div>
-        <form action ="" name="theForm" id="form_id" method="post">
+        <form action ="" name="invite-admins-form" id="invite-admins-form" method="post">
         {% csrf_token %}
           <div class="row center">
             <div class="small-12 medium-8 small-centered columns">
               <div id="vol-invites-box" name="vol-invites-box" class="row">
                 <div class="small-6 columns">
-                  <input type="text" name="vol-name-1" placeholder="First name" />
+                  <input type="text" name="vol-name-1" placeholder="First name (optional)" />
                 </div>
                 <div class="small-6 columns">
                   <input type="text" name="vol-email-1" placeholder="Email" />
                 </div>
 
                 <div class="small-6 columns">
-                  <input type="text" name="vol-name-2" placeholder="First name" />
+                  <input type="text" name="vol-name-2" placeholder="First name (optional)" />
                 </div>
                 <div class="small-6 columns">
                   <input type="text" name="vol-email-2" placeholder="Email" />
                 </div>
 
                 <div class="small-6 columns">
-                  <input type="text" name="vol-name-3" placeholder="First name" />
+                  <input type="text" name="vol-name-3" placeholder="First name (optional)" />
                 </div>
                 <div class="small-6 columns">
                   <input type="text" name="vol-email-3" placeholder="Email" />
@@ -66,9 +62,8 @@
             <button type='submit' id="button_1" class="button round">Send invites<input type="hidden" id="count-vol" name="count-vol" value="3" /></button>
           </div>
 
-          <!--<p><a href="{% url 'openCurrents:admin-profile' num_vols=0 %}">Skip for now</a></p>-->
           {% if skip == 1 %}
-            <a href="{% url 'openCurrents:admin-profile' num_vols=0 %}">Skip for now</a>
+            <a href="{% url 'openCurrents:admin-profile' num_vols=0 %}" class="button round secondary">Skip</a>
           {% endif %}
           <input type="hidden" id="bulk-vol" name="bulk-vol" value="" />
         </form>
