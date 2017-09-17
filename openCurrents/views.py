@@ -557,6 +557,10 @@ class InventoryView(TemplateView):
     template_name = 'Inventory.html'
 
 
+class LeaderboardView(TemplateView):
+    template_name = 'leaderboard.html'
+
+
 class MarketplaceView(TemplateView):
     template_name = 'marketplace.html'
 
@@ -599,10 +603,6 @@ class OrgSignupView(LoginRequiredMixin, SessionContextView, TemplateView):
 
 class OurStoryView(TemplateView):
     template_name = 'our-story.html'
-
-
-class PublicRecordView(TemplateView):
-    template_name = 'public-record.html'
 
 
 class RedeemCurrentsView(TemplateView):
