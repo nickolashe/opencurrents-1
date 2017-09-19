@@ -36,6 +36,7 @@ urlpatterns = [
         views.InviteFriendsView.as_view(), name='invite-friends'),
     url(r'^approve-hours$', views.ApproveHoursView.as_view(), name='approve-hours'),
     url(r'^approve-hours/(?P<vols_approved>\d+)/(?P<vols_declined>\d+)/$', views.ApproveHoursView.as_view(), name='approve-hours'),
+    url(r'^biz-profile$', views.BizProfileView.as_view(), name='biz-profile'),
     url(r'^causes$', views.CausesView.as_view(), name='causes'),
     url(r'^edit-hours$', views.EditHoursView.as_view(), name='edit-hours'),
     url(r'^export-data$', views.ExportDataView.as_view(), name='export-data'),
