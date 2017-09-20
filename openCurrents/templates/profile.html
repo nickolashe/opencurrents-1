@@ -37,8 +37,8 @@
             <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
             <h6 class="inline-block"> {{ user_balance }} </h6>
             <div class="no-margin-top row">
-              <a class="earn-currents-popup_open button round tiny">Give time</a>
-              <a href="{% url 'openCurrents:marketplace' %}" class="button round secondary tiny">Redeem Currents</a>
+              <a class="earn-currents-popup_open button round tiny">Create</a>
+              <a href="{% url 'openCurrents:marketplace' %}" class="button round secondary tiny">Redeem</a>
             </div>
           </div>
         </div>
@@ -57,8 +57,8 @@
               <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
               <h6 class="inline-block"> {{ user_balance }} </h6>
               <div class="half-margin-top row">
-                <a class="earn-currents-popup_open button round tiny">Earn Currents</a>
-                <!-- <a href="{% url 'openCurrents:marketplace' %}" class="button round secondary tiny">Redeem</a> -->
+                <a class="earn-currents-popup_open button round tiny">Create</a>
+                <a href="{% url 'openCurrents:marketplace' %}" class="button round secondary tiny">Redeem</a>
               </div>
             </div>
           </div>
@@ -80,8 +80,11 @@
                     at {{event.location}}
                   </div>
 
-                  <div class="right input-right small-3 columns">
-                    <a href="{% url 'openCurrents:event-detail' event.id %}" class="button small round secondary">View</a>
+                  <div class="right relative input-right small-3 columns">
+                    <a class="mini-open"><i class="blue half-margin-right fa-chevron-circle-down fa fa-lg"></i></a>
+                    <ul class="mini-menu">
+                      <a href="{% url 'openCurrents:event-detail' event.id %}"><li>View event details</li></a>
+                    </ul>
                   </div>
                 </div>
                 {% endif %}
@@ -198,7 +201,7 @@
 
     <div id="earn-currents-popup" class="modal center small-12 medium-10 large-8 small-centered columns">
       <div class="row center">
-        <h3 class="one-margin-top">2 ways to earn Currents</h3>
+        <h3 class="one-margin-top">2 ways to create Currents</h3>
         <h6></h6>
       </div>
 
@@ -279,6 +282,19 @@
           transition: 'all 0.75s',
           scrolllock: true,
           // autoopen: true,
+        });
+
+        $('.mini-open').click(function(){
+          $('.mini-menu').hide();
+          $(this).siblings('.mini-menu').toggle();
+          $(this).attr('visibility', 'visible');
+        });
+
+        $(document).click(function(e) {
+          var target = e.target;
+          if (!$(target).is('.mini-open') && !$(target).parents().is('.mini-open')) {
+            $('.mini-menu').hide();
+          }
         });
       });
     </script>
