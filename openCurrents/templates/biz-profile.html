@@ -73,17 +73,15 @@
         <div class="show-for-small-only row one-margin-top one-margin-bottom">
           <div class="columns">
             <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="round" /> -->
-            <h5 class="half-margin-top no-margin-bottom">{{ user.first_name }} {{ user.last_name }}</h5>
-            <h6>{{org_name}}</h6>
+            <h5 class="half-margin-top no-margin-bottom">{{org_name}}</h5>
+            <h6>{{ user.first_name }} {{ user.last_name }}</h6>
 
             <div class="one-margin-top">
               <!-- <h6 class="no-margin-bottom">My hours tracked: 10.0</h6> -->
-              <h6 class="no-margin-bottom">
-                Org hours tracked: {{ issued_by_all }}
-              </h6>
-              <h6 class="one-margin-bottom">
-                Hours I've tracked: {{ issued_by_admin }}
-              </h6>              
+              <h6 class="inline">Business balance: </h6>
+                <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
+                <h6 class="inline-block"> {{ user_balance }} </h6>
+              </h6>            
               <a href="{% url 'openCurrents:create-event' orgid %}" {% if user_time_log_status %} class="button secondary tiny round" {% else %} class="button tiny round" {% endif %}>Create event</a>
               <a {% if user_time_log_status %} href="{% url 'openCurrents:approve-hours' %}" class="button round tiny"{% else %} href="javascript:status()" class="button round tiny secondary"{% endif %}">Approve hours</a>
             </div>
