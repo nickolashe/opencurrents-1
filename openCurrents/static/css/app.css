@@ -1410,6 +1410,10 @@ input[type="checkbox"] + label.vol-arrived {
   margin-top: 0;
 }
 
+input[disabled].good-cat {
+  color: #1f4975;
+}
+
 .input-icon-right {
   position: absolute;
   right: 5px;
