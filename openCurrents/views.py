@@ -2341,7 +2341,7 @@ def process_signup(request, referrer=None, endpoint=False, verify_email=True):
                         },
                         {
                             'name': 'LNAME',
-                            'content': user_firstname
+                            'content': user_lastname
                         },
                         {
                             'name': 'EMAIL',
