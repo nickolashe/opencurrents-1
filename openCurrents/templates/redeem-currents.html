@@ -49,8 +49,9 @@
             <div class="small-12 medium-8 small-centered columns">
               <h4 class="one-margin-bottom">Upload receipt</h4>
               <p class="three-halves-margin-bottom">To exchange Currents for dollars with [Fast Folks], upload your receipt as proof of purchase. <a class="redeem-info-popup_open no-wrap">Why am I paying full price?</a></p>
+              <input type="checkbox" name="receipt-if-checked" id="receipt-if-checked" class="hidden" checked />
               <input type="file" accept="image/*" capture="camera" id="upload-receipt" name="upload-receipt" class="hidden-file" />
-              <label for="upload-receipt" class="upload-receipt-label button round small secondary"><i class="one-margin-right fa fa-upload"></i><span>Choose an image...</span></label>
+              <label for="upload-receipt" id="receipt-label" class="upload-receipt-label button round small secondary"><i class="one-margin-right fa fa-upload"></i><span>Choose an image...</span></label>
               <p class="small-text grey">PNG, JPEG, and GIF accepted</p>
               <p class="half-margin-top"><a class="no-receipt-popup_open">I have other proof of purchase</a></p>
             </div>
@@ -140,7 +141,7 @@
         <div class="small-centered medium-10 columns">
           <p>Uploading a receipt is the only way to guarantee that [Fast Folks] will accept Currents. However, if you take a screenshot of your credit card transaction paid to [Fast Folks] with date included, they may be able to verify the transaction.</p>
           
-          <label for="upload-receipt" class="upload-receipt-label button round small secondary"><i class="one-margin-right fa fa-upload"></i><span>Choose an image...</span></label>
+          <label for="upload-receipt" id="pop-label" class="upload-receipt-label button round small secondary"><i class="one-margin-right fa fa-upload"></i><span>Choose an image...</span></label>
 
           <p><button class="no-receipt-popup_close half-margin-top button round">Continue</button></p>
         </div>
@@ -231,6 +232,16 @@
           else {
             $('.upload-receipt-label').find('span').text('Choose an image...');
           }
+        });
+
+        // Uncheck receipt-if-checked when 'Other PoP' label is clicked
+        $('#pop-label').click(function(){
+          $('#receipt-if-checked').prop('checked', false);
+        });
+
+        // Uncheck receipt-if-checked when 'Other PoP' label is clicked
+        $('#receipt-label').click(function(){
+          $('#receipt-if-checked').prop('checked', true);
         });
       });
     </script>
