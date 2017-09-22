@@ -197,10 +197,8 @@ class CheckEmailView(TemplateView):
 class ResetPasswordView(TemplateView):
     template_name = 'reset-password.html'
 
-
 class AssignAdminsView(TemplateView):
     template_name = 'assign-admins.html'
-
 
 class BusinessView(TemplateView):
     template_name = 'business.html'
@@ -313,9 +311,12 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
             user_timelog = action.usertimelog
             volunteer_user = user_timelog.user
             name = ' '.join([volunteer_user.first_name, volunteer_user.last_name])
+            req_hours_bound_upper = timedelta(hours=24)
+            req_hours_bound_lower = timedelta(minutes=15)
+            req_hours = user_timelog.datetime_end - user_timelog.datetime_start
 
-            # check if same day and duration longer than 15 min
-            if user_timelog.datetime_start.date() == user_timelog.datetime_end.date() and user_timelog.datetime_end - user_timelog.datetime_start >= timedelta(minutes=15):
+            # check upper/lower bounds for hours requested
+            if req_hours < req_hours_bound_upper and req_hours >= req_hours_bound_lower:
                 user_email = volunteer_user.email
                 if user_email not in time_log:
                     time_log[user_email] = OrderedDict(items)
@@ -338,22 +339,7 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
                 time_log[user_email]['Total'] += rounded_time
             else:
                 # Multiple day volunteering
-                # Still working on it
-                # day_diff = i.datetime_end - i.datetime_start
-                # temp_date = i.datetime_start
-                # while temp_date.date() != i.datetime_end.date():
-                #     tt = temp_date+timedelta(days=1)
-                #     tt = datetime.combine(tt, time.min).replace(tzinfo=None)
-                #     tt_diff = tt - temp_date.replace(tzinfo=None)
-                #     rounded_time_mdv1 = (math.ceil(self.get_hours(str(tt_diff)) * 4) / 4)
-                #     time_log[str(i.user)][str(temp_date.strftime("%A"))] += rounded_time_mdv1
-                #     time_log[str(i.user)]['Total'] += rounded_time_mdv1
-                #     temp_date = temp_date+timedelta(days=1)
-                #     rounded_time_mdv2 = (math.ceil(self.get_hours(str(temp_date.replace(tzinfo=None) - tt)) * 4) / 4)
-                #     time_log[str(i.user)][str(temp_date.strftime("%A"))] += rounded_time_mdv2
-                #     time_log[str(i.user)]['Total'] += rounded_time_mdv2
-
-                # just ignore multi-day requests for now
+                # ignore multi-day requests for now
                 pass
 
         time_log = OrderedDict([
@@ -361,7 +347,7 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
             for k in time_log
             if time_log[k]['Total'] > 0
         ])
-        logger.info('made a time_log: %s',time_log)
+        logger.info('approve-hours time_log: %s', time_log)
         if time_log:
             time_log_week[week_startdate_monday] = time_log
             week.append(time_log_week)
@@ -404,10 +390,8 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
         ).filter(
             usertimelog__event__in=events
         )
-        logger.info(requested_actions)
-        if user:
-            logger.info(user.id)
 
+        if user:
             requested_actions = requested_actions.filter(usertimelog__user__id=user.id)
 
         return requested_actions
@@ -526,7 +510,6 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
             vols_approved,
             vols_declined
         )
-
 
     def get_hours_rounded(self, datetime_start, datetime_end):
         return math.ceil((datetime_end - datetime_start).total_seconds() / 3600 * 4) / 4
@@ -1076,6 +1059,7 @@ class AdminProfileView(OrgAdminPermissionMixin, SessionContextView, TemplateView
         userid = self.request.user.id
         org = OrgUserInfo(userid)
         orgid = org.get_org_id()
+
         projects = Project.objects.filter(org__id=orgid)
         events = Event.objects.filter(
             project__in=projects
@@ -1085,6 +1069,7 @@ class AdminProfileView(OrgAdminPermissionMixin, SessionContextView, TemplateView
 
         # determine whether there are any unverified timelogs for admin
         usertimelogs = UserTimeLog.objects.filter(
+
             event__in=events
         ).filter(
             is_verified=False
@@ -1242,7 +1227,6 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
 
         # create an event for each location
         event_ids = map(lambda loc: self._create_event(loc, form_data), locations)
-
         return redirect(
             'openCurrents:invite-volunteers',
             json.dumps(event_ids)
@@ -1296,7 +1280,7 @@ class EditEventView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
 
     def post(self, request, **kwargs):
         utc=pytz.UTC
-        event_id = kwargs.pop('event_id')
+        event_id = kwargs.pop('event_ids')[0]
         edit_event = Event.objects.get(id=event_id)
 
         # save button - needs to handled through forms
@@ -1397,7 +1381,6 @@ class EditEventView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
             elif post_data['event-privacy'] == '2':
                 edit_event.is_public = False
             edit_event.save()
-
             coord_user = None
             coord_email = post_data['coordinator-email']
             try:
@@ -1526,6 +1509,11 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         context['skip'] = 0
         try:
             event_ids = kwargs.pop('event_ids')
+            if type(json.loads(event_ids)) == list:
+                pass
+            else:
+                event_ids = [int(event_ids)]
+                event_ids = unicode(event_ids)
             if event_ids:
                 event = Event.objects.filter(
                     id__in=json.loads(event_ids)
@@ -1546,7 +1534,13 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         post_data = self.request.POST
         event_create_id = None
         try:
-            event_create_id = json.loads(kwargs.pop('event_ids'))
+            event_create_id = kwargs.pop('event_ids')
+            if type(json.loads(event_create_id)) == list:
+                pass
+            else:
+                event_create_id = [int(event_create_id)]
+                event_create_id = unicode(event_create_id)
+            event_create_id = json.loads(event_create_id)
         except:
             pass
 
@@ -1627,6 +1621,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
             event=Event.objects.get(id=event_create_id[0])
             events = Event.objects.filter(id__in=event_create_id)
             loc = [str(i.location).split(',')[0] for i in events]
+            tz = event.project.org.timezone
             email_template_merge_vars = [
                 {
                     'name': 'ADMIN_FIRSTNAME',
@@ -1662,7 +1657,6 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                 },
             ]
             try:
-                tz = event.project.org.timezone
                 if k:
                     sendBulkEmail(
                         'invite-volunteer-event-new',
@@ -2497,7 +2491,10 @@ def process_login(request):
             userid = user.id
             org = OrgUser.objects.filter(user__id=userid)
             app_hr = 0
-            if org:
+            today = date.today()
+
+            # do a weekly check for unapproved requests (popup)
+            if org and user.last_login.date() < today - timedelta(days=today.weekday()):
                 orgid = org[0].org.id
                 projects = Project.objects.filter(org__id=orgid)
                 events = Event.objects.filter(
@@ -2506,24 +2503,29 @@ def process_login(request):
                     event_type='MN'
                 )
 
-                # determine unverified time
-                # we have exact same code in admin-profile - lets factor out into a function or class
-                get_defer_times = AdminActionUserTime.objects.filter(user__id=userid)
-                exclude_usertimelog = []
-                timelogs = UserTimeLog.objects.filter(
+                # determine whether there are any unverified timelogs for admin
+                # TODO: factor out into a module (we have exact same code in admin-profile)
+                usertimelogs = UserTimeLog.objects.filter(
                     event__in=events
                 ).filter(
                     is_verified=False
+                ).annotate(
+                    last_action_created=Max('adminactionusertime__date_created')
                 )
-                for g_d_t in get_defer_times:
-                    if g_d_t.usertimelog in timelogs:
-                        exclude_usertimelog.append(g_d_t.usertimelog.event)
-                timelogs = timelogs.exclude(event__in=exclude_usertimelog)
-                today = date.today()
-                if ((user.last_login.date())< today - timedelta(days=today.weekday()) and timelogs):
-                    app_hr = json.dumps(1)
-                else:
-                    app_hr = json.dumps(0)
+
+                # admin-specific requests
+                admin_requested_hours = AdminActionUserTime.objects.filter(
+                    user_id=userid
+                ).filter(
+                    date_created__in=[
+                        utl.last_action_created for utl in usertimelogs
+                    ]
+                ).filter(
+                    action_type='req'
+                )
+
+                if admin_requested_hours:
+                    app_hr = 1
 
             login(request, user)
             try:
@@ -2534,7 +2536,7 @@ def process_login(request):
                 pass
             return redirect('openCurrents:profile', app_hr)
         else:
-            return redirect('openCurrents:login', status_msg='Invalid login/password')
+            return redirect('openCurrents:login', status_msg='Invalid login/password. <a class="forgotpassword-box_open">Forgot password?</a>')
     else:
         logger.error(
             'Invalid login: %s',
