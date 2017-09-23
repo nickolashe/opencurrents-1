@@ -68,13 +68,12 @@
 
             <p><a class="personal-message-popup_open button round tiny secondary">Add personal message</a></p> -->
 
-            <!--<a href="{% url 'openCurrents:admin-profile' %}" class="button round secondary">Send invites</a>-->
+            <!--<a href="{% url 'openCurrents:org-admin' %}" class="button round secondary">Send invites</a>-->
             <button type='submit' id="button_1" class="button round">Send invites<input type="hidden" id="count-vol" name="count-vol" value="3" /></button>
           </div>
 
-          <!--<p><a href="{% url 'openCurrents:admin-profile' num_vols=0 %}">Skip for now</a></p>-->
           {% if skip == 1 %}
-            <a href="{% url 'openCurrents:admin-profile' num_vols=0 %}">Skip for now</a>
+            <a href="{% url 'openCurrents:org-admin' num_vols=0 %}">Skip for now</a>
           {% endif %}
           <input type="hidden" id="bulk-vol" name="bulk-vol" value="" />
         </form>

@@ -201,8 +201,8 @@ class AssignAdminsView(TemplateView):
     template_name = 'assign-admins.html'
 
 
-class BizProfileView(TemplateView):
-    template_name = 'biz-profile.html'
+class BizAdminView(TemplateView):
+    template_name = 'biz-admin.html'
 
 
 class BusinessView(TemplateView):
@@ -990,11 +990,11 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         return context
 
 
-class AdminProfileView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
-    template_name = 'admin-profile.html'
+class OrgAdminView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
+    template_name = 'org-admin.html'
 
     def get_context_data(self, **kwargs):
-        context = super(AdminProfileView, self).get_context_data(**kwargs)
+        context = super(OrgAdminView, self).get_context_data(**kwargs)
         userid = context['userid']
         admin_id = self.request.user.id
         orgid = context['orgid']

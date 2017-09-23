@@ -27,7 +27,7 @@
 
               {% if is_admin %}
                 <h6 class="inline half-margin-right">{{orgname}}</h6>
-                <a href="{% url 'openCurrents:admin-profile' %}"><i class="fa fa-lg fa-gear"></i></a>
+                <a href="{% url 'openCurrents:org-admin' %}"><i class="fa fa-lg fa-gear"></i></a>
               {% endif %}
             <!-- </span> -->
           </div>
@@ -37,7 +37,7 @@
             <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
             <h6 class="inline-block"> {{ user_balance }} </h6>
             <div class="no-margin-top row">
-              <a class="earn-currents-popup_open button round tiny">Create</a>
+              <a class="earn-currents-popup_open button round tiny">Earn</a>
               <a href="{% url 'openCurrents:marketplace' %}" class="button round secondary tiny">Redeem</a>
             </div>
           </div>
@@ -48,8 +48,8 @@
             <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="round" /> -->
             <h4 class="half-margin-top no-margin-bottom">{{ user.first_name }} {{ user.last_name }}</h4>
             {% if is_admin %}
-              <h6 class="inline half-margin-right">{{orgname}}</h6>
-              <a href="{% url 'openCurrents:admin-profile' %}"><i class="fa fa-lg fa-gear"></i></a>
+              <h5 class="inline half-margin-right">{{orgname}}</h5>
+              <a href="{% url 'openCurrents:org-admin' %}"><i class="fa fa-lg fa-gear"></i></a>
             {% endif %}
 
             <div class="half-margin-top">
@@ -57,7 +57,7 @@
               <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
               <h6 class="inline-block"> {{ user_balance }} </h6>
               <div class="half-margin-top row">
-                <a class="earn-currents-popup_open button round tiny">Create</a>
+                <a class="earn-currents-popup_open button round tiny">Earn</a>
                 <a href="{% url 'openCurrents:marketplace' %}" class="button round secondary tiny">Redeem</a>
               </div>
             </div>
