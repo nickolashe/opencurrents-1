@@ -1310,6 +1310,14 @@ i:hover ~ .addtocalendar {
   color: #ffffff;
 }
 
+.mini-open i {
+  transition: color 0.25s ease-in-out;
+}
+
+.mini-open:hover i {
+  color: #1f4975;
+}
+
 /* create-event */
 
 .remove-input {
