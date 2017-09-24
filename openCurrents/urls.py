@@ -34,7 +34,7 @@ urlpatterns = [
     url(r'^login/(?P<status_msg>.*)$', views.LoginView.as_view(), name='login'),
     url(r'^invite-friends/(?P<referrer>[\w\.@\+\-]*)$',
         views.InviteFriendsView.as_view(), name='invite-friends'),
-    url(r'^approve-hours$', views.ApproveHoursView.as_view(), name='approve-hours'),
+    url(r'^approve-hours/$', views.ApproveHoursView.as_view(), name='approve-hours'),
     url(r'^approve-hours/(?P<vols_approved>\d+)/(?P<vols_declined>\d+)/$', views.ApproveHoursView.as_view(), name='approve-hours'),
     url(r'^biz-admin$', views.BizAdminView.as_view(), name='biz-admin'),
     url(r'^causes$', views.CausesView.as_view(), name='causes'),
