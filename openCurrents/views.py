@@ -528,6 +528,10 @@ class EditHoursView(TemplateView):
     template_name = 'edit-hours.html'
 
 
+class EditOfferView(TemplateView):
+    template_name = 'edit-offer.html'
+
+
 class ExportDataView(TemplateView):
     template_name = 'export-data.html'
 

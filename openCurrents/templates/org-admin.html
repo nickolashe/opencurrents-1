@@ -102,8 +102,8 @@
               <h6 class="half-margin-bottom">Events happening now</h6>
 
               {% for event in events_group_current %}
-                  <div class="row one-margin-top one-margin-bottom">
-                    <div class="left small-8 columns">
+                  <div class="row one-margin-bottom">
+                    <div class="left half-margin-top small-8 columns">
                       Let's {{event.project.name}}!
                       on {{event.datetime_start|day:timezone}}
                       at {{event.datetime_start|time:timezone}}

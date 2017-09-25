@@ -775,9 +775,9 @@ label {
 
 #tilde-menu {
   position: absolute;
-  height: 20px;
-  top: 1.25rem;
-  right: 0;
+  height: 22px;
+  top: 1.125rem;
+  right: -11px;
 }
 
 #tilde-menu g {

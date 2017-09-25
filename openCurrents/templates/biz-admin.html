@@ -75,18 +75,20 @@
           </div>
         </div>
 
-        <div class="show-for-small-only row one-margin-top one-margin-bottom">
+        <div class="show-for-small-only row one-margin-top">
           <div class="columns">
             <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="round" /> -->
             <h4 class="half-margin-top no-margin-bottom">[org_name]</h4>
             <h5>{{ user.first_name }} {{ user.last_name }}</h5>
 
-            <div class="one-margin-top">
+            <div class="one-margin-top half-margin-bottom">
               <!-- <h6 class="no-margin-bottom">My hours tracked: 10.0</h6> -->
               <h6 class="inline">Business balance: </h6>
                 <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
-                <h6 class="inline-block"> {{ user_balance }} </h6>           
+                <h6 class="inline-block"> {{ user_balance }} </h6>
             </div>
+
+            <a href="{% url 'openCurrents:offer' %}" class="button round tiny">Create offer</a>
           </div>
         </div>
 
@@ -96,16 +98,15 @@
             <!-- % if current_offers %
               % for offer in current_offers % -->
                 <div class="row half-margin-top">
-                  <div class="left small-8 columns">
-                    <p>Fast Folks Bike Shop & Cafe accepts Currents for <strong>50% of flat fixes</strong></p>
+                  <div class="left small-9 columns">
+                    <p>Fast Folks Bike Shop & Cafe accepts Currents for <strong>50% of flat fixes</strong> <span class="small-text grey">Limit 50 transactions per month</span></p>
                   </div>
 
-                  <div class="right relative small-4 columns">
+                  <div class="right relative small-3 columns">
                     <a class="mini-open"><i class="blue half-margin-right fa-chevron-circle-down fa fa-lg"></i></a>
                     <ul class="mini-menu">
-                      <a href=""><li>View details</li></a>
-                      <a href=""><li>Edit offer</li></a>
-                      <a href=""><li class="alert">Delete offer</li></a>
+                      <a href="{% url 'openCurrents:edit-offer' %}"><li>Edit offer</li></a>
+                      <a class="delete-offer-popup_open"><li class="alert">Delete offer</li></a>
                     </ul>
                   </div>
                 </div>
@@ -120,33 +121,27 @@
           </div>
         </div>
 
-        <!-- {% if events_group_past %}
-          <div id="past-event-list" class="left row one-margin-top full-width collapse">
-            <div class="small-11 medium-10 large-8 small-centered columns">
-              <h6 class="one-margin-bottom">Past events</h6>
+        <!-- % if offers_redeemed -->
+        <div class="left row one-margin-top full-width collapse">
+          <div class="small-11 medium-10 large-8 small-centered columns">
+            <h6 class="half-margin-bottom">Redeemed offers</h6>
+            <!-- % for offer in offers_redeemed % -->
+            <div class="row half-margin-top">
+              <div class="left small-9 columns">
+                <p>Danny Pernik purchased <strong>flat fix for $15</strong> and will receive $7.50 for <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/> 0.75</span></p>
+              </div>
 
-              {% for event in events_group_past %}
-                  <div class="row hover-row one-margin-bottom">
-                    <div class="left input-left small-9 columns">
-                      Let's {{event.project.name}}!
-                      on {{event.datetime_start|day:timezone}}
-                      at {{event.datetime_start|time:timezone}}
-                      to {{event.datetime_end|time:timezone}}
-                      at <strong>{{event.location}}</strong>
-                    </div>
-
-                  <div class="right relative small-3 columns">
-                    <a class="mini-open"><i class="half-margin-right blue fa-chevron-circle-down fa fa-lg"></i></a>
-                    <ul class="mini-menu">
-                      <a href="{% url 'openCurrents:live-dashboard' event.id %}"><li>Review attendees</li></a>
-                    </ul>
-                  </div>
-                </div>
-              {% endfor %}
-
+              <div class="right relative small-3 columns">
+                <a class="mini-open"><i class="blue half-margin-right fa-chevron-circle-down fa fa-lg"></i></a>
+                <ul class="mini-menu">
+                  <a class="view-receipt-popup_open"><li>View receipt</li></a>
+                </ul>
+              </div>
             </div>
+            <!-- % endfor -->
           </div>
-        {% endif %} -->
+        </div>
+        <!-- % endif % -->
 
         <!-- community feed code. Hardcoded not dynamic -->
         <!-- <div class="row one-margin-top">
@@ -206,25 +201,44 @@
       {% include 'partials/menu.html' %}
     </div>
 
-    <div id="approve-hours-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+    <div id="delete-offer-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
-        <h3 class="popup-title">Volunteers request approval</h3>
+        <h3 class="popup-title">Are you sure?</h3>
+        <a class="button round alert">Yes - Delete offer</a>
+        <a class="button round secondary">Cancel</a>
       </div>
+    </div>
 
+    <div id="view-receipt-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
-        <div class="small-centered medium-10 columns">
-
-          <p class="three-halves-margin-bottom">Volunteers have tracked hours and need your signoff before Currents are issued to them. It is recommended that you approve volunteer hours once a week.</p>
-
-          <a href="{% url 'openCurrents:approve-hours' %}" class="button round">View requests</button>
-          <a><button class="approve-hours-popup_close button round secondary">Close</button></a>
+        <div class="small-12 medium-8 small-centered columns">
+          <h4 class="popup-title">View receipt</h4>
+          <p>(If other PoP): [Danny] did not have a receipt and has provided the following image as proof of purchase:</p>
         </div>
       </div>
+
+      <div class="row collapse">
+        <div class="small-12 medium-8 small-centered columns">
+          <img src="{% static 'img/first_receipt.jpeg' %}" />
+        </div>
+      </div>
+
+      <div class="row center three-halves-margin-top">
+        <a class="button round secondary">Accept</a>
+        <a class="button round alert">Decline</a>
+      </div>
+
     </div>
 
 
     <script type="text/javascript">
       $(document).ready(function(){
+        $('#view-receipt-popup, #delete-offer-popup').popup({
+          vertical: 'top',
+          transition: 'all 0.75s',
+          scrolllock: true,
+        });
+
         $('.mini-open').click(function(){
           $('.mini-menu').hide();
           $(this).siblings('.mini-menu').toggle();
