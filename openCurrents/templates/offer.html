@@ -51,171 +51,178 @@
           </div>
         </div>
 
-        <div id="offer-1">
-          <div class="row collapse">
-            <div class="small-11 medium-8 small-centered columns">
-              <h5 class="one-margin-bottom">How transactions work</h5>
+        
+          <div id="offer-1">
+            <div class="row collapse">
+              <div class="small-11 medium-8 small-centered columns">
+                <h5 class="one-margin-bottom">How transactions work</h5>
 
-              <p>To make it as easy as possible to accept Currents, nothing changes at point of sale. Customers pay full price and provide openCurrents with proof of purchase.</p>
+                <p>To make it as easy as possible to accept Currents, nothing changes at point of sale. Customers pay full price and provide openCurrents with proof of purchase.</p>
 
-              <p>For each Current received, you can either keep the Current or claim a $10 charitable donation. Initial value: $10 per <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/> 1.</span></p>
+                <p>For each Current received, you can either keep the Current or claim a $10 charitable donation. Initial value: $10 per <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/> 1.</span></p>
 
-              <div class="row">
-                <div class="medium-10 small-centered columns">
-                  
+                <div class="row half-margin-top one-margin-bottom">
+                  <div class="medium-10 small-centered columns">
+                    <a class="next-offer button round">Got it</a>
+                  </div>
                 </div>
               </div>
-
-              <p class="center one-margin-top">
-                <a class="next-offer button round">Got it</a>
-                <!-- <a href="javascript:void(Tawk_API.toggle())" class="button round secondary">Contact us</a> -->
-              </p>
             </div>
           </div>
-        </div>
+        
+          <div id="offer-2">
+            <div class="row one-margin-bottom">
+              <div class="small-12 medium-11 small-centered columns">
+                <h5 class="">What share of purchases will you accept in Currents?</h5>
+              </div>
+            </div>
 
-        <div id="offer-2">
-          <div class="row one-margin-bottom">
-            <div class="small-12 medium-11 small-centered columns">
-              <h5 class="">What share of purchases will you accept in Currents?</h5>
-              <!-- <a class="offer-info-popup_open"><i class="half-margin-right fa fa-lg fa-question-circle"></i>How it works</a> -->
+            <div class="row left">
+              <div class="small-12 medium-6 small-centered columns">
+                <div class="row collapse">
+                  <div class="input-left small-3 columns">
+                    <p><strong><img class="" src="{% static 'img/symbol-navy.svg' %}"/> share</strong></p>
+                  </div>
+
+                  <div class="input-right small-9 columns">
+                    <p id="item-title"><strong>Item or category</strong></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div id="goods-div" class="small-12 medium-6 small-centered columns">
+                <div id="item-1" class="row collapse">
+                  <div class="input-left small-3 columns">
+                    <div class="relative">
+                      <input name="discount-amount-1" type="number" class="fit-left qtr-margin-right" placeholder="20" value="20"/>
+                      <span class="input-icon-right">%</span>
+                    </div>
+                  </div>
+
+                  <div class="input-right small-9 columns">
+                    <div class="fit-left half-margin-top one-margin-right one-margin-left">of</div>
+                    <div class="relative input-sizer">
+                      <input name="item-name-1" type="text" placeholder="Item or category name" value="All products" class="good-cat" disabled />
+                      <i class="remove-input alert fa fa-times"></i>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="item-2" class="row collapse">
+                  <div class="input-left small-3 columns">
+                    <div class="relative">
+                      <input name="discount-amount-2" type="number" class="fit-left qtr-margin-right" placeholder="20" value="20" />
+                      <span class="input-icon-right">%</span>
+                    </div>
+                    <!-- <span class="input-sizer"><select name="discount-type-1">
+                      <option selected>% of</option>
+                      <option>$ of</option>
+                    </select></span> -->
+                  </div>
+
+                  <div class="input-right small-9 columns">
+                    <div class="fit-left half-margin-top one-margin-right one-margin-left">of</div>
+                    <div class="relative input-sizer">
+                      <input name="item-name-2" type="text" placeholder="Item or category name" value="All services" class="good-cat" disabled />
+                      <i class="remove-input alert fa fa-times"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <p><a id="add-item" class="hidden"><i class="half-margin-top half-margin-bottom fa fa-plus-circle half-margin-right"></i>Add item or category</a></p>
+
+            <div class="row half-margin-top">
+              <div class="medium-8 small-centered columns">
+                <p class="three-halves-margin-bottom grey">Example: If you accept Currents for 20% of $100 in sales,<br class="hide-for-small-only" /> you would net $80 and either <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 2</span> or a $20 writeoff.</p>
+
+                <a class="prev-offer button round secondary">Back</a>
+                <a class="next-offer button round">Next</a>
+              </div>
             </div>
           </div>
 
-          <!-- <input type="radio" id="offer-cat-1" name="offer-cat-1" class="vol-radio hidden" checked/>
-          <input type="radio" id="offer-cat-2" name="offer-cat-2" class="vol-radio hidden" checked/> -->
+          <div id="offer-3">
+            <div class="row">
+              <div class="small-12 medium-11 small-centered columns">
+                <h5 class="one-margin-bottom">Do you want to accept all transactions?</h5>
+              </div>
+            </div>
 
-          {% include 'partials/set-goods.html' %}
+            <div class="row">
+              <div class="small-12 medium-8 small-centered columns">
 
-          <p><a id="add-item" class="hidden"><i class="half-margin-top half-margin-bottom fa fa-plus-circle half-margin-right"></i>Add item or category</a></p>
+                <p class="half-margin-bottom"><input type="radio" name="limit-currents" id="limit-currents-no" class="custom-radio" checked />
+                  <label for="limit-currents-no">Yes</label>
+                <input type="radio" name="limit-currents" id="limit-currents-yes" class="custom-radio" />
+                  <label for="limit-currents-yes" class="two-margin-left">No - Set monthly limit</label></p>
 
-          <div class="row half-margin-top">
-            <div class="medium-8 small-centered columns">
-              <p class="three-halves-margin-bottom grey">Example: If you accept Currents for 20% of $100 in sales,<br class="hide-for-small-only" /> you would net $80 and either <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 2</span> or a $20 writeoff.</p>
+                <div id="monthly-limit-div" class="row center hidden">
+                  <span>[Business name] will accept up to </span>
+                  <span class="no-wrap">
+                    <div id="monthly-limit-input" class="relative inline-block">
+                      <!-- <img class="current-placeholder" src="{% static 'img/symbol.svg' %}"/> -->
+                      
+                      <input id="monthly-limit" name="monthly-limit" type="number" placeholder="100" value="100" />
+                    </div>
+                  transactions</span><span> per month</span>
+                </div>
+              </div>
+            </div>
 
+            <div class="row one-margin-top">
               <a class="prev-offer button round secondary">Back</a>
               <a class="next-offer button round">Next</a>
             </div>
           </div>
-        </div>
 
-        <!-- <div class="row">
-          <div class="small-12 medium-8 small-centered columns">
-            <h5 class="one-margin-bottom">How much do you value an hour of volunteer work?</h5>
-
-            <p class="">This determines how many Currents you receive for the discount you offer. Since each Current is created from an hour of work, we suggest a starting value of $10 per Current (or $10 per hour). Right now the community average is $[10] per Current.</p>
-
-            <p class="half-margin-bottom">[Business name] accepts Currents at:</p>
-          </div>
-        </div>
-
-        <div class="row collapse">
-          <div class="small-centered small-6 medium-4 columns">
-            <div class="value-div">
-              <span class="dollar-placeholder large-text">$</span>
-              <input id="current-price-1" class="dollar-price large-text" type="number" placeholder="10" value="10"/>
-              <div class="value-placeholder"><span class="grey large-text">per </span><img class="large-text-symbol" src="{% static 'img/symbol.svg' %}"/></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="small-12 medium-5 small-centered columns">
-            <p class="grey">(If you give [20%] off a $10 item at $[10] per Current, you would receive $8 and <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> [0.2]</span>)
-          </div>
-        </div> -->
-
-        <div id="offer-3">
-          <div class="row">
-            <div class="small-12 medium-11 small-centered columns">
-              <h5 class="one-margin-bottom">Do you want to accept all transactions?</h5>
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="small-12 medium-8 small-centered columns">
-
-              <p class="half-margin-bottom"><input type="radio" name="limit-currents" id="limit-currents-no" class="custom-radio" checked />
-                <label for="limit-currents-no">Yes</label>
-              <input type="radio" name="limit-currents" id="limit-currents-yes" class="custom-radio" />
-                <label for="limit-currents-yes" class="two-margin-left">No - Set monthly limit</label></p>
-
-              <div id="monthly-limit-div" class="row center hidden">
-                <span>[Business name] will accept up to </span>
-                <span class="no-wrap">
-                  <div id="monthly-limit-input" class="relative inline-block">
-                    <!-- <img class="current-placeholder" src="{% static 'img/symbol.svg' %}"/> -->
-                    
-                    <input id="monthly-limit" name="monthly-limit" type="number" placeholder="100" value="100" />
-                  </div>
-                transactions</span><span> per month</span>
+          <div id="offer-4">
+            <div class="row left">
+              <div class="small-12 medium-8 small-centered columns">
+                <h5 class="one-margin-bottom center">Confirm offer details</h5>
+                <p>As an authorized representative of [Business Name], I agree to accept Currents [for up to X transactions per month] as partial payment for the following products and services:</p>
+                
+                <ul>
+                  <li>[20%] of [Products]</li>
+                  <li>[20%] of [Services]</li>
+                  <li>[20%] of [Item 1]</li>
+                </ul>
+                  
+                <p>At the end of the month, openCurrents will invoice [Business Name] the total value of Currents accepted, send customers dollars in exchange for Currents, and transfer Currents to [Business Name]. For each Current received, [Business Name] can either keep the Current or claim a $10 charitable donation. Initial value: $10 per <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/> 1.</span></p>
               </div>
             </div>
-          </div>
 
-          <div class="row one-margin-top">
-            <a class="prev-offer button round secondary">Back</a>
-            <a class="next-offer button round">Next</a>
-          </div>
-        </div>
-
-        <div id="offer-4">
-          <div class="row left">
-            <div class="small-12 medium-8 small-centered columns">
-              <h5 class="one-margin-bottom center">Confirm offer details</h5>
-              <p>As an authorized representative of [Business Name], I agree to accept Currents [for up to X transactions per month] as partial payment for the following products and services:</p>
-              
-              <ul>
-                <li>[20%] of [Products]</li>
-                <li>[20%] of [Services]</li>
-                <li>[20%] of [Item 1]</li>
-              </ul>
-                
-              <p>At the end of the month, openCurrents will invoice [Business Name] the total value of Currents accepted, send customers dollars in exchange for Currents, and transfer Currents to [Business Name]. For each Current received, [Business Name] can either keep the Current or claim a $10 charitable donation. Initial value: $10 per <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/> 1.</span></p>
+            <div class="row one-margin-top">
+              <a class="prev-offer button round secondary">Back</a>
+              <a class="button round">Confirm offer</a>
             </div>
           </div>
 
-          <div class="row one-margin-top">
-            <a class="prev-offer button round secondary">Back</a>
-            <a class="button round">Confirm offer</a>
+          <div id="offer-spacer">
+            <div class="row left">
+              <div class="small-12 medium-8 small-centered columns">
+                <h5 class="one-margin-bottom center">Confirm offer details</h5>
+                <p>As an authorized representative of [Business Name], I agree to accept Currents [for up to X transactions per month] as partial payment for the following products and services:</p>
+                
+                <ul>
+                  <li>[20%] of [Products]</li>
+                  <li>[20%] of [Services]</li>
+                  <li>[20%] of [Item 1]</li>
+                </ul>
+                  
+                <p>At the end of the month, openCurrents will invoice [Business Name] the total value of Currents accepted, send customers dollars in exchange for Currents, and transfer Currents to [Business Name]. For each Current received, [Business Name] can either keep the Current or claim a $10 charitable donation. Initial value: $10 per <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/> 1.</span></p>
+              </div>
+            </div>
+
+            <div class="row one-margin-top">
+              <a class="prev-offer button round secondary">Back</a>
+              <a class="button round">Confirm offer</a>
+            </div>
           </div>
-        </div>
 
-        <!-- <div id="offer-4">
-          <div class="row two-margin-top">
-            <a class="prev-offer button round secondary">Back</a>
-            
-          </div>
-        </div> -->
-        
-        <!-- <div class="row center">
-          <div class="center small-12 medium-6 small-centered columns">
-            <input type="number" id="discount-amount" name="discount-amount" class="inline" placeholder="#">
-            <select id="discount-type" name="discount-type" class="inline">
-              <option name="dollar">dollars off</option>
-              <option name="percent">percent off</option>
-            </select>
-
-            <input id="item-name" name="item-name" type="text" placeholder="name of product/service" class="center">
-
-            <p class="one-margin-top no-margin-bottom large-text">at a value of $<input type="number" id="current-value" name="current-value" class="inline large-text" placeholder="#" value="10"> per Current</p>
-
-            <p class="large-text">up to <input type="number" id="max-currents" name="max-currents" class="inline large-text" placeholder="#" value="1"> Currents per customer per day</p>
-          </div>
-        </div> -->
-
-        <!-- <div class="row">
-          <div class="small-12 medium-5 small-centered columns">
-            <label><input type="checkbox" id="min-purchase" name="min-purchase"/>Minimum purchase required</label>
-
-            <div id="min-purchase-div" class="hidden">Minimum purchase: $ <input type="number" id="min-purchase-amount" name="min-purchase-amount" class="inline" placeholder="10" /></div>
-
-            <a href="" class="three-halves-margin-top button round">Create offer</a>
-          </div>
-        </div> -->
-        
-        <div id="push"></div>
-    
       <!-- wrapper div-->
       </div>
       
@@ -272,6 +279,37 @@
           scrolllock: true,
         });
 
+        // Add item
+        var id = 3
+
+        $('#add-item').click(function(){
+          $('#goods-div').append('<div id="item-'+id+'" class="row collapse hidden"><div class="input-left small-3 columns"><div class="relative"><input name="discount-amount-'+id+'" type="number" class="fit-left qtr-margin-right" placeholder="20" value="20"/><span class="input-icon-right">%</span></div></div><div class="input-right small-9 columns"><div class="fit-left half-margin-top one-margin-right one-margin-left">of</div><div class="relative input-sizer"><input name="item-name-'+id+'" type="text" placeholder="Item or category name" /><i class="remove-input alert fa fa-times"></i></div></div></div>');
+          $('#item-'+id+'').slideDown();
+
+          if (id > 3) {
+            $('#offer-spacer').animate({height: '+=58'});
+          }
+          id ++
+        });
+
+        // Remove item
+        $('body').on('click', '.remove-input', function(){
+          $(this).closest('.row').slideUp(function(){
+            $(this).remove();
+          });
+
+          if (id > 4) {
+            $('#offer-spacer').animate({height: '-=58'});
+          }
+
+          $('#add-item').slideDown();
+        });
+
+        // Show add-item if products/services edited
+        $('.good-cat').change(function(){
+          $('#add-item').slideDown();
+        });
+
         // Show/hide monthly limit input
         $('#limit-currents-yes').click(function(){
           $('#monthly-limit-div').slideDown();
@@ -282,27 +320,6 @@
             $('#monthly-limit').val('');
           });
         });
-
-        // Change goods-detail with click
-        // $('#all-goods').click(function(){
-        //   $('.goods-detail').hide();
-        //   $('#all-detail').show();
-        // });
-
-        // $('#products-only').click(function(){
-        //   $('.goods-detail').hide();
-        //   $('#products-detail').show();
-        // });
-
-        // $('#services-only').click(function(){
-        //   $('.goods-detail').hide();
-        //   $('#services-detail').show();
-        // });
-
-        // $('#specific-goods').click(function(){
-        //   $('.goods-detail').hide();
-        //   $('#specific-detail').show();
-        // });
         
         // Slide left on 'Next'
         var page = 1;
@@ -312,8 +329,11 @@
             var $lefty = $('#offer-'+page+'');
             var $righty = $('#offer-'+(page+1)+'');
 
-            $righty.show()
+            $('#container').animate({
+              scrollTop: $("#header").offset().top
+            }, 1111);
 
+            $righty.show()
             $lefty.animate({
               left: parseInt(-$lefty.outerWidth())
             }, 777);
@@ -322,7 +342,7 @@
             }, 777);
 
             setTimeout(function() {
-                $lefty.hide();
+              $lefty.hide();
             }, 1000);
 
             $('#progress-'+page+'').removeClass('progress-highlight').siblings('label').removeClass('blue');
@@ -333,10 +353,14 @@
         });
 
         // Slide right on 'Back'
-        $('.prev-offer').click(function() {
+        $('.prev-offer').click(function(e) {
           if (page > 1) {
             var $lefty = $('#offer-'+(page-1)+'');
             var $righty = $('#offer-'+page+'');
+            
+            $('#container').animate({
+              scrollTop: $("#header").offset().top
+            }, 1111);
 
             $lefty.show();
             $lefty.animate({
@@ -347,7 +371,7 @@
             }, 777);
 
             setTimeout(function() {
-                $righty.hide();
+              $righty.hide();
             }, 1000);
 
             $('#progress-'+(page-1)+'').addClass('progress-highlight').siblings('label').addClass('blue');

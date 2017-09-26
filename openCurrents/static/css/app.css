@@ -1466,3 +1466,7 @@ input[disabled].good-cat {
   width: 77px;
   text-indent: 11px;
 }
+
+#offer-spacer {
+  visibility: hidden;
+}
