@@ -1,0 +1,145 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    {% include "partials/head.html" %}
+  </head>
+  
+  <body>
+    {% include "partials/header.html" %}
+    
+    <div id="container" class="js-close-any" canvas="container">
+      <div id="wrapper">
+        {% if status_msg %}
+        <div class="alert row half-margin-top">
+          {{status_msg}}
+        </div>
+        {% endif %}
+        
+        <div class="row">
+          <h3 class="title">Edit offer</h3>
+        </div>
+
+        <div class="row left">
+          <div class="small-12 medium-6 small-centered columns">
+            <div class="row collapse">
+              <div class="input-left small-3 columns">
+                <p><strong><img class="" src="{% static 'img/symbol-navy.svg' %}"/> share</strong></p>
+              </div>
+
+              <div class="input-right small-9 columns">
+                <p id="item-title"><strong>Item or category</strong></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div id="goods-div" class="small-12 medium-6 small-centered columns">
+            <div id="item-1" class="row collapse">
+              <div class="input-left small-3 columns">
+                <div class="relative">
+                  <input name="discount-amount-1" type="number" class="fit-left qtr-margin-right" placeholder="20" value="20"/>
+                  <span class="input-icon-right">%</span>
+                </div>
+                <!-- <span class="input-sizer"><select name="discount-type-1">
+                  <option selected>% of</option>
+                  <option>$ of</option>
+                </select></span> -->
+              </div>
+
+              <div class="input-right small-9 columns">
+                <div class="fit-left half-margin-top one-margin-right one-margin-left">of</div>
+                <div class="relative input-sizer">
+                  <input name="item-name-1" type="text" placeholder="Item or category name" value="All products" class="good-cat" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row one-margin-top">
+          <div class="small-12 medium-8 small-centered columns">
+            <p><strong>Do you want to accept all transactions?</strong></p>
+
+            <p class="half-margin-bottom"><input type="radio" name="limit-currents" id="limit-currents-no" class="custom-radio" checked />
+              <label for="limit-currents-no">Yes</label>
+            <input type="radio" name="limit-currents" id="limit-currents-yes" class="custom-radio" />
+              <label for="limit-currents-yes" class="two-margin-left">No - Set monthly limit</label></p>
+
+            <div id="monthly-limit-div" class="row center hidden">
+              <span>[Business name] will accept up to </span>
+              <span class="no-wrap">
+                <div id="monthly-limit-input" class="relative inline-block">
+                  <!-- <img class="current-placeholder" src="{% static 'img/symbol.svg' %}"/> -->
+                  
+                  <input id="monthly-limit" name="monthly-limit" type="number" placeholder="100" value="100" />
+                </div>
+              transactions</span><span> per month</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="row one-margin-top center">
+          <div class="small-12 medium-8 small-centered columns">
+            <a class="button round">Save</a>
+          </div>
+        </div>
+        
+        <div id="push"></div>
+    
+      <!-- wrapper div-->
+      </div>
+      
+      {% include 'partials/footer.html' %}
+            
+    <!--container div -->
+    </div>
+    
+    <div id="bottom-stripe" class="full-width"></div>
+    
+    <div off-canvas="menu right shift" id="menu">
+      {% include 'partials/menu.html' %}
+    </div>
+  
+    <div id="-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h3 class="popup-title"></h3>
+      </div>
+      
+      <div class="row">
+        <div class="small-centered medium-10 columns">
+          
+          <p></p>
+          
+          <button class="-popup_close button round">Close</button>
+        </div>
+      </div>
+    </div>
+    
+    
+    <script type="text/javascript">
+      $(document).ready(function(){
+        $('#').popup({
+          vertical: 'top',
+          transition: 'all 0.75s',
+          scrolllock: true,
+        });
+
+        // Show/hide monthly limit input
+        $('#limit-currents-yes').click(function(){
+          $('#monthly-limit-div').slideDown();
+        });
+
+        $('#limit-currents-no').click(function(){
+          $('#monthly-limit-div').slideUp(function(){
+            $('#monthly-limit').val('');
+          });
+        });
+      });
+    </script>
+    
+    <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
+  </body>
+</html>

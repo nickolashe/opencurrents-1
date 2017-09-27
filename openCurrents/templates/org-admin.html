@@ -12,7 +12,9 @@
 
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
-          <div id="status_msg" class="alert row half-margin-top">
+          <div class="row">
+            <div id="status_msg" class="success one-margin-top small-10 small-centered medium-8 columns">
+            </div>
           </div>
 
           {% if num_events or num_vols %}
@@ -50,23 +52,23 @@
         {% endif %}
 
 
-        <div class="hide-for-small-only row full-width collapse two-margin-top one-margin-bottom">
+        <div class="hide-for-small-only row full-width collapse one-margin-top one-margin-bottom">
           <div class="left medium-6 medium-offset-1 large-5 large-offset-2 columns">
             <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="fit-left round" />
             <span class="input-sizer"> -->
-              <h5 class="one-margin-top no-margin-bottom">{{ user.first_name }} {{ user.last_name }}</h5>
-              <h6 class="half-margin-bottom">{{org_name}}</h6>
+              <h5 class="one-margin-top no-margin-bottom">{{org_name}}</h5>
+              <h6>{{ user.first_name }} {{ user.last_name }}</h6>
               <a href="{% url 'openCurrents:create-event' orgid %}" {% if user_time_log_status %} class="button secondary tiny round" {% else %} class="button tiny round" {% endif %}>Create event</a>
             <!-- </span> -->
           </div>
 
 
 
-          <div class="right medium-4 large-3 columns end">
+          <div class="right qtr-margin-top medium-4 large-3 columns end">
             <!--h6 class="no-margin-bottom two-line-height">My hours tracked: [my_total]</h6-->
 
-            <h6 id="org-hours-total">Org hours tracked: {{ issued_by_all }}</h6>
-            <h6 class="half-margin-bottom">Hours I've tracked: {{ issued_by_admin }}</h6>
+            <h6 class="one-margin-top no-margin-bottom">Org hours tracked: {{ issued_by_all }}</h6>
+            <h6 class="half-margin-bottom">My hours tracked: {{ issued_by_admin }}</h6>
 
               <a {% if user_time_log_status %} href="{% url 'openCurrents:approve-hours' %}" class="button round tiny"{% else %} href="javascript:status()" class="button round tiny secondary"{% endif %}">Approve hours</a>
           </div>
@@ -75,16 +77,17 @@
         <div class="show-for-small-only row one-margin-top one-margin-bottom">
           <div class="columns">
             <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="round" /> -->
-            <h5 class="half-margin-top no-margin-bottom">{{ user.first_name }} {{ user.last_name }}</h5>
-            <h6>{{org_name}}</h6>
+            <h4>{{org_name}}</h4>
+            <h5>{{ user.first_name }} {{ user.last_name }}</h5>
 
-            <div class="one-margin-top">
+
+            <div>
               <!-- <h6 class="no-margin-bottom">My hours tracked: 10.0</h6> -->
               <h6 class="no-margin-bottom">
                 Org hours tracked: {{ issued_by_all }}
               </h6>
               <h6 class="one-margin-bottom">
-                Hours I've tracked: {{ issued_by_admin }}
+                My hours tracked: {{ issued_by_admin }}
               </h6>              
               <a href="{% url 'openCurrents:create-event' orgid %}" {% if user_time_log_status %} class="button secondary tiny round" {% else %} class="button tiny round" {% endif %}>Create event</a>
               <a {% if user_time_log_status %} href="{% url 'openCurrents:approve-hours' %}" class="button round tiny"{% else %} href="javascript:status()" class="button round tiny secondary"{% endif %}">Approve hours</a>
@@ -96,11 +99,11 @@
         {% if events_group_current %}
           <div id="live-event-list" class="left row full-width collapse one-margin-top">
             <div class="small-11 medium-10 large-8 small-centered columns">
-              <h6 class="one-margin-bottom">Events happening now</h6>
+              <h6 class="half-margin-bottom">Events happening now</h6>
 
               {% for event in events_group_current %}
-                  <div class="row one-margin-top one-margin-bottom">
-                    <div class="left small-8 columns">
+                  <div class="row one-margin-bottom">
+                    <div class="left half-margin-top small-8 columns">
                       Let's {{event.project.name}}!
                       on {{event.datetime_start|day:timezone}}
                       at {{event.datetime_start|time:timezone}}
@@ -121,7 +124,7 @@
 
         <div id="upcoming-event-list" class="left row one-margin-top full-width collapse">
           <div class="small-11 medium-10 large-8 small-centered columns">
-            <h6 class="one-margin-bottom">Upcoming events</h6>
+            <h6 class="half-margin-bottom">Upcoming events</h6>
             {% if events_group_upcoming %}
               {% for event in events_group_upcoming %}
                 <div class="row hover-row one-margin-bottom">
@@ -157,7 +160,7 @@
         {% if events_group_past %}
           <div id="past-event-list" class="left row one-margin-top full-width collapse">
             <div class="small-11 medium-10 large-8 small-centered columns">
-              <h6 class="one-margin-bottom">Past events</h6>
+              <h6 class="half-margin-bottom">Past events</h6>
 
               {% for event in events_group_past %}
                   <div class="row hover-row one-margin-bottom">

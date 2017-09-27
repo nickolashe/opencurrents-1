@@ -27,7 +27,7 @@
 
               {% if is_admin %}
                 <h6 class="inline half-margin-right">{{orgname}}</h6>
-                <a href="{% url 'openCurrents:admin-profile' %}"><i class="fa fa-lg fa-gear"></i></a>
+                <a href="{% url 'openCurrents:org-admin' %}"><i class="fa fa-lg fa-gear"></i></a>
               {% endif %}
             <!-- </span> -->
           </div>
@@ -37,8 +37,8 @@
             <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
             <h6 class="inline-block"> {{ user_balance }} </h6>
             <div class="no-margin-top row">
-              <a class="earn-currents-popup_open button round tiny">Give time</a>
-              <a href="{% url 'openCurrents:marketplace' %}" class="button round secondary tiny">Redeem Currents</a>
+              <a class="earn-currents-popup_open button round tiny">Earn</a>
+              <a href="{% url 'openCurrents:marketplace' %}" class="button round secondary tiny">Redeem</a>
             </div>
           </div>
         </div>
@@ -48,8 +48,8 @@
             <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="round" /> -->
             <h4 class="half-margin-top no-margin-bottom">{{ user.first_name }} {{ user.last_name }}</h4>
             {% if is_admin %}
-              <h6 class="inline half-margin-right">{{orgname}}</h6>
-              <a href="{% url 'openCurrents:admin-profile' %}"><i class="fa fa-lg fa-gear"></i></a>
+              <h5 class="inline half-margin-right">{{orgname}}</h5>
+              <a href="{% url 'openCurrents:org-admin' %}"><i class="fa fa-lg fa-gear"></i></a>
             {% endif %}
 
             <div class="half-margin-top">
@@ -57,8 +57,8 @@
               <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
               <h6 class="inline-block"> {{ user_balance }} </h6>
               <div class="half-margin-top row">
-                <a class="earn-currents-popup_open button round tiny">Give time</a>
-                <a href="{% url 'openCurrents:marketplace' %}" class="button round secondary tiny">Redeem Currents</a>
+                <a class="earn-currents-popup_open button round tiny">Earn</a>
+                <a href="{% url 'openCurrents:marketplace' %}" class="button round secondary tiny">Redeem</a>
               </div>
             </div>
           </div>
@@ -66,7 +66,7 @@
         
         <div class="row full-width collapse left one-margin-top">
           <div class="small-11 medium-10 large-8 small-centered columns">
-            <h6 class="one-margin-bottom">My volunteer events</h6>
+            <h6 class="half-margin-bottom">My upcoming events</h6>
             {% if events_upcoming %}
               {% for event in events_upcoming %}
                 {% if event.project.name != "ManualTracking" %}
@@ -80,8 +80,11 @@
                     at {{event.location}}
                   </div>
 
-                  <div class="right input-right small-3 columns">
-                    <a href="{% url 'openCurrents:event-detail' event.id %}" class="button small round secondary">View</a>
+                  <div class="right relative input-right small-3 columns">
+                    <a class="mini-open"><i class="blue half-margin-right fa-chevron-circle-down fa fa-lg"></i></a>
+                    <ul class="mini-menu">
+                      <a href="{% url 'openCurrents:event-detail' event.id %}"><li>View event details</li></a>
+                    </ul>
                   </div>
                 </div>
                 {% endif %}
@@ -89,6 +92,17 @@
             {% else %}
               <p>You are not registered for any upcoming events. <a href="{% url 'openCurrents:upcoming-events' %}">Find one!</a></p>
             {% endif %}
+          </div>
+        </div>
+
+        <div class="row full-width collapse left one-margin-top">
+          <div class="small-11 medium-10 large-8 small-centered columns">
+            <h6 class="half-margin-bottom">My hours</h6>
+            <a class="half-margin-right button round tiny secondary">openCurrents: 25</a>
+            <a class="half-margin-right button round tiny secondary">Keep Austin Beautiful: 25</a>
+            <a class="half-margin-right button round tiny secondary">Bike Austin: 25</a>
+
+
           </div>
         </div>
         
@@ -186,12 +200,12 @@
         <div class="small-centered medium-10 columns">
           <h3 class="one-margin-top">Welcome to openCurrents!</h3>
           <p class="three-halves-margin-top">We're excited to have you with us in the community. You are now able to start creating Currents with our pilot nonprofits! Soon you will be able to exchange Currents through a digital marketplace and see what like minded peers are doing in your community.</p>
-          
+
           <p>If you'd like to learn more about openCurrents or get involved, let us know!</p>
 
           <p class="three-halves-margin-top">
             <a href="javascript:void(Tawk_API.toggle())" class="button round small">Get in touch</a>
-            <a class="welcome-popup_close button round secondary small">Close</a>
+            <a class="welcome-popup_close button round small secondary">Close</a>
           </p>
         </div>
       </div>
@@ -199,7 +213,7 @@
 
     <div id="earn-currents-popup" class="modal center small-12 medium-10 large-8 small-centered columns">
       <div class="row center">
-        <h3 class="one-margin-top">2 ways to earn Currents</h3>
+        <h3 class="one-margin-top">2 ways to create Currents</h3>
         <h6></h6>
       </div>
 
@@ -280,6 +294,19 @@
           transition: 'all 0.75s',
           scrolllock: true,
           // autoopen: true,
+        });
+
+        $('.mini-open').click(function(){
+          $('.mini-menu').hide();
+          $(this).siblings('.mini-menu').toggle();
+          $(this).attr('visibility', 'visible');
+        });
+
+        $(document).click(function(e) {
+          var target = e.target;
+          if (!$(target).is('.mini-open') && !$(target).parents().is('.mini-open')) {
+            $('.mini-menu').hide();
+          }
         });
       });
     </script>

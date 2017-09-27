@@ -1,0 +1,262 @@
+{% load staticfiles %}
+{% load tags %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    {% include "partials/head.html" %}
+  </head>
+
+  <body>
+    {% include "partials/header.html" %}
+
+    <div id="container" class="js-close-any" canvas="container">
+      <div id="wrapper">
+          <div class="row">
+            <div id="status_msg" class="success one-margin-top small-10 small-centered medium-8 columns">
+            </div>
+          </div>
+
+          <!-- {% if num_events or num_vols %}
+            <div class="success row one-margin-top">
+              <div class="medium-8 columns small-centered">
+                {% if num_events|add:"0" >= 1 and num_vols|add:"0" >= 1 %}
+                    You have created events at {{ num_events }} location{{ num_events|pluralize }} and registered {{ num_vols }} volunteer{{ num_vols|pluralize }} to the event. Nice!
+
+                {% elif num_events|add:"0" >= 1 and num_vols|add:"0" == 0 %}
+                    You have created events at {{ num_events }} location{{ num_events|pluralize }}. Nice!
+
+                {% elif num_events|add:"0" == 0 and num_vols|add:"0" >= 1 %}
+                    You have invited {{ num_vols  }} volunteer{{ num_vols|pluralize }} to the openCurrents community. Nice!
+
+                {% endif %}
+              </div>
+            </div>
+          {% endif %}
+
+        {% if vols_approved or vols_declined %}
+          <div class="success row one-margin-top">
+            <div class="medium-8 columns small-centered">
+              {% if vols_approved|add:"0" >= 1 and vols_declined|add:"0" >= 1 %}
+                  You have approved hours for {{ vols_approved }} volunteer{{ vols_approved|pluralize }} and declined hours for {{ vols_declined }} volunteer{{ vols_declined|pluralize }}. Nice!
+
+              {% elif vols_approved|add:"0" >= 1 and vols_declined|add:"0" == 0 %}
+                  You have approved hours for {{ vols_approved }} volunteer{{ vols_approved|pluralize }}. Nice!
+
+              {% elif vols_approved|add:"0" == 0 and vols_declined|add:"0" >= 1 %}
+                  You have declined hours for {{ vols_declined }} volunteer{{ vols_declined|pluralize }}. 
+
+              {% endif %}
+            </div>
+          </div>
+        {% endif %}
+ -->
+
+        <div class="hide-for-small-only row full-width collapse one-margin-top one-margin-bottom">
+          <div class="left medium-6 medium-offset-1 large-5 large-offset-2 columns">
+            <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="fit-left round" />
+            <span class="input-sizer"> -->
+              <h5 class="one-margin-top no-margin-bottom trim-text">[org_name]</h5>
+              <h6>{{ user.first_name }} {{ user.last_name }}</h6>     
+            <!-- </span> -->
+          </div>
+
+
+
+          <div class="right one-margin-top medium-4 large-3 columns end">
+            <span class="no-wrap">
+              <h6 class="half-margin-bottom inline-block">Business balance:</h6>
+              <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
+              <h6 class="inline-block"> [biz] </h6>
+            </span>
+            <!-- <h6 class="half-margin-bottom">Hours I've tracked: {{ issued_by_admin }}</h6> -->
+
+              <a href="{% url 'openCurrents:offer' %}" class="button round tiny">Create offer</a>
+          </div>
+        </div>
+
+        <div class="show-for-small-only row one-margin-top">
+          <div class="columns">
+            <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="round" /> -->
+            <h4 class="half-margin-top no-margin-bottom">[org_name]</h4>
+            <h5>{{ user.first_name }} {{ user.last_name }}</h5>
+
+            <div class="one-margin-top half-margin-bottom">
+              <!-- <h6 class="no-margin-bottom">My hours tracked: 10.0</h6> -->
+              <h6 class="inline">Business balance: </h6>
+                <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
+                <h6 class="inline-block"> {{ user_balance }} </h6>
+            </div>
+
+            <a href="{% url 'openCurrents:offer' %}" class="button round tiny">Create offer</a>
+          </div>
+        </div>
+
+        <div class="left row one-margin-top full-width collapse">
+          <div class="small-11 medium-10 large-8 small-centered columns">
+            <h6 class="half-margin-bottom">Our offers</h6>
+            <!-- % if current_offers %
+              % for offer in current_offers % -->
+                <div class="row half-margin-top">
+                  <div class="left small-9 columns">
+                    <p>Fast Folks Bike Shop & Cafe accepts Currents for <strong>50% of flat fixes</strong> <span class="small-text grey">Limit 50 transactions per month</span></p>
+                  </div>
+
+                  <div class="right relative small-3 columns">
+                    <a class="mini-open"><i class="blue half-margin-right fa-chevron-circle-down fa fa-lg"></i></a>
+                    <ul class="mini-menu">
+                      <a href="{% url 'openCurrents:edit-offer' %}"><li>Edit offer</li></a>
+                      <a class="delete-offer-popup_open"><li class="alert">Delete offer</li></a>
+                    </ul>
+                  </div>
+                </div>
+<!--               % endfor %
+            % else % -->
+              <div class="row">
+                <div class="left small-12 columns">
+                  <p>[ org_name ] has not made any offers. <a href="{% url 'openCurrents:offer' %}">Create one!</a></p>
+                </div>
+              </div>
+            <!-- % endif % -->
+          </div>
+        </div>
+
+        <!-- % if offers_redeemed -->
+        <div class="left row one-margin-top full-width collapse">
+          <div class="small-11 medium-10 large-8 small-centered columns">
+            <h6 class="half-margin-bottom">Redeemed offers</h6>
+            <!-- % for offer in offers_redeemed % -->
+            <div class="row half-margin-top">
+              <div class="left small-9 columns">
+                <p>Danny Pernik purchased <strong>flat fix for $15</strong> and will receive $7.50 for <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/> 0.75</span></p>
+              </div>
+
+              <div class="right relative small-3 columns">
+                <a class="mini-open"><i class="blue half-margin-right fa-chevron-circle-down fa fa-lg"></i></a>
+                <ul class="mini-menu">
+                  <a class="view-receipt-popup_open"><li>View receipt</li></a>
+                </ul>
+              </div>
+            </div>
+            <!-- % endfor -->
+          </div>
+        </div>
+        <!-- % endif % -->
+
+        <!-- community feed code. Hardcoded not dynamic -->
+        <!-- <div class="row one-margin-top">
+          <div class="left medium-8 small-centered columns">
+            <h6 class="center half-margin-bottom">Community activity</h6>
+            <div id="community-feed">
+              <div class="feed-item">
+                <strong>Jacob Jacobs</strong> joined openCurrents!
+              </div>
+
+              <div class="feed-item">
+                <strong>Keep Austin Beautiful</strong> created a project: <strong><a>Let's clean up Lady Bird Lake<span class="no-wrap">!<i class="half-margin-left fa fa-arrow-circle-right"></i></span></a></strong>
+              </div>
+
+              <div class="feed-item">
+                <strong>Jacob Jacobs</strong> will be helping <strong>Keep Austin Beautiful</strong> clean up Lady Bird Lake!
+              </div>
+
+              <div class="feed-item">
+                <strong>Keep Austin Beautiful</strong> issued 2 Currents to <strong>Jacob Jacobs</strong>.
+              </div>
+            </div>
+          </div>
+        </div -->
+
+            <!-- <h5 class="fit-left">I care about</h5>
+            <span class="input-sizer"><input name="offer-text" type="text" class="profile-text" value="showing people their power"/></span>
+
+            <div class="tag-block">
+              <button class="button round tiny">Nature</button>
+            </div>
+
+            <h5 class="fit-left">I offer</h5>
+            <span class="input-sizer"><input name="offer-text" type="text" class="profile-text" /></span>
+
+            <h5 class="fit-left">I am looking for</h5>
+            <span class="input-sizer"><input name="offer-text" type="text" class="profile-text" /></span> -->
+
+            <!--<h5 class="one-margin-top one-margin-bottom">My badges</h5>
+
+            <h5 class="one-margin-top one-margin-bottom">My hours given</h5>
+            -->
+
+        <div id="push"></div>
+
+      <!-- wrapper div-->
+      </div>
+
+      {% include 'partials/footer.html' %}
+
+    <!--container div -->
+    </div>
+
+    <div id="bottom-stripe" class="full-width"></div>
+
+    <div off-canvas="menu right shift" id="menu">
+      {% include 'partials/menu.html' %}
+    </div>
+
+    <div id="delete-offer-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h3 class="popup-title">Are you sure?</h3>
+        <a class="button round alert">Yes - Delete offer</a>
+        <a class="button round secondary">Cancel</a>
+      </div>
+    </div>
+
+    <div id="view-receipt-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <div class="small-12 medium-8 small-centered columns">
+          <h4 class="popup-title">View receipt</h4>
+          <p>(If other PoP): [Danny] did not have a receipt and has provided the following image as proof of purchase:</p>
+        </div>
+      </div>
+
+      <div class="row collapse">
+        <div class="small-12 medium-8 small-centered columns">
+          <img src="{% static 'img/first_receipt.jpeg' %}" />
+        </div>
+      </div>
+
+      <div class="row center three-halves-margin-top">
+        <a class="button round secondary">Accept</a>
+        <a class="button round alert">Decline</a>
+      </div>
+
+    </div>
+
+
+    <script type="text/javascript">
+      $(document).ready(function(){
+        $('#view-receipt-popup, #delete-offer-popup').popup({
+          vertical: 'top',
+          transition: 'all 0.75s',
+          scrolllock: true,
+        });
+
+        $('.mini-open').click(function(){
+          $('.mini-menu').hide();
+          $(this).siblings('.mini-menu').toggle();
+          $(this).attr('visibility', 'visible');
+        });
+
+        $(document).click(function(e) {
+          var target = e.target;
+          if (!$(target).is('.mini-open') && !$(target).parents().is('.mini-open')) {
+            $('.mini-menu').hide();
+          }
+        });
+      });
+      function status(){
+        $('#status_msg').html("There are no hours that need your approval.");
+      }
+    </script>
+
+    <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
+  </body>
+</html>
