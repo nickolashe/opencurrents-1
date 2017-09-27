@@ -556,8 +556,8 @@ class InventoryView(TemplateView):
     template_name = 'inventory.html'
 
 
-class LeaderboardView(TemplateView):
-    template_name = 'leaderboard.html'
+class PublicRecordView(TemplateView):
+    template_name = 'public-record.html'
 
 
 class MarketplaceView(TemplateView):

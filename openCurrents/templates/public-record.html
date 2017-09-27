@@ -21,10 +21,10 @@
         {% endif %}
         
         <div class="row">
-          <h3 class="title-sub">Leaderboard</h3>
+          <h3 class="title-sub">Public record</h3>
         </div>
 
-        <div class="row half-margin-top one-margin-bottom">
+        <div class="row half-margin-bottom">
           <div class="small-9 medium-4 small-centered columns">
             <select id="public-record-filter" name="public-record-filter">
               <option value="top-org">Top organizations</option>
@@ -153,7 +153,6 @@
             {% include 'partials/pagination.html' %}
 
             <div class="row three-halves-margin-top">
-              <a class="public-export-popup_open button round">Export data</a>
               <a href="{% url 'openCurrents:profile' %}" class="button round secondary">Back to profile</a>
             </div>
           </div>
