@@ -45,7 +45,8 @@ from openCurrents.forms import \
     EventRegisterForm, \
     EventCheckinForm, \
     OrgNominationForm, \
-    TimeTrackerForm
+    TimeTrackerForm, \
+    OfferForm
 
 from datetime import datetime, timedelta
 
@@ -1873,6 +1874,14 @@ class RegistrationConfirmedView(DetailView, LoginRequiredMixin):
 
 class AddVolunteersView(TemplateView):
     template_name = 'add-volunteers.html'
+
+
+class OfferForm(SessionContextView, LoginRequiredMixin, FormView):
+    template_name = 'offer.html'
+    form_class = OfferForm    
+
+    def form_valid(self, form):
+        return redirect('openCurrents:admin-profile')
 
 
 @login_required
