@@ -100,43 +100,6 @@ class Project(models.Model):
             self.org.name
         ])
 
-'''
-class ManualTracking(models.Model):
-    project = models.ForeignKey(Project)
-    description = models.CharField(max_length=8192)
-    #location = models.CharField(max_length=1024)
-
-    # coordinator contact info
-    #coordinator_firstname = models.CharField(max_length=128)
-    #coordinator_email = models.EmailField()
-
-    # start / end timestamps of the project
-    datetime_start = models.DateTimeField('start datetime')
-    datetime_end = models.DateTimeField('end datetime')
-
-    # created / updated timestamps
-    date_created = models.DateTimeField('date created', auto_now_add=True)
-    date_updated = models.DateTimeField('date updated', auto_now=True)
-
-    class Meta:
-        get_latest_by = 'datetime_start'
-        ordering = ['datetime_start']
-
-    def __unicode__(self):
-        tz = self.project.org.timezone
-        return ' '.join([
-            'Event',
-            self.project.name,
-            'by',
-            self.project.org.name,
-            'on',
-            self.datetime_start.astimezone(pytz.timezone(tz)).strftime('%b %d'),
-            'from',
-            self.datetime_start.astimezone(pytz.timezone(tz)).strftime('%-I:%m %p'),
-            'to',
-            self.datetime_end.astimezone(pytz.timezone(tz)).strftime('%-I:%m %p')
-        ])
-'''
 
 class Event(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
@@ -333,3 +296,64 @@ class Token(models.Model):
             str(self.date_expires),
             '(%sverified)' % ('' if self.is_verified else 'not yet ')
         ])
+
+
+class Item(models.Model):
+    name = models.CharField(max_length=256)
+
+
+class Offer(models.Model):
+    org = models.ForeignKey(Org)
+    item = models.ForeignKey(Item)
+    currents_share = models.DecimalField(
+        decimal_places=2,
+        max_digits=3
+    )
+    limit = models.IntegerField(default=-1)
+
+    # created / updated timestamps
+    date_created = models.DateTimeField('date created', auto_now_add=True)
+    date_updated = models.DateTimeField('date updated', auto_now=True)
+
+
+class Transaction(models.Model):
+    user = models.ForeignKey(User)
+    action = models.ManyToManyField(
+        Offer,
+        through='UserOfferAction'
+    )
+    pop_image = models.ImageField()
+    pop_type = models.CharField(
+        max_length=3,
+        choices=[
+            ('rec', 'receipt'),
+            ('oth', 'other')
+        ],
+        default='rec'
+    )
+    price_reported = models.DecimalField(
+        decimal_places=2,
+        max_digits=10
+    )
+
+    # created / updated timestamps
+    date_created = models.DateTimeField('date created', auto_now_add=True)
+    date_updated = models.DateTimeField('date updated', auto_now=True)
+
+
+class UserOfferAction(models.Model):
+    transaction = models.ForeignKey(Transaction)
+    offer = models.ForeignKey(Offer)
+    action_type = models.CharField(
+        max_length=7,
+        choices=[
+            ('req', 'requested'),
+            ('app', 'approved'),
+            ('red', 'redeemed')
+        ],
+        default='req'
+    )
+
+    # created / updated timestamps
+    date_created = models.DateTimeField('date created', auto_now_add=True)
+    date_updated = models.DateTimeField('date updated', auto_now=True)
