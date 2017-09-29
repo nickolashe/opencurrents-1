@@ -53,7 +53,7 @@
 
 
         <div class="hide-for-small-only row full-width collapse one-margin-top one-margin-bottom">
-          <div class="left medium-6 medium-offset-1 large-5 large-offset-2 columns">
+          <div class="left medium-6 medium-offset-1 columns">
             <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="fit-left round" />
             <span class="input-sizer"> -->
               <h5 class="one-margin-top no-margin-bottom">{{org_name}}</h5>
@@ -64,7 +64,7 @@
 
 
 
-          <div class="right qtr-margin-top medium-4 large-3 columns end">
+          <div class="right qtr-margin-top medium-4 columns end">
             <!--h6 class="no-margin-bottom two-line-height">My hours tracked: [my_total]</h6-->
 
             <h6 class="one-margin-top no-margin-bottom">Org hours tracked: {{ issued_by_all }}</h6>
@@ -98,7 +98,7 @@
         <!-- current events section -->
         {% if events_group_current %}
           <div id="live-event-list" class="left row full-width collapse one-margin-top">
-            <div class="small-11 medium-10 large-8 small-centered columns">
+            <div class="small-11 medium-10 small-centered columns">
               <h6 class="half-margin-bottom">Events happening now</h6>
 
               {% for event in events_group_current %}
@@ -123,7 +123,7 @@
         {% endif %}
 
         <div id="upcoming-event-list" class="left row one-margin-top full-width collapse">
-          <div class="small-11 medium-10 large-8 small-centered columns">
+          <div class="small-11 medium-10 small-centered columns">
             <h6 class="half-margin-bottom">Upcoming events</h6>
             {% if events_group_upcoming %}
               {% for event in events_group_upcoming %}
@@ -159,7 +159,7 @@
 
         {% if events_group_past %}
           <div id="past-event-list" class="left row one-margin-top full-width collapse">
-            <div class="small-11 medium-10 large-8 small-centered columns">
+            <div class="small-11 medium-10 small-centered columns">
               <h6 class="half-margin-bottom">Past events</h6>
 
               {% for event in events_group_past %}
@@ -187,7 +187,7 @@
 
 
         <div class="left row one-margin-top full-width collapse">
-          <div class="small-11 medium-10 large-8 small-centered columns">
+          <div class="small-11 medium-10 small-centered columns">
             <div class="row">
               <div class="left input-left small-7 columns">
                 <h6 class="half-margin-bottom">Hours submitted</h6>
@@ -210,15 +210,16 @@
               </div>
             <!-- % endfor % -->
 
-              <div class="row">
-                <div class="left input-left small-9 columns">
-                  <p>[user.firstname] [user.lastname] worked on "[description]" for [#] hours on [date]</p>
-                </div>
+                <!-- delete once forloop added -->
+                <div class="row">
+                  <div class="left input-left small-9 columns">
+                    <p>[user.firstname] [user.lastname] worked on "[description]" for [#] hours on [date]</p>
+                  </div>
 
-                <div class="right relative small-3 columns">
-                  <p>Approved</p>
+                  <div class="right relative small-3 columns">
+                    <p>Approved</p>
+                  </div>
                 </div>
-              </div>
           </div>
         </div>
 
