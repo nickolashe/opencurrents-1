@@ -127,7 +127,7 @@
             <h6 class="half-margin-bottom">Upcoming events</h6>
             {% if events_group_upcoming %}
               {% for event in events_group_upcoming %}
-                <div class="row hover-row one-margin-bottom">
+                <div class="row one-margin-bottom">
                   <div class="left small-9 columns">    
                     Let's {{event.project.name}}!
                     on {{event.datetime_start|day:timezone}}
@@ -163,7 +163,7 @@
               <h6 class="half-margin-bottom">Past events</h6>
 
               {% for event in events_group_past %}
-                  <div class="row hover-row one-margin-bottom">
+                  <div class="row one-margin-bottom">
                     <div class="left input-left small-9 columns">
                       Let's {{event.project.name}}!
                       on {{event.datetime_start|day:timezone}}
@@ -184,6 +184,43 @@
             </div>
           </div>
         {% endif %}
+
+
+        <div class="left row one-margin-top full-width collapse">
+          <div class="small-11 medium-10 large-8 small-centered columns">
+            <div class="row one-margin-bottom">
+              <div class="left input-left small-7 columns">
+                <h6 class="half-margin-bottom">Hours submitted</h6>
+              </div>
+
+              <div class="right input-right small-5 columns">
+                <h6 class="half-margin-bottom">Status</h6>
+              </div>
+            </div>
+
+            <!-- % for timelog in user_timelogs % -->
+              <div class="row one-margin-bottom">
+                <div class="left input-left small-9 columns">
+                  <p>[user.firstname] [user.lastname] worked on "[description]" for [#] hours on [date]</p>
+                </div>
+
+                <div class="right relative small-3 columns">
+                  <p>Pending</p>
+                </div>
+              </div>
+            <!-- % endfor % -->
+
+              <div class="row one-margin-bottom">
+                <div class="left input-left small-9 columns">
+                  <p>[user.firstname] [user.lastname] worked on "[description]" for [#] hours on [date]</p>
+                </div>
+
+                <div class="right relative small-3 columns">
+                  <p>Approved</p>
+                </div>
+              </div>
+          </div>
+        </div>
 
         <!-- community feed code. Hardcoded not dynamic -->
         <!-- <div class="row one-margin-top">
