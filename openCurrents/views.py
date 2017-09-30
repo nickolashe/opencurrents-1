@@ -1461,6 +1461,14 @@ class UpcomingEventsView(LoginRequiredMixin, SessionContextView, ListView):
     template_name = 'upcoming-events.html'
     context_object_name = 'events'
 
+    def get_context_data(self, **kwargs):
+        # skip context param determines whether we show skip button or not
+        context = super(UpcomingEventsView, self).get_context_data(**kwargs)
+        context['timezone'] = self.request.user.account.timezone
+
+        return context
+       
+
     def get_queryset(self):
         # show all public events plus private event for orgs the user is admin for
         userid = self.request.user.id
