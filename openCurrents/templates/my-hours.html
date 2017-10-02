@@ -18,8 +18,17 @@
         {% endif %}
         
         <div class="row">
-          <h3 class="title-sub">My hours for (Org Name)</h3>
-          <p class="one-margin-top"><a class="export-popup_open button round small secondary">Export data</a></p>
+          <div class="medium-10 small-centered columns">
+            <div class="row">
+              <div class="small-10 medium-6 small-centered columns">
+                <h4 class="title-sub">My hours for</h4>
+                <select class="three-halves-margin-bottom">
+                  <option>Keep Austin Beautiful</option>
+                  <option>Bike Austin</option>
+                </select>
+              </div>
+            </div>
+          </div>
         </div>
         
         <div class="row one-margin-bottom">
@@ -41,10 +50,11 @@
                 <p>12/30/17</p>
               </div>
               <div class="small-6 medium-7 columns">
-                <p>Just going around doing my thing for the greater good. And then some more over here and over there. What can I say, I just like to be thorough with my descriptions.</p>
+                <p>Just going around doing my thing</p>
               </div>
               <div class="right small-3 medium-2 columns">
-                <p>3.25</p>
+                <p class="no-margin-bottom">3.25</p>
+                <p class="grey small-text">Pending</p>
               </div>
             </div>
 
@@ -72,6 +82,12 @@
               </div>
             </div>
           </div>
+        </div>
+
+        {% include 'partials/pagination.html' %}
+
+        <div class="row three-halves-margin-top">
+          <a class="button round">Back to profile</a>
         </div>
         
         <div id="push"></div>
