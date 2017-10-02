@@ -106,22 +106,18 @@
                 <div class="input-right small-9 columns">
                   <div class="fit-left half-margin-top one-margin-right one-margin-left">of</div>
                   <div class="relative input-sizer">
-                    <input name="item-name-1" type="text" placeholder="Item or category name" value="All products" class="good-cat" disabled />
+                    <input name="item-name-1" type="text" placeholder="Item or category name" value="All products and services" class="good-cat" />
                     <i class="remove-input alert fa fa-times"></i>
                   </div>
                 </div>
               </div>
 
-              <div id="item-2" class="row collapse">
+              <!-- <div id="item-2" class="row collapse">
                 <div class="input-left small-3 columns">
                   <div class="relative">
                     <input name="discount-amount-2" type="number" class="fit-left qtr-margin-right" placeholder="20" value="20" />
                     <span class="input-icon-right">%</span>
                   </div>
-                  <!-- <span class="input-sizer"><select name="discount-type-1">
-                    <option selected>% of</option>
-                    <option>$ of</option>
-                  </select></span> -->
                 </div>
 
                 <div class="input-right small-9 columns">
@@ -131,11 +127,11 @@
                     <i class="remove-input alert fa fa-times"></i>
                   </div>
                 </div>
-              </div>
+              </div> -->
             </div>
           </div>
 
-          <p><a id="add-item" class="hidden"><i class="half-margin-top half-margin-bottom fa fa-plus-circle half-margin-right"></i>Add item or category</a></p>
+          <p><a class="add-item-popup_open"><i class="half-margin-top half-margin-bottom fa fa-plus-circle half-margin-right"></i>Add item or category</a></p>
 
           <div class="row half-margin-top">
             <div class="medium-8 small-centered columns">
@@ -246,19 +242,16 @@
       {% include 'partials/menu.html' %}
     </div>
 
-    <div id="offer-info-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+    <div id="add-item-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
-        <h4 class="popup-title">How transactions work</h4>
+        <h4 class="popup-title">Adding more offers</h4>
       </div>
       <div class="row">
         <div class="small-centered medium-10 columns">
-          <p>To make it as easy as possible to accept Currents, nothing changes at point of sale. Customers will pay full price and provide openCurrents with proof of purchase.</p>
-
-          <p>At the end of the month, we will invoice you the total dollar value of Currents accepted (starting value: $10 per Current), then reimburse customers and deduct their Currents. For each Current accepted, you can choose to receive that Current or claim a $10 charitable donation.</p>
+          <p>To add more offers, complete this offer first. From your business profile, you can click "Create offer" to list additional products and services.</p>
 
           <p class="center three-halves-margin-top">
-            <a class="offer-info-popup_close button round">Got it</a>
-            <a href="javascript:void(Tawk_API.toggle())" class="button round secondary">Contact us</a>
+            <a class="add-item-popup_close button round">Got it</a>
           </p>
         </div>
       </div>
@@ -282,7 +275,7 @@
     
     <script type="text/javascript">
       $(document).ready(function(){
-        $('#value-info-popup, #offer-info-popup').popup({
+        $('#value-info-popup, #add-item-popup').popup({
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: true,
