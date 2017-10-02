@@ -173,20 +173,23 @@
                 <div class="row">
                   <div class="small-12 medium-8 small-centered columns">
 
-                    <!--
                     <p class="half-margin-bottom">
-                        <input type="radio" name="offer_limit" id="limit-currents-no" class="custom-radio" checked />
-                        <label for="limit-currents-no">Yes</label>
-                        <input type="radio" name="offer_limit" id="limit-currents-yes" class="custom-radio" />
-                        <label for="limit-currents-yes" class="two-margin-left">No - Set monthly limit</label>
-                    </p>
-                    -->
-                    {{ form.offer_limit.0.tag }}
-                    <label for='id_offer_limit_0'>
-                      Offer limit 0
-                    </label>
-                    {{ form.offer_limit.1.tag }}
+                        {{ form.offer_limit.0.tag }}
+                        <label for="id_offer_limit_0">Yes</label>
 
+                        {{ form.offer_limit.1.tag }}
+                        <label for="id_offer_limit_1" class="two-margin-left">
+                          No - Set monthly limit
+                        </label>
+                    </p>
+
+                    <!--
+                    {{ form.offer_limit.0.tag }}
+                      <label for='id_offer_limit_0'>
+                        Offer limit 0
+                      </label>
+                    {{ form.offer_limit.1.tag }}
+                    -->
                     <div id="monthly-limit-div" class="row center hidden">
                       <span>[Business name] will accept up to </span>
                       <span class="no-wrap">
@@ -340,11 +343,11 @@
         });
 
         // Show/hide monthly limit input
-        $('#limit-currents-yes').click(function(){
+        $('#id_offer_limit_1').click(function(){
           $('#monthly-limit-div').slideDown();
         });
 
-        $('#limit-currents-no').click(function(){
+        $('#id_offer_limit_0').click(function(){
           $('#monthly-limit-div').slideUp(function(){
             $('#monthly-limit').val('');
           });

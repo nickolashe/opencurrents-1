@@ -301,6 +301,9 @@ class Token(models.Model):
 class Item(models.Model):
     name = models.CharField(max_length=256)
 
+    def __unicode__(self):
+        return self.name
+
 
 class Offer(models.Model):
     org = models.ForeignKey(Org)

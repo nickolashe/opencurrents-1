@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render, redirect
-from django.views.generic import View, ListView, TemplateView, DetailView
+from django.views.generic import View, ListView, TemplateView, DetailView, CreateView
 from django.views.generic.edit import FormView
 from django.contrib.auth.models import User, Group
 from django.db import IntegrityError
@@ -32,7 +32,9 @@ from openCurrents.models import \
     Event, \
     UserEventRegistration, \
     UserTimeLog, \
-    AdminActionUserTime
+    AdminActionUserTime, \
+    Offer, \
+    Transaction
 
 from openCurrents.forms import \
     UserSignupForm, \
@@ -587,10 +589,6 @@ class NominationEmailView(TemplateView):
 
 class NonprofitView(TemplateView):
     template_name = 'nonprofit.html'
-
-
-class OfferView(TemplateView):
-    template_name = 'offer.html'
 
 
 class OrgHomeView(TemplateView):
@@ -1876,7 +1874,7 @@ class AddVolunteersView(TemplateView):
     template_name = 'add-volunteers.html'
 
 
-class OfferForm(SessionContextView, LoginRequiredMixin, FormView):
+class OfferView(SessionContextView, LoginRequiredMixin, FormView):
     template_name = 'offer.html'
     form_class = OfferForm    
 

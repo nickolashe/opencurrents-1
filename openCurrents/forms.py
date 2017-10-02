@@ -472,8 +472,9 @@ class EventCheckinForm(forms.Form):
     checkin = VolunteerCheckinField()
 
 class OfferForm(forms.Form):
+
     offer_limit = forms.ChoiceField(widget=forms.RadioSelect(
-        attrs={'class': 'custom-radio'}),
-        choices=[(False, 'no_limit'), (True, 'limit')],
+        attrs={'class': 'hidden custom-radio'}),
+        choices=[(True, 'limit'), (False, 'no_limit')],
         initial='True'
     )    

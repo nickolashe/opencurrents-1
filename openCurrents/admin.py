@@ -9,7 +9,10 @@ from openCurrents.models import Account, \
     Event, \
     UserEventRegistration, \
     UserTimeLog, \
-    AdminActionUserTime
+    AdminActionUserTime, \
+    Offer, \
+    Transaction, \
+    Item
 
 admin.site.register(Account)
 admin.site.register(Org)
@@ -20,3 +23,6 @@ admin.site.register(Event)
 admin.site.register(UserEventRegistration)
 admin.site.register(UserTimeLog)
 admin.site.register(AdminActionUserTime)
+admin.site.register(Offer)
+admin.site.register(Transaction)
+admin.site.register(Item)
