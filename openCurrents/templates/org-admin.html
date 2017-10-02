@@ -157,6 +157,20 @@
           </div>
         </div>
 
+        <!-- <div class="left row one-margin-top full-width collapse">
+          <div class="small-11 medium-10 small-centered columns">
+            <div class="row">
+              <div class="left input-left small-7 columns">
+                <h6 class="half-margin-bottom">Admin activity</h6>
+              </div>
+
+              <div class="right input-right small-5 columns">
+                <h6 class="half-margin-bottom">Status</h6>
+              </div>
+            </div>
+          </div>
+        </div> -->
+
         {% if events_group_past %}
           <div id="past-event-list" class="left row one-margin-top full-width collapse">
             <div class="small-11 medium-10 small-centered columns">
@@ -185,43 +199,6 @@
           </div>
         {% endif %}
 
-
-        <div class="left row one-margin-top full-width collapse">
-          <div class="small-11 medium-10 small-centered columns">
-            <div class="row">
-              <div class="left input-left small-7 columns">
-                <h6 class="half-margin-bottom">Hours submitted</h6>
-              </div>
-
-              <div class="right input-right small-5 columns">
-                <h6 class="half-margin-bottom">Status</h6>
-              </div>
-            </div>
-
-            <!-- % for timelog in user_timelogs % -->
-              <div class="row">
-                <div class="left input-left small-9 columns">
-                  <p>[user.firstname] [user.lastname] worked on "[description]" for [#] hours on [date]</p>
-                </div>
-
-                <div class="right relative small-3 columns">
-                  <p>Pending</p>
-                </div>
-              </div>
-            <!-- % endfor % -->
-
-                <!-- delete once forloop added -->
-                <div class="row">
-                  <div class="left input-left small-9 columns">
-                    <p>[user.firstname] [user.lastname] worked on "[description]" for [#] hours on [date]</p>
-                  </div>
-
-                  <div class="right relative small-3 columns">
-                    <p>Approved</p>
-                  </div>
-                </div>
-          </div>
-        </div>
 
         <!-- community feed code. Hardcoded not dynamic -->
         <!-- <div class="row one-margin-top">
