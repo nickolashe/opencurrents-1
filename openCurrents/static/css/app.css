@@ -1276,6 +1276,12 @@ i:hover ~ .addtocalendar {
   border-bottom: 1px solid #555555;
 }
 
+/* my-hours */
+
+#hours-total {
+  border-bottom: 1px solid #999999;
+}
+
 /* admin-profile */
 
 #live-project-list {

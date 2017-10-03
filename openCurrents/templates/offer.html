@@ -18,6 +18,7 @@
         </div>
         {% endif %}
         
+        <!-- progress bar 1-4 -->
         <div class="row two-margin-top two-margin-bottom">
           <div class="small-12 medium-9 small-centered columns">
             <div class="row collapse">
@@ -52,7 +53,9 @@
           </div>
         </div>
 
-        
+        <form method='post'>
+          {% csrf_token %}
+          <!-- offer 1 -->
           <div id="offer-1">
             <div class="row collapse">
               <div class="small-11 medium-8 small-centered columns">
@@ -70,191 +73,165 @@
               </div>
             </div>
           </div>
-
-          <form method="post">
-            {% csrf_token %}
-
-            {% if form.errors %}
-              <div class="row">
-                {% for field, error in form.errors.iteritems %}
-                  <div class="center alert">
-                    {% if field != '__all__' %}
-                      {{ field|addstr:': '}} {{ error }}
-                    {% else %}
-                      {{ error }}
-                    {% endif %}
-                  </div>
-                {% endfor %}
+        
+          <!-- offer 2 -->
+          <div id="offer-2">
+            <div class="row one-margin-bottom">
+              <div class="small-12 medium-11 small-centered columns">
+                <h5 class="">What share of purchases will you accept in Currents?</h5>
               </div>
-            {% endif %}    
+            </div>
 
-              <div id="offer-2">
-                <div class="row one-margin-bottom">
-                  <div class="small-12 medium-11 small-centered columns">
-                    <h5 class="">What share of purchases will you accept in Currents?</h5>
+            <div class="row left">
+              <div class="small-12 medium-6 small-centered columns">
+                <div class="row collapse">
+                  <div class="input-left small-3 columns">
+                    <p><strong><img class="" src="{% static 'img/symbol-navy.svg' %}"/> share</strong></p>
                   </div>
-                </div>
 
-                <div class="row left">
-                  <div class="small-12 medium-6 small-centered columns">
-                    <div class="row collapse">
-                      <div class="input-left small-3 columns">
-                        <p><strong><img class="" src="{% static 'img/symbol-navy.svg' %}"/> share</strong></p>
-                      </div>
-
-                      <div class="input-right small-9 columns">
-                        <p id="item-title"><strong>Item or category</strong></p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="row">
-                  <div id="goods-div" class="small-12 medium-6 small-centered columns">
-                    <div id="item-1" class="row collapse">
-                      <div class="input-left small-3 columns">
-                        <div class="relative">
-                          <input name="discount-amount-1" type="number" class="fit-left qtr-margin-right" placeholder="20" value="20"/>
-                          <span class="input-icon-right">%</span>
-                        </div>
-                      </div>
-
-                      <div class="input-right small-9 columns">
-                        <div class="fit-left half-margin-top one-margin-right one-margin-left">of</div>
-                        <div class="relative input-sizer">
-                          <input name="item-name-1" type="text" placeholder="Item or category name" value="All products" class="good-cat" disabled />
-                          <i class="remove-input alert fa fa-times"></i>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div id="item-2" class="row collapse">
-                      <div class="input-left small-3 columns">
-                        <div class="relative">
-                          <input name="discount-amount-2" type="number" class="fit-left qtr-margin-right" placeholder="20" value="20" />
-                          <span class="input-icon-right">%</span>
-                        </div>
-                        <!-- <span class="input-sizer"><select name="discount-type-1">
-                          <option selected>% of</option>
-                          <option>$ of</option>
-                        </select></span> -->
-                      </div>
-
-                      <div class="input-right small-9 columns">
-                        <div class="fit-left half-margin-top one-margin-right one-margin-left">of</div>
-                        <div class="relative input-sizer">
-                          <input name="item-name-2" type="text" placeholder="Item or category name" value="All services" class="good-cat" disabled />
-                          <i class="remove-input alert fa fa-times"></i>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <p><a id="add-item" class="hidden"><i class="half-margin-top half-margin-bottom fa fa-plus-circle half-margin-right"></i>Add item or category</a></p>
-
-                <div class="row half-margin-top">
-                  <div class="medium-8 small-centered columns">
-                    <p class="three-halves-margin-bottom grey">Example: If you accept Currents for 20% of $100 in sales,<br class="hide-for-small-only" /> you would net $80 and either <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 2</span> or a $20 writeoff.</p>
-
-                    <a class="prev-offer button round secondary">Back</a>
-                    <a class="next-offer button round">Next</a>
+                  <div class="input-right small-9 columns">
+                    <p id="item-title"><strong>Item or category</strong></p>
                   </div>
                 </div>
               </div>
+            </div>
 
-              <div id="offer-3">
-                <div class="row">
-                  <div class="small-12 medium-11 small-centered columns">
-                    <h5 class="one-margin-bottom">Do you want to accept all transactions?</h5>
+            <div class="row">
+              <div id="goods-div" class="small-12 medium-6 small-centered columns">
+                <div id="item-1" class="row collapse">
+                  <div class="input-left small-3 columns">
+                    <div class="relative">
+                      <input name="discount-amount-1" type="number" class="fit-left qtr-margin-right" placeholder="20" value="20"/>
+                      <span class="input-icon-right">%</span>
+                    </div>
                   </div>
-                </div>
 
-                <div class="row">
-                  <div class="small-12 medium-8 small-centered columns">
-
-                    <p class="half-margin-bottom">
-                        {{ form.offer_limit.0.tag }}
-                        <label for="id_offer_limit_0">Yes</label>
-
-                        {{ form.offer_limit.1.tag }}
-                        <label for="id_offer_limit_1" class="two-margin-left">
-                          No - Set monthly limit
-                        </label>
-                    </p>
-
-                    <!--
-                    {{ form.offer_limit.0.tag }}
-                      <label for='id_offer_limit_0'>
-                        Offer limit 0
-                      </label>
-                    {{ form.offer_limit.1.tag }}
-                    -->
-                    <div id="monthly-limit-div" class="row center hidden">
-                      <span>[Business name] will accept up to </span>
-                      <span class="no-wrap">
-                        <div id="monthly-limit-input" class="relative inline-block">
-                          <!-- <img class="current-placeholder" src="{% static 'img/symbol.svg' %}"/> -->
-                          
-                          <input id="monthly-limit" name="monthly-limit" type="number" placeholder="100" value="100" />
-                        </div>
-                      transactions</span><span> per month</span>
+                  <div class="input-right small-9 columns">
+                    <div class="fit-left half-margin-top one-margin-right one-margin-left">of</div>
+                    <div class="relative input-sizer">
+                      <input name="item-name-1" type="text" placeholder="Item or category name" value="All products and services" class="good-cat" />
+                      <i class="remove-input alert fa fa-times"></i>
                     </div>
                   </div>
                 </div>
 
-                <div class="row one-margin-top">
-                  <a class="prev-offer button round secondary">Back</a>
-                  <a class="next-offer button round">Next</a>
-                </div>
-              </div>
+                <!-- <div id="item-2" class="row collapse">
+                  <div class="input-left small-3 columns">
+                    <div class="relative">
+                      <input name="discount-amount-2" type="number" class="fit-left qtr-margin-right" placeholder="20" value="20" />
+                      <span class="input-icon-right">%</span>
+                    </div>
+                  </div>
 
-              <div id="offer-4">
-                <div class="row left">
-                  <div class="small-12 medium-8 small-centered columns">
-                    <h5 class="one-margin-bottom center">Confirm offer details</h5>
-                    <p>As an authorized representative of {{ orgname }}, I agree to accept Currents [for up to X transactions per month] as partial payment for the following products and services:</p>
-                    
-                    <ul>
-                      <li>[20%] of [Products]</li>
-                      <li>[20%] of [Services]</li>
-                      <li>[20%] of [Item 1]</li>
-                    </ul>
+                  <div class="input-right small-9 columns">
+                    <div class="fit-left half-margin-top one-margin-right one-margin-left">of</div>
+                    <div class="relative input-sizer">
+                      <input name="item-name-2" type="text" placeholder="Item or category name" value="All services" class="good-cat" disabled />
+                      <i class="remove-input alert fa fa-times"></i>
+                    </div>
+                  </div>
+                </div> -->
+              </div>
+            </div>
+
+            <p><a class="add-item-popup_open"><i class="half-margin-top half-margin-bottom fa fa-plus-circle half-margin-right"></i>Add item or category</a></p>
+
+            <div class="row half-margin-top">
+              <div class="medium-8 small-centered columns">
+                <p class="three-halves-margin-bottom grey">Example: If you accept Currents for 20% of $100 in sales,<br class="hide-for-small-only" /> you would net $80 and either <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 2</span> or a $20 writeoff.</p>
+
+                <a class="prev-offer button round secondary">Back</a>
+                <a class="next-offer button round">Next</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- offer 3 -->
+          <div id="offer-3">
+            <div class="row">
+              <div class="small-12 medium-11 small-centered columns">
+                <h5 class="one-margin-bottom">Do you want to accept all transactions?</h5>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="small-12 medium-8 small-centered columns">
+
+                <p class="half-margin-bottom">
+                  {{ form.offer_limit.0.tag }}
+                  <label for="id_offer_limit_0">Yes</label>
+
+                  {{ form.offer_limit.1.tag }}
+                  <label for="id_offer_limit_1" class="two-margin-left">
+                    No - Set monthly limit
+                  </label>
+                </p>
+
+                <div id="monthly-limit-div" class="row center hidden">
+                  <span>[Business name] will accept up to </span>
+                  <span class="no-wrap">
+                    <div id="monthly-limit-input" class="relative inline-block">
+                      <!-- <img class="current-placeholder" src="{% static 'img/symbol.svg' %}"/> -->
                       
-                    <p>At the end of the month, openCurrents will invoice {{ orgname }} the total value of Currents accepted, send customers dollars in exchange for Currents, and transfer Currents to {{ orgname }}. For each Current received, {{ orgname }} can either keep the Current or claim a $10 charitable donation. Initial value: $10 per <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/> 1.</span></p>
-                  </div>
-                </div>
-
-                <div class="row one-margin-top">
-                  <a class="prev-offer button round secondary">Back</a>
-                  <a class="button round">Confirm offer</a>
+                      <input id="monthly-limit" name="monthly-limit" type="number" placeholder="100" value="100" />
+                    </div>
+                  transactions</span><span> per month</span>
                 </div>
               </div>
+            </div>
 
-              <div id="offer-spacer">
-                <div class="row left">
-                  <div class="small-12 medium-8 small-centered columns">
-                    <h5 class="one-margin-bottom center">Confirm offer details</h5>
-                    <p>As an authorized representative of {{ orgname }}, I agree to accept Currents [for up to X transactions per month] as partial payment for the following products and services:</p>
-                    
-                    <ul>
-                      <li>[20%] of [Products]</li>
-                      <li>[20%] of [Services]</li>
-                      <li>[20%] of [Item 1]</li>                      
-                    </ul>
-                      
-                    <p>At the end of the month, openCurrents will invoice {{ orgname }} the total value of Currents accepted, send customers dollars in exchange for Currents, and transfer Currents to {{ orgname }}. For each Current received, {{ orgname }} can either keep the Current or claim a $10 charitable donation. Initial value: $10 per <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/> 1.</span></p>
-                  </div>
-                </div>
+            <div class="row one-margin-top">
+              <a class="prev-offer button round secondary">Back</a>
+              <a class="next-offer button round">Next</a>
+            </div>
+          </div>
 
-                <div class="row one-margin-top">
-                  <a class="prev-offer button round secondary">Back</a>
-                  <button type='submit' class="one-margin-top button round">Confirm offer</button>           
-                  <a class="button round">Confirm offer</a>
-                </div>
+          <!-- offer 4 -->
+          <div id="offer-4">
+            <div class="row left">
+              <div class="small-12 medium-8 small-centered columns">
+                <h5 class="one-margin-bottom center">Confirm offer details</h5>
+                <p>As an authorized representative of {{ orgname }}, I agree to accept Currents [for up to X transactions per month] as partial payment for the following products and services:</p>
+                
+                <ul>
+                  <li>[20%] of [Products]</li>
+                </ul>
+                  
+                <p>At the end of the month, openCurrents will invoice {{ orgname }} the total value of Currents accepted, send customers dollars in exchange for Currents, and transfer Currents to {{ orgname }}. For each Current received, {{ orgname }} can either keep the Current or claim a $10 charitable donation. Initial value: $10 per <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/> 1.</span></p>
               </div>
-          </form>
+            </div>
 
+            <div class="row one-margin-top">
+              <a class="prev-offer button round secondary">Back</a>
+              <a class="button round">Confirm offer</a>
+            </div>
+          </div>
+
+          <!-- The offer sections above are all absolutely positioned,
+          so they are taken out of the flow and do not add to the height
+          of the page. So I'm using this div below (not visible but contributing
+          to the page height) to set the initial page height based on the 
+          section that loads the most content (offer 4).-->
+          <div id="offer-spacer">
+            <div class="row left">
+              <div class="small-12 medium-8 small-centered columns">
+                <h5 class="one-margin-bottom center">Confirm offer details</h5>
+                <p>As an authorized representative of {{ orgname }}, I agree to accept Currents [for up to X transactions per month] as partial payment for the following products and services:</p>
+                
+                <ul>
+                  <li>[20%] of [Products]</li>
+                </ul>
+                  
+                <p>At the end of the month, openCurrents will invoice {{ orgname }} the total value of Currents accepted, send customers dollars in exchange for Currents, and transfer Currents to {{ orgname }}. For each Current received, {{ orgname }} can either keep the Current or claim a $10 charitable donation. Initial value: $10 per <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/> 1.</span></p>
+              </div>
+            </div>
+
+            <div class="row one-margin-top">
+              <a class="prev-offer button round secondary">Back</a>
+              <a class="button round">Confirm offer</a>
+            </div>
+          </div>
+        </form>
       <!-- wrapper div-->
       </div>
       
@@ -269,19 +246,16 @@
       {% include 'partials/menu.html' %}
     </div>
 
-    <div id="offer-info-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+    <div id="add-item-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
-        <h4 class="popup-title">How transactions work</h4>
+        <h4 class="popup-title">Adding more offers</h4>
       </div>
       <div class="row">
         <div class="small-centered medium-10 columns">
-          <p>To make it as easy as possible to accept Currents, nothing changes at point of sale. Customers will pay full price and provide openCurrents with proof of purchase.</p>
-
-          <p>At the end of the month, we will invoice you the total dollar value of Currents accepted (starting value: $10 per Current), then reimburse customers and deduct their Currents. For each Current accepted, you can choose to receive that Current or claim a $10 charitable donation.</p>
+          <p>To add more offers, complete this offer first. From your business profile, you can click "Create offer" to list additional products and services.</p>
 
           <p class="center three-halves-margin-top">
-            <a class="offer-info-popup_close button round">Got it</a>
-            <a href="javascript:void(Tawk_API.toggle())" class="button round secondary">Contact us</a>
+            <a class="add-item-popup_close button round">Got it</a>
           </p>
         </div>
       </div>
@@ -317,7 +291,7 @@
     
     <script type="text/javascript">
       $(document).ready(function(){
-        $('#value-info-popup, #offer-info-popup').popup({
+        $('#value-info-popup, #add-item-popup').popup({
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: true,

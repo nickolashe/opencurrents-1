@@ -11,15 +11,24 @@
     </a>
 
     <a class="list-group-item" href="{% url 'openCurrents:invite-volunteers' %}">
-      <i class="half-margin-right fa-fw fa fa-user-plus"></i>
+      <i class="half-margin-right fa-fw fa fa-users"></i>
       Invite volunteers
     </a>
-  {% endif %}
 
+    <a class="list-group-item" href="{% url 'openCurrents:invite-admins' %}">
+      <i class="half-margin-right fa-fw fa fa-user-plus"></i>
+      Invite admins
+    </a>
+  {% endif %}
 
   <a class="list-group-item" href="{% url 'openCurrents:nominate' %}">
     <i class="half-margin-right fa-fw fa fa-heartbeat"></i>
     Nominate an org
+  </a>
+
+  <a class="list-group-item" href="{% url 'openCurrents:public-record' %}">
+    <i class="half-margin-right fa-fw fa fa-list-ol"></i>
+    Public record
   </a>
 
   <a class="list-group-item" href="{% url 'openCurrents:process_logout' %}">
