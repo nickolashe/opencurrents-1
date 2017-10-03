@@ -213,7 +213,7 @@
                 <div class="row left">
                   <div class="small-12 medium-8 small-centered columns">
                     <h5 class="one-margin-bottom center">Confirm offer details</h5>
-                    <p>As an authorized representative of [Business Name], I agree to accept Currents [for up to X transactions per month] as partial payment for the following products and services:</p>
+                    <p>As an authorized representative of {{ orgname }}, I agree to accept Currents [for up to X transactions per month] as partial payment for the following products and services:</p>
                     
                     <ul>
                       <li>[20%] of [Products]</li>
@@ -221,7 +221,7 @@
                       <li>[20%] of [Item 1]</li>
                     </ul>
                       
-                    <p>At the end of the month, openCurrents will invoice [Business Name] the total value of Currents accepted, send customers dollars in exchange for Currents, and transfer Currents to [Business Name]. For each Current received, [Business Name] can either keep the Current or claim a $10 charitable donation. Initial value: $10 per <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/> 1.</span></p>
+                    <p>At the end of the month, openCurrents will invoice {{ orgname }} the total value of Currents accepted, send customers dollars in exchange for Currents, and transfer Currents to {{ orgname }}. For each Current received, {{ orgname }} can either keep the Current or claim a $10 charitable donation. Initial value: $10 per <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/> 1.</span></p>
                   </div>
                 </div>
 
@@ -235,22 +235,22 @@
                 <div class="row left">
                   <div class="small-12 medium-8 small-centered columns">
                     <h5 class="one-margin-bottom center">Confirm offer details</h5>
-                    <p>As an authorized representative of [Business Name], I agree to accept Currents [for up to X transactions per month] as partial payment for the following products and services:</p>
+                    <p>As an authorized representative of {{ orgname }}, I agree to accept Currents [for up to X transactions per month] as partial payment for the following products and services:</p>
                     
                     <ul>
                       <li>[20%] of [Products]</li>
                       <li>[20%] of [Services]</li>
-                      <li>[20%] of [Item 1]</li>
+                      <li>[20%] of [Item 1]</li>                      
                     </ul>
                       
-                    <p>At the end of the month, openCurrents will invoice [Business Name] the total value of Currents accepted, send customers dollars in exchange for Currents, and transfer Currents to [Business Name]. For each Current received, [Business Name] can either keep the Current or claim a $10 charitable donation. Initial value: $10 per <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/> 1.</span></p>
+                    <p>At the end of the month, openCurrents will invoice {{ orgname }} the total value of Currents accepted, send customers dollars in exchange for Currents, and transfer Currents to {{ orgname }}. For each Current received, {{ orgname }} can either keep the Current or claim a $10 charitable donation. Initial value: $10 per <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/> 1.</span></p>
                   </div>
                 </div>
 
                 <div class="row one-margin-top">
                   <a class="prev-offer button round secondary">Back</a>
                   <button type='submit' class="one-margin-top button round">Confirm offer</button>           
-                  <!--a class="button round">Confirm offer</a-->
+                  <a class="button round">Confirm offer</a>
                 </div>
               </div>
           </form>
@@ -302,6 +302,18 @@
       </div>
     </div>
     
+    <!--script type="text/javascript">
+      $(document).ready(function(){
+        $('#offer-spacer').height(
+          Math.max(
+            $('#offer-1').height(),
+            $('#offer-2').height(),
+            $('#offer-3').height(),
+            $('#offer-4').height(),
+          )
+        );
+      });
+    </script-->
     
     <script type="text/javascript">
       $(document).ready(function(){

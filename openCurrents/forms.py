@@ -477,4 +477,10 @@ class OfferForm(forms.Form):
         attrs={'class': 'hidden custom-radio'}),
         choices=[(True, 'limit'), (False, 'no_limit')],
         initial='True'
-    )    
+    )
+
+    offer_limit = forms.ChoiceField(widget=forms.RadioSelect(
+        attrs={'class': 'hidden custom-radio'}),
+        choices=[(True, 'limit'), (False, 'no_limit')],
+        initial='True'
+    )        

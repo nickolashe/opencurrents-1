@@ -1881,6 +1881,13 @@ class OfferView(SessionContextView, LoginRequiredMixin, FormView):
     def form_valid(self, form):
         return redirect('openCurrents:admin-profile')
 
+    def get_context_data(self, **kwargs):
+        context = super(OfferView, self).get_context_data(**kwargs)
+        orguserinfo = OrgUserInfo(self.request.user.id)
+        orgname = orguserinfo.get_org_name()
+        context['orgname'] = orgname
+
+        return context
 
 @login_required
 def event_checkin(request, pk):
