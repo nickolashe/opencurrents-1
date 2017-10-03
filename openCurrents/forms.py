@@ -470,3 +470,17 @@ class TimeTrackerForm(forms.Form):
 class EventCheckinForm(forms.Form):
     userid = forms.IntegerField()
     checkin = VolunteerCheckinField()
+
+class OfferForm(forms.Form):
+
+    offer_limit = forms.ChoiceField(widget=forms.RadioSelect(
+        attrs={'class': 'hidden custom-radio'}),
+        choices=[(True, 'limit'), (False, 'no_limit')],
+        initial='True'
+    )
+
+    offer_limit = forms.ChoiceField(widget=forms.RadioSelect(
+        attrs={'class': 'hidden custom-radio'}),
+        choices=[(True, 'limit'), (False, 'no_limit')],
+        initial='True'
+    )        
