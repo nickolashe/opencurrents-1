@@ -101,7 +101,7 @@
                 <div id="item-1" class="row collapse">
                   <div class="input-left small-3 columns">
                     <div class="relative">
-                      <input name="discount-amount-1" type="number" class="fit-left qtr-margin-right" placeholder="20" value="20"/>
+                      {{ form.currents_share }}
                       <span class="input-icon-right">%</span>
                     </div>
                   </div>
@@ -158,22 +158,21 @@
               <div class="small-12 medium-8 small-centered columns">
 
                 <p class="half-margin-bottom">
-                  {{ form.offer_limit.0.tag }}
-                  <label for="id_offer_limit_0">Yes</label>
+                  {{ form.offer_limit_choice.0.tag }}
+                  <label for="id_offer_limit_choice_0">Yes</label>
 
-                  {{ form.offer_limit.1.tag }}
-                  <label for="id_offer_limit_1" class="two-margin-left">
+                  {{ form.offer_limit_choice.1.tag }}
+                  <label for="id_offer_limit_choice_1" class="two-margin-left">
                     No - Set monthly limit
                   </label>
                 </p>
 
                 <div id="monthly-limit-div" class="row center hidden">
-                  <span>[Business name] will accept up to </span>
+                  <span> {{ orgname }} will accept up to </span>
                   <span class="no-wrap">
                     <div id="monthly-limit-input" class="relative inline-block">
                       <!-- <img class="current-placeholder" src="{% static 'img/symbol.svg' %}"/> -->
-                      
-                      <input id="monthly-limit" name="monthly-limit" type="number" placeholder="100" value="100" />
+                      {{ form.offer_limit_value }}
                     </div>
                   transactions</span><span> per month</span>
                 </div>
@@ -311,13 +310,13 @@
         });
 
         // Show/hide monthly limit input
-        $('#id_offer_limit_1').click(function(){
+        $('#id_offer_limit_choice_1').click(function(){
           $('#monthly-limit-div').slideDown();
         });
 
-        $('#id_offer_limit_0').click(function(){
+        $('#id_offer_limit_choice_0').click(function(){
           $('#monthly-limit-div').slideUp(function(){
-            $('#monthly-limit').val('');
+            $('#id_offer_limit_value').val('');
           });
         });
         

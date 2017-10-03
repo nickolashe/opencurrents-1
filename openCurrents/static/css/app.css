@@ -1454,7 +1454,7 @@ input[disabled].good-cat {
   margin-left: 0.25rem;
 }
 
-#monthly-limit {
+#id_offer_limit_value {
   width: 44px;
 }
 

@@ -1876,7 +1876,7 @@ class AddVolunteersView(TemplateView):
 
 class OfferView(SessionContextView, LoginRequiredMixin, FormView):
     template_name = 'offer.html'
-    form_class = OfferForm    
+    form_class = OfferForm  
 
     def form_valid(self, form):
         return redirect('openCurrents:admin-profile')

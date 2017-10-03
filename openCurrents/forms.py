@@ -472,15 +472,33 @@ class EventCheckinForm(forms.Form):
     checkin = VolunteerCheckinField()
 
 class OfferForm(forms.Form):
+    currents_share = forms.DecimalField(
+        widget=forms.NumberInput(attrs={
+            'class': 'fit-left qtr-margin-right',
+            'placeholder': 25,
+            'value': 25
+        })
+    )
 
-    offer_limit = forms.ChoiceField(widget=forms.RadioSelect(
-        attrs={'class': 'hidden custom-radio'}),
+    offer_item = forms.CharField(
+        widget=forms.NumberInput(attrs={
+            'class': 'good-cat',
+            'placeholder': 'Item or category name',
+            'value': 'All products and services'
+        })
+    )
+
+    offer_limit_choice = forms.ChoiceField(
+        widget=forms.RadioSelect(attrs={
+            'class': 'custom-radio'
+        }),
         choices=[(True, 'limit'), (False, 'no_limit')],
         initial='True'
     )
 
-    offer_limit = forms.ChoiceField(widget=forms.RadioSelect(
-        attrs={'class': 'hidden custom-radio'}),
-        choices=[(True, 'limit'), (False, 'no_limit')],
-        initial='True'
-    )        
+    offer_limit_value = forms.IntegerField(
+        widget=forms.NumberInput(attrs={
+           'placeholder': 100
+        }),
+        initial=100
+    )
