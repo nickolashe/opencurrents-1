@@ -54,7 +54,23 @@
         </div>
 
         <form method='post'>
+
           {% csrf_token %}
+
+          {% if form.errors %}
+            <div class="row">
+              {% for field, error in form.errors.iteritems %}
+                <div class="center alert">
+                  {% if field != '__all__' %}
+                    {{ field|addstr:': '}} {{ error }}
+                  {% else %}
+                    {{ error }}
+                  {% endif %}
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+
           <!-- offer 1 -->
           <div id="offer-1">
             <div class="row collapse">
@@ -101,16 +117,20 @@
                 <div id="item-1" class="row collapse">
                   <div class="input-left small-3 columns">
                     <div class="relative">
-                      {{ form.currents_share }}
+
+                      {{ form.offer_current_share }}
                       <span class="input-icon-right">%</span>
+
                     </div>
                   </div>
 
                   <div class="input-right small-9 columns">
                     <div class="fit-left half-margin-top one-margin-right one-margin-left">of</div>
                     <div class="relative input-sizer">
-                      <input name="item-name-1" id="id_offer_item" type="text" placeholder="Item or category name" value="All products and services" class="good-cat" />
-                      <!-- <i class="remove-input alert fa fa-times"></i> -->
+
+                      {{ form.offer_item }}
+                      <i class="remove-input alert fa fa-times"></i>
+
                     </div>
                   </div>
                 </div>
@@ -202,7 +222,8 @@
 
             <div class="row one-margin-top">
               <a class="prev-offer button round secondary">Back</a>
-              <a class="button round">Confirm offer</a>
+              <!--a class="button round">Confirm offer</a-->
+              <input type='submit' value="Confirm offer" class="one-margin-top button round"></input>              
             </div>
           </div>
 
@@ -254,20 +275,7 @@
         </div>
       </div>
     </div>
-    
-    <!--script type="text/javascript">
-      $(document).ready(function(){
-        $('#offer-spacer').height(
-          Math.max(
-            $('#offer-1').height(),
-            $('#offer-2').height(),
-            $('#offer-3').height(),
-            $('#offer-4').height(),
-          )
-        );
-      });
-    </script-->
-    
+     
     <script type="text/javascript">
       $(document).ready(function(){
         $('#value-info-popup, #add-item-popup').popup({
