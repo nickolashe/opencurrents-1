@@ -33,6 +33,7 @@ from openCurrents.models import \
     UserEventRegistration, \
     UserTimeLog, \
     AdminActionUserTime, \
+    Item, \
     Offer, \
     Transaction
 
@@ -1878,16 +1879,46 @@ class OfferView(SessionContextView, LoginRequiredMixin, FormView):
     template_name = 'offer.html'
     form_class = OfferForm  
 
+    def dispatch(self, request, *args, **kwargs):
+        # get user org
+        orguserinfo = OrgUserInfo(request.user.id)
+        self.org = orguserinfo.get_org()
+
+        return super(OfferView, self).dispatch(
+            request, *args, **kwargs
+        )
+
     def form_valid(self, form):
-        return redirect('openCurrents:admin-profile')
+        data = form.cleaned_data
+
+        offer_item, was_created = Item.objects.get_or_create(name=data['offer_item'])
+        
+        offer = Offer(
+            org=self.org,
+            item=offer_item,
+            currents_share=data['offer_current_share'],
+        )
+
+        if data['offer_limit_choice']:
+            offer.limit = data['offer_limit_value']
+
+        offer.save()
+        logger.debug(
+            'Offer for %d% on %s created by %s',
+            data['offer_current_share'],
+            offer_item.name,
+            self.org.name
+        )
+
+        return redirect('openCurrents:biz-admin')
+
 
     def get_context_data(self, **kwargs):
         context = super(OfferView, self).get_context_data(**kwargs)
-        orguserinfo = OrgUserInfo(self.request.user.id)
-        orgname = orguserinfo.get_org_name()
-        context['orgname'] = orgname
+        context['orgname'] = self.org.name
 
         return context
+
 
 @login_required
 def event_checkin(request, pk):

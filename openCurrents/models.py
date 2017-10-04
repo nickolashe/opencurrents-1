@@ -308,15 +308,21 @@ class Item(models.Model):
 class Offer(models.Model):
     org = models.ForeignKey(Org)
     item = models.ForeignKey(Item)
-    currents_share = models.DecimalField(
-        decimal_places=2,
-        max_digits=3
-    )
+    currents_share = models.IntegerField()
     limit = models.IntegerField(default=-1)
 
     # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)
     date_updated = models.DateTimeField('date updated', auto_now=True)
+
+    def __unicode__(self):
+        return ' '.join([
+            str(self.currents_share),
+            '% on',
+            self.item.name,
+            'by',
+            self.org.name
+        ])
 
 
 class Transaction(models.Model):

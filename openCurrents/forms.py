@@ -471,17 +471,21 @@ class EventCheckinForm(forms.Form):
     userid = forms.IntegerField()
     checkin = VolunteerCheckinField()
 
+
 class OfferForm(forms.Form):
-    currents_share = forms.DecimalField(
+    offer_current_share = forms.DecimalField(
         widget=forms.NumberInput(attrs={
             'class': 'fit-left qtr-margin-right',
+            'min': 0,
+            'max': 100,
+            'step': 1,
             'placeholder': 25,
             'value': 25
         })
     )
 
     offer_item = forms.CharField(
-        widget=forms.NumberInput(attrs={
+        widget=forms.TextInput(attrs={
             'class': 'good-cat',
             'placeholder': 'Item or category name',
             'value': 'All products and services'
@@ -492,7 +496,7 @@ class OfferForm(forms.Form):
         widget=forms.RadioSelect(attrs={
             'class': 'custom-radio'
         }),
-        choices=[(True, 'limit'), (False, 'no_limit')],
+        choices=[(True, True), (False, False)],
         initial='True'
     )
 
@@ -500,5 +504,15 @@ class OfferForm(forms.Form):
         widget=forms.NumberInput(attrs={
            'placeholder': 100
         }),
-        initial=100
+        initial=100,
+        required=False
     )
+
+    def clean(self):
+        cleaned_data = super(OfferForm, self).clean()
+
+        if cleaned_data['offer_limit_choice'] and 'offer_limit_value' not in cleaned_data:
+            raise ValidationError(_('Must set limit on transactions'))
+
+        return cleaned_data
+       
