@@ -582,8 +582,16 @@ class PublicRecordView(TemplateView):
     template_name = 'public-record.html'
 
 
-class MarketplaceView(TemplateView):
+class MarketplaceView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'marketplace.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(MarketplaceView, self).get_context_data(**kwargs)
+
+        offers = Offer.objects.all()
+        context['offers'] = offers
+
+        return context
 
 
 class MissionView(TemplateView):
