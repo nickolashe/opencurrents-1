@@ -1,4 +1,5 @@
 {% load staticfiles %}
+{% load tags %}
 
 <!DOCTYPE html>
 <html>
@@ -11,81 +12,114 @@
     
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
+
         {% if status_msg %}
         <div class="alert row half-margin-top">
           {{status_msg}}
         </div>
         {% endif %}
         
-        <div class="row">
-          <h3 class="title">Edit offer</h3>
-        </div>
+        <form method='post'>
 
-        <div class="row left">
-          <div class="small-12 medium-6 small-centered columns">
-            <div class="row collapse">
-              <div class="input-left small-3 columns">
-                <p><strong><img class="" src="{% static 'img/symbol-navy.svg' %}"/> share</strong></p>
-              </div>
+          {% csrf_token %}
 
-              <div class="input-right small-9 columns">
-                <p id="item-title"><strong>Item or category</strong></p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="row">
-          <div id="goods-div" class="small-12 medium-6 small-centered columns">
-            <div id="item-1" class="row collapse">
-              <div class="input-left small-3 columns">
-                <div class="relative">
-                  <input name="discount-amount-1" type="number" class="fit-left qtr-margin-right" placeholder="20" value="20"/>
-                  <span class="input-icon-right">%</span>
+          {% if form.errors %}
+            <div class="row">
+              {% for field, error in form.errors.iteritems %}
+                <div class="center alert">
+                  {% if field != '__all__' %}
+                    {{ field|addstr:': '}} {{ error }}
+                  {% else %}
+                    {{ error }}
+                  {% endif %}
                 </div>
-                <!-- <span class="input-sizer"><select name="discount-type-1">
-                  <option selected>% of</option>
-                  <option>$ of</option>
-                </select></span> -->
-              </div>
+              {% endfor %}
+            </div>
+          {% endif %}
 
-              <div class="input-right small-9 columns">
-                <div class="fit-left half-margin-top one-margin-right one-margin-left">of</div>
-                <div class="relative input-sizer">
-                  <input name="item-name-1" type="text" placeholder="Item or category name" value="All products" class="good-cat" />
+          <div class="row">
+            <h3 class="title">Edit offer</h3>
+          </div>
+
+          <div class="row left">
+            <div class="small-12 medium-6 small-centered columns">
+              <div class="row collapse">
+                <div class="input-left small-3 columns">
+                  <p><strong><img class="" src="{% static 'img/symbol-navy.svg' %}"/> share</strong></p>
+                </div>
+
+                <div class="input-right small-9 columns">
+                  <p id="item-title"><strong>Item or category</strong></p>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="row one-margin-top">
-          <div class="small-12 medium-8 small-centered columns">
-            <p><strong>Do you want to accept all transactions?</strong></p>
+          <div class="row">
+            <div id="goods-div" class="small-12 medium-6 small-centered columns">
+              <div id="item-1" class="row collapse">
+                <div class="input-left small-3 columns">
+                  <div class="relative">
 
-            <p class="half-margin-bottom"><input type="radio" name="limit-currents" id="limit-currents-no" class="custom-radio" checked />
-              <label for="limit-currents-no">Yes</label>
-            <input type="radio" name="limit-currents" id="limit-currents-yes" class="custom-radio" />
-              <label for="limit-currents-yes" class="two-margin-left">No - Set monthly limit</label></p>
+                    {{ form.offer_current_share }}
+                    <span class="input-icon-right">%</span>
 
-            <div id="monthly-limit-div" class="row center hidden">
-              <span>[Business name] will accept up to </span>
-              <span class="no-wrap">
-                <div id="monthly-limit-input" class="relative inline-block">
-                  <!-- <img class="current-placeholder" src="{% static 'img/symbol.svg' %}"/> -->
-                  
-                  <input id="monthly-limit" name="monthly-limit" type="number" placeholder="100" value="100" />
+                  </div>
+                  <!-- <span class="input-sizer"><select name="discount-type-1">
+                    <option selected>% of</option>
+                    <option>$ of</option>
+                  </select></span> -->
                 </div>
-              transactions</span><span> per month</span>
+
+                <div class="input-right small-9 columns">
+                  <div class="fit-left half-margin-top one-margin-right one-margin-left">of</div>
+                  <div class="relative input-sizer">
+
+                      {{ form.offer_item }}
+
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-        
-        <div class="row one-margin-top center">
-          <div class="small-12 medium-8 small-centered columns">
-            <a class="button round">Save</a>
+
+          <div class="row one-margin-top">
+            <div class="small-12 medium-8 small-centered columns">
+              <p><strong>Do you want to accept all transactions?</strong></p>
+
+              <p class="half-margin-bottom">
+
+                {{ form.offer_limit_choice.0.tag }}
+                <label for="id_offer_limit_choice_0">Yes</label>
+
+                {{ form.offer_limit_choice.1.tag }}
+                <label for="id_offer_limit_choice_1" class="two-margin-left">
+                  No - Set monthly limit
+                </label>
+
+              </p>
+
+              <div id="monthly-limit-div" class="row center hidden">
+                <span> {{ orgname }} will accept up to </span>
+                <span class="no-wrap">
+                  <div id="monthly-limit-input" class="relative inline-block">
+                    <!-- <img class="current-placeholder" src="{% static 'img/symbol.svg' %}"/> -->
+                    
+                       {{ form.offer_limit_value }}
+                  </div>
+                transactions</span><span> per month</span>
+              </div>
+            </div>
           </div>
-        </div>
+          
+          <div class="row one-margin-top center">
+            <div class="small-12 medium-8 small-centered columns">
+              <!--a class="button round">Save</a-->
+              <input type='submit' value="Save" class="one-margin-top button round"></input>                
+            </div>
+          </div>
+
+        </form>
         
         <div id="push"></div>
     
@@ -127,14 +161,18 @@
           scrolllock: true,
         });
 
+        if ($('input[name=offer_limit_choice]:checked').val() == 1) {
+          $('#monthly-limit-div').slideDown();          
+        }
+
         // Show/hide monthly limit input
-        $('#limit-currents-yes').click(function(){
+        $('#id_offer_limit_choice_1').click(function(){
           $('#monthly-limit-div').slideDown();
         });
 
-        $('#limit-currents-no').click(function(){
+        $('#id_offer_limit_choice_0').click(function(){
           $('#monthly-limit-div').slideUp(function(){
-            $('#monthly-limit').val('');
+            //$('#id_offer_limit_value').val('');
           });
         });
       });

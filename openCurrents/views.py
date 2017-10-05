@@ -49,7 +49,9 @@ from openCurrents.forms import \
     EventCheckinForm, \
     OrgNominationForm, \
     TimeTrackerForm, \
-    OfferForm
+    OfferCreateForm, \
+    OfferEditForm
+
 
 from datetime import datetime, timedelta
 
@@ -92,6 +94,15 @@ class DatetimeEncoder(json.JSONEncoder):
 
 
 class SessionContextView(View):
+    def dispatch(self, request, *args, **kwargs):
+        # get user org
+        orguserinfo = OrgUserInfo(request.user.id)
+        self.org = orguserinfo.get_org()
+
+        return super(SessionContextView, self).dispatch(
+            request, *args, **kwargs
+        )
+
     def get_context_data(self, **kwargs):
         context = super(SessionContextView, self).get_context_data(**kwargs)
         userid = self.request.user.id
@@ -100,6 +111,7 @@ class SessionContextView(View):
         orgid = orguser.get_org_id()
         context['orgid'] = orgid
         context['org_id'] = orgid
+        context['orgname'] = orguser.get_org_name()
 
         is_admin = False
         admin_org_group_names = [
@@ -205,8 +217,18 @@ class AssignAdminsView(TemplateView):
     template_name = 'assign-admins.html'
 
 
-class BizAdminView(TemplateView):
+class BizAdminView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'biz-admin.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(BizAdminView, self).get_context_data(**kwargs)
+
+        offers = Offer.objects.filter(
+            org__id=self.org.id
+        )
+        context['offers'] = offers
+
+        return context
 
 
 class BusinessView(TemplateView):
@@ -530,10 +552,6 @@ class CausesView(TemplateView):
 
 class EditHoursView(TemplateView):
     template_name = 'edit-hours.html'
-
-
-class EditOfferView(TemplateView):
-    template_name = 'edit-offer.html'
 
 
 class ExportDataView(TemplateView):
@@ -955,12 +973,6 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         else:
             context['app_hr'] = 0
 
-        try:
-            org_name = Org.objects.get(id=context['orgid']).name
-            context['orgname'] = org_name
-        except Org.DoesNotExist:
-            pass
-
         # calculate user balance in currents
         userid = self.request.user.id
         verified_times = UserTimeLog.objects.filter(
@@ -1003,8 +1015,8 @@ class OrgAdminView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
         admin_id = self.request.user.id
         orgid = context['orgid']
         org = Org.objects.get(pk=orgid)
-        context['org_name'] = org.name
         context['timezone'] = org.timezone
+
         try:
             context['vols_approved'] = self.kwargs.pop('vols_approved')
             context['vols_declined'] = self.kwargs.pop('vols_declined')
@@ -1875,18 +1887,9 @@ class AddVolunteersView(TemplateView):
     template_name = 'add-volunteers.html'
 
 
-class OfferView(SessionContextView, LoginRequiredMixin, FormView):
+class OfferCreateView(LoginRequiredMixin, SessionContextView, FormView):
     template_name = 'offer.html'
-    form_class = OfferForm  
-
-    def dispatch(self, request, *args, **kwargs):
-        # get user org
-        orguserinfo = OrgUserInfo(request.user.id)
-        self.org = orguserinfo.get_org()
-
-        return super(OfferView, self).dispatch(
-            request, *args, **kwargs
-        )
+    form_class = OfferCreateForm  
 
     def form_valid(self, form):
         data = form.cleaned_data
@@ -1903,6 +1906,7 @@ class OfferView(SessionContextView, LoginRequiredMixin, FormView):
             offer.limit = data['offer_limit_value']
 
         offer.save()
+
         logger.debug(
             'Offer for %d% on %s created by %s',
             data['offer_current_share'],
@@ -1910,14 +1914,91 @@ class OfferView(SessionContextView, LoginRequiredMixin, FormView):
             self.org.name
         )
 
-        return redirect('openCurrents:biz-admin')
+        return redirect(
+            'openCurrents:biz-admin',
+            'Your offer for %s is now live!' % offer_item.name
+        )
 
 
     def get_context_data(self, **kwargs):
-        context = super(OfferView, self).get_context_data(**kwargs)
-        context['orgname'] = self.org.name
+        context = super(OfferCreateView, self).get_context_data(**kwargs)
 
         return context
+
+    def get_form_kwargs(self):
+        """
+        Passes orgid down to the offer form.
+        """
+        kwargs = super(OfferCreateView, self).get_form_kwargs()
+        kwargs.update({'orgid': self.org.id})
+
+        return kwargs
+
+
+class OfferEditView(OfferCreateView):
+    template_name = 'edit-offer.html'
+    form_class = OfferEditForm  
+
+    def dispatch(self, request, *args, **kwargs):
+        # get existing ofer
+        self.offer = Offer.objects.get(pk=kwargs.get('offer_id'))
+        logger.info(self.offer)
+        return super(OfferEditView, self).dispatch(
+            request, *args, **kwargs
+        )
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+
+        offer_item, was_created = Item.objects.get_or_create(name=data['offer_item'])
+
+        self.offer.item = offer_item
+        self.offer.currents_share = data['offer_current_share']
+
+        logger.info(data)
+        if data['offer_limit_choice']:
+            self.offer.limit = data['offer_limit_value']
+        else:
+            self.offer.limit = -1
+
+        self.offer.save()
+
+        logger.debug(
+            'Offer %d for %d%% on %s updated by %s',
+            self.offer.id,
+            int(data['offer_current_share']),
+            offer_item.name,
+            self.org.name
+        )
+
+        return redirect(
+            'openCurrents:biz-admin',
+            'Your offer for %s has been changed.' % offer_item.name
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super(OfferEditView, self).get_context_data()
+
+        context['form'].fields['offer_current_share'].widget.attrs['value'] = self.offer.currents_share
+        context['form'].fields['offer_item'].widget.attrs['value'] = self.offer.item.name
+
+        limit = self.offer.limit
+        context['form'].fields['offer_limit_choice'].initial = 0 if limit == -1 else 1
+
+        if self.offer.limit != -1:
+            context['form'].fields['offer_limit_value'].initial = limit
+
+        return context
+
+
+    def get_form_kwargs(self):
+        """
+        Passes offer id down to the offer form.
+        """
+        kwargs = super(OfferEditView, self).get_form_kwargs()
+        kwargs.update({'offer_id': self.offer.id})
+
+        return kwargs
 
 
 @login_required
