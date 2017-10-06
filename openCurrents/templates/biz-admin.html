@@ -38,11 +38,11 @@
             <span class="no-wrap">
               <h6 class="half-margin-bottom inline-block">Business balance:</h6>
               <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
-              <h6 class="inline-block"> [biz] </h6>
+              <h6 class="inline-block"> {{ user_balance }} </h6>
             </span>
             <!-- <h6 class="half-margin-bottom">Hours I've tracked: {{ issued_by_admin }}</h6> -->
 
-              <a href="{% url 'openCurrents:offer' %}" class="button round tiny">Create offer</a>
+              <p class="no-margin-bottom"><a href="{% url 'openCurrents:offer' %}" class="button round tiny">Create offer</a></p>
           </div>
         </div>
 
