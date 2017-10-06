@@ -229,7 +229,7 @@ class ProjectCreateForm(forms.Form):
     CHOICES = [(True, 'event-privacy-1'), (False, 'event-privacy-2')]
     
     is_public = forms.ChoiceField(widget=forms.RadioSelect(
-        attrs={"class": "hidden styled-radio"}), 
+        attrs={"class": "custom-radio"}), 
         choices=CHOICES, 
         initial='True'
     )

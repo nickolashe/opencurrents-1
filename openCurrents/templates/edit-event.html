@@ -70,10 +70,10 @@
           <a id="add-location"><i class="fa fa-plus-circle half-margin-right"></i>Add another location</a>
 
           <div class="row two-margin-top">
-            <input type="radio" id="event-privacy-1" name="event-privacy" value="1" class="hidden styled-radio" {% if event.is_public %} checked {% endif %}/>
-              <label for="event-privacy-1" class="button round secondary tiny">Public event</label>
-            <input type="radio" id="event-privacy-2" name="event-privacy" value="2" class="hidden styled-radio" {% if not event.is_public %} checked {% endif %}/>
-              <label for="event-privacy-2" class="button round secondary tiny">Invite only</label>
+            <input type="radio" id="event-privacy-1" name="event-privacy" value="1" class="custom-radio" {% if event.is_public %} checked {% endif %}/>
+              <label for="event-privacy-1">Public event</label>
+            <input type="radio" id="event-privacy-2" name="event-privacy" value="2" class="custom-radio" {% if not event.is_public %} checked {% endif %}/>
+              <label for="event-privacy-2" class="two-margin-left">Invite only</label>
 
             <a class="privacy-info-popup_open"><i class="half-margin-left fa fa-lg fa-question-circle grey"></i></a>
           </div>
