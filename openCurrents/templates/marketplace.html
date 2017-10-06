@@ -26,42 +26,35 @@
             <h6 class="three-halves-margin-bottom">Check out these offers from openCurrents businesses:</h6>
           </div>
         </div>
-        
-        <div class="row one-margin-bottom center">
-          <div class="small-12 medium-10 small-centered columns">
-            <div class="left input-left small-9 columns">
-              <p class=""><strong>Austin Bouldering Project</strong> accepts Currents for <a href="{% url 'openCurrents:redeem-currents' %}">100% of 1-day pass</a> (limit 5 per month)</p>
-            </div>
 
-            <div class="right input-right small-3 columns">
-              <a href="{% url 'openCurrents:redeem-currents' %}" class="button round tiny secondary">Redeem</a>
+        {% for offer in offers %}
+
+          <div class="row one-margin-bottom center">
+            <div class="small-12 medium-10 small-centered columns">
+              <div class="left input-left small-9 columns">
+                <p class="">
+                  <strong> {{ offer.org.name }} </strong>
+                  accepts Currents for
+                  <a href="{% url 'openCurrents:redeem-currents' %}">
+                    {{ offer.currents_share }}% of {{ offer.item.name }}
+                  </a>
+
+                  {% if offer.limit != -1 %}
+                    ({{ offer.limit }} remaining this month)
+                  {% endif %}
+                </p>
+              </div>
+
+              <div class="right input-right small-3 columns">
+                <a href="{% url 'openCurrents:redeem-currents' %}" class="button round tiny secondary">
+                  Redeem
+                </a>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="row one-margin-bottom center">
-          <div class="small-12 medium-10 small-centered columns">
-            <div class="left input-left small-9 columns">
-              <p class=""><strong>Fast Folks Bike Shop</strong> accepts Currents for <a href="{% url 'openCurrents:redeem-currents' %}">50% of flat fixes</a></p>
-            </div>
+        {% endfor %}        
 
-            <div class="right input-right small-3 columns">
-              <a href="{% url 'openCurrents:redeem-currents' %}" class="button round tiny secondary">Redeem</a>
-            </div>
-          </div>
-        </div>
-
-        <div class="row one-margin-bottom center">
-          <div class="small-12 medium-10 small-centered columns">
-            <div class="left input-left small-9 columns">
-              <p class=""><strong>Third Eye Tonics</strong> accepts Currents for <a href="{% url 'openCurrents:redeem-currents' %}">15% of elixers and tonics</a></p>
-            </div>
-
-            <div class="right input-right small-3 columns">
-              <a href="{% url 'openCurrents:redeem-currents' %}" class="button round tiny secondary">Redeem</a>
-            </div>
-          </div>
-        </div>
         
         <div id="push"></div>
     
