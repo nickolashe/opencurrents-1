@@ -20,7 +20,7 @@
         {% endif %}
 
         <div class="hide-for-small-only row full-width collapse two-margin-top">
-          <div class="left medium-6 medium-offset-1 columns">
+          <div class="left medium-5 medium-offset-1 columns">
             <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="fit-left round" />
             <span class="input-sizer"> -->
               <h5 class="one-margin-top no-margin-bottom">{{ user.first_name }} {{ user.last_name }}</h5>
@@ -29,16 +29,22 @@
                 <h6 class="inline half-margin-right">{{orgname}}</h6>
                 <a href="{% url 'openCurrents:org-admin' %}"><i class="fa fa-lg fa-gear"></i></a>
               {% endif %}
+
+                <p class="half-margin-top">
+                  <a class="earn-currents-popup_open button round tiny">Volunteer</a>
+                </p>
             <!-- </span> -->
           </div>
 
-          <div class="one-margin-top right medium-4 columns end">
+          <div class="one-margin-top right medium-5 columns end">
             <h6 class="inline">My Currents: </h6>
             <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
-            <h6 class="inline-block"> {{ user_balance }} </h6>
-            <div class="no-margin-top row">
-              <a class="earn-currents-popup_open button round tiny">Volunteer</a>
-              <a href="{% url 'openCurrents:marketplace' %}" class="button round secondary tiny">Redeem</a>
+            <h6 class="inline-block no-margin-bottom"> {{ user_balance }} </h6>
+            <div class="no-margin-top">
+              <h6 class="half-margin-bottom">My dollars: $20 (Pending: $10)</h6>
+              
+              <a href="{% url 'openCurrents:marketplace' %}" class="oc-button button round secondary tiny">Redeem <img src="{% static 'img/symbol-blue.svg' %}"/></a>
+              <a class="button round secondary tiny">Cash out $</a>
             </div>
           </div>
         </div>
@@ -48,26 +54,22 @@
             <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="round" /> -->
             <h4 class="half-margin-top no-margin-bottom">{{ user.first_name }} {{ user.last_name }}</h4>
             {% if is_admin %}
-              <h5 class="inline half-margin-right">{{orgname}}</h5>
+              <h5 class="inline-block half-margin-right">{{orgname}}</h5>
               <a href="{% url 'openCurrents:org-admin' %}"><i class="fa fa-lg fa-gear"></i></a>
             {% endif %}
 
-            <div class="half-margin-top">
+            <p class="half-margin-top no-margin-bottom"><a class="earn-currents-popup_open button round tiny">Volunteer</a></p>
+
+            <div class="no-margin-top">
               <h6 class="inline">My Currents: </h6>
               <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
-              <h6 class="inline-block"> {{ user_balance }} </h6>
-              <div class="half-margin-top row">
-                <a class="earn-currents-popup_open button round tiny">Earn</a>
-                <a href="{% url 'openCurrents:marketplace' %}" class="button round secondary tiny">Redeem</a>
+              <h6 class="inline-block no-margin-bottom"> {{ user_balance }} </h6>
+              <h6 class="half-margin-bottom">My dollars: $20 (Pending: $10)</h6>
+              <div class="half-margin-top one-margin-bottom row">
+                <a href="{% url 'openCurrents:marketplace' %}" class="oc-button button round secondary tiny">Redeem <img src="{% static 'img/symbol-blue.svg' %}"/></a>
+                <a class="button round secondary tiny">Cash out $</a>
               </div>
             </div>
-          </div>
-        </div>
-        
-        <div class="row full-width collapse left one-margin-top two-margin-bottom">
-          <div class="small-11 medium-10 small-centered columns">
-            <h6 class="no-margin-bottom">My dollars: $20 (Pending: $10)</h6>
-            <a>Cash out</a>
           </div>
         </div>
 
@@ -122,12 +124,12 @@
         <div class="left row one-margin-top full-width collapse">
           <div class="small-11 medium-10 small-centered columns">
             <div class="row">
-              <div class="left input-left small-8 columns">
+              <div class="left input-left small-6 columns">
                 <h6 class="half-margin-bottom">Most active orgs</h6>
               </div>
 
-              <div class="right input-right small-4 columns">
-                <h6 class="half-margin-bottom">Hours</h6>
+              <div class="right input-right small-6 columns">
+                <h6 class="half-margin-bottom">Currents issued</h6>
               </div>
             </div>
 

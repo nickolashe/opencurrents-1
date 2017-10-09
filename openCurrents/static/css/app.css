@@ -1025,6 +1025,11 @@ a.list-group-item {
   margin-top: 0.25rem;
 }
 
+.oc-button.tiny {
+  padding-top: 0.4375rem;
+  padding-bottom: 0.4375rem;
+}
+
 .symbol-circle {
   stroke: #24b2e7;
   transition: stroke 0.25s ease-in-out;
