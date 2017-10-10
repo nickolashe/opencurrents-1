@@ -21,11 +21,11 @@
           <div class="medium-10 small-centered columns">
             <div class="row">
               <div class="small-10 medium-6 small-centered columns">
-                <h4 class="title-sub">My hours for</h4>
-                <select class="three-halves-margin-bottom">
+                <h4 class="title-sub">My hours for {{orgname}}</h4>
+                <!-- <select class="three-halves-margin-bottom">
                   <option>Keep Austin Beautiful</option>
                   <option>Bike Austin</option>
-                </select>
+                </select> -->
               </div>
             </div>
           </div>
@@ -33,15 +33,21 @@
         
         <div class="row one-margin-bottom">
           <div class="small-12 medium-10 small-centered columns">
+
+            <!-- Pending hours headers -->
             <div class="row left">
+              <h6>Pending hours</h6>
+            </div>
+
+            <div class="row left half-margin-bottom">
               <div class="small-3 columns">
-                <p><strong>Date</strong></p>
+                <strong>Date</strong>
               </div>
               <div class="small-6 medium-7 columns">
                 <strong>Description</strong>
               </div>
               <div class="right small-3 medium-2 columns">
-                <p><strong>Hours</strong></p>
+                <strong>Hours</strong>
               </div>
             </div>
 
@@ -54,7 +60,6 @@
               </div>
               <div class="right small-3 medium-2 columns">
                 <p class="no-margin-bottom">3.25</p>
-                <p class="grey small-text">Pending</p>
               </div>
             </div>
 
@@ -67,6 +72,23 @@
               </div>
               <div class="right small-3 medium-2 columns">
                 <p>3.25</p>
+              </div>
+            </div>
+
+            <!-- Approved hours headers -->
+            <div class="row left">
+              <h6>Approved hours</h6>
+            </div>
+
+            <div class="row left half-margin-bottom">
+              <div class="small-3 columns">
+                <strong>Date</strong>
+              </div>
+              <div class="small-6 medium-7 columns">
+                <strong>Description</strong>
+              </div>
+              <div class="right small-3 medium-2 columns">
+                <strong>Hours</strong>
               </div>
             </div>
 
@@ -84,10 +106,10 @@
           </div>
         </div>
 
-        {% include 'partials/pagination.html' %}
+
 
         <div class="row three-halves-margin-top">
-          <a class="button round">Back to profile</a>
+          <a href="{% url 'openCurrents:profile' %}" class="button round">Back to profile</a>
         </div>
         
         <div id="push"></div>
