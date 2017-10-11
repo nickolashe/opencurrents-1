@@ -558,3 +558,24 @@ class OfferEditForm(OfferCreateForm):
                 ))
 
         return offer_item
+
+
+class RedeemCurrentsForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        offer_id = kwargs.pop('offer_id')
+        self.offer = Offer.objects.get(id=offer_id)
+
+        super(RedeemCurrentsForm, self).__init__(*args, **kwargs)
+
+    redeem_receipt = forms.ImageField(
+         widget=forms.ClearableFileInput(attrs={
+            'class': 'hidden-file',
+            'id': 'upload-receipt'
+        })       
+    )
+
+    redeem_price = forms.IntegerField(
+        widget=forms.NumberInput(attrs={
+           'id': 'shelf-price'
+        })
+    )

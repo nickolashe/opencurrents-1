@@ -331,7 +331,7 @@ class Transaction(models.Model):
         Offer,
         through='UserOfferAction'
     )
-    pop_image = models.ImageField()
+    pop_image = models.ImageField(upload_to='redeem/%Y/%m/%d')
     pop_type = models.CharField(
         max_length=3,
         choices=[

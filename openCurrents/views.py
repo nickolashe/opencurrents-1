@@ -50,7 +50,8 @@ from openCurrents.forms import \
     OrgNominationForm, \
     TimeTrackerForm, \
     OfferCreateForm, \
-    OfferEditForm
+    OfferEditForm, \
+    RedeemCurrentsForm
 
 
 from datetime import datetime, timedelta
@@ -630,8 +631,52 @@ class OurStoryView(TemplateView):
     template_name = 'our-story.html'
 
 
-class RedeemCurrentsView(TemplateView):
+class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
     template_name = 'redeem-currents.html'
+    form_class = RedeemCurrentsForm
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+
+        offer_item, was_created = Item.objects.get_or_create(name=data['offer_item'])
+        
+        offer = Offer(
+            org=self.org,
+            item=offer_item,
+            currents_share=data['offer_current_share'],
+        )
+
+        if data['offer_limit_choice']:
+            offer.limit = data['offer_limit_value']
+
+        offer.save()
+
+        logger.debug(
+            'Offer for %d% on %s created by %s',
+            data['offer_current_share'],
+            offer_item.name,
+            self.org.name
+        )
+
+        return redirect(
+            'openCurrents:biz-admin',
+            'Your offer for %s is now live!' % offer_item.name
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super(RedeemCurrentsView, self).get_context_data(**kwargs)
+        context['offer'] = Offer.objects.get(id=self.kwargs['offer_id'])
+        
+        return context
+
+    def get_form_kwargs(self):
+        """
+        Passes offer id down to the redeem form.
+        """
+        kwargs = super(RedeemCurrentsView, self).get_form_kwargs()
+        kwargs.update({'offer_id': self.kwargs['offer_id']})
+
+        return kwargs
 
 
 class RequestCurrentsView(TemplateView):
