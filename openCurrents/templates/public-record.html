@@ -25,17 +25,23 @@
         </div>
 
         <div class="row half-margin-bottom">
-          <div class="small-9 medium-4 small-centered columns">
+          <div class="small-6 medium-4 medium-offset-2 columns">
             <select id="public-record-filter" name="public-record-filter">
               <option value="top-org">Top organizations</option>
               <option value="top-vol">Top volunteers</option>
               <option value="top-biz">Top businesses</option>
             </select>
           </div>
+          <div class="small-6 medium-4 columns end">
+            <select name="time-filter">
+              <option>Last 30 days</option>
+              <option>All-time</option>
+            </select>
+          </div>
         </div>
         
         <div class="row one-margin-bottom">
-          <div class="small-12 medium-9 small-centered columns">
+          <div class="small-12 medium-8 small-centered columns">
             <div class="row">
               <div class="left small-6 columns">
                 <p class="half-margin-bottom"><strong><span id="record-name">Organization</span> name</strong></p>
@@ -59,98 +65,98 @@
               </div>
               <!-- end for -->
 
-              <div class="row qtr-margin-bottom">
-                <div class="left small-8 columns">
-                  <li class="grey">Keep Austin Beautiful</li>
-                </div>
+                  <!-- delete once forloop created -->
+                    <div class="row qtr-margin-bottom">
+                      <div class="left small-8 columns">
+                        <li class="grey">Keep Austin Beautiful</li>
+                      </div>
 
-                <div class="right small-4 columns">
-                  <span class="no-wrap grey"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 123</span>
-                </div>
-              </div>
+                      <div class="right small-4 columns">
+                        <span class="no-wrap grey"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 123</span>
+                      </div>
+                    </div>
 
-              <div class="row qtr-margin-bottom">
-                <div class="left small-8 columns">
-                  <li class="grey">Keep Austin Beautiful</li>
-                </div>
+                    <div class="row qtr-margin-bottom">
+                      <div class="left small-8 columns">
+                        <li class="grey">Keep Austin Beautiful</li>
+                      </div>
 
-                <div class="right small-4 columns">
-                  <span class="no-wrap grey"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 123</span>
-                </div>
-              </div>
+                      <div class="right small-4 columns">
+                        <span class="no-wrap grey"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 123</span>
+                      </div>
+                    </div>
 
-              <div class="row qtr-margin-bottom">
-                <div class="left small-8 columns">
-                  <li class="grey">Keep Austin Beautiful</li>
-                </div>
+                    <div class="row qtr-margin-bottom">
+                      <div class="left small-8 columns">
+                        <li class="grey">Keep Austin Beautiful</li>
+                      </div>
 
-                <div class="right small-4 columns">
-                  <span class="no-wrap grey"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 123</span>
-                </div>
-              </div>
+                      <div class="right small-4 columns">
+                        <span class="no-wrap grey"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 123</span>
+                      </div>
+                    </div>
 
-              <div class="row qtr-margin-bottom">
-                <div class="left small-8 columns">
-                  <li class="grey">Keep Austin Beautiful</li>
-                </div>
+                    <div class="row qtr-margin-bottom">
+                      <div class="left small-8 columns">
+                        <li class="grey">Keep Austin Beautiful</li>
+                      </div>
 
-                <div class="right small-4 columns">
-                  <span class="no-wrap grey"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 123</span>
-                </div>
-              </div>
+                      <div class="right small-4 columns">
+                        <span class="no-wrap grey"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 123</span>
+                      </div>
+                    </div>
 
-              <div class="row qtr-margin-bottom">
-                <div class="left small-8 columns">
-                  <li class="grey">Keep Austin Beautiful</li>
-                </div>
+                    <div class="row qtr-margin-bottom">
+                      <div class="left small-8 columns">
+                        <li class="grey">Keep Austin Beautiful</li>
+                      </div>
 
-                <div class="right small-4 columns">
-                  <span class="no-wrap grey"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 123</span>
-                </div>
-              </div>
+                      <div class="right small-4 columns">
+                        <span class="no-wrap grey"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 123</span>
+                      </div>
+                    </div>
 
-              <div class="row qtr-margin-bottom">
-                <div class="left small-8 columns">
-                  <li class="grey">Keep Austin Beautiful</li>
-                </div>
+                    <div class="row qtr-margin-bottom">
+                      <div class="left small-8 columns">
+                        <li class="grey">Keep Austin Beautiful</li>
+                      </div>
 
-                <div class="right small-4 columns">
-                  <span class="no-wrap grey"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 123</span>
-                </div>
-              </div>
+                      <div class="right small-4 columns">
+                        <span class="no-wrap grey"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 123</span>
+                      </div>
+                    </div>
 
-              <div class="row qtr-margin-bottom">
-                <div class="left small-8 columns">
-                  <li class="grey">Keep Austin Beautiful</li>
-                </div>
+                    <div class="row qtr-margin-bottom">
+                      <div class="left small-8 columns">
+                        <li class="grey">Keep Austin Beautiful</li>
+                      </div>
 
-                <div class="right small-4 columns">
-                  <span class="no-wrap grey"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 123</span>
-                </div>
-              </div>
+                      <div class="right small-4 columns">
+                        <span class="no-wrap grey"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 123</span>
+                      </div>
+                    </div>
 
-              <div class="row qtr-margin-bottom">
-                <div class="left small-8 columns">
-                  <li class="grey">Keep Austin Beautiful</li>
-                </div>
+                    <div class="row qtr-margin-bottom">
+                      <div class="left small-8 columns">
+                        <li class="grey">Keep Austin Beautiful</li>
+                      </div>
 
-                <div class="right small-4 columns">
-                  <span class="no-wrap grey"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 123</span>
-                </div>
-              </div>
+                      <div class="right small-4 columns">
+                        <span class="no-wrap grey"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 123</span>
+                      </div>
+                    </div>
 
-              <div class="row qtr-margin-bottom">
-                <div class="left small-8 columns">
-                  <li class="grey">Keep Austin Beautiful</li>
-                </div>
+                    <div class="row qtr-margin-bottom">
+                      <div class="left small-8 columns">
+                        <li class="grey">Keep Austin Beautiful</li>
+                      </div>
 
-                <div class="right small-4 columns">
-                  <span class="no-wrap grey"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 123</span>
-                </div>
-              </div>
+                      <div class="right small-4 columns">
+                        <span class="no-wrap grey"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 123</span>
+                      </div>
+                    </div>
+                    <!-- end delete -->
             </ol>
-
-            {% include 'partials/pagination.html' %}
 
             <div class="row three-halves-margin-top">
               <a href="{% url 'openCurrents:profile' %}" class="button round secondary">Back to profile</a>
