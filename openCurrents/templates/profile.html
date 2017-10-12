@@ -43,7 +43,12 @@
               <div class="small-12 medium-6 columns">
                 <h6 class="qtr-margin-bottom">Dollars available: $20</h6>
                 <p class="grey half-margin-bottom">Pending: $10</p>
-                <a class="button round secondary tiny">Cash out</a>
+                <!-- if available_dollars, show status message on click and email info@opencurrents.com with to-be-created email template -->
+                <form>
+                  <a type="submit" class="button round secondary tiny">Cash out</a>
+                </form>
+                <!-- else display popup on click -->
+                <a class="no-cash-popup_open button round secondary tiny">Cash out</a>
                 
               </div>
             </div>
@@ -320,6 +325,20 @@
       </div>
     </div>
 
+    <div id="no-cash-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h3 class="popup-title">No dollars available</h3>
+      </div>
+
+      <div class="row center one-margin-top">
+        <div class="small-centered medium-10 columns">
+          <p>You do not yet have dollars available to transfer to your bank account. If you have redeemed an offer and have pending dollars in your account, you'll need to wait until the business verifies your proof of purchase at the end of the month.</p>
+          <p>To see offers from businesses in the community, please visit the marketplace by clicking "Redeem" in your profile.</p>
+          <a class="no-cash-popup_close button round">Got it</a>
+        </div>
+      </div>
+    </div>
+
     <div id="rsvp-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
         <h3 class="popup-title">Change RSVP</h3>
@@ -371,7 +390,7 @@
           var open = false;
         }
 
-        $('#rsvp-popup, #earn-currents-popup').popup({
+        $('#rsvp-popup, #earn-currents-popup, #no-cash-popup').popup({
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: true,
