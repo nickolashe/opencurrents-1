@@ -66,6 +66,7 @@ h1, h2, h3, h4, h5, h6 {
 .h6-symbol {
   vertical-align: top;
   margin-top: 0.1875rem;
+  margin-right: 0.125rem;
   height: 1.25rem;
 }
 
@@ -1039,6 +1040,11 @@ a.list-group-item {
   float: left;
   height: 32px;
   margin-top: 0.25rem;
+}
+
+.oc-button.tiny {
+  padding-top: 0.4375rem;
+  padding-bottom: 0.4375rem;
 }
 
 .symbol-circle {
