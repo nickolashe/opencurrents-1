@@ -130,11 +130,11 @@
                 <h4 class="one-margin-bottom">Confirm exchange</h4>
 
                 <p class="one-margin-bottom">
-                  I agree to give <img class="" src="{% static 'img/symbol-navy.svg' %}"/> [X] to {{ offer.org.name }} in exchange for $[Y].
+                  I agree to give <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}"/><span id="currents-total"></span> to {{ offer.org.name }} in exchange for $<span id="dollars-total"></span>.
                 </p>
 
                 <p>
-                  I understand that $[Y] will be added to my account as Pending Dollars, which will become Available Dollars once {{ offer.org.name }} validates the transaction at the end of the month. Currents will be deducted from my account at this time. I can then transfer Available Dollars to my bank account or keep the balance in my openCurrents account.
+                  I understand that $<span id="dollars-total"></span> will be added to my account as Pending Dollars, which will become Available Dollars once {{ offer.org.name }} validates the transaction at the end of the month. <span id="currents-total"></span> Currents will be deducted from my account at this time. I can then transfer Available Dollars to my bank account or keep the balance in my openCurrents account.
                 </p>
 
                 <div class="row three-halves-margin-top">
@@ -293,6 +293,15 @@
         // Uncheck receipt-if-checked when 'Other PoP' label is clicked
         $('#receipt-label').click(function(){
           $('#receipt-if-checked').prop('checked', true);
+        });
+
+        // Display current and dollar totals based on price input
+        $('#offer-2').on('input', function(){
+          var dollars = $('#id_redeem_price').val();
+          var currents = dollars/10;
+
+          $('#currents-total').text(currents);
+          $('#dollars-total').text(dollars);
         });
       });
     </script>

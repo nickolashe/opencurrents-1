@@ -583,7 +583,5 @@ class RedeemCurrentsForm(forms.Form):
     )
 
     redeem_price = forms.IntegerField(
-        widget=forms.NumberInput(attrs={
-           'id': 'shelf-price'
-        })
+        widget=forms.NumberInput()
     )
