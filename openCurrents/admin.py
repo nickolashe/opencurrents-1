@@ -12,7 +12,8 @@ from openCurrents.models import Account, \
     AdminActionUserTime, \
     Offer, \
     Transaction, \
-    UserOfferAction
+    Item, \
+    TransactionAction
 
 admin.site.register(Account)
 admin.site.register(Org)
@@ -26,3 +27,7 @@ admin.site.register(Transaction)
 admin.site.register(UserEventRegistration)
 admin.site.register(UserTimeLog)
 admin.site.register(AdminActionUserTime)
+admin.site.register(Offer)
+admin.site.register(Transaction)
+admin.site.register(Item)
+admin.site.register(TransactionAction)

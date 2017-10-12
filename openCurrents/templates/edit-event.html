@@ -32,14 +32,14 @@
           <div class="row one-margin-bottom">
             <div class="small-12 medium-6 small-centered columns">
 
-              <h6 class="fit-left navy">Let's...</h6>
+              <h6 class="fit-left navy half-margin-top">Let's...</h6>
               <span class="input-sizer"><input name="project-name" class="center" type="text" placeholder="do some good" value="{{ event.project.name }}"/></span>
             </div>
           </div>
 
           <div class="row one-margin-bottom">
             <div class="small-8 medium-4 small-centered columns">
-              <h6 class="fit-left navy">on</h6>
+              <h6 class="fit-left navy half-margin-top">on</h6>
               <span class="input-sizer"><input name="project-date" id="project-date" class="center" type="text" placeholder="yyyy-mm-dd" value="{{date_start}}" /></span>
             </div>
           </div>
@@ -48,12 +48,12 @@
             <div class="small-12 medium-6 small-centered columns">
               <div class="row">
                 <div class="input-left small-6 columns">
-                  <h6 class="fit-left navy">from</h6>
+                  <h6 class="fit-left navy half-margin-top">from</h6>
                   <span class="input-sizer"><input name="project-start" id="project-start" class="center" type="text" placeholder="12:00 pm" value="{{ start_time }}" /></span>
                 </div>
 
                 <div class="input-right small-6 columns">
-                  <h6 class="fit-left navy">to</h6>
+                  <h6 class="fit-left navy half-margin-top">to</h6>
                   <span class="input-sizer"><input name="project-end" id="project-end" class="center" type="text" placeholder="12:00 pm" value="{{end_time}}" /></span>
                 </div>
               </div>
@@ -62,23 +62,23 @@
 
           <div class="row center">
             <div id="location-box" class="small-12 medium-6 small-centered columns">
-              <h6 class="fit-left navy">at</h6>
+              <h6 class="fit-left navy half-margin-top">at</h6>
               <span class="input-sizer"><input name="project-location-1" id="project-location-1" type="text" class="center" placeholder="location" value="{{event.location}}"/></span>
             </div>
           </div>
 
           <a id="add-location"><i class="fa fa-plus-circle half-margin-right"></i>Add another location</a>
 
-          <div class="row two-margin-top">
-            <input type="radio" id="event-privacy-1" name="event-privacy" value="1" class="hidden styled-radio" {% if event.is_public %} checked {% endif %}/>
-              <label for="event-privacy-1" class="button round secondary tiny">Public event</label>
-            <input type="radio" id="event-privacy-2" name="event-privacy" value="2" class="hidden styled-radio" {% if not event.is_public %} checked {% endif %}/>
-              <label for="event-privacy-2" class="button round secondary tiny">Invite only</label>
+          <div class="row three-halves-margin-top">
+            <input type="radio" id="event-privacy-1" name="event-privacy" value="1" class="custom-radio" {% if event.is_public %} checked {% endif %}/>
+              <label for="event-privacy-1">Public event</label>
+            <input type="radio" id="event-privacy-2" name="event-privacy" value="2" class="custom-radio" {% if not event.is_public %} checked {% endif %}/>
+              <label for="event-privacy-2" class="two-margin-left">Invite only</label>
 
             <a class="privacy-info-popup_open"><i class="half-margin-left fa fa-lg fa-question-circle grey"></i></a>
           </div>
 
-          <div class="one-margin-top row left">
+          <div class="three-halves-margin-top row left">
             <div class="small-12 medium-6 small-centered columns">
               <h6 class="navy no-margin-bottom">Project description</h6>
               <p class="small-text grey no-margin-bottom">What should volunteers know? What should they bring?</p>
@@ -115,7 +115,7 @@
           <div class="delete-event-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
             <div class="row center">
               <h3 class="popup-title">Are you sure?</h3>
-              <input type='submit' name='del-button' class="button round alert" value="Yes, delete event">
+              <input type='submit' name='del-button' class="button round alert" value="Yes - Delete event">
               <a class="button round secondary">Cancel</a>
             </div>
           </div>
@@ -209,7 +209,7 @@
       $('#add-location').click(function(){
         id ++;
 
-        $('#location-box').append('<div id="location-'+id+'" class="relative hidden"><h6 class="fit-left navy">&</h6><span class="input-sizer"><input name="project-location-'+id+'" id="project-location-'+id+'" type="text" class="center" placeholder="location"/></span><i class="remove-input alert fa fa-lg fa-times"></i></div>');
+        $('#location-box').append('<div id="location-'+id+'" class="relative hidden"><h6 class="fit-left navy half-margin-top">&</h6><span class="input-sizer"><input name="project-location-'+id+'" id="project-location-'+id+'" type="text" class="center" placeholder="location"/></span><i class="remove-input grey fa fa-times-circle"></i></div>');
         $('#location-'+id+'').slideDown();
 
       });
