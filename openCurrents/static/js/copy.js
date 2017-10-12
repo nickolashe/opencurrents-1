@@ -27,3 +27,18 @@ clip.on( "ready", function( readyEvent ) {
   	button.text(button.data("text-swap")).blur();
   } );
 } );
+
+var emails = new ZeroClipboard( $('#copy-emails'));
+
+emails.on( "ready", function( readyEvent ) {
+  // alert( "ZeroClipboard SWF is ready!" );
+
+  emails.on( "aftercopy", function( event ) {
+    // `this` === `client`
+    // `event.target` === the element that was clicked
+    //event.target.style.display = "none";
+    var button = $("#copy-emails");
+    button.data("text-original", button.text());
+    button.text(button.data("text-swap")).blur();
+  } );
+} );
