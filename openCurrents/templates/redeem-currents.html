@@ -1,4 +1,5 @@
 {% load staticfiles %}
+{% load tags %}
 
 <!DOCTYPE html>
 <html>
@@ -44,58 +45,108 @@
           </div>
         </div>
 
-        <div id="offer-1">
-          <div class="row">
-            <div class="small-12 medium-8 small-centered columns">
-              <h4 class="one-margin-bottom">Upload receipt</h4>
-              <p class="three-halves-margin-bottom">To exchange Currents for dollars with [Fast Folks], upload your receipt as proof of purchase. <a class="redeem-info-popup_open no-wrap">Why am I paying full price?</a></p>
-              <input type="checkbox" name="receipt-if-checked" id="receipt-if-checked" class="hidden" checked />
-              <input type="file" accept="image/*" capture="camera" id="upload-receipt" name="upload-receipt" class="hidden-file" />
-              <label for="upload-receipt" id="receipt-label" class="upload-receipt-label button round small secondary"><i class="one-margin-right fa fa-upload"></i><span>Choose an image...</span></label>
-              <p class="small-text grey">PNG, JPEG, and GIF accepted</p>
-              <p class="half-margin-top"><a class="no-receipt-popup_open">I have other proof of purchase</a></p>
+        <form method='post' enctype='multipart/form-data'>
+
+          {% csrf_token %}
+
+          {% if form.errors %}
+            <div class="row">
+              {% for field, error in form.errors.iteritems %}
+                <div class="center alert">
+                  {% if field != '__all__' %}
+                    {{ field|addstr:': '}} {{ error }}
+                  {% else %}
+                    {{ error }}
+                  {% endif %}
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          <div id="offer-1">
+            <div class="row">
+              <div class="small-12 medium-8 small-centered columns">
+                <h4 class="one-margin-bottom">Upload receipt</h4>
+                <p class="three-halves-margin-bottom">
+                  To exchange Currents for dollars with {{ offer.org.name }}, upload your receipt as proof of purchase.
+
+                  <a class="redeem-info-popup_open no-wrap">
+                    Why am I paying full price?
+                  </a>
+                </p>
+
+                {{ form.redeem_receipt_if_checked }}
+
+                <!-- <input type="checkbox" name="receipt-if-checked" id="receipt-if-checked" class="hidden" checked /> -->
+
+                {{ form.redeem_receipt }}
+                <!--input type="file" accept="image/*" capture="camera" id="upload-receipt" name="upload-receipt" class="hidden-file" /-->
+
+                <label for="upload-receipt" id="receipt-label" class="upload-receipt-label button round small secondary">
+                  <i class="one-margin-right fa fa-upload"></i>
+                  <span>Choose an image...</span>
+                </label>
+
+                <p class="small-text grey">PNG, JPEG, and GIF accepted</p>
+                <p class="half-margin-top">
+                  <a class="no-receipt-popup_open">
+                    I have other proof of purchase
+                  </a>
+                </p>
+              </div>
+            </div>
+
+            <div class="row half-margin-top">
+              <a class="next-offer button round">Next</a>
             </div>
           </div>
 
-          <div class="row half-margin-top">
-            <a class="next-offer button round">Next</a>
+          <div id="offer-2">
+            <div class="row">
+              <div class="small-12 medium-8 small-centered columns">
+                <h4 class="">Record price</h4>
+
+                <p class="half-margin-bottom">
+                  Price of {{ offer.item.name }} before tax:
+                </p>
+
+                <div class="relative inline-block">
+                  <span class="input-icon-left grey">$</span>
+
+                  {{ form.redeem_price }}
+                </div>
+              </div>
+            </div>
+
+            <div class="row one-margin-top">
+              <a class="prev-offer button round secondary">Back</a>
+              <a class="next-offer button round">Next</a>
+            </div>
           </div>
-        </div>
 
-        <div id="offer-2">
-          <div class="row">
-            <div class="small-12 medium-8 small-centered columns">
-              <h4 class="">Record price</h4>
+          <div id="offer-3">
+            <div class="row">
+              <div class="small-12 medium-8 small-centered columns">
+                <h4 class="one-margin-bottom">Confirm exchange</h4>
 
-              <p class="half-margin-bottom">Price of [flat fixes] before tax:</p>
-              <div class="relative inline-block">
-                <span class="input-icon-left grey">$</span>
-                <input type="number" id="shelf-price" name="shelf-price" />
+                <p class="one-margin-bottom">
+                  I agree to give <img class="" src="{% static 'img/symbol-navy.svg' %}"/> [X] to {{ offer.org.name }} in exchange for $[Y].
+                </p>
+
+                <p>
+                  I understand that $[Y] will be added to my account as Pending Dollars, which will become Available Dollars once {{ offer.org.name }} validates the transaction at the end of the month. Currents will be deducted from my account at this time. I can then transfer Available Dollars to my bank account or keep the balance in my openCurrents account.
+                </p>
+
+                <div class="row three-halves-margin-top">
+                  <a class="prev-offer button round secondary">Back</a>
+
+                  <input type='submit' value="Confirm" class="button round"></input>
+                </div>
               </div>
             </div>
           </div>
 
-          <div class="row one-margin-top">
-            <a class="prev-offer button round secondary">Back</a>
-            <a class="next-offer button round">Next</a>
-          </div>
-        </div>
-
-        <div id="offer-3">
-          <div class="row">
-            <div class="small-12 medium-8 small-centered columns">
-              <h4 class="one-margin-bottom">Confirm exchange</h4>
-              <p class="one-margin-bottom">I agree to give <img class="" src="{% static 'img/symbol-navy.svg' %}"/> [X] to [Fast Folks Bike Shop] in exchange for $[Y].</p>
-              <p>I understand that $[Y] will be added to my account as Pending Dollars, which will become Available Dollars once [Fast Folks] validates the transaction at the end of the month. Currents will be deducted from my account at this time. I can then transfer Available Dollars to my bank account or keep the balance in my openCurrents account.</p>
-
-              <div class="row three-halves-margin-top">
-                <a class="prev-offer button round secondary">Back</a>
-                <a type="submit" class="button round">Confirm</a>
-              </div>
-            </div>
-          </div>
-        </div>
-        
+      </form>        
 
         
         <div id="push"></div>
