@@ -35,7 +35,8 @@ from openCurrents.models import \
     AdminActionUserTime, \
     Item, \
     Offer, \
-    Transaction
+    Transaction, \
+    TransactionAction
 
 from openCurrents.forms import \
     UserSignupForm, \
@@ -635,38 +636,44 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
     template_name = 'redeem-currents.html'
     form_class = RedeemCurrentsForm
 
+    def dispatch(self, request, *args, **kwargs):
+        offer_id = kwargs.get('offer_id')
+        self.offer = Offer.objects.get(id=offer_id)
+
+        return super(RedeemCurrentsView, self).dispatch(request, *args, **kwargs)
+
     def form_valid(self, form):
         data = form.cleaned_data
 
-        offer_item, was_created = Item.objects.get_or_create(name=data['offer_item'])
-        
-        offer = Offer(
-            org=self.org,
-            item=offer_item,
-            currents_share=data['offer_current_share'],
+        transaction = Transaction(
+            user=self.request.user,
+            offer=self.offer,
+            pop_image=data['redeem_receipt'],
+            price_reported=data['redeem_price']
         )
+        transaction.save()
 
-        if data['offer_limit_choice']:
-            offer.limit = data['offer_limit_value']
-
-        offer.save()
+        action = TransactionAction(
+            transaction=transaction
+        )
+        action.save()        
 
         logger.debug(
-            'Offer for %d% on %s created by %s',
-            data['offer_current_share'],
-            offer_item.name,
-            self.org.name
+            'Transaction %d for offer %d was requested by userid %d',
+            transaction.id,
+            self.offer.id,
+            self.request.user.id
         )
 
         return redirect(
-            'openCurrents:biz-admin',
-            'Your offer for %s is now live!' % offer_item.name
+            'openCurrents:profile',
+            'We\'ve received your request for redeeming currents'
         )
 
     def get_context_data(self, **kwargs):
         context = super(RedeemCurrentsView, self).get_context_data(**kwargs)
         context['offer'] = Offer.objects.get(id=self.kwargs['offer_id'])
-        
+
         return context
 
     def get_form_kwargs(self):

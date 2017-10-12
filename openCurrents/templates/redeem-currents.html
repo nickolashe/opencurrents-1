@@ -1,4 +1,5 @@
 {% load staticfiles %}
+{% load tags %}
 
 <!DOCTYPE html>
 <html>
@@ -44,9 +45,23 @@
           </div>
         </div>
 
-        <form method='post'>
+        <form method='post' enctype='multipart/form-data'>
 
           {% csrf_token %}
+
+          {% if form.errors %}
+            <div class="row">
+              {% for field, error in form.errors.iteritems %}
+                <div class="center alert">
+                  {% if field != '__all__' %}
+                    {{ field|addstr:': '}} {{ error }}
+                  {% else %}
+                    {{ error }}
+                  {% endif %}
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
 
           <div id="offer-1">
             <div class="row">
@@ -60,7 +75,9 @@
                   </a>
                 </p>
 
-                <input type="checkbox" name="receipt-if-checked" id="receipt-if-checked" class="hidden" checked />
+                {{ form.redeem_receipt_if_checked }}
+
+                <!-- <input type="checkbox" name="receipt-if-checked" id="receipt-if-checked" class="hidden" checked /> -->
 
                 {{ form.redeem_receipt }}
                 <!--input type="file" accept="image/*" capture="camera" id="upload-receipt" name="upload-receipt" class="hidden-file" /-->

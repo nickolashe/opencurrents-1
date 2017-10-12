@@ -327,11 +327,11 @@ class Offer(models.Model):
 
 class Transaction(models.Model):
     user = models.ForeignKey(User)
-    action = models.ManyToManyField(
+    offer = models.ForeignKey(
         Offer,
-        through='UserOfferAction'
+        on_delete=models.CASCADE
     )
-    pop_image = models.ImageField(upload_to='redeem/%Y/%m/%d')
+    pop_image = models.ImageField(upload_to='images/redeem/%Y/%m/%d')
     pop_type = models.CharField(
         max_length=3,
         choices=[
@@ -349,10 +349,22 @@ class Transaction(models.Model):
     date_created = models.DateTimeField('date created', auto_now_add=True)
     date_updated = models.DateTimeField('date updated', auto_now=True)
 
+    def __unicode__(self):
+        return ' '.join([
+            'Transaction created by user',
+            self.user.username,           
+            'for offer %d',
+            str(self.offer.id),
+            'at',
+            self.date_updated.strftime('%m/%d/%Y %H:%M:%S'),
+        ])
 
-class UserOfferAction(models.Model):
-    transaction = models.ForeignKey(Transaction)
-    offer = models.ForeignKey(Offer)
+
+class TransactionAction(models.Model):
+    transaction = models.ForeignKey(
+        Transaction,
+        on_delete=models.CASCADE
+    )
     action_type = models.CharField(
         max_length=7,
         choices=[
@@ -366,3 +378,13 @@ class UserOfferAction(models.Model):
     # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)
     date_updated = models.DateTimeField('date updated', auto_now=True)
+
+    def __unicode__(self):
+        return ' '.join([
+            'Action',
+            '[%s]' % self.action_type,
+            'taken for transaction',
+            str(self.transaction.id),
+            'at',
+            self.date_updated.strftime('%m/%d/%Y %H:%M:%S'),
+        ])    

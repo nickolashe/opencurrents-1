@@ -35,7 +35,7 @@
                 <p class="">
                   <strong> {{ offer.org.name }} </strong>
                   accepts Currents for
-                  <a href="{% url 'openCurrents:redeem-currents' %}">
+                  <a href="{% url 'openCurrents:redeem-currents' offer.id %}">
                     {{ offer.currents_share }}% of {{ offer.item.name }}
                   </a>
 
@@ -46,7 +46,7 @@
               </div>
 
               <div class="right input-right small-3 columns">
-                <a href="{% url 'openCurrents:redeem-currents' %}" class="button round tiny secondary">
+                <a href="{% url 'openCurrents:redeem-currents' offer.id %}" class="button round tiny secondary">
                   Redeem
                 </a>
               </div>

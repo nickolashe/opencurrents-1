@@ -574,6 +574,14 @@ class RedeemCurrentsForm(forms.Form):
         })       
     )
 
+    redeem_receipt_if_checked = forms.BooleanField(
+        widget=forms.CheckboxInput(attrs={
+            'class': 'hidden',
+            'id': 'receipt-if-checked'
+        }),
+        initial=True,
+    )
+
     redeem_price = forms.IntegerField(
         widget=forms.NumberInput(attrs={
            'id': 'shelf-price'
