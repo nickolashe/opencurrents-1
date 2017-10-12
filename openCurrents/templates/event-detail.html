@@ -47,17 +47,14 @@
 
           <div class="three-halves-margin-top row left">
             <div class="small-10 medium-6 small-centered columns">
-              <h6 class="navy no-margin-bottom">
                 {% if coordinator %}
-                  <h6 class="navy inline">Contact registered volunteers</h6>
-                  <a class="registrants-box_open no-wrap">See registrants</a>
+                  <h6 class="navy inline">Contact invited volunteers</h6>
+                  <a class="registrants-box_open no-wrap">See invitees</a>
                 {% elif is_registered %}
                   <h6 class="navy inline">Contact event coordinator</h6>
                 {% else %}
-                  {{ form.contact_message.label }}
+                  <h6 class="navy inline">{{ form.contact_message.label }}</h6>
                 {% endif %}
-
-              </h6>
               
               {% if form.contact_message.help_text %}
                 <p class="small-text grey no-margin-bottom">
@@ -94,7 +91,7 @@
     <div id="bottom-stripe" class="full-width"></div>
 
     <div id="registrants-box" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <h3 class="popup-title center">Registered volunteers</h3>
+      <h3 class="popup-title center">Invited volunteers</h3>
       <div class="row center">
         <div class="small-10 medium-6 small-centered columns">
           <ul class="left">
@@ -103,11 +100,17 @@
                 <li class="no-bullet">{{ name }}</li>
               {% endfor %}
             {% else %}
-              <li class="no-bullet">No volunteers have registered yet.</li>
+              <li class="no-bullet">No volunteers have registered or been invited yet.</li>
             {% endif %}
           </ul>
-          
-          <a href="{% url 'openCurrents:invite-volunteers' event.id %}" class="button round small">Invite volunteers</a>
+
+          <span id="email-list" class="hidden">
+            <!-- for email in list -->
+              {{email}}, 
+            <!-- endfor -->
+          </span>
+
+          <button id="copy-emails" data-text-swap="Copied!" data-clipboard-target="email-list" class="button round small">Copy email list</button>
           <a class="registrants-box_close button round small secondary">Close</a>
         </div>
       </div>
@@ -134,6 +137,8 @@
       </div>
     </div>
 
+    <script src="{% static "js/ZeroClipboard.min.js" %}" type="text/javascript"></script>
+    <script src="{% static "js/copy.js" %}" type="text/javascript"></script>
 
     <script type="text/javascript">
       $(document).ready(function(){
