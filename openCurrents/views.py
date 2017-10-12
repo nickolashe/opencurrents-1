@@ -925,6 +925,8 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(ProfileView, self).get_context_data(**kwargs)
+        userid = self.request.user.id
+
         if kwargs.has_key('app_hr') and kwargs['app_hr'] == '1':
             context['app_hr'] = 1
         else:
@@ -936,23 +938,49 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         except Org.DoesNotExist:
             pass
 
-        # calculate user balance in currents
-        userid = self.request.user.id
-        verified_times = UserTimeLog.objects.filter(
+        # verified currents balance
+        usertimelogs = UserTimeLog.objects.filter(
             user_id=userid
-        ).filter(
-            is_verified=True
         )
 
-        event_user = set()
+        event_user_verified = set()
+        currents_verified = 0
 
-        issued_total = 0
-        for timelog in verified_times:
-            if not timelog.event.id in event_user:
-                event_user.add(timelog.event.id)
-                issued_total += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
+        for timelog in usertimelogs:
+            if timelog.is_verified and not timelog.event.id in event_user_verified:
+                event_user_verified.add(timelog.event.id)
+                currents_verified += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
 
-        context['user_balance'] = round(issued_total, 2)
+        context['user_balance_verified'] = round(currents_verified, 2)
+
+        # pending currents balance
+        usertimelogs = UserTimeLog.objects.filter(
+            user_id=userid
+        ).filter(
+            is_verified=False
+        ).annotate(
+            last_action_created=Max('adminactionusertime__date_created')
+        )
+
+        # pending requests
+        active_requests = AdminActionUserTime.objects.filter(
+            date_created__in=[
+                utl.last_action_created for utl in usertimelogs
+            ]
+        ).filter(
+            action_type='req'
+        )
+
+        event_user_pending = set()
+        currents_pending = 0
+
+        for req in active_requests:
+            timelog = req.usertimelog
+            if not timelog.event.id in event_user_pending:
+                event_user_pending.add(timelog.event.id)
+                currents_pending += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
+
+        context['user_balance_pending'] = round(currents_pending, 2)
 
         # upcoming events user is registered for
         events_upcoming = [
@@ -1069,7 +1097,6 @@ class AdminProfileView(OrgAdminPermissionMixin, SessionContextView, TemplateView
 
         # determine whether there are any unverified timelogs for admin
         usertimelogs = UserTimeLog.objects.filter(
-
             event__in=events
         ).filter(
             is_verified=False
