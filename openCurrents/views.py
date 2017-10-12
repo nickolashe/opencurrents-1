@@ -35,7 +35,8 @@ from openCurrents.models import \
     AdminActionUserTime, \
     Item, \
     Offer, \
-    Transaction
+    Transaction, \
+    TransactionAction
 
 from openCurrents.forms import \
     UserSignupForm, \
@@ -50,7 +51,8 @@ from openCurrents.forms import \
     OrgNominationForm, \
     TimeTrackerForm, \
     OfferCreateForm, \
-    OfferEditForm
+    OfferEditForm, \
+    RedeemCurrentsForm
 
 
 from datetime import datetime, timedelta
@@ -630,8 +632,58 @@ class OurStoryView(TemplateView):
     template_name = 'our-story.html'
 
 
-class RedeemCurrentsView(TemplateView):
+class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
     template_name = 'redeem-currents.html'
+    form_class = RedeemCurrentsForm
+
+    def dispatch(self, request, *args, **kwargs):
+        offer_id = kwargs.get('offer_id')
+        self.offer = Offer.objects.get(id=offer_id)
+
+        return super(RedeemCurrentsView, self).dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+
+        transaction = Transaction(
+            user=self.request.user,
+            offer=self.offer,
+            pop_image=data['redeem_receipt'],
+            price_reported=data['redeem_price']
+        )
+        transaction.save()
+
+        action = TransactionAction(
+            transaction=transaction
+        )
+        action.save()        
+
+        logger.debug(
+            'Transaction %d for offer %d was requested by userid %d',
+            transaction.id,
+            self.offer.id,
+            self.request.user.id
+        )
+
+        return redirect(
+            'openCurrents:profile',
+            'We\'ve received your request for redeeming currents'
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super(RedeemCurrentsView, self).get_context_data(**kwargs)
+        context['offer'] = Offer.objects.get(id=self.kwargs['offer_id'])
+
+        return context
+
+    def get_form_kwargs(self):
+        """
+        Passes offer id down to the redeem form.
+        """
+        kwargs = super(RedeemCurrentsView, self).get_form_kwargs()
+        kwargs.update({'offer_id': self.kwargs['offer_id']})
+
+        return kwargs
 
 
 class RequestCurrentsView(TemplateView):
@@ -1505,6 +1557,14 @@ class EditEventView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
 class UpcomingEventsView(LoginRequiredMixin, SessionContextView, ListView):
     template_name = 'upcoming-events.html'
     context_object_name = 'events'
+
+    def get_context_data(self, **kwargs):
+        # skip context param determines whether we show skip button or not
+        context = super(UpcomingEventsView, self).get_context_data(**kwargs)
+        context['timezone'] = self.request.user.account.timezone
+
+        return context
+       
 
     def get_queryset(self):
         # show all public events plus private event for orgs the user is admin for

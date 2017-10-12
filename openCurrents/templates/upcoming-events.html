@@ -35,9 +35,9 @@
                         </a>
                       </strong>
                       with <strong> {{ event.project.org.name }}</strong>
-                      on {{ event.datetime_start|day }}
-                      {{ event.datetime_start|time }} -
-                      {{ event.datetime_end|time }}
+                      on {{ event.datetime_start|day:timezone }}
+                      {{ event.datetime_start|time:timezone }} -
+                      {{ event.datetime_end|time:timezone }}
                       at {{ event.location }}.
                     </div>
 
