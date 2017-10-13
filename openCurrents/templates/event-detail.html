@@ -105,9 +105,7 @@
           </ul>
 
           <span id="email-list" class="hidden">
-            <!-- for email in list -->
-              {{email}}, 
-            <!-- endfor -->
+              {{ registrants|join:', ' }} 
           </span>
 
           <button id="copy-emails" data-text-swap="Copied!" data-clipboard-target="email-list" class="button round small">Copy email list</button>

@@ -1772,27 +1772,36 @@ class EventDetailView(LoginRequiredMixin, SessionContextView, DetailView):
         is_org_admin=orguser.is_org_admin(context['event'].project.org.id)
 
         # check if event coordinator
-        is_coord = Event.objects.filter(id=context['event'].id,coordinator_email=self.request.user.email).exists()
+        is_coord = Event.objects.filter(
+            id=context['event'].id,
+            coordinator_email=self.request.user.email
+        ).exists()
 
         context['is_registered'] = is_registered
         context['admin'] = is_org_admin
         context['coordinator'] = is_coord
  
         # list of confirmed registered users 
-        context['registrants'] = ''
+        context['registrants'] = []
         if is_coord or is_org_admin:
             reg_list = []
             reg_list_names = []
-            reg_objects = UserEventRegistration.objects.filter(event__id=context['event'].id, is_confirmed=True)
+            reg_objects = UserEventRegistration.objects.filter(
+                event__id=context['event'].id,
+                is_confirmed=True
+            )
             
             for reg in reg_objects: 
-                reg_list.append(str(reg.user.email))
+                reg_list.append(reg.user.email)
                  
             context['registrants'] = reg_list
 
             for email in reg_list:
-                reg_list_names.append( str(User.objects.get(email=email).first_name + " " + User.objects.get(email=email).last_name))
- 
+                reg_user = User.objects.get(email=email)
+                reg_list_names.append(
+                    ' '.join([reg_user.first_name, reg_user.last_name])
+                )
+
             context['registrants_names'] = reg_list_names
 
         return context
