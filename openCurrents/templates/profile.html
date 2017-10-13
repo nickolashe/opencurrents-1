@@ -48,6 +48,14 @@
             <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/><h6 class="inline-block">
               {{ user_balance_verified }}
             </h6>
+            <br>
+            <h6 class="inline">Pending Currents: </h6>
+
+            <!-- img and h6 need to be on same line to prevent space between -->
+            <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/><h6 class="inline-block">
+              {{ user_balance_pending }}
+            </h6>
+
             <div class="no-margin-top">
               <a href="{% url 'openCurrents:marketplace' %}" class="button round secondary tiny">
                 Redeem<!--  <img src="{% static 'img/symbol-blue.svg' %}"/> -->
@@ -68,7 +76,12 @@
             <div class="half-margin-top">
               <h6 class="inline">My Currents: </h6>
               <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
-              <h6 class="inline-block"> {{ user_balance }} </h6>
+              <h6 class="inline-block"> {{ user_balance_verified }} </h6>
+
+              <h6 class="inline">Pending Currents: </h6>
+              <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
+              <h6 class="inline-block"> {{ user_balance_pending }} </h6>
+
               <div class="half-margin-top row">
                 <a class="earn-currents-popup_open button round tiny">Create</a>
                 <a href="{% url 'openCurrents:marketplace' %}" class="button round secondary tiny">Redeem</a>
@@ -77,16 +90,16 @@
           </div>
         </div>
 
-        <div class="row full-width collapse left">
+<!--         <div class="row full-width collapse left">
           <div class="small-11 medium-10 large-8 small-centered columns">
             <h6 class="inline-block">Pending Currents: </h6>
 
-            <!-- img and h6 need to be on same line to prevent space between -->
+            img and h6 need to be on same line to prevent space between
             <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/><h6 class="inline-block">
               {{ user_balance_pending }}
             </h6>
           </div>
-        </div>
+        </div> -->
         
         <div class="row full-width collapse left one-margin-top">
           <div class="small-11 medium-10 large-8 small-centered columns">

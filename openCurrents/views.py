@@ -951,7 +951,7 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
                 event_user_verified.add(timelog.event.id)
                 currents_verified += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
 
-        context['user_balance_verified'] = round(currents_verified, 2)
+        context['user_balance_verified'] = format(round(currents_verified, 2), '.2f')
 
         # pending currents balance
         usertimelogs = UserTimeLog.objects.filter(
@@ -980,7 +980,7 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
                 event_user_pending.add(timelog.event.id)
                 currents_pending += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
 
-        context['user_balance_pending'] = round(currents_pending, 2)
+        context['user_balance_pending'] = format(round(currents_pending, 2), '.2f')
 
         # upcoming events user is registered for
         events_upcoming = [
