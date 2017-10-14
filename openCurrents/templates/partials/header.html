@@ -3,7 +3,7 @@
 <header id="header" class="full-width row collapse js-close-any" canvas>
   <div class="small-7 medium-6 small-offset-1 columns">
     {% if is_admin %}
-    <a href="{% url 'openCurrents:admin-profile' %}">
+    <a href="{% url 'openCurrents:org-admin' %}">
     {% elif request.user.is_authenticated %}
     <a href="{% url 'openCurrents:profile' %}">
     {% else %}
