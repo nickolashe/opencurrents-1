@@ -16,7 +16,9 @@ from django.template.context_processors import csrf
 from datetime import datetime, time, date
 from collections import OrderedDict
 from copy import deepcopy
+
 from orgs import OrgUserInfo
+from ocuser import OcUser
 
 
 import math
@@ -939,17 +941,6 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
             pass
 
         # verified currents balance
-        usertimelogs = UserTimeLog.objects.filter(
-            user_id=userid
-        )
-
-        event_user_verified = set()
-        currents_verified = 0
-
-        for timelog in usertimelogs:
-            if timelog.is_verified and not timelog.event.id in event_user_verified:
-                event_user_verified.add(timelog.event.id)
-                currents_verified += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
 
         context['user_balance_verified'] = format(round(currents_verified, 2), '.2f')
 
