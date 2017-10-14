@@ -925,6 +925,8 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(ProfileView, self).get_context_data(**kwargs)
+        userid = self.request.user.id
+
         if kwargs.has_key('app_hr') and kwargs['app_hr'] == '1':
             context['app_hr'] = 1
         else:
@@ -936,23 +938,49 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         except Org.DoesNotExist:
             pass
 
-        # calculate user balance in currents
-        userid = self.request.user.id
-        verified_times = UserTimeLog.objects.filter(
+        # verified currents balance
+        usertimelogs = UserTimeLog.objects.filter(
             user_id=userid
-        ).filter(
-            is_verified=True
         )
 
-        event_user = set()
+        event_user_verified = set()
+        currents_verified = 0
 
-        issued_total = 0
-        for timelog in verified_times:
-            if not timelog.event.id in event_user:
-                event_user.add(timelog.event.id)
-                issued_total += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
+        for timelog in usertimelogs:
+            if timelog.is_verified and not timelog.event.id in event_user_verified:
+                event_user_verified.add(timelog.event.id)
+                currents_verified += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
 
-        context['user_balance'] = round(issued_total, 2)
+        context['user_balance_verified'] = format(round(currents_verified, 2), '.2f')
+
+        # pending currents balance
+        usertimelogs = UserTimeLog.objects.filter(
+            user_id=userid
+        ).filter(
+            is_verified=False
+        ).annotate(
+            last_action_created=Max('adminactionusertime__date_created')
+        )
+
+        # pending requests
+        active_requests = AdminActionUserTime.objects.filter(
+            date_created__in=[
+                utl.last_action_created for utl in usertimelogs
+            ]
+        ).filter(
+            action_type='req'
+        )
+
+        event_user_pending = set()
+        currents_pending = 0
+
+        for req in active_requests:
+            timelog = req.usertimelog
+            if not timelog.event.id in event_user_pending:
+                event_user_pending.add(timelog.event.id)
+                currents_pending += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
+
+        context['user_balance_pending'] = format(round(currents_pending, 2), '.2f')
 
         # upcoming events user is registered for
         events_upcoming = [
@@ -1069,7 +1097,6 @@ class AdminProfileView(OrgAdminPermissionMixin, SessionContextView, TemplateView
 
         # determine whether there are any unverified timelogs for admin
         usertimelogs = UserTimeLog.objects.filter(
-
             event__in=events
         ).filter(
             is_verified=False
@@ -1745,27 +1772,36 @@ class EventDetailView(LoginRequiredMixin, SessionContextView, DetailView):
         is_org_admin=orguser.is_org_admin(context['event'].project.org.id)
 
         # check if event coordinator
-        is_coord = Event.objects.filter(id=context['event'].id,coordinator_email=self.request.user.email).exists()
+        is_coord = Event.objects.filter(
+            id=context['event'].id,
+            coordinator_email=self.request.user.email
+        ).exists()
 
         context['is_registered'] = is_registered
         context['admin'] = is_org_admin
         context['coordinator'] = is_coord
  
         # list of confirmed registered users 
-        context['registrants'] = ''
+        context['registrants'] = []
         if is_coord or is_org_admin:
             reg_list = []
             reg_list_names = []
-            reg_objects = UserEventRegistration.objects.filter(event__id=context['event'].id, is_confirmed=True)
+            reg_objects = UserEventRegistration.objects.filter(
+                event__id=context['event'].id,
+                is_confirmed=True
+            )
             
             for reg in reg_objects: 
-                reg_list.append(str(reg.user.email))
+                reg_list.append(reg.user.email)
                  
             context['registrants'] = reg_list
 
             for email in reg_list:
-                reg_list_names.append( str(User.objects.get(email=email).first_name + " " + User.objects.get(email=email).last_name))
- 
+                reg_user = User.objects.get(email=email)
+                reg_list_names.append(
+                    ' '.join([reg_user.first_name, reg_user.last_name])
+                )
+
             context['registrants_names'] = reg_list_names
 
         return context
