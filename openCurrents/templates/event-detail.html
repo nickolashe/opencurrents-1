@@ -157,6 +157,13 @@
           }
         });
 
+        $('#copy-emails').click(function(){
+          $(this).text('Copied!');
+          setTimeout(function(){
+            $('#copy-emails').text('Copy email list');
+          }, 2000);
+        });
+
       });
     </script>
 
