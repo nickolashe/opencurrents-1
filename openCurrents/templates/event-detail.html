@@ -108,7 +108,7 @@
             {{ registrants|join:', ' }}
           </textarea>
 
-          <button id="copy-emails" class="button round small">Copy email list</button>
+          <button id="copy-emails" data-tooltip data-disable-hover="true" class="button round small">Copy email list</button>
           <a class="registrants-box_close button round small secondary">Close</a>
         </div>
       </div>
@@ -155,6 +155,13 @@
           text: function (trigger) {
             return $('#email-list').val();
           }
+        });
+
+        $('#copy-emails').click(function(){
+          $(this).text('Copied!');
+          setTimeout(function(){
+            $('#copy-emails').text('Copy email list');
+          }, 2000);
         });
 
       });
