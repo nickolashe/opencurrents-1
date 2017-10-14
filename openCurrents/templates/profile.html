@@ -45,20 +45,22 @@
             <h6 class="inline">My Currents: </h6>
 
             <!-- img and h6 need to be on same line to prevent space between -->
-            <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/><h6 class="inline-block">
+            <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/><h6 class="inline-block no-margin-bottom">
               {{ user_balance_verified }}
             </h6>
-            <br>
-            <h6 class="inline">Pending Currents: </h6>
+            
+            <div class="no-margin">
+              <h6 class="inline">Pending Currents: </h6>
 
-            <!-- img and h6 need to be on same line to prevent space between -->
-            <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/><h6 class="inline-block">
-              {{ user_balance_pending }}
-            </h6>
+              <!-- img and h6 need to be on same line to prevent space between -->
+              <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/><h6 class="inline-block no-margin-top">
+                {{ user_balance_pending }}
+              </h6>
+            </div>
 
             <div class="no-margin-top">
               <a href="{% url 'openCurrents:marketplace' %}" class="button round secondary tiny">
-                Redeem<!--  <img src="{% static 'img/symbol-blue.svg' %}"/> -->
+                Redeem
               </a>
             </div>
           </div>
