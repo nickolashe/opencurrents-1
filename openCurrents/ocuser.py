@@ -15,14 +15,14 @@ class OcUser(object):
         self.userid = userid
 
     def get_events_registered(self, *argv):
-    	user_event_regs = UserEventRegistration.objects.filter(
+        user_event_regs = UserEventRegistration.objects.filter(
             user__id=self.userid
         )
 
-    	datetime_from = datetime.now(tz=pytz.utc)
-    	if argv:
-    		assert(isinstance(argv[0], datetime))
-    		datetime_from = argv[0]
+        datetime_from = datetime.now(tz=pytz.utc)
+        if argv:
+            assert(isinstance(argv[0], datetime))
+            datetime_from = argv[0]
 
         user_event_regs = user_event_regs.filter(
             event__datetime_start__gte=datetime_from
@@ -60,23 +60,23 @@ class OcUser(object):
         )
 
         balance = self._get_unique_hour_total(
-        	active_requests,
-        	from_admin_actions=True
+            active_requests,
+            from_admin_actions=True
         )
         return balance
 
     def _get_unique_hour_total(self, records, from_admin_actions=False):
         event_user = set()
-       	balance = 0
+        balance = 0
 
         for rec in records:
-        	if from_admin_actions:
-        		timelog = rec.usertimelog
-        	else:
-        		timelog = rec
+            if from_admin_actions:
+                timelog = rec.usertimelog
+            else:
+                timelog = rec
 
-			if not timelog.event.id in event_user:
-				event_user.add(timelog.event.id)
-				balance += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
+            if not timelog.event.id in event_user:
+                event_user.add(timelog.event.id)
+                balance += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
 
         return balance
