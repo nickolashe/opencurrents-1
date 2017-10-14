@@ -104,11 +104,11 @@
             {% endif %}
           </ul>
 
-          <span id="email-list" class="hidden">
-              {{ registrants|join:', ' }} 
-          </span>
+          <textarea id="email-list" class="hidden">
+            {{ registrants|join:', ' }}
+          </textarea>
 
-          <button id="copy-emails" data-text-swap="Copied!" data-clipboard-target="email-list" class="button round small">Copy email list</button>
+          <button id="copy-emails" class="button round small">Copy email list</button>
           <a class="registrants-box_close button round small secondary">Close</a>
         </div>
       </div>
@@ -151,7 +151,11 @@
           scrolllock: false,
         });
 
-        new Clipboard('#copy-emails');
+        new Clipboard('#copy-emails', {
+          text: function (trigger) {
+            return $('#email-list').val();
+          }
+        });
 
       });
     </script>
