@@ -2465,6 +2465,10 @@ def process_OrgNomination(request):
                     'content': request.user.last_name
                 },
                 {
+                    'name': 'EMAIL',
+                    'content': request.user.email
+                },
+                {
                     'name': 'COORD_NAME',
                     'content': contact_name
                 },
