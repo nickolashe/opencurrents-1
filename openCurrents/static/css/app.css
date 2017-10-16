@@ -66,14 +66,14 @@ h1, h2, h3, h4, h5, h6 {
 .h5-symbol {
   vertical-align: -3px;
   margin-left: 0.375rem;
-  margin-right: 0.125rem;
+  margin-right: 0.1875rem;
   height: 1.25rem;
 }
 
 .h6-symbol {
   vertical-align: top;
   margin-top: 0.1875rem;
-  margin-right: 0.125rem;
+  margin-right: 0.1875rem;
   height: 1.25rem;
 }
 
@@ -484,6 +484,10 @@ label {
 }
 
 /* Scandalous classes */
+
+.no-margin {
+  margin: 0;
+}
 
 .no-margin-bottom {
   margin-bottom: 0;
@@ -1196,7 +1200,6 @@ a.list-group-item {
   margin-bottom: 0px;
   height: 2rem;
 }*/
-
 
 /* community */
 

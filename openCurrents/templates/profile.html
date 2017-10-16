@@ -35,8 +35,8 @@
             <div class="row">
               <div class="small-12 medium-6 columns">
                 <h6 class="inline-block qtr-margin-bottom">Currents available: </h6>
-                <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/><h6 class="inline-block no-margin-bottom">{{ user_balance }}</h6>
-                <p class="grey half-margin-bottom">Pending: <img class="med-text-symbol" src="{% static 'img/symbol.svg' %}"/>10</p>
+                <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/><h6 class="inline-block no-margin-bottom">{{ user_balance_verified }}</h6>
+                <p class="grey half-margin-bottom">Pending: <img class="med-text-symbol" src="{% static 'img/symbol.svg' %}"/>{{ user_balance_pending }}</p>
                 <p class="no-margin-bottom">
                   <a href="{% url 'openCurrents:marketplace' %}" class="button round secondary tiny">
                     Redeem
@@ -45,14 +45,13 @@
               </div>
 
               <div class="small-12 medium-6 columns">
-                <h6 class="qtr-margin-bottom">Dollars available: $20</h6>
-                <p class="grey half-margin-bottom">Pending: $10</p>
+                <h6 class="qtr-margin-bottom">Dollars available: $(20)</h6>
+                <p class="grey half-margin-bottom">Pending: $(10)</p>
                 
                 <!-- if available_dollars this button should have class cash-out-popup_open else no-cash-popup_open -->
                 <a class="cash-out-popup_open button round secondary tiny">
                   Cash out
                 </a>
-                
               </div>
             </div>
           </div>
@@ -60,7 +59,7 @@
 
         <div class="row collapse one-margin-top left">
           <div class="small-11 medium-10 small-centered columns">
-            <h6 class="half-margin-bottom">My upcoming events</h6>
+            <h6 class="half-margin-bottom">My volunteer events</h6>
             {% if events_upcoming %}
               {% for event in events_upcoming %}
                 {% if event.project.name != "ManualTracking" %}
@@ -109,7 +108,7 @@
 
             <!-- % if redeemed_offers % -->
               <!-- % for offer in redeemed_offers % -->
-                <div class="row one-margin-bottom">
+                <!-- <div class="row one-margin-bottom">
                   <div class="left small-9 columns">
                     <strong>Fast Folks Bike Shop</strong> accepts Currents for 50% of flat tire fixes
                   </div>
@@ -117,7 +116,7 @@
                   <div class="right relative small-3 columns">
                     <p>Accepted</p>
                   </div>
-                </div>
+                </div> -->
               <!-- % endfor % -->
             <!-- % else % -->
               <p>You have not yet redeemed any offers. Check out the 
