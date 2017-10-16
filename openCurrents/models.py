@@ -368,9 +368,10 @@ class TransactionAction(models.Model):
     action_type = models.CharField(
         max_length=7,
         choices=[
-            ('req', 'requested'),
+            ('req', 'pending'),
             ('app', 'approved'),
-            ('red', 'redeemed')
+            ('red', 'redeemed'),
+            ('dec', 'declined')
         ],
         default='req'
     )

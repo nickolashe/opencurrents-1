@@ -19,9 +19,11 @@
         </div>
         {% endif %}
 
+
         <div class="row">
           <div class="small-12 small-centered columns">
             <h5 class="two-margin-top no-margin-bottom">{{ user.first_name }} {{ user.last_name }}</h5>
+
 
             {% if is_admin %}
               <h6 class="inline half-margin-right">{{orgname}}</h6>
@@ -59,7 +61,7 @@
 
         <div class="row collapse three-halves-margin-top left">
           <div class="small-11 medium-10 small-centered columns">
-            <h6 class="half-margin-bottom">My volunteer events</h6>
+            <h6 class="half-margin-bottom">My upcoming events</h6>
             {% if events_upcoming %}
               {% for event in events_upcoming %}
                 {% if event.project.name != "ManualTracking" %}
@@ -100,31 +102,37 @@
               </div>
 
               <div class="right small-4 columns">
-                <!-- % if redeemed_offers % -->
+                <!-- % if offers_redeemed % -->
                 <h6 class="half-margin-bottom">Status</h6>
                 <!-- % endif % -->
               </div>
             </div>
 
-            <!-- % if redeemed_offers % -->
-              <!-- % for offer in redeemed_offers % -->
-                <div class="row one-margin-bottom">
-                  <div class="left small-9 columns">
-                    <strong>Fast Folks Bike Shop</strong> accepts Currents for 50% of flat tire fixes
-                  </div>
+            {% if offers_redeemed %}
+              {% for offer_redeemed in offers_redeemed %}
+                {% with offer=offer_redeemed.transaction.offer %}
+                  <div class="row one-margin-bottom">
+                    <div class="left small-9 columns">
+                      <strong>
+                        {{ offer.org.name }}
+                      </strong>
+                      accepts Currents for {{ offer.currents_share }} of flat tire fixes
+                    </div>
 
-                  <div class="right relative small-3 columns">
-                    <p>Accepted</p>
+                    <div class="right relative small-3 columns">
+                      <p> {{ offer_redeemed.get_action_type_display }} </p>
+                    </div>
                   </div>
-                </div>
-              <!-- % endfor % -->
-            <!-- % else % -->
+                {% endwith %}
+              {% endfor %}
+            {% else %}
               <p>You have not yet redeemed any offers. Check out the 
                 <a href="{% url 'openCurrents:marketplace' %}">
                   marketplace!
                 </a>
               </p>
-            <!-- % endif % -->
+            {% endif %}
+
           </div>
         </div>
 

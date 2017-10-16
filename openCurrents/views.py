@@ -16,7 +16,9 @@ from django.template.context_processors import csrf
 from datetime import datetime, time, date
 from collections import OrderedDict
 from copy import deepcopy
+
 from orgs import OrgUserInfo
+from ocuser import OcUser
 
 
 import math
@@ -97,7 +99,12 @@ class DatetimeEncoder(json.JSONEncoder):
 
 class SessionContextView(View):
     def dispatch(self, request, *args, **kwargs):
-        # get user org
+        self.userid = request.user.id
+
+        # oc user
+        self.ocuser = OcUser(self.userid)
+
+        # user org
         orguserinfo = OrgUserInfo(request.user.id)
         self.org = orguserinfo.get_org()
 
@@ -229,6 +236,21 @@ class BizAdminView(LoginRequiredMixin, SessionContextView, TemplateView):
             org__id=self.org.id
         )
         context['offers'] = offers
+
+        # list biz's redeemed offers
+        transactions = Transaction.objects.filter(
+            offer__org__id=self.org.id
+        ).annotate(
+            last_action_created=Max('transactionaction__date_created')
+        )
+
+        # transaction status
+        org_offers_redeemed = TransactionAction.objects.filter(
+            date_created__in=[
+                tr.last_action_created for tr in transactions
+            ]
+        )
+        context['org_offers_redeemed'] = org_offers_redeemed
 
         return context
 
@@ -1030,71 +1052,27 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         context = super(ProfileView, self).get_context_data(**kwargs)
         userid = self.request.user.id
 
-        if kwargs.has_key('app_hr') and kwargs['app_hr'] == '1':
+        if kwargs.get('app_hr') == '1':
             context['app_hr'] = 1
         else:
             context['app_hr'] = 0
 
-        try:
-            org_name = Org.objects.get(id=context['orgid']).name
-            context['orgname'] = org_name
-        except Org.DoesNotExist:
-            pass
-
         # verified currents balance
-        usertimelogs = UserTimeLog.objects.filter(
-            user_id=userid
-        )
-
-        event_user_verified = set()
-        currents_verified = 0
-
-        for timelog in usertimelogs:
-            if timelog.is_verified and not timelog.event.id in event_user_verified:
-                event_user_verified.add(timelog.event.id)
-                currents_verified += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
-
-        context['user_balance_verified'] = format(round(currents_verified, 2), '.2f')
+        balance_verified = self.ocuser.get_balance_available()
+        context['user_balance_verified'] = format(round(balance_verified, 2), '.2f')
 
         # pending currents balance
-        usertimelogs = UserTimeLog.objects.filter(
-            user_id=userid
-        ).filter(
-            is_verified=False
-        ).annotate(
-            last_action_created=Max('adminactionusertime__date_created')
-        )
-
-        # pending requests
-        active_requests = AdminActionUserTime.objects.filter(
-            date_created__in=[
-                utl.last_action_created for utl in usertimelogs
-            ]
-        ).filter(
-            action_type='req'
-        )
-
-        event_user_pending = set()
-        currents_pending = 0
-
-        for req in active_requests:
-            timelog = req.usertimelog
-            if not timelog.event.id in event_user_pending:
-                event_user_pending.add(timelog.event.id)
-                currents_pending += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
-
-        context['user_balance_pending'] = format(round(currents_pending, 2), '.2f')
+        balance_pending = self.ocuser.get_balance_pending()
+        context['user_balance_pending'] = format(round(balance_pending, 2), '.2f')
 
         # upcoming events user is registered for
-        events_upcoming = [
-            userreg.event
-            for userreg in UserEventRegistration.objects.filter(
-                user__id=userid
-            ).filter(
-                event__datetime_start__gte=datetime.now(tz=pytz.utc)
-            )
-        ]
+        events_upcoming = self.ocuser.get_events_registered()
         context['events_upcoming'] = events_upcoming
+
+        offers_redeemed = self.ocuser.get_offers_redeemed()
+        context['offers_redeemed'] = offers_redeemed
+
+        # user timezone
         context['timezone'] = self.request.user.account.timezone
 
         return context

@@ -115,27 +115,49 @@
           </div>
         </div>
 
-        <!-- % if offers_redeemed -->
-        <div class="left row one-margin-top full-width collapse">
-          <div class="small-11 medium-10 small-centered columns">
-            <h6 class="half-margin-bottom">Redeemed offers</h6>
-            <!-- % for offer in offers_redeemed % -->
-            <div class="row half-margin-top">
-              <div class="left small-9 columns">
-                <p>Danny Pernik purchased <strong>flat fix for $15</strong> and will receive $7.50 for <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/> 0.75</span></p>
-              </div>
+        {% if org_offers_redeemed %}
+          <div class="left row one-margin-top full-width collapse">
+            <div class="small-11 medium-10 small-centered columns">
+              <h6 class="half-margin-bottom">Redeemed offers</h6>
 
-              <div class="right relative small-3 columns">
-                <a class="mini-open"><i class="blue half-margin-right fa-chevron-circle-down fa fa-lg"></i></a>
-                <ul class="mini-menu">
-                  <a class="view-receipt-popup_open"><li>View receipt</li></a>
-                </ul>
-              </div>
+              {% for org_offer_redeemed in org_offers_redeemed %}
+                {% with tr=org_offer_redeemed.transaction %}
+
+                  <div class="row half-margin-top">
+                    <div class="left small-9 columns">
+                      <p>
+                        {{ tr.user.first_name }}
+                        {{ tr.user.last_name }}
+                        purchased
+                        <strong>
+                          {{ tr.offer.item.name }} for
+                          {{ tr.price_reported }}
+                        </strong>
+                        and will receive
+                        {% with disc=tr.price_reported|percent_price:tr.offer.currents_share %}
+                          {{ disc|percent_price:0.01 }}
+                          for
+                          <span class="no-wrap">
+                            <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ disc|percent_price:0.001 }}
+                          </span>
+                        {% endwith %}
+                      </p>
+                    </div>
+
+                    <div class="right relative small-3 columns">
+                      <a class="mini-open"><i class="blue half-margin-right fa-chevron-circle-down fa fa-lg"></i></a>
+                      <ul class="mini-menu">
+                        <a class="view-receipt-popup_open"><li>View receipt</li></a>
+                      </ul>
+                    </div>
+                  </div>
+
+                {% endwith %}
+              {% endfor %}
+
             </div>
-            <!-- % endfor -->
           </div>
-        </div>
-        <!-- % endif % -->
+        {% endif %}
 
         <!-- community feed code. Hardcoded not dynamic -->
         <!-- <div class="row one-margin-top">
