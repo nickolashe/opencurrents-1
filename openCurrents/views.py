@@ -237,6 +237,21 @@ class BizAdminView(LoginRequiredMixin, SessionContextView, TemplateView):
         )
         context['offers'] = offers
 
+        # list biz's redeemed offers
+        transactions = Transaction.objects.filter(
+            offer__org__id=self.org.id
+        ).annotate(
+            last_action_created=Max('transactionaction__date_created')
+        )
+
+        # transaction status
+        org_offers_redeemed = TransactionAction.objects.filter(
+            date_created__in=[
+                tr.last_action_created for tr in transactions
+            ]
+        )
+        context['org_offers_redeemed'] = org_offers_redeemed
+
         return context
 
 
