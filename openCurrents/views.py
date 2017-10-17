@@ -19,7 +19,7 @@ from copy import deepcopy
 
 from orgs import OrgUserInfo
 from ocuser import OcUser
-
+from bizadmin import BizAdmin
 
 import math
 import re
@@ -138,6 +138,16 @@ class SessionContextView(View):
         return context
 
 
+class BizSessionContextView(SessionContextView):
+    def dispatch(self, request, *args, **kwargs):
+        # biz admin user
+        self.bizadmin = BizAdmin(request.user.id)
+
+        return super(BizSessionContextView, self).dispatch(
+            request, *args, **kwargs
+        )
+
+
 class OrgAdminPermissionMixin(LoginRequiredMixin):
     def dispatch(self, request, *args, **kwargs):
         user = request.user
@@ -146,7 +156,8 @@ class OrgAdminPermissionMixin(LoginRequiredMixin):
         if not user.is_authenticated():
             return self.handle_no_permission()
 
-        # try to obtain user => org mapping
+        # try to obtain user => org mapping from url first
+        # otherwise, default to user's org
         org_id = None
         try:
             org_id = kwargs['org_id']
@@ -226,30 +237,18 @@ class AssignAdminsView(TemplateView):
     template_name = 'assign-admins.html'
 
 
-class BizAdminView(LoginRequiredMixin, SessionContextView, TemplateView):
+class BizAdminView(LoginRequiredMixin, BizSessionContextView, TemplateView):
     template_name = 'biz-admin.html'
 
     def get_context_data(self, **kwargs):
         context = super(BizAdminView, self).get_context_data(**kwargs)
 
-        offers = Offer.objects.filter(
-            org__id=self.org.id
-        )
+        # offers created by business
+        offers = self.bizadmin.get_offers_all()
         context['offers'] = offers
 
         # list biz's redeemed offers
-        transactions = Transaction.objects.filter(
-            offer__org__id=self.org.id
-        ).annotate(
-            last_action_created=Max('transactionaction__date_created')
-        )
-
-        # transaction status
-        org_offers_redeemed = TransactionAction.objects.filter(
-            date_created__in=[
-                tr.last_action_created for tr in transactions
-            ]
-        )
+        org_offers_redeemed = self.bizadmin.get_redemptions()
         context['org_offers_redeemed'] = org_offers_redeemed
 
         return context
@@ -689,7 +688,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
 
         return redirect(
             'openCurrents:profile',
-            'We\'ve received your request for redeeming currents'
+            'We\'ve received your request for redeeming %s\'s offer' % self.offer.org.name
         )
 
     def get_context_data(self, **kwargs):

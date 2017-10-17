@@ -27,9 +27,17 @@ def diffInHours(t1, t2):
 class Org(models.Model):
     name = models.CharField(max_length=100, unique=True)
     website = models.CharField(max_length=100, null=True, blank=True)
-    status = models.CharField(max_length=50, null=True)
-    mission = models.CharField(max_length=4096, null=True)
-    reason = models.CharField(max_length=4096, null=True)
+
+    org_types = (
+        ('biz', 'business'),
+        ('npf', 'non-profit')
+    )  
+    status = models.CharField(
+        max_length=3,
+        choices=org_types,
+        default='npf'
+    )
+
     users = models.ManyToManyField(User, through='OrgUser')
     timezone = models.CharField(max_length=128, default='America/Chicago')
 
@@ -351,9 +359,9 @@ class Transaction(models.Model):
 
     def __unicode__(self):
         return ' '.join([
-            'Transaction created by user',
+            'Transaction initiated by user',
             self.user.username,           
-            'for offer %d',
+            'for offer',
             str(self.offer.id),
             'at',
             self.date_updated.strftime('%m/%d/%Y %H:%M:%S'),
