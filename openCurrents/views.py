@@ -672,6 +672,10 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
             pop_image=data['redeem_receipt'],
             price_reported=data['redeem_price']
         )
+
+        if not data['redeem_receipt_if_checked']:
+            transaction.pop_type = 'oth'
+
         transaction.save()
 
         action = TransactionAction(
