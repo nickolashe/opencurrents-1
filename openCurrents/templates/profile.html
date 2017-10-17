@@ -59,8 +59,7 @@
           </div>
         </div>
 
-
-        <div class="row full-width collapse left">
+        <div class="row collapse three-halves-margin-top left">
           <div class="small-11 medium-10 small-centered columns">
             <h6 class="half-margin-bottom">My upcoming events</h6>
             {% if events_upcoming %}
@@ -110,7 +109,6 @@
             </div>
 
             {% if offers_redeemed %}
-
               {% for offer_redeemed in offers_redeemed %}
                 {% with offer=offer_redeemed.transaction.offer %}
                   <div class="row one-margin-bottom">
@@ -127,7 +125,6 @@
                   </div>
                 {% endwith %}
               {% endfor %}
-
             {% else %}
               <p>You have not yet redeemed any offers. Check out the 
                 <a href="{% url 'openCurrents:marketplace' %}">
