@@ -22,6 +22,13 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
+class RadioWidget(forms.ChoiceField):
+    class Media:
+        css = {
+            'all': ('custom-radio.css',)
+        }
+
+
 class NotValidatedMultipleChoiceField(forms.TypedMultipleChoiceField):
     """Field that do not validate if the field values are in self.choices"""
 
