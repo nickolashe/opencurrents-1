@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load staticfiles %}
 
 {% block head %}
   <link href="{% static 'css/auto-complete.css' %}" rel="stylesheet" type="text/css">
@@ -9,15 +10,17 @@
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAGfdpv-Vg_rskfib8jzp-a6VI92QuC2I0&v=3.exp&types=address&libraries=places"></script>
 {% endblock head %}
 
-{% block content %}
+{% block heading %}
   <div class="row">
     <div class="small-12 columns">
       <h3 class="title">
         {% block title %} Create event {% endblock title %}
       </h3>
     </div>
-  </div>
+  </div>  
+{% endblock heading %}
 
+{% block content %}
   <form method="post">
     {% csrf_token %}
 
@@ -43,7 +46,9 @@
     <div class="row one-margin-bottom">
       <div class="small-12 medium-6 small-centered columns">
         {{ form.project_name.errors }}
-        <h6 class="fit-left navy half-margin-top">{{ form.project_name.label }}</h6>
+        <h6 class="fit-left navy half-margin-top">
+          {{ form.project_name.label }}
+        </h6>
         <span class="input-sizer"> {{ form.project_name }} </span>
         {% if form.project_name.help_text %}
           <p class="small">
@@ -56,7 +61,9 @@
     <div class="row one-margin-bottom">
       <div class="small-8 medium-4 small-centered columns">
         {{ form.date_start.errors }}
-        <h6 class="fit-left navy half-margin-top"> {{ form.date_start.label }} </h6>
+        <h6 class="fit-left navy half-margin-top">
+          {{ form.date_start.label }}
+        </h6>
         <span class="input-sizer"> {{ form.date_start }} </span>
         {% if form.date_start.help_text %}
           <p class="small">
@@ -71,7 +78,9 @@
         <div class="row">
           <div class="input-left small-6 columns">
             {{ form.time_start.errors }}
-            <h6 class="fit-left navy half-margin-top"> {{ form.time_start.label }} </h6>
+            <h6 class="fit-left navy half-margin-top">
+              {{ form.time_start.label }}
+            </h6>
             <span class="input-sizer"> {{ form.time_start }} </span>
             {% if form.time_start.help_text %}
               <p class="small">
@@ -82,7 +91,9 @@
 
           <div class="input-right small-6 columns">
             {{ form.time_end.errors }}
-            <h6 class="fit-left navy half-margin-top"> {{ form.time_end.label }} </h6>
+            <h6 class="fit-left navy half-margin-top">
+              {{ form.time_end.label }}
+            </h6>
             <span class="input-sizer"> {{ form.time_end }} </span>
             {% if form.time_end.help_text %}
               <p class="small">
@@ -114,7 +125,9 @@
         {{form.is_public.1.tag}}
         <label for="id_is_public_1" class="two-margin-left">Invite only</label>
 
-        <a class="privacy-info-popup_open"><i class="half-margin-left fa fa-lg fa-question-circle grey"></i></a>
+        <a class="privacy-info-popup_open">
+          <i class="half-margin-left fa fa-lg fa-question-circle grey"></i>
+        </a>
     </div>
 
     <div class="three-halves-margin-top row left">
@@ -274,26 +287,5 @@
       initAutoComplete();
 
     });
-
-    function getOppositePrivacyId(mine) {
-      return (mine === 'public_label') ? 'private_label' : 'public_label';
-    }
-
-    function flipButtonColors(me) {
-      var activeBackgroundColor = "#1f4975";
-      var inactiveBackgroundColor = "#ffffff";
-      var activeFontColor = "#ffffff";
-      var inactiveFontColor = "#24b2e7";
-
-      me.style.backgroundColor = activeBackgroundColor;
-      me.style.color = activeFontColor;
-      me.style.borderColor = activeFontColor;
-      var otherButtonLabel = `${getOppositePrivacyId(me.id)}`;
-      document.getElementById(otherButtonLabel).style.backgroundColor = inactiveBackgroundColor;
-      document.getElementById(otherButtonLabel).style.color = inactiveFontColor;
-      document.getElementById(otherButtonLabel).style.borderColor = inactiveFontColor;
-
-    }
-
   </script>
 {% endblock js %}

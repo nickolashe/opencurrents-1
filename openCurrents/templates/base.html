@@ -5,6 +5,8 @@
   <head>
 
     {% include "partials/head.html" %}
+    {% block head %}{% endblock head %}
+    
     <title>{% block title %} openCurrents {% endblock %}</title>
 
   </head>
@@ -21,6 +23,8 @@
             {{ status_msg }}
           </div>
         {% endif %}
+
+        {% block heading %}{% endblock heading %}
 
         {% block content %}{% endblock content %}
         

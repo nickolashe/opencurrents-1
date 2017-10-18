@@ -1,14 +1,16 @@
 {% extends "base.html" %}
 
-{% block content %}
+{% block heading %}
   <div class="row">
     <div class="small-12 columns">
       <h3 class="title">
         {% block title %} Title {% endblock title %}
       </h3>
     </div>
-  </div>
+  </div>  
+{% endblock heading %}
 
+{% block content %}
   <div class="row">
     <div class="medium-8 small-centered columns">
       
