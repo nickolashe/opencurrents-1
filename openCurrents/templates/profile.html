@@ -27,11 +27,14 @@
 
             {% if is_admin_org %}
               <h6 class="inline half-margin-right">{{orgname}}</h6>
-              <a href="{% url 'openCurrents:org-admin' %}"><i class="fa fa-lg fa-gear"></i></a>
+              <a href="{% url 'openCurrents:org-admin' %}">
+                <i class="fa fa-lg fa-gear"></i>
+              </a>
             {% elif is_admin_biz %}
               <h6 class="inline half-margin-right">{{orgname}}</h6>
-              <a href="{% url 'openCurrents:biz-admin' %}"><i class="fa fa-lg fa-gear"></i></a>
-            {% else %}
+              <a href="{% url 'openCurrents:biz-admin' %}">
+                <i class="fa fa-lg fa-gear"></i>
+              </a>
             {% endif %}
 
             <p class="half-margin-top half-margin-bottom">
