@@ -3,7 +3,7 @@ from django import forms
 class RadioWidget(forms.RadioSelect):
     class Media:
         css = {
-            'all': ('/css/custom-radio.css',)
+            'all': ('/static/css/custom-radio.css',)
         }
 
 	# def __init__(self, attrs=None):
