@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "layouts/base.html" %}
 {% load staticfiles %}
 
 {% block head %}
@@ -10,15 +10,7 @@
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAGfdpv-Vg_rskfib8jzp-a6VI92QuC2I0&v=3.exp&types=address&libraries=places"></script>
 {% endblock head %}
 
-{% block heading %}
-  <div class="row">
-    <div class="small-12 columns">
-      <h3 class="title">
-        {% block title %} Create event {% endblock title %}
-      </h3>
-    </div>
-  </div>  
-{% endblock heading %}
+{% block title %} Create event {% endblock title %}
 
 {% block content %}
   <form method="post">
