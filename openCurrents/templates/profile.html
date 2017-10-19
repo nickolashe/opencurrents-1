@@ -25,14 +25,16 @@
             <h5 class="two-margin-top no-margin-bottom">{{ user.first_name }} {{ user.last_name }}</h5>
 
 
-            {% if is_admin_org %}
+            {% if is_admin_org or is_admin_biz %}
               <h6 class="inline half-margin-right">{{orgname}}</h6>
+
+              {% if is_admin_org %}
               <a href="{% url 'openCurrents:org-admin' %}">
-                <i class="fa fa-lg fa-gear"></i>
-              </a>
-            {% elif is_admin_biz %}
-              <h6 class="inline half-margin-right">{{orgname}}</h6>
-              <a href="{% url 'openCurrents:biz-admin' %}">
+
+              {% else %}
+                <a href="{% url 'openCurrents:biz-admin' %}">
+              {% endif %}
+              
                 <i class="fa fa-lg fa-gear"></i>
               </a>
             {% endif %}
