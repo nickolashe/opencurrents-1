@@ -1,5 +1,4 @@
-{% extends "layouts/admin
-.html" %}
+{% extends "layouts/admin.html" %}
 
 {% load staticfiles %}
 {% load tags %}
@@ -11,7 +10,7 @@
       <h6 class="half-margin-bottom">Our offers</h6>
 
       {% if offers %}
-
+      
         {% for offer in offers %}
           <div class="row half-margin-top">
             <div class="left small-9 columns">
