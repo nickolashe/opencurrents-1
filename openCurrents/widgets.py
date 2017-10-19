@@ -6,7 +6,21 @@ class RadioWidget(forms.RadioSelect):
             'all': ('/css/custom-radio.css',)
         }
 
+	# def __init__(self, attrs=None):
+	# 	print 'calling init'
+	#  	super(RadioWidget, self).__init__(
+	#  		attrs.update({'class': 'custom-radio'})
+	#  	)
+
     def get_context(self, name, value, attrs):
         context = super(RadioWidget, self).get_context(name, value, attrs)
         context['widget']['attrs']['class'] = 'custom-radio'
+
+        # context = {
+        # 	'widget': {
+        # 		'attrs': {
+        # 			'class': 'custom-radio'
+        # 		}
+        # 	}
+        # }
         return context
