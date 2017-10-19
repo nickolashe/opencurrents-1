@@ -1,7 +1,9 @@
+from django import forms
+
 class RadioWidget(forms.RadioSelect):
     class Media:
         css = {
-            'all': ('custom-radio.css',)
+            'all': ('/css/custom-radio.css',)
         }
 
     def get_context(self, name, value, attrs):

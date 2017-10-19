@@ -16,6 +16,7 @@ import logging
 import re
 import pytz
 import string
+import widgets
 
 
 logger = logging.getLogger(__name__)
@@ -229,7 +230,7 @@ class ProjectCreateForm(forms.Form):
     CHOICES = [(True, 'event-privacy-1'), (False, 'event-privacy-2')]
     
     is_public = forms.ChoiceField(
-        widget=RadioWidget,
+        widget=widgets.RadioWidget,
         choices=CHOICES, 
         initial='True'
     )
@@ -245,7 +246,8 @@ class ProjectCreateForm(forms.Form):
         label='on',
         widget=forms.TextInput(attrs={
             'id': 'date_start',
-            'class': 'center'
+            'class': 'center',
+            'placeholder': 'yyyy-mm-dd'
         })
     )
 
