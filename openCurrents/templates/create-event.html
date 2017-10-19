@@ -1,339 +1,291 @@
+{% extends "base.html" %}
 {% load staticfiles %}
 
-<!DOCTYPE html>
-<html>
-  <head>
-    {% include "partials/head.html" %}
+{% block head %}
+  <link href="{% static 'css/auto-complete.css' %}" rel="stylesheet" type="text/css">
+  <script type="text/javascript" src="{% static 'js/jquery.timepicker.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/jquery-ui-datepicker.js' %}"></script>
+  <link href="{% static 'css/jquery.timepicker.css' %}" rel="stylesheet" type="text/css">
+  <link href="{% static 'css/jquery-ui-datepicker.css' %}" rel="stylesheet" type="text/css">
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAGfdpv-Vg_rskfib8jzp-a6VI92QuC2I0&v=3.exp&types=address&libraries=places"></script>
+{% endblock head %}
 
-    <link href="{% static 'css/auto-complete.css' %}" rel="stylesheet" type="text/css">
+{% block heading %}
+  <div class="row">
+    <div class="small-12 columns">
+      <h3 class="title">
+        {% block title %} Create event {% endblock title %}
+      </h3>
+    </div>
+  </div>  
+{% endblock heading %}
 
-    <script type="text/javascript" src="{% static 'js/jquery.timepicker.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/jquery-ui-datepicker.js' %}"></script>
-    <link href="{% static 'css/jquery.timepicker.css' %}" rel="stylesheet" type="text/css">
-    <link href="{% static 'css/jquery-ui-datepicker.css' %}" rel="stylesheet" type="text/css">
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAGfdpv-Vg_rskfib8jzp-a6VI92QuC2I0&v=3.exp&types=address&libraries=places"></script>
-  </head>
+{% block content %}
+  <form method="post">
+    {% csrf_token %}
 
-  <body>
-    {% include "partials/header.html" %}
+    <!-- Catch and display field and non-field errors-->
+    {% if form.errors %}
+      <div class=row>
+        {% for field in form %}
+          {% for error in field.errors %}
+            <div class="alert alert-danger">
+              {{ error }}
+            </div>
+          {% endfor %}
+        {% endfor %}
 
-    <div id="container" class="js-close-any" canvas="container">
-      <div id="wrapper">
-        {% if status_msg %}
-        <div class="alert row half-margin-top">
-          {{status_msg}}
-        </div>
+        {% for error in form.non_field_errors %}
+            <div class="alert alert-danger">
+                {{ error }}
+            </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <div class="row one-margin-bottom">
+      <div class="small-12 medium-6 small-centered columns">
+        {{ form.project_name.errors }}
+        <h6 class="fit-left navy half-margin-top">
+          {{ form.project_name.label }}
+        </h6>
+        <span class="input-sizer"> {{ form.project_name }} </span>
+        {% if form.project_name.help_text %}
+          <p class="small">
+            ({{ form.project_name.help_text|safe }})
+          </p>
         {% endif %}
+      </div>
+    </div>
+
+    <div class="row one-margin-bottom">
+      <div class="small-8 medium-4 small-centered columns">
+        {{ form.date_start.errors }}
+        <h6 class="fit-left navy half-margin-top">
+          {{ form.date_start.label }}
+        </h6>
+        <span class="input-sizer"> {{ form.date_start }} </span>
+        {% if form.date_start.help_text %}
+          <p class="small">
+            ({{ form.date_start.help_text|safe }})
+          </p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="row one-margin-bottom">
+      <div class="small-12 medium-6 small-centered columns">
+        <div class="row">
+          <div class="input-left small-6 columns">
+            {{ form.time_start.errors }}
+            <h6 class="fit-left navy half-margin-top">
+              {{ form.time_start.label }}
+            </h6>
+            <span class="input-sizer"> {{ form.time_start }} </span>
+            {% if form.time_start.help_text %}
+              <p class="small">
+                ({{ form.time_start.help_text|safe }})
+              </p>
+            {% endif %}
+          </div>
+
+          <div class="input-right small-6 columns">
+            {{ form.time_end.errors }}
+            <h6 class="fit-left navy half-margin-top">
+              {{ form.time_end.label }}
+            </h6>
+            <span class="input-sizer"> {{ form.time_end }} </span>
+            {% if form.time_end.help_text %}
+              <p class="small">
+                ({{ form.time_end.help_text|safe }})
+              </p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row no-margin-bottom center">
+      <div id="location-box" class="small-12 medium-6 small-centered columns">
+        <div id="location-1">
+          <h6 class="fit-left navy half-margin-top"> at </h6>
+          <span class="input-sizer">
+            <input class="location center" name="event-location-1" placeholder="location" type="text" required>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <a id="add-location"><i class="fa fa-plus-circle half-margin-right"></i>Add another location</a>
+
+    <div class="row three-halves-margin-top">
+        {{form.is_public.0.tag}}
+        <label for="id_is_public_0">Public event</label>
+
+        {{form.is_public.1.tag}}
+        <label for="id_is_public_1" class="two-margin-left">Invite only</label>
+
+        <a class="privacy-info-popup_open">
+          <i class="half-margin-left fa fa-lg fa-question-circle grey"></i>
+        </a>
+    </div>
+
+    <div class="three-halves-margin-top row left">
+      <div class="small-12 medium-6 small-centered columns">
+        {{ form.description.errors }}
+        <h6 class="navy no-margin-bottom">{{ form.description.label }}</h6>
+        {% if form.description.help_text %}
+          <p class="small-text grey no-margin-bottom">
+            {{ form.description.help_text|safe }}
+          </p>
+        {% endif %}
+        <span class="input-sizer"> {{ form.description }} </span>
+      </div>
+    </div>
+
+    <div class="one-margin-top row left">
+      <div class="small-12 medium-6 small-centered columns">
+        <h6 class="navy no-margin-bottom">Event coordinator</h6>
+        <p class="small-text grey">Who will respond to volunteers who register?</p>
 
         <div class="row">
-            <h3 class="title">Create event</h3>
-            <!-- <p class="subtitle"><a>Use template</a> (if any)</p> -->
-        </div>
-
-        <form method="post">
-          {% csrf_token %}
-
-          <!-- Catch and display field and non-field errors-->
-          {% if form.errors %}
-            <div class=row>
-              {% for field in form %}
-                  {% for error in field.errors %}
-                      <div class="alert alert-danger">
-                          {{ error }}
-                      </div>
-                  {% endfor %}
-              {% endfor %}
-
-              {% for error in form.non_field_errors %}
-                  <div class="alert alert-danger">
-                      {{ error }}
-                  </div>
-              {% endfor %}
-            </div>
-          {% endif %}
-
-          <div class="row one-margin-bottom">
-            <div class="small-12 medium-6 small-centered columns">
-              {{ form.project_name.errors }}
-              <h6 class="fit-left navy half-margin-top">{{ form.project_name.label }}</h6>
-              <span class="input-sizer"> {{ form.project_name }} </span>
-              {% if form.project_name.help_text %}
-                <p class="small">
-                  ({{ form.project_name.help_text|safe }})
-                </p>
-              {% endif %}
-            </div>
+          <div class="input-left small-5 columns">
+            {{ form.coordinator_firstname.errors }}
+            {{ form.coordinator_firstname }}
           </div>
 
-          <div class="row one-margin-bottom">
-            <div class="small-8 medium-4 small-centered columns">
-              {{ form.date_start.errors }}
-              <h6 class="fit-left navy half-margin-top"> {{ form.date_start.label }} </h6>
-              <span class="input-sizer"> {{ form.date_start }} </span>
-              {% if form.date_start.help_text %}
-                <p class="small">
-                  ({{ form.date_start.help_text|safe }})
-                </p>
-              {% endif %}
-            </div>
+          <div class="input-right small-7 columns">
+            {{ form.coordinator_email.errors }}
+            {{ form.coordinator_email }}
           </div>
-
-          <div class="row one-margin-bottom">
-            <div class="small-12 medium-6 small-centered columns">
-              <div class="row">
-                <div class="input-left small-6 columns">
-                  {{ form.time_start.errors }}
-                  <h6 class="fit-left navy half-margin-top"> {{ form.time_start.label }} </h6>
-                  <span class="input-sizer"> {{ form.time_start }} </span>
-                  {% if form.time_start.help_text %}
-                    <p class="small">
-                      ({{ form.time_start.help_text|safe }})
-                    </p>
-                  {% endif %}
-                </div>
-
-                <div class="input-right small-6 columns">
-                  {{ form.time_end.errors }}
-                  <h6 class="fit-left navy half-margin-top"> {{ form.time_end.label }} </h6>
-                  <span class="input-sizer"> {{ form.time_end }} </span>
-                  {% if form.time_end.help_text %}
-                    <p class="small">
-                      ({{ form.time_end.help_text|safe }})
-                    </p>
-                  {% endif %}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="row no-margin-bottom center">
-            <div id="location-box" class="small-12 medium-6 small-centered columns">
-              <div id="location-1">
-                <h6 class="fit-left navy half-margin-top"> at </h6>
-                <span class="input-sizer">
-                  <input class="location center" name="event-location-1" placeholder="location" type="text" required>
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <a id="add-location"><i class="fa fa-plus-circle half-margin-right"></i>Add another location</a>
-
-          <div class="row three-halves-margin-top">
-              {{form.is_public.0.tag}}
-              <label for="id_is_public_0">Public event</label>
-
-              {{form.is_public.1.tag}}
-              <label for="id_is_public_1" class="two-margin-left">Invite only</label>
-
-              <a class="privacy-info-popup_open"><i class="half-margin-left fa fa-lg fa-question-circle grey"></i></a>
-          </div>
-
-          <div class="three-halves-margin-top row left">
-            <div class="small-12 medium-6 small-centered columns">
-              {{ form.description.errors }}
-              <h6 class="navy no-margin-bottom">{{ form.description.label }}</h6>
-              {% if form.description.help_text %}
-                <p class="small-text grey no-margin-bottom">
-                  {{ form.description.help_text|safe }}
-                </p>
-              {% endif %}
-              <span class="input-sizer"> {{ form.description }} </span>
-            </div>
-          </div>
-
-          <div class="one-margin-top row left">
-            <div class="small-12 medium-6 small-centered columns">
-              <h6 class="navy no-margin-bottom">Event coordinator</h6>
-              <p class="small-text grey">Who will respond to volunteers who register?</p>
-
-              <div class="row">
-                <div class="input-left small-5 columns">
-                  {{ form.coordinator_firstname.errors }}
-                  {{ form.coordinator_firstname }}
-                </div>
-
-                <div class="input-right small-7 columns">
-                  {{ form.coordinator_email.errors }}
-                  {{ form.coordinator_email }}
-                </div>
-              </div>
-            </div>
-          </div>
-
-        <!--div class="row">
-          <div class="small-6 small-centered columns">
-            <button class="one-margin-top button round">Create</button>
-            <p><a class="template-popup_open">Save template...</a></p>
-          </div>
-        </div-->
-
-            <!-- <div class="row">
-              <div class="small-8 small-centered columns">
-                <h6 class="fit-left navy">Max volunteers:</h6>
-                <span class="input-sizer"><input name="project-max" id="project-max" class="center" type="text" placeholder="10" /></span>
-              </div>
-            </div> -->
-
-          <div class="row center">
-            <div class="small-centered small-8 medium-6 columns">
-              <button type='submit' class="one-margin-top button round">Create</button>
-            </div>
-          </div>
-        </form>
-
-        <div id="push"></div>
-
-      <!-- wrapper div-->
-      </div>
-
-      {% include 'partials/footer.html' %}
-
-    <!--container div -->
-    </div>
-
-    <div id="bottom-stripe" class="full-width"></div>
-
-    <div off-canvas="menu right shift" id="menu">
-      {% include 'partials/menu.html' %}
-    </div>
-
-    <div id="template-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <!--div class="row center">
-        <h3 class="popup-title">Save project template as...</h3>
-      </div-->
-    </div>
-
-    <div id="privacy-info-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <div class="row center">
-        <h3 class="popup-title">Public or private?</h3>
-      </div>
-
-      <div class="row left">
-        <div class="small-centered medium-10 columns">
-          <p><strong>Public events</strong><br/>
-          Select "Public" if you would like this event to be seen by anyone looking for volunteer opportunities.
-          </p>
-
-          <p><strong>Invite only events</strong><br/>
-          Select "Invite only" if you would like this event to only be available to people you invite. It will not be displayed as an upcoming event to volunteers you don't invite.
-          </p>
-
-          <p class="center three-halves-margin-top"><a class="privacy-info-popup_close button round">Got it</a></p>
         </div>
       </div>
     </div>
 
+    <div class="row center">
+      <div class="small-centered small-8 medium-6 columns">
+        <button type='submit' class="one-margin-top button round">Create</button>
+      </div>
+    </div>
+  </form>
+{% endblock content %}
 
-    <script type="text/javascript">
-      $(document).ready(function(){
-        $('#template-popup, #privacy-info-popup').popup({
-          vertical: 'top',
-          transition: 'all 0.75s',
-          scrolllock: true,
-        });
 
+{% block popups %}
+  <div id="template-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+    <!--div class="row center">
+      <h3 class="popup-title">Save project template as...</h3>
+    </div-->
+  </div>
 
-        $('#date_start').datepicker({
-          dateFormat: 'yy-mm-dd',
-        });
+  <div id="privacy-info-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+    <div class="row center">
+      <h3 class="popup-title">Public or private?</h3>
+    </div>
 
-        $('#time_start, #time_end').timepicker({
-          step: 30,
-          minTime: '7:00am',
-        });
+    <div class="row left">
+      <div class="small-centered medium-10 columns">
+        <p><strong>Public events</strong><br/>
+        Select "Public" if you would like this event to be seen by anyone looking for volunteer opportunities.
+        </p>
+
+        <p><strong>Invite only events</strong><br/>
+        Select "Invite only" if you would like this event to only be available to people you invite. It will not be displayed as an upcoming event to volunteers you don't invite.
+        </p>
+
+        <p class="center three-halves-margin-top"><a class="privacy-info-popup_close button round">Got it</a></p>
+      </div>
+    </div>
+  </div>
+{% endblock popups %}
+    
+
+{% block js %}
+  <script type="text/javascript">
+    $(document).ready(function(){
+      $('#template-popup, #privacy-info-popup').popup({
+        vertical: 'top',
+        transition: 'all 0.75s',
+        scrolllock: true,
       });
-    </script>
-    <script type="text/javascript" src="{% static 'js/auto-complete.min.js' %}"></script>
-    <script type="text/javascript">
-      // initialize
-      var project_auto = new autoComplete({
-        selector: 'input[name="project_name"]',
-        minChars: 2,
-        source: function(term, suggest){
-          //var choices = ['clean up Lady Bird Lake', 'install a rain garden', 'host a composting workshop'];
-          var choices = {{ project_names }}
-          var matches = [];
-          for (i=0; i<choices.length; i++)
-              if (~choices[i].toLowerCase().indexOf(term)) matches.push(choices[i]);
-          suggest(matches);
-        }
+
+
+      $('#date_start').datepicker({
+        dateFormat: 'yy-mm-dd',
       });
 
-    </script>
-
-    <script type="text/javascript">
-      function initAutoComplete() {
-
-        var inputs = document.getElementsByClassName("location");
-
-        for (var i = 0; i < inputs.length; i++) {
-          var autocomplete = new google.maps.places.Autocomplete(inputs[i]);
-          // autocomplete.inputId = inputs[i].id;
-
-          google.maps.event.addListener(autocomplete);
-
-          google.maps.event.addDomListener(inputs[i], 'keydown', function(e) { 
-              if (e.keyCode == 13 && $('.pac-container:visible').length) { 
-                  e.preventDefault(); 
-              }
-          }); 
-        }
+      $('#time_start, #time_end').timepicker({
+        step: 30,
+        minTime: '7:00am',
+      });
+    });
+  </script>
+  <script type="text/javascript" src="{% static 'js/auto-complete.min.js' %}"></script>
+  <script type="text/javascript">
+    // initialize
+    var project_auto = new autoComplete({
+      selector: 'input[name="project_name"]',
+      minChars: 2,
+      source: function(term, suggest){
+        //var choices = ['clean up Lady Bird Lake', 'install a rain garden', 'host a composting workshop'];
+        var choices = {{ project_names }}
+        var matches = [];
+        for (i=0; i<choices.length; i++)
+            if (~choices[i].toLowerCase().indexOf(term)) matches.push(choices[i]);
+        suggest(matches);
       }
+    });
 
-      var id = 1;
+  </script>
 
-      $('#add-location').click(function(){
-        id ++;
+  <script type="text/javascript">
+    function initAutoComplete() {
 
-        $('#location-box').append(
-          '<div id="location-'+id+'" class="relative hidden"> \
-              <h6 class="fit-left navy half-margin-top">&</h6> \
-              <span class="input-sizer"> \
-                <input class="location center" name="event-location-'+id+'" placeholder="location" type="text" required> \
-              </span> \
-              <i class="remove-input alert fa fa-lg fa-times"></i> \
-          </div>'
-        );
-        $('#location-'+id+'').slideDown();
-        initAutoComplete();
-      });
+      var inputs = document.getElementsByClassName("location");
 
-      $('#location-box').on('click', 'i', function(){
-        $(this).parent('div').slideUp(function(){
-          $(this).remove();
-        });
-        
-      });
+      for (var i = 0; i < inputs.length; i++) {
+        var autocomplete = new google.maps.places.Autocomplete(inputs[i]);
+        // autocomplete.inputId = inputs[i].id;
 
-      $(document).ready(function(){
+        google.maps.event.addListener(autocomplete);
 
-        initAutoComplete();
-
-      });
-
-      function getOppositePrivacyId(mine) {
-        return (mine === 'public_label') ? 'private_label' : 'public_label';
+        google.maps.event.addDomListener(inputs[i], 'keydown', function(e) { 
+            if (e.keyCode == 13 && $('.pac-container:visible').length) { 
+                e.preventDefault(); 
+            }
+        }); 
       }
+    }
 
-      function flipButtonColors(me) {
-        var activeBackgroundColor = "#1f4975";
-        var inactiveBackgroundColor = "#ffffff";
-        var activeFontColor = "#ffffff";
-        var inactiveFontColor = "#24b2e7";
+    var id = 1;
 
-        me.style.backgroundColor = activeBackgroundColor;
-        me.style.color = activeFontColor;
-        me.style.borderColor = activeFontColor;
-        var otherButtonLabel = `${getOppositePrivacyId(me.id)}`;
-        document.getElementById(otherButtonLabel).style.backgroundColor = inactiveBackgroundColor;
-        document.getElementById(otherButtonLabel).style.color = inactiveFontColor;
-        document.getElementById(otherButtonLabel).style.borderColor = inactiveFontColor;
+    $('#add-location').click(function(){
+      id ++;
 
-      }
+      $('#location-box').append(
+        '<div id="location-'+id+'" class="relative hidden"> \
+            <h6 class="fit-left navy half-margin-top">&</h6> \
+            <span class="input-sizer"> \
+              <input class="location center" name="event-location-'+id+'" placeholder="location" type="text" required> \
+            </span> \
+            <i class="remove-input alert fa fa-lg fa-times"></i> \
+        </div>'
+      );
+      $('#location-'+id+'').slideDown();
+      initAutoComplete();
+    });
 
-    </script>
+    $('#location-box').on('click', 'i', function(){
+      $(this).parent('div').slideUp(function(){
+        $(this).remove();
+      });
+      
+    });
 
-    <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
-  </body>
-</html>
+    $(document).ready(function(){
+
+      initAutoComplete();
+
+    });
+  </script>
+{% endblock js %}

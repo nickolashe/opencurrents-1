@@ -1,78 +1,24 @@
+{% extends "base.html" %}
+
 {% load staticfiles %}
 
-<!DOCTYPE html>
-<html>
-  <head>
-    {% include "partials/head.html" %}
-  </head>
-
-  <body>
-    {% include "partials/header.html" %}
-
-    <div id="container" class="js-close-any" canvas="container">
-      <div id="wrapper">
-        {% if status_msg %}
-        <div class="alert row half-margin-top">
-          {{status_msg}}
-        </div>
-        {% endif %}
-
-        <div class="row">
-          <h3 class="title">Insufficient permission</h3>
-        </div>
-
-        <div class="row one-margin-bottom center">
-          <div class="small-12 medium-8 small-centered columns">
-            <p class="three-halves-margin-bottom">You tried to access a resource that you don't have access to. If you're not sure why you're seeing this page, please let us know how you arrived here.</p>
-            <a href="javascript:void(Tawk_API.toggle())" class="button round">Share feedback</a>
-
-            <a href="{% url 'openCurrents:profile' %}" class="button round secondary">Back to profile</a>
-          </div>
-        </div>
-
-        <div id="push"></div>
-
-      <!-- wrapper div-->
-      </div>
-
-      {% include "partials/footer.html" %}
-
-    <!--container div -->
+{% block heading %}
+  <div class="row">
+    <div class="small-12 columns">
+      <h3 class="title">
+        {% block title %} Permission denied {% endblock title %}
+      </h3>
     </div>
+  </div> 
+{% endblock heading %}
 
-    <div id="bottom-stripe" class="full-width"></div>
+{% block content %}
+  <div class="row one-margin-bottom center">
+    <div class="small-12 medium-8 small-centered columns">
+      <p class="three-halves-margin-bottom">You tried to access a resource that you don't have access to. If you're not sure why you're seeing this page, please let us know how you arrived here.</p>
 
-    <div off-canvas="menu right shift" id="menu">
-      {% include "partials/menu.html" %}
+      <a href="javascript:void(Tawk_API.toggle())" class="button round">Share feedback</a>
+      <a href="{% url 'openCurrents:profile' %}" class="button round secondary">Back to profile</a>
     </div>
-
-    <div id="-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <div class="row center">
-        <h3 class="popup-title"></h3>
-      </div>
-
-      <div class="row">
-        <div class="small-centered medium-10 columns">
-
-          <p></p>
-
-          <button class="tax-id-popup_close button round">Okay</button>
-          <a><button class="button round secondary"></button></a>
-        </div>
-      </div>
-    </div>
-
-
-    <script type="text/javascript">
-      $(document).ready(function(){
-        $('#').popup({
-          vertical: 'top',
-          transition: 'all 0.75s',
-          scrolllock: true,
-        });
-      });
-    </script>
-
-    <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
-  </body>
-</html>
+  </div>
+{% endblock content %}
