@@ -27,9 +27,17 @@ def diffInHours(t1, t2):
 class Org(models.Model):
     name = models.CharField(max_length=100, unique=True)
     website = models.CharField(max_length=100, null=True, blank=True)
-    status = models.CharField(max_length=50, null=True)
-    mission = models.CharField(max_length=4096, null=True)
-    reason = models.CharField(max_length=4096, null=True)
+
+    org_types = (
+        ('biz', 'business'),
+        ('npf', 'non-profit')
+    )  
+    status = models.CharField(
+        max_length=3,
+        choices=org_types,
+        default='npf'
+    )
+
     users = models.ManyToManyField(User, through='OrgUser')
     timezone = models.CharField(max_length=128, default='America/Chicago')
 
@@ -327,11 +335,11 @@ class Offer(models.Model):
 
 class Transaction(models.Model):
     user = models.ForeignKey(User)
-    action = models.ManyToManyField(
+    offer = models.ForeignKey(
         Offer,
-        through='UserOfferAction'
+        on_delete=models.CASCADE
     )
-    pop_image = models.ImageField()
+    pop_image = models.ImageField(upload_to='images/redeem/%Y/%m/%d')
     pop_type = models.CharField(
         max_length=3,
         choices=[
@@ -349,16 +357,29 @@ class Transaction(models.Model):
     date_created = models.DateTimeField('date created', auto_now_add=True)
     date_updated = models.DateTimeField('date updated', auto_now=True)
 
+    def __unicode__(self):
+        return ' '.join([
+            'Transaction initiated by user',
+            self.user.username,           
+            'for offer',
+            str(self.offer.id),
+            'at',
+            self.date_updated.strftime('%m/%d/%Y %H:%M:%S'),
+        ])
 
-class UserOfferAction(models.Model):
-    transaction = models.ForeignKey(Transaction)
-    offer = models.ForeignKey(Offer)
+
+class TransactionAction(models.Model):
+    transaction = models.ForeignKey(
+        Transaction,
+        on_delete=models.CASCADE
+    )
     action_type = models.CharField(
         max_length=7,
         choices=[
-            ('req', 'requested'),
+            ('req', 'pending'),
             ('app', 'approved'),
-            ('red', 'redeemed')
+            ('red', 'redeemed'),
+            ('dec', 'declined')
         ],
         default='req'
     )
@@ -366,3 +387,13 @@ class UserOfferAction(models.Model):
     # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)
     date_updated = models.DateTimeField('date updated', auto_now=True)
+
+    def __unicode__(self):
+        return ' '.join([
+            'Action',
+            '[%s]' % self.action_type,
+            'taken for transaction',
+            str(self.transaction.id),
+            'at',
+            self.date_updated.strftime('%m/%d/%Y %H:%M:%S'),
+        ])    

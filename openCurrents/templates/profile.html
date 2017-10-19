@@ -21,61 +21,47 @@
         </div>
         {% endif %}
 
-        <div class="hide-for-small-only row full-width collapse two-margin-top">
-          <div class="left medium-5 medium-offset-1 columns">
-            <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="fit-left round" />
-            <span class="input-sizer"> -->
-              <h5 class="one-margin-top no-margin-bottom">{{ user.first_name }} {{ user.last_name }}</h5>
 
-              {% if is_admin %}
-                <h6 class="inline half-margin-right">{{orgname}}</h6>
-                <a href="{% url 'openCurrents:org-admin' %}"><i class="fa fa-lg fa-gear"></i></a>
-              {% endif %}
+        <div class="row">
+          <div class="small-12 small-centered columns">
+            <h5 class="two-margin-top no-margin-bottom">{{ user.first_name }} {{ user.last_name }}</h5>
 
-                <p class="half-margin-top">
-                  <a class="earn-currents-popup_open button round tiny">Volunteer</a>
-                </p>
-            <!-- </span> -->
-          </div>
 
-          <div class="one-margin-top right medium-5 columns end">
-            <h6 class="inline">My Currents: </h6>
-            <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
-            <h6 class="inline-block no-margin-bottom"> {{ user_balance }} </h6>
-            <div class="no-margin-top">
-              <h6 class="half-margin-bottom">My dollars: $20 (Pending: $10)</h6>
-              
-              <a href="{% url 'openCurrents:marketplace' %}" class="oc-button button round secondary tiny">Redeem <img src="{% static 'img/symbol-blue.svg' %}"/></a>
-              <a class="button round secondary tiny">Cash out $</a>
-            </div>
-          </div>
-        </div>
-
-        <div class="show-for-small-only row one-margin-top">
-          <div class="columns">
-            <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="round" /> -->
-            <h4 class="half-margin-top no-margin-bottom">{{ user.first_name }} {{ user.last_name }}</h4>
             {% if is_admin %}
-              <h5 class="inline-block half-margin-right">{{orgname}}</h5>
+              <h6 class="inline half-margin-right">{{orgname}}</h6>
               <a href="{% url 'openCurrents:org-admin' %}"><i class="fa fa-lg fa-gear"></i></a>
             {% endif %}
 
-            <p class="half-margin-top no-margin-bottom"><a class="earn-currents-popup_open button round tiny">Volunteer</a></p>
+            <p class="half-margin-top half-margin-bottom">
+              <a class="earn-currents-popup_open button round small">Volunteer</a>
+            </p>
 
-            <div class="no-margin-top">
-              <h6 class="inline">My Currents: </h6>
-              <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
-              <h6 class="inline-block no-margin-bottom"> {{ user_balance }} </h6>
-              <h6 class="half-margin-bottom">My dollars: $20 (Pending: $10)</h6>
-              <div class="half-margin-top one-margin-bottom row">
-                <a href="{% url 'openCurrents:marketplace' %}" class="oc-button button round secondary tiny">Redeem <img src="{% static 'img/symbol-blue.svg' %}"/></a>
-                <a class="button round secondary tiny">Cash out $</a>
+            <div class="row">
+              <div class="small-12 medium-6 columns">
+                <h6 class="inline-block qtr-margin-bottom">Currents available: </h6>
+                <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/><h6 class="inline-block no-margin-bottom">{{ user_balance_verified }}</h6>
+                <p class="grey half-margin-bottom">Pending: <img class="med-text-symbol" src="{% static 'img/symbol.svg' %}"/>{{ user_balance_pending }}</p>
+                <p class="no-margin-bottom">
+                  <a href="{% url 'openCurrents:marketplace' %}" class="button round secondary tiny">
+                    Redeem
+                  </a>
+                </p>
+              </div>
+
+              <div class="small-12 medium-6 columns">
+                <h6 class="qtr-margin-bottom">Dollars available: $(20)</h6>
+                <p class="grey half-margin-bottom">Pending: $(10)</p>
+                
+                <!-- if available_dollars this button should have class cash-out-popup_open else no-cash-popup_open -->
+                <a class="cash-out-popup_open button round secondary tiny">
+                  Cash out
+                </a>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="row full-width collapse left">
+        <div class="row collapse three-halves-margin-top left">
           <div class="small-11 medium-10 small-centered columns">
             <h6 class="half-margin-bottom">My upcoming events</h6>
             {% if events_upcoming %}
@@ -91,7 +77,7 @@
                     at {{event.location}}
                   </div>
 
-                  <div class="right relative input-right small-3 columns">
+                  <div class="right relative small-3 columns">
                     <a class="mini-open"><i class="blue half-margin-right fa-chevron-circle-down fa fa-lg"></i></a>
                     <ul class="mini-menu">
                       <a href="{% url 'openCurrents:event-detail' event.id %}"><li>View event details</li></a>
@@ -101,66 +87,57 @@
                 {% endif %}
               {% endfor %}
             {% else %}
-              <p>You are not registered for any upcoming events. <a href="{% url 'openCurrents:upcoming-events' %}">Find one!</a></p>
+              <p>You are not registered for any upcoming events. 
+                <a href="{% url 'openCurrents:upcoming-events' %}">
+                  Find one!
+                </a>
+              </p>
             {% endif %}
           </div>
         </div>
-
-        <div class="left row one-margin-top full-width collapse">
-          <div class="small-11 medium-10 small-centered columns">
-            <div class="row">
-              <div class="left input-left small-12 columns">
-                <h6 class="half-margin-bottom">My hours</h6>
-                <!-- for org in user_orgs -->
-                <a href="{% url 'openCurrents:my-hours' %}" class="button round tiny secondary">Keep Austin Beautiful: 25</a>
-                <!-- endfor -->
-
-                <!-- delete once forloop added -->
-                <a href="{% url 'openCurrents:my-hours' %}" class="button round tiny secondary">Bike Austin: 15</a>
-
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="left row one-margin-top full-width collapse">
-          <div class="small-11 medium-10 small-centered columns">
-            <div class="row">
-              <div class="left input-left small-6 columns">
-                <h6 class="half-margin-bottom">Active orgs on openCurrents</h6>
-              </div>
-
-              <div class="right input-right small-6 columns">
-                <h6 class="half-margin-bottom">Currents issued</h6>
-              </div>
-            </div>
-
-            <!-- for org in top 10 orgs -->
-            <div class="row">
-              <div class="left input-left small-8 columns">
-                <p class="no-margin-bottom">Keep Austin Beautiful</p>
-              </div>
-
-              <div class="right input-right small-4 columns">
-                <p class="no-margin-bottom">25</p>
-              </div>
-            </div>
-            <!-- end for -->
-
-            <!-- delete after forloop added -->
-            <div class="row">
-              <div class="left input-left small-8 columns">
-                <p>Bike Austin</p>
-              </div>
-
-              <div class="right input-right small-4 columns">
-                <p>20</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
         
+        <div class="row collapse one-margin-top left">
+          <div class="small-11 medium-10 small-centered columns">
+            <div class="row">
+              <div class="small-8 columns">
+                <h6 class="half-margin-bottom">My redeemed offers</h6>
+              </div>
+
+              <div class="right small-4 columns">
+                <!-- % if offers_redeemed % -->
+                <h6 class="half-margin-bottom">Status</h6>
+                <!-- % endif % -->
+              </div>
+            </div>
+
+            {% if offers_redeemed %}
+              {% for offer_redeemed in offers_redeemed %}
+                {% with offer=offer_redeemed.transaction.offer %}
+                  <div class="row one-margin-bottom">
+                    <div class="left small-9 columns">
+                      <strong>
+                        {{ offer.org.name }}
+                      </strong>
+                      accepts Currents for {{ offer.currents_share }} of flat tire fixes
+                    </div>
+
+                    <div class="right relative small-3 columns">
+                      <p> {{ offer_redeemed.get_action_type_display }} </p>
+                    </div>
+                  </div>
+                {% endwith %}
+              {% endfor %}
+            {% else %}
+              <p>You have not yet redeemed any offers. Check out the 
+                <a href="{% url 'openCurrents:marketplace' %}">
+                  marketplace!
+                </a>
+              </p>
+            {% endif %}
+
+          </div>
+        </div>
+
 
         <!-- community feed code. Hardcoded not dynamic -->
         <!-- <div class="row full-width collapse one-margin-bottom">
@@ -287,6 +264,37 @@
       </div>
     </div>
 
+    <div id="no-cash-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h3 class="popup-title">No dollars available</h3>
+      </div>
+
+      <div class="row center one-margin-top">
+        <div class="small-centered medium-10 columns">
+          <p>You do not yet have dollars available to transfer to your bank account. If you have redeemed an offer and have pending dollars in your account, you'll need to wait until the business verifies your proof of purchase at the end of the month.</p>
+          <p>To see offers from businesses in the community, please visit the marketplace by clicking "Redeem" in your profile.</p>
+          <a class="no-cash-popup_close button round">Got it</a>
+        </div>
+      </div>
+    </div>
+
+    <div id="cash-out-popup" class="modal center small-12 medium-9 small-centered columns">
+      <div class="row center">
+        <h3 class="popup-title">Confirm cash out</h3>
+      </div>
+
+      <form>
+        <div class="row center">
+          <div class="small-centered medium-10 columns">
+            <p class="three-halves-margin-bottom">openCurrents uses Dwolla to send you cash because money goes directly to your bank account. You will receive an email in the next 48 hours inviting you to create a Dwolla account and receive your cash. If you have any questions, don't hesitate to reach out.</p>
+
+            <a class="button round">Send cash</a>
+            <a href="javascript:void(Tawk_API.toggle())" class="button round secondary">Contact us</a>
+          </div>
+        </div>
+      </form>
+    </div>
+
     <div id="rsvp-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
         <h3 class="popup-title">Change RSVP</h3>
@@ -338,7 +346,7 @@
           var open = false;
         }
 
-        $('#rsvp-popup, #earn-currents-popup').popup({
+        $('#rsvp-popup, #earn-currents-popup, #no-cash-popup, #cash-out-popup').popup({
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: true,

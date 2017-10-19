@@ -16,8 +16,10 @@ from django.template.context_processors import csrf
 from datetime import datetime, time, date
 from collections import OrderedDict
 from copy import deepcopy
-from orgs import OrgUserInfo
 
+from orgs import OrgUserInfo
+from ocuser import OcUser
+from bizadmin import BizAdmin
 
 import math
 import re
@@ -35,7 +37,8 @@ from openCurrents.models import \
     AdminActionUserTime, \
     Item, \
     Offer, \
-    Transaction
+    Transaction, \
+    TransactionAction
 
 from openCurrents.forms import \
     UserSignupForm, \
@@ -50,7 +53,8 @@ from openCurrents.forms import \
     OrgNominationForm, \
     TimeTrackerForm, \
     OfferCreateForm, \
-    OfferEditForm
+    OfferEditForm, \
+    RedeemCurrentsForm
 
 
 from datetime import datetime, timedelta
@@ -95,7 +99,12 @@ class DatetimeEncoder(json.JSONEncoder):
 
 class SessionContextView(View):
     def dispatch(self, request, *args, **kwargs):
-        # get user org
+        self.userid = request.user.id
+
+        # oc user
+        self.ocuser = OcUser(self.userid)
+
+        # user org
         orguserinfo = OrgUserInfo(request.user.id)
         self.org = orguserinfo.get_org()
 
@@ -129,6 +138,16 @@ class SessionContextView(View):
         return context
 
 
+class BizSessionContextView(SessionContextView):
+    def dispatch(self, request, *args, **kwargs):
+        # biz admin user
+        self.bizadmin = BizAdmin(request.user.id)
+
+        return super(BizSessionContextView, self).dispatch(
+            request, *args, **kwargs
+        )
+
+
 class OrgAdminPermissionMixin(LoginRequiredMixin):
     def dispatch(self, request, *args, **kwargs):
         user = request.user
@@ -137,7 +156,8 @@ class OrgAdminPermissionMixin(LoginRequiredMixin):
         if not user.is_authenticated():
             return self.handle_no_permission()
 
-        # try to obtain user => org mapping
+        # try to obtain user => org mapping from url first
+        # otherwise, default to user's org
         org_id = None
         try:
             org_id = kwargs['org_id']
@@ -217,16 +237,19 @@ class AssignAdminsView(TemplateView):
     template_name = 'assign-admins.html'
 
 
-class BizAdminView(LoginRequiredMixin, SessionContextView, TemplateView):
+class BizAdminView(LoginRequiredMixin, BizSessionContextView, TemplateView):
     template_name = 'biz-admin.html'
 
     def get_context_data(self, **kwargs):
         context = super(BizAdminView, self).get_context_data(**kwargs)
 
-        offers = Offer.objects.filter(
-            org__id=self.org.id
-        )
+        # offers created by business
+        offers = self.bizadmin.get_offers_all()
         context['offers'] = offers
+
+        # list biz's redeemed offers
+        org_offers_redeemed = self.bizadmin.get_redemptions()
+        context['org_offers_redeemed'] = org_offers_redeemed
 
         return context
 
@@ -630,8 +653,62 @@ class OurStoryView(TemplateView):
     template_name = 'our-story.html'
 
 
-class RedeemCurrentsView(TemplateView):
+class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
     template_name = 'redeem-currents.html'
+    form_class = RedeemCurrentsForm
+
+    def dispatch(self, request, *args, **kwargs):
+        offer_id = kwargs.get('offer_id')
+        self.offer = Offer.objects.get(id=offer_id)
+
+        return super(RedeemCurrentsView, self).dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+
+        transaction = Transaction(
+            user=self.request.user,
+            offer=self.offer,
+            pop_image=data['redeem_receipt'],
+            price_reported=data['redeem_price']
+        )
+
+        if not data['redeem_receipt_if_checked']:
+            transaction.pop_type = 'oth'
+
+        transaction.save()
+
+        action = TransactionAction(
+            transaction=transaction
+        )
+        action.save()        
+
+        logger.debug(
+            'Transaction %d for offer %d was requested by userid %d',
+            transaction.id,
+            self.offer.id,
+            self.request.user.id
+        )
+
+        return redirect(
+            'openCurrents:profile',
+            'We\'ve received your request for redeeming %s\'s offer' % self.offer.org.name
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super(RedeemCurrentsView, self).get_context_data(**kwargs)
+        context['offer'] = Offer.objects.get(id=self.kwargs['offer_id'])
+
+        return context
+
+    def get_form_kwargs(self):
+        """
+        Passes offer id down to the redeem form.
+        """
+        kwargs = super(RedeemCurrentsView, self).get_form_kwargs()
+        kwargs.update({'offer_id': self.kwargs['offer_id']})
+
+        return kwargs
 
 
 class RequestCurrentsView(TemplateView):
@@ -976,39 +1053,29 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(ProfileView, self).get_context_data(**kwargs)
-        if kwargs.has_key('app_hr') and kwargs['app_hr'] == '1':
+        userid = self.request.user.id
+
+        if kwargs.get('app_hr') == '1':
             context['app_hr'] = 1
         else:
             context['app_hr'] = 0
 
-        # calculate user balance in currents
-        userid = self.request.user.id
-        verified_times = UserTimeLog.objects.filter(
-            user_id=userid
-        ).filter(
-            is_verified=True
-        )
+        # verified currents balance
+        balance_verified = self.ocuser.get_balance_available()
+        context['user_balance_verified'] = format(round(balance_verified, 2), '.2f')
 
-        event_user = set()
-
-        issued_total = 0
-        for timelog in verified_times:
-            if not timelog.event.id in event_user:
-                event_user.add(timelog.event.id)
-                issued_total += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
-
-        context['user_balance'] = round(issued_total, 2)
+        # pending currents balance
+        balance_pending = self.ocuser.get_balance_pending()
+        context['user_balance_pending'] = format(round(balance_pending, 2), '.2f')
 
         # upcoming events user is registered for
-        events_upcoming = [
-            userreg.event
-            for userreg in UserEventRegistration.objects.filter(
-                user__id=userid
-            ).filter(
-                event__datetime_start__gte=datetime.now(tz=pytz.utc)
-            )
-        ]
+        events_upcoming = self.ocuser.get_events_registered()
         context['events_upcoming'] = events_upcoming
+
+        offers_redeemed = self.ocuser.get_offers_redeemed()
+        context['offers_redeemed'] = offers_redeemed
+
+        # user timezone
         context['timezone'] = self.request.user.account.timezone
 
         return context
@@ -1114,7 +1181,6 @@ class OrgAdminView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
 
         # determine whether there are any unverified timelogs for admin
         usertimelogs = UserTimeLog.objects.filter(
-
             event__in=events
         ).filter(
             is_verified=False
@@ -1506,6 +1572,14 @@ class UpcomingEventsView(LoginRequiredMixin, SessionContextView, ListView):
     template_name = 'upcoming-events.html'
     context_object_name = 'events'
 
+    def get_context_data(self, **kwargs):
+        # skip context param determines whether we show skip button or not
+        context = super(UpcomingEventsView, self).get_context_data(**kwargs)
+        context['timezone'] = self.request.user.account.timezone
+
+        return context
+       
+
     def get_queryset(self):
         # show all public events plus private event for orgs the user is admin for
         userid = self.request.user.id
@@ -1782,27 +1856,36 @@ class EventDetailView(LoginRequiredMixin, SessionContextView, DetailView):
         is_org_admin=orguser.is_org_admin(context['event'].project.org.id)
 
         # check if event coordinator
-        is_coord = Event.objects.filter(id=context['event'].id,coordinator_email=self.request.user.email).exists()
+        is_coord = Event.objects.filter(
+            id=context['event'].id,
+            coordinator_email=self.request.user.email
+        ).exists()
 
         context['is_registered'] = is_registered
         context['admin'] = is_org_admin
         context['coordinator'] = is_coord
  
         # list of confirmed registered users 
-        context['registrants'] = ''
+        context['registrants'] = []
         if is_coord or is_org_admin:
             reg_list = []
             reg_list_names = []
-            reg_objects = UserEventRegistration.objects.filter(event__id=context['event'].id, is_confirmed=True)
+            reg_objects = UserEventRegistration.objects.filter(
+                event__id=context['event'].id,
+                is_confirmed=True
+            )
             
             for reg in reg_objects: 
-                reg_list.append(str(reg.user.email))
+                reg_list.append(reg.user.email)
                  
             context['registrants'] = reg_list
 
             for email in reg_list:
-                reg_list_names.append( str(User.objects.get(email=email).first_name + " " + User.objects.get(email=email).last_name))
- 
+                reg_user = User.objects.get(email=email)
+                reg_list_names.append(
+                    ' '.join([reg_user.first_name, reg_user.last_name])
+                )
+
             context['registrants_names'] = reg_list_names
 
         return context
@@ -2614,6 +2697,10 @@ def process_OrgNomination(request):
                 {
                     'name': 'LNAME',
                     'content': request.user.last_name
+                },
+                {
+                    'name': 'EMAIL',
+                    'content': request.user.email
                 },
                 {
                     'name': 'COORD_NAME',

@@ -230,7 +230,9 @@ class ProjectCreateForm(forms.Form):
     CHOICES = [(True, 'event-privacy-1'), (False, 'event-privacy-2')]
     
     is_public = forms.ChoiceField(
-        widget=widgets.RadioWidget,
+        widget=widgets.RadioWidget(attrs={
+            'class': 'custom-radio'
+        }),
         choices=CHOICES, 
         initial='True'
     )
@@ -316,10 +318,10 @@ class ProjectCreateForm(forms.Form):
 class EventRegisterForm(forms.Form):
     contact_message = forms.CharField(
         required=False,
-        label='Contact project coordinator (optional)',
+        label='Contact event coordinator (optional)',
         help_text='Ask a question, confirm your attendance, or just say hello',
         widget=forms.Textarea(attrs={
-            'rows': '4'
+            'rows': '3'
         }),
         max_length=16384
     )
@@ -560,3 +562,30 @@ class OfferEditForm(OfferCreateForm):
                 ))
 
         return offer_item
+
+
+class RedeemCurrentsForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        offer_id = kwargs.pop('offer_id')
+        self.offer = Offer.objects.get(id=offer_id)
+
+        super(RedeemCurrentsForm, self).__init__(*args, **kwargs)
+
+    redeem_receipt = forms.ImageField(
+         widget=forms.ClearableFileInput(attrs={
+            'class': 'hidden-file',
+            'id': 'upload-receipt'
+        })       
+    )
+
+    redeem_receipt_if_checked = forms.BooleanField(
+        widget=forms.CheckboxInput(attrs={
+            'class': 'hidden',
+            'id': 'receipt-if-checked'
+        }),
+        initial=True,
+    )
+
+    redeem_price = forms.IntegerField(
+        widget=forms.NumberInput()
+    )
