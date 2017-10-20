@@ -29,7 +29,7 @@ class Org(models.Model):
     website = models.CharField(max_length=100, null=True, blank=True)
     status = models.CharField(max_length=50, null=True)
     #mission = models.CharField(max_length=4096, null=True)
-    reason = models.CharField(max_length=4096, null=True)
+    #reason = models.CharField(max_length=4096, null=True)
 
     org_types = (
         ('biz', 'business'),
