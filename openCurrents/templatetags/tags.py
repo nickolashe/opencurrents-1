@@ -25,3 +25,7 @@ def keyvalue(d, key):
 def addstr(arg1, arg2):
     """concatenate arg1 & arg2"""
     return str(arg1) + str(arg2)
+
+@register.filter
+def percent_price(arg1, arg2):
+	return format(float(arg1) * float(arg2), '.2f')

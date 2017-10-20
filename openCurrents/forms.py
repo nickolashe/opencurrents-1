@@ -1,10 +1,14 @@
 from django import forms
 from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
+from django.core.validators import MinLengthValidator
 from django.utils.translation import ugettext as _
 from django.forms import ModelForm
 
-from openCurrents.models import Project, Org, OrgUser
+from openCurrents.models import Org, \
+    OrgUser, \
+    Offer, \
+    Project
 
 from datetime import datetime
 
@@ -214,15 +218,6 @@ class ProjectCreateForm(forms.Form):
         self.org = Org.objects.get(id=orgid)
         super(ProjectCreateForm, self).__init__(*args, **kwargs)
 
-    # project_id field
-    # self.fields['project_id'] = forms.ChoiceField(
-    #     label='Let\'s',
-    #     choices=[
-    #         (project.id, project.name)
-    #         for project in Project.objects.filter(org__id=orgid)
-    #     ]
-    # )
-
     project_name = forms.CharField(
         label='Let\'s...',
         widget=forms.TextInput(attrs={
@@ -234,7 +229,7 @@ class ProjectCreateForm(forms.Form):
     CHOICES = [(True, 'event-privacy-1'), (False, 'event-privacy-2')]
     
     is_public = forms.ChoiceField(widget=forms.RadioSelect(
-        attrs={"class": "hidden styled-radio"}), 
+        attrs={"class": "custom-radio"}), 
         choices=CHOICES, 
         initial='True'
     )
@@ -254,7 +249,6 @@ class ProjectCreateForm(forms.Form):
         })
     )
 
-
     time_start = forms.CharField(
         label='from',
         widget=forms.TextInput(attrs={
@@ -271,15 +265,6 @@ class ProjectCreateForm(forms.Form):
             'placeholder': '12:00 pm'
         })
     )
-    # location = forms.CharField(
-    # location = NotValidatedMultipleChoiceField(
-    #     label='at',
-    #     widget=forms.TextInput(attrs={
-    #         'class': 'location center',
-    #         'id': 'event-location-1',
-    #         'placeholder': 'location'
-    #     })
-    # )
 
     coordinator_firstname = forms.CharField(
         widget=forms.TextInput(attrs={'placeholder': 'First name','value':''})
@@ -290,8 +275,6 @@ class ProjectCreateForm(forms.Form):
 
     def clean(self):
         cleaned_data = super(ProjectCreateForm, self).clean()
-        #logger.info('is_public: %s', cleaned_data['is_public'])
-
         date_start = cleaned_data['date_start']
         time_start = cleaned_data['time_start']
         time_end = cleaned_data['time_end']
@@ -470,3 +453,135 @@ class TimeTrackerForm(forms.Form):
 class EventCheckinForm(forms.Form):
     userid = forms.IntegerField()
     checkin = VolunteerCheckinField()
+
+
+class OfferCreateForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        orgid = kwargs.pop('orgid')
+        self.org = Org.objects.get(id=orgid)
+        super(OfferCreateForm, self).__init__(*args, **kwargs)
+
+    offer_current_share = forms.DecimalField(
+        widget=forms.NumberInput(attrs={
+            'class': 'fit-left qtr-margin-right',
+            'min': 0,
+            'max': 100,
+            'step': 1,
+            'placeholder': 25,
+            'value': 25
+        })
+    )
+
+    offer_item = forms.CharField(
+        validators=[MinLengthValidator(1)],
+        widget=forms.TextInput(attrs={
+            'class': 'good-cat',
+            'placeholder': 'Item or category name',
+            'value': 'All products and services'
+        })
+    )
+
+    offer_limit_choice = forms.ChoiceField(
+        widget=forms.RadioSelect(attrs={
+            'class': 'custom-radio'
+        }),
+        choices=[(0, 0), (1, 1)],
+        initial=0
+    )
+
+    offer_limit_value = forms.IntegerField(
+        widget=forms.NumberInput(attrs={
+           'placeholder': 100
+        }),
+        initial=100,
+        required=False
+    )
+
+    def clean_offer_item(self):
+        offer_item = self.cleaned_data['offer_item']
+        offer = Offer.objects.filter(
+            org=self.org,
+            item__name=offer_item
+        )
+
+        if offer:
+            raise ValidationError(_(
+                ' '.join([
+                    'You\'ve already created an offer for this item.',
+                    'Please edit the offer instead.'
+                ])
+            ))
+
+        return offer_item
+
+    def clean_offer_limit_choice(self):
+        return int(self.cleaned_data['offer_limit_choice'])
+
+    def clean(self):
+        cleaned_data = super(OfferCreateForm, self).clean()
+
+        if cleaned_data['offer_limit_choice'] and \
+            ('offer_limit_value' not in cleaned_data or \
+                cleaned_data['offer_limit_value'] < 1):
+            raise ValidationError(_('Invalid limit on transactions'))
+
+        return cleaned_data
+
+
+class OfferEditForm(OfferCreateForm):
+    def __init__(self, *args, **kwargs):
+        '''
+        a) org from parent view
+        b) existing offer
+        '''
+        offer_id = kwargs.pop('offer_id')
+        self.offer_init = Offer.objects.get(id=offer_id)
+
+        super(OfferEditForm, self).__init__(*args, **kwargs)              
+
+    def clean_offer_item(self):
+        '''
+        if offer item was changed, check there is not an existing offer
+        '''
+
+        offer_item = self.cleaned_data['offer_item']
+
+        if self.offer_init.item.name != offer_item:
+            offer = Offer.objects.filter(
+                org=self.org,
+                item__name=offer_item
+            )
+
+            if offer:
+                raise ValidationError(_(
+                    'You\'ve already created an offer for this item.'
+                ))
+
+        return offer_item
+
+
+class RedeemCurrentsForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        offer_id = kwargs.pop('offer_id')
+        self.offer = Offer.objects.get(id=offer_id)
+
+        super(RedeemCurrentsForm, self).__init__(*args, **kwargs)
+
+    redeem_receipt = forms.ImageField(
+         widget=forms.ClearableFileInput(attrs={
+            'class': 'hidden-file',
+            'id': 'upload-receipt'
+        })       
+    )
+
+    redeem_receipt_if_checked = forms.BooleanField(
+        widget=forms.CheckboxInput(attrs={
+            'class': 'hidden',
+            'id': 'receipt-if-checked'
+        }),
+        initial=True,
+    )
+
+    redeem_price = forms.IntegerField(
+        widget=forms.NumberInput()
+    )
