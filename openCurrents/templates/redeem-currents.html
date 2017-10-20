@@ -68,7 +68,7 @@
               <div class="small-12 medium-8 small-centered columns">
                 <h4 class="one-margin-bottom">Upload receipt</h4>
                 <p class="three-halves-margin-bottom">
-                  To exchange Currents for dollars with {{ offer.org.name }}, upload your receipt as proof of purchase.
+                  To exchange Currents for dollars with {{ offer.org.name }}, upload your receipt as proof of purchase. Other forms of proof of purchase, such as an image of your bank statement, may or may not be accepted.
 
                   <a class="redeem-info-popup_open no-wrap">
                     Why am I paying full price?
@@ -90,9 +90,11 @@
                 <p class="small-text grey">PNG, JPEG, and GIF accepted</p>
                 <p class="half-margin-top">
                   <a class="no-receipt-popup_open">
-                    I have other proof of purchase
+                    I don't have proof of purchase
                   </a>
                 </p>
+
+                {{ form.redeem_no_proof }}
               </div>
             </div>
 
@@ -185,14 +187,14 @@
 
     <div id="no-receipt-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
-        <h3 class="popup-title">Other proof of purchase</h3>
+        <h3 class="popup-title">No proof of purchase</h3>
       </div>
       
       <div class="row center">
         <div class="small-centered medium-10 columns">
-          <p>Uploading a receipt is the only way to guarantee that [Fast Folks] will accept Currents. However, if you take a screenshot of your credit card transaction paid to [Fast Folks] with date included, they may be able to verify the transaction.</p>
+          <p>{{ offer.org.name }} may not accept Currents without a receipt, but provide any details below that may help the business verify that you made a purchase:</p>
           
-          <label for="upload-receipt" id="pop-label" class="upload-receipt-label button round small secondary"><i class="one-margin-right fa fa-upload"></i><span>Choose an image...</span></label>
+          <textarea id="no-proof-typed" rows="3" placeholder="What did you buy? When did you buy it? Who did you buy from?"></textarea>
 
           <p><button class="no-receipt-popup_close half-margin-top button round">Continue</button></p>
         </div>
@@ -214,8 +216,8 @@
           scrolllock: true,
           // Copy input value from popup to form input
           onclose: function() {
-            var text = $('#no-receipt-text').val();
-            $('#no-receipt-input').val(text);
+            var text = $('#no-proof-typed').val();
+            $('#id_redeem_no_proof').val(text);
           }
         });
 
@@ -285,15 +287,16 @@
           }
         });
 
-        // Uncheck receipt-if-checked when 'Other PoP' label is clicked
-        $('#pop-label').click(function(){
-          $('#receipt-if-checked').prop('checked', false);
-        });
+        // // Uncheck receipt-if-checked when 'Other PoP' label is clicked
+        // $('#pop-label').click(function(){
+        //   $('#receipt-if-checked').prop('checked', false);
+        // });
 
-        // Uncheck receipt-if-checked when 'Other PoP' label is clicked
-        $('#receipt-label').click(function(){
-          $('#receipt-if-checked').prop('checked', true);
-        });
+        // // Uncheck receipt-if-checked when 'Other PoP' label is clicked
+        // $('#receipt-label').click(function(){
+        //   $('#receipt-if-checked').prop('checked', true);
+        // });
+
 
         // Display current and dollar totals based on price input
         $('#offer-2').on('input', function(){
