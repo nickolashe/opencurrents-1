@@ -145,17 +145,11 @@
           <div class="one-margin-top row left">
             <div class="small-12 medium-6 small-centered columns">
               <h6 class="navy no-margin-bottom">Event coordinator</h6>
-              <p class="small-text grey">Who will respond to volunteers who register?</p>
+              <p class="small-text grey">Only the coordinator will be able to respond to volunteers once they register.</p>
 
               <div class="row">
-                <div class="input-left small-5 columns">
-                  {{ form.coordinator_firstname.errors }}
-                  {{ form.coordinator_firstname }}
-                </div>
-
-                <div class="input-right small-7 columns">
-                  {{ form.coordinator_email.errors }}
-                  {{ form.coordinator_email }}
+                <div class="small-12 medium-5 columns end">
+                  {{ form.coordinator }}
                 </div>
               </div>
             </div>

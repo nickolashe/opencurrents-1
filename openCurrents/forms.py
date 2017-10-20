@@ -266,12 +266,12 @@ class ProjectCreateForm(forms.Form):
         })
     )
 
-    coordinator_firstname = forms.CharField(
-        widget=forms.TextInput(attrs={'placeholder': 'First name','value':''})
+    coordinator = forms.ChoiceField(
+        widget= forms.Select()
     )
-    coordinator_email = forms.CharField(
-        widget=forms.TextInput(attrs={'placeholder': 'Email','value':''})
-    )
+
+
+
 
     def clean(self):
         cleaned_data = super(ProjectCreateForm, self).clean()
