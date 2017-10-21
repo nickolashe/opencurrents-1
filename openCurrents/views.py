@@ -17,8 +17,9 @@ from datetime import datetime, time, date
 from collections import OrderedDict
 from copy import deepcopy
 
-from orgs import OrgUserInfo
 from ocuser import OcUser
+from orgs import OrgUserInfo
+from auth import OcAuth
 from bizadmin import BizAdmin
 
 import math
@@ -108,6 +109,9 @@ class SessionContextView(View):
         orguserinfo = OrgUserInfo(request.user.id)
         self.org = orguserinfo.get_org()
 
+        # org auth
+        self.ocauth = OcAuth(self.userid)
+
         return super(SessionContextView, self).dispatch(
             request, *args, **kwargs
         )
@@ -116,25 +120,18 @@ class SessionContextView(View):
         context = super(SessionContextView, self).get_context_data(**kwargs)
         userid = self.request.user.id
         context['userid'] = userid
+
+        # user org
         orguser = OrgUserInfo(userid)
+        org = orguser.get_org()
         orgid = orguser.get_org_id()
         context['orgid'] = orgid
         context['org_id'] = orgid
         context['orgname'] = orguser.get_org_name()
+        context['is_admin'] = self.ocauth.is_admin()
+        context['is_admin_org'] = self.ocauth.is_admin_org()
+        context['is_admin_biz'] = self.ocauth.is_admin_biz()
 
-        is_admin = False
-        admin_org_group_names = [
-            '_'.join(['admin', str(userorg.org.id)])
-            for userorg in orguser.get_orguser()
-        ]
-        admin_org_groups = Group.objects.filter(
-            name__in=admin_org_group_names,
-            user__id=userid
-        )
-        if admin_org_groups:
-            is_admin = True
-
-        context['is_admin'] = is_admin
         return context
 
 
@@ -148,7 +145,7 @@ class BizSessionContextView(SessionContextView):
         )
 
 
-class OrgAdminPermissionMixin(LoginRequiredMixin):
+class AdminPermissionMixin(LoginRequiredMixin):
     def dispatch(self, request, *args, **kwargs):
         user = request.user
 
@@ -162,12 +159,7 @@ class OrgAdminPermissionMixin(LoginRequiredMixin):
         try:
             org_id = kwargs['org_id']
         except KeyError:
-            userorgs = OrgUserInfo(self.request.user.id)
-            org_id = userorgs.get_org_id()
-
-        if org_id is None:
-            logger.error('user %d with no org', user.id)
-            return redirect('openCurrents:500')
+            pass
 
         try:
             event_id = kwargs['event_id']
@@ -176,23 +168,55 @@ class OrgAdminPermissionMixin(LoginRequiredMixin):
         except KeyError, Event.DoesNotExist:
             pass
 
-        #logger.debug('authorize request for org id %d', org_id)
-        org_admin_group_name = '_'.join(['admin', str(org_id)])
-
-        # group is supposed to exist at this point
-        try:
-            org_admin_group = Group.objects.get(name=org_admin_group_name)
-        except Group.DoesNotExist:
-            logger.error("org exists without an admin group")
-            return redirect('openCurrents:500')
+        # org auth
+        self.ocauth = OcAuth(user.id)
 
         # check if user is in org admin group
-        if not org_admin_group.user_set.filter(id=user.id):
-            logger.warning("insufficient permission for user %s", user.username)
+        if not self.ocauth.is_admin(org_id):
+            logger.warning(
+                'insufficient permission for user %s',
+                user.username
+            )
             return redirect('openCurrents:403')
 
         # user has sufficient permissions
+        return super(AdminPermissionMixin, self).dispatch(
+            request, *args, **kwargs
+        )
+
+
+class OrgAdminPermissionMixin(AdminPermissionMixin):
+    def dispatch(self, request, *args, **kwargs):
+        userorgs = OrgUserInfo(self.request.user.id)
+        org = userorgs.get_org()
+
+        # check if user is an admin of an org
+        if org.status != 'npf':
+            logger.warning(
+                'insufficient permission for user %s',
+                request.user.username
+            )
+            return redirect('openCurrents:403')
+
         return super(OrgAdminPermissionMixin, self).dispatch(
+            request, *args, **kwargs
+        )
+
+
+class BizAdminPermissionMixin(AdminPermissionMixin):
+    def dispatch(self, request, *args, **kwargs):
+        userorgs = OrgUserInfo(self.request.user.id)
+        org = userorgs.get_org()
+
+        # check if user is an admin of an org
+        if org.status != 'biz':
+            logger.warning(
+                'insufficient permission for user %s',
+                request.user.username
+            )
+            return redirect('openCurrents:403')
+
+        return super(BizAdminPermissionMixin, self).dispatch(
             request, *args, **kwargs
         )
 
@@ -237,7 +261,7 @@ class AssignAdminsView(TemplateView):
     template_name = 'assign-admins.html'
 
 
-class BizAdminView(LoginRequiredMixin, BizSessionContextView, TemplateView):
+class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, TemplateView):
     template_name = 'biz-admin.html'
 
     def get_context_data(self, **kwargs):
@@ -557,7 +581,7 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
             action_type='req'
         )        
 
-        redirect_url = 'approve-hours' if admin_requested_hours else 'admin-profile'
+        redirect_url = 'approve-hours' if admin_requested_hours else 'org-admin'
 
         return redirect(
             'openCurrents:%s' % redirect_url,
@@ -1385,13 +1409,13 @@ class EditEventView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
         event_id = kwargs.get('event_id')
         event = Event.objects.get(id=event_id)
         if timezone.now() > event.datetime_end:
-            return redirect('openCurrents:admin-profile')
+            return redirect('openCurrents:org-admin')
         else:
             return super(EditEventView, self).dispatch(request, *args, **kwargs)
 
     def post(self, request, **kwargs):
         utc=pytz.UTC
-        event_id = kwargs.pop('event_ids')[0]
+        event_id = kwargs.pop('event_id')
         edit_event = Event.objects.get(id=event_id)
 
         # save button - needs to handled through forms
@@ -1564,7 +1588,7 @@ class EditEventView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
             # needs to be handled using forms
             edit_event.delete()
 
-        return redirect('openCurrents:admin-profile')
+        return redirect('openCurrents:org-admin')
 
 
 # TODO: prioritize view by projects which user was invited to
@@ -1584,32 +1608,14 @@ class UpcomingEventsView(LoginRequiredMixin, SessionContextView, ListView):
         # show all public events plus private event for orgs the user is admin for
         userid = self.request.user.id
 
-        # fetch orguser records
-        orguser_recs = OrgUser.objects.filter(user__id=userid)
-        orgs = [rec.org for rec in orguser_recs]
-
-        # list of org admin group names
-        org_admin_group_names = [
-            '_'.join(['admin', str(org.id)])
-            for org in orgs
-        ]
-
-        # list of org admin groups
-        org_admin_groups = Group.objects.filter(
-            name__in=org_admin_group_names,
-            user__id=userid
-        )
-
-        # admin's org ids
-        admin_org_ids = [
-            group.name.split('_')[1]
-            for group in org_admin_groups
-        ]
+        event_query_filter = Q(is_public=True)
+        if self.ocauth.is_admin_org():
+            event_query_filter |= Q(is_public=False, project__org__id=self.org.id)
 
         return Event.objects.filter(
-            datetime_end__gte=datetime.now()
+            datetime_end__gte=datetime.now(tz=pytz.utc)
         ).filter(
-            Q(is_public=True) | Q(is_public=False, project__org__id__in=admin_org_ids)
+            event_query_filter
         )
 
 
@@ -1827,7 +1833,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                     type(e)
                 )
 
-        return redirect('openCurrents:admin-profile', num_vols)
+        return redirect('openCurrents:org-admin', num_vols)
 
 
 class EventCreatedView(TemplateView):
@@ -2750,7 +2756,7 @@ def process_login(request):
                 )
 
                 # determine whether there are any unverified timelogs for admin
-                # TODO: factor out into a module (we have exact same code in admin-profile)
+                # TODO: factor out into a module (we have exact same code in org-admin)
                 usertimelogs = UserTimeLog.objects.filter(
                     event__in=events
                 ).filter(
