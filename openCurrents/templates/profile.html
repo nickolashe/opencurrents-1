@@ -28,7 +28,7 @@
             {% if is_admin_org or is_admin_biz %}
               <h6 class="inline half-margin-right">{{orgname}}</h6>
               {% if is_admin_org %}
-              <a href="{% url 'openCurrents:org-admin' %}">
+                <a href="{% url 'openCurrents:org-admin' %}">
               {% else %}
                 <a href="{% url 'openCurrents:biz-admin' %}">
               {% endif %}
@@ -122,7 +122,7 @@
                       <strong>
                         {{ offer.org.name }}
                       </strong>
-                      accepts Currents for {{ offer.currents_share }} of flat tire fixes
+                      accepts Currents for {{ offer.currents_share }}% of flat tire fixes
                     </div>
 
                     <div class="right relative small-3 columns">
