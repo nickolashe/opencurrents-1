@@ -2782,7 +2782,7 @@ def process_login(request):
                 pass
             return redirect('openCurrents:profile', app_hr)
         else:
-            return redirect('openCurrents:login', status_msg='Invalid login/password. <a class="forgotpassword-box_open">Forgot password?</a>')
+            return redirect('openCurrents:login', status_msg='Invalid login/password.')
     else:
         logger.error(
             'Invalid login: %s',
