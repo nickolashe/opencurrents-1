@@ -582,6 +582,13 @@ class RedeemCurrentsForm(forms.Form):
         initial=True,
     )
 
+    redeem_no_proof = forms.CharField(
+        required=False,
+        widget= forms.Textarea(attrs={
+            'class': 'hidden',
+            })
+        )
+
     redeem_price = forms.IntegerField(
         widget=forms.NumberInput()
     )

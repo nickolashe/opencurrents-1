@@ -108,9 +108,9 @@
               </div>
 
               <div class="right small-4 columns">
-                <!-- % if offers_redeemed % -->
-                <h6 class="half-margin-bottom">Status</h6>
-                <!-- % endif % -->
+                {% if offers_redeemed %}
+                  <h6 class="half-margin-bottom">Status</h6>
+                {% endif %}
               </div>
             </div>
 
