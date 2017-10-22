@@ -84,7 +84,7 @@ class Entity(models.Model):
     account = models.ForeignKey(
         'Account',
         related_name='accounts_entity'
-)
+    )
 
 
 class OrgEntity(Entity):
