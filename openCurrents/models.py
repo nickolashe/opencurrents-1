@@ -34,7 +34,7 @@ class Org(models.Model):
     org_types = (
         ('biz', 'business'),
         ('npf', 'non-profit')
-    )  
+    )
     status = models.CharField(
         max_length=3,
         choices=org_types,
@@ -80,10 +80,53 @@ class OrgUser(models.Model):
         ])
 
 
+class Entity(models.Model):
+    account = models.ForeignKey(
+        'Account',
+        related_name='accounts_entity'
+)
+
+
+class OrgEntity(Entity):
+    org = models.ForeignKey(Org)
+    entity_type = 'org'
+
+
+class BizEntity(Entity):
+    org = models.ForeignKey(Org)
+    entity_type = 'biz'
+
+
+class UserEntity(Entity):
+    user = models.ForeignKey(User)
+    entity_type = 'user'
+
+
 class Account(models.Model):
-    user = models.OneToOneField(User)
-    amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    pending = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    '''
+    cr_available:
+        1) hours approved (vol)
+        2) offer redemption approved (biz)
+
+    cr_pending:
+        1) hours submitted (vol)
+        2) offer redemption submitted by vol (biz)
+
+    fiat_available:
+        1) $ transfer complete
+
+    fiat_pending:
+        1) offer redemption submitted (vol)
+    '''
+    entity = models.OneToOneField(
+        Entity,
+        related_name='account_entity',
+        null=True
+    )
+    cr_available = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    cr_pending = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    fiat_available = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    fiat_pending = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     timezone = models.CharField(max_length=128, default='America/Chicago')
     monthly_updates = models.BooleanField(default=False)
 
@@ -92,7 +135,67 @@ class Account(models.Model):
     date_updated = models.DateTimeField('date last updated', auto_now=True)
 
     def __unicode__(self):
-        return ' '.join([self.user.username, '\'s account'])
+        if self.entity.entity_type == 'user':
+            return ' '.join([
+                'user',
+                self.entity.user.username,
+                '\'s account'
+            ])
+        elif self.entity.entity_type == 'org':
+            return ' '.join([
+                'org',
+                self.entity.org.name,
+                '\'s account'
+            ])
+        else:
+            return ' '.join([
+                'biz',
+                self.entity.org.name,
+                '\'s account'
+            ])
+
+
+class Ledger(models.Model):
+    '''
+    Transaction Ledger
+    '''
+    account_from = models.ForeignKey(
+        Account,
+        related_name='transaction_out'
+    )
+    account_to = models.ForeignKey(
+        Account,
+        related_name='transaction_in'
+    )
+    currency = models.CharField(
+        choices = (
+            ('cur', 'current'),
+            ('usd', 'dollar')
+        ),
+        default='cur',
+        max_length=3
+    )
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+
+    # created / updated timestamps
+    date_created = models.DateTimeField('date created', auto_now_add=True)
+    date_updated = models.DateTimeField('date updated', auto_now=True)
+
+    def __unicode__(self):
+        return ' '.join([
+            'Transaction from',
+            self.account_from.entity,
+            'to',
+            self.account_to.entity,
+            'in the amount of',
+            self.amount,
+            'on',
+            self.date_created.astimezone(
+                pytz.timezone(tz)
+            ).strftime(
+                '%Y-%m-%d %I-%M %p'
+            )
+        ])
 
 
 class Project(models.Model):
@@ -363,7 +466,7 @@ class Transaction(models.Model):
     def __unicode__(self):
         return ' '.join([
             'Transaction initiated by user',
-            self.user.username,           
+            self.user.username,
             'for offer',
             str(self.offer.id),
             'at',
@@ -399,4 +502,4 @@ class TransactionAction(models.Model):
             str(self.transaction.id),
             'at',
             self.date_updated.strftime('%m/%d/%Y %H:%M:%S'),
-        ])    
+        ])
