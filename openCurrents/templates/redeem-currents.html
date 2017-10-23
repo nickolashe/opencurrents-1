@@ -300,7 +300,8 @@
 
         // Display current and dollar totals based on price input
         $('#offer-2').on('input', function(){
-          var dollars = $('#id_redeem_price').val();
+          var share = {{ offer.currents_share }}/100;
+          var dollars = $('#id_redeem_price').val() * share;
           var currents = dollars/10;
 
           $('.currents-total').text(currents);
