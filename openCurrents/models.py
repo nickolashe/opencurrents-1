@@ -27,7 +27,6 @@ def diffInHours(t1, t2):
 class Org(models.Model):
     name = models.CharField(max_length=100, unique=True)
     website = models.CharField(max_length=100, null=True, blank=True)
-    status = models.CharField(max_length=50, null=True)
     #mission = models.CharField(max_length=4096, null=True)
     #reason = models.CharField(max_length=4096, null=True)
 
@@ -83,23 +82,32 @@ class OrgUser(models.Model):
 class Entity(models.Model):
     account = models.ForeignKey(
         'Account',
-        related_name='accounts_entity'
+        related_name='accounts_entity',
     )
 
 
+class UserEntity(Entity):
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE
+    )
+    entity_type = 'user'
+
+
 class OrgEntity(Entity):
-    org = models.ForeignKey(Org)
+    org = models.OneToOneField(
+        Org,
+        on_delete=models.CASCADE
+    )
     entity_type = 'org'
 
 
 class BizEntity(Entity):
-    org = models.ForeignKey(Org)
+    org = models.OneToOneField(
+        Org,
+        on_delete=models.CASCADE
+    )
     entity_type = 'biz'
-
-
-class UserEntity(Entity):
-    user = models.ForeignKey(User)
-    entity_type = 'user'
 
 
 class Account(models.Model):
@@ -109,6 +117,7 @@ class Account(models.Model):
         2) offer redemption approved (biz)
 
     cr_pending:
+        (based on outstanding requests)
         1) hours submitted (vol)
         2) offer redemption submitted by vol (biz)
 
@@ -116,12 +125,14 @@ class Account(models.Model):
         1) $ transfer complete
 
     fiat_pending:
+        (based on outstanding requests)
         1) offer redemption submitted (vol)
     '''
     entity = models.OneToOneField(
         Entity,
         related_name='account_entity',
-        null=True
+        null=True,
+        on_delete=models.CASCADE
     )
     cr_available = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     cr_pending = models.DecimalField(max_digits=12, decimal_places=2, default=0)
@@ -159,12 +170,12 @@ class Ledger(models.Model):
     '''
     Transaction Ledger
     '''
-    account_from = models.ForeignKey(
-        Account,
+    entity_from = models.ForeignKey(
+        Entity,
         related_name='transaction_out'
     )
-    account_to = models.ForeignKey(
-        Account,
+    entity_to = models.ForeignKey(
+        Entity,
         related_name='transaction_in'
     )
     currency = models.CharField(
@@ -176,6 +187,7 @@ class Ledger(models.Model):
         max_length=3
     )
     amount = models.DecimalField(max_digits=12, decimal_places=2)
+    is_issued = models.BooleanField(default=False)
 
     # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)

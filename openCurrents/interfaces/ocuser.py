@@ -1,8 +1,11 @@
 from datetime import datetime
 
+from django.contrib.auth.models import User
 from django.db.models import Max
 
 from openCurrents.models import \
+    UserEntity, \
+    Account, \
 	UserEventRegistration, \
     UserTimeLog, \
     AdminActionUserTime, \
@@ -13,10 +16,26 @@ import pytz
 
 
 class OcUser(object):
-    def __init__(self, userid):
+    def __init__(self, userid=None):
         self.userid = userid
 
+    def setup_user(self, username, email, first_name=None, last_name=None):
+        user = User(username=username, email=email)
+        if first_name:
+            user.first_name = first_name
+
+        if last_name:
+            user.last_name = last_name
+        user.save()
+
+        account = Account()
+        account.save()
+        UserEntity.objects.create(user=user, account=account)
+        return user
+
     def get_events_registered(self, *argv):
+        assert(self.userid)
+
         user_event_regs = UserEventRegistration.objects.filter(
             user__id=self.userid
         )
@@ -30,10 +49,15 @@ class OcUser(object):
             event__datetime_start__gte=datetime_from
         )
 
-        events = [userreg.event for userreg in user_event_regs]    	
+        events = [userreg.event for userreg in user_event_regs]
         return events
 
     def get_balance_available(self):
+        '''
+        TODO: replace with a call to a ledger-based method
+        '''
+        assert(self.userid)
+
         usertimelogs = UserTimeLog.objects.filter(
             user_id=self.userid
         ).filter(
@@ -44,6 +68,8 @@ class OcUser(object):
         return balance
 
     def get_balance_pending(self):
+        assert(self.userid)
+
         usertimelogs = UserTimeLog.objects.filter(
             user_id=self.userid
         ).filter(
@@ -98,8 +124,4 @@ class OcUser(object):
             ]
         )
 
-        return transaction_actions 
-
-
-
-
+        return transaction_actions
