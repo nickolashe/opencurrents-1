@@ -16,26 +16,30 @@ from openCurrents.interfaces.ocuser import OcUser
 
 class TestOcLedger(TestCase):
     def setUp(self):
+        '''
+        set up test fixtures
+        '''
         self.ledger = OcLedger()
 
-        # regular user
+        # set up regular user
         self.userReg = OcUser().setup_user(
             username='reg@g.com',
             email='reg@g.com',
         )
 
-        # user with a npf affiliation
+        # set up user with a npf affiliation
         self.userOrg = OcUser().setup_user(
             username='org@g.com',
             email='org@g.com',
         )
 
-        # user with a biz affiliation
+        # set up user with a biz affiliation
         self.userBiz = OcUser().setup_user(
             username='biz@g.com',
             email='biz@g.com',
         )
 
+        # set up test org
         self.orgTest = Org(name='test', status='npf')
         self.orgTest.save()
         account = Account()
@@ -50,12 +54,26 @@ class TestOcLedger(TestCase):
         )
 
     def tearDown(self):
+        '''
+        clean up test fixtures
+        '''
         self.userReg.delete()
         self.userOrg.delete()
         self.userBiz.delete()
-        Ledger.objects.all().delete()
+        self.orgTest.delete()
+        Ledger.objects.filter(
+            entity_from__id__in=[
+                self.userReg.userentity.id,
+                self.userOrg.userentity.id,
+                self.userBiz.userentity.id,
+                self.orgTest.orgentity.id
+            ]
+        ).delete()
 
     def test_initial_balance(self):
+        '''
+        test initial balances correct after set up
+        '''
         self.assertEqual(
             self.ledger.get_balance(self.userReg.userentity.id),
             1
@@ -72,6 +90,9 @@ class TestOcLedger(TestCase):
         )
 
     def test_transact_user_user(self):
+        '''
+        transact from one user to another and check balances
+        '''
         self.ledger.transact_currents(
             entity_type_from='user',
             entity_id_from=self.userReg.userentity.id,
@@ -93,6 +114,9 @@ class TestOcLedger(TestCase):
         )
 
     def test_insufficient_funds(self):
+        '''
+        check appropriate exception raised when sender has insufficient funds
+        '''
         def _insufficient_funds_transaction():
             self.ledger.transact_currents(
                 entity_type_from='user',

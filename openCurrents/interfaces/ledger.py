@@ -101,7 +101,7 @@ class OcLedger(object):
         return credit_total - debit_total
 
 
-class InsufficientFundsException(Exception):
+class InvalidEntityException(Exception):
 	pass
 
 class InsufficientFundsException(Exception):
