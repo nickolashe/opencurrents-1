@@ -70,7 +70,7 @@
             {% if events_upcoming %}
               {% for event in events_upcoming %}
                 {% if event.project.name != "ManualTracking" %}
-                <div class="row one-margin-bottom">
+                <div class="row half-margin-bottom">
                   <div class="left small-9 columns">
                     <strong>Let's {{event.project.name}}!</strong>
                     with {{event.project.org.name}} 
@@ -116,16 +116,25 @@
             {% if offers_redeemed %}
               {% for offer_redeemed in offers_redeemed %}
                 {% with offer=offer_redeemed.transaction.offer %}
-                  <div class="row one-margin-bottom">
+                  <div class="row half-margin-bottom">
                     <div class="left small-9 columns">
+                      (10/15) - 
                       <strong>
                         {{ offer.org.name }}
                       </strong>
-                      accepts Currents for {{ offer.currents_share }}% of flat tire fixes
+                      {% if offer_redeemed.get_action_type_display == 'pending' %}
+                        offers ${{ disc|percent_price:0.01 }} for 
+                        <span class="no-wrap">
+                          <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ disc|percent_price:0.001 }}
+                        </span>
+                      {% else %}
+                        accepted <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ disc|percent_price:0.001 }}
+                        for ${{ disc|percent_price:0.01 }}
+                      {% endif %}
                     </div>
 
                     <div class="right relative small-3 columns">
-                      <p> {{ offer_redeemed.get_action_type_display }} </p>
+                      {{ offer_redeemed.get_action_type_display }}
                     </div>
                   </div>
                 {% endwith %}

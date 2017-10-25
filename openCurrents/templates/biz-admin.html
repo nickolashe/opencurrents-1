@@ -123,19 +123,19 @@
               {% for org_offer_redeemed in org_offers_redeemed %}
                 {% with tr=org_offer_redeemed.transaction %}
 
-                  <div class="row half-margin-top">
+                  <div class="row">
                     <div class="left small-9 columns">
-                      <p>
+                      <p class="half-margin-bottom">
                         {{ tr.user.first_name }}
                         {{ tr.user.last_name }}
                         purchased
                         <strong>
                           {{ tr.offer.item.name }} for
-                          {{ tr.price_reported }}
+                          ${{ tr.price_reported }}
                         </strong>
                         and will receive
                         {% with disc=tr.price_reported|percent_price:tr.offer.currents_share %}
-                          {{ disc|percent_price:0.01 }}
+                          ${{ disc|percent_price:0.01 }}
                           for
                           <span class="no-wrap">
                             <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ disc|percent_price:0.001 }}
@@ -167,19 +167,19 @@
               {% for org_offer_redeemed in org_offers_redeemed %}
                 {% with tr=org_offer_redeemed.transaction %}
 
-                  <div class="row half-margin-top">
+                  <div class="row">
                     <div class="left small-9 columns">
-                      <p>
+                      <p class="half-margin-bottom">
                         {{ tr.user.first_name }}
                         {{ tr.user.last_name }}
                         purchased
                         <strong>
                           {{ tr.offer.item.name }} for
-                          {{ tr.price_reported }}
+                          ${{ tr.price_reported }}
                         </strong>
                         and will receive
                         {% with disc=tr.price_reported|percent_price:tr.offer.currents_share %}
-                          {{ disc|percent_price:0.01 }}
+                          ${{ disc|percent_price:0.01 }}
                           for
                           <span class="no-wrap">
                             <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ disc|percent_price:0.001 }}
@@ -284,8 +284,8 @@
       </div>
 
       <div class="row center three-halves-margin-top">
-        <a class="button round secondary">Accept</a>
-        <a class="button round alert">Decline</a>
+        <a class="view-receipt-popup_close button round">Close</a>
+        <a href="javascript:void(Tawk_API.toggle())" class="button round secondary">Contact us</a>
       </div>
 
     </div>
