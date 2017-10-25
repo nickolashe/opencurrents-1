@@ -216,14 +216,14 @@
                   <li><span id="currents-share-text">25</span>% of <span id="item-text">All products and services</span></li>
                 </ul>
                   
-                <p>At the end of the month, openCurrents will invoice {{ orgname }} the total value of Currents accepted, send customers dollars in exchange for Currents, and transfer Currents to {{ orgname }}. For each Current received, {{ orgname }} can either keep the Current or claim a $10 charitable donation. Initial value: $10 per <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/> 1.</span></p>
+                <p>At the end of the month, openCurrents will invoice {{ orgname }} the total value of Currents accepted, send customers dollars in exchange for Currents, and transfer Currents to {{ orgname }}. For each Current received, {{ orgname }} can either keep the Current or claim a $10 charitable donation. Initial value: $10 per <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>1.</span></p>
               </div>
             </div>
 
             <div class="row one-margin-top">
               <a class="prev-offer button round secondary">Back</a>
               <!--a class="button round">Confirm offer</a-->
-              <input type='submit' value="Confirm offer" class="one-margin-top button round"></input>              
+              <input type='submit' value="Confirm offer" class="button round"></input>              
             </div>
           </div>
 
@@ -320,7 +320,7 @@
         // Change text on Confirm page based on inputs
 
         $('#wrapper').on('input',function(){
-          var share = $('#id_currents_share').val();
+          var share = $('#id_offer_current_share').val();
           var item = $('#id_offer_item').val();
           var limit = $('#id_offer_limit_value').val();
 
