@@ -123,13 +123,13 @@
                         {{ offer.org.name }}
                       </strong>
                       {% if offer_redeemed.get_action_type_display == 'pending' %}
-                        offers ${{ disc|percent_price:0.01 }} for 
+                        offers ${# disc|percent_price:0.01 #} for 
                         <span class="no-wrap">
-                          <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ disc|percent_price:0.001 }}
+                          <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{# disc|percent_price:0.001 #}
                         </span>
                       {% else %}
-                        accepted <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ disc|percent_price:0.001 }}
-                        for ${{ disc|percent_price:0.01 }}
+                        accepted <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{# disc|percent_price:0.001 #}
+                        for ${# disc|percent_price:0.01 #}
                       {% endif %}
                     </div>
 
