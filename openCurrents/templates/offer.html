@@ -129,7 +129,7 @@
                     <div class="relative input-sizer">
 
                       {{ form.offer_item }}
-                      <i class="remove-input alert fa fa-times"></i>
+                      {# <i class="remove-input alert fa fa-times"></i> #}
 
                     </div>
                   </div>
@@ -194,7 +194,8 @@
                       <!-- <img class="current-placeholder" src="{% static 'img/symbol.svg' %}"/> -->
                       {{ form.offer_limit_value }}
                     </div>
-                  transactions</span><span>per offer per month</span>
+                  transactions </span>
+                  <span>per offer per month</span>
                 </div>
               </div>
             </div>
@@ -252,7 +253,7 @@
       </div>
       <div class="row">
         <div class="small-centered medium-10 columns">
-          <p>To add more offers, complete this offer first. From your business profile, you can click "Create offer" to list additional products and services.</p>
+          <p>To add more offers, complete this offer first. From your business profile, you can click "Post an offer" to list additional products and services.</p>
 
           <p class="center three-halves-margin-top">
             <a class="add-item-popup_close button round">Got it</a>
@@ -327,6 +328,13 @@
           $('#currents-share-text').text(share);
           $('#item-text').text(item);
           $('#limit-amount-text').text(limit);
+        });
+
+        // Display limit dropdown if "Set limit" is checked
+        $(document).ready(function(){
+          if ($('#id_offer_limit_choice_1').is(':checked')) {
+            $('#monthly-limit-div').removeClass('hidden');
+          }
         });
 
         // Show/hide monthly limit input
