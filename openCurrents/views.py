@@ -2026,6 +2026,10 @@ def event_register(request, pk):
             {
                 'name': 'EVENT_ID',
                 'content': event.id
+            },
+            {
+                'name': 'EVENT_NAME',
+                'content': event.project.name
             }
         ]
         if message:
