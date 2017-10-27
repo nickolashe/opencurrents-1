@@ -34,7 +34,8 @@
               <h6 class="no-margin-bottom">
                 from {{ event.datetime_start|time:event.project.org.timezone }} to {{ event.datetime_end|time:event.project.org.timezone }}
               </h6>
-              <h6 class="one-margin-bottom">at {{ event.location }}</h6>
+              <h6 class="half-margin-bottom">at {{ event.location }}</h6>
+              <p class="small-text">(Public/private) event</p>
             </div>
           </div>
 
