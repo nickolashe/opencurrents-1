@@ -132,11 +132,11 @@
                 <h4 class="one-margin-bottom">Confirm exchange</h4>
 
                 <p class="one-margin-bottom">
-                  I agree to give <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}"/><span class="currents-total"></span> to {{ offer.org.name }} in exchange for $<span class="dollars-total"></span>.
+                  I agree to give <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}"/><span class="currents-total"></span> to {{ offer.org.name }} in exchange for $<span class="dollars-total"></span> minus a 10% transaction fee of $<span class="dollars-fee"></span>.
                 </p>
 
                 <p>
-                  I understand that $<span class="dollars-total"></span> will be added to my account as Pending Dollars, which will become Available Dollars once {{ offer.org.name }} validates the transaction at the end of the month. <span class="currents-total"></span> Currents will be deducted from my account at this time. I can then transfer Available Dollars to my bank account or keep the balance in my openCurrents account.
+                  I understand that $<span class="dollars-received"></span> will be added to my account as Pending Dollars, which will become Available Dollars once {{ offer.org.name }} validates the transaction at the end of the month. <span class="currents-total"></span> Currents will be deducted from my account at this time. I can then transfer Available Dollars to my bank account or keep the balance in my openCurrents account.
                 </p>
 
                 <div class="row three-halves-margin-top">
@@ -301,11 +301,14 @@
         // Display current and dollar totals based on price input
         $('#offer-2').on('input', function(){
           var share = {{ offer.currents_share }}/100;
-          var dollars = $('#id_redeem_price').val() * share;
+          var dollars = ($('#id_redeem_price').val() * share).toFixed(2);
           var currents = dollars/10;
+          var fee = currents.toFixed(2);
 
           $('.currents-total').text(currents);
           $('.dollars-total').text(dollars);
+          $('.dollars-fee').text(fee);
+          $('.dollars-received').text(dollars - fee);
         });
       });
     </script>
