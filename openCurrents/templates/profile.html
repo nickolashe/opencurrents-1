@@ -240,19 +240,21 @@
     </div>
 
     <div id="welcome-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <div class="row center">
-        <div class="small-centered medium-10 columns">
-          <h3 class="one-margin-top">Welcome to openCurrents!</h3>
-          <p class="three-halves-margin-top">We're excited to have you with us in the community. You are now able to start creating Currents with our pilot nonprofits! Soon you will be able to exchange Currents through a digital marketplace and see what like minded peers are doing in your community.</p>
+      <form method='post'>
+        <div class="row center">
+          <div class="small-centered medium-10 columns">
+            <h4 class="one-margin-top">Welcome to the openCurrents beta</h4>
+            <p class="three-halves-margin-top">We're excited to have you with us! We are currently in beta phase, which is focused on improving the website based on your feedback and growing the community with your support. It will not be possible to fulfill our mission without your buy-in.</p>
 
-          <p>If you'd like to learn more about openCurrents or get involved, let us know!</p>
+            <p>Are you willing to help us connect with businesses where you shop or nonprofits where you volunteer?</p>
 
-          <p class="three-halves-margin-top">
-            <a href="javascript:void(Tawk_API.toggle())" class="button round small">Get in touch</a>
-            <a class="welcome-popup_close button round small secondary">Close</a>
-          </p>
+            <p class="three-halves-margin-top">
+              <a type="submit" class="button round">Yes</a>
+              <a type="submit" class="button round secondary">No</a>
+            </p>
+          </div>
         </div>
-      </div>
+      </form>
     </div>
 
     <div id="earn-currents-popup" class="modal center small-12 medium-10 large-8 small-centered columns">
@@ -368,7 +370,7 @@
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: true,
-          // autoopen: true,
+          autoopen: true,
         });
 
         $('.mini-open').click(function(){
