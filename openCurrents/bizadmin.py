@@ -33,19 +33,29 @@ class BizAdmin(object):
         )
         return offers
 
-    def get_redemptions(self):
+    def get_redemptions(self, status=None):
         transactions = Transaction.objects.filter(
             offer__org__id=self.org.id
         ).annotate(
             last_action_created=Max('transactionaction__date_created')
         )
 
-        # transaction status
+        # redemption requests
         org_offers_redeemed = TransactionAction.objects.filter(
             date_created__in=[
                 tr.last_action_created for tr in transactions
             ]
         )
+
+        # filter by status
+        if status == 'pending':
+            org_offers_redeemed = org_offers_redeemed.filter(
+                action_type='req'
+            )
+        elif status == 'approved':
+            org_offers_redeemed = org_offers_redeemed.filter(
+                action_type='app'
+            )
 
         return org_offers_redeemed
 

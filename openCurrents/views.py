@@ -128,6 +128,7 @@ class SessionContextView(View):
         context['orgid'] = orgid
         context['org_id'] = orgid
         context['orgname'] = orguser.get_org_name()
+        context['org_timezone'] = orguser.get_org_timezone()
         context['is_admin'] = self.ocauth.is_admin()
         context['is_admin_org'] = self.ocauth.is_admin_org()
         context['is_admin_biz'] = self.ocauth.is_admin_biz()
@@ -271,9 +272,13 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, TemplateView)
         offers = self.bizadmin.get_offers_all()
         context['offers'] = offers
 
-        # list biz's redeemed offers
-        org_offers_redeemed = self.bizadmin.get_redemptions()
-        context['org_offers_redeemed'] = org_offers_redeemed
+        # list biz's pending offer redemption requests
+        redeemed_pending = self.bizadmin.get_redemptions(status='pending')
+        context['redeemed_pending'] = redeemed_pending
+
+        # list biz's accepted offer redemption requests
+        redeemed_approved = self.bizadmin.get_redemptions(status='approved')
+        context['redeemed_approved'] = redeemed_approved
 
         return context
 
@@ -363,7 +368,7 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
         actions = main_timelog[0]
         time_log_week = main_timelog[1]
 
-        # check usertimelogs for up to a month ahead 
+        # check usertimelogs for up to a month ahead
         week_num = 0
         today = timezone.now()
 
@@ -449,7 +454,7 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
         )
         time_log_week = OrderedDict()
         requested_actions = self.get_requested_actions(week_startdate_monday, events)
- 
+
         return [requested_actions, time_log_week]
 
     def get_requested_actions(self, week_date, events, user=None):
@@ -546,7 +551,7 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
                         admin_userid
                     )
                 vols_approved += 1
-   
+
             if action_type == 'dec':
                 vols_declined += 1
 
@@ -579,7 +584,7 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
             ]
         ).filter(
             action_type='req'
-        )        
+        )
 
         redirect_url = 'approve-hours' if admin_requested_hours else 'org-admin'
 
@@ -705,7 +710,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         action = TransactionAction(
             transaction=transaction
         )
-        action.save()        
+        action.save()
 
         logger.debug(
             'Transaction %d for offer %d was requested by userid %d',
@@ -1100,7 +1105,8 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         context['offers_redeemed'] = offers_redeemed
 
         # user timezone
-        context['timezone'] = self.request.user.account.timezone
+        #context['timezone'] = self.request.user.account.timezone
+        context['timezone'] = 'America/Chicago'
 
         return context
 
@@ -1162,7 +1168,7 @@ class OrgAdminView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
 
                 admin_approved_actions = timelog.adminactionusertime_set.filter(
                     user_id=admin_id,
-                    action_type='app' 
+                    action_type='app'
                 )
                 if admin_approved_actions:
                     issued_by_admin += event_hours
@@ -1602,7 +1608,7 @@ class UpcomingEventsView(LoginRequiredMixin, SessionContextView, ListView):
         context['timezone'] = self.request.user.account.timezone
 
         return context
-       
+
 
     def get_queryset(self):
         # show all public events plus private event for orgs the user is admin for
@@ -1870,8 +1876,8 @@ class EventDetailView(LoginRequiredMixin, SessionContextView, DetailView):
         context['is_registered'] = is_registered
         context['admin'] = is_org_admin
         context['coordinator'] = is_coord
- 
-        # list of confirmed registered users 
+
+        # list of confirmed registered users
         context['registrants'] = []
         if is_coord or is_org_admin:
             reg_list = []
@@ -1880,10 +1886,10 @@ class EventDetailView(LoginRequiredMixin, SessionContextView, DetailView):
                 event__id=context['event'].id,
                 is_confirmed=True
             )
-            
-            for reg in reg_objects: 
+
+            for reg in reg_objects:
                 reg_list.append(reg.user.email)
-                 
+
             context['registrants'] = reg_list
 
             for email in reg_list:
@@ -1986,13 +1992,13 @@ class AddVolunteersView(TemplateView):
 
 class OfferCreateView(LoginRequiredMixin, SessionContextView, FormView):
     template_name = 'offer.html'
-    form_class = OfferCreateForm  
+    form_class = OfferCreateForm
 
     def form_valid(self, form):
         data = form.cleaned_data
 
         offer_item, was_created = Item.objects.get_or_create(name=data['offer_item'])
-        
+
         offer = Offer(
             org=self.org,
             item=offer_item,
@@ -2034,7 +2040,7 @@ class OfferCreateView(LoginRequiredMixin, SessionContextView, FormView):
 
 class OfferEditView(OfferCreateView):
     template_name = 'edit-offer.html'
-    form_class = OfferEditForm  
+    form_class = OfferEditForm
 
     def dispatch(self, request, *args, **kwargs):
         # get existing ofer
@@ -2152,7 +2158,7 @@ def event_checkin(request, pk):
                 usertimelog = UserTimeLog(
                     user=User.objects.get(id=request.user.id),
                     event=event,
-                    is_verified=True,                    
+                    is_verified=True,
                     datetime_start=datetime.now(tz=pytz.UTC)
                 )
                 usertimelog.save()
@@ -2274,8 +2280,8 @@ def event_register(request, pk):
                 #contact all volunteers
                 reg_list_uniques = []
                 reg_list = UserEventRegistration.objects.filter(event__id=event.id, is_confirmed=True)
-                
-                for reg in reg_list: 
+
+                for reg in reg_list:
                     if(reg.user.email not in reg_list_uniques):
                         reg_list_uniques.append({"email":reg.user.email, "name":reg.user.first_name,"type":"to"})
                 try:
@@ -2662,7 +2668,7 @@ def process_signup(request, referrer=None, endpoint=False, verify_email=True):
                    'openCurrents:check-email',
                    user_email,
                 )
-                
+
 
     # fail with form validation error
     else:
