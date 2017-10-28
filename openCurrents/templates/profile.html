@@ -344,11 +344,16 @@
 
       <div class="row center">
         <div class="small-centered medium-10 columns">
+          <p class="three-halves-margin-bottom">
+            Volunteers have tracked hours and need your signoff before Currents are issued to them. It is recommended that you approve volunteer hours once a week.
+          </p>
 
-          <p class="three-halves-margin-bottom">Volunteers have tracked hours and need your signoff before Currents are issued to them. It is recommended that you approve volunteer hours once a week.</p>
-
-          <a href="{% url 'openCurrents:approve-hours' %}" class="button round">View requests</button>
-          <a><button class="approve-hours-popup_close button round secondary">Close</button></a>
+          <a href="{% url 'openCurrents:approve-hours' %}" class="button round">
+            View requests
+          </a>
+          <a class="approve-hours-popup_close button round secondary">
+            Close
+          /a>
         </div>
       </div>
     </div>
@@ -396,12 +401,12 @@
     <script type="text/javascript">
 
       if ({{app_hr}}){
-          $('#approve-hours-popup').popup({
-            vertical: 'top',
-            transition: 'all 0.75s',
-            scrolllock: true,
-            autoopen: true,
-          });
+        $('#approve-hours-popup').popup({
+          vertical: 'top',
+          transition: 'all 0.75s',
+          scrolllock: true,
+          autoopen: true,
+        });
       }
     </script>
 
