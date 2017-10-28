@@ -198,46 +198,45 @@
             </div>
           </div>
         {% endif %}
-
         
-          <div id="reviewed-hours-list" class="left row one-margin-top full-width collapse">
-            <div class="small-11 medium-10 small-centered columns">
-              <div class="row">
-                <div class="small-9 columns">
-                  <h6 class="half-margin-bottom">Reviewed hours</h6>
-                </div>
-
-                <div class="right small-3 columns">
-                  {# {% if hours_reviewed %} #}
-                    <h6 class="half-margin-bottom">Status</h6>
-                  {# {% endif %} #}
-                </div>
+        <div id="reviewed-hours-list" class="left row one-margin-top full-width collapse">
+          <div class="small-11 medium-10 small-centered columns">
+            <div class="row">
+              <div class="small-9 columns">
+                <h6 class="half-margin-bottom">Reviewed hours</h6>
               </div>
 
-              {# {% if hours_reviewed %} #}
-                {# {% for record in hours_reviewed %} #}
-                  <div class="row half-margin-bottom">
-                    <div class="left input-left small-9 columns">
-                      [10/15] - [firstname] [lastname] recorded # hours for [description]
-                    </div>
+              <div class="right small-3 columns">
+                {# {% if hours_reviewed %} #}
+                  <h6 class="half-margin-bottom">Status</h6>
+                {# {% endif %} #}
+              </div>
+            </div>
 
-                    <div class="right relative small-3 columns">
-                      [Accepted]
-                    </div>
-                  </div>
-                {# {% endfor %} #}
-              {# {% else %} #}
+            {# {% if hours_reviewed %} #}
+              {# {% for record in hours_reviewed %} #}
                 <div class="row half-margin-bottom">
                   <div class="left input-left small-9 columns">
-                    No hours have been reviewed. 
-                    <a href="{% url 'openCurrents:invite-volunteers' %}">
-                      Invite volunteers!
-                    </a>
+                    [10/15] - [firstname] [lastname] recorded # hours for [description]
+                  </div>
+
+                  <div class="right relative small-3 columns">
+                    [Accepted]
                   </div>
                 </div>
-              {# {% endif %} #}
-            </div>
+              {# {% endfor %} #}
+            {# {% else %} #}
+              <div class="row half-margin-bottom">
+                <div class="left input-left small-9 columns">
+                  No hours have been reviewed. 
+                  <a href="{% url 'openCurrents:invite-volunteers' %}">
+                    Invite volunteers!
+                  </a>
+                </div>
+              </div>
+            {# {% endif %} #}
           </div>
+        </div>
 
 
         <!-- community feed code. Hardcoded not dynamic -->
