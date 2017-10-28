@@ -118,17 +118,17 @@
           </div>
         </div>
 
-        {% macro redemption_list_macro arg_list arg_status %}
+        {% macro redemption_list_macro arg_list arg_status arg_timezone %}
           {% block redemption_list %}
-            {% with redemptions=arg_list redemption_status=arg_status %}
+            {% with redemptions=arg_list redemption_status=arg_status timezone=arg_timezone %}
               {{ block.super }}
             {% endwith %}
           {% endblock %}
         {% endmacro %}
 
-        {% usemacro redemption_list_macro redeemed_pending 'Pending' %}
+        {% usemacro redemption_list_macro redeemed_pending 'Pending' org_timezone %}
 
-        {% usemacro redemption_list_macro redeemed_approved 'Approved' %}
+        {% usemacro redemption_list_macro redeemed_approved 'Approved' org_timezone %}
 
         <!-- community feed code. Hardcoded not dynamic -->
         <!-- <div class="row one-margin-top">

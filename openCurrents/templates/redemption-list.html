@@ -16,6 +16,7 @@
               <div class="row">
                 <div class="left small-9 columns">
                   <p class="half-margin-bottom">
+                    {{ req.date_updated|day:timezone }} - 
                     {{ tr.user.first_name }}
                     {{ tr.user.last_name }}
                     purchased

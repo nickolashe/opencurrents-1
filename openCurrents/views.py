@@ -128,6 +128,7 @@ class SessionContextView(View):
         context['orgid'] = orgid
         context['org_id'] = orgid
         context['orgname'] = orguser.get_org_name()
+        context['org_timezone'] = orguser.get_org_timezone()
         context['is_admin'] = self.ocauth.is_admin()
         context['is_admin_org'] = self.ocauth.is_admin_org()
         context['is_admin_biz'] = self.ocauth.is_admin_biz()
