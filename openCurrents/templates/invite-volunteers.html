@@ -25,8 +25,7 @@
           {% else %}
             <p>to record hours with openCurrents</p>
           {% endif %}
-          <a class="bulk-email-popup_open button round small secondary">Copy/paste email list</a>
-          <p class="">or add volunteers individually:</p>
+          <p><a class="personal-message-popup_open button tiny round secondary">Add personal message</a></p>
         </div>
         <form action ="" name="theForm" id="form_id" method="post">
         {% csrf_token %}
@@ -34,7 +33,7 @@
             <div class="small-12 medium-8 small-centered columns">
               <div id="vol-invites-box" name="vol-invites-box" class="row">
                 <div class="small-6 columns">
-                  <input type="text" name="vol-name-1" placeholder="First name" />
+                  <input type="text" name="vol-name-1" placeholder="First name (optional)" />
                 </div>
                 <div class="small-6 columns">
                   <input type="text" name="vol-email-1" placeholder="Email" />
@@ -57,19 +56,12 @@
 
               <div class="row one-margin-bottom left">
                 <div class="column">
-                  <a id="add-volunteer" class="blue-icon"><i class="fa fa-plus-circle half-margin-left half-margin-right"></i>Add volunteer</a>
+                  <a id="add-volunteer" class="blue-icon"><i class="fa fa-plus-circle half-margin-left half-margin-right"></i>Add volunteer</a> or <a class="bulk-email-popup_open">add many at once</a>
                 </div>
               </div>
 
-              <div class="personal-message one-margin-bottom hidden">
-                A message from {{ user.first_name }} {{ user.last_name }}:
-                <textarea placeholder="Your message (optional)"></textarea>
-              </div>
-              
-              <p><a class="add-message">Add personal message</a></p>
+              <textarea id="personal-message-submit" class="hidden" placeholder="A message from {{ user.first_name }} {{ user.last_name }}"></textarea>
             </div>
-
-            
 
             <!--<a href="{% url 'openCurrents:org-admin' %}" class="button round secondary">Send invites</a>-->
             <button type='submit' id="button_1" class="button round">Send invites<input type="hidden" id="count-vol" name="count-vol" value="3" /></button>
@@ -98,6 +90,27 @@
       {% include 'partials/menu.html' %}
     </div>
 
+    <div id="personal-message-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h5 class="popup-title">A message from {{ user.first_name }} {{ user.last_name }}:</h5>
+      </div>
+
+      <div class="row center">
+        <div class="medium-10 small-centered column">
+          <textarea id="personal-message-typed" placeholder="Your message (optional)"></textarea>
+        </div>
+      </div>
+
+      <div class="center">
+        <a id="save-message" class="personal-message-popup_close button round small">
+          Save
+        </a>
+        <a class="personal-message-popup_close button round small secondary">
+          Cancel
+        </a>
+      </div>
+    </div>
+
     <div id="bulk-email-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
         <h3 class="popup-title">Add email list</h3>
@@ -108,9 +121,9 @@
           <p>Add multiple emails separated by spaces, new lines, or commas:</p>
           <textarea name="bulk-emails" id = "bulk-emails" placeholder="email@yahoo.com, address@aol.com" rows="3"></textarea>
 
-          <p><a class="add-message half-margin-bottom">Add personal message</a></p>
+          <p><a id="add-message-bulk" class="half-margin-bottom">Add personal message</a></p>
 
-          <div class="personal-message one-margin-bottom hidden">
+          <div id="personal-message-bulk" class="one-margin-bottom hidden">
             A message from {{ user.first_name }} {{ user.last_name }}:
             <textarea placeholder="Your message (optional)"></textarea>
           </div>
@@ -125,6 +138,7 @@
     <script type="text/javascript">
       $(document).ready(function(){
 
+        // Add volunteers
         var vols = 3;
 
         $('#add-volunteer').click(function() {
@@ -132,27 +146,32 @@
           vols ++;
           document.getElementById('count-vol').value = vols;//$('#count-vol').value = vols;
 
-          $('#vol-invites-box').append('<div class="hidden slide small-6 columns"><input type="text" name="vol-name-'+vols+'" id="vol-name-'+vols+'" placeholder="First name (optional)" /></div><div class="hidden small-6 columns"><input type="text" name="vol-email-'+vols+'" id="vol-email-'+vols+'" placeholder="Email" /></div>');
+          $('#vol-invites-box').append('<div class="hidden slide small-6 columns"><input type="text" name="vol-name-'+vols+'" id="vol-name-'+vols+'" placeholder="First name" /></div><div class="hidden small-6 columns"><input type="text" name="vol-email-'+vols+'" id="vol-email-'+vols+'" placeholder="Email" /></div>');
           $('#vol-invites-box .hidden').slideDown();
         });
 
-        $('.add-message').click(function(){
-          $('.add-message').hide();
-          $('.personal-message').slideDown();
+        // Copy personal message from popup to input in form
+        $('#save-message').click(function(){
+          var text = $('#personal-message-typed').val();
+          $('#personal-message-submit').val(text).slideDown();
+        });
+
+        $('#add-message-bulk').click(function(){
+          $(this).hide();
+          $('#personal-message-bulk').slideDown();
         });
       });
 
-      $('#bulk-email-popup').popup({
-          vertical: 'top',
-          transition: 'all 0.75s',
-          scrolllock: true,
-        });
+      $('#bulk-email-popup, #personal-message-popup').popup({
+        vertical: 'top',
+        transition: 'all 0.75s',
+        scrolllock: true,
+      });
 
       function submit_from_bulk(){
 
           document.getElementById("bulk-vol").value = document.getElementById("bulk-emails").value;
           document.forms.theForm.submit();
-
       }
     </script>
 
