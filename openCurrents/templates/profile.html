@@ -54,7 +54,7 @@
               <div class="small-12 medium-6 columns">
                 <h6 class="qtr-margin-bottom">Dollars available: $(20)</h6>
                 <p class="grey half-margin-bottom">Pending: $(10)</p>
-                
+
                 <!-- if available_dollars this button should have class cash-out-popup_open else no-cash-popup_open -->
                 <a class="cash-out-popup_open button round secondary tiny">
                   Cash out
@@ -73,7 +73,7 @@
                 <div class="row half-margin-bottom">
                   <div class="left small-9 columns">
                     <strong>Let's {{event.project.name}}!</strong>
-                    with {{event.project.org.name}} 
+                    with {{event.project.org.name}}
                     on {{event.datetime_start|day:timezone}}
                     from {{event.datetime_start|time:timezone}}
                     to {{event.datetime_end|time:timezone}}
@@ -90,7 +90,7 @@
                 {% endif %}
               {% endfor %}
             {% else %}
-              <p>You are not registered for any upcoming events. 
+              <p>You are not registered for any upcoming events.
                 <a href="{% url 'openCurrents:upcoming-events' %}">
                   Find one!
                 </a>
@@ -98,7 +98,7 @@
             {% endif %}
           </div>
         </div>
-        
+
         <div class="row collapse one-margin-top left">
           <div class="small-11 medium-10 small-centered columns">
             <div class="row">
@@ -115,32 +115,37 @@
 
             {% if offers_redeemed %}
               {% for offer_redeemed in offers_redeemed %}
-                {% with offer=offer_redeemed.transaction.offer %}
+                {% with transaction=offer_redeemed.transaction status=offer_redeemed.get_action_type_display %}
                   <div class="row half-margin-bottom">
                     <div class="left small-9 columns">
-                      (10/15) - 
+                      {{ offer_redeemed.date_updated|day:timezone }} -
                       <strong>
-                        {{ offer.org.name }}
+                        {{ transaction.offer.org.name }}
                       </strong>
-                      {% if offer_redeemed.get_action_type_display == 'pending' %}
-                        offers ${# disc|percent_price:0.01 #} for 
-                        <span class="no-wrap">
-                          <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{# disc|percent_price:0.001 #}
-                        </span>
-                      {% else %}
-                        accepted <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{# disc|percent_price:0.001 #}
-                        for ${# disc|percent_price:0.01 #}
-                      {% endif %}
+                      {% with price=transaction.price_reported percent_share=transaction.offer.currents_share|percent_to_price %}
+                        {% with price_share=price|mult:percent_share %}
+                          {% if status == 'pending' %}
+                            offers ${{ price_share|floatformat:2 }} for
+                            <span class="no-wrap">
+                              <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ price_share|usd_to_current|floatformat:3 }}
+                            </span>
+                          {% elif status == 'approved' %}
+                            accepted
+                            <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ price_share|usd_to_current|floatformat:3 }}
+                            for ${{ price_share|floatformat:2 }}
+                          {% endif %}
+                        {% endwith %}
+                      {% endwith %}
                     </div>
 
                     <div class="right relative small-3 columns">
-                      {{ offer_redeemed.get_action_type_display }}
+                      {{ status }}
                     </div>
                   </div>
                 {% endwith %}
               {% endfor %}
             {% else %}
-              <p>You have not yet redeemed any offers. Check out the 
+              <p>You have not yet redeemed any offers. Check out the
                 <a href="{% url 'openCurrents:marketplace' %}">
                   marketplace!
                 </a>

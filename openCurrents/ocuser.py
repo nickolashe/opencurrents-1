@@ -30,7 +30,7 @@ class OcUser(object):
             event__datetime_start__gte=datetime_from
         )
 
-        events = [userreg.event for userreg in user_event_regs]    	
+        events = [userreg.event for userreg in user_event_regs]
         return events
 
     def get_balance_available(self):
@@ -98,8 +98,4 @@ class OcUser(object):
             ]
         )
 
-        return transaction_actions 
-
-
-
-
+        return transaction_actions

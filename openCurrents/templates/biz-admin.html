@@ -1,6 +1,9 @@
-{% load staticfiles %}
-{% load tags %}
+{% extends 'redemption-list.html' %}
 
+{% load staticfiles %}
+{% load macros %}
+
+{% block main %}
 <!DOCTYPE html>
 <html>
   <head>
@@ -28,7 +31,7 @@
             <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="fit-left round" />
             <span class="input-sizer"> -->
               <h5 class="one-margin-top no-margin-bottom trim-text"> {{ orgname }} </h5>
-              <h6>{{ user.first_name }} {{ user.last_name }}</h6>     
+              <h6>{{ user.first_name }} {{ user.last_name }}</h6>
             <!-- </span> -->
           </div>
 
@@ -107,7 +110,7 @@
             {% else %}
                 <div class="row">
                   <div class="left small-12 columns">
-                    <p>[ org_name ] has not made any offers. <a href="{% url 'openCurrents:offer' %}">Create one!</a></p>
+                    <p>{{ orgname }} has not made any offers. <a href="{% url 'openCurrents:offer' %}">Create one!</a></p>
                   </div>
                 </div>
 
@@ -115,94 +118,17 @@
           </div>
         </div>
 
-        {% if org_offers_redeemed %}
-          <div class="left row one-margin-top full-width collapse">
-            <div class="small-11 medium-10 small-centered columns">
+        {% macro redemption_list_macro arg_list arg_status arg_timezone %}
+          {% block redemption_list %}
+            {% with redemptions=arg_list redemption_status=arg_status timezone=arg_timezone %}
+              {{ block.super }}
+            {% endwith %}
+          {% endblock %}
+        {% endmacro %}
 
-              <h6 class="half-margin-bottom">Pending redemptions</h6>
+        {% usemacro redemption_list_macro redeemed_pending 'Pending' org_timezone %}
 
-              {% for org_offer_redeemed in org_offers_redeemed %}
-                {% with tr=org_offer_redeemed.transaction %}
-
-                  <div class="row">
-                    <div class="left small-9 columns">
-                      <p class="half-margin-bottom">
-                        {{ tr.user.first_name }}
-                        {{ tr.user.last_name }}
-                        purchased
-                        <strong>
-                          {{ tr.offer.item.name }} for
-                          ${{ tr.price_reported }}
-                        </strong>
-                        and will receive
-                        {% with disc=tr.price_reported|percent_price:tr.offer.currents_share %}
-                          ${{ disc|percent_price:0.01 }}
-                          for
-                          <span class="no-wrap">
-                            <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ disc|percent_price:0.001 }}
-                          </span>
-                        {% endwith %}
-                      </p>
-                    </div>
-
-                    <div class="right relative small-3 columns">
-                      <a class="mini-open"><i class="blue half-margin-right fa-chevron-circle-down fa fa-lg"></i></a>
-                      <ul class="mini-menu">
-                        <a class="view-receipt-popup_open"><li>View receipt</li></a>
-                      </ul>
-                    </div>
-                  </div>
-
-                {% endwith %}
-              {% endfor %}
-
-            </div>
-          </div>
-        {% endif %}
-
-        {% if org_offers_redeemed %}
-          <div class="left row one-margin-top full-width collapse">
-            <div class="small-11 medium-10 small-centered columns">
-              <h6 class="half-margin-bottom">Accepted redemptions</h6>
-
-              {% for org_offer_redeemed in org_offers_redeemed %}
-                {% with tr=org_offer_redeemed.transaction %}
-
-                  <div class="row">
-                    <div class="left small-9 columns">
-                      <p class="half-margin-bottom">
-                        {{ tr.user.first_name }}
-                        {{ tr.user.last_name }}
-                        purchased
-                        <strong>
-                          {{ tr.offer.item.name }} for
-                          ${{ tr.price_reported }}
-                        </strong>
-                        and will receive
-                        {% with disc=tr.price_reported|percent_price:tr.offer.currents_share %}
-                          ${{ disc|percent_price:0.01 }}
-                          for
-                          <span class="no-wrap">
-                            <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ disc|percent_price:0.001 }}
-                          </span>
-                        {% endwith %}
-                      </p>
-                    </div>
-
-                    <div class="right relative small-3 columns">
-                      <a class="mini-open"><i class="blue half-margin-right fa-chevron-circle-down fa fa-lg"></i></a>
-                      <ul class="mini-menu">
-                        <a class="view-receipt-popup_open"><li>View receipt</li></a>
-                      </ul>
-                    </div>
-                  </div>
-
-                {% endwith %}
-              {% endfor %}
-
-            </div>
-          </div>
-        {% endif %}
+        {% usemacro redemption_list_macro redeemed_approved 'Approved' org_timezone %}
 
         <!-- community feed code. Hardcoded not dynamic -->
         <!-- <div class="row one-margin-top">
@@ -320,3 +246,4 @@
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
   </body>
 </html>
+{% endblock main %}
