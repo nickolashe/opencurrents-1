@@ -127,11 +127,11 @@
                           {% if status == 'pending' %}
                             offers ${{ price_share|floatformat:2 }} for
                             <span class="no-wrap">
-                              <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ price_share|mult:0.1|floatformat:3 }}
+                              <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ price_share|usd_to_current|floatformat:3 }}
                             </span>
                           {% elif status == 'approved' %}
                             accepted
-                            <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ price_share|mult:0.1|floatformat:3 }}
+                            <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ price_share|usd_to_current|floatformat:3 }}
                             for ${{ price_share|floatformat:2 }}
                           {% endif %}
                         {% endwith %}
