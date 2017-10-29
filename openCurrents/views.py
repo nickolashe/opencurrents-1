@@ -128,6 +128,7 @@ class SessionContextView(View):
         context['orgid'] = orgid
         context['org_id'] = orgid
         context['orgname'] = orguser.get_org_name()
+        context['org_timezone'] = orguser.get_org_timezone()
         context['is_admin'] = self.ocauth.is_admin()
         context['is_admin_org'] = self.ocauth.is_admin_org()
         context['is_admin_biz'] = self.ocauth.is_admin_biz()
@@ -271,9 +272,13 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, TemplateView)
         offers = self.bizadmin.get_offers_all()
         context['offers'] = offers
 
-        # list biz's redeemed offers
-        org_offers_redeemed = self.bizadmin.get_redemptions()
-        context['org_offers_redeemed'] = org_offers_redeemed
+        # list biz's pending offer redemption requests
+        redeemed_pending = self.bizadmin.get_redemptions(status='pending')
+        context['redeemed_pending'] = redeemed_pending
+
+        # list biz's accepted offer redemption requests
+        redeemed_approved = self.bizadmin.get_redemptions(status='approved')
+        context['redeemed_approved'] = redeemed_approved
 
         return context
 
@@ -1100,7 +1105,8 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         context['offers_redeemed'] = offers_redeemed
 
         # user timezone
-        context['timezone'] = self.request.user.account.timezone
+        #context['timezone'] = self.request.user.account.timezone
+        context['timezone'] = 'America/Chicago'
 
         return context
 
@@ -2788,7 +2794,7 @@ def process_login(request):
                 pass
             return redirect('openCurrents:profile', app_hr)
         else:
-            return redirect('openCurrents:login', status_msg='Invalid login/password. <a class="forgotpassword-box_open">Forgot password?</a>')
+            return redirect('openCurrents:login', status_msg='Invalid login/password.')
     else:
         logger.error(
             'Invalid login: %s',

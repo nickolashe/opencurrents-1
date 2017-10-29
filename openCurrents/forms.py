@@ -586,6 +586,7 @@ class RedeemCurrentsForm(forms.Form):
         required=False,
         widget= forms.Textarea(attrs={
             'class': 'hidden',
+            'rows': '2',
             })
         )
 

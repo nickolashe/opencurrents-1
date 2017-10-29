@@ -27,5 +27,21 @@ def addstr(arg1, arg2):
     return str(arg1) + str(arg2)
 
 @register.filter
-def percent_price(arg1, arg2):
-	return format(float(arg1) * float(arg2), '.2f')
+def percent_to_price(arg1):
+	return float(arg1) * 0.01
+
+@register.filter
+def usd_to_current(arg1):
+	return float(arg1) * 0.1
+
+@register.filter
+def current_to_usd(arg1):
+	return float(arg1) * 10
+
+@register.filter
+def mult(arg1, arg2):
+	return float(arg1) * float(arg2)
+
+@register.filter
+def mult_three(arg1, arg2, arg3):
+	return float(arg1) * float(arg2) * float(arg3)
