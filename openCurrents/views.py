@@ -3097,10 +3097,8 @@ def process_org_signup(request):
         form_data = form.cleaned_data
         org = Org(
             name=form_data['org_name'],
-            website=form_data['org_website'],
             status=form_data['org_status'],
-            mission=form_data['org_mission'],
-            reason=form_data['org_reason']
+            website=form_data['org_website']
         )
 
         # if website was not left blank, check it's not already in use

@@ -1,6 +1,6 @@
 from django.contrib.auth.models import Group
 from openCurrents.models import Org
-from openCurrents.orgs import OrgUserInfo
+from openCurrents.interfaces.orgs import OrgUserInfo
 
 
 class OcAuth(object):
@@ -23,7 +23,7 @@ class OcAuth(object):
     		return False
 
         admin_org_group_name = '_'.join(['admin', str(org.id)])
-        
+
         admin_org_group = Group.objects.filter(
             name=admin_org_group_name,
             user__id=self.userid
@@ -43,5 +43,5 @@ class OcAuth(object):
     def is_admin_biz(self):
     	'''
     	returns true if user is an admin of a business
-    	'''    	
-    	return self.is_admin() and self.org.status == 'biz'    	
+    	'''
+    	return self.is_admin() and self.org.status == 'biz'

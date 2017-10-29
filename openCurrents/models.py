@@ -60,6 +60,7 @@ class Org(models.Model):
 class OrgUser(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     org = models.ForeignKey(Org)
+
     affiliation = models.CharField(max_length=50, null=True)
 
     # created / updated timestamps

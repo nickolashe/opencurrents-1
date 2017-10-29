@@ -12,6 +12,7 @@ from openCurrents.models import \
 
 from openCurrents.interfaces.ledger import OcLedger, InsufficientFundsException
 from openCurrents.interfaces.ocuser import OcUser
+from openCurrents.interfaces.orgs import OcOrg
 
 
 class TestOcLedger(TestCase):
@@ -40,11 +41,10 @@ class TestOcLedger(TestCase):
         )
 
         # set up test org
-        self.orgTest = Org(name='test', status='npf')
-        self.orgTest.save()
-        account = Account()
-        account.save()
-        OrgEntity.objects.create(org=self.orgTest, account=account)
+        self.orgTest = OcOrg().setup_org(
+            name='test_org_123',
+            status='npf'
+        )
 
         # issue currents to userReg
         self.ledger.issue_currents(

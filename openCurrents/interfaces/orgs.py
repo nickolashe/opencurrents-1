@@ -1,11 +1,29 @@
 from django.contrib.auth.models import Group
 from openCurrents.models import \
-    OrgUser
+    Org, \
+    OrgUser, \
+    OrgEntity, \
+    Account
+
 
 class OrgUserInfo(object):
     def __init__(self, userid):
         self.userid = userid
         self.orgusers = OrgUser.objects.filter(user__id=userid)
+
+    def setup_orguser(self, org, affiliation):
+        org_user = None
+        try:
+            org_user = OrgUser(
+                org=org,
+                user__id=userid,
+                affiliation=affiliation
+            )
+            org_user.save()
+        except Exception as e:
+            raise InvalidOrgUserException()
+
+        return org_user
 
     def get_orguser(self):
         return self.orgusers if self.orgusers else []
@@ -29,3 +47,34 @@ class OrgUserInfo(object):
             user__id=self.userid
         ).exists()
         return True if admin_org_group else False
+
+
+class OcOrg(object):
+    def __init__(self, orgid=None):
+        self.orgid = orgid
+
+    def setup_org(self, name, status, website=None):
+        org = None
+        try:
+            org = Org(
+                name=name,
+                website=website,
+                status=status
+            )
+            org.save()
+        except Exception as e:
+            raise OrgExistsException
+
+        org_account = Account()
+        org_account.save()
+
+        OrgEntity.objects.create(org=org, account=org_account)
+
+        return org
+
+
+class OrgExistsException(Exception):
+	pass
+
+class InvalidOrgUserException(Exception):
+	pass

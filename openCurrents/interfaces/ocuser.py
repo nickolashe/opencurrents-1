@@ -18,20 +18,66 @@ import pytz
 class OcUser(object):
     def __init__(self, userid=None):
         self.userid = userid
+        self.user = None
+
+        if self.userid:
+            try:
+                self.user = User.objects.get(id=self.userid)
+            except Exception as e:
+                raise InvalidUserException
 
     def setup_user(self, username, email, first_name=None, last_name=None):
-        user = User(username=username, email=email)
+        user = None
+        try:
+            user = User(username=username, email=email)
+            if first_name:
+                user.first_name = first_name
+
+            if last_name:
+                user.last_name = last_name
+            user.save()
+        except Exception as e:
+            self.user = User.objects.get(username=username)
+            raise UserExistsException
+
+        user_account = Account()
+        user_account.save()
+
+        UserEntity.objects.create(user=user, account=user_account)
+
+        self.user = user
+
+        return user
+
+    def get_user(self):
+        if self.user:
+            return self.user
+        else:
+            raise InvalidUserException
+
+    def update_user(self, first_name=None, last_name=None):
+        user = self.get_user()
+
         if first_name:
             user.first_name = first_name
 
         if last_name:
             user.last_name = last_name
-        user.save()
 
-        account = Account()
-        account.save()
-        UserEntity.objects.create(user=user, account=account)
-        return user
+        user.save()
+        self.user = user
+
+    def get_user_entity(self):
+        if self.user:
+            return self.user.userentity
+        else:
+            raise InvalidUserException
+
+    def get_account(self):
+        if self.user:
+            return self.user.userentity.account
+        else:
+            raise InvalidUserException
 
     def get_events_registered(self, *argv):
         assert(self.userid)
@@ -125,3 +171,10 @@ class OcUser(object):
         )
 
         return transaction_actions
+
+
+class UserExistsException(Exception):
+	pass
+
+class InvalidUserException(Exception):
+	pass

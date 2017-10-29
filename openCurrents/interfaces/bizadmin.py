@@ -10,7 +10,7 @@ from openCurrents.models import \
     Transaction, \
     TransactionAction
 
-from openCurrents.orgs import OrgUserInfo
+from openCurrents.interfaces.orgs import OrgUserInfo
 
 import pytz
 
