@@ -19,8 +19,11 @@ from copy import deepcopy
 
 from interfaces.auth import OcAuth
 from interfaces.bizadmin import BizAdmin
-from interfaces.ocuser import OcUser
-from interfaces.orgs import OrgUserInfo
+from interfaces.ocuser import OcUser, UserExistsException, InvalidUserException
+from interfaces.orgs import OcOrg, \
+    OrgUserInfo, \
+    OrgExistsException, \
+    InvalidOrgUserException
 
 import math
 import re
@@ -2481,27 +2484,25 @@ def process_signup(request, referrer=None, endpoint=False, verify_email=True):
         user_lastname = form.cleaned_data['user_lastname']
         user_email = form.cleaned_data['user_email']
         org_name = form.cleaned_data.get('org_name', '')
+        org_status = form.cleaned_data.get('org_status', '')
 
         logger.info('user %s is signing up', user_email)
 
         # try saving the user without password at this point
         user = None
         try:
-
-            user = User(
+            user = OcUser().setup_user(
                 username=user_email,
                 email=user_email,
                 first_name=user_firstname,
                 last_name=user_lastname
             )
-            user.save()
-
-        except IntegrityError:
+        except UserExistsException:
             logger.info('user %s already exists', user_email)
 
-            user = User.objects.get(email=user_email)
+            user = User.objects.get(username=user_email)
             try:
-                if user.first_name=='' or user.last_name=='':
+                if not (user.first_name and user.last_name):
                     user.first_name = user_firstname
                     user.last_name = user_lastname
                     user.save()
@@ -2560,17 +2561,35 @@ def process_signup(request, referrer=None, endpoint=False, verify_email=True):
         if org_name:
             org = None
             try:
-                org = Org(name=org_name)
-                org.save()
+                org = OcOrg().setup_org(
+                    name=org_name,
+                    status=org_status
+                )
 
                 # Create and save a new group for admins of new org
                 new_org_admins_group(org.id)
 
-                org_user = OrgUser(
-                    user=user,
-                    org=org
+                org_user = OrgUserInfo(user.id).setup_orguser(org=org)
+
+            except OrgExistsException:
+                logger.warning('org %s already exists', org_name)
+                redirect_url = {
+                    'npf': 'nonprofit',
+                    'biz': 'business'
+                }
+                return redirect(
+                   'openCurrents:%s' % redirect_url[org_status],
                 )
-                org_user.save()
+
+            except InvalidOrgUserException:
+                logger.error(
+                    'unable to create orguser %s <=> %s',
+                    org_name,
+                    str(user.id)
+                )
+                return redirect('openCurrents:500')
+
+            try:
                 sendTransactionalEmail(
                     'new-org-registered',
                     None,
@@ -2598,8 +2617,12 @@ def process_signup(request, referrer=None, endpoint=False, verify_email=True):
                     ],
                     'bizdev@opencurrents.com'
                 )
-            except IntegrityError:
-                logger.info('org %s already exists', org_name)
+            except Exception as e:
+                logger.error(
+                    'unable to send transactional email: %s (%s)',
+                    e.message,
+                    type(e)
+                )
 
         if verify_email:
             logger.info('Email verification requested')
@@ -2728,11 +2751,14 @@ def process_OrgNomination(request):
                 }
             ],
             'bizdev@opencurrents.com'
-                )
+        )
 
         return redirect('openCurrents:profile', status_msg='Thank you for nominating %s! We will reach out soon.' % org_name)
 
-    return redirect('openCurrents:profile', status_msg="bad form!")
+    return redirect(
+        'openCurrents:time-tracker',
+        status_msg='Organization name is required'
+    )
 
 def process_login(request):
     form = UserLoginForm(request.POST)

@@ -34,7 +34,7 @@
     </header>
 
     <div class="js-close-any" canvas>
-      
+
       <div id="intro-1">
         <div id="1" class="header-spacer"></div>
         <div class="row center">
@@ -128,7 +128,7 @@
           </div>
         </div>
       </div>
-      
+
       <div id="intro-3">
         <div id="3" class="header-spacer"></div>
 
@@ -160,7 +160,7 @@
           </ul>
         </div> -->
 
-        
+
 
         <div class="row center three-halves-margin-top two-margin-bottom">
           <a href="#4" class="home-link white"><p class="no-margin-bottom">Getting started</p><i class="two-margin-bottom fa fa-lg fa-angle-down"></i></a>
@@ -230,9 +230,15 @@
         <div class="row collapse center">
           <div class="small-11 medium-6 small-centered columns">
             <h2 class="title-sub white">Join openCurrents</h2>
-            <p class="white">Register now to get additional benefits as a pilot business. We'll be in touch soon!</p> 
+            <p class="white">Register now to get additional benefits as a pilot business. We'll be in touch soon!</p>
           </div>
         </div>
+
+        {% if status_msg %}
+        <div class="alert row one-margin-bottom">
+          {{ status_msg }}
+        </div>
+        {% endif %}
 
         <form method="post" action="{% url 'openCurrents:process_signup' referrer=referrer %}">
           {% csrf_token %}
@@ -254,7 +260,7 @@
               <div class="small-12 columns">
                 <input class="home-input lead center" type="text" name="org_name" placeholder="Business name" />
               </div>
-              <input class="lead center" type="hidden" name="org_type" value="business"/>
+              <input class="lead center" type="hidden" name="org_status" value="biz"/>
             </div>
           </div>
 
@@ -301,8 +307,8 @@
             </div>
             <div class="small-12 columns">
               <input type="text" name="org_name" placeholder="Business name" class="large-text center" tabindex="0" />
-            </div>   
-            <input class="lead center" type="hidden" name="org_type" value="business"/>         
+            </div>
+            <input class="lead center" type="hidden" name="org_type" value="business"/>
           </div>
         </div>
 

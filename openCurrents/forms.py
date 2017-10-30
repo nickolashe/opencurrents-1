@@ -89,6 +89,14 @@ class UserSignupForm(forms.Form):
     )
     org_name = forms.CharField(required=False, min_length=2)
 
+    org_status = forms.ChoiceField(
+        choices=[
+            ('npf', 'nonprofit'),
+            ('biz', 'business'),
+        ],
+        required=False
+    )
+
 
 class PasswordResetRequestForm(forms.Form):
     user_email = forms.CharField(min_length=1)
@@ -196,9 +204,8 @@ class OrgSignupForm(forms.Form):
     )
     org_status = forms.ChoiceField(
         choices=[
-            ('nonprofit', 'nonprofit'),
-            ('business', 'business'),
-            ('unregistered', 'unregistered')
+            ('npf', 'nonprofit'),
+            ('biz', 'business'),
         ]
     )
     org_mission = forms.CharField(required=False)
@@ -227,10 +234,10 @@ class ProjectCreateForm(forms.Form):
     )
 
     CHOICES = [(True, 'event-privacy-1'), (False, 'event-privacy-2')]
-    
+
     is_public = forms.ChoiceField(widget=forms.RadioSelect(
-        attrs={"class": "custom-radio"}), 
-        choices=CHOICES, 
+        attrs={"class": "custom-radio"}),
+        choices=CHOICES,
         initial='True'
     )
 
@@ -289,7 +296,7 @@ class ProjectCreateForm(forms.Form):
             error_msg = 'Invalid event start time'
             logger.debug('%s: %s', error_msg, e.message)
             raise ValidationError(_(error_msg))
-     
+
 
         try:
             datetime_end = datetime.strptime(
@@ -360,7 +367,7 @@ class TimeTrackerForm(forms.Form):
             'id': 'id_org_choice'
         })
     )
-    
+
     choices_admin = [("select_admin","Select admin")]
     admin = forms.CharField(
         #choices=choices_admin,
@@ -446,7 +453,7 @@ class TimeTrackerForm(forms.Form):
         # check: start time before end time
         if datetime_end <= datetime_start:
             raise ValidationError(_('Start time must be before end time'))
-            
+
         return cleaned_data
 
 
@@ -537,7 +544,7 @@ class OfferEditForm(OfferCreateForm):
         offer_id = kwargs.pop('offer_id')
         self.offer_init = Offer.objects.get(id=offer_id)
 
-        super(OfferEditForm, self).__init__(*args, **kwargs)              
+        super(OfferEditForm, self).__init__(*args, **kwargs)
 
     def clean_offer_item(self):
         '''
@@ -571,7 +578,7 @@ class RedeemCurrentsForm(forms.Form):
          widget=forms.ClearableFileInput(attrs={
             'class': 'hidden-file',
             'id': 'upload-receipt'
-        })       
+        })
     )
 
     redeem_receipt_if_checked = forms.BooleanField(

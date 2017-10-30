@@ -11,7 +11,7 @@ class OrgUserInfo(object):
         self.userid = userid
         self.orgusers = OrgUser.objects.filter(user__id=userid)
 
-    def setup_orguser(self, org, affiliation):
+    def setup_orguser(self, org, affiliation=None):
         org_user = None
         try:
             org_user = OrgUser(
