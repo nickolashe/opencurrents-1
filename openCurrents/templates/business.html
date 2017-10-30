@@ -11,11 +11,12 @@
 
   <body id="business" class="splash" onunload=''>
     <header id="header" class="full-width row collapse js-close-any" canvas>
-      <div class="small-8 large-3 small-offset-1 columns">
+      <div class="relative small-8 large-3 small-offset-1 columns">
         <a href="{% url 'openCurrents:root' %}">
-
           <img id="header-logo" src="{% static 'img/oc-header.svg' %}" />
         </a>
+
+        <span id="beta-home">Beta</span>
       </div>
 
       <div class="show-for-large one-margin-top medium-8 right columns end">
