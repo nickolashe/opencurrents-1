@@ -50,7 +50,7 @@ jobs:
           name: run tests
           command: |
             . virtualenv/bin/activate
-            python manage.py test openCurrents/tests/
+            python manage.py test -v2 openCurrents/tests/
 
       - store_artifacts:
           path: test-reports
