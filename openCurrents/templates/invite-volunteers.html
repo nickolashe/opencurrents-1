@@ -28,9 +28,10 @@
               <p>to join the community and record hours with {{ orgname }}</p>
             {% endif %}
 
-            <p><a class="personal-message-popup_open button tiny round secondary">
+            <p class="no-margin-bottom"><a class="personal-message-popup_open button tiny round secondary">
               Add personal message
             </a></p>
+            {# <p><a class="invite-list-popup_open">See invited volunteers</a></p> #}
           </div>
         </div>
         <form action ="" name="theForm" id="form_id" method="post">
@@ -171,6 +172,24 @@
         </a>
       </div>
     </div>
+
+    {# <div id="invite-list-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <h3 class="popup-title center">Invited volunteers</h3>
+      <div class="row center">
+        <div class="small-10 medium-6 small-centered columns">
+          <ul class="left">
+            {% if registrants %}
+              {% for name in registrants_names %}
+                <li class="no-bullet">{{ email }}</li>
+              {% endfor %}
+            {% else %}
+              <li class="no-bullet">No volunteers have registered or been invited yet.</li>
+            {% endif %}
+          </ul>
+          <a class="registrants-box_close button round small secondary">Close</a>
+        </div>
+      </div>
+    </div> #}
 
     <div id="bulk-email-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
