@@ -66,12 +66,19 @@
                 </div>
               </div>
 
-              <textarea id="personal-message-submit" class="hidden" placeholder="A message from {{ user.first_name }} {{ user.last_name }}"></textarea>
+              <div id="personal-message-div" class="left hidden">
+                <label for="personal-message-submit">Personal message</label>
+                <textarea id="personal-message-submit"></textarea>
+              </div>
             </div>
 
             <!--<a href="{% url 'openCurrents:org-admin' %}" class="button round secondary">Send invites</a>-->
-            <button type='submit' id="button_1" class="button round">Send invites<input type="hidden" id="count-vol" name="count-vol" value="3" /></button>
+            <button type='submit' id="button_1" class="button round half-margin-top">Send invites<input type="hidden" id="count-vol" name="count-vol" value="3" /></button>
           </div>
+
+          <p class="no-margin-bottom"><a class="preview-email-popup_open button tiny round secondary">
+            Preview email
+          </a></p>
 
           {% if skip == 1 %}
             <a href="{% url 'openCurrents:org-admin' num_vols=0 %}">Skip for now</a>
@@ -98,7 +105,7 @@
 
     <div id="personal-message-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
-        <h5 class="popup-title">A message from {{ user.first_name }} {{ user.last_name }}:</h5>
+        <h5 class="popup-title">A message from {{ user.first_name }}:</h5>
       </div>
 
       <div class="row center">
@@ -113,6 +120,54 @@
         </a>
         <a class="personal-message-popup_close button round small secondary">
           Cancel
+        </a>
+      </div>
+    </div>
+
+    <div id="preview-email-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h4 class="popup-title">Email preview</h4>
+      </div>
+
+      <div class="row left">
+        <div class="medium-10 small-centered column">
+          <label>Subject</label>
+          <p><strong>An invitation from {{ orgname }}</strong></p>
+
+          <label>Body</label>
+          <p>{{ user.first_name }} {{ user.last_name }} has invited you to 
+            {% if event_project_name %}
+              a volunteer event
+            {% else %}
+              openCurrents
+            {% endif %}
+            
+            <span id="personal-message-detail" class="hidden">
+              and sent a message:
+            </span>
+          </p>
+
+          <p id="personal-message-preview" class="hidden"></p>
+
+          {% if event_project_name %}
+            <p>Let's {{ event_project_name }} with {{ orgname }}<br/>
+              Event date, time, and location
+            </p>
+          {% endif %}
+
+          <p>openCurrents rewards you for giving time to {{ orgname }} and other social organizations. Click the link below to learn more and create your account:</p>
+
+          <p><a href="http://www.opencurrents.com" target="_blank">
+            openCurrents.com
+          </a></p>
+
+          <p>You can also reach out to {{ user.first_name }} by replying to this email.</p>
+        </div>
+      </div>
+
+      <div class="center">
+        <a class="preview-email-popup_close button round small">
+          Got it
         </a>
       </div>
     </div>
@@ -159,7 +214,21 @@
         // Copy personal message from popup to input in form
         $('#save-message').click(function(){
           var text = $('#personal-message-typed').val();
-          $('#personal-message-submit').val(text).slideDown();
+          $('#personal-message-submit').val(text);
+          $('#personal-message-div').show();
+          $('#personal-message-detail').show();
+          $('#personal-message-preview').show().text(text);
+        });
+
+        // Copy personal message from input to preview email
+        $('#personal-message-div').on('input', function(){
+          var text = $('#personal-message-submit').val();
+          $('#personal-message-preview').show().text(text);
+
+          // if user clears the message, hide 'and sent you a message' in preview
+          if ($('#personal-message-submit').val() == '') {
+            $('#personal-message-detail').hide();
+          };
         });
 
         $('#add-message-bulk').click(function(){
@@ -168,7 +237,7 @@
         });
       });
 
-      $('#bulk-email-popup, #personal-message-popup').popup({
+      $('#bulk-email-popup, #personal-message-popup, #preview-email-popup').popup({
         vertical: 'top',
         transition: 'all 0.75s',
         scrolllock: true,
