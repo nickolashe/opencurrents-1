@@ -860,6 +860,11 @@ a.list-group-item {
   top: 19px;
   left: 215px;
   color: #888888;
+  transition: color 0.25s ease-in-out;
+}
+
+#beta-home:hover {
+  color: #1f4975;
 }
 
 #home-menu {

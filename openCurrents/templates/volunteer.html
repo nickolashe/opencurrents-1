@@ -16,8 +16,10 @@
           <img id="header-logo" src="{% static 'img/oc-header.svg' %}" />
         </a>
 
-        <span id="beta-home">Beta</span>
+        <a id="beta-home" class="beta-popup_open">Beta</a>
       </div>
+
+      {% include "popups/beta-popup.html" %}
 
       <div class="show-for-large one-margin-top medium-8 right columns end">
         <a href="{% url 'openCurrents:nonprofit' %}" class="three-halves-margin-right">For nonprofits</a>
