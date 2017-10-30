@@ -51,18 +51,17 @@
                   <h6 class="navy inline">Contact invited volunteers</h6>
                   <a class="registrants-box_open no-wrap">See invitees</a>
                 {% elif is_registered %}
-                  <h6 class="navy inline">Contact event coordinator</h6>
+                  <h6 class="navy inline">Get in touch</h6>
                 {% else %}
                   <h6 class="navy inline">{{ form.contact_message.label }}</h6>
                 {% endif %}
               
-              {% if form.contact_message.help_text %}
                 <p class="small-text grey no-margin-bottom">
                   {% if not coordinator %}
-                    {{ form.contact_message.help_text|safe }}
+                    Event coordinator: {{ coordinator.firstname }} {{ coordinator.lastname }}
                   {% endif %}
                 </p>
-              {% endif %}
+
               {{ form.contact_message }}
 
             </div>
