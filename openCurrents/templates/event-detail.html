@@ -69,14 +69,17 @@
           </div>
 
           <div class="one-margin-top center">
-            <button type='submit' class="button round">
+            <a type='submit' class="button round">
               {% if not is_registered and not coordinator %}
                 Register
               {% else %}
                 Send message
               {% endif %}
-            </button>
+            </a>
           </div>
+          <a href="{% url 'openCurrents:profile' %}">
+            Back to profile
+          </a>
 
           <div id="push"></div>
         </form>
