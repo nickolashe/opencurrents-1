@@ -317,8 +317,9 @@ class EditEventForm(forms.Form):
             super(EditEventForm, self).__init__(*args, **kwargs)
 
     project_name = forms.CharField(
-        widget=forms.TextInput(attrs={
-            
+        widget=forms.TextWidget(attrs={
+            'placeholder': 'do some good',
+            'value': '{{ event.project.name }}'
         })
         )
 

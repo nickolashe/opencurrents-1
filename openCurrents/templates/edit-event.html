@@ -33,7 +33,9 @@
             <div class="small-12 medium-6 small-centered columns">
 
               <h6 class="fit-left navy half-margin-top">Let's...</h6>
-              <span class="input-sizer"><input name="project-name" class="center" type="text" placeholder="do some good" value="{{ event.project.name }}"/></span>
+              <span class="input-sizer">
+                {{ forms.project_name }}
+              </span>
             </div>
           </div>
 
