@@ -148,9 +148,11 @@
             </div>
           </div>
 
-      </form>        
+          <!-- Sets height of page since redeem divs are absolutely positioned -->
+          <div id="redeem-spacer"></div>
 
-        
+        </form>        
+
         <div id="push"></div>
     
       <!-- wrapper div-->
@@ -221,6 +223,9 @@
           }
         });
 
+        // Set height of spacer = to height of content
+        $('#redeem-spacer').height($('#offer-3').height());
+
         // Slide left on 'Next'
         var page = 1;
 
@@ -228,6 +233,10 @@
           if (page < 3) {
             var $lefty = $('#offer-'+page+'');
             var $righty = $('#offer-'+(page+1)+'');
+
+            $('#container').animate({
+              scrollTop: $("#header").offset().top
+            }, 1111);
 
             $righty.show()
 
@@ -254,6 +263,10 @@
           if (page > 1) {
             var $lefty = $('#offer-'+(page-1)+'');
             var $righty = $('#offer-'+page+'');
+
+            $('#container').animate({
+              scrollTop: $("#header").offset().top
+            }, 1111);
 
             $lefty.show();
             $lefty.animate({
