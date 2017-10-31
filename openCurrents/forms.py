@@ -310,6 +310,20 @@ class ProjectCreateForm(forms.Form):
         return cleaned_data
 
 
+class EditEventForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+            event_id = kwargs.pop('event_id')
+            self.event = Event.objects.get(id=event_id)
+            super(EditEventForm, self).__init__(*args, **kwargs)
+
+    project_name = forms.CharField(
+        widget=forms.TextInput(attrs={
+            
+        })
+        )
+
+
+
 # TODO: Add location to form
 class EventRegisterForm(forms.Form):
     contact_message = forms.CharField(
@@ -584,6 +598,7 @@ class RedeemCurrentsForm(forms.Form):
 
     redeem_no_proof = forms.CharField(
         required=False,
+        disabled=True,
         widget= forms.Textarea(attrs={
             'class': 'hidden',
             'rows': '2',

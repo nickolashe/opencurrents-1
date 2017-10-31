@@ -49,6 +49,7 @@ from openCurrents.forms import \
     PasswordResetRequestForm, \
     OrgSignupForm, \
     ProjectCreateForm, \
+    EditEventForm, \
     EventRegisterForm, \
     EventCheckinForm, \
     OrgNominationForm, \
@@ -1397,6 +1398,7 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
 # needs to be implemented using UpdateView
 class EditEventView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
     template_name = 'edit-event.html'
+    form_class = EditEventForm
 
     def get_context_data(self, **kwargs):
         context = super(EditEventView, self).get_context_data(**kwargs)
