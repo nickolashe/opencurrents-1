@@ -26,7 +26,7 @@
             <p>with <strong>{{ event.project.org.name }}</strong> </p>
           </div>
 
-          <div class="row one-margin-bottom center">
+          <div class="row center">
             <div class="small-12 medium-8 small-centered columns">
               <h6 class="no-margin-bottom">
                 on {{ event.datetime_start|day:event.project.org.timezone }}
@@ -34,11 +34,20 @@
               <h6 class="no-margin-bottom">
                 from {{ event.datetime_start|time:event.project.org.timezone }} to {{ event.datetime_end|time:event.project.org.timezone }}
               </h6>
-              <h6 class="one-margin-bottom">at {{ event.location }}</h6>
+              <h6 class="half-margin-bottom">at {{ event.location }}</h6>
+              <p>
+                {% if event.is_public %}
+                  Public
+                {% else %}
+                  Private 
+                {% endif %} 
+
+                event
+              </p>
             </div>
           </div>
 
-          <div class="three-halves-margin-top row left">
+          <div class="row left">
             <div class="small-10 medium-6 small-centered columns">
               <h6 class="navy">Event description</h6>
               <p class="grey"> {{ event.description }}</p>
