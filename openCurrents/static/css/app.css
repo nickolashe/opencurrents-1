@@ -63,10 +63,28 @@ h1, h2, h3, h4, h5, h6 {
   color: #888888;
 }
 
+.h5-symbol {
+  vertical-align: -3px;
+  margin-left: 0.375rem;
+  margin-right: 0.1875rem;
+  height: 1.25rem;
+}
+
 .h6-symbol {
   vertical-align: top;
   margin-top: 0.1875rem;
+  margin-right: 0.1875rem;
   height: 1.25rem;
+}
+
+.large-text-symbol {
+  height: 1.5rem;
+}
+
+.med-text-symbol {
+  vertical-align: -3px;
+  height: 1.0875rem;
+  margin-right: 0.125rem;
 }
 
 
@@ -84,23 +102,15 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 1rem;
 }
 
-/* Large buttons on small screens */
 .button.large {
   font-size: 1.125rem;
 }
 
-/* Large buttons on non-small screens */
-@media screen and (min-width: 42em) {
-  .button.large {
-    font-size: 1.25rem;
-  }
-}
-
 .button.small {
-  font-size: 0.875rem; }
+  font-size: 0.9375rem; }
 
 .button.tiny {
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
 }
@@ -191,8 +201,9 @@ table thead, table tfoot {
 }
 
 html input[disabled] {
-  cursor: text;
   background-color: transparent;
+  color: #999999;
+  border-color: #999999;
 }
 
 input::-webkit-contacts-auto-fill-button {
@@ -226,7 +237,7 @@ textarea:focus {
 }
 
 [type='checkbox'] + label, [type='radio'] + label {
-  margin-right: 0;
+  margin-right: 0.5rem;
 }
 
 [type='radio'] {
@@ -281,6 +292,54 @@ textarea:focus {
   color: #24b2e7;
 }
 
+/* custom radio buttons */
+
+.custom-radio {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}
+.custom-radio + label {
+  position: relative;
+  cursor: pointer;
+  padding: 0;
+}
+.custom-radio + label:before {
+  content: '\f1db';
+  font-family: 'FontAwesome';
+  margin-right: 10px;
+  color: #24b2e7;
+  font-size: 1.25rem;
+}
+.custom-radio:hover + label:before {
+  background: #ffffff;
+}
+.custom-radio:checked + label:before {
+  background: #ffffff;
+}
+.custom-radio:disabled + label {
+  color: #b8b8b8;
+  cursor: auto;
+}
+.custom-radio:disabled + label:before {
+  box-shadow: none;
+  background: #ddd;
+}
+.custom-radio:checked + label:after {
+  content: '\f058';
+  font-family: 'FontAwesome';
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: #24b2e7;
+  font-size: 1.25rem;
+}
+
 /* inputs */
 
 select {
@@ -292,6 +351,7 @@ select {
   border: none;
   border-bottom: 1px solid #24b2e7;
   line-height: inherit;
+  height: auto;
 }
 
 select:hover {
@@ -354,8 +414,8 @@ label {
 }
 
 .styled-radio + label {
-  margin-right: 0.25rem;
-  margin-left: 0.25rem;
+  margin-right: 0.5rem;
+  margin-left: 0.5rem;
   margin-bottom: 1rem;
 }
 
@@ -424,6 +484,10 @@ label {
 }
 
 /* Scandalous classes */
+
+.no-margin {
+  margin: 0;
+}
 
 .no-margin-bottom {
   margin-bottom: 0;
@@ -646,12 +710,31 @@ label {
   display: none;
 }
 
+.hidden-file {
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: -1;
+}
+
+.hidden-file:focus + label {
+  background-color: #1f4975;
+  color: #ffffff;
+  border-color: #1f4975;
+}
+
 .underline {
   text-decoration: underline;
 }
 
 .no-wrap {
   white-space: nowrap;
+}
+
+.hidden-overflow {
+  overflow: hidden;
 }
 
 .no-bullet {
@@ -665,7 +748,11 @@ label {
 .fit-left {
   float: left;
   display: inline-block;
-  margin-top: 0.5rem;
+}
+
+.fit-right {
+  float: right;
+  display: inline-block;
 }
 
 .input-sizer {
@@ -731,6 +818,7 @@ label {
 
 #wrapper {
   padding-top: 60px;
+  position: relative;
 }
 
 /* non-small header */
@@ -764,6 +852,18 @@ a.list-group-item {
 
 .list-group-item:hover {
   background-color: #ffffff;
+  color: #1f4975;
+}
+
+#beta-home {
+  position: absolute;
+  top: -12px;
+  left: 5px;
+  color: #888888;
+  transition: color 0.25s ease-in-out;
+}
+
+#beta-home:hover {
   color: #1f4975;
 }
 
@@ -853,102 +953,16 @@ a.list-group-item {
   margin-bottom: 1rem;
 }
 
-/* video button */
+/* pagination */
 
-.thumb-wrapper {
-  position: relative;
-  margin: auto;
-  width: 255px;
-}
-
-#video-title {
-  position: absolute;
-  font-size: 1rem;
-  top: 15px;
-  left: 93px;
+.pagination li, .pagination a {
+  border-radius: 99px;
   color: #1f4975;
-  -webkit-transition: color 300ms ease-out;
-  transition: color 300ms ease-out; }
-
-.thumb-wrapper:hover #video-title {
-  color: #0f7190;
-  -webkit-transition: color 300ms ease-in-out;
-  transition: color 300ms ease-in-out;
 }
 
-.thumb-wrapper:hover #play-poly {
-  fill: #0f7190;
+.pagination .current {
+  background-color: #1f4975;
 }
-
-.thumb-wrapper:hover #play-circle {
-  stroke: #0f7190;
-}
-
-.play-intro_open {
-  text-decoration: none;
-}
-
-#video-thumb {
-  border-radius: 100px;
-}
-
-#play-button {
-  width: 100%;
-  height: 100%;
-  z-index: 1; }
-
-#play-button polygon {
-  fill: #1f4975;
-  -webkit-transition: fill 300ms ease-out;
-  -moz-transition: fill 300ms ease-out;
-  transition: fill 300ms ease-out; }
-
-#play-button circle {
-  stroke: #1f4975;
-  -webkit-transition: stroke 300ms ease-out;
-  -moz-transition: stroke 300ms ease-out;
-  transition: stroke 300ms ease-out; }
-
-#play-button:hover polygon {
-  fill: #0f7190; }
-
-#play-button circle {
-  stroke: #1f4975; }
-
-#play-button:hover circle {
-  stroke: #0f7190; }
-
-#play-intro {
-  margin: 5rem 0 0; }
-
-#play-intro,
-#play-intro_wrapper,
-#play-intro_background {
-  transition: all 0.3s; }
-
-.videoWrapper {
-  position: relative;
-  padding-bottom: 56.25%;
-  /* 16:9 */
-  height: 0; }
-
-.videoWrapper iframe {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%; }
-
-.thumb-wrapper {
-  position: relative;
-  margin: auto;
-  width: 255px;
- }
-
-.thumb-box {
-  position: relative;
-  width: 70px; }
-
 
 /* login */
 
@@ -1041,6 +1055,11 @@ a.list-group-item {
   margin-top: 0.25rem;
 }
 
+.oc-button.tiny {
+  padding-top: 0.4375rem;
+  padding-bottom: 0.4375rem;
+}
+
 .symbol-circle {
   stroke: #24b2e7;
   transition: stroke 0.25s ease-in-out;
@@ -1069,34 +1088,52 @@ a.list-group-item {
   stroke: #1f4975;
 }
 
-.currency-input {
-  position: relative;
-  padding-left: 0.25rem;
-}
-
 .current-placeholder {
   display: inline-block;
   position: absolute;
   top: 10px;
-  left: 10px;
-  color: #999999;
+  left: 4px;
+}
+
+.value-div {
+  position: relative;
+  width: 123px;
+  margin: auto;
+}
+
+.value-placeholder {
+  display: inline-block;
+  position: absolute;
+  top: 7px;
+  left: 66px;
 }
 
 .dollar-placeholder {
   position: absolute;
   top: 8px;
-  left: 15px;
+  left: 5px;
   color: #999999;
 }
 
 .dollar-price {
-  text-indent: 20px;
-  min-width: 60px;
+  text-indent: 13px;
+  width: 60px;
+}
+
+.item-price {
+  text-indent: 13px;
 }
 
 .current-price {
-  text-indent: 28px;
-  min-width: 60px;
+  text-indent: 22px;
+}
+
+.usd-circle {
+  font-size: 7rem;
+}
+
+.usd-icon {
+  font-size: 3rem;
 }
 
 /* sell */
@@ -1175,15 +1212,6 @@ a.list-group-item {
   margin-bottom: 0px;
   height: 2rem;
 }*/
-
-/* org-home */
-
-.h5-symbol {
-  vertical-align: -3px;
-  margin-left: 0.375rem;
-  margin-right: 0.125rem;
-  height: 1.25rem;
-}
 
 /* community */
 
@@ -1274,12 +1302,13 @@ i:hover ~ .addtocalendar {
   border-bottom: 1px solid #555555;
 }
 
-/* admin-profile */
+/* my-hours */
 
-#org-hours-total {
-  margin-top: 1.25rem;
-  margin-bottom: 0;
+#hours-total {
+  border-bottom: 1px solid #999999;
 }
+
+/* admin-profile */
 
 #live-project-list {
   font-size: 0.875rem;
@@ -1313,11 +1342,19 @@ i:hover ~ .addtocalendar {
   color: #ffffff;
 }
 
+.mini-open i {
+  transition: color 0.25s ease-in-out;
+}
+
+.mini-open:hover i {
+  color: #1f4975;
+}
+
 /* create-event */
 
 .remove-input {
   position: absolute;
-  top: 14px;
+  top: 13px;
   right: 5px;
   cursor: pointer;
 }
@@ -1366,14 +1403,71 @@ input[type="checkbox"] + label.vol-arrived {
 
 /* offer */
 
-#discount-amount {
-  width: 50px;
-  padding-bottom: 0.375rem
+.progress-counter {
+  width: 33px;
+  height: 33px;
+  border-radius: 99px;
+  border: 1px solid #999999;
+  margin: auto;
+  margin-bottom: 0.5rem;
 }
 
-#discount-type {
-  width: 111px;
-  margin-left: 0.5rem;
+.progress-counter h6 {
+  font-size: 1.125rem;
+  padding-top: 0.125rem;
+}
+
+.progress-highlight {
+  background-color: #24b2e7;
+  border-color: #24b2e7;
+}
+
+.progress-highlight h6 {
+  color: #ffffff;
+}
+
+#goods-detail-div {
+  border: 1px solid #cccccc;
+  border-radius: 5px;
+  padding: 1rem;
+}
+
+#offer-1 {
+  position: absolute;
+  left: 0;
+  width: 100%;
+}
+
+#offer-2, #offer-3, #offer-4 {
+  position: absolute;
+  width: 100%;
+  left: 100%;
+  display: none;
+}
+
+.discount-amount {
+  width: 55px;
+  margin-top: 0;
+}
+
+input[disabled].good-cat {
+  color: #1f4975;
+}
+
+.input-icon-right {
+  position: absolute;
+  right: 5px;
+  top: 8px;
+}
+
+.input-icon-left {
+  position: absolute;
+  left: 5px;
+  top: 8px;
+}
+
+#item-title {
+  margin-left: 3.625rem;
 }
 
 #item-name {
@@ -1386,10 +1480,25 @@ input[type="checkbox"] + label.vol-arrived {
   margin-left: 0.25rem;
 }
 
+#id_offer_limit_value {
+  width: 44px;
+}
+
 #max-currents {
   width: 40px;
 }
 
 #min-purchase-amount {
   width: 44px;
+}
+
+/* redeem-currents */
+
+#id_redeem_price {
+  width: 77px;
+  text-indent: 11px;
+}
+
+#offer-spacer {
+  visibility: hidden;
 }
