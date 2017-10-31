@@ -34,7 +34,7 @@
 
               <h6 class="fit-left navy half-margin-top">Let's...</h6>
               <span class="input-sizer">
-                {{ forms.project_name }}
+                {{ form.project_name }}
               </span>
             </div>
           </div>
@@ -42,7 +42,9 @@
           <div class="row one-margin-bottom">
             <div class="small-8 medium-4 small-centered columns">
               <h6 class="fit-left navy half-margin-top">on</h6>
-              <span class="input-sizer"><input name="project-date" id="project-date" class="center" type="text" placeholder="yyyy-mm-dd" value="{{date_start}}" /></span>
+              <span class="input-sizer">
+                {{ form.project_date }}
+              </span>
             </div>
           </div>
 
@@ -51,7 +53,9 @@
               <div class="row">
                 <div class="input-left small-6 columns">
                   <h6 class="fit-left navy half-margin-top">from</h6>
-                  <span class="input-sizer"><input name="project-start" id="project-start" class="center" type="text" placeholder="12:00 pm" value="{{ start_time }}" /></span>
+                  <span class="input-sizer">
+                    {{ form.project_start }}
+                  </span>
                 </div>
 
                 <div class="input-right small-6 columns">
@@ -185,7 +189,7 @@
         });
 
 
-        $('#project-date').datepicker({
+        $('#id-project-date').datepicker({
           dateFormat: 'yy-mm-dd',
         });
 

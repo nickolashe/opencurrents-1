@@ -16,6 +16,7 @@ import logging
 import re
 import pytz
 import string
+import widgets
 
 
 logger = logging.getLogger(__name__)
@@ -317,11 +318,28 @@ class EditEventForm(forms.Form):
             super(EditEventForm, self).__init__(*args, **kwargs)
 
     project_name = forms.CharField(
-        widget=forms.TextWidget(attrs={
+        widget=forms.TextInput(attrs={
+            'class': 'center',
             'placeholder': 'do some good',
             'value': '{{ event.project.name }}'
         })
-        )
+    )
+
+    project_date = forms.CharField(
+        widget=widgets.TextWidget(attrs={
+            'placeholder': 'yyyy-mm-dd',
+            'value': '{{ date_start }}',
+            'id': 'project-date'
+        })
+    )
+
+    project_start = forms.CharField(
+        widget=widgets.TextWidget(attrs={
+            'placeholder': '12:00 pm',
+            'value': '{{ start_time }}',
+            'id': 'project-start'
+        })
+    )
 
 
 
