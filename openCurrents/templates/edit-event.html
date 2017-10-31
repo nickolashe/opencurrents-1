@@ -80,9 +80,13 @@
           <a id="add-location"><i class="fa fa-plus-circle half-margin-right"></i>Add another location</a>
 
           <div class="row three-halves-margin-top">
-            {# <input type="radio" id="event-privacy-1" name="event-privacy" value="1" class="custom-radio" {% if event.is_public %} checked {% endif %}/>
+            {% comment %}
               
-            <input type="radio" id="event-privacy-2" name="event-privacy" value="2" class="custom-radio" {% if not event.is_public %} checked {% endif %}/> #}
+              <input type="radio" id="event-privacy-1" name="event-privacy" value="1" class="custom-radio" {% if event.is_public %} checked {% endif %}/>
+                
+              <input type="radio" id="event-privacy-2" name="event-privacy" value="2" class="custom-radio" {% if not event.is_public %} checked {% endif %}/>
+
+            {% endcomment %}
 
             {{ form.event_privacy_0 }}
             <label for="event_privacy_0">Public event</label>
@@ -113,12 +117,14 @@
               <p class="small-text grey">Who will respond to volunteers who register?</p>
 
               <div class="row">
-                <div class="input-left small-5 columns">
-                  <input type="text" name="coordinator-name" placeholder="First name" value="{{event.coordinator_firstname}}"/>
-                </div>
+                <div class="input-left small-5 columns end">
+                  {% comment %}
+                    <input type="text" name="coordinator-name" placeholder="First name" value="{{event.coordinator_firstname}}"/>
+                  </div>
 
-                <div class="input-right small-7 columns">
-                  <input type="text" name="coordinator-email" placeholder="Email" value="{{event.coordinator_email}}"/>
+                  <div class="input-right small-7 columns">
+                    <input type="text" name="coordinator-email" placeholder="Email" value="{{event.coordinator_email}}"/>
+                  {% endcomment %}
                 </div>
               </div>
             </div>
