@@ -341,6 +341,35 @@ class EditEventForm(forms.Form):
         })
     )
 
+    project_end = forms.CharField(
+        widget=widgets.TextWidget(attrs={
+            'placeholder': '1:00 pm',
+            'value': '{{ end_time }}',
+            'id': 'project-end'
+        })
+    )
+
+    event_privacy = forms.ChoiceField(
+        widget=widgets.RadioWidget(),
+        choices=[(0, 0), (1, 1)],
+        initial=0
+        # TODO set initial based on event's prior privacy, 
+        # check values (previously 1 and 2 in template)
+    )
+
+    event_description = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'rows': '4'
+        }),
+        initial='{{ event.description }}'
+    )
+
+    event_coordinator = forms.ChoiceField(
+        widget=forms.Select(attrs={
+            'value': '{{ coordinator_name }}'
+        })
+    )
+
 
 
 # TODO: Add location to form
