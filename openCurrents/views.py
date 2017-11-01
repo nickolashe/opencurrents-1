@@ -1396,7 +1396,7 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
 
 
 # needs to be implemented using UpdateView
-class EditEventView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
+class EditEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
     template_name = 'edit-event.html'
     form_class = EditEventForm
 
@@ -1415,11 +1415,14 @@ class EditEventView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
 
     def dispatch(self, request, *args, **kwargs):
         event_id = kwargs.get('event_id')
-        event = Event.objects.get(id=event_id)
+        self.event = Event.objects.get(id=event_id)
         if timezone.now() > event.datetime_end:
-            return redirect('openCurrents:org-admin')
+            return redirect('openCurrents:403')
         else:
             return super(EditEventView, self).dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        data = form.cleaned_data
 
     def post(self, request, **kwargs):
         utc=pytz.UTC
@@ -1598,6 +1601,15 @@ class EditEventView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
 
         return redirect('openCurrents:org-admin')
 
+    def get_form_kwargs(self):
+        """
+        Passes event id down to the form.
+        """
+        kwargs = super(EditEventView, self).get_form_kwargs()
+        kwargs.update({'event_id': self.event.id})
+
+        return kwargs
+
 
 # TODO: prioritize view by projects which user was invited to
 class UpcomingEventsView(LoginRequiredMixin, SessionContextView, ListView):
@@ -1607,8 +1619,9 @@ class UpcomingEventsView(LoginRequiredMixin, SessionContextView, ListView):
     def get_context_data(self, **kwargs):
         # skip context param determines whether we show skip button or not
         context = super(UpcomingEventsView, self).get_context_data(**kwargs)
-        context['timezone'] = self.request.user.account.timezone
-
+        #context['timezone'] = self.request.user.account.timezone
+        context['timezone'] = 'America/Chicago'
+        
         return context
 
 
