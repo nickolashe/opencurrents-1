@@ -1,5 +1,3 @@
 *.pyc
 db.sqlite3
 log/views.log
-.DS_Store
-oc/mediafiles
