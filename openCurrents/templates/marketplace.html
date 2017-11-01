@@ -18,64 +18,43 @@
         {% endif %}
         
         <div class="row">
-          <h3 class="title">Marketplace coming soon!</h3>
+          <h3 class="title-sub">Marketplace</h3>
         </div>
 
         <div class="row">
-          <div class="small-12 medium-8 small-centered columns">
-          <p class="three-halves-margin-bottom">We are talking with businesses in Austin and around the country about exciting opportunities to use Currents for all kinds of products and services. We aim to have this marketplace connecting you with businesses accepting Currents in November!</p>
-          <a href="{% url 'openCurrents:profile' %}" class="button round">Back to profile</a>
-          <a href="javascript:void(Tawk_API.toggle())" class="button round secondary">Get in touch</a>
-          </div>
-        </div>
-        
-        <!-- <div class="row one-margin-bottom center">
-          <div class="small-12 medium-8 small-centered columns">
-            <div class="left input-left small-9 columns">
-              <p class="half-margin-top"><strong>Austin Bouldering Project</strong> offers <a>1 day pass for 1 Current</a></p>
-            </div>
-
-            <div class="right input-right small-3 columns">
-              <a class="button round small secondary">View</a>
-            </div>
+          <div class="small-12 medium-9 small-centered columns">
+            <h6 class="three-halves-margin-bottom">Check out these offers from openCurrents businesses:</h6>
           </div>
         </div>
 
-        <div class="row one-margin-bottom center">
-          <div class="small-12 medium-8 small-centered columns">
-            <div class="left input-left small-9 columns">
-              <p class="half-margin-top"><strong>Papa Joe's Tex-Mex</strong> offers <a>1 migas taco for 0.25 Currents</a> with purchase of $5 or more</p>
-            </div>
+        {% for offer in offers %}
 
-            <div class="right input-right small-3 columns">
-              <a class="button round small secondary">View</a>
+          <div class="row one-margin-bottom center">
+            <div class="small-12 medium-10 small-centered columns">
+              <div class="left input-left small-9 columns">
+                <p class="">
+                  <strong> {{ offer.org.name }} </strong>
+                  accepts Currents for
+                  <a href="{% url 'openCurrents:redeem-currents' offer.id %}">
+                    {{ offer.currents_share }}% of {{ offer.item.name }}
+                  </a>
+
+                  {% if offer.limit != -1 %}
+                    ({{ offer.limit }} remaining this month)
+                  {% endif %}
+                </p>
+              </div>
+
+              <div class="right input-right small-3 columns">
+                <a href="{% url 'openCurrents:redeem-currents' offer.id %}" class="button round tiny secondary">
+                  Redeem
+                </a>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="row one-margin-bottom center">
-          <div class="small-12 medium-8 small-centered columns">
-            <div class="left input-left small-9 columns">
-              <p class="half-margin-top"><strong>Fast Folks Bike Shop</strong> offers <a>$10 off a bike tune-up for 1 Current</a></p>
-            </div>
+        {% endfor %}        
 
-            <div class="right input-right small-3 columns">
-              <a class="button round small secondary">View</a>
-            </div>
-          </div>
-        </div>
-
-        <div class="row one-margin-bottom center">
-          <div class="small-12 medium-8 small-centered columns">
-            <div class="left input-left small-9 columns">
-              <p class="half-margin-top"><strong>Third Eye Tonics</strong> offers <a>15% off elixers and tonics at $10 per Current</a> with a purchase of $10 or more</p>
-            </div>
-
-            <div class="right input-right small-3 columns">
-              <a class="button round small secondary">View</a>
-            </div>
-          </div>
-        </div> -->
         
         <div id="push"></div>
     
@@ -93,18 +72,23 @@
       {% include 'partials/menu.html' %}
     </div>
   
-    <div id="-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+    <div id="transactions-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
-        <h3 class="popup-title"></h3>
+        <h3 class="popup-title">How transactions work</h3>
       </div>
       
-      <div class="row">
+      <div class="row center">
         <div class="small-centered medium-10 columns">
           
-          <p></p>
-          
-          <button class="tax-id-popup_close button round">Okay</button>
-          <a><button class="button round secondary"></button></a>
+          <p>To make it as easy as possible for businesses to accept Currents, nothing changes at point of sale - simply pay full price and ask for your receipt.</p>
+
+          <p>Upload a picture of your receipt, and we will exchange your Currents for the business' dollars once they verify transactions at the end of the month.</p>
+
+          <div class="one-margin-bottom">
+            <input type="checkbox" name="no-more-popup" id="no-more-popup" class="custom-checkbox">
+              <!-- <label for="no-more-popup">Don't show this again</label> -->
+          </div>          
+          <button class="transactions-popup_close button round">Got it</button>
         </div>
       </div>
     </div>
@@ -112,10 +96,11 @@
     
     <script type="text/javascript">
       $(document).ready(function(){
-        $('#').popup({
+        $('#transactions-popup').popup({
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: true,
+          autoopen: true,
         });
       });
     </script>
