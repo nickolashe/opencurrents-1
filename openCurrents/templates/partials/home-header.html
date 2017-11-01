@@ -1,17 +1,11 @@
 {% load staticfiles %}
 
 <header id="header" class="full-width row collapse js-close-any" canvas>
-  <div class="relative small-8 large-3 small-offset-1 columns">
+  <div class="small-8 large-3 small-offset-1 columns">
     <a href="#1">
     	<img id="header-logo" src="{% static 'img/oc-header.svg' %}" />
     </a>
-    
-    <div class="inline-block relative">
-      <a id="beta-home" class="beta-popup_open">Beta</a>
-    </div>
   </div>
-
-  {% include "popups/beta-popup.html" %}
 
   <div class="show-for-large one-margin-top medium-8 right columns end">
     <a href="{% url 'openCurrents:nonprofit' %}" class="three-halves-margin-right">For nonprofits</a>

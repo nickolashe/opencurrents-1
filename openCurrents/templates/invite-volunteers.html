@@ -25,7 +25,7 @@
           {% else %}
             <p>to record hours with openCurrents</p>
           {% endif %}
-          <a class="bulk-email-popup_open button round small secondary">Copy/paste email list</a>
+          <a class="bulk-email-popup_open button round small">Copy/paste email list</a>
           <p class="">or add volunteers individually:</p>
         </div>
         <form action ="" name="theForm" id="form_id" method="post">
@@ -62,18 +62,13 @@
               </div>
             </div>
 
-            <!-- <textarea id="bulk-email-submit" class="hidden"></textarea>
-
-            <textarea id="personal-message-submit" class="hidden"></textarea>
-
-            <p><a class="personal-message-popup_open button round tiny secondary">Add personal message</a></p> -->
-
-            <!--<a href="{% url 'openCurrents:org-admin' %}" class="button round secondary">Send invites</a>-->
-            <button type='submit' id="button_1" class="button round">Send invites<input type="hidden" id="count-vol" name="count-vol" value="3" /></button>
+            <!--<a href="{% url 'openCurrents:admin-profile' %}" class="button round secondary">Send invites</a>-->
+            <button type='submit' id="button_1" class="button round secondary">Send invites<input type="hidden" id="count-vol" name="count-vol" value="3" /></button>
           </div>
 
+          <!--<p><a href="{% url 'openCurrents:admin-profile' num_vols=0 %}">Skip for now</a></p>-->
           {% if skip == 1 %}
-            <a href="{% url 'openCurrents:org-admin' num_vols=0 %}">Skip for now</a>
+            <a href="{% url 'openCurrents:admin-profile' num_vols=0 %}">Skip for now</a>
           {% endif %}
           <input type="hidden" id="bulk-vol" name="bulk-vol" value="" />
         </form>
@@ -103,7 +98,7 @@
       <div class="row center">
         <div class="medium-10 small-centered column">
           <p>Add multiple emails separated by spaces, new lines, or commas:</p>
-          <textarea name="bulk-emails" id = "bulk-emails" placeholder="email@yahoo.com, address@woohoo.com" rows="3"></textarea>
+          <textarea name="bulk-emails" id = "bulk-emails" name="bulk-emails" placeholder="email@yahoo.com, address@wahoo.com" rows="3"></textarea>
 
           <!--<p class="three-halves-margin-top"><a onclick="$(this).closest('form').submit()" href="" class="button round">Send invites</a></p>-->
         <button type='submit' name="button_2" onclick="submit_from_bulk()" class="button round">Send invites</button>
@@ -112,20 +107,8 @@
       </div>
     </div>
 
-    <div id="personal-message-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <div class="row center">
-        <h3 class="popup-title">Add custom message</h3>
-      </div>
 
-      <div class="row center">
-        <div class="medium-10 small-centered column">
-          <p>Add a personal touch to invite volunteers to the {% if event_project_name %}event{% else %}community{% endif %}:</p>
 
-          <p>Hi,</p>
-          <textarea id="personal-message" rows="3" placeholder=""></textarea>
-        </div>
-      </div>
-    </div>
 
     <script type="text/javascript">
       $(document).ready(function(){

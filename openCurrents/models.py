@@ -28,19 +28,8 @@ class Org(models.Model):
     name = models.CharField(max_length=100, unique=True)
     website = models.CharField(max_length=100, null=True, blank=True)
     status = models.CharField(max_length=50, null=True)
-    #mission = models.CharField(max_length=4096, null=True)
-    #reason = models.CharField(max_length=4096, null=True)
-
-    org_types = (
-        ('biz', 'business'),
-        ('npf', 'non-profit')
-    )  
-    status = models.CharField(
-        max_length=3,
-        choices=org_types,
-        default='npf'
-    )
-
+    mission = models.CharField(max_length=4096, null=True)
+    reason = models.CharField(max_length=4096, null=True)
     users = models.ManyToManyField(User, through='OrgUser')
     timezone = models.CharField(max_length=128, default='America/Chicago')
 
@@ -312,37 +301,28 @@ class Token(models.Model):
 class Item(models.Model):
     name = models.CharField(max_length=256)
 
-    def __unicode__(self):
-        return self.name
-
 
 class Offer(models.Model):
     org = models.ForeignKey(Org)
     item = models.ForeignKey(Item)
-    currents_share = models.IntegerField()
+    currents_share = models.DecimalField(
+        decimal_places=2,
+        max_digits=3
+    )
     limit = models.IntegerField(default=-1)
 
     # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)
     date_updated = models.DateTimeField('date updated', auto_now=True)
 
-    def __unicode__(self):
-        return ' '.join([
-            str(self.currents_share),
-            '% on',
-            self.item.name,
-            'by',
-            self.org.name
-        ])
-
 
 class Transaction(models.Model):
     user = models.ForeignKey(User)
-    offer = models.ForeignKey(
+    action = models.ManyToManyField(
         Offer,
-        on_delete=models.CASCADE
+        through='UserOfferAction'
     )
-    pop_image = models.ImageField(upload_to='images/redeem/%Y/%m/%d')
+    pop_image = models.ImageField()
     pop_type = models.CharField(
         max_length=3,
         choices=[
@@ -360,29 +340,16 @@ class Transaction(models.Model):
     date_created = models.DateTimeField('date created', auto_now_add=True)
     date_updated = models.DateTimeField('date updated', auto_now=True)
 
-    def __unicode__(self):
-        return ' '.join([
-            'Transaction initiated by user',
-            self.user.username,           
-            'for offer',
-            str(self.offer.id),
-            'at',
-            self.date_updated.strftime('%m/%d/%Y %H:%M:%S'),
-        ])
 
-
-class TransactionAction(models.Model):
-    transaction = models.ForeignKey(
-        Transaction,
-        on_delete=models.CASCADE
-    )
+class UserOfferAction(models.Model):
+    transaction = models.ForeignKey(Transaction)
+    offer = models.ForeignKey(Offer)
     action_type = models.CharField(
         max_length=7,
         choices=[
-            ('req', 'pending'),
+            ('req', 'requested'),
             ('app', 'approved'),
-            ('red', 'redeemed'),
-            ('dec', 'declined')
+            ('red', 'redeemed')
         ],
         default='req'
     )
@@ -390,13 +357,3 @@ class TransactionAction(models.Model):
     # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)
     date_updated = models.DateTimeField('date updated', auto_now=True)
-
-    def __unicode__(self):
-        return ' '.join([
-            'Action',
-            '[%s]' % self.action_type,
-            'taken for transaction',
-            str(self.transaction.id),
-            'at',
-            self.date_updated.strftime('%m/%d/%Y %H:%M:%S'),
-        ])    
