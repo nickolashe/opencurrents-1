@@ -26,7 +26,7 @@
             <p>with <strong>{{ event.project.org.name }}</strong> </p>
           </div>
 
-          <div class="row one-margin-bottom center">
+          <div class="row center">
             <div class="small-12 medium-8 small-centered columns">
               <h6 class="no-margin-bottom">
                 on {{ event.datetime_start|day:event.project.org.timezone }}
@@ -34,11 +34,20 @@
               <h6 class="no-margin-bottom">
                 from {{ event.datetime_start|time:event.project.org.timezone }} to {{ event.datetime_end|time:event.project.org.timezone }}
               </h6>
-              <h6 class="one-margin-bottom">at {{ event.location }}</h6>
+              <h6 class="half-margin-bottom">at {{ event.location }}</h6>
+              <p>
+                {% if event.is_public %}
+                  Public
+                {% else %}
+                  Private 
+                {% endif %} 
+
+                event
+              </p>
             </div>
           </div>
 
-          <div class="three-halves-margin-top row left">
+          <div class="row left">
             <div class="small-10 medium-6 small-centered columns">
               <h6 class="navy">Event description</h6>
               <p class="grey"> {{ event.description }}</p>
@@ -47,17 +56,14 @@
 
           <div class="three-halves-margin-top row left">
             <div class="small-10 medium-6 small-centered columns">
-              <h6 class="navy no-margin-bottom">
                 {% if coordinator %}
-                  <h6 class="navy inline">Contact registered volunteers</h6>
-                  <a class="registrants-box_open no-wrap">See registrants</a>
+                  <h6 class="navy inline">Contact invited volunteers</h6>
+                  <a class="registrants-box_open no-wrap">See invitees</a>
                 {% elif is_registered %}
                   <h6 class="navy inline">Contact event coordinator</h6>
                 {% else %}
-                  {{ form.contact_message.label }}
+                  <h6 class="navy inline">{{ form.contact_message.label }}</h6>
                 {% endif %}
-
-              </h6>
               
               {% if form.contact_message.help_text %}
                 <p class="small-text grey no-margin-bottom">
@@ -71,15 +77,18 @@
             </div>
           </div>
 
-          <div class="three-halves-margin-top center">
-            <button type='submit' class="button round">
+          <div class="one-margin-top center">
+            <a type='submit' class="button round">
               {% if not is_registered and not coordinator %}
                 Register
               {% else %}
                 Send message
               {% endif %}
-            </button>
+            </a>
           </div>
+          <a href="{% url 'openCurrents:profile' %}">
+            Back to profile
+          </a>
 
           <div id="push"></div>
         </form>
@@ -94,7 +103,7 @@
     <div id="bottom-stripe" class="full-width"></div>
 
     <div id="registrants-box" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <h3 class="popup-title center">Registered volunteers</h3>
+      <h3 class="popup-title center">Invited volunteers</h3>
       <div class="row center">
         <div class="small-10 medium-6 small-centered columns">
           <ul class="left">
@@ -103,11 +112,15 @@
                 <li class="no-bullet">{{ name }}</li>
               {% endfor %}
             {% else %}
-              <li class="no-bullet">No volunteers have registered yet.</li>
+              <li class="no-bullet">No volunteers have registered or been invited yet.</li>
             {% endif %}
           </ul>
-          
-          <a href="{% url 'openCurrents:invite-volunteers' event.id %}" class="button round small">Invite volunteers</a>
+
+          <textarea id="email-list" class="hidden">
+            {{ registrants|join:', ' }}
+          </textarea>
+
+          <button id="copy-emails" class="button round small">Copy email list</button>
           <a class="registrants-box_close button round small secondary">Close</a>
         </div>
       </div>
@@ -134,6 +147,7 @@
       </div>
     </div>
 
+    <script src="{% static 'js/clipboard.min.js' %}"></script>
 
     <script type="text/javascript">
       $(document).ready(function(){
@@ -147,6 +161,19 @@
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: false,
+        });
+
+        new Clipboard('#copy-emails', {
+          text: function (trigger) {
+            return $('#email-list').val();
+          }
+        });
+
+        $('#copy-emails').click(function(){
+          $(this).text('Copied!');
+          setTimeout(function(){
+            $('#copy-emails').text('Copy email list');
+          }, 2000);
         });
 
       });
