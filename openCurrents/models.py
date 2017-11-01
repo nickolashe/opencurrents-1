@@ -28,8 +28,8 @@ class Org(models.Model):
     name = models.CharField(max_length=100, unique=True)
     website = models.CharField(max_length=100, null=True, blank=True)
     status = models.CharField(max_length=50, null=True)
-    mission = models.CharField(max_length=4096, null=True)
-    reason = models.CharField(max_length=4096, null=True)
+    #mission = models.CharField(max_length=4096, null=True)
+    #reason = models.CharField(max_length=4096, null=True)
     users = models.ManyToManyField(User, through='OrgUser')
     timezone = models.CharField(max_length=128, default='America/Chicago')
 
