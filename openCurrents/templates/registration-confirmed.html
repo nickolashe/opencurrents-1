@@ -22,18 +22,19 @@
           <div class="small-12 medium-8 small-centered columns">
             <h3 class="title">You're all set!</h3>
 
-            <!-- <span class="addtocalendar one-margin-bottom">
+            <span class="addtocalendar one-margin-bottom">
               <var class="atc_event">
-                <var class="atc_date_start">2017-04-01 12:00:00</var>
-                <var class="atc_date_end">2017-04-02 12:00:00</var>
+                <var class="atc_date_start">{{ event.datetime_start|time:event.project.org.timezone }}</var>
+                <var class="atc_date_end">{{ event.datetime_end|time:event.project.org.timezone }}</var>
                 <var class="atc_timezone">America/Chicago</var>
-                <var class="atc_title">Let's clean up Lady Bird Lake with </var>
-                <var class="atc_description"></var>
-                <var class="atc_location"></var>
-                <var class="atc_organizer"></var>
-                <var class="atc_organizer_email"></var>
+                <var class="atc_title">Let's {{ event.project.name }}!</var>
+                <var class="atc_description">{{ event.description }}</var>
+                <var class="atc_location">{{ event.location }}</var>
+                <var class="atc_organizer">{{ event.coordinator_firstname }}</var>
+                <var class="atc_organizer_email">{{ event.coordinator_email }}</var>
               </var>
-            </span> -->
+            </span>
+            
             <p>
               Thank you for helping {{ event.project.org.name }} {{ event.project.name }} on {{ event.datetime_start|day }}. Enjoy the event!
             </p>
