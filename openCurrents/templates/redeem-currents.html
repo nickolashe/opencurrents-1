@@ -234,12 +234,12 @@
         $('.next-offer').click(function() {
             if (page < 3) {
 
-              var $lefty = $('#offer-'+page+'');
-              var $righty = $('#offer-'+(page+1)+'');
-
               $('#container').animate({
                 scrollTop: $("#header").offset().top
               }, 1111);
+
+              var $lefty = $('#offer-'+page+'');
+              var $righty = $('#offer-'+(page+1)+'');
 
               $righty.show()
 
