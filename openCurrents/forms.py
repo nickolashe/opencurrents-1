@@ -646,7 +646,6 @@ class RedeemCurrentsForm(forms.Form):
 
     redeem_no_proof = forms.CharField(
         required=False,
-        disabled=True,
         widget= forms.Textarea(attrs={
             'class': 'hidden',
             'rows': '2',
