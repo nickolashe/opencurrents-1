@@ -1264,8 +1264,8 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
             is_public=form_data['is_public'],
             datetime_start=form_data['datetime_start'],
             datetime_end=form_data['datetime_end'],
-            coordinator_firstname=form_data['coordinator_firstname'],
-            coordinator_email=form_data['coordinator_email'],
+            # coordinator_firstname=form_data['coordinator_firstname'],
+            # coordinator_email=form_data['coordinator_email'],
             creator_id = self.userid
         )
         event.save()
