@@ -302,7 +302,8 @@
         <h3 class="popup-title">Confirm cash out</h3>
       </div>
 
-      <form>
+      <form method="post">
+        {% csrf_token %}
         <div class="row center">
           <div class="small-centered medium-10 columns">
             <p class="three-halves-margin-bottom">openCurrents uses Dwolla to send cash directly to your bank account. You will receive an email in the next 48 hours inviting you to transfer your full balance. If you have any questions, don't hesitate to reach out.</p>
