@@ -4,6 +4,8 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <link href="{% static 'css/add-to-calendar.css' %}" rel="stylesheet" type="text/css">
+
     {% include "partials/head.html" %}
   </head>
 
@@ -21,6 +23,10 @@
         <div class="row">
           <div class="small-12 medium-8 small-centered columns">
             <h3 class="title">You're all set!</h3>
+            
+            <p class="three-halves-margin-bottom">
+              Thank you for helping {{ event.project.org.name }} {{ event.project.name }} on {{ event.datetime_start|day }}. Enjoy the event!
+            </p>
 
             <span class="addtocalendar one-margin-bottom">
               <var class="atc_event">
@@ -34,17 +40,13 @@
                 <var class="atc_organizer_email">{{ event.coordinator_email }}</var>
               </var>
             </span>
-            
-            <p>
-              Thank you for helping {{ event.project.org.name }} {{ event.project.name }} on {{ event.datetime_start|day }}. Enjoy the event!
-            </p>
           </div>
         </div>
 
-        <div class="row three-halves-margin-top center">
+        <div class="row one-margin-top center">
           <div class="small-12 medium-8 small-centered columns">
             <a href="{% url 'openCurrents:profile' %}"/>
-              <button class="button round">Return to profile</button>
+              <button class="button round small secondary">Return to profile</button>
             </a>  
           </div>
         </div>
@@ -90,6 +92,16 @@
           scrolllock: true,
         });
       });
+    </script>
+
+    <!-- add to calendar -->
+    <script type="text/javascript">(function () {
+      if (window.addtocalendar)if(typeof window.addtocalendar.start == "function")return;
+      if (window.ifaddtocalendar == undefined) { window.ifaddtocalendar = 1;
+          var d = document, s = d.createElement('script'), g = 'getElementsByTagName';
+          s.type = 'text/javascript';s.charset = 'UTF-8';s.async = true;
+          s.src = "{% static 'js/atc.min.js' %}";
+          var h = d[g]('body')[0];h.appendChild(s); }})();
     </script>
 
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
