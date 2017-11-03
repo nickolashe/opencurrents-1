@@ -44,7 +44,7 @@
                   You have approved hours for {{ vols_approved }} volunteer{{ vols_approved|pluralize }}. Nice!
 
               {% elif vols_approved|add:"0" == 0 and vols_declined|add:"0" >= 1 %}
-                  You have declined hours for {{ vols_declined }} volunteer{{ vols_declined|pluralize }}. 
+                  You have declined hours for {{ vols_declined }} volunteer{{ vols_declined|pluralize }}.
 
               {% endif %}
             </div>
@@ -86,7 +86,7 @@
               </h6>
               <h6 class="one-margin-bottom">
                 My hours tracked: {{ issued_by_admin }}
-              </h6>              
+              </h6>
               <a href="{% url 'openCurrents:create-event' orgid %}" {% if user_time_log_status %} class="button secondary tiny round" {% else %} class="button tiny round" {% endif %}>Create event</a>
               <a {% if user_time_log_status %} href="{% url 'openCurrents:approve-hours' %}" class="button round tiny"{% else %} href="javascript:status()" class="button round tiny secondary"{% endif %}>Approve hours</a>
             </div>
@@ -126,7 +126,7 @@
             {% if events_group_upcoming %}
               {% for event in events_group_upcoming %}
                 <div class="row one-margin-bottom">
-                  <div class="left small-9 columns">    
+                  <div class="left small-9 columns">
                     Let's {{event.project.name}}!
                     on {{event.datetime_start|day:timezone}}
                     at {{event.datetime_start|time:timezone}}
@@ -142,7 +142,7 @@
                       <a href="{% url 'openCurrents:event-detail' event.id %}"><li>View & contact invitees</li></a>
                       {# {% endif %} #}
                       <a href="{% url 'openCurrents:invite-volunteers' event.id %}"><li>Invite volunteers</li></a>
-                      <!-- <a href="{% url 'openCurrents:edit-event' event.id %}"><li>Edit event</li></a> -->
+                      <a href="{% url 'openCurrents:edit-event' event.id %}"><li>Edit event</li></a>
                       <a href="{% url 'openCurrents:live-dashboard' event.id %}"><li>Preview live check-in</li></a>
                     </ul>
                   </div>

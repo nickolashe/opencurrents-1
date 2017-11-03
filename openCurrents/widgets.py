@@ -25,4 +25,3 @@ class TextWidget(forms.TextInput):
         context['widget']['attrs']['class'] = 'center'
 
         return context
-        
