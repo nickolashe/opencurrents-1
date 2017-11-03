@@ -100,7 +100,7 @@
             </div>
 
             <div class="row half-margin-top">
-              <a id="next-1" class="next-offer button round">Next</a>
+              <a class="next-offer button round">Next</a>
             </div>
           </div>
 
@@ -123,7 +123,7 @@
 
             <div class="row one-margin-top">
               <a class="prev-offer button round secondary">Back</a>
-              <a id="next-2" class="next-offer button round">Next</a>
+              <a class="next-offer button round">Next</a>
             </div>
           </div>
 
@@ -232,15 +232,14 @@
         var page = 1;
 
         $('.next-offer').click(function() {
-          // if ($(this).is(':enabled')) {
             if (page < 3) {
-
-              var $lefty = $('#offer-'+page+'');
-              var $righty = $('#offer-'+(page+1)+'');
 
               $('#container').animate({
                 scrollTop: $("#header").offset().top
               }, 1111);
+
+              var $lefty = $('#offer-'+page+'');
+              var $righty = $('#offer-'+(page+1)+'');
 
               $righty.show()
 
@@ -260,7 +259,6 @@
 
               page ++;
             }
-          // }
         });
 
         // Slide right on 'Back'
