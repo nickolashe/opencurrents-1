@@ -2270,7 +2270,7 @@ def event_register(request, pk):
                 'content': json.dumps(event.datetime_start,cls=DatetimeEncoder).replace('"','')
             },
             {
-                'name': 'EVENT_TITLE',
+                'name': 'EVENT_NAME',
                 'content': event.project.name
             },
             {
