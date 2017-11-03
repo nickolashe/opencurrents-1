@@ -48,7 +48,7 @@ from openCurrents.forms import \
     PasswordResetForm, \
     PasswordResetRequestForm, \
     OrgSignupForm, \
-    ProjectCreateForm, \
+    CreateEventForm, \
     EditEventForm, \
     EventRegisterForm, \
     EventCheckinForm, \
@@ -1247,7 +1247,7 @@ class BlogView(TemplateView):
 
 class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
     template_name = 'create-event.html'
-    form_class = ProjectCreateForm
+    form_class = CreateEventForm
 
     def _create_event(self, location, form_data):
         if not self.project:
@@ -1405,208 +1405,194 @@ class EditEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
         # event
         org_user = OrgUserInfo(self.request.user.id)
         tz = org_user.get_org_timezone()
-        event_id = kwargs.pop('event_id')
-        event = Event.objects.get(id=event_id)
-        context['event'] = event
-        context['start_time'] = str(event.datetime_start.astimezone(pytz.timezone(tz)).time())
-        context['end_time'] = str(event.datetime_end.astimezone(pytz.timezone(tz)).time())
-        context['date_start'] = str(event.datetime_start.astimezone(pytz.timezone(tz)).date())
+
         return context
 
     def dispatch(self, request, *args, **kwargs):
         event_id = kwargs.get('event_id')
         self.event = Event.objects.get(id=event_id)
-        if timezone.now() > event.datetime_end:
+        if timezone.now() > self.event.datetime_end:
             return redirect('openCurrents:403')
         else:
             return super(EditEventView, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
+        utc=pytz.UTC
+
         data = form.cleaned_data
 
-    def post(self, request, **kwargs):
-        utc=pytz.UTC
-        event_id = kwargs.pop('event_id')
-        edit_event = Event.objects.get(id=event_id)
+        k = []
 
-        # save button - needs to handled through forms
-        post_data = self.request.POST
-        if 'save-button' in post_data:
-            k = []
-            Organisation = OrgUser.objects.get(user__id=self.request.user.id).org.name
-            if edit_event.location != str(post_data['project-location-1']) or\
-                edit_event.datetime_start.replace(tzinfo=utc) != datetime.combine(datetime.strptime(post_data['project-date'], '%Y-%m-%d'),\
-                  datetime.strptime(str(post_data['project-start']),'%H:%M%p').time()).replace(tzinfo=utc) or\
-                edit_event.project.name != str(post_data['project-name']):
-                #If some important data has been modified for the event
-                volunteers = OrgUser.objects.filter(org__id=edit_event.project.org.id)
-                volunteer_emails = [str(i.user.email) for i in volunteers]
-                for i in volunteer_emails:
-                    k.append({"email":i,"type":"to"})
-                try:
-                    sendBulkEmail(
-                        'edit-event',
-                        None,
-                        [
-                            {
-                                'name': 'ADMIN_FIRSTNAME',
-                                'content': self.request.user.first_name
-                            },
-                            {
-                                'name': 'ADMIN_LASTNAME',
-                                'content': self.request.user.last_name
-                            },
-                            {
-                                'name': 'EVENT_TITLE',
-                                'content': str(post_data['project-name'])
-                            },
-                            {
-                                'name': 'ORG_NAME',
-                                'content': Organisation
-                            },
-                            {
-                                'name': 'EVENT_LOCATION',
-                                'content': str(post_data['project-location-1'])
-                            },
-                            {
-                                'name': 'EVENT_DATE',
-                                'content': str(post_data['project-date'])
-                            },
-                            {
-                                'name':'EVENT_START_TIME',
-                                'content': str(post_data['project-start'])
-                            },
-                            {
-                                'name':'EVENT_END_TIME',
-                                'content': str(post_data['project-end'])
-                            },
-                            {
-                                'name': 'TITLE',
-                                'content': int(edit_event.project.name != str(post_data['project-name']))
-                            },
-                            {
-                                'name': 'LOCATION',
-                                'content': int(edit_event.location != str(post_data['project-location-1']))
-                            },
-                            {
-                                'name':'TIME',
-                                'content': int(edit_event.datetime_start.time().replace(tzinfo=utc) !=\
-                                    datetime.strptime(str(post_data['project-start']),'%H:%M%p').time().replace(tzinfo=utc))
-                            },
-                            {
-                                'name': 'EVENT_ID',
-                                'content': event_id
-                            }
-
-                        ],
-                        k,
-                        self.request.user.email
-                    )
-                except Exception as e:
-                    logger.error(
-                        'unable to send email: %s (%s)',
-                        e,
-                        type(e)
-                    )
-                    return redirect('openCurrents:500')
-            org_user = OrgUserInfo(self.request.user.id)
-            tz = org_user.get_org_timezone()
-
-            edit_event.description = str(post_data['project-description'])
-            edit_event.location = str(post_data['project-location-1'])
-            edit_event.coordinator_firstname = str(post_data['coordinator-name'])
-            edit_event.coordinator_email = str(post_data['coordinator-email'])
-            edit_event.datetime_start = datetime.combine(datetime.strptime(post_data['project-date'], '%Y-%m-%d'),\
-                datetime.strptime(str(post_data['project-start']),'%H:%M%p').time())
-            edit_event.datetime_end = datetime.combine(datetime.strptime(post_data['project-date'], '%Y-%m-%d'),\
-                datetime.strptime(str(post_data['project-end']),'%H:%M%p').time())
-
-            # needs to be handled using forms
-            if post_data['event-privacy'] == '1':
-                edit_event.is_public = True
-            elif post_data['event-privacy'] == '2':
-                edit_event.is_public = False
-            edit_event.save()
-            coord_user = None
-            coord_email = post_data['coordinator-email']
+        if edit_event.location != str(post_data['project-location-1']) or\
+            edit_event.datetime_start.replace(tzinfo=utc) != datetime.combine(datetime.strptime(post_data['project-date'], '%Y-%m-%d'),\
+              datetime.strptime(str(post_data['project-start']),'%H:%M%p').time()).replace(tzinfo=utc) or\
+            edit_event.project.name != str(post_data['project-name']):
+            #If some important data has been modified for the event
+            volunteers = OrgUser.objects.filter(org__id=edit_event.project.org.id)
+            volunteer_emails = [str(i.user.email) for i in volunteers]
+            for i in volunteer_emails:
+                k.append({"email":i,"type":"to"})
             try:
-                coord_user = User.objects.get(email=coord_email)
-            except User.DoesNotExist:
-                logger.info(
-                    "coordinator_email %s does not exist",
-                    coord_email
+                sendBulkEmail(
+                    'edit-event',
+                    None,
+                    [
+                        {
+                            'name': 'ADMIN_FIRSTNAME',
+                            'content': self.request.user.first_name
+                        },
+                        {
+                            'name': 'ADMIN_LASTNAME',
+                            'content': self.request.user.last_name
+                        },
+                        {
+                            'name': 'EVENT_TITLE',
+                            'content': str(post_data['project-name'])
+                        },
+                        {
+                            'name': 'ORG_NAME',
+                            'content': Organisation
+                        },
+                        {
+                            'name': 'EVENT_LOCATION',
+                            'content': str(post_data['project-location-1'])
+                        },
+                        {
+                            'name': 'EVENT_DATE',
+                            'content': str(post_data['project-date'])
+                        },
+                        {
+                            'name':'EVENT_START_TIME',
+                            'content': str(post_data['project-start'])
+                        },
+                        {
+                            'name':'EVENT_END_TIME',
+                            'content': str(post_data['project-end'])
+                        },
+                        {
+                            'name': 'TITLE',
+                            'content': int(edit_event.project.name != str(post_data['project-name']))
+                        },
+                        {
+                            'name': 'LOCATION',
+                            'content': int(edit_event.location != str(post_data['project-location-1']))
+                        },
+                        {
+                            'name':'TIME',
+                            'content': int(edit_event.datetime_start.time().replace(tzinfo=utc) !=\
+                                datetime.strptime(str(post_data['project-start']),'%H:%M%p').time().replace(tzinfo=utc))
+                        },
+                        {
+                            'name': 'EVENT_ID',
+                            'content': event_id
+                        }
+
+                    ],
+                    k,
+                    self.request.user.email
+                )
+            except Exception as e:
+                logger.error(
+                    'unable to send email: %s (%s)',
+                    e,
+                    type(e)
+                )
+                return redirect('openCurrents:500')
+        org_user = OrgUserInfo(self.request.user.id)
+        tz = org_user.get_org_timezone()
+
+        edit_event.description = str(post_data['project-description'])
+        edit_event.location = str(post_data['project-location-1'])
+        edit_event.coordinator_firstname = str(post_data['coordinator-name'])
+        edit_event.coordinator_email = str(post_data['coordinator-email'])
+        edit_event.datetime_start = datetime.combine(datetime.strptime(post_data['project-date'], '%Y-%m-%d'),\
+            datetime.strptime(str(post_data['project-start']),'%H:%M%p').time())
+        edit_event.datetime_end = datetime.combine(datetime.strptime(post_data['project-date'], '%Y-%m-%d'),\
+            datetime.strptime(str(post_data['project-end']),'%H:%M%p').time())
+
+        # needs to be handled using forms
+        if post_data['event-privacy'] == '1':
+            edit_event.is_public = True
+        elif post_data['event-privacy'] == '2':
+            edit_event.is_public = False
+        edit_event.save()
+        coord_user = None
+        coord_email = post_data['coordinator-email']
+        try:
+            coord_user = User.objects.get(email=coord_email)
+        except User.DoesNotExist:
+            logger.info(
+                "coordinator_email %s does not exist",
+                coord_email
+            )
+
+        if coord_user and coord_user.id != self.request.user.id and not OrgUserInfo(coord_user.id).get_orguser():
+            #send an invite to join to org as admin
+            try:
+                sendContactEmail(
+                    'invite-admin',
+                    None,
+                    [
+                        {
+                            'name': 'FNAME',
+                            'content': str(post_data['coordinator-name'])
+                        },
+                        {
+                            'name': 'ADMIN_FNAME',
+                            'content': self.request.user.first_name
+                        },
+                        {
+                            'name': 'ADMIN_LNAME',
+                            'content': self.request.user.last_name
+                        },
+                        {
+                            'name': 'EVENT',
+                            'content': True
+                        },
+                        {
+                            'name': 'ORG_NAME',
+                            'content': Organisation
+                        },
+                        {
+                            'name': 'DATE',
+                            'content': str(post_data['project-date'])
+                        },
+                        {
+                            'name': 'START_TIME',
+                            'content': str(post_data['project-start'])
+                        },
+                        {
+                            'name': 'END_TIME',
+                            'content': str(post_data['project-end'])
+                        },
+                        {
+                            'name': 'EMAIL',
+                            'content': coord_email
+                        }
+                    ],
+                    coord_email,
+                    self.request.user.email
+                )
+            except Exception as e:
+                logger.error(
+                    'unable to send transactional email: %s (%s)',
+                    e.message,
+                    type(e)
                 )
 
-            if coord_user and coord_user.id != self.request.user.id and not OrgUserInfo(coord_user.id).get_orguser():
-                #send an invite to join to org as admin
-                try:
-                    sendContactEmail(
-                        'invite-admin',
-                        None,
-                        [
-                            {
-                                'name': 'FNAME',
-                                'content': str(post_data['coordinator-name'])
-                            },
-                            {
-                                'name': 'ADMIN_FNAME',
-                                'content': self.request.user.first_name
-                            },
-                            {
-                                'name': 'ADMIN_LNAME',
-                                'content': self.request.user.last_name
-                            },
-                            {
-                                'name': 'EVENT',
-                                'content': True
-                            },
-                            {
-                                'name': 'ORG_NAME',
-                                'content': Organisation
-                            },
-                            {
-                                'name': 'DATE',
-                                'content': str(post_data['project-date'])
-                            },
-                            {
-                                'name': 'START_TIME',
-                                'content': str(post_data['project-start'])
-                            },
-                            {
-                                'name': 'END_TIME',
-                                'content': str(post_data['project-end'])
-                            },
-                            {
-                                'name': 'EMAIL',
-                                'content': coord_email
-                            }
-                        ],
-                        coord_email,
-                        self.request.user.email
-                    )
-                except Exception as e:
-                    logger.error(
-                        'unable to send transactional email: %s (%s)',
-                        e.message,
-                        type(e)
-                    )
-
-            project = Project.objects.get(id = edit_event.project.id)
-            project.name = str(post_data['project-name'])
-            project.save()
-        elif 'del-button' in post_data:
-            # user hit delete button
-            # needs to be handled using forms
-            edit_event.delete()
+        project = Project.objects.get(id = edit_event.project.id)
+        project.name = str(post_data['project-name'])
+        project.save()
 
         return redirect('openCurrents:org-admin')
 
     def get_form_kwargs(self):
-        """
-        Passes event id down to the form.
-        """
+        '''
+        Passes event and user ids down to the form
+        '''
         kwargs = super(EditEventView, self).get_form_kwargs()
         kwargs.update({'event_id': self.event.id})
+        #kwargs.update({'user_id': self.request.user.id})
 
         return kwargs
 
@@ -1621,7 +1607,7 @@ class UpcomingEventsView(LoginRequiredMixin, SessionContextView, ListView):
         context = super(UpcomingEventsView, self).get_context_data(**kwargs)
         #context['timezone'] = self.request.user.account.timezone
         context['timezone'] = 'America/Chicago'
-        
+
         return context
 
 
