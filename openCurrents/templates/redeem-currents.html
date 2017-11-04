@@ -95,7 +95,6 @@
                 </p>
 
                 {{ form.redeem_no_proof }}
-
               </div>
             </div>
 
@@ -227,38 +226,36 @@
         // Set height of spacer = to height of content
         $('#redeem-spacer').height($('#offer-3').height());
 
-
         // Slide left on 'Next'
         var page = 1;
 
         $('.next-offer').click(function() {
-            if (page < 3) {
+          if (page < 3) {
+            var $lefty = $('#offer-'+page+'');
+            var $righty = $('#offer-'+(page+1)+'');
 
-              $('#container').animate({
-                scrollTop: $("#header").offset().top
-              }, 1111);
+            $('#container').animate({
+              scrollTop: $("#header").offset().top
+            }, 1111);
 
-              var $lefty = $('#offer-'+page+'');
-              var $righty = $('#offer-'+(page+1)+'');
+            $righty.show()
 
-              $righty.show()
+            $lefty.animate({
+              left: parseInt(-$lefty.outerWidth())
+            }, 777);
+            $righty.animate({
+              left: 0
+            }, 777);
 
-              $lefty.animate({
-                left: parseInt(-$lefty.outerWidth())
-              }, 777);
-              $righty.animate({
-                left: 0
-              }, 777);
+            setTimeout(function() {
+                $lefty.hide();
+            }, 1000);
 
-              setTimeout(function() {
-                  $lefty.hide();
-              }, 1000);
+            $('#progress-'+page+'').removeClass('progress-highlight').siblings('label').removeClass('blue');
+            $('#progress-'+(page+1)+'').addClass('progress-highlight').siblings('label').addClass('blue');
 
-              $('#progress-'+page+'').removeClass('progress-highlight').siblings('label').removeClass('blue');
-              $('#progress-'+(page+1)+'').addClass('progress-highlight').siblings('label').addClass('blue');
-
-              page ++;
-            }
+            page ++;
+          }
         });
 
         // Slide right on 'Back'
@@ -290,41 +287,18 @@
           }
         });
 
-        // onload, Set property of next buttons to disabled
-        // $('.next-offer').attr('disabled', true);
-
         // Display filename in upload-receipt label
         $('#upload-receipt').change(function(){
-          var fileName = $(this).val().split('\\').pop();
+          var fileName = $(this).val().split('\\').pop();;
 
           if (fileName != '') {
             $('.upload-receipt-label').find('span').text(fileName);
-            // $('#next-1').attr('disabled', false);
           }
 
           else {
             $('.upload-receipt-label').find('span').text('Choose an image...');
-
-            // if fileName = '' & no-proof empty, disable button
-            if ( $('#id_redeem_no_proof').val() == '') {
-              // $('#next-1').attr('disabled', true);
-            }
           }
         });
-
-        // Check file input and no-proof textarea to enable/disable button
-        // $('#no-proof-typed').change(function(){
-
-        //   var fileName = $('#upload-receipt').val().split('\\').pop();
-
-        //   if (fileName == '' && $('#no-proof-typed').val() == '') {
-        //     $('#next-1').attr('disabled', true);
-        //   }
-
-        //   else {
-        //     $('#next-1').attr('disabled', false);
-        //   }
-        // });
 
         // // Uncheck receipt-if-checked when 'Other PoP' label is clicked
         // $('#pop-label').click(function(){

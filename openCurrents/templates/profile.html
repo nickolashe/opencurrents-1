@@ -254,8 +254,8 @@
             <p>Are you willing to help us connect with businesses where you shop, nonprofits where you volunteer, or friends who might be interested?</p>
 
             <p class="three-halves-margin-top">
-              <a type="submit" class="button round">Yes</a>
-              <a type="submit" class="button round secondary">No</a>
+              <button type="submit" class="button round">Yes</button>
+              <button type="submit" class="button round secondary">No</button>
             </p>
           </div>
         </div>
@@ -302,8 +302,7 @@
         <h3 class="popup-title">Confirm cash out</h3>
       </div>
 
-      <form method="post">
-        {% csrf_token %}
+      <form>
         <div class="row center">
           <div class="small-centered medium-10 columns">
             <p class="three-halves-margin-bottom">openCurrents uses Dwolla to send cash directly to your bank account. You will receive an email in the next 48 hours inviting you to transfer your full balance. If you have any questions, don't hesitate to reach out.</p>
