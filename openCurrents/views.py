@@ -1258,117 +1258,132 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
             project.save()
             self.project = project
 
+        # admin user (event creator)
+        admin_user = User.objects.get(id=self.userid)
+
+        # coordinator user
+        coord_user = User.objects.get(
+            id=form_data['event_coordinator']
+        )
+
         event = Event(
             project=self.project,
-            description=form_data['description'],
+            description=form_data['event_description'],
             location=location,
-            is_public=form_data['is_public'],
+            is_public=form_data['event_privacy'],
             datetime_start=form_data['datetime_start'],
             datetime_end=form_data['datetime_end'],
-            coordinator_firstname=form_data['coordinator_firstname'],
-            coordinator_email=form_data['coordinator_email'],
+            coordinator=coord_user,
             creator_id = self.userid
         )
         event.save()
 
-        try:
-            orguser = OrgUserInfo(self.userid)
-            coord_user = User.objects.get(email=form_data['coordinator_email'])
-            if (coord_user.id != self.userid) and not OrgUserInfo(coord_user.id).get_orguser():
-                #send an invite to join to org as admin
-                try:
-                    admin_user = User.objects.get(id=self.userid)
-                    sendContactEmail(
-                            'invite-admin',
-                            None,
-                            [
-                                {
-                                    'name': 'FNAME',
-                                    'content': form_data['coordinator_firstname']
-                                },
-                                {
-                                    'name': 'ADMIN_FNAME',
-                                    'content': admin_user.first_name
-                                },
-                                {
-                                    'name': 'ADMIN_LNAME',
-                                    'content': admin_user.last_name
-                                },
-                                {
-                                    'name': 'EVENT',
-                                    'content': True
-                                },
-                                {
-                                    'name': 'ORG_NAME',
-                                    'content': Org.objects.get(id=self.orgid).name
-                                },
-                                {
-                                    'name': 'DATE',
-                                    'content': form_data['datetime_start'].date()
-                                },
-                                {
-                                    'name': 'START_TIME',
-                                    'content': form_data['datetime_start'].time()
-                                },
-                                {
-                                    'name': 'END_TIME',
-                                    'content': form_data['datetime_start'].time()
-                                },
-                                {
-                                    'name': 'EMAIL',
-                                    'content': form_data['coordinator_email']
-                                }
-                            ],
-                            form_data['coordinator_email'],
-                            admin_user.email
-                        )
-                except Exception as e:
-                    logger.error(
-                        'unable to send transactional email: %s (%s)',
-                        e.message,
-                        type(e)
+        if (coord_user.id != self.userid):
+            # send an invite to coordinator
+            # TODO (@danny):
+            #   - is invite-admin the correct template to use, event for
+            #     existing users?
+            try:
+                sendContactEmail(
+                        'invite-admin',
+                        None,
+                        [
+                            {
+                                'name': 'FNAME',
+                                'content': coord_user.first_name
+                            },
+                            {
+                                'name': 'ADMIN_FNAME',
+                                'content': admin_user.first_name
+                            },
+                            {
+                                'name': 'ADMIN_LNAME',
+                                'content': admin_user.last_name
+                            },
+                            {
+                                'name': 'EVENT',
+                                'content': True
+                            },
+                            {
+                                'name': 'ORG_NAME',
+                                'content': self.org.name
+                            },
+                            {
+                                'name': 'DATE',
+                                'content': form_data['datetime_start'].date()
+                            },
+                            {
+                                'name': 'START_TIME',
+                                'content': form_data['datetime_start'].time()
+                            },
+                            {
+                                'name': 'END_TIME',
+                                'content': form_data['datetime_start'].time()
+                            },
+                            {
+                                'name': 'EMAIL',
+                                'content': coord_user.email
+                            }
+                        ],
+                        coord_user.email,
+                        admin_user.email
                     )
-        # if given coordinator_email does not exist
-        except ObjectDoesNotExist:
-            logger.debug('Coordinator does not exist')
+            except Exception as e:
+                logger.error(
+                    'unable to send transactional email: %s (%s)',
+                    e.message,
+                    type(e)
+                )
+        else:
+            logger.debug('admin is coordinator for event %d', event.id)
 
         return event.id
 
     def _get_project_names(self):
-        context = super(CreateEventView, self).get_context_data()
-        orgid = context['org_id']
-        self.orgid = orgid
-
-        userid = context['userid']
-        self.userid = userid
-
-        projects = Project.objects.filter(
-            org__id=self.orgid
-        )
+        '''
+        this method fetches existing org's projects in order to
+        provide it to form project name autocomplete
+        '''
+        projects = Project.objects.filter(org__id=self.org.id)
         project_names = [project.name for project in projects]
 
         return project_names
 
     def form_valid(self, form):
+        '''
+        method that's triggered when valid form data has posted, i.e.
+        data passed validation in form's clean() method
+            - location is handled in an ad-hoc manner because its
+              a (variable length) list
+        '''
         project_names = self._get_project_names()
 
+        # submitted locations have names of the form 'event-location-$n',
+        # where an n is a positive integer
+        #   - need to use raw request.POST dictionary since no support for
+        #     variable length lists
         locations = [
             val
             for (key, val) in self.request.POST.iteritems()
             if 'event-location' in key
         ]
+
+        # form.cleaned_data contains validated form data
         form_data = form.cleaned_data
+
+        # attempt to look up existing project based on provided project name
         if form_data['project_name'] in project_names:
-            logger.info('event found')
             self.project = Project.objects.get(
-                org__id=self.orgid,
+                org__id=self.org.id,
                 name=form_data['project_name']
             )
         else:
             self.project = None
 
         # create an event for each location
+        # apply _create_event() to every location in locations list
         event_ids = map(lambda loc: self._create_event(loc, form_data), locations)
+
         return redirect(
             'openCurrents:invite-volunteers',
             json.dumps(event_ids)
@@ -1377,21 +1392,21 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
     def get_context_data(self, **kwargs):
         context = super(CreateEventView, self).get_context_data()
 
-        # context::project_names (for autocompleting the project name field)
         project_names = self._get_project_names()
-
         context['project_names'] = mark_safe(json.dumps(project_names))
-        context['form'].fields['coordinator_firstname'].widget.attrs['value'] = str(self.request.user.first_name)
-        context['form'].fields['coordinator_email'].widget.attrs['value'] = str(self.request.user.email)
 
         return context
 
     def get_form_kwargs(self):
-        """
-        Returns the keyword arguments for instantiating the form.
-        """
+        '''
+        pass down to (CreateEventForm) form for its internal use
+            - orgid
+            - userid
+        '''
         kwargs = super(CreateEventView, self).get_form_kwargs()
-        kwargs.update({'orgid': self.kwargs['org_id']})
+        kwargs.update({'org_id': self.kwargs['org_id']})
+        kwargs.update({'user_id': self.userid})
+
         return kwargs
 
 
@@ -1399,14 +1414,6 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
 class EditEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
     template_name = 'edit-event.html'
     form_class = EditEventForm
-
-    def get_context_data(self, **kwargs):
-        context = super(EditEventView, self).get_context_data(**kwargs)
-        # event
-        org_user = OrgUserInfo(self.request.user.id)
-        tz = org_user.get_org_timezone()
-
-        return context
 
     def dispatch(self, request, *args, **kwargs):
         event_id = kwargs.get('event_id')
@@ -1592,7 +1599,7 @@ class EditEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
         '''
         kwargs = super(EditEventView, self).get_form_kwargs()
         kwargs.update({'event_id': self.event.id})
-        #kwargs.update({'user_id': self.request.user.id})
+        kwargs.update({'user_id': self.userid})
 
         return kwargs
 

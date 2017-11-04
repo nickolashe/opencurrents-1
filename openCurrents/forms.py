@@ -214,12 +214,29 @@ class OrgSignupForm(forms.Form):
 
 
 class CreateEventForm(forms.Form):
-
     def __init__(self, *args, **kwargs):
-        orgid = kwargs.pop('orgid')
+        '''
+        form init method:
+            - fetches the org from db
+            - kwargs contains orgid and is passed from the CreateEventView
+            - builds coordinator choices list dynamically
+            - sets admin user as the initial choice
+        '''
+        orgid = kwargs.pop('org_id')
+        self.userid = kwargs.pop('user_id')
         self.org = Org.objects.get(id=orgid)
+
+        # this needs to be called first to get access to self.fields
         super(CreateEventForm, self).__init__(*args, **kwargs)
 
+        # build the coordinator choices list dynamically
+        # set (preselect) initially to admin user
+        coordinator_choices = self._get_coordinator_choices()
+        self.fields['event_coordinator'].choices += coordinator_choices
+        self.fields['event_coordinator'].initial = self.userid
+
+
+    # form field definitions follow
     project_name = forms.CharField(
         label='Let\'s...',
         widget=forms.TextInput(attrs={
@@ -228,58 +245,80 @@ class CreateEventForm(forms.Form):
         })
     )
 
-    CHOICES = [(True, 'event-privacy-1'), (False, 'event-privacy-2')]
-
-    is_public = forms.ChoiceField(widget=forms.RadioSelect(
-        attrs={"class": "custom-radio"}),
-        choices=CHOICES,
-        initial='True'
-    )
-
-    description = forms.CharField(
-        label='Project description',
-        help_text='What should volunteers know? What should they bring?',
-        widget=forms.Textarea(attrs={
-            'rows': '3'
-        })
-    )
-    date_start = forms.CharField(
+    event_date = forms.CharField(
         label='on',
-        widget=forms.TextInput(attrs={
-            'id': 'date_start',
-            'class': 'center'
+        widget=widgets.TextWidget(attrs={
+            'class': 'center',
+            'id': 'event-date',
+            'placeholder': 'yyyy-mm-dd',
         })
     )
 
-    time_start = forms.CharField(
+    event_starttime = forms.CharField(
         label='from',
-        widget=forms.TextInput(attrs={
-            'id': 'time_start',
+        widget=widgets.TextWidget(attrs={
             'class': 'center',
-            'placeholder': '9:00 am'
-        })
-    )
-    time_end = forms.CharField(
-        label='to',
-        widget=forms.TextInput(attrs={
-            'id': 'time_end',
-            'class': 'center',
+            'id': 'event-starttime',
             'placeholder': '12:00 pm'
         })
     )
 
-    coordinator_firstname = forms.CharField(
-        widget=forms.TextInput(attrs={'placeholder': 'First name','value':''})
+    event_endtime = forms.CharField(
+        label='to',
+        widget=widgets.TextWidget(attrs={
+            'class': 'center',
+            'id': 'event-endtime',
+            'placeholder': '1:00 pm',
+        })
     )
-    coordinator_email = forms.CharField(
-        widget=forms.TextInput(attrs={'placeholder': 'Email','value':''})
+
+    event_privacy = forms.ChoiceField(
+        widget=forms.RadioSelect(
+            attrs={
+                'class': 'custom-radio',
+                'id': 'id-event-privacy'
+            }
+        ),
+        choices=[(1, 'public'), (0, 'private')],
+        initial=1
     )
+
+    event_description = forms.CharField(
+        label='Description',
+        help_text='What should volunteers know? What should they bring?',
+        widget=forms.Textarea(attrs={
+            'rows': '3'
+        }),
+    )
+
+    event_coordinator = forms.ChoiceField(
+        choices=[('select_coord', 'Select coordinator')],
+    )
+
+    def _get_coordinator_choices(self):
+        '''
+        return list of org's approved admins (as coordinator choices)
+            - admin group for any org is named 'admin_$n', where n = org_id
+        '''
+        orgs_admin_group = Group.objects.get(
+            name='admin_%s' % self.org.id
+        )
+
+        choices_orgs_approved_admins = [
+            (user.id, ' '.join([user.first_name, user.last_name]))
+            for user in orgs_admin_group.user_set.all(
+            ).order_by(
+                'last_name'
+            )
+        ]
+
+        return choices_orgs_approved_admins
 
     def clean(self):
         cleaned_data = super(CreateEventForm, self).clean()
-        date_start = cleaned_data['date_start']
-        time_start = cleaned_data['time_start']
-        time_end = cleaned_data['time_end']
+        date_start = cleaned_data['event_date']
+        time_start = cleaned_data['event_starttime']
+        time_end = cleaned_data['event_endtime']
         tz = self.org.timezone
 
         try:
@@ -312,17 +351,22 @@ class CreateEventForm(forms.Form):
         return cleaned_data
 
 
-class EditEventForm(forms.Form):
+class EditEventForm(CreateEventForm):
     def __init__(self, *args, **kwargs):
         event_id = kwargs.pop('event_id')
+        user_id = kwargs.pop('user_id')
         self.event = Event.objects.get(id=event_id)
         self.org = self.event.project.org
         tz = self.org.timezone
 
         # call parent init in order to be able to access form fields
+        #   - in this case parent (CreateEventForm) init requires the presence
+        #     of org and user ids, so we provide those
+        kwargs['org_id'] = self.org.id
+        kwargs['user_id'] = user_id
         super(EditEventForm, self).__init__(*args, **kwargs)
 
-        # populate initial values for event
+        # populate event initial values
         self.fields['project_name'].initial = self.event.project.name
         self.fields['event_date'].initial = self.event.datetime_start.astimezone(
             pytz.timezone(tz)
@@ -337,60 +381,16 @@ class EditEventForm(forms.Form):
         self.fields['event_location'].initial = self.event.location
         self.fields['event_description'].initial = self.event.description
 
-        # obtain the list of approved org admins to populate
-        # coordinator select box
-        # important to have the list generated dynamically in the init
-        # to force update on each page refresh
-        orgs_admin_group = Group.objects.get(
-            name='admin_%s' % self.org.id
-        )
-
-        choices_orgs_approved_admins = [
-            (user.id, ' '.join([user.first_name, user.last_name]))
-            for user in orgs_admin_group.user_set.all(
-            ).order_by(
-                'last_name'
-            )
-        ]
-
-        # build the dynamic choices list and set initial value
-        self.fields['event_coordinator'].choices += choices_orgs_approved_admins
+        # build the coordinator choices list dynamically
+        # set (preselect) initially to existing coordinator
+        #   - we are calling the parent (CreateEventForm) form's init,
+        #     which already populates event_coordinator select
+        #   - initial value is different from parents, however,
+        #     we set to current event's coordinator
         self.fields['event_coordinator'].initial = self.event.coordinator.id
 
-    # form field definitions
-    project_name = forms.CharField(
-        widget=forms.TextInput(attrs={
-            'class': 'center',
-            'placeholder': 'do some good',
-        })
-    )
-
-    event_date = forms.CharField(
-        widget=widgets.TextWidget(attrs={
-            'placeholder': 'yyyy-mm-dd',
-            'id': 'event-date'
-        })
-    )
-
-    event_starttime = forms.CharField(
-        widget=widgets.TextWidget(attrs={
-            'placeholder': '12:00 pm',
-            'id': 'event-starttime'
-        })
-    )
-
-    event_endtime = forms.CharField(
-        widget=widgets.TextWidget(attrs={
-            'placeholder': '1:00 pm',
-            'id': 'event-endtime'
-        })
-    )
-
-    event_privacy = forms.ChoiceField(
-        widget=widgets.RadioWidget,
-        choices=[(1, 'public'), (0, 'private')]
-    )
-
+    # form fields are inherited from CreateEventForm
+    # define extra fields only
     event_location = forms.CharField(
         widget=forms.TextInput(attrs={
             'class': 'center',
@@ -398,18 +398,10 @@ class EditEventForm(forms.Form):
         }),
     )
 
-    event_description = forms.CharField(
-        widget=forms.Textarea(attrs={
-            'rows': '4'
-        }),
-    )
-
-    event_coordinator = forms.ChoiceField(
-        choices=[('select_org', 'Select organization')],
-        # widget=forms.Select(attrs={
-        #     'id': 'id_org_choice'
-        # }),
-    )
+    # def clean(self):
+    #    '''
+    #    inherited from CreateEventForm
+    #    '''
 
 
 # TODO: Add location to form
