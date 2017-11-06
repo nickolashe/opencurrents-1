@@ -1285,7 +1285,7 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
             #     existing users?
             try:
                 sendContactEmail(
-                        'invite-admin',
+                        'change-event-coordinator',
                         None,
                         [
                             {
@@ -1307,6 +1307,10 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
                             {
                                 'name': 'ORG_NAME',
                                 'content': self.org.name
+                            },
+                            {
+                                'name': 'EVENT_NAME',
+                                'content': form_data['description']
                             },
                             {
                                 'name': 'DATE',
