@@ -1310,7 +1310,7 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
                             },
                             {
                                 'name': 'EVENT_NAME',
-                                'content': form_data['description']
+                                'content': event.project.name
                             },
                             {
                                 'name': 'DATE',
