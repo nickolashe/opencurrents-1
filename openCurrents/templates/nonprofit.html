@@ -199,7 +199,7 @@
           </div>
         </div>
 
-        <form method="post" action="{% url 'openCurrents:process_signup' referrer=referrer %}">
+        <form method="post" action="{% url 'openCurrents:process_signup' %}">
           {% csrf_token %}
           <div class="row collapse half-margin-bottom">
             <div class="center small-12 medium-8 small-centered columns">
@@ -254,7 +254,7 @@
       </div>
       {% endif %}
 
-      <form method="post" action="{% url 'openCurrents:process_signup' referrer=referrer %}">
+      <form method="post" action="{% url 'openCurrents:process_signup' %}">
         {% csrf_token %}
         <div class="row three-halves-margin-bottom half-margin-top">
           <div class="center small-12 medium-9 small-centered columns">

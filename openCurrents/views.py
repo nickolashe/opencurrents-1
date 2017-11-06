@@ -2468,7 +2468,13 @@ def process_resend_password(request, user_email):
     return redirect('openCurrents:check-email-password', user_email, status)
 
 
-def process_signup(request, referrer=None, endpoint=False, verify_email=True):
+def process_signup(
+    request,
+    referrer=None,
+    endpoint=False,
+    verify_email=True,
+    mock_emails=False
+):
     form = UserSignupForm(request.POST)
 
     # TODO: figure out a way to pass booleans in the url
@@ -2486,7 +2492,7 @@ def process_signup(request, referrer=None, endpoint=False, verify_email=True):
         org_name = form.cleaned_data.get('org_name', '')
         org_status = form.cleaned_data.get('org_status', '')
 
-        logger.info('user %s is signing up', user_email)
+        logger.debug('user %s sign up request', user_email)
 
         # try saving the user without password at this point
         user = None
@@ -2498,64 +2504,24 @@ def process_signup(request, referrer=None, endpoint=False, verify_email=True):
                 last_name=user_lastname
             )
         except UserExistsException:
-            logger.info('user %s already exists', user_email)
+            logger.debug('user %s already exists', user_email)
 
             user = User.objects.get(username=user_email)
-            try:
-                if not (user.first_name and user.last_name):
-                    user.first_name = user_firstname
-                    user.last_name = user_lastname
-                    user.save()
-                    if verify_email:
-                        logger.info('Email verification requested')
 
-                        # generate and save token
-                        token = uuid.uuid4()
-                        one_week_from_now = datetime.now() + timedelta(days=7)
+            if not (user.first_name and user.last_name):
+                user.first_name = user_firstname
+                user.last_name = user_lastname
+                user.save()
 
-                        token_record = Token(
-                            email=user_email,
-                            token=token,
-                            token_type='signup',
-                            date_expires=one_week_from_now
-                        )
+            elif endpoint:
+                return HttpResponse(user.id, status=200)
 
-                        if referrer:
-                            try:
-                                token_record.referrer = User.objects.get(username=referrer)
-                            except Exception as e:
-                                error_msg = 'unable to locate / assign referrer: %s (%s)'
-                                logger.error(error_msg, e.message, type(e))
-                        else:
-                            logger.info('no referrer provided')
-
-                        token_record.save()
-                        return redirect(
-                            'openCurrents:confirm-account',
-                            email=user_email,
-                            token=token,
-                        )
-                elif endpoint:
-                    return HttpResponse(user.id, status=200)
-                elif user.has_usable_password():
-                    logger.info('user %s already verified', user_email)
-                    return redirect(
-                        'openCurrents:login',
-                        status_msg='User with this email already exists'
-                    )
-            except:
-                # if the above raised exception, why are we returning status 200?
-                if endpoint:
-                    return HttpResponse(user.id, status=200)
-
-                if user.has_usable_password():
-                    logger.info('user %s already verified', user_email)
-                    return redirect(
-                        'openCurrents:login',
-                        status_msg='User with this email already exists'
-                    )
-                else:
-                    logger.info('user %s has not been verified', user_email)
+            elif user.has_usable_password():
+                logger.info('user %s already verified', user_email)
+                return redirect(
+                    'openCurrents:login',
+                    status_msg='User with this email already exists'
+                )
 
         # user org
         if org_name:
@@ -2589,47 +2555,49 @@ def process_signup(request, referrer=None, endpoint=False, verify_email=True):
                 )
                 return redirect('openCurrents:500')
 
-            try:
-                sendTransactionalEmail(
-                    'new-org-registered',
-                    None,
-                    [
-                        {
-                            'name': 'FNAME',
-                            'content': user_firstname
-                        },
-                        {
-                            'name': 'LNAME',
-                            'content': user_lastname
-                        },
-                        {
-                            'name': 'EMAIL',
-                            'content': user_email
-                        },
-                        {
-                            'name': 'ORG_NAME',
-                            'content': org_name
-                        },
-                        {
-                            'name': 'ORG_STATUS',
-                            'content': request.POST['org_type']
-                        }
-                    ],
-                    'bizdev@opencurrents.com'
-                )
-            except Exception as e:
-                logger.error(
-                    'unable to send transactional email: %s (%s)',
-                    e.message,
-                    type(e)
-                )
+            if not mock_emails:
+                try:
+                    sendTransactionalEmail(
+                        'new-org-registered',
+                        None,
+                        [
+                            {
+                                'name': 'FNAME',
+                                'content': user_firstname
+                            },
+                            {
+                                'name': 'LNAME',
+                                'content': user_lastname
+                            },
+                            {
+                                'name': 'EMAIL',
+                                'content': user_email
+                            },
+                            {
+                                'name': 'ORG_NAME',
+                                'content': org_name
+                            },
+                            {
+                                'name': 'ORG_STATUS',
+                                'content': request.POST['org_type']
+                            }
+                        ],
+                        'bizdev@opencurrents.com'
+                    )
+                except Exception as e:
+                    logger.error(
+                        'unable to send transactional email: %s (%s)',
+                        e.message,
+                        type(e)
+                    )
 
         if verify_email:
-            logger.info('Email verification requested')
+            logger.debug('Email verification requested')
 
             # generate and save token
+            # TODO: refactor into a (token) interface
             token = uuid.uuid4()
-            one_week_from_now = datetime.now() + timedelta(days=7)
+            one_week_from_now = datetime.now(tz=pytz.utc) + timedelta(days=7)
 
             token_record = Token(
                 email=user_email,
@@ -2638,45 +2606,38 @@ def process_signup(request, referrer=None, endpoint=False, verify_email=True):
                 date_expires=one_week_from_now
             )
 
-            if referrer:
-                try:
-                    token_record.referrer = User.objects.get(username=referrer)
-                except Exception as e:
-                    error_msg = 'unable to locate / assign referrer: %s (%s)'
-                    logger.error(error_msg, e.message, type(e))
-            else:
-                logger.info('no referrer provided')
-
             token_record.save()
 
-            # send verification email
-            try:
-                sendTransactionalEmail(
-                    'verify-email',
-                    None,
-                    [
-                        {
-                            'name': 'FIRSTNAME',
-                            'content': user_firstname
-                        },
-                        {
-                            'name': 'EMAIL',
-                            'content': user_email
-                        },
-                        {
-                            'name': 'TOKEN',
-                            'content': str(token)
-                        }
-                    ],
-                    user_email
-                )
-            except Exception as e:
-                logger.error(
-                    'unable to send transactional email: %s (%s)',
-                    e.message,
-                    type(e)
-                )
+            if not mock_emails:
+                # send verification email
+                try:
+                    sendTransactionalEmail(
+                        'verify-email',
+                        None,
+                        [
+                            {
+                                'name': 'FIRSTNAME',
+                                'content': user_firstname
+                            },
+                            {
+                                'name': 'EMAIL',
+                                'content': user_email
+                            },
+                            {
+                                'name': 'TOKEN',
+                                'content': str(token)
+                            }
+                        ],
+                        user_email
+                    )
+                except Exception as e:
+                    logger.error(
+                        'unable to send transactional email: %s (%s)',
+                        e.message,
+                        type(e)
+                    )
 
+        # return
         if endpoint:
             return HttpResponse(user.id, status=201)
         else:
@@ -2691,7 +2652,6 @@ def process_signup(request, referrer=None, endpoint=False, verify_email=True):
                    'openCurrents:check-email',
                    user_email,
                 )
-
 
     # fail with form validation error
     else:
@@ -2895,22 +2855,6 @@ def process_email_confirmation(request, user_email):
             user_account.monthly_updates = False;
 
         user_account.save()
-
-        # add credit to the referrer
-        if token_record.referrer:
-            try:
-                referrer_account = Account.objects.get(
-                    user=token_record.referrer
-                )
-                referrer_account.pending += 1
-                referrer_account.save()
-            except Exception as e:
-                logger.error(
-                    'unable to locate referrer %s account: %s (%s)',
-                    token_record.referrer,
-                    e.message,
-                    type(e)
-                )
 
         logger.info('verification of user %s is complete', user_email)
 

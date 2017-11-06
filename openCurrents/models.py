@@ -393,6 +393,8 @@ class Token(models.Model):
     email = models.EmailField()
     is_verified = models.BooleanField(default=False)
     token = models.UUIDField(default=uuid4)
+
+    # TODO: restrict to choices
     token_type = models.CharField(max_length=20)
 
     # referring user
