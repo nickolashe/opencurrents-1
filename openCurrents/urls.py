@@ -123,7 +123,7 @@ urlpatterns = [
         views.process_signup, name='process_signup'),
     url(r'^process_signup/(?P<mock_emails>(1|0))/$',
         views.process_signup, name='process_signup'),
-    url(r'^process_signup/(?P<endpoint>(True|False))/$',
+    url(r'^process_signup/(?P<endpoint>(True|False))/(?P<mock_emails>(1|0))/$',
         views.process_signup, name='process_signup'),
     url(r'^process_signup/(?P<endpoint>(True|False))/(?P<verify_email>(True|False))/$',
         views.process_signup, name='process_signup'),

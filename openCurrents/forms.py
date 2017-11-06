@@ -97,6 +97,8 @@ class UserSignupForm(forms.Form):
         required=False
     )
 
+    org_admin_id = forms.IntegerField(required=False)
+
 
 class PasswordResetRequestForm(forms.Form):
     user_email = forms.CharField(min_length=1)

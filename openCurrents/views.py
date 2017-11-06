@@ -2491,6 +2491,7 @@ def process_signup(
         user_email = form.cleaned_data['user_email']
         org_name = form.cleaned_data.get('org_name', '')
         org_status = form.cleaned_data.get('org_status', '')
+        org_admin_id = form.cleaned_data.get('org_admin_id', '')
 
         logger.debug('user %s sign up request', user_email)
 
@@ -2513,7 +2514,7 @@ def process_signup(
                 user.last_name = user_lastname
                 user.save()
 
-            elif endpoint:
+            if endpoint and not verify_email:
                 return HttpResponse(user.id, status=200)
 
             elif user.has_usable_password():
@@ -2547,7 +2548,7 @@ def process_signup(
                    'openCurrents:%s' % redirect_url[org_status],
                 )
 
-            except InvalidOrgUserException:
+            except InvalidOrgUserException as e:
                 logger.error(
                     'unable to create orguser %s <=> %s',
                     org_name,
@@ -2592,50 +2593,84 @@ def process_signup(
                     )
 
         if verify_email:
-            logger.debug('Email verification requested')
+            if not org_admin_id:
+                logger.debug('Email verification requested')
 
-            # generate and save token
-            # TODO: refactor into a (token) interface
-            token = uuid.uuid4()
-            one_week_from_now = datetime.now(tz=pytz.utc) + timedelta(days=7)
+                # generate and save token
+                # TODO: refactor into a (token) interface
+                token = uuid.uuid4()
+                one_week_from_now = datetime.now(tz=pytz.utc) + timedelta(days=7)
 
-            token_record = Token(
-                email=user_email,
-                token=token,
-                token_type='signup',
-                date_expires=one_week_from_now
-            )
+                token_record = Token(
+                    email=user_email,
+                    token=token,
+                    token_type='signup',
+                    date_expires=one_week_from_now
+                )
 
-            token_record.save()
+                token_record.save()
 
-            if not mock_emails:
-                # send verification email
-                try:
-                    sendTransactionalEmail(
-                        'verify-email',
-                        None,
-                        [
-                            {
-                                'name': 'FIRSTNAME',
-                                'content': user_firstname
-                            },
-                            {
-                                'name': 'EMAIL',
-                                'content': user_email
-                            },
-                            {
-                                'name': 'TOKEN',
-                                'content': str(token)
-                            }
-                        ],
-                        user_email
-                    )
-                except Exception as e:
-                    logger.error(
-                        'unable to send transactional email: %s (%s)',
-                        e.message,
-                        type(e)
-                    )
+                if not mock_emails:
+                    # send verification email
+                    try:
+                        sendTransactionalEmail(
+                            'verify-email',
+                            None,
+                            [
+                                {
+                                    'name': 'FIRSTNAME',
+                                    'content': user_firstname
+                                },
+                                {
+                                    'name': 'EMAIL',
+                                    'content': user_email
+                                },
+                                {
+                                    'name': 'TOKEN',
+                                    'content': str(token)
+                                }
+                            ],
+                            user_email
+                        )
+                    except Exception as e:
+                        logger.error(
+                            'unable to send transactional email: %s (%s)',
+                            e.message,
+                            type(e)
+                        )
+            else:
+                logger.debug('User invited by admin %d', org_admin_id)
+                admin_user = OcUser(org_admin_id).get_user()
+                admin_org = OrgUserInfo(org_admin_id).get_org()
+
+                if not mock_emails:
+                    # send invite email
+                    try:
+                        sendTransactionalEmail(
+                            'invite-volunteer',
+                            None,
+                            [
+                                {
+                                    'name': 'ADMIN_FIRSTNAME',
+                                    'content': admin_user.first_name
+                                },
+                                {
+                                    'name': 'ADMIN_LASTNAME',
+                                    'content': admin_user.last_name
+                                },
+                                {
+                                    'name': 'ORG_NAME',
+                                    'content': admin_org.name
+                                }
+                            ],
+                            user_email
+                        )
+                    except Exception as e:
+                        logger.error(
+                            'unable to send transactional email: %s (%s)',
+                            e.message,
+                            type(e)
+                        )
 
         # return
         if endpoint:
@@ -2645,7 +2680,7 @@ def process_signup(
                 return redirect(
                    'openCurrents:check-email',
                    user_email,
-                   1
+                   org.id
                 )
             else:
                 return redirect(

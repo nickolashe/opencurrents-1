@@ -5,6 +5,14 @@ from openCurrents.models import \
     OrgEntity, \
     Account
 
+from openCurrents.interfaces.ocuser import OcUser
+
+import logging
+
+logging.basicConfig(level=logging.DEBUG, filename="log/views.log")
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
 
 class OrgUserInfo(object):
     def __init__(self, userid):
@@ -13,14 +21,17 @@ class OrgUserInfo(object):
 
     def setup_orguser(self, org, affiliation=None):
         org_user = None
+        user=OcUser(self.userid).get_user()
+
         try:
             org_user = OrgUser(
                 org=org,
-                user__id=userid,
+                user=user,
                 affiliation=affiliation
             )
             org_user.save()
         except Exception as e:
+            logger.error(e)
             raise InvalidOrgUserException()
 
         return org_user
