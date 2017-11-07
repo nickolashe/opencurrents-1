@@ -19,6 +19,7 @@ from copy import deepcopy
 
 from interfaces.auth import OcAuth
 from interfaces.bizadmin import BizAdmin
+from interfaces.ledger import OcLedger
 from interfaces.ocuser import OcUser, UserExistsException, InvalidUserException
 from interfaces.orgs import OcOrg, \
     OrgUserInfo, \
@@ -506,8 +507,8 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
         )
 
         admin_userid = self.request.user.id
-        org = OrgUserInfo(admin_userid)
-        orgid = org.get_org_id()
+        org = OrgUserInfo(admin_userid).get_org()
+        orgid = org.id
 
         projects = Project.objects.filter(org__id=orgid)
         events = Event.objects.filter(
@@ -553,6 +554,16 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
                         action_type,
                         admin_userid
                     )
+
+                    # issue currents for hours approved
+                    OcLedger().transact_currents(
+                        entity_type_from='org',
+                        entity_id_from=org.orgentity.id,
+                        entity_type_to='user',
+                        entity_id_to=usertimelog.user.id,
+                        amount=(usertimelog.datetime_end - usertimelog.datetime_start).total_seconds() / 3600
+                    )
+
                 vols_approved += 1
 
             if action_type == 'dec':
@@ -563,7 +574,7 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
             elif action_type == 'def':
                 logger.warning('deferred timelog (legacy warning): %s', declined)
 
-            # TODO (@karbmk): instead of updating the requests for approval,
+            # TODO: instead of updating the requests for approval,
             # we should create a new action respresenting the action taken and save it
             for action in requested_actions:
                 action.action_type=action_type
