@@ -146,25 +146,25 @@ class Account(models.Model):
     date_created = models.DateTimeField('date created', auto_now_add=True)
     date_updated = models.DateTimeField('date last updated', auto_now=True)
 
-    def __unicode__(self):
-        if self.entity.entity_type == 'user':
-            return ' '.join([
-                'user',
-                self.entity.user.username,
-                '\'s account'
-            ])
-        elif self.entity.entity_type == 'org':
-            return ' '.join([
-                'org',
-                self.entity.org.name,
-                '\'s account'
-            ])
-        else:
-            return ' '.join([
-                'biz',
-                self.entity.org.name,
-                '\'s account'
-            ])
+    # def __unicode__(self):
+    #     if self.entity.entity_type == 'user':
+    #         return ' '.join([
+    #             'user',
+    #             self.entity.user.username,
+    #             '\'s account'
+    #         ])
+    #     elif self.entity.entity_type == 'org':
+    #         return ' '.join([
+    #             'org',
+    #             self.entity.org.name,
+    #             '\'s account'
+    #         ])
+    #     else:
+    #         return ' '.join([
+    #             'biz',
+    #             self.entity.org.name,
+    #             '\'s account'
+    #         ])
 
 
 class Ledger(models.Model):

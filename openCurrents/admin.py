@@ -13,7 +13,11 @@ from openCurrents.models import Account, \
     Offer, \
     Transaction, \
     Item, \
-    TransactionAction
+    TransactionAction, \
+    UserEntity, \
+    OrgEntity, \
+    BizEntity, \
+    Ledger
 
 admin.site.register(Account)
 admin.site.register(Org)
@@ -28,3 +32,7 @@ admin.site.register(Offer)
 admin.site.register(Transaction)
 admin.site.register(Item)
 admin.site.register(TransactionAction)
+admin.site.register(UserEntity)
+admin.site.register(OrgEntity)
+admin.site.register(BizEntity)
+admin.site.register(Ledger)

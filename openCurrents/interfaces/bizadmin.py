@@ -11,6 +11,7 @@ from openCurrents.models import \
     TransactionAction
 
 from openCurrents.interfaces.orgs import OrgUserInfo
+from openCurrents.interfaces.ledger import OcLedger
 
 import pytz
 
@@ -26,6 +27,22 @@ class BizAdmin(object):
 
         if not self.org or self.org.status != 'biz':
         	raise InvalidAffiliation
+
+    def get_balance_available(self):
+        '''
+        report total available currents
+        '''
+        OcLedger().get_balance(
+            entity_id=self.org.bizentity.id,
+            entity_type='biz'
+        )
+
+    def get_balance_pending(self):
+        '''
+        report total pending currents
+            - offers in request status
+        '''
+        pass
 
     def get_offers_all(self):
         offers = Offer.objects.filter(

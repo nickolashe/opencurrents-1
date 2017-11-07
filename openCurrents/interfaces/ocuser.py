@@ -12,6 +12,8 @@ from openCurrents.models import \
     Transaction, \
     TransactionAction
 
+from openCurrents.interfaces.ledger import OcLedger
+
 import pytz
 
 
@@ -80,7 +82,8 @@ class OcUser(object):
             raise InvalidUserException
 
     def get_events_registered(self, *argv):
-        assert(self.userid)
+        if not self.userid:
+            raise InvalidUserException
 
         user_event_regs = UserEventRegistration.objects.filter(
             user__id=self.userid
@@ -100,21 +103,32 @@ class OcUser(object):
 
     def get_balance_available(self):
         '''
-        TODO: replace with a call to a ledger-based method
+        report total available currents
         '''
-        assert(self.userid)
+        if not self.userid:
+            raise InvalidUserException
 
-        usertimelogs = UserTimeLog.objects.filter(
-            user_id=self.userid
-        ).filter(
-            is_verified=True
+        OcLedger().get_balance(
+            entity_id=self.user.userentity.id,
+            entity_type='user'
         )
 
-        balance = self._get_unique_hour_total(usertimelogs)
+        # usertimelogs = UserTimeLog.objects.filter(
+        #     user_id=self.userid
+        # ).filter(
+        #     is_verified=True
+        # )
+        #
+        # balance = self._get_unique_hour_total(usertimelogs)
         return balance
 
     def get_balance_pending(self):
-        assert(self.userid)
+        '''
+        report total pending currents
+            - based on time log hours having status 'request'
+        '''
+        if not self.userid:
+            raise InvalidUserException
 
         usertimelogs = UserTimeLog.objects.filter(
             user_id=self.userid
@@ -156,6 +170,9 @@ class OcUser(object):
         return balance
 
     def get_offers_redeemed(self):
+        if not self.userid:
+            raise InvalidUserException
+
         # user's transcations
         transactions = Transaction.objects.filter(
             user=self.userid

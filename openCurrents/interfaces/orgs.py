@@ -84,6 +84,12 @@ class OcOrg(object):
 
         return org
 
+    def get_balance_available(self):
+        pass
+
+    def get_balance_pending(self):
+        pass
+
 
 class OrgExistsException(Exception):
 	pass

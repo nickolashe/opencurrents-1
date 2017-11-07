@@ -556,10 +556,8 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
                     )
 
                     # issue currents for hours approved
-                    OcLedger().transact_currents(
-                        entity_type_from='org',
+                    OcLedger().issue_currents(
                         entity_id_from=org.orgentity.id,
-                        entity_type_to='user',
                         entity_id_to=usertimelog.user.id,
                         amount=(usertimelog.datetime_end - usertimelog.datetime_start).total_seconds() / 3600
                     )
