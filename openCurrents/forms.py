@@ -345,7 +345,7 @@ class CreateEventForm(forms.Form):
         cleaned_data['datetime_start'] = pytz.timezone(tz).localize(datetime_start)
         cleaned_data['datetime_end'] = pytz.timezone(tz).localize(datetime_end)
 
-        if cleaned_data['datetime_start'] > cleaned_data['datetime_end']:
+        if cleaned_data['datetime_start'] >= cleaned_data['datetime_end']:
             raise ValidationError(_('Start time needs to occur before End time'))
 
         return cleaned_data
