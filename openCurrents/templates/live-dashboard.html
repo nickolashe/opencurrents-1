@@ -228,7 +228,7 @@
               user_email: new_email,
             }
             if (invite_optin) {
-              data['org_admin_id'] = "{{ request.user.id }}"
+              form_data['org_admin_id'] = "{{ request.user.id }}"
             }
 
             $.ajax({

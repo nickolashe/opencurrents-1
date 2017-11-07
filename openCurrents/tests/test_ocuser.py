@@ -15,7 +15,7 @@ from openCurrents.interfaces.ocuser import OcUser, \
 from openCurrents.interfaces.orgs import OcOrg
 
 
-class TestOcLedger(TestCase):
+class TestOcUser(TestCase):
     def setUp(self):
         '''
         set up test fixtures
