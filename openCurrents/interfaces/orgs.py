@@ -74,6 +74,7 @@ class OcOrg(object):
             )
             org.save()
         except Exception as e:
+            logger.error(e)
             raise OrgExistsException
 
         org_account = Account()

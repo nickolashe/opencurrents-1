@@ -152,7 +152,7 @@ class TestSignup(TransactionTestCase):
         else:
             self.assertFalse(tokens.exists())
 
-    def _assert_org(self, org_name, is_true):
+    def _assert_org(self, org_name, org_status, is_true):
         '''
         assert org exists and is unique
         '''
@@ -160,6 +160,7 @@ class TestSignup(TransactionTestCase):
         if is_true:
             self.assertTrue(orgs.exists())
             self.assertEqual(len(orgs), 1)
+            self.assertEqual(orgs[0].status, org_status)
             return orgs[0]
         else:
             self.assertFalse(orgs.exists())
@@ -309,7 +310,7 @@ class TestSignup(TransactionTestCase):
         )
         self.assertRedirects(response, url_login)
 
-    def test_signup_user_org_new(self):
+    def test_signup_user_org_npf_new(self):
         '''
         tests signup successful for new org user
             - new user created
@@ -328,14 +329,14 @@ class TestSignup(TransactionTestCase):
                 'user_firstname': 'test_firstname',
                 'user_lastname': 'test_lastname',
                 'org_name': self.test_org_name,
-                'org_type': 'npf'
+                'org_status': 'npf'
             }
         )
 
         self._assert_user(self.test_email, True)
         self._assert_user_has_usable_password(self.test_email, False)
         self._assert_token_valid(self.test_email, True)
-        org = self._assert_org(self.test_org_name, True)
+        org = self._assert_org(self.test_org_name, 'npf', True)
         self._assert_org_user(self.test_org_name, self.test_email, True)
         self._assert_group(self.test_org_name, True)
 
@@ -348,6 +349,83 @@ class TestSignup(TransactionTestCase):
             }
         )
         self.assertRedirects(response, url_login)
+
+    def test_signup_user_org_biz_new(self):
+        '''
+        tests signup successful for new biz user
+            - new user created
+            - token generated
+            - biz org created
+            - biz org user created
+            - biz admin group created
+            - redirected to 'check-email' with org id
+        '''
+        self._assert_user(self.test_email, False)
+
+        response = self.client.post(
+            self.url_signup,
+            data={
+                'user_email': self.test_email,
+                'user_firstname': 'test_firstname',
+                'user_lastname': 'test_lastname',
+                'org_name': self.test_org_name,
+                'org_status': 'biz'
+            }
+        )
+
+        self._assert_user(self.test_email, True)
+        self._assert_user_has_usable_password(self.test_email, False)
+        self._assert_token_valid(self.test_email, True)
+        org = self._assert_org(self.test_org_name, 'biz', True)
+        self._assert_org_user(self.test_org_name, self.test_email, True)
+        self._assert_group(self.test_org_name, True)
+
+        url_login = reverse(
+            'check-email',
+            urlconf=urls,
+            kwargs={
+                'user_email': self.test_email,
+                'orgid': org.id
+            }
+        )
+        self.assertRedirects(response, url_login)
+
+    def test_signup_user_org_existing(self):
+        '''
+        tests signup fails for invalid org
+            - new user created
+            - token generated
+            - biz org not created
+            - biz org user not created
+            - biz admin group not created
+            - redirected to 'nonprofit' with proper status message
+        '''
+        self._assert_user(self.test_email, False)
+        self._assert_org(self.orgTest.name, 'npf', True)
+
+        response = self.client.post(
+            self.url_signup,
+            data={
+                'user_email': self.test_email,
+                'user_firstname': 'test_firstname',
+                'user_lastname': 'test_lastname',
+                'org_name': self.orgTest.name,
+                'org_status': 'npf'
+            }
+        )
+
+        self._assert_user(self.test_email, True)
+        self._assert_user_has_usable_password(self.test_email, False)
+        self._assert_token_valid(self.test_email, False)
+        self._assert_org_user(self.orgTest.name, self.test_email, False)
+
+        status_message = 'Organization named %s already exists!' % self.orgTest.name
+        url_nonprofit = reverse(
+            'nonprofit',
+            urlconf=urls,
+            kwargs={'status_msg': status_message}
+        )
+        self.assertRedirects(response, url_nonprofit)
 
     def test_signup_livedashboard_optin(self):
         '''

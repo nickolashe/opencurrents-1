@@ -2546,6 +2546,7 @@ def process_signup(
                 }
                 return redirect(
                    'openCurrents:%s' % redirect_url[org_status],
+                   'Organization named %s already exists!' % org_name
                 )
 
             except InvalidOrgUserException as e:
