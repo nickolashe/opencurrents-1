@@ -206,6 +206,11 @@ html input[disabled] {
   border-color: #999999;
 }
 
+textarea[disabled] {
+  background-color: transparent;
+  color: #999999;
+}
+
 input::-webkit-contacts-auto-fill-button {
   visibility: hidden;
   display: none !important;

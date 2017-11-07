@@ -233,9 +233,10 @@ class Event(models.Model):
     description = models.CharField(max_length=8192)
     location = models.CharField(max_length=1024)
 
-    # coordinator contact info
-    coordinator_firstname = models.CharField(max_length=128)
-    coordinator_email = models.EmailField()
+    # coordinator
+    #coordinator_firstname = models.CharField(max_length=128)
+    #coordinator_email = models.EmailField()
+    coordinator = models.ForeignKey(User)
 
     # event creator userid and notification flag
     creator_id = models.IntegerField(default=0)

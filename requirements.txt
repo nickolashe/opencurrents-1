@@ -15,7 +15,7 @@ mandrill==1.0.57
 numpy==1.11.2
 pandas==0.19.1
 Pillow==3.1.1
-psycopg2==2.6.2
+psycopg2==2.7.3.1
 python-dateutil==2.6.0
 pytz==2016.7
 PyYAML==3.12
