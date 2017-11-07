@@ -386,7 +386,7 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
                 )
                 actions = local_timelog[0]
                 time_log_week = local_timelog[1]
-                k += 1
+                week_num += 1
             else:
                 break
 
