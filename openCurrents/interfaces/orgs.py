@@ -2,8 +2,7 @@ from django.contrib.auth.models import Group
 from openCurrents.models import \
     Org, \
     OrgUser, \
-    OrgEntity, \
-    Account
+    OrgEntity
 
 from openCurrents.interfaces.ocuser import OcUser
 
@@ -77,10 +76,7 @@ class OcOrg(object):
             logger.error(e)
             raise OrgExistsException
 
-        org_account = Account()
-        org_account.save()
-
-        OrgEntity.objects.create(org=org, account=org_account)
+        OrgEntity.objects.create(org=org)
 
         return org
 

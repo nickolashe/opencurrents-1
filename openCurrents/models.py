@@ -4,6 +4,8 @@ from django.db import models
 
 from uuid import uuid4
 
+from datetime import datetime, timedelta
+
 import pytz
 
 # Notes:
@@ -11,7 +13,8 @@ import pytz
 
 
 def one_week_from_now():
-    return timezone.now() + timedelta(days=7)
+    return datetime.now() + timedelta(days=7)
+
 
 def diffInMinutes(t1, t2):
     return round((t2 - t1).total_seconds() / 60, 1)
@@ -22,13 +25,11 @@ def diffInHours(t1, t2):
 
 
 # org model
-
-
 class Org(models.Model):
     name = models.CharField(max_length=100, unique=True)
     website = models.CharField(max_length=100, null=True, blank=True)
-    #mission = models.CharField(max_length=4096, null=True)
-    #reason = models.CharField(max_length=4096, null=True)
+    # mission = models.CharField(max_length=4096, null=True)
+    # reason = models.CharField(max_length=4096, null=True)
 
     org_types = (
         ('biz', 'business'),
@@ -81,10 +82,7 @@ class OrgUser(models.Model):
 
 
 class Entity(models.Model):
-    account = models.ForeignKey(
-        'Account',
-        related_name='accounts_entity',
-    )
+    pass
 
 
 class UserEntity(Entity):
@@ -94,6 +92,9 @@ class UserEntity(Entity):
     )
     entity_type = 'user'
 
+    def __unicode__(self):
+        return '%s\'s user entity' % self.user.username
+
 
 class OrgEntity(Entity):
     org = models.OneToOneField(
@@ -102,43 +103,18 @@ class OrgEntity(Entity):
     )
     entity_type = 'org'
 
+    def __unicode__(self):
+        return '%s\'s org entity' % self.org.name
 
-class BizEntity(Entity):
-    org = models.OneToOneField(
-        Org,
+
+class UserSettings(models.Model):
+    '''
+    user settings
+    '''
+    user = models.ForeignKey(
+        User,
         on_delete=models.CASCADE
     )
-    entity_type = 'biz'
-
-
-class Account(models.Model):
-    '''
-    cr_available:
-        1) hours approved (vol)
-        2) offer redemption approved (biz)
-
-    cr_pending:
-        (based on outstanding requests)
-        1) hours submitted (vol)
-        2) offer redemption submitted by vol (biz)
-
-    fiat_available:
-        1) $ transfer complete
-
-    fiat_pending:
-        (based on outstanding requests)
-        1) offer redemption submitted (vol)
-    '''
-    entity = models.OneToOneField(
-        Entity,
-        related_name='account_entity',
-        null=True,
-        on_delete=models.CASCADE
-    )
-    cr_available = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    cr_pending = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    fiat_available = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    fiat_pending = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     timezone = models.CharField(max_length=128, default='America/Chicago')
     monthly_updates = models.BooleanField(default=False)
 
@@ -146,25 +122,8 @@ class Account(models.Model):
     date_created = models.DateTimeField('date created', auto_now_add=True)
     date_updated = models.DateTimeField('date last updated', auto_now=True)
 
-    # def __unicode__(self):
-    #     if self.entity.entity_type == 'user':
-    #         return ' '.join([
-    #             'user',
-    #             self.entity.user.username,
-    #             '\'s account'
-    #         ])
-    #     elif self.entity.entity_type == 'org':
-    #         return ' '.join([
-    #             'org',
-    #             self.entity.org.name,
-    #             '\'s account'
-    #         ])
-    #     else:
-    #         return ' '.join([
-    #             'biz',
-    #             self.entity.org.name,
-    #             '\'s account'
-    #         ])
+    def __unicode__(self):
+        return '%s\'s settings' % self.user.username
 
 
 class Ledger(models.Model):
@@ -180,7 +139,7 @@ class Ledger(models.Model):
         related_name='transaction_in'
     )
     currency = models.CharField(
-        choices = (
+        choices=(
             ('cur', 'current'),
             ('usd', 'dollar')
         ),
@@ -197,15 +156,13 @@ class Ledger(models.Model):
     def __unicode__(self):
         return ' '.join([
             'Transaction from',
-            self.account_from.entity,
+            self.entity_from,
             'to',
-            self.account_to.entity,
+            self.entity_to,
             'in the amount of',
             self.amount,
             'on',
-            self.date_created.astimezone(
-                pytz.timezone(tz)
-            ).strftime(
+            self.date_created.strftime(
                 '%Y-%m-%d %I-%M %p'
             )
         ])
@@ -234,8 +191,8 @@ class Event(models.Model):
     location = models.CharField(max_length=1024)
 
     # coordinator
-    #coordinator_firstname = models.CharField(max_length=128)
-    #coordinator_email = models.EmailField()
+    # coordinator_firstname = models.CharField(max_length=128)
+    # coordinator_email = models.EmailField()
     coordinator = models.ForeignKey(User)
 
     # event creator userid and notification flag

@@ -6,8 +6,7 @@ from openCurrents.models import \
     Org, \
     Entity, \
     UserEntity, \
-    OrgEntity, \
-    BizEntity
+    OrgEntity
 
 from openCurrents.interfaces.ocuser import OcUser, \
     InvalidUserException, \
@@ -66,13 +65,6 @@ class TestOcUser(TestCase):
         '''
         user = OcUser(self.userReg.id)
         self.assertIsNotNone(user.get_user_entity())
-
-    def test_user_account_exists(self):
-        '''
-        tests user entity was created
-        '''
-        user = OcUser(self.userReg.id)
-        self.assertIsNotNone(user.get_account())
 
     def test_update_names(self):
         '''

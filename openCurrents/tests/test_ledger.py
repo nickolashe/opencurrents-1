@@ -4,10 +4,8 @@ from django.contrib.auth.models import User
 from openCurrents.models import \
     Org, \
     Entity, \
-    Account, \
     UserEntity, \
     OrgEntity, \
-    BizEntity, \
     Ledger
 
 from openCurrents.interfaces.ledger import OcLedger, InsufficientFundsException

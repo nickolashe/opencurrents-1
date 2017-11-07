@@ -5,8 +5,8 @@ from django.db.models import Max
 
 from openCurrents.models import \
     UserEntity, \
-    Account, \
 	UserEventRegistration, \
+    UserSettings, \
     UserTimeLog, \
     AdminActionUserTime, \
     Transaction, \
@@ -42,10 +42,8 @@ class OcUser(object):
             self.user = User.objects.get(username=username)
             raise UserExistsException
 
-        user_account = Account()
-        user_account.save()
-
-        UserEntity.objects.create(user=user, account=user_account)
+        UserSettings.objects.create(user=user)
+        UserEntity.objects.create(user=user)
 
         self.user = user
 
@@ -72,12 +70,6 @@ class OcUser(object):
     def get_user_entity(self):
         if self.user:
             return self.user.userentity
-        else:
-            raise InvalidUserException
-
-    def get_account(self):
-        if self.user:
-            return self.user.userentity.account
         else:
             raise InvalidUserException
 

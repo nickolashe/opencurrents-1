@@ -3,7 +3,6 @@ from openCurrents.models import \
     Entity, \
     UserEntity, \
     OrgEntity, \
-    BizEntity, \
     Ledger
 
 
@@ -14,9 +13,9 @@ class OcLedger(object):
 
     def _get_entity(self, entity_id, entity_type='user'):
         '''
-        entity_type (user | org | biz)
+        entity_type (user | org)
         '''
-        valid_entity_types = ['user', 'org', 'biz']
+        valid_entity_types = ['user', 'org']
         try:
             assert(entity_type in valid_entity_types)
 
@@ -24,8 +23,6 @@ class OcLedger(object):
                 entity = UserEntity.objects.get(id=entity_id)
             elif entity_type == 'org':
                 entity = OrgEntity.objects.get(id=entity_id)
-            elif entity_type == 'biz':
-                entity = BizEntity.objects.get(id=entity_id)
 
             return entity
 

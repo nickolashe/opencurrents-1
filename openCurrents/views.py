@@ -31,13 +31,13 @@ import re
 
 from openCurrents import config
 from openCurrents.models import \
-    Account, \
     Org, \
     OrgUser, \
     Token, \
     Project, \
     Event, \
     UserEventRegistration, \
+    UserSettings, \
     UserTimeLog, \
     AdminActionUserTime, \
     Item, \
@@ -314,16 +314,6 @@ class LoginView(TemplateView):
 
 class InviteFriendsView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'invite-friends.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(InviteFriendsView, self).get_context_data(**kwargs)
-        try:
-            account = Account.objects.get(user__username=context['referrer'])
-            context['balance_pending'] = account.pending
-        except:
-            context['balance_pending'] = 0
-
-        return context
 
 
 class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
@@ -2908,16 +2898,14 @@ def process_email_confirmation(request, user_email):
         user.save()
 
         # create user account
-        user_account = Account(user=user, pending=1)
+        user_settings = UserSettings.objects.get(user__id=user.id)
 
         if form.cleaned_data['monthly_updates']:
-            user_account.monthly_updates = True;
-        else:
-            user_account.monthly_updates = False;
+            user_settings.monthly_updates = True;
 
-        user_account.save()
+        user_settings.save()
 
-        logger.info('verification of user %s is complete', user_email)
+        logger.debug('verification of user %s is complete', user_email)
 
         # send verification email
         try:
