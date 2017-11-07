@@ -8,52 +8,47 @@
   <div class="left row one-margin-top full-width collapse">
     <div class="small-11 medium-10 small-centered columns">
       <h6 class="half-margin-bottom">Our offers</h6>
-
-      {% if offers %}
       
-        {% for offer in offers %}
-          <div class="row half-margin-top">
-            <div class="left small-9 columns">
-              <!-- <p>Fast Folks Bike Shop & Cafe accepts Currents for <strong>50% of flat fixes</strong> <span class="small-text grey">Limit 50 transactions per month</span></p> -->
-              <p>
-                {{ orgname }} accepts Currents for
+      {% for offer in offers %}
+        <div class="row half-margin-top">
+          <div class="left small-9 columns">
+            <!-- <p>Fast Folks Bike Shop & Cafe accepts Currents for <strong>50% of flat fixes</strong> <span class="small-text grey">Limit 50 transactions per month</span></p> -->
+            <p>
+              {{ orgname }} accepts Currents for
 
-                <strong>
-                  {{offer.currents_share}}% of {{offer.item.name}}
-                </strong>
+              <strong>
+                {{offer.currents_share}}% of {{offer.item.name}}
+              </strong>
 
-                {% if offer.limit != -1 %}
-                  <span class="small-text grey">
-                    Limit {{ offer.limit }} transactions per month
-                  </span>
-                {% endif %}
-              </p>
-            </div>
+              {% if offer.limit != -1 %}
+                <span class="small-text grey">
+                  Limit {{ offer.limit }} transactions per month
+                </span>
+              {% endif %}
+            </p>
+          </div>
 
-            <div class="right relative small-3 columns">
-              <a class="mini-open">
-                <i class="blue half-margin-right fa-chevron-circle-down fa fa-lg"></i>
+          <div class="right relative small-3 columns">
+            <a class="mini-open">
+              <i class="blue half-margin-right fa-chevron-circle-down fa fa-lg"></i>
+            </a>
+            <ul class="mini-menu">
+              <a href="{% url 'openCurrents:edit-offer' offer.id %}">
+                <li> Edit offer </li>
               </a>
-              <ul class="mini-menu">
-                <a href="{% url 'openCurrents:edit-offer' offer.id %}">
-                  <li> Edit offer </li>
-                </a>
-                <a class="delete-offer-popup_open">
-                  <li class="alert"> Delete offer </li>
-                </a>
-              </ul>
-            </div>
+              <a class="delete-offer-popup_open">
+                <li class="alert"> Delete offer </li>
+              </a>
+            </ul>
           </div>
-        {% endfor %}
-
-      {% else %}
-          <div class="row">
-            <div class="left small-12 columns">
-              <p>[ org_name ] has not made any offers. <a href="{% url 'openCurrents:offer' %}">Create one!</a></p>
-            </div>
+        </div>
+      {% empty %}
+        <div class="row">
+          <div class="left small-12 columns">
+            <p>[ org_name ] has not made any offers. <a href="{% url 'openCurrents:offer' %}">Create one!</a></p>
           </div>
-
-      {% endif %}
+        </div>
+      {% endfor %}
     </div>
   </div>
 
