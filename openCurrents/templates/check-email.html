@@ -32,10 +32,10 @@
         </div>
 
         <form method="post" action="{% url 'openCurrents:process_resend_verification' user_email %}">
-                {% csrf_token %}
-                <div class="row center one-margin-top">
-                  <input type="submit" class="button round" value="Resend email"/>
-                </div>
+          {% csrf_token %}
+          <div class="row center one-margin-top">
+            <input type="submit" class="button round" value="Resend email"/>
+          </div>
         </form>
 
         <div class="row one-margin-bottom center">
