@@ -123,35 +123,34 @@
   <div id="upcoming-event-list" class="left row one-margin-top full-width collapse">
     <div class="small-11 medium-10 small-centered columns">
       <h6 class="half-margin-bottom">Upcoming events</h6>
-      {% if events_group_upcoming %}
-        {% for event in events_group_upcoming %}
-          <div class="row one-margin-bottom">
-            <div class="left small-9 columns">    
-              Let's {{event.project.name}}!
-              on {{event.datetime_start|day:timezone}}
-              at {{event.datetime_start|time:timezone}}
-              to {{event.datetime_end|time:timezone}}
-              at <strong>{{event.location}}</strong>
-            </div>
 
-            <div class="right relative small-3 columns">
-              <a class="mini-open"><i class="blue half-margin-right fa-chevron-circle-down fa fa-lg"></i></a>
-              <ul class="mini-menu">
-                <a href="{% url 'openCurrents:event-detail' event.id %}"><li>View event details</li></a>
-                <a href="{% url 'openCurrents:invite-volunteers' event.id %}"><li>Invite volunteers</li></a>
-                <!-- <a href="{% url 'openCurrents:edit-event' event.id %}"><li>Edit event</li></a> -->
-                <a href="{% url 'openCurrents:live-dashboard' event.id %}"><li>Preview live check-in</li></a>
-              </ul>
-            </div>
+      {% for event in events_group_upcoming %}
+        <div class="row one-margin-bottom">
+          <div class="left small-9 columns">    
+            Let's {{event.project.name}}!
+            on {{event.datetime_start|day:timezone}}
+            at {{event.datetime_start|time:timezone}}
+            to {{event.datetime_end|time:timezone}}
+            at <strong>{{event.location}}</strong>
           </div>
-        {% endfor %}
-      {% else %}
+
+          <div class="right relative small-3 columns">
+            <a class="mini-open"><i class="blue half-margin-right fa-chevron-circle-down fa fa-lg"></i></a>
+            <ul class="mini-menu">
+              <a href="{% url 'openCurrents:event-detail' event.id %}"><li>View event details</li></a>
+              <a href="{% url 'openCurrents:invite-volunteers' event.id %}"><li>Invite volunteers</li></a>
+              <!-- <a href="{% url 'openCurrents:edit-event' event.id %}"><li>Edit event</li></a> -->
+              <a href="{% url 'openCurrents:live-dashboard' event.id %}"><li>Preview live check-in</li></a>
+            </ul>
+          </div>
+        </div>
+      {% empty %}
         <div class="row">
           <div class="left small-12 columns">
             <p>{{ orgname }} has no upcoming events. <a href="{% url 'openCurrents:create-event' orgid %}">Create one!</a></p>
           </div>
         </div>
-      {% endif %}
+      {% endfor %}
     </div>
   </div>
 
@@ -161,14 +160,14 @@
         <h6 class="half-margin-bottom">Past events</h6>
 
         {% for event in events_group_past %}
-            <div class="row one-margin-bottom">
-              <div class="left input-left small-9 columns">
-                Let's {{event.project.name}}!
-                on {{event.datetime_start|day:timezone}}
-                at {{event.datetime_start|time:timezone}}
-                to {{event.datetime_end|time:timezone}}
-                at <strong>{{event.location}}</strong>
-              </div>
+          <div class="row one-margin-bottom">
+            <div class="left input-left small-9 columns">
+              Let's {{event.project.name}}!
+              on {{event.datetime_start|day:timezone}}
+              at {{event.datetime_start|time:timezone}}
+              to {{event.datetime_end|time:timezone}}
+              at <strong>{{event.location}}</strong>
+            </div>
 
             <div class="right relative small-3 columns">
               <a class="mini-open"><i class="half-margin-right blue fa-chevron-circle-down fa fa-lg"></i></a>
@@ -183,7 +182,6 @@
     </div>
   {% endif %}
 {% endblock content %}
-
 
 {% block popups %}
   <div id="approve-hours-popup" class="modal center small-12 medium-9 large-7 small-centered columns">

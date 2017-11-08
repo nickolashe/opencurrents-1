@@ -215,7 +215,9 @@
       });
 
       $('#location-box').on('click', 'i', function(){
-        $(this).parent('div').slideUp();
+        $(this).parent('div').slideUp(function(){
+          $(this).remove();
+        });
       });
     </script>
 

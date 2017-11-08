@@ -4,7 +4,7 @@
     Profile
   </a>
 
-  {% if is_admin %}
+  {% if is_admin_org %}
     <a class="list-group-item" href="{% url 'openCurrents:create-event' orgid %}">
       <i class="half-margin-right fa-fw fa fa-calendar"></i>
       Create an event
@@ -19,6 +19,13 @@
       <i class="half-margin-right fa-fw fa fa-user-plus"></i>
       Invite admins
     </a> -->
+  {% endif %}
+
+  {% if is_admin_biz %}
+    <a class="list-group-item" href="{% url 'openCurrents:offer' %}">
+      <i class="half-margin-right fa-fw fa fa-bullhorn"></i>
+      Post an offer
+    </a>
   {% endif %}
 
   <a class="list-group-item" href="{% url 'openCurrents:nominate' %}">

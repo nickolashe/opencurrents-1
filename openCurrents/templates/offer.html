@@ -129,7 +129,7 @@
                     <div class="relative input-sizer">
 
                       {{ form.offer_item }}
-                      <i class="remove-input alert fa fa-times"></i>
+                      {# <i class="remove-input alert fa fa-times"></i> #}
 
                     </div>
                   </div>
@@ -158,7 +158,7 @@
 
             <div class="row half-margin-top">
               <div class="medium-8 small-centered columns">
-                <p class="three-halves-margin-bottom grey">Example: If you accept Currents for 20% of $100 in sales,<br class="hide-for-small-only" /> you would net $80 and either <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 2</span> or a $20 writeoff.</p>
+                <p class="three-halves-margin-bottom grey">Example: If you accept Currents for 20% of $100 in sales,<br class="hide-for-small-only" /> you would net $80 and either <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>2</span> or a $20 writeoff.</p>
 
                 <a class="prev-offer button round secondary">Back</a>
                 <a class="next-offer button round">Next</a>
@@ -194,7 +194,8 @@
                       <!-- <img class="current-placeholder" src="{% static 'img/symbol.svg' %}"/> -->
                       {{ form.offer_limit_value }}
                     </div>
-                  transactions</span><span>per offer per month</span>
+                  transactions </span>
+                  <span>per offer per month</span>
                 </div>
               </div>
             </div>
@@ -216,14 +217,14 @@
                   <li><span id="currents-share-text">25</span>% of <span id="item-text">All products and services</span></li>
                 </ul>
                   
-                <p>At the end of the month, openCurrents will invoice {{ orgname }} the total value of Currents accepted, send customers dollars in exchange for Currents, and transfer Currents to {{ orgname }}. For each Current received, {{ orgname }} can either keep the Current or claim a $10 charitable donation. Initial value: $10 per <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/> 1.</span></p>
+                <p>At the end of the month, openCurrents will invoice {{ orgname }} the total value of Currents accepted, send customers dollars in exchange for Currents, and transfer Currents to {{ orgname }}. For each Current received, {{ orgname }} can either keep the Current or claim a $10 charitable donation. Initial value: $10 per <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>1.</span></p>
               </div>
             </div>
 
             <div class="row one-margin-top">
               <a class="prev-offer button round secondary">Back</a>
               <!--a class="button round">Confirm offer</a-->
-              <input type='submit' value="Confirm offer" class="one-margin-top button round"></input>              
+              <input type='submit' value="Confirm offer" class="button round"></input>              
             </div>
           </div>
 
@@ -252,7 +253,7 @@
       </div>
       <div class="row">
         <div class="small-centered medium-10 columns">
-          <p>To add more offers, complete this offer first. From your business profile, you can click "Create offer" to list additional products and services.</p>
+          <p>To add more offers, complete this offer first. From your business profile, you can click "Post an offer" to list additional products and services.</p>
 
           <p class="center three-halves-margin-top">
             <a class="add-item-popup_close button round">Got it</a>
@@ -320,13 +321,20 @@
         // Change text on Confirm page based on inputs
 
         $('#wrapper').on('input',function(){
-          var share = $('#id_currents_share').val();
+          var share = $('#id_offer_current_share').val();
           var item = $('#id_offer_item').val();
           var limit = $('#id_offer_limit_value').val();
 
           $('#currents-share-text').text(share);
           $('#item-text').text(item);
           $('#limit-amount-text').text(limit);
+        });
+
+        // Display limit dropdown if "Set limit" is checked
+        $(document).ready(function(){
+          if ($('#id_offer_limit_choice_1').is(':checked')) {
+            $('#monthly-limit-div').removeClass('hidden');
+          }
         });
 
         // Show/hide monthly limit input
