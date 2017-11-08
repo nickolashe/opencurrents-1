@@ -1,51 +1,37 @@
-{% extends 'redemption-list.html' %}
+{% extends 'layouts/admin.html' %}
 
 {% load staticfiles %}
 {% load macros %}
 
-{% block main %}
-<!DOCTYPE html>
-<html>
-  <head>
-    {% include "partials/head.html" %}
-  </head>
+{% block status %}
+  {% if status_msg %}
+    <div class="success row half-margin-top">
+      {{ status_msg }}
+    </div>
+  {% endif %}
+{% endblock status %}
+        
 
-  <body>
-    {% include "partials/header.html" %}
-
-    <div id="container" class="js-close-any" canvas="container">
-      <div id="wrapper">
-        {% if status_msg %}
-        <div class="success row half-margin-top">
-          {{status_msg}}
-        </div>
-        {% endif %}
-
-        <div class="row">
-          <div id="status_msg" class="success one-margin-top small-10 small-centered medium-8 columns">
-          </div>
-        </div>
-
-        <div class="hide-for-small-only row full-width collapse one-margin-top one-margin-bottom">
-          <div class="left medium-6 medium-offset-1 columns">
-            <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="fit-left round" />
-            <span class="input-sizer"> -->
-              <h5 class="one-margin-top no-margin-bottom trim-text"> {{ orgname }} </h5>
-              <h6>{{ user.first_name }} {{ user.last_name }}</h6>
-            <!-- </span> -->
-          </div>
+{% block heading-left %}
+  <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="fit-left round" />
+  <span class="input-sizer"> -->
+    <h5 class="one-margin-top no-margin-bottom trim-text"> {{ orgname }} </h5>
+    <h6>{{ user.first_name }} {{ user.last_name }}</h6>
+  <!-- </span> -->
+{% endblock heading-left %}
 
 
+{% block heading-right %}
+  <span class="no-wrap">
+    <h6 class="half-margin-bottom inline-block">Business balance:</h6>
+    <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
+    <h6 class="inline-block"> {{ user_balance }} </h6>
+  </span>
 
+  <p class="no-margin-bottom"><a href="{% url 'openCurrents:offer' %}" class="button round tiny">Post an offer</a></p>
+{% endblock heading-right %}
           <div class="right one-margin-top medium-4 columns end">
-            <span class="no-wrap">
-              <h6 class="half-margin-bottom inline-block">Business balance:</h6>
-              <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
-              <h6 class="inline-block"> {{ user_balance }} </h6>
-            </span>
-            <!-- <h6 class="half-margin-bottom">Hours I've tracked: {{ issued_by_admin }}</h6> -->
-
-              <p class="no-margin-bottom"><a href="{% url 'openCurrents:offer' %}" class="button round tiny">Post an offer</a></p>
+            
           </div>
         </div>
 
