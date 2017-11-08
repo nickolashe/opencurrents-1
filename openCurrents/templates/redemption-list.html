@@ -8,7 +8,7 @@
         <div class="small-11 medium-10 small-centered columns">
 
           <h6 class="half-margin-bottom">
-            {{ redemption_status }} redemptions
+            {{ redemption_status }} transactions
           </h6>
 
           {% for req in redemptions %}
@@ -16,7 +16,7 @@
               <div class="row">
                 <div class="left small-9 columns">
                   <p class="half-margin-bottom">
-                    {{ req.date_updated|day:timezone }} - 
+                    {{ req.date_updated|day:timezone }} -
                     {{ tr.user.first_name }}
                     {{ tr.user.last_name }}
                     purchased
@@ -24,7 +24,7 @@
                       {{ tr.offer.item.name }} for
                       ${{ tr.price_reported }}
                     </strong>
-                    and will receive
+                    and would receive
                     {% with percent_share=tr.offer.currents_share|percent_to_price %}
                       {% with discount=tr.price_reported|mult:percent_share %}
                         ${{ discount|floatformat:2 }}

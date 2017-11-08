@@ -5,6 +5,7 @@ from openCurrents.models import \
     OrgEntity
 
 from openCurrents.interfaces.ocuser import OcUser
+from openCurrents.interfaces.ledger import OcLedger
 
 import logging
 
@@ -63,6 +64,12 @@ class OcOrg(object):
     def __init__(self, orgid=None):
         self.orgid = orgid
 
+        if self.orgid:
+            try:
+                self.org = Org.objects.get(id=self.orgid)
+            except Exception as e:
+                raise InvalidOrgException
+
     def setup_org(self, name, status, website=None):
         org = None
         try:
@@ -80,15 +87,25 @@ class OcOrg(object):
 
         return org
 
-    def get_balance_available(self):
+    def get_balance_available_cur(self):
+        current_balance = OcLedger().get_balance(
+            entity_id=self.org.orgentity.id,
+            entity_type='org'
+        )
+
+        return current_balance
+
+    def get_balance_pending_cur(self):
         pass
 
-    def get_balance_pending(self):
-        pass
+
+class InvalidOrgException(Exception):
+	pass
 
 
 class OrgExistsException(Exception):
 	pass
+
 
 class InvalidOrgUserException(Exception):
 	pass

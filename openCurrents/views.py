@@ -285,6 +285,15 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, TemplateView)
         redeemed_approved = self.bizadmin.get_redemptions(status='approved')
         context['redeemed_approved'] = redeemed_approved
 
+        # current balance
+        currents_balance = self.bizadmin.get_balance_available()
+        logger.info(currents_balance)
+        context['currents_balance'] = currents_balance
+
+        # pending currents balance
+        currents_pending = self.bizadmin.get_balance_pending()
+        context['currents_pending'] = currents_pending
+
         return context
 
 
@@ -425,7 +434,8 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
             for k in time_log
             if time_log[k]['Total'] > 0
         ])
-        logger.info('approve-hours time_log: %s', time_log)
+        logger.debug('approve-hours time_log: %s', time_log)
+
         if time_log:
             time_log_week[week_startdate_monday] = time_log
             week.append(time_log_week)
@@ -493,15 +503,11 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
         }
 
         templist = post_data.split(',')#eg list: ['a@bc.com:1:7-20-2017','abc@gmail.com:0:7-22-2017',''...]
-        logger.info(
-            'templist: %s', templist
-        )
+        logger.debug('templist: %s', templist)
 
         admin_userid = self.request.user.id
-        org = OrgUserInfo(admin_userid).get_org()
-        orgid = org.id
 
-        projects = Project.objects.filter(org__id=orgid)
+        projects = Project.objects.filter(org__id=self.org.id)
         events = Event.objects.filter(
             project__in=projects
         ).filter(
@@ -548,7 +554,7 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
 
                     # issue currents for hours approved
                     OcLedger().issue_currents(
-                        entity_id_from=org.orgentity.id,
+                        entity_id_from=self.org.orgentity.id,
                         entity_id_to=usertimelog.user.id,
                         amount=(usertimelog.datetime_end - usertimelog.datetime_start).total_seconds() / 3600
                     )

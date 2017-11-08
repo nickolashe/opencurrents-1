@@ -5,6 +5,12 @@ from openCurrents.models import \
     OrgEntity, \
     Ledger
 
+import logging
+
+logging.basicConfig(level=logging.DEBUG, filename="log/views.log")
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
 
 class OcLedger(object):
     '''

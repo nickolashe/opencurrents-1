@@ -431,10 +431,19 @@ class Transaction(models.Model):
         decimal_places=2,
         max_digits=10
     )
+    price_actual = models.DecimalField(
+        decimal_places=2,
+        max_digits=10
+    )
 
     # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)
     date_updated = models.DateTimeField('date updated', auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if not self.price_actual:
+            self.price_actual = self.price_reported
+        super(Transaction, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return ' '.join([

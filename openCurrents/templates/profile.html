@@ -129,11 +129,20 @@
                             <span class="no-wrap">
                               <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ price_share|usd_to_current|floatformat:3 }}
                             </span>
+
                           {% elif status == 'approved' %}
                             accepted
                             <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ price_share|usd_to_current|floatformat:3 }}
                             for ${{ price_share|floatformat:2 }}
+
+                          {% elif status == 'redeemed' %}
+                            received
+                            <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ price_share|usd_to_current|floatformat:3 }}
+                            for ${{ price_share|floatformat:2 }}
+
+                          {# add declined #}
                           {% endif %}
+
                         {% endwith %}
                       {% endwith %}
                     </div>

@@ -41,7 +41,9 @@
             <span class="no-wrap">
               <h6 class="half-margin-bottom inline-block">Business balance:</h6>
               <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
-              <h6 class="inline-block"> {{ user_balance }} </h6>
+              <h6 class="inline-block">
+                {{ currents_balance }} ({{ currents_pending }})
+              </h6>
             </span>
             <!-- <h6 class="half-margin-bottom">Hours I've tracked: {{ issued_by_admin }}</h6> -->
 
@@ -59,7 +61,9 @@
               <!-- <h6 class="no-margin-bottom">My hours tracked: 10.0</h6> -->
               <h6 class="inline">Business balance: </h6>
                 <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
-                <h6 class="inline-block"> {{ user_balance }} </h6>
+                <h6 class="inline-block">
+                  {{ currents_balance }} ({{ currents_pending }})
+                </h6>
             </div>
 
             <a href="{% url 'openCurrents:offer' %}" class="button round tiny">Post an offer</a>

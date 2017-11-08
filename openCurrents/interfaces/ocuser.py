@@ -12,10 +12,15 @@ from openCurrents.models import \
     Transaction, \
     TransactionAction
 
+from openCurrents.interfaces import convert
 from openCurrents.interfaces.ledger import OcLedger
 
 import pytz
+import logging
 
+logging.basicConfig(level=logging.DEBUG, filename="log/views.log")
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class OcUser(object):
     def __init__(self, userid=None):
@@ -96,23 +101,37 @@ class OcUser(object):
     def get_balance_available(self):
         '''
         report total available currents
+            - balance based on ledger
+            - minus redeemed offers
         '''
         if not self.userid:
             raise InvalidUserException
 
-        OcLedger().get_balance(
+        current_balance = OcLedger().get_balance(
             entity_id=self.user.userentity.id,
             entity_type='user'
         )
 
-        # usertimelogs = UserTimeLog.objects.filter(
-        #     user_id=self.userid
-        # ).filter(
-        #     is_verified=True
-        # )
-        #
-        # balance = self._get_unique_hour_total(usertimelogs)
-        return balance
+        # offer redemption requests
+        redemption_reqs = Transaction.objects.filter(
+            user__id=self.userid
+        ).annotate(
+            last_action_created=Max('transactionaction__date_created')
+        )
+
+        active_redemption_reqs = TransactionAction.objects.filter(
+            date_created__in=[
+                req.last_action_created for req in redemption_reqs
+            ]
+        ).filter(
+            action_type='req'
+        )
+
+        total_redemptions = self._get_redemption_total(
+            active_redemption_reqs
+        )
+
+        return current_balance - total_redemptions
 
     def get_balance_pending(self):
         '''
@@ -131,7 +150,7 @@ class OcUser(object):
         )
 
         # pending requests
-        active_requests = AdminActionUserTime.objects.filter(
+        active_hour_reqs = AdminActionUserTime.objects.filter(
             date_created__in=[
                 utl.last_action_created for utl in usertimelogs
             ]
@@ -139,11 +158,12 @@ class OcUser(object):
             action_type='req'
         )
 
-        balance = self._get_unique_hour_total(
-            active_requests,
+        total_hour = self._get_unique_hour_total(
+            active_hour_reqs,
             from_admin_actions=True
         )
-        return balance
+
+        return total_hour
 
     def _get_unique_hour_total(self, records, from_admin_actions=False):
         event_user = set()
@@ -158,6 +178,18 @@ class OcUser(object):
             if not timelog.event.id in event_user:
                 event_user.add(timelog.event.id)
                 balance += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
+
+        return balance
+
+    def _get_redemption_total(self, records):
+        balance = 0
+
+        for rec in records:
+            tr = rec.transaction
+            offer = tr.offer
+            balance += convert.usd_to_cur(
+                0.01 * float(offer.currents_share) * float(tr.price_actual)
+            )
 
         return balance
 
