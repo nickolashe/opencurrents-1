@@ -1,3 +1,4 @@
+{% extends "layouts/base.html" %}
 {% load staticfiles %}
 
 <!DOCTYPE html>
@@ -19,7 +20,9 @@
         {% endif %}
 
         <div class="row">
-          <h3 class="title-sub">Invite volunteers</h3>
+          <h3 class="title-sub">
+            {% block title %}Invite volunteers{% endblock title %}
+          </h3>
           {% if event_project_name %}
             <p>to help <strong>{{ event_project_name }}</strong></p>
           {% else %}

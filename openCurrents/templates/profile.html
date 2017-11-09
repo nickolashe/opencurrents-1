@@ -24,7 +24,9 @@
 
         <div class="row">
           <div class="small-12 small-centered columns">
-            <h5 class="two-margin-top no-margin-bottom">{{ user.first_name }} {{ user.last_name }}</h5>
+            <h5 class="two-margin-top no-margin-bottom">
+              {% block title %} {{ user.first_name }} {{ user.last_name }} {% endblock title %}
+            </h5>
 
             {% if is_admin_org or is_admin_biz %}
               <h6 class="inline half-margin-right">{{ orgname }}</h6>

@@ -1,19 +1,13 @@
+{% extends "layouts/base.html" %}
 {% load staticfiles %}
 
-<!DOCTYPE html>
-<html>
-  <head>
-    {% include "partials/head.html" %}
-  </head>
-
-  <body>
-    {% include "partials/header.html" %}
-
-    <div id="container" class="js-close-any" canvas="container">
-      <div id="wrapper">
-        <div class="row">
-            <h3 class="title-sub">Confirm account</h3>
-        </div>
+{% block heading %}
+  <div class="row">
+    <h3 class="title-sub">
+      {% block title %}Confirm account{% endblock title %}
+    </h3>
+  </div>
+{% endblock heading %}
 
         {% if status_msg %}
           <div class="row center half-margin-bottom">

@@ -1,3 +1,4 @@
+{% extends "layouts/base.html" %}
 {% load staticfiles %}
 {% load tags %}
 
@@ -20,7 +21,9 @@
 
         <div class="row">
           <div class="small-12 medium-8 small-centered columns">
-            <h3 class="title">You're all set!</h3>
+            <h3 class="title">
+              {% block title %} You're all set! {% endblock title %}
+            </h3>
 
             <!-- <span class="addtocalendar one-margin-bottom">
               <var class="atc_event">

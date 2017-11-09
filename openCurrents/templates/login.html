@@ -1,3 +1,4 @@
+{% extends "layouts/base.html" %}
 {% load staticfiles %}
 
 <!DOCTYPE html>
@@ -12,7 +13,9 @@
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
         <div class="row">
-            <h2 class="title-sub">Log in</h2>
+          <h2 class="title-sub">
+            {% block title %} Log in {% endblock title %}
+          </h2>
         </div>
 
         {% if status_msg %}
@@ -21,7 +24,7 @@
         </div>
         {% endif %}
 
-        <form method="post" action="{% url "openCurrents:process_login" %}">
+        <form method="post" action="{% url 'openCurrents:process_login' %}">
           {% csrf_token %}
             <div class="row half-margin-top">
               <div class="small-12 medium-6 small-centered columns">

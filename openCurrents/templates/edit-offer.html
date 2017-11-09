@@ -1,3 +1,4 @@
+{% extends "layouts/base.html" %}
 {% load staticfiles %}
 {% load tags %}
 
@@ -38,7 +39,9 @@
           {% endif %}
 
           <div class="row">
-            <h3 class="title">Edit offer</h3>
+            <h3 class="title">
+              {% block title %}Edit offer{% endblock title %}
+            </h3>
           </div>
 
           <div class="row left">

@@ -1,3 +1,5 @@
+{% extends "layouts/base.html" %}
+
 {% load staticfiles %}
 {% load tags %}
 
@@ -22,7 +24,9 @@
           {% csrf_token %}
 
           <div class="row">
-            <h4 class="title-sub">Let's {{ event.project.name }}!</h4>
+            <h4 class="title-sub">
+              {% block title %}Let's {{ event.project.name }}!{% endblock title %}
+            </h4>
             <p>with <strong>{{ event.project.org.name }}</strong> </p>
           </div>
 

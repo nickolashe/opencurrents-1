@@ -1,3 +1,4 @@
+{% extends "layouts/base.html" %}
 {% load staticfiles %}
 
 <!DOCTYPE html>
@@ -13,7 +14,9 @@
       <div id="wrapper">
         <div class="row center">
           <div class="small-12 medium-8 small-centered columns">
-            <h3 class="title-sub">Nominate an organization</h3>
+            <h3 class="title-sub">
+              {% block title %} Nominate an organization {% endblock title %}
+            </h3>
             <p>As a member of this community, you can help us grow by inviting an organization. Fill out this form and we'll reach out, but feel free to contact them personally as well.</p>
 
             <form method="post" action="{% url "openCurrents:process_OrgNomination" %}">

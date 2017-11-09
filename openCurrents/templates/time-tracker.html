@@ -1,3 +1,4 @@
+{% extends "layouts/base.html" %}
 {% load staticfiles %}
 {% load tags %}
 
@@ -18,7 +19,9 @@
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
         <div class="row">
-          <h3 class="title-sub">Record volunteer hours</h3>
+          <h3 class="title-sub">
+            {% block title %}Record volunteer hours{% endblock title %}
+          </h3>
 
             {% if status_msg %}
               <div class="alert row one-margin-bottom">

@@ -1,3 +1,4 @@
+{% extends "layouts/base.html" %}
 {% load staticfiles %}
 
 <!DOCTYPE html>
@@ -12,7 +13,9 @@
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
         <div class="row">
-          <h3 class="title">Hours approved</h3>
+          <h3 class="title">
+            {% block title %}Hours approved{% endblock title %}
+          </h3>
         </div>
         
         <div class="row one-margin-bottom center">

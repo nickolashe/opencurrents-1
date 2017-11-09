@@ -1,3 +1,4 @@
+{% extends "layouts/base.html" %}
 {% load staticfiles %}
 {% load tags %}
 
@@ -24,7 +25,9 @@
 
         <div class="row">
           <div class="small-12 medium-8 small-centered columns">
-            <h4 class="three-halves-margin-top">Let's {{ event.project.name }}!</h4>
+            <h4 class="three-halves-margin-top">
+              {% block title %}Let's {{ event.project.name }}!{% endblock title %}
+            </h4>
             <p>with {{ event.project.org.name }} at {{ event.location }}</p>
           </div>
         </div>
