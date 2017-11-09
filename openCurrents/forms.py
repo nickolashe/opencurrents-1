@@ -664,8 +664,9 @@ class RedeemCurrentsForm(forms.Form):
     redeem_receipt = forms.ImageField(
          widget=forms.ClearableFileInput(attrs={
             'class': 'hidden-file',
-            'id': 'upload-receipt'
-        })
+            'id': 'upload-receipt',
+            'accept': 'image/*'
+        })       
     )
 
     redeem_receipt_if_checked = forms.BooleanField(
