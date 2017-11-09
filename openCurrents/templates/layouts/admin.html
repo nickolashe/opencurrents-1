@@ -30,7 +30,7 @@
         {% endblock status %}
 
 
-        <div class="hide-for-small-only row full-width collapse two-margin-top one-margin-bottom">
+        <div class="hide-for-small-only row full-width collapse two-margin-top">
           <div class="left medium-5 medium-offset-1 columns">
             {% block heading-left %}
               <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="fit-left round" />
@@ -87,7 +87,7 @@
 
         {% block content %}
           <p class="no-margin-bottom">
-            <a href="{% url 'openCurrents:offer' %}" class="button round tiny">
+            <a href="{% url 'openCurrents:offer' %}" class="button round small">
               Post an offer
             </a>
           </p>
