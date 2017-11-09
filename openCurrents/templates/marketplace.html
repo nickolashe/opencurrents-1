@@ -1,62 +1,52 @@
 {% extends "layouts/base.html" %}
 {% load staticfiles %}
 
-<!DOCTYPE html>
-<html>
-  <head>
-    {% include "partials/head.html" %}
-  </head>
-  
-  <body>
-    {% include "partials/header.html" %}
-    
-    <div id="container" class="js-close-any" canvas="container">
-      <div id="wrapper">
-        {% if status_msg %}
-        <div class="alert row half-margin-top">
-          {{status_msg}}
-        </div>
-        {% endif %}
+{% block heading %}
+  <div class="row">
+    <div class="small-12 medium-9 small-centered columns">
+      <h3 class="title-sub">
+        {% block title %} Marketplace {% endblock title %}
+      </h3>
+      <h6 class="three-halves-margin-bottom">
+        Check out these offers from openCurrents businesses:
+      </h6>
+    </div>
+  </div>
+{% endblock heading %}
         
-        <div class="row">
-          <h3 class="title-sub">
-            {% block title %} Marketplace {% endblock title %}
-          </h3>
+{% block content %}
+  <div class="row one-margin-bottom center">
+    <div class="small-12 medium-10 small-centered columns">
+      {% for offer in offers %}
+        <div class="left input-left small-9 columns">
+          <p class="">
+            <strong> {{ offer.org.name }} </strong>
+            accepts Currents for
+            <a href="{% url 'openCurrents:redeem-currents' offer.id %}">
+              {{ offer.currents_share }}% of {{ offer.item.name }}
+            </a>
+
+            {% if offer.limit != -1 %}
+              ({{ offer.limit }} remaining this month)
+            {% endif %}
+          </p>
         </div>
 
-        <div class="row">
-          <div class="small-12 medium-9 small-centered columns">
-            <h6 class="three-halves-margin-bottom">Check out these offers from openCurrents businesses:</h6>
-          </div>
+        <div class="right input-right small-3 columns">
+          <a href="{% url 'openCurrents:redeem-currents' offer.id %}" class="button round tiny secondary">
+            Redeem
+          </a>
         </div>
+      {% empty %}
+        <p>We are talking with businesses in Austin and around the country about exciting opportunities to use Currents for all kinds of products and services. We aim to have this marketplace connecting you with businesses accepting Currents this month!</p>
+      {% endfor %}
+    </div>
+  </div>
 
-        {% for offer in offers %}
+  
+{% endblock content %}
 
-          <div class="row one-margin-bottom center">
-            <div class="small-12 medium-10 small-centered columns">
-              <div class="left input-left small-9 columns">
-                <p class="">
-                  <strong> {{ offer.org.name }} </strong>
-                  accepts Currents for
-                  <a href="{% url 'openCurrents:redeem-currents' offer.id %}">
-                    {{ offer.currents_share }}% of {{ offer.item.name }}
-                  </a>
-
-                  {% if offer.limit != -1 %}
-                    ({{ offer.limit }} remaining this month)
-                  {% endif %}
-                </p>
-              </div>
-
-              <div class="right input-right small-3 columns">
-                <a href="{% url 'openCurrents:redeem-currents' offer.id %}" class="button round tiny secondary">
-                  Redeem
-                </a>
-              </div>
-            </div>
-          </div>
-
-        {% endfor %}        
+                
 
         
         <div id="push"></div>

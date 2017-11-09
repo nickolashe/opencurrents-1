@@ -1,164 +1,127 @@
 {% extends "layouts/base.html" %}
 {% load staticfiles %}
 
-<!DOCTYPE html>
-<html>
-  <head>
-    {% include "partials/head.html" %}
-  </head>
+{% block heading %}
+  <div class="row">
+    <h3 class="title-sub">
+      {% block title %}Invite volunteers{% endblock title %}
+    </h3>
+    {% if event_project_name %}
+      <p>to help <strong>{{ event_project_name }}</strong></p>
+    {% else %}
+      <p>to record hours with openCurrents</p>
+    {% endif %}
+    <a class="bulk-email-popup_open button round small secondary">Copy/paste email list</a>
+    <p class="">or add volunteers individually:</p>
+  </div>
+{% endblock heading %}
 
-  <body>
-
-    {% include "partials/header.html" %}
-    
-    <div id="container" class="js-close-any" canvas="container">
-      <div id="wrapper">
-        {% if status_msg %}
-        <div class="alert row half-margin-top">
-          {{status_msg}}
-        </div>
-        {% endif %}
-
-        <div class="row">
-          <h3 class="title-sub">
-            {% block title %}Invite volunteers{% endblock title %}
-          </h3>
-          {% if event_project_name %}
-            <p>to help <strong>{{ event_project_name }}</strong></p>
-          {% else %}
-            <p>to record hours with openCurrents</p>
-          {% endif %}
-          <a class="bulk-email-popup_open button round small secondary">Copy/paste email list</a>
-          <p class="">or add volunteers individually:</p>
-        </div>
-        <form action ="" name="theForm" id="form_id" method="post">
-        {% csrf_token %}
-          <div class="row center">
-            <div class="small-12 medium-8 small-centered columns">
-              <div id="vol-invites-box" name="vol-invites-box" class="row">
-                <div class="small-6 columns">
-                  <input type="text" name="vol-name-1" placeholder="First name" />
-                </div>
-                <div class="small-6 columns">
-                  <input type="text" name="vol-email-1" placeholder="Email" />
-                </div>
-
-                <div class="small-6 columns">
-                  <input type="text" name="vol-name-2" placeholder="First name" />
-                </div>
-                <div class="small-6 columns">
-                  <input type="text" name="vol-email-2" placeholder="Email" />
-                </div>
-
-                <div class="small-6 columns">
-                  <input type="text" name="vol-name-3" placeholder="First name" />
-                </div>
-                <div class="small-6 columns">
-                  <input type="text" name="vol-email-3" placeholder="Email" />
-                </div>
-              </div>
-
-              <div class="row one-margin-bottom left">
-                <div class="column">
-                  <a id="add-volunteer" class="blue-icon"><i class="fa fa-plus-circle half-margin-left half-margin-right"></i>Add volunteer</a>
-                </div>
-              </div>
-            </div>
-
-            <!-- <textarea id="bulk-email-submit" class="hidden"></textarea>
-
-            <textarea id="personal-message-submit" class="hidden"></textarea>
-
-            <p><a class="personal-message-popup_open button round tiny secondary">Add personal message</a></p> -->
-
-            <!--<a href="{% url 'openCurrents:org-admin' %}" class="button round secondary">Send invites</a>-->
-            <button type='submit' id="button_1" class="button round">Send invites<input type="hidden" id="count-vol" name="count-vol" value="3" /></button>
+{% block content %}
+  <form action ="" name="theForm" id="form_id" method="post">
+  {% csrf_token %}
+    <div class="row center">
+      <div class="small-12 medium-8 small-centered columns">
+        <div id="vol-invites-box" name="vol-invites-box" class="row">
+          <div class="small-6 columns">
+            <input type="text" name="vol-name-1" placeholder="First name" />
+          </div>
+          <div class="small-6 columns">
+            <input type="text" name="vol-email-1" placeholder="Email" />
           </div>
 
-          {% if skip == 1 %}
-            <a href="{% url 'openCurrents:org-admin' num_vols=0 %}">Skip for now</a>
-          {% endif %}
-          <input type="hidden" id="bulk-vol" name="bulk-vol" value="" />
-        </form>
+          <div class="small-6 columns">
+            <input type="text" name="vol-name-2" placeholder="First name" />
+          </div>
+          <div class="small-6 columns">
+            <input type="text" name="vol-email-2" placeholder="Email" />
+          </div>
 
-        <div id="push"></div>
+          <div class="small-6 columns">
+            <input type="text" name="vol-name-3" placeholder="First name" />
+          </div>
+          <div class="small-6 columns">
+            <input type="text" name="vol-email-3" placeholder="Email" />
+          </div>
+        </div>
 
-      <!-- wrapper div-->
-      </div>
-      
-      {% include 'partials/footer.html' %}
-            
-    <!--container div -->
-    </div>
-
-
-    <div id="bottom-stripe" class="full-width"></div>
-
-    <div off-canvas="menu right shift" id="menu">
-      {% include 'partials/menu.html' %}
-    </div>
-
-    <div id="bulk-email-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <div class="row center">
-        <h3 class="popup-title">Add email list</h3>
-      </div>
-
-      <div class="row center">
-        <div class="medium-10 small-centered column">
-          <p>Add multiple emails separated by spaces, new lines, or commas:</p>
-          <textarea name="bulk-emails" id = "bulk-emails" placeholder="email@yahoo.com, address@woohoo.com" rows="3"></textarea>
-
-          <!--<p class="three-halves-margin-top"><a onclick="$(this).closest('form').submit()" href="" class="button round">Send invites</a></p>-->
-        <button type='submit' name="button_2" onclick="submit_from_bulk()" class="button round">Send invites</button>
-
+        <div class="row one-margin-bottom left">
+          <div class="column">
+            <a id="add-volunteer" class="blue-icon"><i class="fa fa-plus-circle half-margin-left half-margin-right"></i>Add volunteer</a>
+          </div>
         </div>
       </div>
+
+      <button type='submit' id="button_1" class="button round">Send invites<input type="hidden" id="count-vol" name="count-vol" value="3" /></button>
     </div>
 
-    <div id="personal-message-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <div class="row center">
-        <h3 class="popup-title">Add custom message</h3>
-      </div>
-
-      <div class="row center">
-        <div class="medium-10 small-centered column">
-          <p>Add a personal touch to invite volunteers to the {% if event_project_name %}event{% else %}community{% endif %}:</p>
-
-          <p>Hi,</p>
-          <textarea id="personal-message" rows="3" placeholder=""></textarea>
-        </div>
-      </div>
+    {% if skip == 1 %}
+      <a href="{% url 'openCurrents:org-admin' num_vols=0 %}">Skip for now</a>
+    {% endif %}
+    <input type="hidden" id="bulk-vol" name="bulk-vol" value="" />
+  </form>
+{% endblock content %}
+        
+{% block popups %}
+  <div id="bulk-email-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+    <div class="row center">
+      <h3 class="popup-title">Add email list</h3>
     </div>
 
-    <script type="text/javascript">
-      $(document).ready(function(){
+    <div class="row center">
+      <div class="medium-10 small-centered column">
+        <p>Add multiple emails separated by spaces, new lines, or commas:</p>
+        <textarea name="bulk-emails" id = "bulk-emails" placeholder="email@yahoo.com, address@woohoo.com" rows="3"></textarea>
 
-        var vols = 3;
+        <!--<p class="three-halves-margin-top"><a onclick="$(this).closest('form').submit()" href="" class="button round">Send invites</a></p>-->
+      <button type='submit' name="button_2" onclick="submit_from_bulk()" class="button round">Send invites</button>
 
-        $('#add-volunteer').click(function() {
+      </div>
+    </div>
+  </div>
 
-          vols ++;
-          document.getElementById('count-vol').value = vols;//$('#count-vol').value = vols;
+  <div id="personal-message-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+    <div class="row center">
+      <h3 class="popup-title">Add custom message</h3>
+    </div>
 
-          $('#vol-invites-box').append('<div class="hidden slide small-6 columns"><input type="text" name="vol-name-'+vols+'" id="vol-name-'+vols+'" placeholder="First name (optional)" /></div><div class="hidden small-6 columns"><input type="text" name="vol-email-'+vols+'" id="vol-email-'+vols+'" placeholder="Email" /></div>');
-          $('#vol-invites-box .hidden').slideDown();
-        });
+    <div class="row center">
+      <div class="medium-10 small-centered column">
+        <p>Add a personal touch to invite volunteers to the {% if event_project_name %}event{% else %}community{% endif %}:</p>
+
+        <p>Hi,</p>
+        <textarea id="personal-message" rows="3" placeholder=""></textarea>
+      </div>
+    </div>
+  </div>
+{% endblock popups %}
+    
+{% block js %}
+  <script type="text/javascript">
+    $(document).ready(function(){
+
+      var vols = 3;
+
+      $('#add-volunteer').click(function() {
+
+        vols ++;
+        document.getElementById('count-vol').value = vols;//$('#count-vol').value = vols;
+
+        $('#vol-invites-box').append('<div class="hidden slide small-6 columns"><input type="text" name="vol-name-'+vols+'" id="vol-name-'+vols+'" placeholder="First name (optional)" /></div><div class="hidden small-6 columns"><input type="text" name="vol-email-'+vols+'" id="vol-email-'+vols+'" placeholder="Email" /></div>');
+        $('#vol-invites-box .hidden').slideDown();
+      });
+    });
+
+    $('#bulk-email-popup').popup({
+        vertical: 'top',
+        transition: 'all 0.75s',
+        scrolllock: true,
       });
 
-      $('#bulk-email-popup').popup({
-          vertical: 'top',
-          transition: 'all 0.75s',
-          scrolllock: true,
-        });
+    function submit_from_bulk(){
 
-      function submit_from_bulk(){
+        document.getElementById("bulk-vol").value = document.getElementById("bulk-emails").value;
+        document.forms.theForm.submit();
 
-          document.getElementById("bulk-vol").value = document.getElementById("bulk-emails").value;
-          document.forms.theForm.submit();
-
-      }
-    </script>
-
-    <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
-  </body>
-</html>
+    }
+  </script>
+{% endblock js %}
