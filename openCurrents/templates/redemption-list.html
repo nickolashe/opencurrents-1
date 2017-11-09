@@ -24,7 +24,13 @@
                       {{ tr.offer.item.name }} for
                       ${{ tr.price_reported }}
                     </strong>
-                    and would receive
+                    and
+                    {% if redemption_status == 'Pending' %}
+                      would
+                    {% else %}
+                      will
+                    {% endif %}
+                    receive
                     {% with percent_share=tr.offer.currents_share|percent_to_price %}
                       {% with discount=tr.price_reported|mult:percent_share %}
                         ${{ discount|floatformat:2 }}

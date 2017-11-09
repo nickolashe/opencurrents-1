@@ -85,18 +85,20 @@ class OcLedger(object):
     def remove_fiat(self, id_from, type='usd'):
         pass
 
-    def get_balance(self, entity_id, entity_type='user', type='cur'):
+    def get_balance(self, entity_id, entity_type='user', currency='cur'):
         entity = self._get_entity(entity_id, entity_type)
 
         debit = Ledger.objects.filter(
             entity_from__id=entity.id,
-            is_issued=False
+            is_issued=False,
+            currency=currency
         ).aggregate(total=Sum('amount'))
 
         debit_total = debit['total'] if debit['total'] else 0
 
         credit = Ledger.objects.filter(
-            entity_to__id=entity.id
+            entity_to__id=entity.id,
+            currency=currency
         ).aggregate(total=Sum('amount'))
 
         credit_total = credit['total'] if credit['total'] else 0

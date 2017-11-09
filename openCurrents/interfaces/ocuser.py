@@ -12,6 +12,7 @@ from openCurrents.models import \
     Transaction, \
     TransactionAction
 
+from openCurrents.interfaces import common
 from openCurrents.interfaces import convert
 from openCurrents.interfaces.ledger import OcLedger
 
@@ -127,7 +128,7 @@ class OcUser(object):
             action_type='req'
         )
 
-        total_redemptions = self._get_redemption_total(
+        total_redemptions = common._get_redemption_total(
             active_redemption_reqs
         )
 
@@ -136,7 +137,7 @@ class OcUser(object):
     def get_balance_pending(self):
         '''
         report total pending currents
-            - based on time log hours having status 'request'
+            - based on requested hours
         '''
         if not self.userid:
             raise InvalidUserException
@@ -165,6 +166,46 @@ class OcUser(object):
 
         return total_hour
 
+    def get_balance_available_usd(self):
+        '''
+        available usd balance is composed of:
+            - transactions in ledger
+        '''
+        balance_usd = OcLedger().get_balance(
+            entity_id=self.user.userentity.id,
+            entity_type='user',
+            currency='usd'
+        )
+
+        return balance_usd
+
+    def get_balance_pending_usd(self):
+        '''
+        pending usd balance is composed of:
+            - requested and accepted redemptions
+            - redemptions in status redeemed do not count
+        '''
+        redemption_reqs = Transaction.objects.filter(
+            user__id=self.userid
+        ).annotate(
+            last_action_created=Max('transactionaction__date_created')
+        )
+
+        active_redemption_reqs = TransactionAction.objects.filter(
+            date_created__in=[
+                req.last_action_created for req in redemption_reqs
+            ]
+        ).filter(
+            action_type__in=['req', 'app']
+        )
+
+        total_redemptions = common._get_redemption_total(
+            active_redemption_reqs,
+            'usd'
+        )
+
+        return total_redemptions
+
     def _get_unique_hour_total(self, records, from_admin_actions=False):
         event_user = set()
         balance = 0
@@ -178,18 +219,6 @@ class OcUser(object):
             if not timelog.event.id in event_user:
                 event_user.add(timelog.event.id)
                 balance += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
-
-        return balance
-
-    def _get_redemption_total(self, records):
-        balance = 0
-
-        for rec in records:
-            tr = rec.transaction
-            offer = tr.offer
-            balance += convert.usd_to_cur(
-                0.01 * float(offer.currents_share) * float(tr.price_actual)
-            )
 
         return balance
 

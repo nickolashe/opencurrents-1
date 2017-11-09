@@ -42,8 +42,8 @@
             <div class="row">
               <div class="small-12 medium-6 columns">
                 <h6 class="inline-block qtr-margin-bottom">Currents available: </h6>
-                <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/><h6 class="inline-block no-margin-bottom">{{ user_balance_verified }}</h6>
-                <p class="grey half-margin-bottom">Pending: <img class="med-text-symbol" src="{% static 'img/symbol.svg' %}"/>{{ user_balance_pending }}</p>
+                <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/><h6 class="inline-block no-margin-bottom">{{ balance_available }}</h6>
+                <p class="grey half-margin-bottom">Pending: <img class="med-text-symbol" src="{% static 'img/symbol.svg' %}"/>{{ balance_pending }}</p>
                 <p class="no-margin-bottom">
                   <a href="{% url 'openCurrents:marketplace' %}" class="button round secondary tiny">
                     Redeem
@@ -52,8 +52,12 @@
               </div>
 
               <div class="small-12 medium-6 columns">
-                <h6 class="qtr-margin-bottom">Dollars available: $(20)</h6>
-                <p class="grey half-margin-bottom">Pending: $(10)</p>
+                <h6 class="qtr-margin-bottom">
+                  Dollars available: $ {{ balance_available_usd }}
+                </h6>
+                <p class="grey half-margin-bottom">
+                  Pending: {{ balance_pending_usd }}
+                </p>
 
                 <!-- if available_dollars this button should have class cash-out-popup_open else no-cash-popup_open -->
                 <a class="cash-out-popup_open button round secondary tiny">

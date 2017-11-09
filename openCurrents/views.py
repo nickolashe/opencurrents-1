@@ -1099,12 +1099,26 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
             context['app_hr'] = 0
 
         # verified currents balance
-        balance_verified = self.ocuser.get_balance_available()
-        context['user_balance_verified'] = format(round(balance_verified, 2), '.2f')
+        balance_available = self.ocuser.get_balance_available()
+        context['balance_available'] = format(round(balance_available, 2), '.2f')
 
         # pending currents balance
         balance_pending = self.ocuser.get_balance_pending()
-        context['user_balance_pending'] = format(round(balance_pending, 2), '.2f')
+        context['balance_pending'] = format(round(balance_pending, 2), '.2f')
+
+        # available usd balance
+        balance_available_usd = self.ocuser.get_balance_available_usd()
+        context['balance_available_usd'] = format(
+            round(balance_available_usd, 2),
+            '.2f'
+        )
+
+        # pending usd balance
+        balance_pending_usd = self.ocuser.get_balance_pending_usd()
+        context['balance_pending_usd'] = format(
+            round(balance_pending_usd, 2),
+            '.2f'
+        )
 
         # upcoming events user is registered for
         events_upcoming = self.ocuser.get_events_registered()
@@ -3198,6 +3212,14 @@ def process_logout(request):
     logout(request)
     return redirect('openCurrents:login')
 
+
+@login_required
+def get_balance_available(request):
+    balance = OcUser(request.user.id).get_balance_available()
+    return HttpResponse(
+        balance,
+        status=200
+    )
 
 def sendContactEmail(template_name, template_content, merge_vars, admin_email, user_email):
     mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)

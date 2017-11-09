@@ -87,17 +87,6 @@ class OcOrg(object):
 
         return org
 
-    def get_balance_available_cur(self):
-        current_balance = OcLedger().get_balance(
-            entity_id=self.org.orgentity.id,
-            entity_type='org'
-        )
-
-        return current_balance
-
-    def get_balance_pending_cur(self):
-        pass
-
 
 class InvalidOrgException(Exception):
 	pass
