@@ -4,102 +4,80 @@
 {% block heading %}
   <div class="row">
     <h3 class="title-sub">
-      {% block title %}Confirm account{% endblock title %}
+      {% block title %} Confirm account {% endblock title %}
     </h3>
   </div>
 {% endblock heading %}
 
-        {% if status_msg %}
-          <div class="row center half-margin-bottom">
-            <div class="small-12 medium-6 small-centered columns">
-              <p class="alert small">{{status_msg}}</p>
-            </div>
-          </div>
-        {% endif %}
+{% block content %}
+  <form method="post" action="{% url 'openCurrents:process_email_confirmation' user_email=email %}">
+    {% csrf_token %}
+    <div class="hidden row center half-margin-bottom">
+      <div class="medium-6 small-centered columns">
+        <p class="inline">Verification code: </p>
+        <input type="text" {% if token %} readonly {% endif %} id="verify-email" name="verification_token" class="inline-input" value="{{token}}" />
 
-        <form method="post" action="{% url 'openCurrents:process_email_confirmation' user_email=email %}">
-          {% csrf_token %}
-          <div class="hidden row center half-margin-bottom">
-            <div class="medium-6 small-centered columns">
-              <p class="inline">Verification code: </p>
-              <input type="text" {% if token %} readonly {% endif %} id="verify-email" name="verification_token" class="inline-input" value="{{token}}" />
-
-              <input type="email" value="{{email}}"/>
-            </div>
-          </div>
-
-          <div class="row no-margin-bottom">
-            <p class="three-halves-margin-bottom">To complete signup, set your password:</p>
-
-            <div class="input-left small-6 medium-3 medium-offset-3 columns">
-              <input type="password" name='user_password' placeholder="Set password" class="half-margin-bottom"/>
-            </div>
-            <div class="input-right small-6 medium-3 columns end">
-              <input type="password" name='user_password_confirm' placeholder="Verify password" class="half-margin-bottom"/>
-            </div>
-          </div>
-
-          <label class="half-margin-bottom">8+ chars including UPPER, lower, 123, %#@!</label>
-
-          <div class="row center">
-            <div class="small-12 columns">
-              <div class="checkbox one-margin-bottom">
-                <input type="checkbox" name="monthly_updates" id="monthly-update" class="custom-checkbox" checked />
-                  <label for="monthly-update">Send me monthly updates</label>
-              </div>
-
-              <input type="submit" class="button round" value="Finish"/>
-            </div>
-          </div>
-        </form>
-
-        <div id="change-email" class="modal center small-12 medium-9 large-7 small-centered columns">
-          <div class="row">
-            <div class="center small-centered medium-10 columns">
-              <h3 class="popup-title">Change email address</h3>
-              <input type="email" name="email" placeholder="Email address" tabindex="1" />
-              <button class="button round">Send verification</button>
-              <button class="change-email_close button secondary round">Cancel</button>
-            </div>
-          </div>
-        </div>
-
-        <div id="resend-email" class="modal center small-12 medium-9 large-7 small-centered columns">
-          <div class="row">
-            <div class="center small-centered medium-10 columns">
-              <h3 class="one-margin-bottom">Email verification sent</h3>
-              <p>It may take a few minutes for the email to arrive. If you still don't see it, check your Spam folder.</p>
-              <button class="resend-email_close button round">Okay</button>
-            </div>
-          </div>
-        </div>
-
-        <div id="push"></div>
-
+        <input type="email" value="{{email}}"/>
       </div>
-
-      {% include 'partials/footer.html' %}
-
-    <!--container div -->
     </div>
 
-    <div id="bottom-stripe" class="full-width"></div>
+    <div class="row no-margin-bottom">
+      <p class="three-halves-margin-bottom">To complete signup, set your password:</p>
 
-    <div off-canvas="menu right shift" id="menu">
-      {% include 'partials/menu.html' %}
+      <div class="input-left small-6 medium-3 medium-offset-3 columns">
+        <input type="password" name='user_password' placeholder="Set password" class="half-margin-bottom"/>
+      </div>
+      <div class="input-right small-6 medium-3 columns end">
+        <input type="password" name='user_password_confirm' placeholder="Verify password" class="half-margin-bottom"/>
+      </div>
     </div>
 
-    <script type="text/javascript">
-      $(document).ready(function(){
-        $('#change-email, #resend-email').popup({
-          vertical: 'top',
-          transition: 'all 0.75s',
-          scrolllock: true,
-        });
+    <label class="half-margin-bottom">8+ chars including UPPER, lower, 123, %#@!</label>
+
+    <div class="row center">
+      <div class="small-12 columns">
+        <div class="checkbox one-margin-bottom">
+          <input type="checkbox" name="monthly_updates" id="monthly-update" class="custom-checkbox" checked />
+            <label for="monthly-update">Send me monthly updates</label>
+        </div>
+
+        <input type="submit" class="button round" value="Finish"/>
+      </div>
+    </div>
+  </form>
+{% endblock content %}
+
+{% block popups %}
+  <div id="change-email" class="modal center small-12 medium-9 large-7 small-centered columns">
+    <div class="row">
+      <div class="center small-centered medium-10 columns">
+        <h3 class="popup-title">Change email address</h3>
+        <input type="email" name="email" placeholder="Email address" tabindex="1" />
+        <button class="button round">Send verification</button>
+        <button class="change-email_close button secondary round">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="resend-email" class="modal center small-12 medium-9 large-7 small-centered columns">
+    <div class="row">
+      <div class="center small-centered medium-10 columns">
+        <h3 class="one-margin-bottom">Email verification sent</h3>
+        <p>It may take a few minutes for the email to arrive. If you still don't see it, check your Spam folder.</p>
+        <button class="resend-email_close button round">Okay</button>
+      </div>
+    </div>
+  </div>
+{% endblock popups %}
+
+{% block js %}
+  <script type="text/javascript">
+    $(document).ready(function(){
+      $('#change-email, #resend-email').popup({
+        vertical: 'top',
+        transition: 'all 0.75s',
+        scrolllock: true,
       });
-    </script>
-
-    <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
-    
-  </body>
-</html>
+    });
+  </script>
+{% endblock js %}

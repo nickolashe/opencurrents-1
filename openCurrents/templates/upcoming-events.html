@@ -1,4 +1,3 @@
-{% extends "layouts/base.html" %}
 {% load staticfiles %}
 {% load tags %}
 
@@ -20,26 +19,126 @@
         {% endif %}
 
         <div class="row">
-          <h3 class="title">Upcoming events</h3>
+          <h3 class="title">
+            {% block title %} Volunteer opportunities {% endblock title %}
+          </h3>
         </div>
 
-        <div class="row one-margin-bottom center">
+        <div class="row one-margin-bottom left">
+          <div class="small-12 medium-8 small-centered columns">
+            <h6>Organizations creating Currents</h6>
+            <div class="row">
+              <div class="small-9 columns">
+                <p>
+                  <a href="https://bikeaustin.org/" target="_blank"><strong>
+                    Bike Austin
+                  </strong></a>
+                  improves quality of life for all of Austin and Central Texas by growing bicycling as a form of transportation, exercise, and recreation.
+                </p>
+              </div>
+
+              <div class="right small-3 columns">
+                <a href="mailto:shavone@bikeaustin.org" target="_blank" class="button round small">Contact</a>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="small-9 columns">
+                <p>
+                  <a href="http://www.coloradoriver.org/" target="_blank"><strong>
+                    Colorado River Alliance
+                  </strong></a>
+                  champions the long-term vitality of the Texas Colorado River through education and engagement.
+                </p>
+              </div>
+
+              <div class="right small-3 columns">
+                <a href="mailto:geoff@coloradoriver.org" target="_blank" class="button round small">Contact</a>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="small-9 columns">
+                <p>
+                  <a href="https://www.meetup.com/Women-Who-Code-Austin/" target="_blank"><strong>
+                    Women Who Code Austin
+                  </strong></a>
+                  is dedicated to inspiring women to excel in technology careers by creating a global, connected community of women in technology.
+                </p>
+              </div>
+
+              <div class="right small-3 columns">
+                <a href="mailto:saraines.calderon@gmail.com" target="_blank" class="button round small">Contact</a>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="small-9 columns">
+                <p>
+                  <a href="https://www.costasverdes.org/?lang=en" target="_blank"><strong>
+                    Costas Verdas
+                  </strong></a>
+                  restores degraded costal ecosystems in Costa Rica with the active involvement of local and global communities.
+                </p>
+              </div>
+
+              <div class="right small-3 columns">
+                <a href="mailto:gerardo.bolanos@costasverdas.org" target="_blank" class="button round small">Contact</a>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="small-9 columns">
+                <p>
+                  <a href="http://www.healthstartfoundation.org/" target="_blank"><strong>
+                    HealthStart Foundation
+                  </strong></a>
+                  provides the blueprint for creating healthier communities through children's science-based health education.
+                </p>
+              </div>
+
+              <div class="right small-3 columns">
+                <a href="mailto:erin.damm@healthstartfoundation.org" target="_blank" class="button round small">Contact</a>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="small-9 columns">
+                <p>
+                  <a href="http://www.healthstartfoundation.org/" target="_blank"><strong>
+                    Joshua's Stage
+                  </strong></a>
+                  enriches the lives of children with special needs through the fine arts in a warm and welcoming environment.
+                </p>
+              </div>
+
+              <div class="right small-3 columns">
+                <a href="mailto:joshua.levy@joshuasstage.org" target="_blank" class="button round small">Contact</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row one-margin-bottom left">
           <div class="small-12 medium-8 small-centered columns">
             <div class="upcoming-events">
+              <h6>Volunteer events</h6>
               {% for event in events %}
                 {% if event.event_type != "MN" %}
-                  <div class="upcoming-event">
+                  <div class="upcoming-event row">
                     <div class="input-left small-9 columns">
-                      <strong>
-                        <a href="{% url 'openCurrents:event-detail' event.id %}"> 
-                          Let's {{ event.project.name }}! 
-                        </a>
-                      </strong>
-                      with <strong> {{ event.project.org.name }}</strong>
-                      on {{ event.datetime_start|day:timezone }}
-                      {{ event.datetime_start|time:timezone }} -
-                      {{ event.datetime_end|time:timezone }}
-                      at {{ event.location }}.
+                      <p>
+                        <strong>
+                          <a href="{% url 'openCurrents:event-detail' event.id %}">
+                            Let's {{ event.project.name }}! 
+                          </a>
+                        </strong>
+                        with <strong> {{ event.project.org.name }}</strong>
+                        on {{ event.datetime_start|day:timezone }}
+                        {{ event.datetime_start|time:timezone }} -
+                        {{ event.datetime_end|time:timezone }}
+                        at {{ event.location }}.
+                      </p>
                     </div>
 
                     <div class="input-right right small-3 columns">
