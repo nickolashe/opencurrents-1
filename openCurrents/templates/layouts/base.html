@@ -7,7 +7,7 @@
     {% include "partials/head.html" %}
     {% block head %}{% endblock head %}
     
-    <title>{% block title %} openCurrents {% endblock title %}</title>
+    <title>openCurrents</title>
 
   </head>
   
@@ -30,7 +30,7 @@
           <div class="row">
             <div class="small-12 columns">
               <h3 class="title">
-                openCurrents
+                {% block title %} openCurrents {% endblock title %}
               </h3>
             </div>
           </div>  

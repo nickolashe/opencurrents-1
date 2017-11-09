@@ -31,18 +31,17 @@
     <div class="success row one-margin-top">
       <div class="medium-8 columns small-centered">
         {% if vols_approved|add:"0" >= 1 and vols_declined|add:"0" >= 1 %}
-            You have approved hours for {{ vols_approved }} volunteer{{ vols_approved|pluralize }} and declined hours for {{ vols_declined }} volunteer{{ vols_declined|pluralize }}. Nice!
+          You have approved hours for {{ vols_approved }} volunteer{{ vols_approved|pluralize }} and declined hours for {{ vols_declined }} volunteer{{ vols_declined|pluralize }}. Nice!
 
         {% elif vols_approved|add:"0" >= 1 and vols_declined|add:"0" == 0 %}
-            You have approved hours for {{ vols_approved }} volunteer{{ vols_approved|pluralize }}. Nice!
+          You have approved hours for {{ vols_approved }} volunteer{{ vols_approved|pluralize }}. Nice!
 
         {% elif vols_approved|add:"0" == 0 and vols_declined|add:"0" >= 1 %}
-            You have declined hours for {{ vols_declined }} volunteer{{ vols_declined|pluralize }}. 
-
+          You have declined hours for {{ vols_declined }} volunteer{{ vols_declined|pluralize }}.
         {% endif %}
       </div>
     </div>
-  {% endif %}
+  {% endif %}        
 {% endblock status %}
           
 
@@ -53,7 +52,8 @@
   <a href="{% url 'openCurrents:create-event' orgid %}" 
     {% if user_time_log_status %} class="button secondary tiny round" 
     {% else %} class="button tiny round" 
-    {% endif %}>Create event
+    {% endif %}>
+    Create event
   </a>
   <!-- </span> -->
 {% endblock heading-left %}
@@ -199,8 +199,15 @@
       </div>
     </div>
   </div>
-{% endblock popups %}
 
+  <div class="delete-event-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+    <div class="row center">
+      <h3 class="popup-title">Are you sure?</h3>
+      <input type='submit' name='del-button' class="button round alert" value="Yes - Delete event">
+      <a class="button round secondary">Cancel</a>
+    </div>
+  </div>
+{% endblock popups %}
 
 {% block js %}
   <script type="text/javascript">
@@ -218,6 +225,7 @@
         }
       });
     });
+    
     function status(){
       $('#status_msg').html("There are no hours that need your approval.");
     }
