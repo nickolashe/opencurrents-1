@@ -16,11 +16,12 @@ class RadioWidget(forms.RadioSelect):
         context = super(RadioWidget, self).get_context(name, value, attrs)
         context['widget']['attrs']['class'] = 'custom-radio'
 
-        # context = {
-        # 	'widget': {
-        # 		'attrs': {
-        # 			'class': 'custom-radio'
-        # 		}
-        # 	}
-        # }
+        return context
+
+
+class TextWidget(forms.TextInput):
+    def get_context(self, name, value, attrs):
+        context = super(TextWidget, self).get_context(name, value, attrs)
+        context['widget']['attrs']['class'] = 'center'
+
         return context
