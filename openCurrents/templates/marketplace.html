@@ -42,62 +42,42 @@
       {% endfor %}
     </div>
   </div>
-
-  
 {% endblock content %}
 
-                
 
+{% block popups %}
+  <div id="transactions-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+    <div class="row center">
+      <h3 class="popup-title">How transactions work</h3>
+    </div>
+    
+    <div class="row center">
+      <div class="small-centered medium-10 columns">
         
-        <div id="push"></div>
-    
-      <!-- wrapper div-->
-      </div>
-      
-      {% include 'partials/footer.html' %}
-            
-    <!--container div -->
-    </div>
-    
-    <div id="bottom-stripe" class="full-width"></div>
-    
-    <div off-canvas="menu right shift" id="menu">
-      {% include 'partials/menu.html' %}
-    </div>
-  
-    <div id="transactions-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <div class="row center">
-        <h3 class="popup-title">How transactions work</h3>
-      </div>
-      
-      <div class="row center">
-        <div class="small-centered medium-10 columns">
-          
-          <p>To make it as easy as possible for businesses to accept Currents, nothing changes at point of sale - simply pay full price and ask for your receipt.</p>
+        <p>To make it as easy as possible for businesses to accept Currents, nothing changes at point of sale - simply pay full price and ask for your receipt.</p>
 
-          <p>Upload a picture of your receipt, and we will exchange your Currents for the business' dollars once they verify transactions at the end of the month.</p>
+        <p>Upload a picture of your receipt, and we will exchange your Currents for the business' dollars once they verify transactions at the end of the month.</p>
 
-          <div class="one-margin-bottom">
-            <input type="checkbox" name="no-more-popup" id="no-more-popup" class="custom-checkbox">
-              <!-- <label for="no-more-popup">Don't show this again</label> -->
-          </div>          
-          <button class="transactions-popup_close button round">Got it</button>
-        </div>
+        <div class="one-margin-bottom">
+          <input type="checkbox" name="no-more-popup" id="no-more-popup" class="custom-checkbox">
+            <!-- <label for="no-more-popup">Don't show this again</label> -->
+        </div>          
+        <button class="transactions-popup_close button round">Got it</button>
       </div>
     </div>
-    
-    
-    <script type="text/javascript">
-      $(document).ready(function(){
-        $('#transactions-popup').popup({
-          vertical: 'top',
-          transition: 'all 0.75s',
-          scrolllock: true,
-          autoopen: true,
-        });
+  </div>
+{% endblock popups %}
+
+
+{% block js %}
+  <script type="text/javascript">
+    $(document).ready(function(){
+      $('#transactions-popup').popup({
+        vertical: 'top',
+        transition: 'all 0.75s',
+        scrolllock: true,
+        autoopen: true,
       });
-    </script>
-    
-    <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
-  </body>
-</html>
+    });
+  </script>
+{% endblock js %}
