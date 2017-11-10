@@ -14,7 +14,7 @@
   <div class="row">
     <div class="columns">
       <h3 class="title-sub">
-        {% block title %}Record volunteer hours{% endblock title %}
+        {% block title %} Record volunteer hours {% endblock title %}
       </h3>
     </div>
   </div>
@@ -66,7 +66,7 @@
           </div>
         </div>
 
-        <div class="row one-margin-top">
+        <div id="existing-org-admin" class="row one-margin-top">
           <div class="small-6 columns">
             {{form.org}}
           </div>
@@ -76,30 +76,43 @@
           </div>
         </div>
 
+        <div id="new-org" class="row hidden">
+          <div class="columns">
+            {{ form.new_org }}
+          </div>
+        </div>
+
         <div id="new-admin" class="row hidden">
           <div class="small-6 columns">
-            <input type="text" name="admin_fname" placeholder="Admin first name" />
+            {{ form.new_admin_name }}
           </div>
 
           <div class="small-6 columns">
-            <input id="admin-email" type="email" name="admin_email" placeholder="Admin email" />
+            {{ form.new_admin_email }}
           </div>
-        </div> 
+        </div>
       </div>
 
       <div class="row center one-margin-top">
         <!--<a href="{% url 'openCurrents:time-tracked' %}" class="button round">Save</a>-->
         <input type='submit' value="Submit for approval" class="one-margin-top button round"></input>
-        <p><a class="nominate-popup_open">Organization not listed?</a></p>
+        <p>
+          <a id="request-new-org">
+            Request Currents from another nonprofit
+          </a>
+          <a id="request-existing-org" class="hidden">
+            Return to existing nonprofits
+          </a>
+        </p>
+
       </div>
     </div>
-
   </form>
 {% endblock content %}
 
 
 {% block popups %}
-  <div id="nominate-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+  <!--<div id="nominate-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
     <div class="row center">
       <h3 class="popup-title">Nominate an organization</h3>
       <div class="medium-10 medium-offset-1 columns end">
@@ -131,7 +144,7 @@
         <a class="nominate-popup_close button round secondary">Cancel</a>
       </div>
     </form>
-  </div>
+  </div>-->
 
   <div id="no-admin-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
     <div class="row center">
@@ -186,6 +199,22 @@
         }
       });
 
+      $('#request-new-org').click(function(){
+        $(this).hide();
+        $('#request-existing-org').show();
+        $('#existing-org-admin').slideUp();
+        $('#new-org').slideDown();
+        $('#new-admin').slideDown();
+      });
+
+      $("#request-existing-org").click(function(){
+        $(this).hide();
+        $('#request-new-org').show();
+        $('#new-org').slideUp();
+        $('#new-admin').slideUp();
+        $('#existing-org-admin').slideDown();
+      });
+
       document.getElementById('id_org_choice').options[0].disabled = true;
       document.getElementById('id_org_choice').options[0].selected = true;
 
@@ -227,7 +256,7 @@
                 let adminLastName = data[adminId].lastname;
 
                 $('#id_admin_choice').append(
-                  `<option value=${adminId}> 
+                  `<option value=${adminId}>
                     ${adminFirstName} ${adminLastName}
                   </option>`
                 );
@@ -248,7 +277,7 @@
     {% if org_stat_id %}
       $("#id_org_choice").trigger('change');
       if ("{{admin_name}}"){
-        $('#id_admin_choice').val("{{admin_name}}")//.val("karthikbm01@gmail.com")        
+        $('#id_admin_choice').val("{{admin_name}}")//.val("karthikbm01@gmail.com")
       }
       else{
 

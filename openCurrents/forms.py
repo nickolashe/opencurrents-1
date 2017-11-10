@@ -499,6 +499,24 @@ class TimeTrackerForm(forms.Form):
             'value': '12:00:00'
         })
     )
+    new_org = forms.CharField(
+        required=False,
+        widget=widgets.TextWidget(attrs={
+            'placeholder': 'Organization name',
+        })
+    )
+    new_admin_name = forms.CharField(
+        required=False,
+        widget=widgets.TextWidget(attrs={
+            'placeholder':'Admin name',
+        })
+    )
+    new_admin_email = forms.CharField(
+        required=False,
+        widget=widgets.TextWidget(attrs={
+            'placeholder': 'Admin email'
+        })
+    )
 
     def clean(self):
         cleaned_data = super(TimeTrackerForm, self).clean()
