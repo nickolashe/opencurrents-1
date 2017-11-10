@@ -83,19 +83,18 @@
         </div>
 
         <div id="new-admin" class="row hidden">
-          <div class="small-6 columns">
+          <div class="medium-6 columns">
             {{ form.new_admin_name }}
           </div>
 
-          <div class="small-6 columns">
+          <div class="medium-6 columns">
             {{ form.new_admin_email }}
           </div>
         </div>
       </div>
 
       <div class="row center one-margin-top">
-        <!--<a href="{% url 'openCurrents:time-tracked' %}" class="button round">Save</a>-->
-        <input type='submit' value="Submit for approval" class="one-margin-top button round"></input>
+        <input type='submit' value="Submit for approval" class="button round"></input>
         <p>
           <a id="request-new-org">
             Request Currents from another nonprofit
@@ -230,7 +229,7 @@
           .find('option')
           .remove()
           .end()
-          .append('<option value="sel-admin" disabled selected >Select admin</option>');
+          .append('<option value="sel-admin" disabled selected >Select coordinator</option>');
 
         let orgId = orgSelect.val();
         let csrf_token = document.getElementsByName(
