@@ -15,7 +15,7 @@
 
         {% if status_msg %}
         <div class="success row half-margin-top">
-          {{status_msg}}
+          {{ status_msg }}
         </div>
         {% endif %}
 
@@ -42,7 +42,10 @@
             <div class="row">
               <div class="small-12 medium-6 columns">
                 <h6 class="inline-block qtr-margin-bottom">Currents available: </h6>
-                <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/><h6 class="inline-block no-margin-bottom">{{ user_balance_verified }}</h6>
+                <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/><h6 class="inline-block no-margin-bottom">
+                  {{ user_balance_verified }}
+                </h6>
+                <a class="balance-popup_open"><i class="grey fa fa-info-circle"></i></a>
                 <p class="grey half-margin-bottom">Pending: <img class="med-text-symbol" src="{% static 'img/symbol.svg' %}"/>{{ user_balance_pending }}</p>
                 <p class="no-margin-bottom">
                   <a href="{% url 'openCurrents:marketplace' %}" class="button round secondary tiny">
@@ -81,7 +84,9 @@
                   </div>
 
                   <div class="right relative small-3 columns">
-                    <a class="mini-open"><i class="blue half-margin-right fa-chevron-circle-down fa fa-lg"></i></a>
+                    <a class="mini-open">
+                      <i class="blue half-margin-right fa-chevron-circle-down fa fa-lg"></i>
+                    </a>
                     <ul class="mini-menu">
                       <a href="{% url 'openCurrents:event-detail' event.id %}"><li>View event details</li></a>
                     </ul>
@@ -283,6 +288,19 @@
       </div>
     </div>
 
+    <div id="balance-popup" class="modal center small-12 medium-9 small-centered columns">
+      <div class="row collapse center">
+        <div class="small-centered medium-11 columns">
+          <h6 class="popup-title">Balance &ndash; Requested offers = Currents available</h6>
+        </div>
+      </div>
+      <div class="row">
+        <div class="medium-4 columns"><h6></h6></div>
+        <div class="medium-4 columns"><h6></h6></div>
+        <div class="medium-4 columns"><h6></h6></div>
+      </div>
+    </div>
+
     <div id="no-cash-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
         <h3 class="popup-title">No dollars available</h3>
@@ -302,7 +320,8 @@
         <h3 class="popup-title">Confirm cash out</h3>
       </div>
 
-      <form>
+      <form method="post">
+        {% csrf_token %}
         <div class="row center">
           <div class="small-centered medium-10 columns">
             <p class="three-halves-margin-bottom">openCurrents uses Dwolla to send cash directly to your bank account. You will receive an email in the next 48 hours inviting you to transfer your full balance. If you have any questions, don't hesitate to reach out.</p>
@@ -369,7 +388,7 @@
           var open = false;
         }
 
-        $('#rsvp-popup, #earn-currents-popup, #no-cash-popup, #cash-out-popup').popup({
+        $('#rsvp-popup, #earn-currents-popup, #balance-popup, #no-cash-popup, #cash-out-popup').popup({
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: true,
