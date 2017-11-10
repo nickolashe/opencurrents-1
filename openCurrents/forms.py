@@ -238,7 +238,6 @@ class CreateEventForm(forms.Form):
 
     # form field definitions follow
     project_name = forms.CharField(
-        label='Let\'s...',
         widget=forms.TextInput(attrs={
             'class': ' center',
             'placeholder': 'do some good'
@@ -246,7 +245,6 @@ class CreateEventForm(forms.Form):
     )
 
     event_date = forms.CharField(
-        label='on',
         widget=widgets.TextWidget(attrs={
             'class': 'center',
             'id': 'event-date',
@@ -255,7 +253,6 @@ class CreateEventForm(forms.Form):
     )
 
     event_starttime = forms.CharField(
-        label='from',
         widget=widgets.TextWidget(attrs={
             'class': 'center',
             'id': 'event-starttime',
@@ -264,7 +261,6 @@ class CreateEventForm(forms.Form):
     )
 
     event_endtime = forms.CharField(
-        label='to',
         widget=widgets.TextWidget(attrs={
             'class': 'center',
             'id': 'event-endtime',
@@ -284,8 +280,6 @@ class CreateEventForm(forms.Form):
     )
 
     event_description = forms.CharField(
-        label='Description',
-        help_text='What should volunteers know? What should they bring?',
         widget=forms.Textarea(attrs={
             'rows': '3'
         }),
@@ -666,7 +660,7 @@ class RedeemCurrentsForm(forms.Form):
             'class': 'hidden-file',
             'id': 'upload-receipt',
             'accept': 'image/*'
-        })       
+        })
     )
 
     redeem_receipt_if_checked = forms.BooleanField(
