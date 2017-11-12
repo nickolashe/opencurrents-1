@@ -193,7 +193,7 @@ class Event(models.Model):
     # coordinator
     # coordinator_firstname = models.CharField(max_length=128)
     # coordinator_email = models.EmailField()
-    coordinator = models.ForeignKey(User)
+    coordinator = models.ForeignKey(User, null=True)
 
     # event creator userid and notification flag
     creator_id = models.IntegerField(default=0)
@@ -414,11 +414,23 @@ class Offer(models.Model):
 
 class Transaction(models.Model):
     user = models.ForeignKey(User)
+
     offer = models.ForeignKey(
         Offer,
         on_delete=models.CASCADE
     )
-    pop_image = models.ImageField(upload_to='images/redeem/%Y/%m/%d')
+
+    pop_image = models.ImageField(
+        upload_to='images/redeem/%Y/%m/%d',
+        null=True
+    )
+
+    # text description
+    pop_no_proof = models.CharField(
+        max_length=8096,
+        null=True
+    )
+
     pop_type = models.CharField(
         max_length=3,
         choices=[
@@ -427,13 +439,23 @@ class Transaction(models.Model):
         ],
         default='rec'
     )
+
+    # price paid as reported in the form
     price_reported = models.DecimalField(
         decimal_places=2,
         max_digits=10
     )
+
+    # actual price based on receipt / proof
     price_actual = models.DecimalField(
         decimal_places=2,
         max_digits=10
+    )
+
+    # actual current to be redeemed
+    currents_amount = models.DecimalField(
+        decimal_places=3,
+        max_digits=12
     )
 
     # created / updated timestamps

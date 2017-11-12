@@ -53,14 +53,15 @@ class OcLedger(object):
             raise InsufficientFundsException()
 
         entity_to = self._get_entity(entity_id_to, entity_type_to)
-
-        ledger = Ledger(
+        ledger_rec = Ledger(
             entity_from=entity_from,
             entity_to=entity_to,
             amount=amount,
             is_issued=is_issued
         )
-        ledger.save()
+        logger.info(ledger_rec)
+
+        ledger_rec.save()
 
     def issue_currents(
         self,

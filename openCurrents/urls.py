@@ -99,14 +99,13 @@ urlpatterns = [
     url(r'^registration-confirmed/(?P<pk>\d+)/$',
         views.RegistrationConfirmedView.as_view(), name='registration-confirmed'),
 
-
     #temp 403, 404 and 500 views
     url(r'^403/$', views.ForbiddenView.as_view(), name='403'),
     url(r'^404/$', views.NotFoundView.as_view(), name='404'),
     url(r'^500/$', views.ErrorView.as_view(), name='500'),
 
-
     # functional views
+    url(r'^get_user_balance_available/$', views.get_user_balance_available, name='get_user_balance_available'),
     url(r'^event_checkin/(?P<pk>\d+)/$', views.event_checkin, name='event_checkin'),
     url(r'^event_register/(?P<pk>\d+)/$', views.event_register, name='event_register'),
     url(r'^event_register_live/(?P<eventid>\d+)/$',

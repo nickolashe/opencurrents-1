@@ -11,6 +11,9 @@ from openCurrents.models import Org, \
     Project, \
     Event
 
+from openCurrents.interfaces.ocuser import OcUser
+from openCurrents.interfaces.ledger import OcLedger
+
 from datetime import datetime
 
 import logging
@@ -667,6 +670,7 @@ class RedeemCurrentsForm(forms.Form):
     def __init__(self, *args, **kwargs):
         offer_id = kwargs.pop('offer_id')
         self.offer = Offer.objects.get(id=offer_id)
+        self.user = kwargs.pop('user')
 
         super(RedeemCurrentsForm, self).__init__(*args, **kwargs)
 
@@ -674,16 +678,17 @@ class RedeemCurrentsForm(forms.Form):
          widget=forms.ClearableFileInput(attrs={
             'class': 'hidden-file',
             'id': 'upload-receipt'
-        })
+        }),
+        required=False
     )
 
-    redeem_receipt_if_checked = forms.BooleanField(
-        widget=forms.CheckboxInput(attrs={
-            'class': 'hidden',
-            'id': 'receipt-if-checked'
-        }),
-        initial=True,
-    )
+    # redeem_receipt_if_checked = forms.BooleanField(
+    #     widget=forms.CheckboxInput(attrs={
+    #         'class': 'hidden',
+    #         'id': 'receipt-if-checked'
+    #     }),
+    #     initial=True,
+    # )
 
     redeem_no_proof = forms.CharField(
         required=False,
@@ -696,3 +701,36 @@ class RedeemCurrentsForm(forms.Form):
     redeem_price = forms.IntegerField(
         widget=forms.NumberInput()
     )
+
+    redeem_currents_amount = forms.FloatField(
+        widget=forms.NumberInput(
+            attrs={
+                'class': 'hidden'
+            }
+        )
+    )
+
+    def clean(self):
+        cleaned_data = super(RedeemCurrentsForm, self).clean()
+        redeem_receipt = cleaned_data['redeem_receipt']
+        redeem_no_proof = cleaned_data['redeem_no_proof']
+        redeem_price = cleaned_data['redeem_price']
+
+        user_balance_available = OcUser(self.user.id).get_balance_available()
+
+        if user_balance_available <= 0:
+            raise ValidationError(
+                _('You don\'t have any currents to spend at this time')
+            )
+
+        if redeem_price <= 0:
+            raise ValidationError(
+                _('Invalid purchase price reported')
+            )
+
+        if not (redeem_no_proof or redeem_receipt):
+            raise ValidationError(
+                _('Receipt or description of purchase is required')
+            )
+
+        return cleaned_data

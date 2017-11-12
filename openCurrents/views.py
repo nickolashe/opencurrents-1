@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect
 from django.views.generic import View, ListView, TemplateView, DetailView, CreateView
 from django.views.generic.edit import FormView
 from django.contrib.auth.models import User, Group
-from django.db import IntegrityError
+from django.db import transaction, IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.safestring import mark_safe
 from django.utils import timezone
@@ -350,7 +350,7 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
         ).filter(
             usertimelog__event__in=events
         )
-
+        logger.info(requested_actions)
         # week list holds dictionary ordered pairs for 7 days of timelogs
         week = []
 
@@ -539,41 +539,42 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
             requested_actions = self.get_requested_actions(week_date, events, user)
             logger.info('requested_actions: %s', requested_actions)
 
-            if action_type == 'app':
-                # for approved hours, additionally set is_verified boolean on usertimelogs
+            with transaction.atomic():
+                if action_type == 'app':
+                    # for approved hours, additionally set is_verified boolean on usertimelogs
+                    for action in requested_actions:
+                        usertimelog = action.usertimelog
+                        usertimelog.is_verified = True
+                        usertimelog.save()
+                        logger.debug(
+                            'volunteer %s hours have been %s by admin %s',
+                            usertimelog.user_id,
+                            action_type,
+                            admin_userid
+                        )
+
+                        # issue currents for hours approved
+                        OcLedger().issue_currents(
+                            entity_id_from=self.org.orgentity.id,
+                            entity_id_to=usertimelog.user.userentity.id,
+                            amount=(usertimelog.datetime_end - usertimelog.datetime_start).total_seconds() / 3600
+                        )
+
+                    vols_approved += 1
+
+                if action_type == 'dec':
+                    vols_declined += 1
+
+                # volunteer deferred
+                # TODO: decide if we need to keep this
+                elif action_type == 'def':
+                    logger.warning('deferred timelog (legacy warning): %s', declined)
+
+                # TODO: instead of updating the requests for approval,
+                # we should create a new action respresenting the action taken and save it
                 for action in requested_actions:
-                    usertimelog = action.usertimelog
-                    usertimelog.is_verified = True
-                    usertimelog.save()
-                    logger.debug(
-                        'volunteer %s hours have been %s by admin %s',
-                        usertimelog.user_id,
-                        action_type,
-                        admin_userid
-                    )
-
-                    # issue currents for hours approved
-                    OcLedger().issue_currents(
-                        entity_id_from=self.org.orgentity.id,
-                        entity_id_to=usertimelog.user.id,
-                        amount=(usertimelog.datetime_end - usertimelog.datetime_start).total_seconds() / 3600
-                    )
-
-                vols_approved += 1
-
-            if action_type == 'dec':
-                vols_declined += 1
-
-            # volunteer deferred
-            # TODO: decide if we need to keep this
-            elif action_type == 'def':
-                logger.warning('deferred timelog (legacy warning): %s', declined)
-
-            # TODO: instead of updating the requests for approval,
-            # we should create a new action respresenting the action taken and save it
-            for action in requested_actions:
-                action.action_type=action_type
-                action.save()
+                    action.action_type=action_type
+                    action.save()
 
         # lastly, determine if there any approval requests remaining
         usertimelogs = UserTimeLog.objects.filter(
@@ -643,14 +644,19 @@ class PublicRecordView(TemplateView):
     template_name = 'public-record.html'
 
 
-class MarketplaceView(LoginRequiredMixin, SessionContextView, TemplateView):
+class MarketplaceView(LoginRequiredMixin, SessionContextView, ListView):
     template_name = 'marketplace.html'
+    context_object_name = 'offers'
+
+    def get_queryset(self):
+        return Offer.objects.all()
 
     def get_context_data(self, **kwargs):
         context = super(MarketplaceView, self).get_context_data(**kwargs)
-
-        offers = Offer.objects.all()
-        context['offers'] = offers
+        user_balance_available = OcLedger().get_balance(
+            self.request.user.userentity.id
+        )
+        context['user_balance_available'] = user_balance_available
 
         return context
 
@@ -698,20 +704,30 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
     def dispatch(self, request, *args, **kwargs):
         offer_id = kwargs.get('offer_id')
         self.offer = Offer.objects.get(id=offer_id)
+        self.userid = request.user.id
+
+        user_balance_available = OcUser(self.userid).get_balance_available()
+        logger.info(user_balance_available)
+        if user_balance_available <= 0:
+            # TODO: replace with a page explaining no sufficient funds
+            return redirect('openCurrents:403')
 
         return super(RedeemCurrentsView, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         data = form.cleaned_data
+        logger.info(data['redeem_currents_amount'])
 
         transaction = Transaction(
             user=self.request.user,
             offer=self.offer,
             pop_image=data['redeem_receipt'],
-            price_reported=data['redeem_price']
+            pop_no_proof=data['redeem_no_proof'],
+            price_reported=data['redeem_price'],
+            currents_amount=data['redeem_currents_amount']
         )
 
-        if not data['redeem_receipt_if_checked']:
+        if not data['redeem_receipt']:
             transaction.pop_type = 'oth'
 
         transaction.save()
@@ -745,6 +761,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         """
         kwargs = super(RedeemCurrentsView, self).get_form_kwargs()
         kwargs.update({'offer_id': self.kwargs['offer_id']})
+        kwargs.update({'user': self.request.user})
 
         return kwargs
 
@@ -3214,7 +3231,11 @@ def process_logout(request):
 
 
 @login_required
-def get_balance_available(request):
+def get_user_balance_available(request):
+    '''
+    GET available balance for the logged in user
+    TODO: convert to an API call for any user id
+    '''
     balance = OcUser(request.user.id).get_balance_available()
     return HttpResponse(
         balance,
