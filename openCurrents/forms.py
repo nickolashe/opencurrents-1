@@ -238,15 +238,13 @@ class CreateEventForm(forms.Form):
 
     # form field definitions follow
     project_name = forms.CharField(
-        widget=forms.TextInput(attrs={
-            'class': ' center',
+        widget=widgets.TextWidget(attrs={
             'placeholder': 'do some good'
         })
     )
 
     event_date = forms.CharField(
         widget=widgets.TextWidget(attrs={
-            'class': 'center',
             'id': 'event-date',
             'placeholder': 'yyyy-mm-dd',
         })
@@ -254,7 +252,6 @@ class CreateEventForm(forms.Form):
 
     event_starttime = forms.CharField(
         widget=widgets.TextWidget(attrs={
-            'class': 'center',
             'id': 'event-starttime',
             'placeholder': '12:00 pm'
         })
@@ -262,7 +259,6 @@ class CreateEventForm(forms.Form):
 
     event_endtime = forms.CharField(
         widget=widgets.TextWidget(attrs={
-            'class': 'center',
             'id': 'event-endtime',
             'placeholder': '1:00 pm',
         })
