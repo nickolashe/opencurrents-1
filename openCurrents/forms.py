@@ -455,7 +455,7 @@ class TimeTrackerForm(forms.Form):
         })
     )
 
-    choices_admin = [("select_admin","Select admin")]
+    choices_admin = [("select_admin","Select coordinator")]
     admin = forms.CharField(
         #choices=choices_admin,
         required=True,
@@ -497,6 +497,24 @@ class TimeTrackerForm(forms.Form):
             'id': 'end-time',
             'name':'',
             'value': '12:00:00'
+        })
+    )
+    new_org = forms.CharField(
+        required=False,
+        widget=widgets.TextWidget(attrs={
+            'placeholder': 'Organization name',
+        })
+    )
+    new_admin_name = forms.CharField(
+        required=False,
+        widget=widgets.TextWidget(attrs={
+            'placeholder':'Coordinator name',
+        })
+    )
+    new_admin_email = forms.CharField(
+        required=False,
+        widget=widgets.TextWidget(attrs={
+            'placeholder': 'Coordinator email'
         })
     )
 
