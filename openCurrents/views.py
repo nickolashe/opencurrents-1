@@ -710,7 +710,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         logger.info(user_balance_available)
         if user_balance_available <= 0:
             # TODO: replace with a page explaining no sufficient funds
-            return redirect('openCurrents:403')
+            return redirect('openCurrents:marketplace')
 
         return super(RedeemCurrentsView, self).dispatch(request, *args, **kwargs)
 
