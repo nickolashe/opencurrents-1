@@ -85,6 +85,7 @@ urlpatterns = [
     url(r'^edit-profile/$', views.EditProfileView.as_view(), name='edit-profile'),
     url(r'^blog/$', views.BlogView.as_view(), name='blog'),
     url(r'^marketplace/$', views.MarketplaceView.as_view(), name='marketplace'),
+    url(r'^marketplace/(?P<status_msg>.*)/$', views.MarketplaceView.as_view(), name='marketplace'),
     url(r'^edit-event/(?P<event_id>\d+)/$', views.EditEventView.as_view(), name='edit-event'),
     url(r'^create-event/(?P<org_id>\d+)/$', views.CreateEventView.as_view(), name='create-event'),
     url(r'^project-details/$', views.ProjectDetailsView.as_view(), name='project-details'),
