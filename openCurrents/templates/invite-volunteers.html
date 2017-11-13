@@ -9,7 +9,7 @@
   <body>
 
     {% include "partials/header.html" %}
-    
+
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
         {% if status_msg %}
@@ -38,6 +38,8 @@
         {% csrf_token %}
           <div class="row center">
             <div class="small-12 medium-8 small-centered columns">
+
+              <textarea id="bulk-invites-box" class="hidden" rows="4"></textarea>
               <div id="vol-invites-box" name="vol-invites-box" class="row">
                 <div class="small-6 columns">
                   <input type="text" name="vol-name-1" placeholder="First name (optional)" />
@@ -91,9 +93,9 @@
 
       <!-- wrapper div-->
       </div>
-      
+
       {% include 'partials/footer.html' %}
-            
+
     <!--container div -->
     </div>
 
@@ -106,7 +108,7 @@
 
     <div id="personal-message-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
-        <h5 class="popup-title">A message from {{ user.first_name }}:</h5>
+        <h5 class="popup-title">A message from {{ user.first_name }} {{ user.last_name }}:</h5>
       </div>
 
       <div class="row center">
@@ -136,13 +138,13 @@
           <p><strong>An invitation from {{ orgname }}</strong></p>
 
           <label>Body</label>
-          <p>{{ user.first_name }} {{ user.last_name }} has invited you to 
+          <p>{{ user.first_name }} {{ user.last_name }} has invited you to
             {% if event_project_name %}
               a volunteer event
             {% else %}
               openCurrents
             {% endif %}
-            
+
             <span id="personal-message-detail" class="hidden">
               and sent a message:
             </span>
