@@ -36,7 +36,8 @@
                         ${{ discount|floatformat:2 }}
                         for
                         <span class="no-wrap">
-                          <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ discount|usd_to_current|floatformat:3 }}
+                          <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
+                          {{ discount|usd_to_current|floatformat:3 }}
                         </span>
                       {% endwith %}
                     {% endwith %}
@@ -44,7 +45,9 @@
                 </div>
 
                 <div class="right relative small-3 columns">
-                  <a class="mini-open"><i class="blue half-margin-right fa-chevron-circle-down fa fa-lg"></i></a>
+                  <a class="mini-open">
+                    <i class="blue half-margin-right fa-chevron-circle-down fa fa-lg"></i>
+                  </a>
                   <ul class="mini-menu">
                     <a class="view-receipt-popup_open"><li>View receipt</li></a>
                   </ul>

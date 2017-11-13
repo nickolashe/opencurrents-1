@@ -48,11 +48,7 @@
               <div class="right input-right small-3 columns">
                 <a
                   href="{% url 'openCurrents:redeem-currents' offer.id %}"
-                  class="button round tiny secondary"
-                  {% if user_balance_available <= 0 %}
-                    disabled
-                  {% endif %}
-                >
+                  class="button round tiny secondary">
                   Redeem
                 </a>
               </div>
