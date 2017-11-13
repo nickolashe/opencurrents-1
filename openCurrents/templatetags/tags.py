@@ -45,3 +45,7 @@ def mult(arg1, arg2):
 @register.filter
 def mult_three(arg1, arg2, arg3):
 	return float(arg1) * float(arg2) * float(arg3)
+
+@register.filter
+def str_to_num(arg1):
+	return float(arg1)
