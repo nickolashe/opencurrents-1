@@ -446,13 +446,18 @@ class TimeTrackerForm(forms.Form):
             int(org_admin_group.name.split('_')[1])
             for org_admin_group in orgs_approved_admins
         ]
+
+        orgs = Org.objects.filter(
+            id__in=org_ids
+        ).filter(
+            status='npf'
+        ).order_by(
+            'name'
+        )
+
         choices_orgs_approved_admins = [
             (org.id, org.name)
-            for org in Org.objects.filter(
-                id__in=org_ids
-            ).order_by(
-                'name'
-            )
+            for org in orgs
         ]
 
         # build the dynamic choices list
@@ -549,8 +554,11 @@ class TimeTrackerForm(forms.Form):
         cleaned_data['datetime_end'] = pytz.timezone(tz).localize(datetime_end)
 
         # check: start time before end time
-        if datetime_end <= datetime_start:
+        if cleaned_data['datetime_end'] <= cleaned_data['datetime_start']:
             raise ValidationError(_('Start time must be before end time'))
+
+        if cleaned_data['datetime_end'] > datetime.now(tz=pytz.utc):
+            raise ValidationError(_('Hours can be submitted for past events only'))
 
         return cleaned_data
 
@@ -698,7 +706,8 @@ class RedeemCurrentsForm(forms.Form):
         )
 
     redeem_price = forms.IntegerField(
-        widget=forms.NumberInput()
+        widget=forms.NumberInput(),
+        required=False
     )
 
     redeem_currents_amount = forms.FloatField(

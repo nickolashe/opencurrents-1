@@ -12,14 +12,15 @@
 
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
-        {% if status_msg %}
-        <div class="alert row half-margin-top">
-          {{status_msg}}
-        </div>
-        {% endif %}
 
         <form method="post" action="{% url 'openCurrents:event_register' event.id %}">
           {% csrf_token %}
+
+          {% if status_msg %}
+          <div class="alert row half-margin-top">
+            {{status_msg}}
+          </div>
+          {% endif %}
 
           <div class="row">
             <h4 class="title-sub">Let's {{ event.project.name }}!</h4>
