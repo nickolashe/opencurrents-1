@@ -1921,7 +1921,7 @@ class EventDetailView(LoginRequiredMixin, SessionContextView, DetailView):
         # check if event coordinator
         is_coord = Event.objects.filter(
             id=context['event'].id,
-            coordinator_email=self.request.user.email
+            coordinator__id=self.request.user.id
         ).exists()
 
         context['is_registered'] = is_registered
@@ -2261,12 +2261,16 @@ def event_register(request, pk):
         user = request.user
         message = form.cleaned_data['contact_message']
 
-        #check for existing registration
+        # check for existing registration
         is_registered = UserEventRegistration.objects.filter(user__id=user.id, event__id=event.id, is_confirmed=True).exists()
-        #check if the user is project coordinator
-        is_coord = Event.objects.filter(id=event.id,coordinator_email=user.email).exists()
 
-        #update is_confirmed=True or create new UserEventRegistration if needed
+        # check if the user is project coordinator
+        is_coord = Event.objects.filter(
+            id=event.id,
+            coordinator__id=user.id
+        ).exists()
+
+        # update is_confirmed=True or create new UserEventRegistration if needed
         if not is_coord and not is_registered:
             user_unregistered = UserEventRegistration.objects.filter(user__id=user.id, event__id=event.id, is_confirmed=False)
             if user_unregistered:
@@ -2280,11 +2284,7 @@ def event_register(request, pk):
                 )
                 user_event_registration.save()
 
-        coord_email = event.coordinator_email
-        coord_user = User.objects.get(email=coord_email)
-        coord_last_name = coord_user.last_name
         org_name = event.project.org.name
-
 
         # if an optional contact message was entered, send to project coordinator or registrants if user is_coord
         merge_var_list = [
@@ -2302,11 +2302,11 @@ def event_register(request, pk):
             },
             {
                 'name': 'ADMIN_FIRSTNAME',
-                'content': event.coordinator_firstname
+                'content': event.coordinator.first_name
             },
             {
                 'name': 'ADMIN_LASTNAME',
-                'content': coord_last_name
+                'content': event.coordinator.last_name
             },
             {
                 'name': 'ORG_NAME',
@@ -2314,7 +2314,7 @@ def event_register(request, pk):
             },
             {
                 'name': 'ADMIN_EMAIL',
-                'content': event.coordinator_email
+                'content': event.coordinator.email
             },
             {
                 'name': 'DATE',
@@ -2329,6 +2329,9 @@ def event_register(request, pk):
                 'content': event.id
             }
         ]
+
+        email_template = None
+
         if message:
             logger.info('User %s registered for event %s wants to send msg %s ', user.username, event.id, message)
             if is_coord:
@@ -2348,7 +2351,6 @@ def event_register(request, pk):
                         reg_list_uniques,
                         user.email
                     )
-                    email_template = ''
                 except Exception as e:
                     logger.error(
                         'unable to send email: %s (%s)',
@@ -2371,6 +2373,12 @@ def event_register(request, pk):
             email_template = 'volunteer-registered'
             merge_var_list.append({'name': 'REGISTER','content': True})
             logger.info('User %s registered for event %s with no optional msg %s ', user.username, event.id, message)
+        else:
+            return redirect(
+                'openCurrents:event-detail',
+                pk=event.id,
+                status_msg='Please enter a message'
+            )
 
         if email_template:
             try:
@@ -2378,7 +2386,7 @@ def event_register(request, pk):
                     email_template,
                     None,
                     merge_var_list,
-                    event.coordinator_email,
+                    event.coordinator.email,
                     user.email
                 )
             except Exception as e:
