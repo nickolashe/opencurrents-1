@@ -420,8 +420,7 @@ class EditEventForm(CreateEventForm):
 class EventRegisterForm(forms.Form):
     contact_message = forms.CharField(
         required=False,
-        label='Contact event coordinator (optional)',
-        help_text='Ask a question, confirm your attendance, or just say hello',
+        label='Get in touch (optional)',
         widget=forms.Textarea(attrs={
             'rows': '3'
         }),

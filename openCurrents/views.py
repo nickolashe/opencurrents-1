@@ -1921,7 +1921,7 @@ class EventDetailView(LoginRequiredMixin, SessionContextView, DetailView):
         # check if event coordinator
         is_coord = Event.objects.filter(
             id=context['event'].id,
-            coordinator_email=self.request.user.email
+            coordinator__id=self.request.user.id
         ).exists()
 
         context['is_registered'] = is_registered
