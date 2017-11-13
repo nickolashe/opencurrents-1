@@ -2041,7 +2041,7 @@ class AddVolunteersView(TemplateView):
     template_name = 'add-volunteers.html'
 
 
-class OfferCreateView(LoginRequiredMixin, SessionContextView, FormView):
+class OfferCreateView(LoginRequiredMixin, BizSessionContextView, FormView):
     template_name = 'offer.html'
     form_class = OfferCreateForm
 
