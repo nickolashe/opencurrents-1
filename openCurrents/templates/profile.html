@@ -59,8 +59,13 @@
                   Pending: ${{ balance_pending_usd }}
                 </p>
 
-                <!-- if available_dollars this button should have class cash-out-popup_open else no-cash-popup_open -->
-                <a class="no-cash-popup_open button round secondary tiny">
+                <a class="
+                  {% if balance_available_usd|str_to_num > 0 %}
+                    cash-out-popup_open
+                  {% else %}
+                    no-cash-popup_open
+                  {% endif %}
+                   button round secondary tiny">
                   Cash out
                 </a>
               </div>
@@ -284,13 +289,13 @@
       <div class="row center half-margin-top">
         <div class="half-margin-bottom small-12 medium-6 columns">
           <h6>Volunteer at an event</h6>
-          <p>Check out these upcoming opportunities with participating organizations:</p>
-          <a href="{% url 'openCurrents:upcoming-events' %}" class="button round small">View upcoming events</a>
+          <p>Check out upcoming opportunities with participating organizations:</p>
+          <a href="{% url 'openCurrents:upcoming-events' %}" class="button round small">View opportunities</a>
         </div>
 
         <div class="small-12 medium-6 columns">
           <h6>Track volunteer time</h6>
-          <p>If you already give time with a participating organization, track your hours here:</p>
+          <p>If you already give time with a nonprofit, track your hours here:</p>
           <a href="{% url 'openCurrents:time-tracker' %}" class="button round small">Record hours</a>
         </div>
       </div>
@@ -393,7 +398,7 @@
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: true,
-          autoopen: true,
+          //autoopen: true,
         });
 
         $('.mini-open').click(function(){
