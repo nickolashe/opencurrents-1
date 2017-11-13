@@ -66,25 +66,26 @@ h1, h2, h3, h4, h5, h6 {
 .h5-symbol {
   vertical-align: -3px;
   margin-left: 0.375rem;
-  margin-right: 0.1875rem;
+  margin-right: -0.0625rem;
   height: 1.25rem;
 }
 
 .h6-symbol {
   vertical-align: top;
   margin-top: 0.1875rem;
-  margin-right: 0.1875rem;
+  margin-right: -0.0625rem;
   height: 1.25rem;
 }
 
 .large-text-symbol {
   height: 1.5rem;
+  margin-right: -0.0625rem;
 }
 
 .med-text-symbol {
   vertical-align: -3px;
   height: 1.0875rem;
-  margin-right: 0.125rem;
+  margin-right: -0.0625rem;
 }
 
 
