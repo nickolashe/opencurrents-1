@@ -112,7 +112,7 @@ class OcUser(object):
             entity_id=self.user.userentity.id,
             entity_type='user'
         )
-        logger.info(current_balance)
+        logger.info('current balance: %s', current_balance)
 
         # offer redemption requests
         redemption_reqs = Transaction.objects.filter(
@@ -129,11 +129,14 @@ class OcUser(object):
             action_type='req'
         )
 
-        total_redemptions = common._get_redemption_total(
+        total_req_redemptions = common._get_redemption_total(
             active_redemption_reqs
         )
-        logger.info(total_redemptions)
-        return current_balance - total_redemptions
+        logger.info(
+            'total requested redemptions: %s',
+            total_req_redemptions
+        )
+        return current_balance - total_req_redemptions
 
     def get_balance_pending(self):
         '''

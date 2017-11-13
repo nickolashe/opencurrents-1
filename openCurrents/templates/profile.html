@@ -126,23 +126,23 @@
                       <strong>
                         {{ transaction.offer.org.name }}
                       </strong>
-                      {% with price=transaction.price_reported percent_share=transaction.offer.currents_share|percent_to_price %}
-                        {% with price_share=price|mult:percent_share %}
+                      {% with amount_cur=transaction.currents_amount %}
+                        {% with amount_usd=amount_cur|current_to_usd %}
                           {% if status == 'pending' %}
-                            offers ${{ price_share|floatformat:2 }} for
+                            offers ${{ amount_usd|floatformat:2 }} for
                             <span class="no-wrap">
-                              <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ price_share|usd_to_current|floatformat:3 }}
+                              <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ amount_cur|floatformat:3 }}
                             </span>
 
                           {% elif status == 'approved' %}
                             accepted
-                            <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ price_share|usd_to_current|floatformat:3 }}
-                            for ${{ price_share|floatformat:2 }}
+                            <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ amount_cur|floatformat:3 }}
+                            for ${{ amount_usd|floatformat:2 }}
 
                           {% elif status == 'redeemed' %}
                             received
-                            <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ price_share|usd_to_current|floatformat:3 }}
-                            for ${{ price_share|floatformat:2 }}
+                            <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ amount_cur|floatformat:3 }}
+                            for ${{ amount_usd|floatformat:2 }}
 
                           {# add declined #}
                           {% endif %}
