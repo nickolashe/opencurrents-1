@@ -39,7 +39,7 @@
         {% else %}
           <div class="row half-margin-bottom">
             <div class="left input-left small-9 columns">
-              No hours are pending approval.
+              No hours have been {{ hours_status }}.
               <a href="{% url 'openCurrents:invite-volunteers' %}">
                 Invite volunteers!
               </a>
