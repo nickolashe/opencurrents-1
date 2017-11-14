@@ -111,7 +111,7 @@
               <h6 class="half-margin-bottom">Events happening now</h6>
 
               {% for event in events_group_current %}
-                  <div class="row one-margin-bottom">
+                  <div class="row half-margin-bottom">
                     <div class="left half-margin-top small-8 columns">
                       Let's {{event.project.name}}!
                       on {{event.datetime_start|day:timezone}}
@@ -137,7 +137,7 @@
             <h6 class="half-margin-bottom">Upcoming events</h6>
             {% if events_group_upcoming %}
               {% for event in events_group_upcoming %}
-                <div class="row one-margin-bottom">
+                <div class="row half-margin-bottom">
                   <div class="left small-9 columns">
                     Let's {{event.project.name}}!
                     on {{event.datetime_start|day:timezone}}
@@ -179,7 +179,7 @@
               <h6 class="half-margin-bottom">Past events</h6>
 
               {% for event in events_group_past %}
-                  <div class="row one-margin-bottom">
+                  <div class="row half-margin-bottom">
                     <div class="left input-left small-9 columns">
                       Let's {{event.project.name}}!
                       on {{event.datetime_start|day:timezone}}
@@ -196,7 +196,6 @@
                   </div>
                 </div>
               {% endfor %}
-
             </div>
           </div>
         {% endif %}
