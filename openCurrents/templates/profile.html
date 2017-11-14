@@ -131,6 +131,15 @@
 
         <div class="row collapse one-margin-top left">
           <div class="small-11 medium-10 small-centered columns">
+            <h6 class="half-margin-bottom">Community activity</h6>
+            <a class="button tiny round secondary">Currents issued: X</a>
+            <a class="one-margin-left one-margin-right button tiny round secondary">Active volunteers: Y</a>
+            <a class="button tiny round secondary">Currents accepted: Z</a>
+          </div>
+        </div>
+
+        <div class="row collapse one-margin-top left">
+          <div class="small-11 medium-10 small-centered columns">
             <div class="row">
               <div class="small-8 columns">
                 <h6 class="half-margin-bottom">My redeemed offers</h6>
@@ -203,7 +212,16 @@
         {% endmacro %}
 
         {% usemacro user_hour_request_list_macro hours_requested 'requested' timezone %}
-        {% usemacro user_hour_request_list_macro hours_approved 'approved' timezone %}
+        <!-- {% usemacro user_hour_request_list_macro hours_approved 'approved' timezone %} -->
+
+        <div class="row collapse one-margin-top left">
+          <div class="small-11 medium-10 small-centered columns">
+            <h6 class="half-margin-bottom">Hours approved</h6>
+            <a class="button round tiny secondary">Orgname: X</a>
+            <a class="button round tiny secondary">Orgname2: Y</a>
+          </div>
+        </div>
+
 
         <!-- community feed code. Hardcoded not dynamic -->
         <!-- <div class="row full-width collapse one-margin-bottom">
