@@ -21,41 +21,61 @@
           <h3 class="title-sub">Marketplace</h3>
         </div>
 
-        <div class="row">
-          <div class="small-12 medium-9 small-centered columns">
-            <h6 class="three-halves-margin-bottom">Check out these offers from openCurrents businesses:</h6>
-          </div>
-        </div>
+        {% if offers %}
 
-        {% for offer in offers %}
-
-          <div class="row one-margin-bottom center">
-            <div class="small-12 medium-10 small-centered columns">
-              <div class="left input-left small-9 columns">
-                <p class="">
-                  <strong> {{ offer.org.name }} </strong>
-                  accepts Currents for
-                  <a href="{% url 'openCurrents:redeem-currents' offer.id %}">
-                    {{ offer.currents_share }}% of {{ offer.item.name }}
-                  </a>
-
-                  {% if offer.limit != -1 %}
-                    ({{ offer.limit }} remaining this month)
-                  {% endif %}
-                </p>
-              </div>
-
-              <div class="right input-right small-3 columns">
-                <a
-                  href="{% url 'openCurrents:redeem-currents' offer.id %}"
-                  class="button round tiny secondary">
-                  Redeem
-                </a>
-              </div>
+          <div class="row">
+            <div class="small-12 medium-9 small-centered columns">
+              <h6 class="three-halves-margin-bottom">
+                Check out these offers from openCurrents businesses:
+              </h6>
             </div>
           </div>
 
-        {% endfor %}
+          {% for offer in offers %}
+
+            <div class="row one-margin-bottom center">
+              <div class="small-12 medium-10 small-centered columns">
+                <div class="left input-left small-9 columns">
+                  <p class="">
+                    <strong> {{ offer.org.name }} </strong>
+                    accepts Currents for
+                    <a href="{% url 'openCurrents:redeem-currents' offer.id %}">
+                      {{ offer.currents_share }}% of {{ offer.item.name }}
+                    </a>
+
+                    {% if offer.limit != -1 %}
+                      ({{ offer.limit }} remaining this month)
+                    {% endif %}
+                  </p>
+                </div>
+
+                <div class="right input-right small-3 columns">
+                  <a
+                    href="{% url 'openCurrents:redeem-currents' offer.id %}"
+                    class="button round tiny secondary">
+                    Redeem
+                  </a>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="row">
+            <div class="small-12 medium-8 small-centered columns">
+              <p class="three-halves-margin-bottom half-margin-top">
+                We are talking with businesses in Austin and around the country
+                about exciting opportunities to use Currents for all kinds of
+                products and services. We aim to have this marketplace connecting
+                you with businesses accepting Currents in November!</p>
+              <a href="{% url 'openCurrents:profile' %}" class="button round">
+                Back to profile
+              </a>
+              <a href="javascript:void(Tawk_API.toggle())" class="button round secondary">
+                Get in touch
+              </a>
+            </div>
+          </div>
+        {% endif %}
 
 
         <div id="push"></div>
@@ -82,9 +102,13 @@
       <div class="row center">
         <div class="small-centered medium-10 columns">
 
-          <p>To make it as easy as possible for businesses to accept Currents, nothing changes at point of sale - simply pay full price and ask for your receipt.</p>
+          <p>To make it as easy as possible for businesses to accept Currents,
+            nothing changes at point of sale - simply pay full price and ask
+            for your receipt.</p>
 
-          <p>Upload a picture of your receipt, and we will exchange your Currents for the business' dollars once they verify transactions at the end of the month.</p>
+          <p>Upload a picture of your receipt, and we will exchange your Currents
+             for the business' dollars once they verify transactions at the end
+             of the month.</p>
 
           <div class="one-margin-bottom">
             <input type="checkbox" name="no-more-popup" id="no-more-popup" class="custom-checkbox">
