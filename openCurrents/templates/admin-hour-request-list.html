@@ -21,7 +21,7 @@
 
                   {% if hours_status == 'requested' %}
                     <strong> {{ tl.user.first_name }} {{ tl.user.last_name }} </strong>
-                    recorded
+                    requested
                   {% else %}
                     <strong> {{ tl.user.first_name }} {{ tl.user.last_name }}</strong>'s
                   {% endif %}
@@ -34,13 +34,12 @@
                   {% endif %}
                 {% endwith %}
               </div>
-
             </div>
           {% endfor %}
         {% else %}
           <div class="row half-margin-bottom">
             <div class="left input-left small-9 columns">
-              No hours have been {{ hour_status }}.
+              No hours are pending approval.
               <a href="{% url 'openCurrents:invite-volunteers' %}">
                 Invite volunteers!
               </a>
