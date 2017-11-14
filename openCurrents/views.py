@@ -1181,11 +1181,7 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
 
     def get_context_data(self, **kwargs):
         context = super(OrgAdminView, self).get_context_data(**kwargs)
-        userid = context['userid']
-        admin_id = self.request.user.id
-        orgid = context['orgid']
-        org = Org.objects.get(pk=orgid)
-        context['timezone'] = org.timezone
+        context['timezone'] = self.org.timezone
 
         try:
             context['vols_approved'] = self.kwargs.pop('vols_approved')
@@ -1193,13 +1189,11 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
         except KeyError:
             pass
 
-        user = User.objects.get(id=userid)
-
         # find events created by admin that they have not been notified of
         new_events = Event.objects.filter(
-            project__org__id=orgid
+            project__org__id=self.org.id
         ).filter(
-            creator_id=userid
+            creator_id=self.user.id
         ).filter(
             notified=False
         )
@@ -1212,14 +1206,14 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
 
         # calculate total currents verified by admin's org
         verified_time = UserTimeLog.objects.filter(
-            event__project__org__id=orgid
+            event__project__org__id=self.org.id
         ).filter(
             is_verified=True
         )
 
         org_event_user = dict([
             (event.id, set())
-            for event in Event.objects.filter(project__org__id=orgid)
+            for event in Event.objects.filter(project__org__id=self.org.id)
         ])
 
         issued_by_all = 0
@@ -1232,7 +1226,7 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
                 issued_by_all += event_hours
 
                 admin_approved_actions = timelog.adminactionusertime_set.filter(
-                    user_id=admin_id,
+                    user_id=self.user.id,
                     action_type='app'
                 )
                 if admin_approved_actions:
@@ -1244,14 +1238,14 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
         # past org events
         context['events_group_past'] = Event.objects.filter(
             event_type='GR',
-            project__org__id=orgid,
+            project__org__id=self.org.id,
             datetime_end__lte=datetime.now(tz=pytz.utc)
         ).order_by('-datetime_start')[:3]
 
         # current org events
         context['events_group_current'] = Event.objects.filter(
             event_type='GR',
-            project__org__id=orgid,
+            project__org__id=self.org.id,
             datetime_start__lte=datetime.now(tz=pytz.utc) + timedelta(hours=1),
             datetime_end__gte=datetime.now(tz=pytz.utc)
         )
@@ -1259,17 +1253,19 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
         # upcoming org events
         context['events_group_upcoming'] = Event.objects.filter(
             event_type='GR',
-            project__org__id=orgid,
+            project__org__id=self.org.id,
             datetime_start__gte=datetime.now(tz=pytz.utc) + timedelta(hours=1)
         )
 
         hours_requested = self.orgadmin.get_hours_requested()
+        logger.info(hours_requested)
         context['hours_requested'] = hours_requested
 
         hours_approved = self.orgadmin.get_hours_approved()
+        logger.info(hours_approved)
         context['hours_approved'] = hours_approved
 
-        context['user_time_log_status'] = hours_requested.exists()
+        context['has_hours_requested'] = hours_requested.exists()
 
         return context
 
@@ -2781,43 +2777,22 @@ def process_login(request):
         )
         if user is not None and user.is_active:
             userid = user.id
-            org = OrgUser.objects.filter(user__id=userid)
             app_hr = 0
             today = date.today()
 
             # do a weekly check for unapproved requests (popup)
-            if org and user.last_login.date() < today - timedelta(days=today.weekday()):
-                orgid = org[0].org.id
-                projects = Project.objects.filter(org__id=orgid)
-                events = Event.objects.filter(
-                    project__in=projects
-                ).filter(
-                    event_type='MN'
-                )
+            if user.last_login.date() < today - timedelta(days=today.weekday()):
+                try:
+                    orgadmin = OrgAdmin(userid)
+                    admin_requested_hours = orgadmin.get_hours_requested()
 
-                # determine whether there are any unverified timelogs for admin
-                # TODO: factor out into a module (we have exact same code in org-admin)
-                usertimelogs = UserTimeLog.objects.filter(
-                    event__in=events
-                ).filter(
-                    is_verified=False
-                ).annotate(
-                    last_action_created=Max('adminactionusertime__date_created')
-                )
-
-                # admin-specific requests
-                admin_requested_hours = AdminActionUserTime.objects.filter(
-                    user_id=userid
-                ).filter(
-                    date_created__in=[
-                        utl.last_action_created for utl in usertimelogs
-                    ]
-                ).filter(
-                    action_type='req'
-                )
-
-                if admin_requested_hours:
-                    app_hr = 1
+                    if admin_requested_hours:
+                        app_hr = 1
+                except Exception:
+                    logger.debug(
+                        'User %s is not org admin, no requested hours check',
+                        userid
+                    )
 
             login(request, user)
             try:
