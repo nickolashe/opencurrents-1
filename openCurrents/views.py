@@ -19,6 +19,7 @@ from copy import deepcopy
 
 from interfaces.auth import OcAuth
 from interfaces.bizadmin import BizAdmin
+from interfaces.orgadmin import OrgAdmin
 from interfaces.ledger import OcLedger
 from interfaces.ocuser import OcUser, UserExistsException, InvalidUserException
 from interfaces.orgs import OcOrg, \
@@ -148,6 +149,15 @@ class BizSessionContextView(SessionContextView):
         self.bizadmin = BizAdmin(request.user.id)
 
         return super(BizSessionContextView, self).dispatch(
+            request, *args, **kwargs
+        )
+
+class OrgSessionContextView(SessionContextView):
+    def dispatch(self, request, *args, **kwargs):
+        # biz admin user
+        self.orgadmin = OrgAdmin(request.user.id)
+
+        return super(OrgSessionContextView, self).dispatch(
             request, *args, **kwargs
         )
 
@@ -1152,6 +1162,13 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         offers_redeemed = self.ocuser.get_offers_redeemed()
         context['offers_redeemed'] = offers_redeemed
 
+        # hour requests
+        hours_requested = self.ocuser.get_hours_requested()
+        context['hours_requested'] = hours_requested
+
+        hours_approved = self.ocuser.get_hours_approved()
+        context['hours_approved'] = hours_approved
+
         # user timezone
         #context['timezone'] = self.request.user.account.timezone
         context['timezone'] = 'America/Chicago'
@@ -1159,7 +1176,7 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         return context
 
 
-class OrgAdminView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
+class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView):
     template_name = 'org-admin.html'
 
     def get_context_data(self, **kwargs):
@@ -1246,40 +1263,13 @@ class OrgAdminView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
             datetime_start__gte=datetime.now(tz=pytz.utc) + timedelta(hours=1)
         )
 
-        userid = self.request.user.id
-        org = OrgUserInfo(userid)
-        orgid = org.get_org_id()
+        hours_requested = self.orgadmin.get_hours_requested()
+        context['hours_requested'] = hours_requested
 
-        projects = Project.objects.filter(org__id=orgid)
-        events = Event.objects.filter(
-            project__in=projects
-        ).filter(
-            event_type='MN'
-        )
+        hours_approved = self.orgadmin.get_hours_approved()
+        context['hours_approved'] = hours_approved
 
-        # determine whether there are any unverified timelogs for admin
-        usertimelogs = UserTimeLog.objects.filter(
-            event__in=events
-        ).filter(
-            is_verified=False
-        ).annotate(
-            last_action_created=Max('adminactionusertime__date_created')
-        )
-
-        # admin-specific requests
-        admin_requested_hours = AdminActionUserTime.objects.filter(
-            user_id=userid
-        ).filter(
-            date_created__in=[
-                utl.last_action_created for utl in usertimelogs
-            ]
-        ).filter(
-            action_type='req'
-        )
-
-        # TODO: check for non-admin-specific requests that have not been deferred by admin
-
-        context['user_time_log_status'] = admin_requested_hours.exists()
+        context['user_time_log_status'] = hours_requested.exists()
 
         return context
 

@@ -1,5 +1,10 @@
-{% load staticfiles %}
+{% extends 'user-hour-request-list.html' %}
+
+{% load macros %}
 {% load tags %}
+{% load staticfiles %}
+
+{% block main %}
 
 <!DOCTYPE html>
 <html>
@@ -189,6 +194,16 @@
           </div>
         </div>
 
+        {% macro user_hour_request_list_macro arg_list arg_status arg_timezone %}
+          {% block user_hour_request_list %}
+            {% with hours_list=arg_list hours_status=arg_status timezone=arg_timezone %}
+              {{ block.super }}
+            {% endwith %}
+          {% endblock %}
+        {% endmacro %}
+
+        {% usemacro user_hour_request_list_macro hours_requested 'requested' timezone %}
+        {% usemacro user_hour_request_list_macro hours_approved 'approved' timezone %}
 
         <!-- community feed code. Hardcoded not dynamic -->
         <!-- <div class="row full-width collapse one-margin-bottom">
@@ -460,3 +475,4 @@
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
   </body>
 </html>
+{% endblock %}

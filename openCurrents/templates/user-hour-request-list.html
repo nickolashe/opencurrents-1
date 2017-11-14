@@ -1,0 +1,55 @@
+{% load staticfiles %}
+{% load tags %}
+
+{% block main %}
+  {% block user_hour_request_list %}
+
+    <div id="reviewed-hours-list" class="left row one-margin-top full-width collapse">
+      <div class="small-11 medium-10 small-centered columns">
+        <div class="row">
+          <div class="small-9 columns">
+            <h6 class="half-margin-bottom">Hours {{ hours_status }}</h6>
+          </div>
+        </div>
+
+        {% if hours_list %}
+          {% for record in hours_list %}
+            <div class="row half-margin-bottom">
+              <div class="left input-left small-9 columns">
+                {% with tl=record.usertimelog %}
+                  {{ record.date_created|day_only:timezone }} -
+
+                  {% if hours_status == 'requested' %}
+                    You recorded
+                  {% else %}
+                    Your
+                  {% endif %}
+
+                  <strong>
+                    {{ tl.datetime_start|get_hours_total:tl.datetime_end|floatformat:2 }}
+                  </strong>
+                  hours for {{ tl.event.description }}
+
+                  {% if hours_status == 'approved' %}
+                    have been approved
+                  {% endif %}
+                {% endwith %}
+              </div>
+
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="row half-margin-bottom">
+            <div class="left input-left small-9 columns">
+              No hours have been {{ hour_status }}.
+              <a href="{% url 'openCurrents:upcoming-events' %}">
+                Find a volunteering opportunity!
+              </a>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+  {% endblock %}
+{% endblock %}
