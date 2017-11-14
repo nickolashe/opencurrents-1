@@ -50,35 +50,37 @@
                 <textarea id="id_bulk_invites" rows="4"></textarea>
               </div>
 
-              <div id="vol-invites-box" class="row">
-                <div class="small-6 columns">
-                  <input type="text" name="vol-name-1" placeholder="First name (optional)" />
-                </div>
-                <div class="small-6 columns">
-                  <input type="text" name="vol-email-1" placeholder="Email" />
+              <div id="single-invites-box">
+                <div id="vol-invites-box" class="row">
+                  <div class="small-6 columns">
+                    <input type="text" name="vol-name-1" placeholder="First name (optional)" />
+                  </div>
+                  <div class="small-6 columns">
+                    <input type="text" name="vol-email-1" placeholder="Email" />
+                  </div>
+
+                  <div class="small-6 columns">
+                    <input type="text" name="vol-name-2" placeholder="First name" />
+                  </div>
+                  <div class="small-6 columns">
+                    <input type="text" name="vol-email-2" placeholder="Email" />
+                  </div>
+
+                  <div class="small-6 columns">
+                    <input type="text" name="vol-name-3" placeholder="First name" />
+                  </div>
+                  <div class="small-6 columns">
+                    <input type="text" name="vol-email-3" placeholder="Email" />
+                  </div>
                 </div>
 
-                <div class="small-6 columns">
-                  <input type="text" name="vol-name-2" placeholder="First name" />
-                </div>
-                <div class="small-6 columns">
-                  <input type="text" name="vol-email-2" placeholder="Email" />
-                </div>
-
-                <div class="small-6 columns">
-                  <input type="text" name="vol-name-3" placeholder="First name" />
-                </div>
-                <div class="small-6 columns">
-                  <input type="text" name="vol-email-3" placeholder="Email" />
-                </div>
-              </div>
-
-              <div class="row one-margin-bottom left">
-                <div class="column">
-                  <a id="add-volunteer" class="blue-icon">
-                    <i class="fa fa-plus-circle half-margin-left half-margin-right"></i>
-                    Add volunteer
-                  </a>
+                <div class="row left one-margin-bottom">
+                  <div class="column">
+                    <a id="add-volunteer" class="blue-icon">
+                      <i class="fa fa-plus-circle half-margin-left half-margin-right"></i>
+                      Add volunteer
+                    </a>
+                  </div>
                 </div>
               </div>
 
@@ -132,29 +134,6 @@
 
     <div off-canvas="menu right shift" id="menu">
       {% include 'partials/menu.html' %}
-    </div>
-
-    <div id="personal-message-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <div class="row center">
-        <h5 class="popup-title">
-          A message from {{ user.first_name }} {{ user.last_name }}:
-        </h5>
-      </div>
-
-      <div class="row center">
-        <div class="medium-10 small-centered column">
-          <textarea id="personal-message-typed" placeholder="Your message (optional)"></textarea>
-        </div>
-      </div>
-
-      <div class="center">
-        <a id="save-message" class="personal-message-popup_close button round small">
-          Save
-        </a>
-        <a class="personal-message-popup_close button round small secondary">
-          Cancel
-        </a>
-      </div>
     </div>
 
     <div id="preview-email-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
@@ -247,7 +226,7 @@
         // show bulk textarea, hide single fields on click
         $('#add-bulk-emails').click(function(){
           $('#bulk-invites-box').slideDown();
-          $('#vol-invites-box').slideUp();
+          $('#single-invites-box').slideUp();
           $(this).hide();
           $('#add-single-emails').show();
         });
@@ -256,7 +235,7 @@
         $('#add-single-emails').click(function() {
           $(this).hide();
           $('#add-bulk-emails').show();
-          $('#vol-invites-box').slideDown();
+          $('#single-invites-box').slideDown();
           $('#bulk-invites-box').slideUp();
         });
 
