@@ -221,15 +221,20 @@
               process_signup_url = "{% url 'openCurrents:process_signup' endpoint=True verify_email=False %}"
             }
 
+            let form_data = {
+              csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
+              user_firstname: new_firstname,
+              user_lastname: new_lastname,
+              user_email: new_email,
+            }
+            if (invite_optin) {
+              form_data['org_admin_id'] = "{{ request.user.id }}"
+            }
+
             $.ajax({
               url: process_signup_url,
               type: 'POST',
-              data : {
-                csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
-                user_firstname: new_firstname,
-                user_lastname: new_lastname,
-                user_email: new_email
-              },
+              data: form_data,
               dataType : "json",
             }).success(function( data ) {
               let userid = data;

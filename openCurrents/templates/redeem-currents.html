@@ -6,10 +6,10 @@
   <head>
     {% include "partials/head.html" %}
   </head>
-  
+
   <body>
     {% include "partials/header.html" %}
-    
+
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
         {% if status_msg %}
@@ -75,7 +75,7 @@
                   </a>
                 </p>
 
-                {{ form.redeem_receipt_if_checked }}
+                {# form.redeem_receipt_if_checked #}
 
                 <!-- <input type="checkbox" name="receipt-if-checked" id="receipt-if-checked" class="hidden" checked /> -->
 
@@ -116,6 +116,8 @@
                   <span class="input-icon-left grey">$</span>
 
                   {{ form.redeem_price }}
+                  {{ form.redeem_currents_amount }}
+
                 </div>
               </div>
             </div>
@@ -151,36 +153,36 @@
           <!-- Sets height of page since redeem divs are absolutely positioned -->
           <div id="redeem-spacer"></div>
 
-        </form>        
+        </form>
 
         <div id="push"></div>
-    
+
       <!-- wrapper div-->
       </div>
-      
+
       {% include 'partials/footer.html' %}
-            
+
     <!--container div -->
     </div>
-    
+
     <div id="bottom-stripe" class="full-width"></div>
-    
+
     <div off-canvas="menu right shift" id="menu">
       {% include 'partials/menu.html' %}
     </div>
-  
+
     <div id="redeem-info-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
         <h3 class="popup-title">Why do I pay full price?</h3>
       </div>
-      
+
       <div class="row center">
         <div class="small-centered medium-10 columns">
-          
+
           <p>In order to make it as easy as possible for businesses to accept Currents, we have designed the exchange process in such a way that nothing changes at point of sale.</p>
 
           <p class="three-halves-margin-bottom">As a result, more businesses are now accepting Currents, which means you can use Currents to get more of what you want.</p>
-          
+
           <a class="redeem-info-popup_close button round">Got it</a>
           <a href="javascript:void(Tawk_API.toggle())" class="button round secondary">Contact us</a>
         </div>
@@ -191,20 +193,34 @@
       <div class="row center">
         <h3 class="popup-title">No proof of purchase</h3>
       </div>
-      
+
       <div class="row center">
         <div class="small-centered medium-10 columns">
           <p>{{ offer.org.name }} may not accept Currents without a receipt, but provide any details below that may help the business verify that you made a purchase:</p>
-          
+
           <textarea id="no-proof-typed" rows="3" placeholder="What did you buy? When did you buy it? Who did you buy from?"></textarea>
 
           <p><button class="no-receipt-popup_close half-margin-top button round">Continue</button></p>
         </div>
       </div>
     </div>
-    
-    
+
+
     <script type="text/javascript">
+      let getUserBalance = function(callback) {
+        // let userid = {{ request.user.id }};
+        $.ajax({
+          url: "{% url 'openCurrents:get_user_balance_available' %}",
+          type: 'GET',
+          dataType : "json",
+          context: document.body
+        }).complete(function( data ){
+          console.log(data);
+          let balanceAvailable = Number(data.responseJSON);
+          callback(null, balanceAvailable);
+        });
+      };
+
       $(document).ready(function(){
         $('#redeem-info-popup, #no-receipt-popup').popup({
           vertical: 'top',
@@ -282,7 +298,7 @@
 
             $('#progress-'+(page-1)+'').addClass('progress-highlight').siblings('label').addClass('blue');
             $('#progress-'+page+'').removeClass('progress-highlight').siblings('label').removeClass('blue');
-          
+
             page --;
           }
         });
@@ -310,22 +326,55 @@
         //   $('#receipt-if-checked').prop('checked', true);
         // });
 
+        let shareToCurrents = function (priceSubjectToShare) {
+          var share = {{ offer.currents_share }} /100.;
+          var dollars = (priceSubjectToShare * share).toFixed(2);
+
+          // TODO: switch to an API call to get the converstion rate
+          var currents = dollars/10.;
+
+          return {
+            'currents': currents,
+            'dollars': dollars
+          }
+        }
 
         // Display current and dollar totals based on price input
         $('#offer-2').on('input', function(){
-          var share = {{ offer.currents_share }}/100;
-          var dollars = ($('#id_redeem_price').val() * share).toFixed(2);
-          var currents = dollars/10;
-          var fee = currents.toFixed(2);
+          let priceOfferSubjectToShareCurrents = shareToCurrents(
+            $('#id_redeem_price').val()
+          );
 
-          $('.currents-total').text(currents);
-          $('.dollars-total').text(dollars);
-          $('.dollars-fee').text(fee);
-          $('.dollars-received').text(dollars - fee);
+          getUserBalance(function(err, res) {
+            let priceSubjectToShare;
+            const userBalanceCurrents = res;
+
+            if (userBalanceCurrents < priceOfferSubjectToShareCurrents.currents) {
+              priceSubjectToShare = {
+                currents: userBalanceCurrents,
+                dollars: userBalanceCurrents * 10
+              };
+            } else {
+              priceSubjectToShare = priceOfferSubjectToShareCurrents;
+            }
+
+            console.log('priceUsed:' + priceSubjectToShare.currents);
+            const fee = (0.1 * priceSubjectToShare.dollars).toFixed(2);
+            let dollarsReceived = (priceSubjectToShare.dollars - fee).toFixed(2);
+
+            $('.currents-total').text(priceSubjectToShare.currents);
+            $('.dollars-total').text(priceSubjectToShare.dollars);
+            $('.dollars-fee').text(fee);
+            $('.dollars-received').text(dollarsReceived);
+
+            $("input[name^=redeem_currents_amount]").val(
+              priceSubjectToShare.currents
+            );
+          });
         });
       });
     </script>
-    
+
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
   </body>
 </html>

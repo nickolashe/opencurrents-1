@@ -8,7 +8,7 @@
         <div class="small-11 medium-10 small-centered columns">
 
           <h6 class="half-margin-bottom">
-            {{ redemption_status }} redemptions
+            {{ redemption_status }} transactions
           </h6>
 
           {% for req in redemptions %}
@@ -16,7 +16,7 @@
               <div class="row">
                 <div class="left small-9 columns">
                   <p class="half-margin-bottom">
-                    {{ req.date_updated|day:timezone }} - 
+                    {{ req.date_updated|day:timezone }} -
                     {{ tr.user.first_name }}
                     {{ tr.user.last_name }}
                     purchased
@@ -24,13 +24,20 @@
                       {{ tr.offer.item.name }} for
                       ${{ tr.price_reported }}
                     </strong>
-                    and will receive
+                    and
+                    {% if redemption_status == 'Pending' %}
+                      would
+                    {% else %}
+                      will
+                    {% endif %}
+                    receive
                     {% with percent_share=tr.offer.currents_share|percent_to_price %}
                       {% with discount=tr.price_reported|mult:percent_share %}
                         ${{ discount|floatformat:2 }}
                         for
                         <span class="no-wrap">
-                          <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ discount|usd_to_current|floatformat:3 }}
+                          <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
+                          {{ discount|usd_to_current|floatformat:3 }}
                         </span>
                       {% endwith %}
                     {% endwith %}
@@ -38,7 +45,9 @@
                 </div>
 
                 <div class="right relative small-3 columns">
-                  <a class="mini-open"><i class="blue half-margin-right fa-chevron-circle-down fa fa-lg"></i></a>
+                  <a class="mini-open">
+                    <i class="blue half-margin-right fa-chevron-circle-down fa fa-lg"></i>
+                  </a>
                   <ul class="mini-menu">
                     <a class="view-receipt-popup_open"><li>View receipt</li></a>
                   </ul>

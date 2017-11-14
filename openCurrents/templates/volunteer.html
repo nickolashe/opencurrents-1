@@ -39,7 +39,7 @@
     </header>
 
     <div class="js-close-any" canvas>
-      
+
       <div id="intro-1">
         <div id="1" class="header-spacer"></div>
         <div class="row center">
@@ -151,7 +151,7 @@
           </div>
         </div>
       </div>
-      
+
       <div id="intro-3">
         <div id="3" class="header-spacer"></div>
 
@@ -183,7 +183,7 @@
           </ul>
         </div> -->
 
-        
+
 
         <div class="row center three-halves-margin-top two-margin-bottom">
           <a href="#4" class="home-link white"><p class="no-margin-bottom">Getting started</p><i class="two-margin-bottom fa fa-lg fa-angle-down"></i></a>
@@ -266,7 +266,7 @@
           </div>
         </div>
 
-        <form method="post" action="{% url 'openCurrents:process_signup' referrer=referrer %}">
+        <form method="post" action="{% url 'openCurrents:process_signup' %}">
           {% csrf_token %}
           <div class="row collapse half-margin-bottom">
             <div class="center small-12 medium-8 small-centered columns">
@@ -311,7 +311,7 @@
         <h2 class="one-margin-top">Join openCurrents</h2>
       </div>
 
-      <form method="post" action="{% url 'openCurrents:process_signup' referrer=referrer %}">
+      <form method="post" action="{% url 'openCurrents:process_signup' %}">
         {% csrf_token %}
         <div class="row three-halves-margin-bottom half-margin-top">
           <div class="center small-12 medium-9 small-centered columns">
@@ -325,7 +325,7 @@
             </div>
             <div class="small-12 columns">
               <input type="email" name="user_email" placeholder="Email address" class="large-text center" tabindex="0" required />
-            </div>      
+            </div>
           </div>
         </div>
 

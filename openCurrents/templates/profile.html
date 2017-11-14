@@ -1,5 +1,10 @@
-{% load staticfiles %}
+{% extends 'user-hour-request-list.html' %}
+
+{% load macros %}
 {% load tags %}
+{% load staticfiles %}
+
+{% block main %}
 
 <!DOCTYPE html>
 <html>
@@ -22,7 +27,9 @@
 
         <div class="row">
           <div class="small-12 small-centered columns">
-            <h5 class="two-margin-top no-margin-bottom">{{ user.first_name }} {{ user.last_name }}</h5>
+            <h5 class="two-margin-top no-margin-bottom">
+              {{ user.first_name }} {{ user.last_name }}
+            </h5>
 
             {% if is_admin_org or is_admin_biz %}
               <h6 class="inline half-margin-right">{{ orgname }}</h6>
@@ -36,17 +43,24 @@
             {% endif %}
 
             <p class="half-margin-top half-margin-bottom">
-              <a class="earn-currents-popup_open button round small">Volunteer</a>
+              <a class="earn-currents-popup_open button round small">
+                Volunteer
+              </a>
             </p>
 
             <div class="row">
               <div class="small-12 medium-6 columns">
-                <h6 class="inline-block qtr-margin-bottom">Currents available: </h6>
-                <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/><h6 class="inline-block no-margin-bottom">
-                  {{ user_balance_verified }}
+                <h6 class="inline-block qtr-margin-bottom">
+                  Currents available:
                 </h6>
-                <a class="balance-popup_open"><i class="grey fa fa-info-circle"></i></a>
-                <p class="grey half-margin-bottom">Pending: <img class="med-text-symbol" src="{% static 'img/symbol.svg' %}"/>{{ user_balance_pending }}</p>
+                <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
+                <h6 class="inline-block no-margin-bottom">
+                  {{ balance_available }}
+                </h6>
+                <p class="grey half-margin-bottom">Pending:
+                  <img class="med-text-symbol" src="{% static 'img/symbol.svg' %}"/>
+                  {{ balance_pending }}
+                </p>
                 <p class="no-margin-bottom">
                   <a href="{% url 'openCurrents:marketplace' %}" class="button round secondary tiny">
                     Redeem
@@ -55,11 +69,20 @@
               </div>
 
               <div class="small-12 medium-6 columns">
-                <h6 class="qtr-margin-bottom">Dollars available: $(20)</h6>
-                <p class="grey half-margin-bottom">Pending: $(10)</p>
+                <h6 class="qtr-margin-bottom">
+                  Dollars available: ${{ balance_available_usd }}
+                </h6>
+                <p class="grey half-margin-bottom">
+                  Pending: ${{ balance_pending_usd }}
+                </p>
 
-                <!-- if available_dollars this button should have class cash-out-popup_open else no-cash-popup_open -->
-                <a class="cash-out-popup_open button round secondary tiny">
+                <a class="
+                  {% if balance_available_usd|str_to_num > 0 %}
+                    cash-out-popup_open
+                  {% else %}
+                    no-cash-popup_open
+                  {% endif %}
+                   button round secondary tiny">
                   Cash out
                 </a>
               </div>
@@ -88,7 +111,9 @@
                       <i class="blue half-margin-right fa-chevron-circle-down fa fa-lg"></i>
                     </a>
                     <ul class="mini-menu">
-                      <a href="{% url 'openCurrents:event-detail' event.id %}"><li>View event details</li></a>
+                      <a href="{% url 'openCurrents:event-detail' event.id %}">
+                        <li>View event details</li>
+                      </a>
                     </ul>
                   </div>
                 </div>
@@ -127,18 +152,27 @@
                       <strong>
                         {{ transaction.offer.org.name }}
                       </strong>
-                      {% with price=transaction.price_reported percent_share=transaction.offer.currents_share|percent_to_price %}
-                        {% with price_share=price|mult:percent_share %}
+                      {% with amount_cur=transaction.currents_amount %}
+                        {% with amount_usd=amount_cur|current_to_usd %}
                           {% if status == 'pending' %}
-                            offers ${{ price_share|floatformat:2 }} for
+                            offers ${{ amount_usd|floatformat:2 }} for
                             <span class="no-wrap">
-                              <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ price_share|usd_to_current|floatformat:3 }}
+                              <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ amount_cur|floatformat:3 }}
                             </span>
+
                           {% elif status == 'approved' %}
                             accepted
-                            <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ price_share|usd_to_current|floatformat:3 }}
-                            for ${{ price_share|floatformat:2 }}
+                            <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ amount_cur|floatformat:3 }}
+                            for ${{ amount_usd|floatformat:2 }}
+
+                          {% elif status == 'redeemed' %}
+                            received
+                            <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ amount_cur|floatformat:3 }}
+                            for ${{ amount_usd|floatformat:2 }}
+
+                          {# add declined #}
                           {% endif %}
+
                         {% endwith %}
                       {% endwith %}
                     </div>
@@ -160,6 +194,16 @@
           </div>
         </div>
 
+        {% macro user_hour_request_list_macro arg_list arg_status arg_timezone %}
+          {% block user_hour_request_list %}
+            {% with hours_list=arg_list hours_status=arg_status timezone=arg_timezone %}
+              {{ block.super }}
+            {% endwith %}
+          {% endblock %}
+        {% endmacro %}
+
+        {% usemacro user_hour_request_list_macro hours_requested 'requested' timezone %}
+        {% usemacro user_hour_request_list_macro hours_approved 'approved' timezone %}
 
         <!-- community feed code. Hardcoded not dynamic -->
         <!-- <div class="row full-width collapse one-margin-bottom">
@@ -275,14 +319,14 @@
 
       <div class="row center half-margin-top">
         <div class="half-margin-bottom small-12 medium-6 columns">
-          <h6>Volunteer at an event</h6>
-          <p>Check out these upcoming opportunities with participating organizations:</p>
-          <a href="{% url 'openCurrents:upcoming-events' %}" class="button round small">View upcoming events</a>
+          <h6>I want to volunteer</h6>
+          <p>Check out upcoming opportunities with participating organizations:</p>
+          <a href="{% url 'openCurrents:upcoming-events' %}" class="button round small">View opportunities</a>
         </div>
 
         <div class="small-12 medium-6 columns">
-          <h6>Track volunteer time</h6>
-          <p>If you already give time with a participating organization, track your hours here:</p>
+          <h6>I already volunteer</h6>
+          <p>If you already give time with a nonprofit, track your hours here:</p>
           <a href="{% url 'openCurrents:time-tracker' %}" class="button round small">Record hours</a>
         </div>
       </div>
@@ -398,7 +442,7 @@
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: true,
-          autoopen: true,
+          //autoopen: true,
         });
 
         $('.mini-open').click(function(){
@@ -431,3 +475,4 @@
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
   </body>
 </html>
+{% endblock %}
