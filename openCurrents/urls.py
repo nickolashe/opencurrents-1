@@ -80,6 +80,7 @@ urlpatterns = [
     url(r'^profile/(?P<app_hr>(1|0))/$', views.ProfileView.as_view(), name='profile'),
     url(r'^profile/(?P<status_msg>.*)/$', views.ProfileView.as_view(), name='profile'),
     url(r'^org-admin/$', views.OrgAdminView.as_view(), name='org-admin'),
+    url(r'^org-admin/(?P<status_msg>[\w\s]+)/$', views.OrgAdminView.as_view(), name='org-admin'),
     url(r'^org-admin/(?P<vols_approved>\d+)/(?P<vols_declined>\d+)/$', views.OrgAdminView.as_view(), name='org-admin'),
     url(r'^org-admin/(?P<num_vols>\d+)/$', views.OrgAdminView.as_view(), name='org-admin'),
     url(r'^edit-profile/$', views.EditProfileView.as_view(), name='edit-profile'),

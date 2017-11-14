@@ -13,6 +13,12 @@
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
           <div class="row">
+            {% if status_msg %}
+            <div class="success row half-margin-top">
+              {{status_msg}}
+            </div>
+            {% endif %}
+          
             <div id="status_msg" class="success one-margin-top small-10 small-centered medium-8 columns">
             </div>
           </div>
