@@ -266,6 +266,8 @@ class OcUser(object):
         usertimelogs = UserTimeLog.objects.filter(
             user__id=self.userid
         ).filter(
+            event__event_type='MN'
+        ).filter(
             is_verified=verified
         ).annotate(
             last_action_created=Max('adminactionusertime__date_created')
