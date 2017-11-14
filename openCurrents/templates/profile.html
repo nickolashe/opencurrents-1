@@ -317,6 +317,19 @@
       </div>
     </div>
 
+    <div id="balance-popup" class="modal center small-12 medium-9 small-centered columns">
+      <div class="row collapse center">
+        <div class="small-centered medium-11 columns">
+          <h6 class="popup-title">Balance &ndash; Requested offers = Currents available</h6>
+        </div>
+      </div>
+      <div class="row">
+        <div class="medium-4 columns"><h6></h6></div>
+        <div class="medium-4 columns"><h6></h6></div>
+        <div class="medium-4 columns"><h6></h6></div>
+      </div>
+    </div>
+
     <div id="no-cash-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
         <h3 class="popup-title">No dollars available</h3>
@@ -404,7 +417,7 @@
           var open = false;
         }
 
-        $('#rsvp-popup, #earn-currents-popup, #no-cash-popup, #cash-out-popup').popup({
+        $('#rsvp-popup, #earn-currents-popup, #balance-popup, #no-cash-popup, #cash-out-popup').popup({
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: true,
