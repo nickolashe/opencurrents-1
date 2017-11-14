@@ -112,7 +112,7 @@ class OcUser(object):
             entity_id=self.user.userentity.id,
             entity_type='user'
         )
-        logger.info(current_balance)
+        logger.info('current balance: %s', current_balance)
 
         # offer redemption requests
         redemption_reqs = Transaction.objects.filter(
@@ -129,11 +129,14 @@ class OcUser(object):
             action_type='req'
         )
 
-        total_redemptions = common._get_redemption_total(
+        total_req_redemptions = common._get_redemption_total(
             active_redemption_reqs
         )
-        logger.info(total_redemptions)
-        return current_balance - total_redemptions
+        logger.info(
+            'total requested redemptions: %s',
+            total_req_redemptions
+        )
+        return current_balance - total_req_redemptions
 
     def get_balance_pending(self):
         '''
@@ -242,6 +245,45 @@ class OcUser(object):
         )
 
         return transaction_actions
+
+    def get_hours_requested(self):
+        usertimelogs = self._get_usertimelogs()
+        admin_actions = self._get_adminactions_for_usertimelogs(usertimelogs)
+
+        return admin_actions
+
+    def get_hours_approved(self):
+        usertimelogs = self._get_usertimelogs(verified=True)
+        admin_actions = self._get_adminactions_for_usertimelogs(
+            usertimelogs,
+            'app'
+        )
+
+        return admin_actions
+
+    def _get_usertimelogs(self, verified=False):
+        # determine whether there are any unverified timelogs for admin
+        usertimelogs = UserTimeLog.objects.filter(
+            user__id=self.userid
+        ).filter(
+            is_verified=verified
+        ).annotate(
+            last_action_created=Max('adminactionusertime__date_created')
+        )
+
+        return usertimelogs
+
+    def _get_adminactions_for_usertimelogs(self, usertimelogs, action_type='req'):
+        # admin-specific requests
+        admin_actions = AdminActionUserTime.objects.filter(
+            date_created__in=[
+                utl.last_action_created for utl in usertimelogs
+            ]
+        ).filter(
+            action_type=action_type
+        )
+
+        return admin_actions
 
 
 class UserExistsException(Exception):

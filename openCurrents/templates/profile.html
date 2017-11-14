@@ -1,5 +1,10 @@
-{% load staticfiles %}
+{% extends 'user-hour-request-list.html' %}
+
+{% load macros %}
 {% load tags %}
+{% load staticfiles %}
+
+{% block main %}
 
 <!DOCTYPE html>
 <html>
@@ -147,23 +152,23 @@
                       <strong>
                         {{ transaction.offer.org.name }}
                       </strong>
-                      {% with price=transaction.price_reported percent_share=transaction.offer.currents_share|percent_to_price %}
-                        {% with price_share=price|mult:percent_share %}
+                      {% with amount_cur=transaction.currents_amount %}
+                        {% with amount_usd=amount_cur|current_to_usd %}
                           {% if status == 'pending' %}
-                            offers ${{ price_share|floatformat:2 }} for
+                            offers ${{ amount_usd|floatformat:2 }} for
                             <span class="no-wrap">
-                              <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ price_share|usd_to_current|floatformat:3 }}
+                              <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ amount_cur|floatformat:3 }}
                             </span>
 
                           {% elif status == 'approved' %}
                             accepted
-                            <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ price_share|usd_to_current|floatformat:3 }}
-                            for ${{ price_share|floatformat:2 }}
+                            <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ amount_cur|floatformat:3 }}
+                            for ${{ amount_usd|floatformat:2 }}
 
                           {% elif status == 'redeemed' %}
                             received
-                            <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ price_share|usd_to_current|floatformat:3 }}
-                            for ${{ price_share|floatformat:2 }}
+                            <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ amount_cur|floatformat:3 }}
+                            for ${{ amount_usd|floatformat:2 }}
 
                           {# add declined #}
                           {% endif %}
@@ -189,6 +194,16 @@
           </div>
         </div>
 
+        {% macro user_hour_request_list_macro arg_list arg_status arg_timezone %}
+          {% block user_hour_request_list %}
+            {% with hours_list=arg_list hours_status=arg_status timezone=arg_timezone %}
+              {{ block.super }}
+            {% endwith %}
+          {% endblock %}
+        {% endmacro %}
+
+        {% usemacro user_hour_request_list_macro hours_requested 'requested' timezone %}
+        {% usemacro user_hour_request_list_macro hours_approved 'approved' timezone %}
 
         <!-- community feed code. Hardcoded not dynamic -->
         <!-- <div class="row full-width collapse one-margin-bottom">
@@ -317,6 +332,19 @@
       </div>
     </div>
 
+    <div id="balance-popup" class="modal center small-12 medium-9 small-centered columns">
+      <div class="row collapse center">
+        <div class="small-centered medium-11 columns">
+          <h6 class="popup-title">Balance &ndash; Requested offers = Currents available</h6>
+        </div>
+      </div>
+      <div class="row">
+        <div class="medium-4 columns"><h6></h6></div>
+        <div class="medium-4 columns"><h6></h6></div>
+        <div class="medium-4 columns"><h6></h6></div>
+      </div>
+    </div>
+
     <div id="no-cash-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
         <h3 class="popup-title">No dollars available</h3>
@@ -404,7 +432,7 @@
           var open = false;
         }
 
-        $('#rsvp-popup, #earn-currents-popup, #no-cash-popup, #cash-out-popup').popup({
+        $('#rsvp-popup, #earn-currents-popup, #balance-popup, #no-cash-popup, #cash-out-popup').popup({
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: true,
@@ -447,3 +475,4 @@
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
   </body>
 </html>
+{% endblock %}

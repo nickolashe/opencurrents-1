@@ -216,7 +216,7 @@
           context: document.body
         }).complete(function( data ){
           console.log(data);
-          let balanceAvailable = data.responseJSON;
+          let balanceAvailable = Number(data.responseJSON);
           callback(null, balanceAvailable);
         });
       };
@@ -341,22 +341,25 @@
 
         // Display current and dollar totals based on price input
         $('#offer-2').on('input', function(){
-          let priceOfferSubjectToShare = shareToCurrents(
+          let priceOfferSubjectToShareCurrents = shareToCurrents(
             $('#id_redeem_price').val()
           );
 
-          let priceSubjectToShare;
           getUserBalance(function(err, res) {
-            const userBalance = res;
-            console.log('userBalance:' + userBalance);
+            let priceSubjectToShare;
+            const userBalanceCurrents = res;
 
-            if (userBalance < priceOfferSubjectToShare.currents) {
-              priceSubjectToShare = shareToCurrents(userBalance);
+            if (userBalanceCurrents < priceOfferSubjectToShareCurrents.currents) {
+              priceSubjectToShare = {
+                currents: userBalanceCurrents,
+                dollars: userBalanceCurrents * 10
+              };
             } else {
-              priceSubjectToShare = priceOfferSubjectToShare;
+              priceSubjectToShare = priceOfferSubjectToShareCurrents;
             }
+
             console.log('priceUsed:' + priceSubjectToShare.currents);
-            const fee = (0.1 * priceSubjectToShare.currents).toFixed(2);
+            const fee = (0.1 * priceSubjectToShare.dollars).toFixed(2);
             let dollarsReceived = (priceSubjectToShare.dollars - fee).toFixed(2);
 
             $('.currents-total').text(priceSubjectToShare.currents);
