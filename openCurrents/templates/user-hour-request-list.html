@@ -20,7 +20,7 @@
                   {{ record.date_created|day_only:timezone }} -
 
                   {% if hours_status == 'requested' %}
-                    You recorded
+                    You volunteered
                   {% else %}
                     Your
                   {% endif %}
@@ -30,8 +30,15 @@
                   </strong>
                   hours for {{ tl.event.description }}
 
+                  {% if hours_status == 'requested' %}
+                    at <strong> {{ tl.event.project.org.name }} </strong>
+                  {% endif %}
+
                   {% if hours_status == 'approved' %}
-                    have been approved
+                    have been approved by
+                    <strong>
+                      {{ tl.event.project.org.name }}
+                    </strong>
                   {% endif %}
                 {% endwith %}
               </div>
