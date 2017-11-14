@@ -28,10 +28,14 @@
               <p>to join the community and record hours with {{ orgname }}</p>
             {% endif %}
 
-            <p class="no-margin-bottom"><a class="personal-message-popup_open button tiny round secondary">
-              Add personal message
-            </a></p>
-            {# <p><a class="invite-list-popup_open">See invited volunteers</a></p> #}
+            <a id="add-bulk-emails" class="button round tiny secondary">
+              Add email list
+            </a>
+            <a id="add-single-emails" class="hidden button round tiny secondary">
+              Add single emails
+            </a>
+
+            <!-- <p><a class="invite-list-popup_open">See invited volunteers</a></p> -->
           </div>
         </div>
         <form action ="" name="theForm" id="form_id" method="post">
@@ -39,8 +43,14 @@
           <div class="row center">
             <div class="small-12 medium-8 small-centered columns">
 
-              <textarea id="bulk-invites-box" class="hidden" rows="4"></textarea>
-              <div id="vol-invites-box" name="vol-invites-box" class="row">
+              <div id="bulk-invites-box" class="hidden three-halves-margin-top">
+                <label for="id_bulk_invites" class="left">
+                  Copy/paste email list separated by commas
+                </label>
+                <textarea id="id_bulk_invites" rows="4"></textarea>
+              </div>
+
+              <div id="vol-invites-box" class="row">
                 <div class="small-6 columns">
                   <input type="text" name="vol-name-1" placeholder="First name (optional)" />
                 </div>
@@ -65,28 +75,46 @@
 
               <div class="row one-margin-bottom left">
                 <div class="column">
-                  <a id="add-volunteer" class="blue-icon"><i class="fa fa-plus-circle half-margin-left half-margin-right"></i>Add volunteer</a> or <a class="bulk-email-popup_open">add many at once</a>
+                  <a id="add-volunteer" class="blue-icon">
+                    <i class="fa fa-plus-circle half-margin-left half-margin-right"></i>
+                    Add volunteer
+                  </a>
                 </div>
               </div>
 
               <div id="personal-message-div" class="left hidden">
-                <label for="personal-message-submit">Personal message</label>
-                <textarea id="personal-message-submit"></textarea>
+                <label for="personal-message-text">
+                  A message from {{ user.first_name }} {{ user.last_name }} (optional):
+                </label>
+                <textarea id="personal-message-text"></textarea>
               </div>
+
+              <p class="three-halves-margin-top no-margin-bottom">
+                <a id="add-personal-message" class="half-margin-bottom button tiny round secondary">
+                  Add personal message
+                </a>
+              </p>
             </div>
 
             <!--<a href="{% url 'openCurrents:org-admin' %}" class="button round secondary">Send invites</a>-->
-            <button type='submit' id="button_1" class="button round half-margin-top">Send invites<input type="hidden" id="count-vol" name="count-vol" value="3" /></button>
+            <button type='submit' id="button_1" class="button round half-margin-top">
+              Send invites
+              <input type="hidden" id="count-vol" name="count-vol" value="3" />
+            </button>
           </div>
 
-          <p class="no-margin-bottom"><a class="preview-email-popup_open button tiny round secondary">
-            Preview email
-          </a></p>
-
           {% if skip == 1 %}
-            <a href="{% url 'openCurrents:org-admin' num_vols=0 %}">Skip for now</a>
+            <a href="{% url 'openCurrents:org-admin' num_vols=0 %}">
+              Skip for now
+            </a>
           {% endif %}
           <input type="hidden" id="bulk-vol" name="bulk-vol" value="" />
+
+          <p class="no-margin-bottom">
+            <a class="preview-email-popup_open">
+              Preview email
+            </a>
+          </p>
         </form>
 
         <div id="push"></div>
@@ -108,7 +136,9 @@
 
     <div id="personal-message-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
-        <h5 class="popup-title">A message from {{ user.first_name }} {{ user.last_name }}:</h5>
+        <h5 class="popup-title">
+          A message from {{ user.first_name }} {{ user.last_name }}:
+        </h5>
       </div>
 
       <div class="row center">
@@ -158,7 +188,9 @@
             </p>
           {% endif %}
 
-          <p>openCurrents rewards you for giving time to {{ orgname }} and other social organizations. Click the link below to learn more and create your account:</p>
+          <p>openCurrents rewards you for giving time to {{ orgname }}
+            and other social organizations. Click the link below to learn more 
+            and create your account:</p>
 
           <p><a href="http://www.opencurrents.com" target="_blank">
             openCurrents.com
@@ -175,7 +207,7 @@
       </div>
     </div>
 
-    {# <div id="invite-list-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+    <!-- <div id="invite-list-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <h3 class="popup-title center">Invited volunteers</h3>
       <div class="row center">
         <div class="small-10 medium-6 small-centered columns">
@@ -191,31 +223,7 @@
           <a class="registrants-box_close button round small secondary">Close</a>
         </div>
       </div>
-    </div> #}
-
-    <div id="bulk-email-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <div class="row center">
-        <h3 class="popup-title">Add email list</h3>
-      </div>
-
-      <div class="row center">
-        <div class="medium-10 small-centered column">
-          <p>Add multiple emails separated by spaces, new lines, or commas:</p>
-          <textarea name="bulk-emails" id = "bulk-emails" placeholder="email@yahoo.com, address@aol.com" rows="3"></textarea>
-
-          <p><a id="add-message-bulk" class="half-margin-bottom">Add personal message</a></p>
-
-          <div id="personal-message-bulk" class="one-margin-bottom hidden">
-            A message from {{ user.first_name }} {{ user.last_name }}:
-            <textarea placeholder="Your message (optional)"></textarea>
-          </div>
-
-          <!--<p class="three-halves-margin-top"><a onclick="$(this).closest('form').submit()" href="" class="button round">Send invites</a></p>-->
-        <button type='submit' name="button_2" onclick="submit_from_bulk()" class="button round">Send invites</button>
-
-        </div>
-      </div>
-    </div>
+    </div> -->
 
     <script type="text/javascript">
       $(document).ready(function(){
@@ -226,49 +234,71 @@
         $('#add-volunteer').click(function() {
 
           vols ++;
-          document.getElementById('count-vol').value = vols;//$('#count-vol').value = vols;
+          document.getElementById('count-vol').value = vols;
 
-          $('#vol-invites-box').append('<div class="hidden slide small-6 columns"><input type="text" name="vol-name-'+vols+'" id="vol-name-'+vols+'" placeholder="First name" /></div><div class="hidden small-6 columns"><input type="text" name="vol-email-'+vols+'" id="vol-email-'+vols+'" placeholder="Email" /></div>');
+          $('#vol-invites-box').append('<div class="hidden slide small-6 columns">\
+            <input type="text" name="vol-name-'+vols+'" id="vol-name-'+vols+'" placeholder="First name" />\
+          </div><div class="hidden small-6 columns">\
+          <input type="text" name="vol-email-'+vols+'" id="vol-email-'+vols+'" placeholder="Email" />\
+          </div>');
           $('#vol-invites-box .hidden').slideDown();
         });
 
-        // Copy personal message from popup to input in form
-        $('#save-message').click(function(){
-          var text = $('#personal-message-typed').val();
-          $('#personal-message-submit').val(text);
-          $('#personal-message-div').show();
-          $('#personal-message-detail').show();
-          $('#personal-message-preview').show().text(text);
+        // show bulk textarea, hide single fields on click
+        $('#add-bulk-emails').click(function(){
+          $('#bulk-invites-box').slideDown();
+          $('#vol-invites-box').slideUp();
+          $(this).hide();
+          $('#add-single-emails').show();
         });
 
+        // hide bulk textarea, show single fields on click
+        $('#add-single-emails').click(function() {
+          $(this).hide();
+          $('#add-bulk-emails').show();
+          $('#vol-invites-box').slideDown();
+          $('#bulk-invites-box').slideUp();
+        });
+
+        // show personal message textarea
+        $('#add-personal-message').click(function(){
+          $(this).hide();
+          $('#personal-message-div').slideDown();
+        });
+
+        // // Copy personal message from popup to input in form
+        // $('#save-message').click(function(){
+        //   var text = $('#personal-message-typed').val();
+        //   $('#personal-message-submit').val(text);
+        //   $('#personal-message-div').show();
+        //   $('#personal-message-detail').show();
+        //   $('#personal-message-preview').show().text(text);
+        // });
+
         // Copy personal message from input to preview email
-        $('#personal-message-div').on('input', function(){
-          var text = $('#personal-message-submit').val();
+        $('#personal-message-text').on('input', function(){
+          var text = $('#personal-message-text').val();
           $('#personal-message-preview').show().text(text);
+          $('#personal-message-detail').show();
 
           // if user clears the message, hide 'and sent you a message' in preview
-          if ($('#personal-message-submit').val() == '') {
+          if ($('#personal-message-text').val() == '') {
             $('#personal-message-detail').hide();
           };
         });
-
-        $('#add-message-bulk').click(function(){
-          $(this).hide();
-          $('#personal-message-bulk').slideDown();
-        });
       });
 
-      $('#bulk-email-popup, #personal-message-popup, #preview-email-popup').popup({
+      $('#preview-email-popup').popup({
         vertical: 'top',
         transition: 'all 0.75s',
         scrolllock: true,
       });
 
-      function submit_from_bulk(){
-
-          document.getElementById("bulk-vol").value = document.getElementById("bulk-emails").value;
-          document.forms.theForm.submit();
-      }
+      // function submit_from_bulk(){
+      //
+      //     document.getElementById("bulk-vol").value = document.getElementById("bulk-emails").value;
+      //     document.forms.theForm.submit();
+      // }
     </script>
 
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
