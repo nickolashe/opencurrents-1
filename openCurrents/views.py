@@ -1281,8 +1281,6 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
     form_class = CreateEventForm
 
     def dispatch(self, request, *args, **kwargs):
-        logger.info(kwargs)
-
         org_id = kwargs.get('org_id')
         self.org = Org.objects.get(id=org_id)
         return super(CreateEventView, self).dispatch(
@@ -1465,7 +1463,7 @@ class EditEventView(CreateEventView):
         event_id = kwargs.pop('event_id')
         self.event = Event.objects.get(id=event_id)
         kwargs.update({'org_id': self.event.project.org.id})
-        logger.info(kwargs)
+
         self.redirect_url = redirect('openCurrents:org-admin')
 
         if timezone.now() > self.event.datetime_end:
