@@ -1482,7 +1482,6 @@ class EditEventView(CreateEventView):
 
         # name change requires changing the project
         if self.event.project.name != data['project_name']:
-            logger.info('name change')
             project = None
             try:
                 project = Project.objects.get(
@@ -1490,15 +1489,11 @@ class EditEventView(CreateEventView):
                     name=data['project_name']
                 )
                 self.event.project = project
-                logger.info('exists')
             except Project.DoesNotExist:
-                logger.info('project does not exist')
                 self.event.project.name = data['project_name']
 
             self.event.project.save()
             self.event.save()
-            logger.info(self.event.project)
-            logger.info(self.event)
 
         # event detail changes
         if self.event.is_public != bool(data['event_privacy']) or \
