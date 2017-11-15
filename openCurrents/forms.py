@@ -555,7 +555,7 @@ class TimeTrackerForm(forms.Form):
             raise ValidationError(_('Start time must be before end time'))
 
         if cleaned_data['datetime_end'] > datetime.now(tz=pytz.utc):
-            raise ValidationError(_('Hours can be submitted for past events only'))
+            raise ValidationError(_('Hours can be submitted once work is completed'))
 
         return cleaned_data
 
@@ -682,7 +682,7 @@ class RedeemCurrentsForm(forms.Form):
          widget=forms.ClearableFileInput(attrs={
             'class': 'hidden-file',
             'id': 'upload-receipt',
-            'accept': 'image/*'            
+            'accept': 'image/*'
         }),
         required=False
     )
