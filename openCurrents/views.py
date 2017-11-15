@@ -1258,11 +1258,9 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
         )
 
         hours_requested = self.orgadmin.get_hours_requested()
-        logger.info(hours_requested)
         context['hours_requested'] = hours_requested
 
         hours_approved = self.orgadmin.get_hours_approved()
-        logger.info(hours_approved)
         context['hours_approved'] = hours_approved
 
         context['has_hours_requested'] = hours_requested.exists()
@@ -1281,6 +1279,16 @@ class BlogView(TemplateView):
 class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
     template_name = 'create-event.html'
     form_class = CreateEventForm
+
+    def dispatch(self, request, *args, **kwargs):
+        logger.info(kwargs)
+
+        org_id = kwargs.get('org_id')
+        self.org = Org.objects.get(id=org_id)
+        return super(CreateEventView, self).dispatch(
+            request, *args, **kwargs
+        )
+
 
     def _create_event(self, location, form_data):
         if not self.project:
@@ -1441,21 +1449,23 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
             - userid
         '''
         kwargs = super(CreateEventView, self).get_form_kwargs()
-        kwargs.update({'org_id': self.kwargs['org_id']})
+
+        kwargs.update({'org_id': self.org.id})
         kwargs.update({'user_id': self.userid})
 
         return kwargs
 
 
 # needs to be implemented using UpdateView
-class EditEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
+class EditEventView(CreateEventView):
     template_name = 'edit-event.html'
     form_class = EditEventForm
 
     def dispatch(self, request, *args, **kwargs):
-        event_id = kwargs.get('event_id')
+        event_id = kwargs.pop('event_id')
         self.event = Event.objects.get(id=event_id)
-
+        kwargs.update({'org_id': self.event.project.org.id})
+        logger.info(kwargs)
         self.redirect_url = redirect('openCurrents:org-admin')
 
         if timezone.now() > self.event.datetime_end:
@@ -1470,8 +1480,28 @@ class EditEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
 
         email_to_list = []
 
-        if self.event.project.name != data['project_name'] or \
-            self.event.is_public != bool(data['event_privacy']) or \
+        # name change requires changing the project
+        if self.event.project.name != data['project_name']:
+            logger.info('name change')
+            project = None
+            try:
+                project = Project.objects.get(
+                    org__id=self.org.id,
+                    name=data['project_name']
+                )
+                self.event.project = project
+                logger.info('exists')
+            except Project.DoesNotExist:
+                logger.info('project does not exist')
+                self.event.project.name = data['project_name']
+
+            self.event.project.save()
+            self.event.save()
+            logger.info(self.event.project)
+            logger.info(self.event)
+
+        # event detail changes
+        if self.event.is_public != bool(data['event_privacy']) or \
             self.event.location != data['event_location'] or \
             self.event.description != data['event_description'] or \
             self.event.coordinator.id != int(data['event_coordinator']) or \
@@ -1571,11 +1601,8 @@ class EditEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
             self.event.datetime_start = data['datetime_start']
             self.event.datetime_end = data['datetime_end']
             self.event.is_public = data['event_privacy']
-            self.event.save()
 
-            # project name
-            self.event.project.name = data['project_name']
-            self.event.project.save()
+            self.event.save()
 
             self.redirect_url = redirect(
                 'openCurrents:org-admin',
