@@ -236,6 +236,7 @@
           onclose: function() {
             var text = $('#no-proof-typed').val();
             $('#id_redeem_no_proof').val(text).slideDown();
+            $('#redeem-spacer').animate({height: '+=88'});
           }
         });
 

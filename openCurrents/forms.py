@@ -555,7 +555,7 @@ class TimeTrackerForm(forms.Form):
             raise ValidationError(_('Start time must be before end time'))
 
         if cleaned_data['datetime_end'] > datetime.now(tz=pytz.utc):
-            raise ValidationError(_('Hours can be submitted once work is completed'))
+            raise ValidationError(_('Hours can only be submitted once work is completed'))
 
         return cleaned_data
 
