@@ -298,9 +298,11 @@
         <div class="row center">
           <div class="small-centered medium-10 columns">
             <h4 class="popup-title">Welcome to the openCurrents beta</h4>
-            <p>We're excited to have you with us! We are just getting started and your contribution to growing our community is essential.</p>
+            <p>We're excited to have you with us! We are just getting started
+              and your contribution to growing our community is essential.</p>
 
-            <p>Are you willing to help us connect with businesses where you shop, nonprofits where you volunteer, or friends who might be interested?</p>
+            <p>Are you willing to help us connect with businesses where you shop,
+              nonprofits where you volunteer, or friends who might be interested?</p>
 
             <p class="three-halves-margin-top">
               <button type="submit" class="button round">Yes</button>
@@ -327,7 +329,9 @@
         <div class="small-12 medium-6 columns">
           <h6>I already volunteer</h6>
           <p>If you already give time with a nonprofit, track your hours here:</p>
-          <a href="{% url 'openCurrents:time-tracker' %}" class="button round small">Record hours</a>
+          <a href="{% url 'openCurrents:time-tracker' %}" class="button round small">
+            Record hours
+          </a>
         </div>
       </div>
     </div>
@@ -335,7 +339,9 @@
     <div id="balance-popup" class="modal center small-12 medium-9 small-centered columns">
       <div class="row collapse center">
         <div class="small-centered medium-11 columns">
-          <h6 class="popup-title">Balance &ndash; Requested offers = Currents available</h6>
+          <h6 class="popup-title">
+            Balance &ndash; Requested offers = Currents available
+          </h6>
         </div>
       </div>
       <div class="row">
@@ -350,10 +356,14 @@
         <h3 class="popup-title">No dollars available</h3>
       </div>
 
-      <div class="row center one-margin-top">
+      <div class="row center">
         <div class="small-centered medium-10 columns">
-          <p>You do not yet have dollars available to transfer to your bank account. If you have redeemed an offer and have pending dollars in your account, you'll need to wait until the business verifies your proof of purchase at the end of the month.</p>
-          <p>To see offers from businesses in the community, please visit the marketplace by clicking "Redeem" in your profile.</p>
+          <p>You do not yet have dollars available to transfer to your bank
+            account. If you have redeemed an offer and have pending dollars in
+            your account, you'll need to wait until the business verifies your
+            proof of purchase at the end of the month.</p>
+          <p>To see offers from businesses in the community, please visit the
+            marketplace by clicking "Redeem" in your profile.</p>
           <a class="no-cash-popup_close button round">Got it</a>
         </div>
       </div>
@@ -368,7 +378,11 @@
         {% csrf_token %}
         <div class="row center">
           <div class="small-centered medium-10 columns">
-            <p class="three-halves-margin-bottom">openCurrents uses Dwolla to send cash directly to your bank account. You will receive an email in the next 48 hours inviting you to transfer your full balance. If you have any questions, don't hesitate to reach out.</p>
+            <p class="three-halves-margin-bottom">
+              openCurrents uses Dwolla to send cash directly to your bank
+              account. You will receive an email in the next 48 hours inviting
+              you to transfer your full balance of ${{ balance_available_usd }}.
+              If you have any questions, don't hesitate to reach out.</p>
 
             <a class="button round">Send dollars</a>
             <a href="javascript:void(Tawk_API.toggle())" class="button round secondary">Contact us</a>
