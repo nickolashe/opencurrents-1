@@ -972,7 +972,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                     None,
                     [
                         {
-                            'name': 'ADMIN_FNAME',
+                            'name': 'ADMIN_NAME',
                             'content': admin_name
                         },
                         {
