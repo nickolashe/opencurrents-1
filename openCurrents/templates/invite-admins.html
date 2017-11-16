@@ -1,0 +1,163 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    {% include "partials/head.html" %}
+  </head>
+
+  <body>
+
+    {% include "partials/header.html" %}
+    
+    <div id="container" class="js-close-any" canvas="container">
+      <div id="wrapper">
+        {% if status_msg %}
+        <div class="alert row half-margin-top">
+          {{status_msg}}
+        </div>
+        {% endif %}
+
+        <div class="row">
+          <h3 class="title-sub">Invite admins</h3>
+            <p> to manage [Org name] on openCurrents</p>
+        </div>
+        <form action ="" name="invite-admins-form" id="invite-admins-form" method="post">
+        {% csrf_token %}
+          <div class="row center">
+            <div class="small-12 medium-8 small-centered columns">
+              <div id="vol-invites-box" name="vol-invites-box" class="row">
+                <div class="small-6 columns">
+                  <input type="text" name="vol-name-1" placeholder="First name (optional)" />
+                </div>
+                <div class="small-6 columns">
+                  <input type="text" name="vol-email-1" placeholder="Email" />
+                </div>
+
+                <div class="small-6 columns">
+                  <input type="text" name="vol-name-2" placeholder="First name (optional)" />
+                </div>
+                <div class="small-6 columns">
+                  <input type="text" name="vol-email-2" placeholder="Email" />
+                </div>
+
+                <div class="small-6 columns">
+                  <input type="text" name="vol-name-3" placeholder="First name (optional)" />
+                </div>
+                <div class="small-6 columns">
+                  <input type="text" name="vol-email-3" placeholder="Email" />
+                </div>
+              </div>
+
+              <div class="row one-margin-bottom left">
+                <div class="column">
+                  <a id="add-volunteer" class="blue-icon"><i class="fa fa-plus-circle half-margin-left half-margin-right"></i>Add admin</a>
+                </div>
+              </div>
+            </div>
+
+            <textarea name="bulk-emails-submit" id="bulk-emails-submit" class="hidden"></textarea>
+
+            <!-- <button id="button_1" class="admin-warning-popup_open button round">Send invites<input type="hidden" id="count-vol" name="count-vol" value="3" /></button> -->
+            <a class="admin-warning-popup_open button round">Send invites</a>
+          </div>
+
+          <!-- <input type="hidden" id="bulk-vol" name="bulk-vol" value="" /> -->
+        </form>
+
+        <div id="push"></div>
+
+      <!-- wrapper div-->
+      </div>
+      
+      {% include 'partials/footer.html' %}
+            
+    <!--container div -->
+    </div>
+
+
+    <div id="bottom-stripe" class="full-width"></div>
+
+    <div off-canvas="menu right shift" id="menu">
+      {% include 'partials/menu.html' %}
+    </div>
+
+    <div id="bulk-email-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h3 class="popup-title">Add email list</h3>
+      </div>
+
+      <div class="row center">
+        <div class="medium-10 small-centered column">
+          <p>Add multiple emails separated by spaces, new lines, or commas:</p>
+          <textarea name="bulk-emails" id="bulk-emails" placeholder="email@yahoo.com, address@woohoo.com" rows="3"></textarea>
+
+          <!--<p class="three-halves-margin-top"><a onclick="$(this).closest('form').submit()" href="" class="button round">Send invites</a></p>-->
+        <button id="bulk-send-button" class="admin-warning-popup_open button round">Send invites</button>
+
+        </div>
+      </div>
+    </div>
+
+    <div id="admin-warning-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h3 class="popup-title">Are you sure?</h3>
+      </div>
+
+      <div class="row center">
+        <div class="medium-10 small-centered column">
+          <p>For Currents to have real value, we all must maintain the security and integrity of the Current creation process. Please only send invites to authorized admins of [Org name].</p>
+          <p class="alert">Inviting unauthorized admins can have consequences including but not limited to loss of admin privileges and forfeiture of Currents.</p>
+
+          <input type="checkbox" id="admin-warning-check" name="admin-warning-check" class="custom-checkbox" /><label for="admin-warning-check">I confirm that I am only inviting authorized admins of [Org name]</label>
+          
+          <div class="row one-margin-top">
+            <a id="submit-form" class="button round">Send</a>
+            <a class="admin-warning-popup_close button round secondary">Go back</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <script type="text/javascript">
+      $(document).ready(function(){
+
+        var vols = 3;
+
+        $('#add-volunteer').click(function() {
+
+          vols ++;
+          document.getElementById('count-vol').value = vols;//$('#count-vol').value = vols;
+
+          $('#vol-invites-box').append('<div class="hidden slide small-6 columns"><input type="text" name="vol-name-'+vols+'" id="vol-name-'+vols+'" placeholder="First name (optional)" /></div><div class="hidden small-6 columns"><input type="text" name="vol-email-'+vols+'" id="vol-email-'+vols+'" placeholder="Email" /></div>');
+          $('#vol-invites-box .hidden').slideDown();
+        });
+      });
+
+      $('#bulk-email-popup, #admin-warning-popup').popup({
+        vertical: 'top',
+        transition: 'all 0.75s',
+        scrolllock: true,
+      });
+
+      $('#bulk-send-button').click(function() {
+        var text = $('#bulk-emails').val();
+        $('#bulk-emails-submit').val(text);
+      });
+
+      $('#submit-form').click(function(){
+        $('#invite-admins-form').submit();
+      });
+
+      // function submit_from_bulk(){
+
+      //     document.getElementById("bulk-vol").value = document.getElementById("bulk-emails").value;
+      //     document.forms.theForm.submit();
+
+      // }
+    </script>
+
+    <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
+  </body>
+</html>

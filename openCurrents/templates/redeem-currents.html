@@ -1,0 +1,381 @@
+{% load staticfiles %}
+{% load tags %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    {% include "partials/head.html" %}
+  </head>
+
+  <body>
+    {% include "partials/header.html" %}
+
+    <div id="container" class="js-close-any" canvas="container">
+      <div id="wrapper">
+        {% if status_msg %}
+        <div class="alert row half-margin-top">
+          {{status_msg}}
+        </div>
+        {% endif %}
+
+        <div class="row two-margin-top two-margin-bottom">
+          <div class="small-12 medium-9 small-centered columns">
+            <div class="row collapse">
+              <div class="small-4 columns">
+                <div id="progress-1" class="progress-counter progress-highlight">
+                  <h6>1</h6>
+                </div>
+                <label class="small-text blue">Add receipt</label>
+              </div>
+
+              <div class="small-4 columns">
+                <div id="progress-2" class="progress-counter">
+                  <h6>2</h6>
+                </div>
+                <label class="small-text">Record price</label>
+              </div>
+
+              <div class="small-4 columns">
+                <div id="progress-3" class="progress-counter">
+                  <h6>3</h6>
+                </div>
+                <label class="small-text">Confirm</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <form method='post' enctype='multipart/form-data'>
+
+          {% csrf_token %}
+
+          {% if form.errors %}
+            <div class="row">
+              {% for field, error in form.errors.iteritems %}
+                <div class="center alert">
+                  {% if field != '__all__' %}
+                    {{ field|addstr:': '}} {{ error }}
+                  {% else %}
+                    {{ error }}
+                  {% endif %}
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          <div id="offer-1">
+            <div class="row">
+              <div class="small-12 medium-8 small-centered columns">
+                <h4 class="one-margin-bottom">Upload receipt or proof of purchase</h4>
+                <p class="three-halves-margin-bottom">
+                  To exchange Currents for dollars with {{ offer.org.name }}, upload your receipt as proof of purchase. Other forms, such as an image of your bank statement or description of your purchase, may or may not be accepted.
+
+                  <a class="redeem-info-popup_open no-wrap">
+                    Why do I pay full price?
+                  </a>
+                </p>
+
+                {# form.redeem_receipt_if_checked #}
+
+                <!-- <input type="checkbox" name="receipt-if-checked" id="receipt-if-checked" class="hidden" checked /> -->
+
+                {{ form.redeem_receipt }}
+                <!--input type="file" accept="image/*" capture="camera" id="upload-receipt" name="upload-receipt" class="hidden-file" /-->
+
+                <label for="upload-receipt" id="receipt-label" class="upload-receipt-label button round small secondary">
+                  <i class="one-margin-right fa fa-upload"></i>
+                  <span>Choose an image...</span>
+                </label>
+
+                <p class="small-text grey">PNG, JPEG, and GIF accepted</p>
+                <p class="half-margin-top">
+                  <a class="no-receipt-popup_open">
+                    Add description of purchase
+                  </a>
+                </p>
+
+                {{ form.redeem_no_proof }}
+              </div>
+            </div>
+
+            <div class="row half-margin-top">
+              <a class="next-offer button round">Next</a>
+            </div>
+          </div>
+
+          <div id="offer-2">
+            <div class="row">
+              <div class="small-12 medium-8 small-centered columns">
+                <h4 class="">Record price</h4>
+
+                <p class="half-margin-bottom">
+                  Price of {{ offer.item.name }} before tax:
+                </p>
+
+                <div class="relative inline-block">
+                  <span class="input-icon-left grey">$</span>
+
+                  {{ form.redeem_price }}
+                  {{ form.redeem_currents_amount }}
+
+                </div>
+              </div>
+            </div>
+
+            <div class="row one-margin-top">
+              <a class="prev-offer button round secondary">Back</a>
+              <a class="next-offer button round">Next</a>
+            </div>
+          </div>
+
+          <div id="offer-3">
+            <div class="row">
+              <div class="small-12 medium-8 small-centered columns">
+                <h4 class="one-margin-bottom">Confirm exchange</h4>
+
+                <p class="one-margin-bottom">
+                  I agree to give <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}"/><span class="currents-total"></span> to {{ offer.org.name }} in exchange for $<span class="dollars-total"></span> minus a 10% transaction fee of $<span class="dollars-fee"></span>.
+                </p>
+
+                <p>
+                  I understand that $<span class="dollars-received"></span> will be added to my account as Pending Dollars, which will become Available Dollars once {{ offer.org.name }} validates the transaction at the end of the month. <span class="currents-total"></span> Currents will be deducted from my account at this time. I can then transfer Available Dollars to my bank account or keep the balance in my openCurrents account.
+                </p>
+
+                <div class="row three-halves-margin-top">
+                  <a class="prev-offer button round secondary">Back</a>
+
+                  <input type='submit' value="Confirm" class="button round"></input>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sets height of page since redeem divs are absolutely positioned -->
+          <div id="redeem-spacer"></div>
+
+        </form>
+
+        <div id="push"></div>
+
+      <!-- wrapper div-->
+      </div>
+
+      {% include 'partials/footer.html' %}
+
+    <!--container div -->
+    </div>
+
+    <div id="bottom-stripe" class="full-width"></div>
+
+    <div off-canvas="menu right shift" id="menu">
+      {% include 'partials/menu.html' %}
+    </div>
+
+    <div id="redeem-info-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h3 class="popup-title">Why do I pay full price?</h3>
+      </div>
+
+      <div class="row center">
+        <div class="small-centered medium-10 columns">
+
+          <p>In order to make it as easy as possible for businesses to accept Currents, we have designed the exchange process in such a way that nothing changes at point of sale.</p>
+
+          <p class="three-halves-margin-bottom">As a result, more businesses are now accepting Currents, which means you can use Currents to get more of what you want.</p>
+
+          <a class="redeem-info-popup_close button round">Got it</a>
+          <a href="javascript:void(Tawk_API.toggle())" class="button round secondary">Contact us</a>
+        </div>
+      </div>
+    </div>
+
+    <div id="no-receipt-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h3 class="popup-title">No proof of purchase</h3>
+      </div>
+
+      <div class="row center">
+        <div class="small-centered medium-10 columns">
+          <p>{{ offer.org.name }} may not accept Currents without a receipt, but provide any details below that may help the business verify that you made a purchase:</p>
+
+          <textarea id="no-proof-typed" rows="3" placeholder="What did you buy? When did you buy it? Who did you buy from?"></textarea>
+
+          <p><button class="no-receipt-popup_close half-margin-top button round">Continue</button></p>
+        </div>
+      </div>
+    </div>
+
+
+    <script type="text/javascript">
+      let getUserBalance = function(callback) {
+        // let userid = {{ request.user.id }};
+        $.ajax({
+          url: "{% url 'openCurrents:get_user_balance_available' %}",
+          type: 'GET',
+          dataType : "json",
+          context: document.body
+        }).complete(function( data ){
+          console.log(data);
+          let balanceAvailable = Number(data.responseJSON);
+          callback(null, balanceAvailable);
+        });
+      };
+
+      $(document).ready(function(){
+        $('#redeem-info-popup, #no-receipt-popup').popup({
+          vertical: 'top',
+          transition: 'all 0.75s',
+          scrolllock: true,
+        });
+
+        $('#no-receipt-popup').popup({
+          vertical: 'top',
+          transition: 'all 0.75s',
+          scrolllock: true,
+          // Copy input value from popup to form input
+          onclose: function() {
+            var text = $('#no-proof-typed').val();
+            $('#id_redeem_no_proof').val(text).slideDown();
+            $('#redeem-spacer').animate({height: '+=88'});
+          }
+        });
+
+        // Set height of spacer = to height of content
+        $('#redeem-spacer').height($('#offer-3').height());
+
+        // Slide left on 'Next'
+        var page = 1;
+
+        $('.next-offer').click(function() {
+          if (page < 3) {
+            var $lefty = $('#offer-'+page+'');
+            var $righty = $('#offer-'+(page+1)+'');
+
+            $('#container').animate({
+              scrollTop: $("#header").offset().top
+            }, 1111);
+
+            $righty.show()
+
+            $lefty.animate({
+              left: parseInt(-$lefty.outerWidth())
+            }, 777);
+            $righty.animate({
+              left: 0
+            }, 777);
+
+            setTimeout(function() {
+                $lefty.hide();
+            }, 1000);
+
+            $('#progress-'+page+'').removeClass('progress-highlight').siblings('label').removeClass('blue');
+            $('#progress-'+(page+1)+'').addClass('progress-highlight').siblings('label').addClass('blue');
+
+            page ++;
+          }
+        });
+
+        // Slide right on 'Back'
+        $('.prev-offer').click(function() {
+          if (page > 1) {
+            var $lefty = $('#offer-'+(page-1)+'');
+            var $righty = $('#offer-'+page+'');
+
+            $('#container').animate({
+              scrollTop: $("#header").offset().top
+            }, 1111);
+
+            $lefty.show();
+            $lefty.animate({
+              left: 0
+            }, 777);
+            $righty.animate({
+              left: parseInt($lefty.outerWidth())
+            }, 777);
+
+            setTimeout(function() {
+                $righty.hide();
+            }, 1000);
+
+            $('#progress-'+(page-1)+'').addClass('progress-highlight').siblings('label').addClass('blue');
+            $('#progress-'+page+'').removeClass('progress-highlight').siblings('label').removeClass('blue');
+
+            page --;
+          }
+        });
+
+        // Display filename in upload-receipt label
+        $('#upload-receipt').change(function(){
+          var fileName = $(this).val().split('\\').pop();;
+
+          if (fileName != '') {
+            $('.upload-receipt-label').find('span').text(fileName);
+          }
+
+          else {
+            $('.upload-receipt-label').find('span').text('Choose an image...');
+          }
+        });
+
+        // // Uncheck receipt-if-checked when 'Other PoP' label is clicked
+        // $('#pop-label').click(function(){
+        //   $('#receipt-if-checked').prop('checked', false);
+        // });
+
+        // // Uncheck receipt-if-checked when 'Other PoP' label is clicked
+        // $('#receipt-label').click(function(){
+        //   $('#receipt-if-checked').prop('checked', true);
+        // });
+
+        let shareToCurrents = function (priceSubjectToShare) {
+          var share = {{ offer.currents_share }} /100.;
+          var dollars = (priceSubjectToShare * share).toFixed(2);
+
+          // TODO: switch to an API call to get the converstion rate
+          var currents = dollars/10.;
+
+          return {
+            'currents': currents,
+            'dollars': dollars
+          }
+        }
+
+        // Display current and dollar totals based on price input
+        $('#offer-2').on('input', function(){
+          let priceOfferSubjectToShareCurrents = shareToCurrents(
+            $('#id_redeem_price').val()
+          );
+
+          getUserBalance(function(err, res) {
+            let priceSubjectToShare;
+            const userBalanceCurrents = res;
+
+            if (userBalanceCurrents < priceOfferSubjectToShareCurrents.currents) {
+              priceSubjectToShare = {
+                currents: userBalanceCurrents,
+                dollars: userBalanceCurrents * 10
+              };
+            } else {
+              priceSubjectToShare = priceOfferSubjectToShareCurrents;
+            }
+
+            console.log('priceUsed:' + priceSubjectToShare.currents);
+            const fee = (0.1 * priceSubjectToShare.dollars).toFixed(2);
+            let dollarsReceived = (priceSubjectToShare.dollars - fee).toFixed(2);
+
+            $('.currents-total').text(priceSubjectToShare.currents);
+            $('.dollars-total').text(priceSubjectToShare.dollars);
+            $('.dollars-fee').text(fee);
+            $('.dollars-received').text(dollarsReceived);
+
+            $("input[name^=redeem_currents_amount]").val(
+              priceSubjectToShare.currents
+            );
+          });
+        });
+      });
+    </script>
+
+    <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
+  </body>
+</html>

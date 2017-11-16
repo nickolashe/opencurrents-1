@@ -11,32 +11,32 @@
     
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
-        <div class="row">
-          <div class="medium-8 small-centered columns">
-            <h3 class="title">Check your email</h3>
-
-            <p>So good of you to join us! {% if orgid %}We've created your personal account and will be in touch with next steps. {% endif %}To verify your email, click the link that we just sent to <strong>{{ user_email }}</strong>.</p>
-          </div>
-        </div>
-
-          <form method="post" action="{% url 'openCurrents:process_resend_verification' user_email %}">
-                  {% csrf_token %}
-                  <div class="row center one-margin-top">
-                    <input type="submit" class="resend-email_open button round" value="Resend email"/>
-                  </div>
-          </form>
-
-          {% if status == "success" %}
+        {% if status == "success" %}
           <div class="success row one-margin-top">
             <div class="medium-8 columns small-centered">
               <p class="no-margin-bottom">Verification email resent. It may take a few minutes for the email to arrive. If you still don't see it, check your Spam folder.</p>
             </div>
           </div>
-          {% elif status == "fail" %}
-          <div class="alert row half-margin-top">
+        {% elif status == "fail" %}
+          <div class="alert row one-margin-top">
             <p>Unable to resend verification email.</p>
           </div>
-          {% endif %}
+        {% endif %}
+
+        <div class="row">
+          <div class="medium-8 small-centered columns">
+            <h3 class="title">Check your email</h3>
+
+            <p>Great to have you with us! {% if orgid %}We've created your personal account and will be in touch with next steps. {% endif %}To verify your email, click the link that we just sent to <strong>{{ user_email }}</strong>.</p>
+          </div>
+        </div>
+
+        <form method="post" action="{% url 'openCurrents:process_resend_verification' user_email %}">
+          {% csrf_token %}
+          <div class="row center one-margin-top">
+            <input type="submit" class="button round" value="Resend email"/>
+          </div>
+        </form>
 
         <div class="row one-margin-bottom center">
           <div class="small-12 medium-8 small-centered columns">

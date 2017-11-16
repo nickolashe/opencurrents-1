@@ -14,6 +14,10 @@ def day(val, tz='UTC'):
     return val.astimezone(pytz.timezone(tz)).strftime('%b %d, %Y')
 
 @register.filter
+def day_only(val, tz='UTC'):
+    return val.astimezone(pytz.timezone(tz)).strftime('%b %d')
+
+@register.filter
 def time(val, tz='UTC'):
     return val.astimezone(pytz.timezone(tz)).strftime('%-I:%M %p')
 
@@ -25,3 +29,31 @@ def keyvalue(d, key):
 def addstr(arg1, arg2):
     """concatenate arg1 & arg2"""
     return str(arg1) + str(arg2)
+
+@register.filter
+def percent_to_price(arg1):
+	return float(arg1) * 0.01
+
+@register.filter
+def usd_to_current(arg1):
+	return float(arg1) * 0.1
+
+@register.filter
+def current_to_usd(arg1):
+	return float(arg1) * 10
+
+@register.filter
+def mult(arg1, arg2):
+	return float(arg1) * float(arg2)
+
+@register.filter
+def mult_three(arg1, arg2, arg3):
+	return float(arg1) * float(arg2) * float(arg3)
+
+@register.filter
+def str_to_num(arg1):
+	return float(arg1)
+
+@register.filter
+def get_hours_total(arg1, arg2):
+    return (arg2 - arg1).total_seconds() / 3600
