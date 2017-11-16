@@ -4,6 +4,7 @@
 <html>
   <head>
     {% include "partials/head.html" %}
+    <link href="{% static 'css/auto-complete.css' %}" rel="stylesheet" type="text/css">
 
     <script type="text/javascript" src="{% static 'js/jquery.timepicker.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/jquery-ui-datepicker.js' %}"></script>
@@ -218,6 +219,23 @@
       }
 
       google.maps.event.addDomListener(window, 'load', initialize);
+    </script>
+
+    <script type="text/javascript" src="{% static 'js/auto-complete.min.js' %}"></script>
+    <script type="text/javascript">
+      // initialize
+      var project_auto = new autoComplete({
+        selector: 'input[name="project_name"]',
+        minChars: 2,
+        source: function(term, suggest){
+          var choices = {{ project_names }}
+          console.log(choices)
+          var matches = [];
+          for (i=0; i<choices.length; i++)
+              if (~choices[i].toLowerCase().indexOf(term)) matches.push(choices[i]);
+          suggest(matches);
+        }
+      });
     </script>
 
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
