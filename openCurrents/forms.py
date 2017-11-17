@@ -261,6 +261,7 @@ class CreateEventForm(forms.Form):
         label='on',
         widget=widgets.TextWidget(attrs={
             'id': 'event-date',
+            'class': ' center',
             'placeholder': 'yyyy-mm-dd',
         })
     )
@@ -269,6 +270,7 @@ class CreateEventForm(forms.Form):
         label='from',
         widget=widgets.TextWidget(attrs={
             'id': 'event-starttime',
+            'class': ' center',
             'placeholder': '12:00 pm'
         })
     )
@@ -277,6 +279,7 @@ class CreateEventForm(forms.Form):
         label='to',
         widget=widgets.TextWidget(attrs={
             'id': 'event-endtime',
+            'class': ' center',
             'placeholder': '1:00 pm',
         })
     )
@@ -284,7 +287,7 @@ class CreateEventForm(forms.Form):
     event_privacy = forms.ChoiceField(
         widget=widgets.RadioWidget(
             attrs={
-                'class': 'custom-radio',
+                'class': 'custom-radio'
                 'id': 'id-event-privacy'
             }
         ),
