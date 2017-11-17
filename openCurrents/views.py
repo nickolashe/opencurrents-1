@@ -566,9 +566,10 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
 
                         # issue currents for hours approved
                         OcLedger().issue_currents(
-                            entity_id_from=self.org.orgentity.id,
-                            entity_id_to=usertimelog.user.userentity.id,
-                            amount=(usertimelog.datetime_end - usertimelog.datetime_start).total_seconds() / 3600
+                            self.org.orgentity.id,
+                            usertimelog.user.userentity.id,
+                            action,
+                            (usertimelog.datetime_end - usertimelog.datetime_start).total_seconds() / 3600
                         )
 
                     vols_approved += 1
@@ -2156,6 +2157,7 @@ def event_checkin(request, pk):
                 OcLedger().issue_currents(
                     admin_org.orgentity,
                     vol_user.userentity,
+                    actiontimelog,
                     (event.datetime_start - event.datetime_end).total_seconds() / 3600
                 )
                 clogger.info(
@@ -2187,6 +2189,7 @@ def event_checkin(request, pk):
                 OcLedger().issue_currents(
                     admin_org.orgentity,
                     admin_user.userentity,
+                    actiontimelog,
                     amount
                 )
             except Exception as e:

@@ -41,6 +41,7 @@ class OcLedger(object):
         entity_id_from,
         entity_type_to,
         entity_id_to,
+        action,
         amount,
         is_issued=False
     ):
@@ -56,6 +57,7 @@ class OcLedger(object):
         ledger_rec = Ledger(
             entity_from=entity_from,
             entity_to=entity_to,
+            action=action,
             amount=amount,
             is_issued=is_issued
         )
@@ -67,6 +69,7 @@ class OcLedger(object):
         self,
         entity_id_from,
         entity_id_to,
+        action,
         amount,
         entity_type_to='user',
         entity_type_from='org',
@@ -76,6 +79,7 @@ class OcLedger(object):
             entity_id_from,
             entity_type_to,
             entity_id_to,
+            action,
             amount,
             is_issued=True
         )
