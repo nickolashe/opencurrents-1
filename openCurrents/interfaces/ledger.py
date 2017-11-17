@@ -59,7 +59,7 @@ class OcLedger(object):
             amount=amount,
             is_issued=is_issued
         )
-        logger.info(ledger_rec)
+        #logger.info(ledger_rec)
 
         ledger_rec.save()
 

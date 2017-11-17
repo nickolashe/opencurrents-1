@@ -149,6 +149,12 @@ class Ledger(models.Model):
     amount = models.DecimalField(max_digits=12, decimal_places=2)
     is_issued = models.BooleanField(default=False)
 
+    # related action
+    action = models.ForeignKey(
+        'AdminActionUserTime',
+        on_delete=models.CASCADE
+    )
+
     # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)
     date_updated = models.DateTimeField('date updated', auto_now=True)
