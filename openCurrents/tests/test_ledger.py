@@ -3,14 +3,20 @@ from django.contrib.auth.models import User
 
 from openCurrents.models import \
     Org, \
+    Project, \
+    Event, \
     Entity, \
     UserEntity, \
     OrgEntity, \
-    Ledger
+    Ledger, \
+    UserTimeLog, \
+    AdminActionUserTime
 
 from openCurrents.interfaces.ledger import OcLedger, InsufficientFundsException
 from openCurrents.interfaces.ocuser import OcUser
 from openCurrents.interfaces.orgs import OcOrg
+
+from datetime import datetime, timedelta
 
 
 class TestOcLedger(TestCase):
@@ -44,11 +50,46 @@ class TestOcLedger(TestCase):
             status='npf'
         )
 
+        self.projectUserRegMT = Project(
+            org=self.orgTest,
+            name='MT by userReg'
+        )
+        self.projectUserRegMT.save()
+
+        self.eventUserRegMT = Event(
+            project=self.projectUserRegMT,
+            description='MT by userReg',
+            location='test',
+            coordinator=self.userOrg,
+            creator_id=self.userOrg.id,
+            event_type='MN',
+            datetime_start=datetime.now() - timedelta(hours=2),
+            datetime_end=datetime.now() - timedelta(hours=1)
+        )
+        self.eventUserRegMT.save()
+
+        self.userRegTimeLog = UserTimeLog(
+            user=self.userReg,
+            event=self.eventUserRegMT,
+            is_verified=True,
+            datetime_start=datetime.now(),
+            datetime_end=datetime.now() + timedelta(hours=1)
+        )
+        self.userRegTimeLog.save()
+
+        self.actionUserReg = AdminActionUserTime(
+            user=self.userOrg,
+            usertimelog=self.userRegTimeLog,
+            action_type='app'
+        )
+        self.actionUserReg.save()
+
         # issue currents to userReg
         self.ledger.issue_currents(
-            entity_id_from=self.orgTest.orgentity.id,
-            entity_id_to=self.userReg.userentity.id,
-            amount=1
+            self.orgTest.orgentity.id,
+            self.userReg.userentity.id,
+            self.actionUserReg,
+            1
         )
 
     def tearDown(self):
@@ -95,7 +136,8 @@ class TestOcLedger(TestCase):
             entity_type_from='user',
             entity_id_from=self.userReg.userentity.id,
             entity_type_to='user',
-            entity_id_to=self.userOrg.userentity.id,
+            entity_id_to=self.userBiz.userentity.id,
+            action=self.actionUserReg,
             amount=1,
         )
         self.assertEqual(
@@ -103,12 +145,8 @@ class TestOcLedger(TestCase):
             0
         )
         self.assertEqual(
-            self.ledger.get_balance(self.userOrg.userentity.id),
+            self.ledger.get_balance(self.userBiz.userentity.id),
             1
-        )
-        self.assertEqual(
-            self.ledger.get_balance(self.orgTest.orgentity.id, 'org'),
-            0
         )
 
     def test_insufficient_funds(self):
@@ -121,6 +159,7 @@ class TestOcLedger(TestCase):
                 entity_id_from=self.userReg.userentity.id,
                 entity_type_to='user',
                 entity_id_to=self.userOrg.userentity.id,
+                action=self.actionUserReg,
                 amount=100
             )
 
