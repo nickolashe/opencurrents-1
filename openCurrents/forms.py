@@ -250,15 +250,12 @@ class CreateEventForm(forms.Form):
 
     # form field definitions follow
     project_name = forms.CharField(
-        label='Let\'s...',
-        widget=forms.TextInput(attrs={
-            'class': ' center',
+        widget=widgets.TextWidget(attrs={
             'placeholder': 'do some good'
         })
     )
 
     event_date = forms.CharField(
-        label='on',
         widget=widgets.TextWidget(attrs={
             'id': 'event-date',
             'placeholder': 'yyyy-mm-dd',
@@ -266,7 +263,6 @@ class CreateEventForm(forms.Form):
     )
 
     event_starttime = forms.CharField(
-        label='from',
         widget=widgets.TextWidget(attrs={
             'id': 'event-starttime',
             'placeholder': '12:00 pm'
@@ -274,7 +270,6 @@ class CreateEventForm(forms.Form):
     )
 
     event_endtime = forms.CharField(
-        label='to',
         widget=widgets.TextWidget(attrs={
             'id': 'event-endtime',
             'placeholder': '1:00 pm',
@@ -293,8 +288,6 @@ class CreateEventForm(forms.Form):
     )
 
     event_description = forms.CharField(
-        label='Description',
-        help_text='What should volunteers know? What should they bring?',
         widget=forms.Textarea(attrs={
             'rows': '3'
         }),
@@ -683,6 +676,16 @@ class RedeemCurrentsForm(forms.Form):
             'class': 'hidden-file',
             'id': 'upload-receipt',
             'accept': 'image/*'
+<<<<<<< HEAD
+=======
+        })
+    )
+
+    redeem_receipt_if_checked = forms.BooleanField(
+        widget=forms.CheckboxInput(attrs={
+            'class': 'hidden',
+            'id': 'receipt-if-checked'
+>>>>>>> 8c9c08651fc8c4de5b355f61fd2d3acab489ca06
         }),
         required=False
     )

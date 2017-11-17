@@ -55,26 +55,16 @@
           <div class="row one-margin-bottom">
             <div class="small-12 medium-6 small-centered columns">
               {{ form.project_name.errors }}
-              <h6 class="fit-left navy half-margin-top">{{ form.project_name.label }}</h6>
+              <h6 class="fit-left navy half-margin-top">Let's...</h6>
               <span class="input-sizer"> {{ form.project_name }} </span>
-              {% if form.project_name.help_text %}
-                <p class="small">
-                  ({{ form.project_name.help_text|safe }})
-                </p>
-              {% endif %}
             </div>
           </div>
 
           <div class="row one-margin-bottom">
             <div class="small-8 medium-4 small-centered columns">
               {{ form.event_date.errors }}
-              <h6 class="fit-left navy half-margin-top"> {{ form.event_date.label }} </h6>
+              <h6 class="fit-left navy half-margin-top"> on </h6>
               <span class="input-sizer"> {{ form.event_date }} </span>
-              {% if form.event_date.help_text %}
-                <p class="small">
-                  ({{ form.event_date.help_text|safe }})
-                </p>
-              {% endif %}
             </div>
           </div>
 
@@ -83,24 +73,14 @@
               <div class="row">
                 <div class="input-left small-6 columns">
                   {{ form.event_starttime.errors }}
-                  <h6 class="fit-left navy half-margin-top"> {{ form.event_starttime.label }} </h6>
+                  <h6 class="fit-left navy half-margin-top"> from </h6>
                   <span class="input-sizer"> {{ form.event_starttime }} </span>
-                  {% if form.event_starttime.help_text %}
-                    <p class="small">
-                      ({{ form.event_starttime.help_text|safe }})
-                    </p>
-                  {% endif %}
                 </div>
 
                 <div class="input-right small-6 columns">
                   {{ form.event_endtime.errors }}
-                  <h6 class="fit-left navy half-margin-top"> {{ form.event_endtime.label }} </h6>
+                  <h6 class="fit-left navy half-margin-top"> to </h6>
                   <span class="input-sizer"> {{ form.event_endtime }} </span>
-                  {% if form.event_endtime.help_text %}
-                    <p class="small">
-                      ({{ form.event_endtime.help_text|safe }})
-                    </p>
-                  {% endif %}
                 </div>
               </div>
             </div>
@@ -120,24 +100,28 @@
           <a id="add-location"><i class="fa fa-plus-circle half-margin-right"></i>Add another location</a>
 
           <div class="row three-halves-margin-top">
-              {{form.event_privacy.0.tag}}
-              <label for="id-event-privacy">Public event</label>
+            {{form.event_privacy.0.tag}}
+            <label for="id-event-privacy">
+              Public event
+            </label>
 
-              {{form.event_privacy.1.tag}}
-              <label for="id-event-privacy" class="two-margin-left">Invite only</label>
+            {{form.event_privacy.1.tag}}
+            <label for="id-event-privacy" class="two-margin-left">
+              Invite only
+            </label>
 
-              <a class="privacy-info-popup_open"><i class="half-margin-left fa fa-lg fa-question-circle grey"></i></a>
+            <a class="privacy-info-popup_open">
+              <i class="half-margin-left fa fa-lg fa-question-circle grey"></i>
+            </a>
           </div>
 
           <div class="three-halves-margin-top row left">
             <div class="small-12 medium-6 small-centered columns">
               {{ form.event_description.errors }}
-              <h6 class="navy no-margin-bottom">{{ form.event_description.label }}</h6>
-              {% if form.event_description.help_text %}
+              <h6 class="navy no-margin-bottom"> Event description </h6>
                 <p class="small-text grey no-margin-bottom">
-                  {{ form.event_description.help_text|safe }}
+                  What should volunteers know? What should they bring?
                 </p>
-              {% endif %}
               <span class="input-sizer"> {{ form.event_description }} </span>
             </div>
           </div>
@@ -145,7 +129,10 @@
           <div class="one-margin-top row left">
             <div class="small-12 medium-6 small-centered columns">
               <h6 class="navy no-margin-bottom">Event coordinator</h6>
-              <p class="small-text grey">Only the coordinator will be able to respond to volunteers once they register.</p>
+              <p class="small-text grey">
+                Only the coordinator will be able to respond to volunteers
+                once they register.
+              </p>
 
               {{ form.event_coordinator }}
 
