@@ -1,0 +1,95 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} My hours for {{ orgname }} {% endblock title %}
+
+{% block content %}
+  <div class="row">
+    <div class="medium-10 small-centered columns">
+      <div class="left row">
+        <div class="small-3 columns">
+          <p>
+            <strong>Date</strong>
+          </p>
+        </div>
+
+        <div class="small-6 columns">
+          <p>
+            <strong>Description</strong>
+          </p>
+        </div>
+
+        <div class="right small-3 columns">
+          <p>
+            <strong>Hours</strong>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- for record in user's hours_approved -->
+  <div class="row">
+    <div class="medium-10 small-centered columns">
+      <div class="left row">
+        <div class="small-3 columns">
+          <p class="half-margin-bottom">Nov 17</p>
+        </div>
+
+        <div class="small-6 columns">
+          <p class="half-margin-bottom">Doing my thing for the greater good</p>
+        </div>
+
+        <div class="right small-2 columns">
+          <p class="half-margin-bottom">2.25</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- endfor -->
+
+      <!-- delete once forloop added -->
+      <div class="row">
+        <div class="medium-10 small-centered columns">
+          <div class="left row">
+            <div class="small-3 columns">
+              <p class="half-margin-bottom">Nov 17</p>
+            </div>
+
+            <div class="small-6 columns">
+              <p class="half-margin-bottom">Doing my thing for the greater good</p>
+            </div>
+
+            <div class="right small-2 columns">
+              <p class="half-margin-bottom">2.25</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="medium-10 small-centered columns">
+          <div class="left row">
+            <div class="small-3 columns">
+              <p class="half-margin-bottom">Nov 17</p>
+            </div>
+
+            <div class="small-6 columns">
+              <p class="half-margin-bottom">Doing my thing for the greater good</p>
+            </div>
+
+            <div class="right small-2 columns">
+              <p class="half-margin-bottom">2.25</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- end delete -->
+
+  <div class="row three-halves-margin-top">
+    <a href="{% url 'openCurrents:profile' %}" class="button round">
+      Back to profile
+    </a>
+  </div>
+
+{% endblock content %}

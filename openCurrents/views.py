@@ -643,6 +643,10 @@ class HoursApprovedView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'hours-approved.html'
 
 
+class HoursDetailView(LoginRequiredMixin, SessionContextView, TemplateView):
+    template_name = 'hours-detail.html'
+
+
 class InviteAdminsView(TemplateView):
     template_name = 'invite-admins.html'
 
