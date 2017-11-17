@@ -287,6 +287,7 @@ class UserTimeLog(models.Model):
 
     class Meta:
         get_latest_by = 'datetime_start'
+        unique_together = ('user', 'event')        
 
     def __unicode__(self):
         tz = self.event.project.org.timezone
