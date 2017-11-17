@@ -4,6 +4,8 @@ from django.db import models
 
 from uuid import uuid4
 
+from datetime import datetime, timedelta
+
 import pytz
 
 # Notes:
@@ -11,7 +13,8 @@ import pytz
 
 
 def one_week_from_now():
-    return timezone.now() + timedelta(days=7)
+    return datetime.now() + timedelta(days=7)
+
 
 def diffInMinutes(t1, t2):
     return round((t2 - t1).total_seconds() / 60, 1)
@@ -22,19 +25,16 @@ def diffInHours(t1, t2):
 
 
 # org model
-
-
 class Org(models.Model):
     name = models.CharField(max_length=100, unique=True)
     website = models.CharField(max_length=100, null=True, blank=True)
-    status = models.CharField(max_length=50, null=True)
-    #mission = models.CharField(max_length=4096, null=True)
-    #reason = models.CharField(max_length=4096, null=True)
+    # mission = models.CharField(max_length=4096, null=True)
+    # reason = models.CharField(max_length=4096, null=True)
 
     org_types = (
         ('biz', 'business'),
         ('npf', 'non-profit')
-    )  
+    )
     status = models.CharField(
         max_length=3,
         choices=org_types,
@@ -61,6 +61,7 @@ class Org(models.Model):
 class OrgUser(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     org = models.ForeignKey(Org)
+
     affiliation = models.CharField(max_length=50, null=True)
 
     # created / updated timestamps
@@ -80,10 +81,40 @@ class OrgUser(models.Model):
         ])
 
 
-class Account(models.Model):
-    user = models.OneToOneField(User)
-    amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    pending = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+class Entity(models.Model):
+    pass
+
+
+class UserEntity(Entity):
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE
+    )
+    entity_type = 'user'
+
+    def __unicode__(self):
+        return '%s\'s user entity' % self.user.username
+
+
+class OrgEntity(Entity):
+    org = models.OneToOneField(
+        Org,
+        on_delete=models.CASCADE
+    )
+    entity_type = 'org'
+
+    def __unicode__(self):
+        return '%s\'s org entity' % self.org.name
+
+
+class UserSettings(models.Model):
+    '''
+    user settings
+    '''
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
     timezone = models.CharField(max_length=128, default='America/Chicago')
     monthly_updates = models.BooleanField(default=False)
 
@@ -92,7 +123,56 @@ class Account(models.Model):
     date_updated = models.DateTimeField('date last updated', auto_now=True)
 
     def __unicode__(self):
-        return ' '.join([self.user.username, '\'s account'])
+        return '%s\'s settings' % self.user.username
+
+
+class Ledger(models.Model):
+    '''
+    Transaction Ledger
+    '''
+    entity_from = models.ForeignKey(
+        Entity,
+        related_name='transaction_out'
+    )
+    entity_to = models.ForeignKey(
+        Entity,
+        related_name='transaction_in'
+    )
+    currency = models.CharField(
+        choices=(
+            ('cur', 'current'),
+            ('usd', 'dollar')
+        ),
+        default='cur',
+        max_length=3
+    )
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    is_issued = models.BooleanField(default=False)
+
+    # related action
+    action = models.ForeignKey(
+        'AdminActionUserTime',
+        on_delete=models.CASCADE,
+        null=True
+    )
+
+    # created / updated timestamps
+    date_created = models.DateTimeField('date created', auto_now_add=True)
+    date_updated = models.DateTimeField('date updated', auto_now=True)
+
+    def __unicode__(self):
+        return ' '.join([
+            'Transaction from',
+            str(self.entity_from),
+            'to',
+            str(self.entity_to),
+            'in the amount of',
+            str(self.amount),
+            'on',
+            self.date_created.strftime(
+                '%Y-%m-%d %I-%M %p'
+            )
+        ])
 
 
 class Project(models.Model):
@@ -117,9 +197,8 @@ class Event(models.Model):
     description = models.CharField(max_length=8192)
     location = models.CharField(max_length=1024)
 
-    # coordinator contact info
-    coordinator_firstname = models.CharField(max_length=128)
-    coordinator_email = models.EmailField()
+    # coordinator
+    coordinator = models.ForeignKey(User, null=True)
 
     # event creator userid and notification flag
     creator_id = models.IntegerField(default=0)
@@ -215,6 +294,7 @@ class UserTimeLog(models.Model):
 
     class Meta:
         get_latest_by = 'datetime_start'
+        unique_together = ('user', 'event')
 
     def __unicode__(self):
         tz = self.event.project.org.timezone
@@ -240,7 +320,10 @@ class UserTimeLog(models.Model):
 
 class AdminActionUserTime(models.Model):
     user = models.ForeignKey(User)
-    usertimelog = models.ForeignKey(UserTimeLog)
+    usertimelog = models.ForeignKey(
+        UserTimeLog,
+        on_delete=models.CASCADE
+    )
     action_type_choices = (
         ('app', 'approved'),
         ('def', 'deferred'),
@@ -277,6 +360,8 @@ class Token(models.Model):
     email = models.EmailField()
     is_verified = models.BooleanField(default=False)
     token = models.UUIDField(default=uuid4)
+
+    # TODO: restrict to choices
     token_type = models.CharField(max_length=20)
 
     # referring user
@@ -338,11 +423,23 @@ class Offer(models.Model):
 
 class Transaction(models.Model):
     user = models.ForeignKey(User)
+
     offer = models.ForeignKey(
         Offer,
         on_delete=models.CASCADE
     )
-    pop_image = models.ImageField(upload_to='images/redeem/%Y/%m/%d')
+
+    pop_image = models.ImageField(
+        upload_to='images/redeem/%Y/%m/%d',
+        null=True
+    )
+
+    # text description
+    pop_no_proof = models.CharField(
+        max_length=8096,
+        null=True
+    )
+
     pop_type = models.CharField(
         max_length=3,
         choices=[
@@ -351,19 +448,38 @@ class Transaction(models.Model):
         ],
         default='rec'
     )
+
+    # price paid as reported in the form
     price_reported = models.DecimalField(
         decimal_places=2,
         max_digits=10
+    )
+
+    # actual price based on receipt / proof
+    price_actual = models.DecimalField(
+        decimal_places=2,
+        max_digits=10
+    )
+
+    # actual current to be redeemed
+    currents_amount = models.DecimalField(
+        decimal_places=3,
+        max_digits=12
     )
 
     # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)
     date_updated = models.DateTimeField('date updated', auto_now=True)
 
+    def save(self, *args, **kwargs):
+        if not self.price_actual:
+            self.price_actual = self.price_reported
+        super(Transaction, self).save(*args, **kwargs)
+
     def __unicode__(self):
         return ' '.join([
             'Transaction initiated by user',
-            self.user.username,           
+            self.user.username,
             'for offer',
             str(self.offer.id),
             'at',
@@ -399,4 +515,4 @@ class TransactionAction(models.Model):
             str(self.transaction.id),
             'at',
             self.date_updated.strftime('%m/%d/%Y %H:%M:%S'),
-        ])    
+        ])

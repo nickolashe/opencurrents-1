@@ -12,14 +12,15 @@
 
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
-        {% if status_msg %}
-        <div class="alert row half-margin-top">
-          {{status_msg}}
-        </div>
-        {% endif %}
 
         <form method="post" action="{% url 'openCurrents:event_register' event.id %}">
           {% csrf_token %}
+
+          {% if status_msg %}
+          <div class="alert row half-margin-top">
+            {{status_msg}}
+          </div>
+          {% endif %}
 
           <div class="row">
             <h4 class="title-sub">Let's {{ event.project.name }}!</h4>
@@ -39,8 +40,8 @@
                 {% if event.is_public %}
                   Public
                 {% else %}
-                  Private 
-                {% endif %} 
+                  Private
+                {% endif %}
 
                 event
               </p>
@@ -60,31 +61,30 @@
                   <h6 class="navy inline">Contact invited volunteers</h6>
                   <a class="registrants-box_open no-wrap">See invitees</a>
                 {% elif is_registered %}
-                  <h6 class="navy inline">Contact event coordinator</h6>
+                  <h6 class="navy inline">Get in touch</h6>
                 {% else %}
                   <h6 class="navy inline">{{ form.contact_message.label }}</h6>
                 {% endif %}
-              
-              {% if form.contact_message.help_text %}
+
                 <p class="small-text grey no-margin-bottom">
                   {% if not coordinator %}
-                    {{ form.contact_message.help_text|safe }}
+                    Event coordinator: {{ event.coordinator.first_name }} {{ event.coordinator.last_name }}
                   {% endif %}
                 </p>
-              {% endif %}
+
               {{ form.contact_message }}
 
             </div>
           </div>
 
           <div class="one-margin-top center">
-            <a type='submit' class="button round">
+            <button type='submit' class="button round">
               {% if not is_registered and not coordinator %}
                 Register
               {% else %}
                 Send message
               {% endif %}
-            </a>
+            </button>
           </div>
           <a href="{% url 'openCurrents:profile' %}">
             Back to profile
@@ -104,24 +104,26 @@
 
     <div id="registrants-box" class="modal center small-12 medium-9 large-7 small-centered columns">
       <h3 class="popup-title center">Invited volunteers</h3>
-      <div class="row center">
+      <div class="row left">
         <div class="small-10 medium-6 small-centered columns">
-          <ul class="left">
-            {% if registrants %}
+          {% if registrants %}
+            <p class="half-margin-bottom"><strong>Name or email</strong></p>
+            <ul>
               {% for name in registrants_names %}
                 <li class="no-bullet">{{ name }}</li>
               {% endfor %}
-            {% else %}
-              <li class="no-bullet">No volunteers have registered or been invited yet.</li>
-            {% endif %}
-          </ul>
+            </ul>
+            <a id="copy-emails" class="button round small">Copy email list</a>
+          {% else %}
+            <p>No volunteers have registered or been invited yet.</p>
+            <a href="{% url 'openCurrents:invite-volunteers' event.id %}" class="button round small">Invite volunteers</a>
+          {% endif %}
+
+          <a class="registrants-box_close button round small secondary">Close</a>
 
           <textarea id="email-list" class="hidden">
             {{ registrants|join:', ' }}
           </textarea>
-
-          <button id="copy-emails" class="button round small">Copy email list</button>
-          <a class="registrants-box_close button round small secondary">Close</a>
         </div>
       </div>
     </div>

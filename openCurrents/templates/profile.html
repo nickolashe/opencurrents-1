@@ -1,5 +1,10 @@
-{% load staticfiles %}
+{% extends 'user-hour-request-list.html' %}
+
+{% load macros %}
 {% load tags %}
+{% load staticfiles %}
+
+{% block main %}
 
 <!DOCTYPE html>
 <html>
@@ -15,14 +20,16 @@
 
         {% if status_msg %}
         <div class="success row half-margin-top">
-          {{status_msg}}
+          {{ status_msg }}
         </div>
         {% endif %}
 
 
         <div class="row">
           <div class="small-12 small-centered columns">
-            <h5 class="two-margin-top no-margin-bottom">{{ user.first_name }} {{ user.last_name }}</h5>
+            <h5 class="two-margin-top no-margin-bottom">
+              {{ user.first_name }} {{ user.last_name }}
+            </h5>
 
             {% if is_admin_org or is_admin_biz %}
               <h6 class="inline half-margin-right">{{ orgname }}</h6>
@@ -36,14 +43,24 @@
             {% endif %}
 
             <p class="half-margin-top half-margin-bottom">
-              <a class="earn-currents-popup_open button round small">Volunteer</a>
+              <a class="earn-currents-popup_open button round small">
+                Volunteer
+              </a>
             </p>
 
             <div class="row">
               <div class="small-12 medium-6 columns">
-                <h6 class="inline-block qtr-margin-bottom">Currents available: </h6>
-                <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/><h6 class="inline-block no-margin-bottom">{{ user_balance_verified }}</h6>
-                <p class="grey half-margin-bottom">Pending: <img class="med-text-symbol" src="{% static 'img/symbol.svg' %}"/>{{ user_balance_pending }}</p>
+                <h6 class="inline-block qtr-margin-bottom">
+                  Currents available:
+                </h6>
+                <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
+                <h6 class="inline-block no-margin-bottom">
+                  {{ balance_available }}
+                </h6>
+                <p class="grey half-margin-bottom">Pending:
+                  <img class="med-text-symbol" src="{% static 'img/symbol.svg' %}"/>
+                  {{ balance_pending }}
+                </p>
                 <p class="no-margin-bottom">
                   <a href="{% url 'openCurrents:marketplace' %}" class="button round secondary tiny">
                     Redeem
@@ -52,11 +69,20 @@
               </div>
 
               <div class="small-12 medium-6 columns">
-                <h6 class="qtr-margin-bottom">Dollars available: $(20)</h6>
-                <p class="grey half-margin-bottom">Pending: $(10)</p>
+                <h6 class="qtr-margin-bottom">
+                  Dollars available: ${{ balance_available_usd }}
+                </h6>
+                <p class="grey half-margin-bottom">
+                  Pending: ${{ balance_pending_usd }}
+                </p>
 
-                <!-- if available_dollars this button should have class cash-out-popup_open else no-cash-popup_open -->
-                <a class="cash-out-popup_open button round secondary tiny">
+                <a class="
+                  {% if balance_available_usd|str_to_num > 0 %}
+                    cash-out-popup_open
+                  {% else %}
+                    no-cash-popup_open
+                  {% endif %}
+                   button round secondary tiny">
                   Cash out
                 </a>
               </div>
@@ -81,9 +107,13 @@
                   </div>
 
                   <div class="right relative small-3 columns">
-                    <a class="mini-open"><i class="blue half-margin-right fa-chevron-circle-down fa fa-lg"></i></a>
+                    <a class="mini-open">
+                      <i class="blue half-margin-right fa-chevron-circle-down fa fa-lg"></i>
+                    </a>
                     <ul class="mini-menu">
-                      <a href="{% url 'openCurrents:event-detail' event.id %}"><li>View event details</li></a>
+                      <a href="{% url 'openCurrents:event-detail' event.id %}">
+                        <li>View event details</li>
+                      </a>
                     </ul>
                   </div>
                 </div>
@@ -122,18 +152,27 @@
                       <strong>
                         {{ transaction.offer.org.name }}
                       </strong>
-                      {% with price=transaction.price_reported percent_share=transaction.offer.currents_share|percent_to_price %}
-                        {% with price_share=price|mult:percent_share %}
+                      {% with amount_cur=transaction.currents_amount %}
+                        {% with amount_usd=amount_cur|current_to_usd %}
                           {% if status == 'pending' %}
-                            offers ${{ price_share|floatformat:2 }} for
+                            offers ${{ amount_usd|floatformat:2 }} for
                             <span class="no-wrap">
-                              <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ price_share|usd_to_current|floatformat:3 }}
+                              <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ amount_cur|floatformat:3 }}
                             </span>
+
                           {% elif status == 'approved' %}
                             accepted
-                            <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ price_share|usd_to_current|floatformat:3 }}
-                            for ${{ price_share|floatformat:2 }}
+                            <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ amount_cur|floatformat:3 }}
+                            for ${{ amount_usd|floatformat:2 }}
+
+                          {% elif status == 'redeemed' %}
+                            received
+                            <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ amount_cur|floatformat:3 }}
+                            for ${{ amount_usd|floatformat:2 }}
+
+                          {# add declined #}
                           {% endif %}
+
                         {% endwith %}
                       {% endwith %}
                     </div>
@@ -155,6 +194,16 @@
           </div>
         </div>
 
+        {% macro user_hour_request_list_macro arg_list arg_status arg_timezone %}
+          {% block user_hour_request_list %}
+            {% with hours_list=arg_list hours_status=arg_status timezone=arg_timezone %}
+              {{ block.super }}
+            {% endwith %}
+          {% endblock %}
+        {% endmacro %}
+
+        {% usemacro user_hour_request_list_macro hours_requested 'requested' timezone %}
+        {% usemacro user_hour_request_list_macro hours_approved 'approved' timezone %}
 
         <!-- community feed code. Hardcoded not dynamic -->
         <!-- <div class="row full-width collapse one-margin-bottom">
@@ -249,13 +298,15 @@
         <div class="row center">
           <div class="small-centered medium-10 columns">
             <h4 class="popup-title">Welcome to the openCurrents beta</h4>
-            <p>We're excited to have you with us! We are just getting started and your contribution to growing our community is essential.</p>
+            <p>We're excited to have you with us! We are just getting started
+              and your contribution to growing our community is essential.</p>
 
-            <p>Are you willing to help us connect with businesses where you shop, nonprofits where you volunteer, or friends who might be interested?</p>
+            <p>Are you willing to help us connect with businesses where you shop,
+              nonprofits where you volunteer, or friends who might be interested?</p>
 
             <p class="three-halves-margin-top">
-              <a type="submit" class="button round">Yes</a>
-              <a type="submit" class="button round secondary">No</a>
+              <button type="submit" class="button round">Yes</button>
+              <button type="submit" class="button round secondary">No</button>
             </p>
           </div>
         </div>
@@ -270,16 +321,33 @@
 
       <div class="row center half-margin-top">
         <div class="half-margin-bottom small-12 medium-6 columns">
-          <h6>Volunteer at an event</h6>
-          <p>Check out these upcoming opportunities with participating organizations:</p>
-          <a href="{% url 'openCurrents:upcoming-events' %}" class="button round small">View upcoming events</a>
+          <h6>I want to volunteer</h6>
+          <p>Check out upcoming opportunities with participating organizations:</p>
+          <a href="{% url 'openCurrents:upcoming-events' %}" class="button round small">View opportunities</a>
         </div>
 
         <div class="small-12 medium-6 columns">
-          <h6>Track volunteer time</h6>
-          <p>If you already give time with a participating organization, track your hours here:</p>
-          <a href="{% url 'openCurrents:time-tracker' %}" class="button round small">Record hours</a>
+          <h6>I already volunteer</h6>
+          <p>If you already give time with a nonprofit, track your hours here:</p>
+          <a href="{% url 'openCurrents:time-tracker' %}" class="button round small">
+            Record hours
+          </a>
         </div>
+      </div>
+    </div>
+
+    <div id="balance-popup" class="modal center small-12 medium-9 small-centered columns">
+      <div class="row collapse center">
+        <div class="small-centered medium-11 columns">
+          <h6 class="popup-title">
+            Balance &ndash; Requested offers = Currents available
+          </h6>
+        </div>
+      </div>
+      <div class="row">
+        <div class="medium-4 columns"><h6></h6></div>
+        <div class="medium-4 columns"><h6></h6></div>
+        <div class="medium-4 columns"><h6></h6></div>
       </div>
     </div>
 
@@ -288,10 +356,14 @@
         <h3 class="popup-title">No dollars available</h3>
       </div>
 
-      <div class="row center one-margin-top">
+      <div class="row center">
         <div class="small-centered medium-10 columns">
-          <p>You do not yet have dollars available to transfer to your bank account. If you have redeemed an offer and have pending dollars in your account, you'll need to wait until the business verifies your proof of purchase at the end of the month.</p>
-          <p>To see offers from businesses in the community, please visit the marketplace by clicking "Redeem" in your profile.</p>
+          <p>You do not yet have dollars available to transfer to your bank
+            account. If you have redeemed an offer and have pending dollars in
+            your account, you'll need to wait until the business verifies your
+            proof of purchase at the end of the month.</p>
+          <p>To see offers from businesses in the community, please visit the
+            marketplace by clicking "Redeem" in your profile.</p>
           <a class="no-cash-popup_close button round">Got it</a>
         </div>
       </div>
@@ -302,10 +374,15 @@
         <h3 class="popup-title">Confirm cash out</h3>
       </div>
 
-      <form>
+      <form method="post">
+        {% csrf_token %}
         <div class="row center">
           <div class="small-centered medium-10 columns">
-            <p class="three-halves-margin-bottom">openCurrents uses Dwolla to send cash directly to your bank account. You will receive an email in the next 48 hours inviting you to transfer your full balance. If you have any questions, don't hesitate to reach out.</p>
+            <p class="three-halves-margin-bottom">
+              openCurrents uses Dwolla to send cash directly to your bank
+              account. You will receive an email in the next 48 hours inviting
+              you to transfer your full balance of ${{ balance_available_usd }}.
+              If you have any questions, don't hesitate to reach out.</p>
 
             <a class="button round">Send dollars</a>
             <a href="javascript:void(Tawk_API.toggle())" class="button round secondary">Contact us</a>
@@ -369,7 +446,7 @@
           var open = false;
         }
 
-        $('#rsvp-popup, #earn-currents-popup, #no-cash-popup, #cash-out-popup').popup({
+        $('#rsvp-popup, #earn-currents-popup, #balance-popup, #no-cash-popup, #cash-out-popup').popup({
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: true,
@@ -379,7 +456,7 @@
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: true,
-          autoopen: true,
+          //autoopen: true,
         });
 
         $('.mini-open').click(function(){
@@ -412,3 +489,4 @@
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
   </body>
 </html>
+{% endblock %}

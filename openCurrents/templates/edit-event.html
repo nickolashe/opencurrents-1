@@ -4,6 +4,7 @@
 <html>
   <head>
     {% include "partials/head.html" %}
+    <link href="{% static 'css/auto-complete.css' %}" rel="stylesheet" type="text/css">
 
     <script type="text/javascript" src="{% static 'js/jquery.timepicker.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/jquery-ui-datepicker.js' %}"></script>
@@ -14,7 +15,7 @@
 
   <body>
 
-    {% include "partials/header.html" %}  
+    {% include "partials/header.html" %}
 
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
@@ -33,14 +34,18 @@
             <div class="small-12 medium-6 small-centered columns">
 
               <h6 class="fit-left navy half-margin-top">Let's...</h6>
-              <span class="input-sizer"><input name="project-name" class="center" type="text" placeholder="do some good" value="{{ event.project.name }}"/></span>
+              <span class="input-sizer">
+                {{ form.project_name }}
+              </span>
             </div>
           </div>
 
           <div class="row one-margin-bottom">
             <div class="small-8 medium-4 small-centered columns">
               <h6 class="fit-left navy half-margin-top">on</h6>
-              <span class="input-sizer"><input name="project-date" id="project-date" class="center" type="text" placeholder="yyyy-mm-dd" value="{{date_start}}" /></span>
+              <span class="input-sizer">
+                {{ form.event_date }}
+              </span>
             </div>
           </div>
 
@@ -49,12 +54,16 @@
               <div class="row">
                 <div class="input-left small-6 columns">
                   <h6 class="fit-left navy half-margin-top">from</h6>
-                  <span class="input-sizer"><input name="project-start" id="project-start" class="center" type="text" placeholder="12:00 pm" value="{{ start_time }}" /></span>
+                  <span class="input-sizer">
+                    {{ form.event_starttime }}
+                  </span>
                 </div>
 
                 <div class="input-right small-6 columns">
                   <h6 class="fit-left navy half-margin-top">to</h6>
-                  <span class="input-sizer"><input name="project-end" id="project-end" class="center" type="text" placeholder="12:00 pm" value="{{end_time}}" /></span>
+                  <span class="input-sizer">
+                    {{ form.event_endtime }}
+                  </span>
                 </div>
               </div>
             </div>
@@ -63,74 +72,56 @@
           <div class="row center">
             <div id="location-box" class="small-12 medium-6 small-centered columns">
               <h6 class="fit-left navy half-margin-top">at</h6>
-              <span class="input-sizer"><input name="project-location-1" id="project-location-1" type="text" class="center" placeholder="location" value="{{event.location}}"/></span>
+              <span class="input-sizer">
+                {{ form.event_location }}
+                <!-- <input name="event-location" id="event-location-1" type="text" class="center" placeholder="location" value="{{event.location}}"/> -->
+              </span>
             </div>
           </div>
 
-          <a id="add-location"><i class="fa fa-plus-circle half-margin-right"></i>Add another location</a>
+          <!-- <a id="add-location"><i class="fa fa-plus-circle half-margin-right"></i>Add another location</a> -->
 
           <div class="row three-halves-margin-top">
-            <input type="radio" id="event-privacy-1" name="event-privacy" value="1" class="custom-radio" {% if event.is_public %} checked {% endif %}/>
-              <label for="event-privacy-1">Public event</label>
-            <input type="radio" id="event-privacy-2" name="event-privacy" value="2" class="custom-radio" {% if not event.is_public %} checked {% endif %}/>
-              <label for="event-privacy-2" class="two-margin-left">Invite only</label>
+            {{ form.event_privacy.0.tag }}
+            <label for="id_event_privacy_0">Public event</label>
+
+            {{ form.event_privacy.1.tag }}
+            <label for="id_event_privacy_1" class="two-margin-left">Invite only</label>
 
             <a class="privacy-info-popup_open"><i class="half-margin-left fa fa-lg fa-question-circle grey"></i></a>
           </div>
 
-          <div class="three-halves-margin-top row left">
-            <div class="small-12 medium-6 small-centered columns">
-              <h6 class="navy no-margin-bottom">Project description</h6>
-              <p class="small-text grey no-margin-bottom">What should volunteers know? What should they bring?</p>
-              <textarea name="project-description" placeholder="" rows="4" value="">{{event.description}}</textarea>
-            </div>
-
-          </div>
-
           <div class="one-margin-top row left">
             <div class="small-12 medium-6 small-centered columns">
-              <h6 class="navy no-margin-bottom">Project coordinator</h6>
+              <h6 class="navy no-margin-bottom">Event coordinator</h6>
               <p class="small-text grey">Who will respond to volunteers who register?</p>
 
-              <div class="row">
-                <div class="input-left small-5 columns">
-                  <input type="text" name="coordinator-name" placeholder="First name" value="{{event.coordinator_firstname}}"/>
-                </div>
+              {{ form.event_coordinator }}
 
-                <div class="input-right small-7 columns">
-                  <input type="text" name="coordinator-email" placeholder="Email" value="{{event.coordinator_email}}"/>
-                </div>
-              </div>
             </div>
+          </div>
+
+          <div class="three-halves-margin-top row left">
+            <div class="small-12 medium-6 small-centered columns">
+              <h6 class="navy no-margin-bottom">
+                Event description
+              </h6>
+              <p class="small-text grey no-margin-bottom">
+                What should volunteers know? What should they bring?
+              </p>
+
+              {{ form.event_description }}
+            </div>
+
           </div>
 
           <div class="row">
             <div class="small-6 small-centered columns">
               <input type='submit' name='save-button' class="one-margin-top button round" value="Save event">
-              <p><a class="button round tiny alert">Delete event</a></p>
              <!--  <p><a class="template-popup_open">Save template...</a></p> -->
             </div>
           </div>
-
-          <div class="delete-event-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-            <div class="row center">
-              <h3 class="popup-title">Are you sure?</h3>
-              <input type='submit' name='del-button' class="button round alert" value="Yes - Delete event">
-              <a class="button round secondary">Cancel</a>
-            </div>
-          </div>
         </form>
-
-
-            <!-- <div class="row">
-              <div class="small-8 small-centered columns">
-                <h6 class="fit-left navy">Max volunteers:</h6>
-                <span class="input-sizer"><input name="project-max" id="project-max" class="center" type="text" placeholder="10" /></span>
-              </div>
-            </div> -->
-
-
-
 
         <div id="push"></div>
 
@@ -185,18 +176,17 @@
 
     <script type="text/javascript">
       $(document).ready(function(){
-        $('#template-popup, #privacy-info-popup, #delete-event-popup').popup({
+        $('#template-popup, #privacy-info-popup').popup({
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: true,
         });
 
-
-        $('#project-date').datepicker({
+        $('#event-date').datepicker({
           dateFormat: 'yy-mm-dd',
         });
 
-        $('#project-start, #project-end').timepicker({
+        $('#event-starttime, #event-endtime').timepicker({
           step: 30,
         });
       });
@@ -209,24 +199,43 @@
       $('#add-location').click(function(){
         id ++;
 
-        $('#location-box').append('<div id="location-'+id+'" class="relative hidden"><h6 class="fit-left navy half-margin-top">&</h6><span class="input-sizer"><input name="project-location-'+id+'" id="project-location-'+id+'" type="text" class="center" placeholder="location"/></span><i class="remove-input grey fa fa-times-circle"></i></div>');
+        $('#location-box').append('<div id="location-'+id+'" class="relative hidden"><h6 class="fit-left navy half-margin-top">&</h6><span class="input-sizer"><input name="event-location-'+id+'" id="event-location-'+id+'" type="text" class="center" placeholder="location"/></span><i class="remove-input grey fa fa-times-circle"></i></div>');
         $('#location-'+id+'').slideDown();
 
       });
 
       $('#location-box').on('click', 'i', function(){
-        $(this).parent('div').slideUp();
+        $(this).parent('div').slideUp(function(){
+          $(this).remove();
+        });
       });
     </script>
 
     <script type="text/javascript">
       function initialize() {
 
-      var input = document.getElementById('project-location-'+id+'');
+      var input = document.getElementById('event-location');
       var autocomplete = new google.maps.places.Autocomplete(input);
       }
 
       google.maps.event.addDomListener(window, 'load', initialize);
+    </script>
+
+    <script type="text/javascript" src="{% static 'js/auto-complete.min.js' %}"></script>
+    <script type="text/javascript">
+      // initialize
+      var project_auto = new autoComplete({
+        selector: 'input[name="project_name"]',
+        minChars: 2,
+        source: function(term, suggest){
+          var choices = {{ project_names }}
+          console.log(choices)
+          var matches = [];
+          for (i=0; i<choices.length; i++)
+              if (~choices[i].toLowerCase().indexOf(term)) matches.push(choices[i]);
+          suggest(matches);
+        }
+      });
     </script>
 
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>

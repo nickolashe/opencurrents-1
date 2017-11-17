@@ -26,7 +26,7 @@
           </div>
         </div>
 
-        <div class="hide-for-small-only row full-width collapse one-margin-top one-margin-bottom">
+        <div class="hide-for-small-only row full-width collapse one-margin-top">
           <div class="left medium-6 medium-offset-1 columns">
             <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="fit-left round" />
             <span class="input-sizer"> -->
@@ -35,17 +35,24 @@
             <!-- </span> -->
           </div>
 
-
-
           <div class="right one-margin-top medium-4 columns end">
             <span class="no-wrap">
-              <h6 class="half-margin-bottom inline-block">Business balance:</h6>
+              <h6 class="no-margin-bottom inline">Currents available:</h6>
               <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
-              <h6 class="inline-block"> {{ user_balance }} </h6>
+              <h6 class="inline">
+                {{ currents_balance }}
+              </h6>
             </span>
-            <!-- <h6 class="half-margin-bottom">Hours I've tracked: {{ issued_by_admin }}</h6> -->
 
-              <p class="no-margin-bottom"><a href="{% url 'openCurrents:offer' %}" class="button round tiny">Post an offer</a></p>
+            <div class="no-margin-bottom">
+              <span class="no-wrap">
+                <h6 class="half-margin-bottom inline">Pending:</h6>
+                <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
+                <h6 class="inline">
+                  {{ currents_pending }}
+                </h6>
+              </span>
+            </div>
           </div>
         </div>
 
@@ -56,15 +63,32 @@
             <h5>{{ user.first_name }} {{ user.last_name }}</h5>
 
             <div class="one-margin-top half-margin-bottom">
-              <!-- <h6 class="no-margin-bottom">My hours tracked: 10.0</h6> -->
-              <h6 class="inline">Business balance: </h6>
+              <span class="no-wrap">
+                <h6 class="no-margin-bottom inline">Currents available:</h6>
                 <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
-                <h6 class="inline-block"> {{ user_balance }} </h6>
-            </div>
+                <h6 class="inline">
+                  {{ currents_balance }}
+                </h6>
+              </span>
 
-            <a href="{% url 'openCurrents:offer' %}" class="button round tiny">Post an offer</a>
+              <div class="no-margin-bottom">
+                <span class="no-wrap">
+                  <h6 class="half-margin-bottom inline-block">Pending:</h6>
+                  <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
+                  <h6 class="inline">
+                    {{ currents_pending }}
+                  </h6>
+                </span>
+              </div>
+            </div>
           </div>
         </div>
+
+        <p class="no-margin-bottom">
+          <a href="{% url 'openCurrents:offer' %}" class="no-margin-bottom button round small">
+            Post an offer
+          </a>
+        </p>
 
         <div class="left row one-margin-top full-width collapse">
           <div class="small-11 medium-10 small-centered columns">
@@ -191,7 +215,7 @@
     <div id="delete-offer-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
         <h3 class="popup-title">Are you sure?</h3>
-        <a type="submit" class="button round alert">Yes - Delete offer</a>
+        <button type="submit" class="button round alert">Yes - Delete offer</button>
         <a class="delete-offer-popup_close button round secondary">Cancel</a>
       </div>
     </div>
