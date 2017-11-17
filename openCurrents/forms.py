@@ -672,20 +672,10 @@ class RedeemCurrentsForm(forms.Form):
         super(RedeemCurrentsForm, self).__init__(*args, **kwargs)
 
     redeem_receipt = forms.ImageField(
-         widget=forms.ClearableFileInput(attrs={
+        widget=forms.ClearableFileInput(attrs={
             'class': 'hidden-file',
             'id': 'upload-receipt',
             'accept': 'image/*'
-<<<<<<< HEAD
-=======
-        })
-    )
-
-    redeem_receipt_if_checked = forms.BooleanField(
-        widget=forms.CheckboxInput(attrs={
-            'class': 'hidden',
-            'id': 'receipt-if-checked'
->>>>>>> 8c9c08651fc8c4de5b355f61fd2d3acab489ca06
         }),
         required=False
     )
