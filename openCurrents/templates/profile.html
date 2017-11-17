@@ -131,6 +131,21 @@
 
         <div class="row collapse one-margin-top left">
           <div class="small-11 medium-10 small-centered columns">
+            <h6 class="half-margin-bottom">Community activity</h6>
+            <a href="{% url 'openCurrents:public-record' %}" class="tag button tiny round secondary">
+              Currents issued: X
+            </a>
+            <a href="{% url 'openCurrents:public-record' %}" class="tag button tiny round secondary">
+              Active volunteers: Y
+            </a>
+            <a href="{% url 'openCurrents:public-record' %}" class="tag button tiny round secondary">
+              Currents accepted: Z
+            </a>
+          </div>
+        </div>
+
+        <div class="row collapse one-margin-top left">
+          <div class="small-11 medium-10 small-centered columns">
             <div class="row">
               <div class="small-8 columns">
                 <h6 class="half-margin-bottom">My redeemed offers</h6>
@@ -202,8 +217,26 @@
           {% endblock %}
         {% endmacro %}
 
-        {% usemacro user_hour_request_list_macro hours_requested 'requested' timezone %}
-        {% usemacro user_hour_request_list_macro hours_approved 'approved' timezone %}
+        <div class="left row one-margin-top collapse">
+          <div class="small-11 medium-10 small-centered columns">
+            <div class="row">
+              <div class="small-9 columns">
+                <h6 class="half-margin-bottom">Hours requested</h6>
+              </div>
+            </div>
+
+            {% usemacro user_hour_request_list_macro hours_requested 'requested' timezone %}
+          </div>
+        </div>
+
+        <div class="row collapse one-margin-top left">
+          <div class="small-11 medium-10 small-centered columns">
+            <h6 class="half-margin-bottom">Hours approved</h6>
+            <a class="my-approved-hours-popup_open button round tiny secondary">Orgname: X</a>
+            <a class="my-approved-hours-popup_open button round tiny secondary">Orgname2: Y</a>
+          </div>
+        </div>
+
 
         <!-- community feed code. Hardcoded not dynamic -->
         <!-- <div class="row full-width collapse one-margin-bottom">
@@ -336,6 +369,16 @@
       </div>
     </div>
 
+    <div id="my-approved-hours-popup" class="modal center small-12 medium-9 small-centered columns">
+      <div class="row center">
+        <h3 class="one-margin-top">
+          My hours at {{ tl.event.project.org.name }}
+        </h3>
+      </div>
+
+      {% usemacro user_hour_request_list_macro hours_approved 'approved' timezone %}
+    </div>
+
     <div id="balance-popup" class="modal center small-12 medium-9 small-centered columns">
       <div class="row collapse center">
         <div class="small-centered medium-11 columns">
@@ -446,7 +489,7 @@
           var open = false;
         }
 
-        $('#rsvp-popup, #earn-currents-popup, #balance-popup, #no-cash-popup, #cash-out-popup').popup({
+        $('#rsvp-popup, #earn-currents-popup, #balance-popup, #no-cash-popup, #cash-out-popup, #my-approved-hours-popup').popup({
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: true,

@@ -69,7 +69,13 @@
             <span class="input-sizer"> -->
               <h5 class="one-margin-top no-margin-bottom">{{orgname}}</h5>
               <h6>{{ user.first_name }} {{ user.last_name }}</h6>
-              <a href="{% url 'openCurrents:create-event' orgid %}" class="button tiny round">Create event</a>
+              <a href="{% url 'openCurrents:create-event' orgid %}"
+                {% if has_hours_requested %}
+                  class="button tiny round secondary"
+                {% else %}
+                  class="button tiny round"
+                {% endif %}>Create event
+              </a>
             <!-- </span> -->
           </div>
 
@@ -79,7 +85,14 @@
             <h6 class="one-margin-top no-margin-bottom">Org hours tracked: {{ issued_by_all }}</h6>
             <h6 class="half-margin-bottom">My hours tracked: {{ issued_by_admin }}</h6>
 
-              <a {% if has_hours_requested %} href="{% url 'openCurrents:approve-hours' %}" class="button round tiny"{% else %} href="javascript:status()" class="button round tiny secondary"{% endif %}>Approve hours</a>
+            <a
+              {% if has_hours_requested %}
+                href="{% url 'openCurrents:approve-hours' %}"
+                class="button round tiny"
+              {% else %}
+                href="javascript:status()" class="button round tiny secondary"
+              {% endif %}>Approve hours
+            </a>
           </div>
         </div>
 
@@ -98,8 +111,21 @@
               <h6 class="one-margin-bottom">
                 My hours tracked: {{ issued_by_admin }}
               </h6>
-              <a href="{% url 'openCurrents:create-event' orgid %}" class="button tiny round">Create event</a>
-              <a {% if has_hours_requested %} href="{% url 'openCurrents:approve-hours' %}" class="button round tiny"{% else %} href="javascript:status()" class="button round tiny secondary"{% endif %}>Approve hours</a>
+              <a href="{% url 'openCurrents:create-event' orgid %}"
+                {% if has_hours_requested %}
+                  class="button tiny round secondary"
+                {% else %}
+                  class="button tiny round"
+                {% endif %}>Create event
+              </a>
+              <a
+                {% if has_hours_requested %}
+                  href="{% url 'openCurrents:approve-hours' %}"
+                  class="button round tiny"
+                {% else %}
+                  href="javascript:status()" class="button round tiny secondary"
+                {% endif %}>Approve hours
+              </a>
             </div>
           </div>
         </div>
@@ -172,6 +198,22 @@
           </div>
         </div>
 
+        <div class="left row one-margin-top full-width collapse">
+          <div class="small-11 medium-10 small-centered columns">
+            <h6 class="half-margin-bottom">Hours pending</h6>
+            <a class="hours-pending-popup_open button round tiny secondary">Admin1: X</a>
+            <a class="hours-pending-popup_open button round tiny secondary">Admin2: Y</a>
+          </div>
+        </div>
+
+        <div class="left row one-margin-top full-width collapse">
+          <div class="small-11 medium-10 small-centered columns">
+            <h6 class="half-margin-bottom">Hours approved</h6>
+            <a class="hours-approved-popup_open button round tiny secondary">Admin1: X</a>
+            <a class="hours-approved-popup_open button round tiny secondary">Admin2: Y</a>
+          </div>
+        </div>
+
         <!-- TODO: refactor using template inheritance -->
         {% if events_group_past %}
           <div id="past-event-list" class="left row one-margin-top full-width collapse">
@@ -208,8 +250,6 @@
           {% endblock %}
         {% endmacro %}
 
-        {% usemacro admin_hour_request_list_macro hours_requested 'requested' timezone %}
-        {% usemacro admin_hour_request_list_macro hours_approved 'approved' timezone %}
 
         <!-- community feed code. Hardcoded not dynamic -->
         <!-- <div class="row one-margin-top">
@@ -269,6 +309,38 @@
       {% include 'partials/menu.html' %}
     </div>
 
+    <div id="delete-event-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h3 class="popup-title">Are you sure?</h3>
+        <input type='submit' name='del-button' class="button round alert" value="Yes - Delete event" />
+        <a class="button round secondary">Cancel</a>
+      </div>
+    </div>
+
+    <div id="hours-pending-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h4 class="popup-title">Hours pending for (selected admin name)</h4>
+      </div>
+
+      {% usemacro admin_hour_request_list_macro hours_requested 'requested' timezone %}
+
+      <div class="center one-margin-top">
+        <a class="hours-pending-popup_close button round small">Close</a>
+      </div>
+    </div>
+
+    <div id="hours-approved-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h4 class="popup-title">Hours approved by (selected admin name)</h4>
+      </div>
+
+      {% usemacro admin_hour_request_list_macro hours_approved 'approved' timezone %}
+
+      <div class="center one-margin-top">
+        <a class="hours-approved-popup_close button round small">Close</a>
+      </div>
+    </div>
+
     <div id="approve-hours-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
         <h3 class="popup-title">Volunteers request approval</h3>
@@ -279,17 +351,13 @@
 
           <p class="three-halves-margin-bottom">Volunteers have tracked hours and need your signoff before Currents are issued to them. It is recommended that you approve volunteer hours once a week.</p>
 
-          <a href="{% url 'openCurrents:approve-hours' %}" class="button round">View requests</button>
-          <a><button class="approve-hours-popup_close button round secondary">Close</button></a>
+          <a href="{% url 'openCurrents:approve-hours' %}" class="button round">
+            View requests
+          </a>
+          <a class="approve-hours-popup_close button round secondary">
+            Close
+          </a>
         </div>
-      </div>
-    </div>
-
-    <div class="delete-event-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <div class="row center">
-        <h3 class="popup-title">Are you sure?</h3>
-        <input type='submit' name='del-button' class="button round alert" value="Yes - Delete event">
-        <a class="button round secondary">Cancel</a>
       </div>
     </div>
 
@@ -297,7 +365,7 @@
     <script type="text/javascript">
       $(document).ready(function(){
 
-        $('#delete-event-popup').popup({
+        $('#delete-event-popup, #hours-approved-popup, #hours-pending-popup').popup({
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: true,
