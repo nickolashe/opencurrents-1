@@ -587,26 +587,8 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
                     action.action_type=action_type
                     action.save()
 
-        # lastly, determine if there any approval requests remaining
-        usertimelogs = UserTimeLog.objects.filter(
-            event__in=events
-        ).filter(
-            is_verified=False
-        ).annotate(
-            last_action_created=Max('adminactionusertime__date_created')
-        )
-
-        # admin-specific requests
-        admin_requested_hours = AdminActionUserTime.objects.filter(
-            user_id=admin_userid
-        ).filter(
-            date_created__in=[
-                utl.last_action_created for utl in usertimelogs
-            ]
-        ).filter(
-            action_type='req'
-        )
-
+        # lastly, determine if there any approval requests remaining for admin
+        admin_requested_hours = self.orgadmin.get_hours_requested()
         redirect_url = 'approve-hours' if admin_requested_hours else 'org-admin'
 
         return redirect(
@@ -2127,6 +2109,8 @@ class OfferEditView(OfferCreateView):
 def event_checkin(request, pk):
     form = EventCheckinForm(request.POST)
     admin_id = request.user.id
+    admin_user = User.objects.get(id=admin_id)
+    admin_org = OrgUserInfo(admin_id).get_org()
 
     # validate form data
     if form.is_valid():
@@ -2151,29 +2135,39 @@ def event_checkin(request, pk):
 
         if checkin:
             # volunteer checkin
-            usertimelog = UserTimeLog(
-                user=User.objects.get(id=userid),
-                event=event,
-                is_verified=True,
-                datetime_start=datetime.now(tz=pytz.UTC)
-            )
-            usertimelog.save()
+            vol_user = User.objects.get(id=userid)
+            try:
+                usertimelog = UserTimeLog(
+                    user=vol_user,
+                    event=event,
+                    is_verified=True,
+                    datetime_start=datetime.now(tz=pytz.UTC)
+                )
+                usertimelog.save()
 
-            # admin action record
-            actiontimelog = AdminActionUserTime(
-                user_id=admin_id,
-                usertimelog=usertimelog,
-                action_type='app'
-            )
-            actiontimelog.save()
+                # admin action record
+                actiontimelog = AdminActionUserTime(
+                    user_id=admin_id,
+                    usertimelog=usertimelog,
+                    action_type='app'
+                )
+                actiontimelog.save()
 
-            clogger.info(
-                'at %s: checkin',
-                str(usertimelog.datetime_start)
-            )
+                OcLedger().issue_currents(
+                    admin_org.orgentity,
+                    vol_user.userentity,
+                    (event.datetime_start - event.datetime_end).total_seconds() / 3600
+                )
+                clogger.info(
+                    'at %s: user %s checkin',
+                    str(usertimelog.datetime_start),
+                    userid
+                )
+            except Exception as e:
+                clogger.info('user %s already checked in', userid)
 
-            # credit admin/coordinator only if not already done
-            if not UserTimeLog.objects.filter(event__id=event.id, user__id=request.user.id):
+            # check in admin/coordinator
+            try:
                 usertimelog = UserTimeLog(
                     user=User.objects.get(id=request.user.id),
                     event=event,
@@ -2190,7 +2184,16 @@ def event_checkin(request, pk):
                 )
                 actiontimelog.save()
 
+                OcLedger().issue_currents(
+                    admin_org.orgentity,
+                    admin_user.userentity,
+                    amount
+                )
+            except Exception as e:
+                return HttpResponse(status=409)
+
             return HttpResponse(status=201)
+
         else:
             # volunteer checkout
             usertimelog = UserTimeLog.objects.filter(
