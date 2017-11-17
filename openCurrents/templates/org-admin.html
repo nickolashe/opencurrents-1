@@ -1,5 +1,10 @@
-{% load staticfiles %}
+{% extends 'admin-hour-request-list.html' %}
+
+{% load macros %}
 {% load tags %}
+{% load staticfiles %}
+
+{% block main %}
 
 <!DOCTYPE html>
 <html>
@@ -13,6 +18,12 @@
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
           <div class="row">
+            {% if status_msg %}
+            <div class="success row half-margin-top">
+              {{status_msg}}
+            </div>
+            {% endif %}
+
             <div id="status_msg" class="success one-margin-top small-10 small-centered medium-8 columns">
             </div>
           </div>
@@ -44,7 +55,7 @@
                   You have approved hours for {{ vols_approved }} volunteer{{ vols_approved|pluralize }}. Nice!
 
               {% elif vols_approved|add:"0" == 0 and vols_declined|add:"0" >= 1 %}
-                  You have declined hours for {{ vols_declined }} volunteer{{ vols_declined|pluralize }}. 
+                  You have declined hours for {{ vols_declined }} volunteer{{ vols_declined|pluralize }}.
 
               {% endif %}
             </div>
@@ -58,11 +69,9 @@
             <span class="input-sizer"> -->
               <h5 class="one-margin-top no-margin-bottom">{{orgname}}</h5>
               <h6>{{ user.first_name }} {{ user.last_name }}</h6>
-              <a href="{% url 'openCurrents:create-event' orgid %}" {% if user_time_log_status %} class="button secondary tiny round" {% else %} class="button tiny round" {% endif %}>Create event</a>
+              <a href="{% url 'openCurrents:create-event' orgid %}" class="button tiny round">Create event</a>
             <!-- </span> -->
           </div>
-
-
 
           <div class="right qtr-margin-top medium-4 columns end">
             <!--h6 class="no-margin-bottom two-line-height">My hours tracked: [my_total]</h6-->
@@ -70,7 +79,7 @@
             <h6 class="one-margin-top no-margin-bottom">Org hours tracked: {{ issued_by_all }}</h6>
             <h6 class="half-margin-bottom">My hours tracked: {{ issued_by_admin }}</h6>
 
-              <a {% if user_time_log_status %} href="{% url 'openCurrents:approve-hours' %}" class="button round tiny"{% else %} href="javascript:status()" class="button round tiny secondary"{% endif %}">Approve hours</a>
+              <a {% if has_hours_requested %} href="{% url 'openCurrents:approve-hours' %}" class="button round tiny"{% else %} href="javascript:status()" class="button round tiny secondary"{% endif %}>Approve hours</a>
           </div>
         </div>
 
@@ -88,21 +97,21 @@
               </h6>
               <h6 class="one-margin-bottom">
                 My hours tracked: {{ issued_by_admin }}
-              </h6>              
-              <a href="{% url 'openCurrents:create-event' orgid %}" {% if user_time_log_status %} class="button secondary tiny round" {% else %} class="button tiny round" {% endif %}>Create event</a>
-              <a {% if user_time_log_status %} href="{% url 'openCurrents:approve-hours' %}" class="button round tiny"{% else %} href="javascript:status()" class="button round tiny secondary"{% endif %}">Approve hours</a>
+              </h6>
+              <a href="{% url 'openCurrents:create-event' orgid %}" class="button tiny round">Create event</a>
+              <a {% if has_hours_requested %} href="{% url 'openCurrents:approve-hours' %}" class="button round tiny"{% else %} href="javascript:status()" class="button round tiny secondary"{% endif %}>Approve hours</a>
             </div>
           </div>
         </div>
 
-        <!-- current events section -->
+        <!-- TODO: refactor using template inheritance -->
         {% if events_group_current %}
           <div id="live-event-list" class="left row full-width collapse one-margin-top">
             <div class="small-11 medium-10 small-centered columns">
               <h6 class="half-margin-bottom">Events happening now</h6>
 
               {% for event in events_group_current %}
-                  <div class="row one-margin-bottom">
+                  <div class="row half-margin-bottom">
                     <div class="left half-margin-top small-8 columns">
                       Let's {{event.project.name}}!
                       on {{event.datetime_start|day:timezone}}
@@ -122,13 +131,14 @@
           </div>
         {% endif %}
 
+        <!-- TODO: refactor using template inheritance -->
         <div id="upcoming-event-list" class="left row one-margin-top full-width collapse">
           <div class="small-11 medium-10 small-centered columns">
             <h6 class="half-margin-bottom">Upcoming events</h6>
             {% if events_group_upcoming %}
               {% for event in events_group_upcoming %}
-                <div class="row one-margin-bottom">
-                  <div class="left small-9 columns">    
+                <div class="row half-margin-bottom">
+                  <div class="left small-9 columns">
                     Let's {{event.project.name}}!
                     on {{event.datetime_start|day:timezone}}
                     at {{event.datetime_start|time:timezone}}
@@ -140,8 +150,13 @@
                     <a class="mini-open"><i class="blue half-margin-right fa-chevron-circle-down fa fa-lg"></i></a>
                     <ul class="mini-menu">
                       <a href="{% url 'openCurrents:event-detail' event.id %}"><li>View event details</li></a>
+                      {% if request.user.id == event.coordinator.id %}
+                        <a href="{% url 'openCurrents:event-detail' event.id %}">
+                          <li>View & contact invitees</li>
+                        </a>
+                      {% endif %}
                       <a href="{% url 'openCurrents:invite-volunteers' event.id %}"><li>Invite volunteers</li></a>
-                      <!-- <a href="{% url 'openCurrents:edit-event' event.id %}"><li>Edit event</li></a> -->
+                      <a href="{% url 'openCurrents:edit-event' event.id %}"><li>Edit event</li></a>
                       <a href="{% url 'openCurrents:live-dashboard' event.id %}"><li>Preview live check-in</li></a>
                     </ul>
                   </div>
@@ -157,27 +172,14 @@
           </div>
         </div>
 
-        <!-- <div class="left row one-margin-top full-width collapse">
-          <div class="small-11 medium-10 small-centered columns">
-            <div class="row">
-              <div class="left input-left small-7 columns">
-                <h6 class="half-margin-bottom">Admin activity</h6>
-              </div>
-
-              <div class="right input-right small-5 columns">
-                <h6 class="half-margin-bottom">Status</h6>
-              </div>
-            </div>
-          </div>
-        </div> -->
-
+        <!-- TODO: refactor using template inheritance -->
         {% if events_group_past %}
           <div id="past-event-list" class="left row one-margin-top full-width collapse">
             <div class="small-11 medium-10 small-centered columns">
               <h6 class="half-margin-bottom">Past events</h6>
 
               {% for event in events_group_past %}
-                  <div class="row one-margin-bottom">
+                  <div class="row half-margin-bottom">
                     <div class="left input-left small-9 columns">
                       Let's {{event.project.name}}!
                       on {{event.datetime_start|day:timezone}}
@@ -194,11 +196,20 @@
                   </div>
                 </div>
               {% endfor %}
-
             </div>
           </div>
         {% endif %}
 
+        {% macro admin_hour_request_list_macro arg_list arg_status arg_timezone %}
+          {% block admin_hour_request_list %}
+            {% with hours_list=arg_list hours_status=arg_status timezone=arg_timezone %}
+              {{ block.super }}
+            {% endwith %}
+          {% endblock %}
+        {% endmacro %}
+
+        {% usemacro admin_hour_request_list_macro hours_requested 'requested' timezone %}
+        {% usemacro admin_hour_request_list_macro hours_approved 'approved' timezone %}
 
         <!-- community feed code. Hardcoded not dynamic -->
         <!-- <div class="row one-margin-top">
@@ -274,9 +285,24 @@
       </div>
     </div>
 
+    <div class="delete-event-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h3 class="popup-title">Are you sure?</h3>
+        <input type='submit' name='del-button' class="button round alert" value="Yes - Delete event">
+        <a class="button round secondary">Cancel</a>
+      </div>
+    </div>
+
 
     <script type="text/javascript">
       $(document).ready(function(){
+
+        $('#delete-event-popup').popup({
+          vertical: 'top',
+          transition: 'all 0.75s',
+          scrolllock: true,
+        });
+
         $('.mini-open').click(function(){
           $('.mini-menu').hide();
           $(this).siblings('.mini-menu').toggle();
@@ -298,3 +324,4 @@
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
   </body>
 </html>
+{% endblock %}

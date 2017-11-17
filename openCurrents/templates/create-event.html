@@ -67,12 +67,12 @@
 
           <div class="row one-margin-bottom">
             <div class="small-8 medium-4 small-centered columns">
-              {{ form.date_start.errors }}
-              <h6 class="fit-left navy half-margin-top"> {{ form.date_start.label }} </h6>
-              <span class="input-sizer"> {{ form.date_start }} </span>
-              {% if form.date_start.help_text %}
+              {{ form.event_date.errors }}
+              <h6 class="fit-left navy half-margin-top"> {{ form.event_date.label }} </h6>
+              <span class="input-sizer"> {{ form.event_date }} </span>
+              {% if form.event_date.help_text %}
                 <p class="small">
-                  ({{ form.date_start.help_text|safe }})
+                  ({{ form.event_date.help_text|safe }})
                 </p>
               {% endif %}
             </div>
@@ -82,23 +82,23 @@
             <div class="small-12 medium-6 small-centered columns">
               <div class="row">
                 <div class="input-left small-6 columns">
-                  {{ form.time_start.errors }}
-                  <h6 class="fit-left navy half-margin-top"> {{ form.time_start.label }} </h6>
-                  <span class="input-sizer"> {{ form.time_start }} </span>
-                  {% if form.time_start.help_text %}
+                  {{ form.event_starttime.errors }}
+                  <h6 class="fit-left navy half-margin-top"> {{ form.event_starttime.label }} </h6>
+                  <span class="input-sizer"> {{ form.event_starttime }} </span>
+                  {% if form.event_starttime.help_text %}
                     <p class="small">
-                      ({{ form.time_start.help_text|safe }})
+                      ({{ form.event_starttime.help_text|safe }})
                     </p>
                   {% endif %}
                 </div>
 
                 <div class="input-right small-6 columns">
-                  {{ form.time_end.errors }}
-                  <h6 class="fit-left navy half-margin-top"> {{ form.time_end.label }} </h6>
-                  <span class="input-sizer"> {{ form.time_end }} </span>
-                  {% if form.time_end.help_text %}
+                  {{ form.event_endtime.errors }}
+                  <h6 class="fit-left navy half-margin-top"> {{ form.event_endtime.label }} </h6>
+                  <span class="input-sizer"> {{ form.event_endtime }} </span>
+                  {% if form.event_endtime.help_text %}
                     <p class="small">
-                      ({{ form.time_end.help_text|safe }})
+                      ({{ form.event_endtime.help_text|safe }})
                     </p>
                   {% endif %}
                 </div>
@@ -120,44 +120,35 @@
           <a id="add-location"><i class="fa fa-plus-circle half-margin-right"></i>Add another location</a>
 
           <div class="row three-halves-margin-top">
-              {{form.is_public.0.tag}}
-              <label for="id_is_public_0">Public event</label>
+              {{form.event_privacy.0.tag}}
+              <label for="id-event-privacy">Public event</label>
 
-              {{form.is_public.1.tag}}
-              <label for="id_is_public_1" class="two-margin-left">Invite only</label>
+              {{form.event_privacy.1.tag}}
+              <label for="id-event-privacy" class="two-margin-left">Invite only</label>
 
               <a class="privacy-info-popup_open"><i class="half-margin-left fa fa-lg fa-question-circle grey"></i></a>
           </div>
 
           <div class="three-halves-margin-top row left">
             <div class="small-12 medium-6 small-centered columns">
-              {{ form.description.errors }}
-              <h6 class="navy no-margin-bottom">{{ form.description.label }}</h6>
-              {% if form.description.help_text %}
+              {{ form.event_description.errors }}
+              <h6 class="navy no-margin-bottom">{{ form.event_description.label }}</h6>
+              {% if form.event_description.help_text %}
                 <p class="small-text grey no-margin-bottom">
-                  {{ form.description.help_text|safe }}
+                  {{ form.event_description.help_text|safe }}
                 </p>
               {% endif %}
-              <span class="input-sizer"> {{ form.description }} </span>
+              <span class="input-sizer"> {{ form.event_description }} </span>
             </div>
           </div>
 
           <div class="one-margin-top row left">
             <div class="small-12 medium-6 small-centered columns">
               <h6 class="navy no-margin-bottom">Event coordinator</h6>
-              <p class="small-text grey">Who will respond to volunteers who register?</p>
+              <p class="small-text grey">Only the coordinator will be able to respond to volunteers once they register.</p>
 
-              <div class="row">
-                <div class="input-left small-5 columns">
-                  {{ form.coordinator_firstname.errors }}
-                  {{ form.coordinator_firstname }}
-                </div>
+              {{ form.event_coordinator }}
 
-                <div class="input-right small-7 columns">
-                  {{ form.coordinator_email.errors }}
-                  {{ form.coordinator_email }}
-                </div>
-              </div>
             </div>
           </div>
 
@@ -234,11 +225,11 @@
         });
 
 
-        $('#date_start').datepicker({
+        $('#event-date').datepicker({
           dateFormat: 'yy-mm-dd',
         });
 
-        $('#time_start, #time_end').timepicker({
+        $('#event-starttime, #event-endtime').timepicker({
           step: 30,
           minTime: '7:00am',
         });
@@ -273,11 +264,11 @@
 
           google.maps.event.addListener(autocomplete);
 
-          google.maps.event.addDomListener(inputs[i], 'keydown', function(e) { 
-              if (e.keyCode == 13 && $('.pac-container:visible').length) { 
-                  e.preventDefault(); 
+          google.maps.event.addDomListener(inputs[i], 'keydown', function(e) {
+              if (e.keyCode == 13 && $('.pac-container:visible').length) {
+                  e.preventDefault();
               }
-          }); 
+          });
         }
       }
 
@@ -303,7 +294,7 @@
         $(this).parent('div').slideUp(function(){
           $(this).remove();
         });
-        
+
       });
 
       $(document).ready(function(){

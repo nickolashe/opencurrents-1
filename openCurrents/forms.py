@@ -8,7 +8,11 @@ from django.forms import ModelForm
 from openCurrents.models import Org, \
     OrgUser, \
     Offer, \
-    Project
+    Project, \
+    Event
+
+from openCurrents.interfaces.ocuser import OcUser
+from openCurrents.interfaces.ledger import OcLedger
 
 from datetime import datetime
 
@@ -16,6 +20,7 @@ import logging
 import re
 import pytz
 import string
+import widgets
 
 
 logger = logging.getLogger(__name__)
@@ -88,6 +93,16 @@ class UserSignupForm(forms.Form):
         })
     )
     org_name = forms.CharField(required=False, min_length=2)
+
+    org_status = forms.ChoiceField(
+        choices=[
+            ('npf', 'nonprofit'),
+            ('biz', 'business'),
+        ],
+        required=False
+    )
+
+    org_admin_id = forms.IntegerField(required=False)
 
 
 class PasswordResetRequestForm(forms.Form):
@@ -196,9 +211,8 @@ class OrgSignupForm(forms.Form):
     )
     org_status = forms.ChoiceField(
         choices=[
-            ('nonprofit', 'nonprofit'),
-            ('business', 'business'),
-            ('unregistered', 'unregistered')
+            ('npf', 'nonprofit'),
+            ('biz', 'business'),
         ]
     )
     org_mission = forms.CharField(required=False)
@@ -211,13 +225,30 @@ class OrgSignupForm(forms.Form):
         return str(self.cleaned_data['org_status'])
 
 
-class ProjectCreateForm(forms.Form):
-
+class CreateEventForm(forms.Form):
     def __init__(self, *args, **kwargs):
-        orgid = kwargs.pop('orgid')
+        '''
+        form init method:
+            - fetches the org from db
+            - kwargs contains orgid and is passed from the CreateEventView
+            - builds coordinator choices list dynamically
+            - sets admin user as the initial choice
+        '''
+        orgid = kwargs.pop('org_id')
+        self.userid = kwargs.pop('user_id')
         self.org = Org.objects.get(id=orgid)
-        super(ProjectCreateForm, self).__init__(*args, **kwargs)
 
+        # this needs to be called first to get access to self.fields
+        super(CreateEventForm, self).__init__(*args, **kwargs)
+
+        # build the coordinator choices list dynamically
+        # set (preselect) initially to admin user
+        coordinator_choices = self._get_coordinator_choices()
+        self.fields['event_coordinator'].choices += coordinator_choices
+        self.fields['event_coordinator'].initial = self.userid
+
+
+    # form field definitions follow
     project_name = forms.CharField(
         label='Let\'s...',
         widget=forms.TextInput(attrs={
@@ -226,58 +257,77 @@ class ProjectCreateForm(forms.Form):
         })
     )
 
-    CHOICES = [(True, 'event-privacy-1'), (False, 'event-privacy-2')]
-    
-    is_public = forms.ChoiceField(widget=forms.RadioSelect(
-        attrs={"class": "custom-radio"}), 
-        choices=CHOICES, 
-        initial='True'
-    )
-
-    description = forms.CharField(
-        label='Project description',
-        help_text='What should volunteers know? What should they bring?',
-        widget=forms.Textarea(attrs={
-            'rows': '3'
-        })
-    )
-    date_start = forms.CharField(
+    event_date = forms.CharField(
         label='on',
-        widget=forms.TextInput(attrs={
-            'id': 'date_start',
-            'class': 'center'
+        widget=widgets.TextWidget(attrs={
+            'id': 'event-date',
+            'placeholder': 'yyyy-mm-dd',
         })
     )
 
-    time_start = forms.CharField(
+    event_starttime = forms.CharField(
         label='from',
-        widget=forms.TextInput(attrs={
-            'id': 'time_start',
-            'class': 'center',
-            'placeholder': '9:00 am'
-        })
-    )
-    time_end = forms.CharField(
-        label='to',
-        widget=forms.TextInput(attrs={
-            'id': 'time_end',
-            'class': 'center',
+        widget=widgets.TextWidget(attrs={
+            'id': 'event-starttime',
             'placeholder': '12:00 pm'
         })
     )
 
-    coordinator_firstname = forms.CharField(
-        widget=forms.TextInput(attrs={'placeholder': 'First name','value':''})
-    )
-    coordinator_email = forms.CharField(
-        widget=forms.TextInput(attrs={'placeholder': 'Email','value':''})
+    event_endtime = forms.CharField(
+        label='to',
+        widget=widgets.TextWidget(attrs={
+            'id': 'event-endtime',
+            'placeholder': '1:00 pm',
+        })
     )
 
+    event_privacy = forms.ChoiceField(
+        widget=forms.RadioSelect(
+            attrs={
+                'class': 'custom-radio',
+                'id': 'id-event-privacy'
+            }
+        ),
+        choices=[(1, 'public'), (0, 'private')],
+        initial=1
+    )
+
+    event_description = forms.CharField(
+        label='Description',
+        help_text='What should volunteers know? What should they bring?',
+        widget=forms.Textarea(attrs={
+            'rows': '3'
+        }),
+    )
+
+    event_coordinator = forms.ChoiceField(
+        choices=[('select_coord', 'Select coordinator')],
+    )
+
+    def _get_coordinator_choices(self):
+        '''
+        return list of org's approved admins (as coordinator choices)
+            - admin group for any org is named 'admin_$n', where n = org_id
+        '''
+        orgs_admin_group = Group.objects.get(
+            name='admin_%s' % self.org.id
+        )
+
+        choices_orgs_approved_admins = [
+            (user.id, ' '.join([user.first_name, user.last_name]))
+            for user in orgs_admin_group.user_set.all(
+            ).order_by(
+                'last_name'
+            )
+        ]
+
+        return choices_orgs_approved_admins
+
     def clean(self):
-        cleaned_data = super(ProjectCreateForm, self).clean()
-        date_start = cleaned_data['date_start']
-        time_start = cleaned_data['time_start']
-        time_end = cleaned_data['time_end']
+        cleaned_data = super(CreateEventForm, self).clean()
+        date_start = cleaned_data['event_date']
+        time_start = cleaned_data['event_starttime']
+        time_end = cleaned_data['event_endtime']
         tz = self.org.timezone
 
         try:
@@ -289,7 +339,7 @@ class ProjectCreateForm(forms.Form):
             error_msg = 'Invalid event start time'
             logger.debug('%s: %s', error_msg, e.message)
             raise ValidationError(_(error_msg))
-     
+
 
         try:
             datetime_end = datetime.strptime(
@@ -304,18 +354,70 @@ class ProjectCreateForm(forms.Form):
         cleaned_data['datetime_start'] = pytz.timezone(tz).localize(datetime_start)
         cleaned_data['datetime_end'] = pytz.timezone(tz).localize(datetime_end)
 
-        if cleaned_data['datetime_start'] > cleaned_data['datetime_end']:
+        if cleaned_data['datetime_start'] >= cleaned_data['datetime_end']:
             raise ValidationError(_('Start time needs to occur before End time'))
 
         return cleaned_data
+
+
+class EditEventForm(CreateEventForm):
+    def __init__(self, *args, **kwargs):
+        event_id = kwargs.pop('event_id')
+        user_id = kwargs.pop('user_id')
+        self.event = Event.objects.get(id=event_id)
+        self.org = self.event.project.org
+        tz = self.org.timezone
+
+        # call parent init in order to be able to access form fields
+        #   - in this case parent (CreateEventForm) init requires the presence
+        #     of org and user ids, so we provide those
+        kwargs['org_id'] = self.org.id
+        kwargs['user_id'] = user_id
+        super(EditEventForm, self).__init__(*args, **kwargs)
+
+        # populate event initial values
+        self.fields['project_name'].initial = self.event.project.name
+        self.fields['event_date'].initial = self.event.datetime_start.astimezone(
+            pytz.timezone(tz)
+        ).date()
+        self.fields['event_starttime'].initial = self.event.datetime_start.astimezone(
+        pytz.timezone(tz)
+        ).time()
+        self.fields['event_endtime'].initial = self.event.datetime_end.astimezone(
+        pytz.timezone(tz)
+        ).time()
+        self.fields['event_privacy'].initial = int(self.event.is_public)
+        self.fields['event_location'].initial = self.event.location
+        self.fields['event_description'].initial = self.event.description
+
+        # build the coordinator choices list dynamically
+        # set (preselect) initially to existing coordinator
+        #   - we are calling the parent (CreateEventForm) form's init,
+        #     which already populates event_coordinator select
+        #   - initial value is different from parents, however,
+        #     we set to current event's coordinator
+        self.fields['event_coordinator'].initial = self.event.coordinator.id
+
+    # form fields are inherited from CreateEventForm
+    # define extra fields only
+    event_location = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'class': 'center',
+            'id': 'event-location'
+        }),
+    )
+
+    # def clean(self):
+    #    '''
+    #    inherited from CreateEventForm
+    #    '''
 
 
 # TODO: Add location to form
 class EventRegisterForm(forms.Form):
     contact_message = forms.CharField(
         required=False,
-        label='Contact event coordinator (optional)',
-        help_text='Ask a question, confirm your attendance, or just say hello',
+        label='Get in touch (optional)',
         widget=forms.Textarea(attrs={
             'rows': '3'
         }),
@@ -341,13 +443,18 @@ class TimeTrackerForm(forms.Form):
             int(org_admin_group.name.split('_')[1])
             for org_admin_group in orgs_approved_admins
         ]
+
+        orgs = Org.objects.filter(
+            id__in=org_ids
+        ).filter(
+            status='npf'
+        ).order_by(
+            'name'
+        )
+
         choices_orgs_approved_admins = [
             (org.id, org.name)
-            for org in Org.objects.filter(
-                id__in=org_ids
-            ).order_by(
-                'name'
-            )
+            for org in orgs
         ]
 
         # build the dynamic choices list
@@ -360,7 +467,7 @@ class TimeTrackerForm(forms.Form):
             'id': 'id_org_choice'
         })
     )
-    
+
     choices_admin = [("select_admin","Select admin")]
     admin = forms.CharField(
         #choices=choices_admin,
@@ -444,9 +551,12 @@ class TimeTrackerForm(forms.Form):
         cleaned_data['datetime_end'] = pytz.timezone(tz).localize(datetime_end)
 
         # check: start time before end time
-        if datetime_end <= datetime_start:
+        if cleaned_data['datetime_end'] <= cleaned_data['datetime_start']:
             raise ValidationError(_('Start time must be before end time'))
-            
+
+        if cleaned_data['datetime_end'] > datetime.now(tz=pytz.utc):
+            raise ValidationError(_('Hours can only be submitted once work is completed'))
+
         return cleaned_data
 
 
@@ -537,7 +647,7 @@ class OfferEditForm(OfferCreateForm):
         offer_id = kwargs.pop('offer_id')
         self.offer_init = Offer.objects.get(id=offer_id)
 
-        super(OfferEditForm, self).__init__(*args, **kwargs)              
+        super(OfferEditForm, self).__init__(*args, **kwargs)
 
     def clean_offer_item(self):
         '''
@@ -564,23 +674,26 @@ class RedeemCurrentsForm(forms.Form):
     def __init__(self, *args, **kwargs):
         offer_id = kwargs.pop('offer_id')
         self.offer = Offer.objects.get(id=offer_id)
+        self.user = kwargs.pop('user')
 
         super(RedeemCurrentsForm, self).__init__(*args, **kwargs)
 
     redeem_receipt = forms.ImageField(
          widget=forms.ClearableFileInput(attrs={
             'class': 'hidden-file',
-            'id': 'upload-receipt'
-        })       
+            'id': 'upload-receipt',
+            'accept': 'image/*'
+        }),
+        required=False
     )
 
-    redeem_receipt_if_checked = forms.BooleanField(
-        widget=forms.CheckboxInput(attrs={
-            'class': 'hidden',
-            'id': 'receipt-if-checked'
-        }),
-        initial=True,
-    )
+    # redeem_receipt_if_checked = forms.BooleanField(
+    #     widget=forms.CheckboxInput(attrs={
+    #         'class': 'hidden',
+    #         'id': 'receipt-if-checked'
+    #     }),
+    #     initial=True,
+    # )
 
     redeem_no_proof = forms.CharField(
         required=False,
@@ -591,5 +704,39 @@ class RedeemCurrentsForm(forms.Form):
         )
 
     redeem_price = forms.IntegerField(
-        widget=forms.NumberInput()
+        widget=forms.NumberInput(),
+        required=False
     )
+
+    redeem_currents_amount = forms.FloatField(
+        widget=forms.NumberInput(
+            attrs={
+                'class': 'hidden'
+            }
+        )
+    )
+
+    def clean(self):
+        cleaned_data = super(RedeemCurrentsForm, self).clean()
+        redeem_receipt = cleaned_data['redeem_receipt']
+        redeem_no_proof = cleaned_data['redeem_no_proof']
+        redeem_price = cleaned_data['redeem_price']
+
+        user_balance_available = OcUser(self.user.id).get_balance_available()
+
+        if user_balance_available <= 0:
+            raise ValidationError(
+                _('You don\'t have any currents to spend at this time')
+            )
+
+        if redeem_price <= 0:
+            raise ValidationError(
+                _('Invalid purchase price reported')
+            )
+
+        if not (redeem_no_proof or redeem_receipt):
+            raise ValidationError(
+                _('Receipt or description of purchase is required')
+            )
+
+        return cleaned_data

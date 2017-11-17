@@ -4,19 +4,24 @@
 <html>
   <head>
     {% include "partials/head.html" %}
-    
+
     <link href="{% static "css/home.css" %}" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Alegreya+Sans+SC:300" rel="stylesheet">
   </head>
 
   <body id="nonprofit" class="splash" onunload=''>
     <header id="header" class="full-width row collapse js-close-any" canvas>
-      <div class="small-8 large-3 small-offset-1 columns">
+      <div class="relative small-8 large-3 small-offset-1 columns">
         <a href="{% url 'openCurrents:root' %}">
-
           <img id="header-logo" src="{% static 'img/oc-header.svg' %}" />
         </a>
+
+        <div class="inline-block relative">
+          <a id="beta-home" class="beta-popup_open">Beta</a>
+        </div>
       </div>
+
+      {% include "popups/beta-popup.html" %}
 
       <div class="show-for-large one-margin-top medium-8 right columns end">
         <a href="#1" class="three-halves-margin-right navy">For nonprofits</a>
@@ -34,7 +39,7 @@
     </header>
 
     <div class="js-close-any" canvas>
-      
+
       <div id="intro-1">
         <div id="1" class="header-spacer"></div>
 
@@ -144,7 +149,7 @@
           </div>
         </div>
       </div>
-      
+
       <div id="intro-3">
         <div id="3" class="header-spacer"></div>
 
@@ -195,11 +200,11 @@
         <div class="row collapse center">
           <div class="small-11 medium-6 small-centered columns">
             <h2 class="title-sub">Join openCurrents</h2>
-            <p>Apply to be among the first organizations to issue Currents. We'll be in touch soon!</p> 
+            <p>Apply to be among the first organizations to issue Currents. We'll be in touch soon!</p>
           </div>
         </div>
 
-        <form method="post" action="{% url 'openCurrents:process_signup' referrer=referrer %}">
+        <form method="post" action="{% url 'openCurrents:process_signup' %}">
           {% csrf_token %}
           <div class="row collapse half-margin-bottom">
             <div class="center small-12 medium-8 small-centered columns">
@@ -248,7 +253,13 @@
         <h2 class="one-margin-top">Join openCurrents</h2>
       </div>
 
-      <form method="post" action="{% url 'openCurrents:process_signup' referrer=referrer %}">
+      {% if status_msg %}
+      <div class="alert row one-margin-bottom">
+        {{ status_msg }}
+      </div>
+      {% endif %}
+
+      <form method="post" action="{% url 'openCurrents:process_signup' %}">
         {% csrf_token %}
         <div class="row three-halves-margin-bottom half-margin-top">
           <div class="center small-12 medium-9 small-centered columns">
@@ -266,7 +277,7 @@
             <div class="small-12 columns">
               <input type="text" name="org_name" placeholder="Organization name" class="large-text center" tabindex="0" />
             </div>
-            <input class="lead center" type="hidden" name="org_type" value="nonprofit"/>
+            <input class="lead center" type="hidden" name="org_status" value="npf"/>
           </div>
         </div>
 

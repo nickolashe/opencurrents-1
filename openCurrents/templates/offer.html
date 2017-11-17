@@ -6,10 +6,10 @@
   <head>
     {% include "partials/head.html" %}
   </head>
-  
+
   <body>
     {% include "partials/header.html" %}
-    
+
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
         {% if status_msg %}
@@ -17,7 +17,7 @@
           {{ status_msg }}
         </div>
         {% endif %}
-        
+
         <!-- progress bar 1-4 -->
         <div class="row two-margin-top two-margin-bottom">
           <div class="small-12 medium-9 small-centered columns">
@@ -89,7 +89,7 @@
               </div>
             </div>
           </div>
-        
+
           <!-- offer 2 -->
           <div id="offer-2">
             <div class="row one-margin-bottom">
@@ -212,11 +212,11 @@
               <div class="small-12 medium-8 small-centered columns">
                 <h5 class="one-margin-bottom center">Confirm offer details</h5>
                 <p>As an authorized representative of {{ orgname }}, I agree to accept Currents <span id="limit-yes-text"></span>as partial payment for the following products and services:</p>
-                
+
                 <ul>
                   <li><span id="currents-share-text">25</span>% of <span id="item-text">All products and services</span></li>
                 </ul>
-                  
+
                 <p>At the end of the month, openCurrents will invoice {{ orgname }} the total value of Currents accepted, send customers dollars in exchange for Currents, and transfer Currents to {{ orgname }}. For each Current received, {{ orgname }} can either keep the Current or claim a $10 charitable donation. Initial value: $10 per <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>1.</span></p>
               </div>
             </div>
@@ -224,7 +224,7 @@
             <div class="row one-margin-top">
               <a class="prev-offer button round secondary">Back</a>
               <!--a class="button round">Confirm offer</a-->
-              <input type='submit' value="Confirm offer" class="button round"></input>              
+              <input type='submit' value="Confirm offer" class="button round"></input>
             </div>
           </div>
 
@@ -235,14 +235,14 @@
         </form>
       <!-- wrapper div-->
       </div>
-      
+
       {% include 'partials/footer.html' %}
-            
+
     <!--container div -->
     </div>
-    
+
     <div id="bottom-stripe" class="full-width"></div>
-    
+
     <div off-canvas="menu right shift" id="menu">
       {% include 'partials/menu.html' %}
     </div>
@@ -261,7 +261,7 @@
         </div>
       </div>
     </div>
-  
+
     <div id="value-info-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
         <h4 class="popup-title">How to value Currents</h4>
@@ -276,7 +276,7 @@
         </div>
       </div>
     </div>
-     
+
     <script type="text/javascript">
       $(document).ready(function(){
         $('#value-info-popup, #add-item-popup').popup({
@@ -349,7 +349,7 @@
           $('#monthly-limit-div').slideUp();
           $('#limit-yes-text').text('');
         });
-        
+
         // Slide left on 'Next'
         var page = 1;
 
@@ -363,6 +363,7 @@
             }, 1111);
 
             $righty.show()
+
             $lefty.animate({
               left: parseInt(-$lefty.outerWidth())
             }, 777);
@@ -386,7 +387,7 @@
           if (page > 1) {
             var $lefty = $('#offer-'+(page-1)+'');
             var $righty = $('#offer-'+page+'');
-            
+
             $('#container').animate({
               scrollTop: $("#header").offset().top
             }, 1111);
@@ -405,13 +406,13 @@
 
             $('#progress-'+(page-1)+'').addClass('progress-highlight').siblings('label').addClass('blue');
             $('#progress-'+page+'').removeClass('progress-highlight').siblings('label').removeClass('blue');
-          
+
             page --;
           }
         });
       });
     </script>
-    
+
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
   </body>
 </html>
