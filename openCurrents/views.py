@@ -566,9 +566,10 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
 
                         # issue currents for hours approved
                         OcLedger().issue_currents(
-                            entity_id_from=self.org.orgentity.id,
-                            entity_id_to=usertimelog.user.userentity.id,
-                            amount=(usertimelog.datetime_end - usertimelog.datetime_start).total_seconds() / 3600
+                            self.org.orgentity.id,
+                            usertimelog.user.userentity.id,
+                            action,
+                            (usertimelog.datetime_end - usertimelog.datetime_start).total_seconds() / 3600
                         )
 
                     vols_approved += 1
@@ -587,26 +588,8 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
                     action.action_type=action_type
                     action.save()
 
-        # lastly, determine if there any approval requests remaining
-        usertimelogs = UserTimeLog.objects.filter(
-            event__in=events
-        ).filter(
-            is_verified=False
-        ).annotate(
-            last_action_created=Max('adminactionusertime__date_created')
-        )
-
-        # admin-specific requests
-        admin_requested_hours = AdminActionUserTime.objects.filter(
-            user_id=admin_userid
-        ).filter(
-            date_created__in=[
-                utl.last_action_created for utl in usertimelogs
-            ]
-        ).filter(
-            action_type='req'
-        )
-
+        # lastly, determine if there any approval requests remaining for admin
+        admin_requested_hours = self.orgadmin.get_hours_requested()
         redirect_url = 'approve-hours' if admin_requested_hours else 'org-admin'
 
         return redirect(
@@ -972,7 +955,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                     None,
                     [
                         {
-                            'name': 'ADMIN_FNAME',
+                            'name': 'ADMIN_NAME',
                             'content': admin_name
                         },
                         {
@@ -1258,11 +1241,9 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
         )
 
         hours_requested = self.orgadmin.get_hours_requested()
-        logger.info(hours_requested)
         context['hours_requested'] = hours_requested
 
         hours_approved = self.orgadmin.get_hours_approved()
-        logger.info(hours_approved)
         context['hours_approved'] = hours_approved
 
         context['has_hours_requested'] = hours_requested.exists()
@@ -1282,10 +1263,18 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
     template_name = 'create-event.html'
     form_class = CreateEventForm
 
+    def dispatch(self, request, *args, **kwargs):
+        org_id = kwargs.get('org_id')
+        self.org = Org.objects.get(id=org_id)
+        return super(CreateEventView, self).dispatch(
+            request, *args, **kwargs
+        )
+
+
     def _create_event(self, location, form_data):
         if not self.project:
             project = Project(
-                org=Org.objects.get(id=self.orgid),
+                org=Org.objects.get(id=self.org.id),
                 name=form_data['project_name']
             )
             project.save()
@@ -1441,20 +1430,22 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
             - userid
         '''
         kwargs = super(CreateEventView, self).get_form_kwargs()
-        kwargs.update({'org_id': self.kwargs['org_id']})
+
+        kwargs.update({'org_id': self.org.id})
         kwargs.update({'user_id': self.userid})
 
         return kwargs
 
 
 # needs to be implemented using UpdateView
-class EditEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
+class EditEventView(CreateEventView):
     template_name = 'edit-event.html'
     form_class = EditEventForm
 
     def dispatch(self, request, *args, **kwargs):
-        event_id = kwargs.get('event_id')
+        event_id = kwargs.pop('event_id')
         self.event = Event.objects.get(id=event_id)
+        kwargs.update({'org_id': self.event.project.org.id})
 
         self.redirect_url = redirect('openCurrents:org-admin')
 
@@ -1470,8 +1461,23 @@ class EditEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
 
         email_to_list = []
 
-        if self.event.project.name != data['project_name'] or \
-            self.event.is_public != bool(data['event_privacy']) or \
+        # name change requires changing the project
+        if self.event.project.name != data['project_name']:
+            project = None
+            try:
+                project = Project.objects.get(
+                    org__id=self.org.id,
+                    name=data['project_name']
+                )
+                self.event.project = project
+            except Project.DoesNotExist:
+                self.event.project.name = data['project_name']
+
+            self.event.project.save()
+            self.event.save()
+
+        # event detail changes
+        if self.event.is_public != bool(data['event_privacy']) or \
             self.event.location != data['event_location'] or \
             self.event.description != data['event_description'] or \
             self.event.coordinator.id != int(data['event_coordinator']) or \
@@ -1571,11 +1577,8 @@ class EditEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
             self.event.datetime_start = data['datetime_start']
             self.event.datetime_end = data['datetime_end']
             self.event.is_public = data['event_privacy']
-            self.event.save()
 
-            # project name
-            self.event.project.name = data['project_name']
-            self.event.project.save()
+            self.event.save()
 
             self.redirect_url = redirect(
                 'openCurrents:org-admin',
@@ -2107,6 +2110,8 @@ class OfferEditView(OfferCreateView):
 def event_checkin(request, pk):
     form = EventCheckinForm(request.POST)
     admin_id = request.user.id
+    admin_user = User.objects.get(id=admin_id)
+    admin_org = OrgUserInfo(admin_id).get_org()
 
     # validate form data
     if form.is_valid():
@@ -2131,29 +2136,40 @@ def event_checkin(request, pk):
 
         if checkin:
             # volunteer checkin
-            usertimelog = UserTimeLog(
-                user=User.objects.get(id=userid),
-                event=event,
-                is_verified=True,
-                datetime_start=datetime.now(tz=pytz.UTC)
-            )
-            usertimelog.save()
+            vol_user = User.objects.get(id=userid)
+            try:
+                usertimelog = UserTimeLog(
+                    user=vol_user,
+                    event=event,
+                    is_verified=True,
+                    datetime_start=datetime.now(tz=pytz.UTC)
+                )
+                usertimelog.save()
 
-            # admin action record
-            actiontimelog = AdminActionUserTime(
-                user_id=admin_id,
-                usertimelog=usertimelog,
-                action_type='app'
-            )
-            actiontimelog.save()
+                # admin action record
+                actiontimelog = AdminActionUserTime(
+                    user_id=admin_id,
+                    usertimelog=usertimelog,
+                    action_type='app'
+                )
+                actiontimelog.save()
 
-            clogger.info(
-                'at %s: checkin',
-                str(usertimelog.datetime_start)
-            )
+                OcLedger().issue_currents(
+                    admin_org.orgentity,
+                    vol_user.userentity,
+                    actiontimelog,
+                    (event.datetime_start - event.datetime_end).total_seconds() / 3600
+                )
+                clogger.info(
+                    'at %s: user %s checkin',
+                    str(usertimelog.datetime_start),
+                    userid
+                )
+            except Exception as e:
+                clogger.info('user %s already checked in', userid)
 
-            # credit admin/coordinator only if not already done
-            if not UserTimeLog.objects.filter(event__id=event.id, user__id=request.user.id):
+            # check in admin/coordinator
+            try:
                 usertimelog = UserTimeLog(
                     user=User.objects.get(id=request.user.id),
                     event=event,
@@ -2170,7 +2186,17 @@ def event_checkin(request, pk):
                 )
                 actiontimelog.save()
 
+                OcLedger().issue_currents(
+                    admin_org.orgentity,
+                    admin_user.userentity,
+                    actiontimelog,
+                    amount
+                )
+            except Exception as e:
+                return HttpResponse(status=409)
+
             return HttpResponse(status=201)
+
         else:
             # volunteer checkout
             usertimelog = UserTimeLog.objects.filter(

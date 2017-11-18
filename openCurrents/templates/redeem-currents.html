@@ -134,11 +134,22 @@
                 <h4 class="one-margin-bottom">Confirm exchange</h4>
 
                 <p class="one-margin-bottom">
-                  I agree to give <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}"/><span class="currents-total"></span> to {{ offer.org.name }} in exchange for $<span class="dollars-total"></span> minus a 10% transaction fee of $<span class="dollars-fee"></span>.
+                  I agree to give
+                  <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
+                  <span class="currents-total"></span> to {{ offer.org.name }}
+                  in exchange for $<span class="dollars-total"></span> minus a
+                  10% transaction fee of $<span class="dollars-fee"></span>.
                 </p>
 
                 <p>
-                  I understand that $<span class="dollars-received"></span> will be added to my account as Pending Dollars, which will become Available Dollars once {{ offer.org.name }} validates the transaction at the end of the month. <span class="currents-total"></span> Currents will be deducted from my account at this time. I can then transfer Available Dollars to my bank account or keep the balance in my openCurrents account.
+                  I understand that $<span class="dollars-received"></span> will
+                  be added to my account as Pending Dollars, which will become
+                  Available Dollars once {{ offer.org.name }} validates the
+                  transaction at the end of the month.
+                  <span class="currents-total"></span> Currents will be deducted
+                  from my account at this time. I can then transfer Available
+                  Dollars to my bank account or keep the balance in my
+                  openCurrents account.
                 </p>
 
                 <div class="row three-halves-margin-top">
@@ -179,12 +190,18 @@
       <div class="row center">
         <div class="small-centered medium-10 columns">
 
-          <p>In order to make it as easy as possible for businesses to accept Currents, we have designed the exchange process in such a way that nothing changes at point of sale.</p>
+          <p>In order to make it as easy as possible for businesses to accept
+            Currents, we have designed the exchange process in such a way that
+            nothing changes at point of sale.</p>
 
-          <p class="three-halves-margin-bottom">As a result, more businesses are now accepting Currents, which means you can use Currents to get more of what you want.</p>
+          <p class="three-halves-margin-bottom">As a result, more businesses are
+            now accepting Currents, which means you can use Currents to get more
+            of what you want.</p>
 
           <a class="redeem-info-popup_close button round">Got it</a>
-          <a href="javascript:void(Tawk_API.toggle())" class="button round secondary">Contact us</a>
+          <a href="javascript:void(Tawk_API.toggle())" class="button round secondary">
+            Contact us
+          </a>
         </div>
       </div>
     </div>
@@ -196,11 +213,16 @@
 
       <div class="row center">
         <div class="small-centered medium-10 columns">
-          <p>{{ offer.org.name }} may not accept Currents without a receipt, but provide any details below that may help the business verify that you made a purchase:</p>
+          <p>{{ offer.org.name }} may not accept Currents without a receipt, but
+            provide any details below that may help the business verify that you
+            made a purchase:</p>
 
-          <textarea id="no-proof-typed" rows="3" placeholder="What did you buy? When did you buy it? Who did you buy from?"></textarea>
+          <textarea id="no-proof-typed" rows="3" placeholder="What did you buy?
+          When did you buy it? Who did you buy from?"></textarea>
 
-          <p><button class="no-receipt-popup_close half-margin-top button round">Continue</button></p>
+          <p><a class="no-receipt-popup_close half-margin-top button round">
+            Continue
+          </a></p>
         </div>
       </div>
     </div>

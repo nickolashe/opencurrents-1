@@ -149,6 +149,13 @@ class Ledger(models.Model):
     amount = models.DecimalField(max_digits=12, decimal_places=2)
     is_issued = models.BooleanField(default=False)
 
+    # related action
+    action = models.ForeignKey(
+        'AdminActionUserTime',
+        on_delete=models.CASCADE,
+        null=True
+    )
+
     # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)
     date_updated = models.DateTimeField('date updated', auto_now=True)
@@ -156,11 +163,11 @@ class Ledger(models.Model):
     def __unicode__(self):
         return ' '.join([
             'Transaction from',
-            self.entity_from,
+            str(self.entity_from),
             'to',
-            self.entity_to,
+            str(self.entity_to),
             'in the amount of',
-            self.amount,
+            str(self.amount),
             'on',
             self.date_created.strftime(
                 '%Y-%m-%d %I-%M %p'
@@ -287,6 +294,7 @@ class UserTimeLog(models.Model):
 
     class Meta:
         get_latest_by = 'datetime_start'
+        unique_together = ('user', 'event')
 
     def __unicode__(self):
         tz = self.event.project.org.timezone
@@ -312,7 +320,10 @@ class UserTimeLog(models.Model):
 
 class AdminActionUserTime(models.Model):
     user = models.ForeignKey(User)
-    usertimelog = models.ForeignKey(UserTimeLog)
+    usertimelog = models.ForeignKey(
+        UserTimeLog,
+        on_delete=models.CASCADE
+    )
     action_type_choices = (
         ('app', 'approved'),
         ('def', 'deferred'),
