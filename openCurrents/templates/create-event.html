@@ -12,6 +12,8 @@
     <link href="{% static 'css/jquery.timepicker.css' %}" rel="stylesheet" type="text/css">
     <link href="{% static 'css/jquery-ui-datepicker.css' %}" rel="stylesheet" type="text/css">
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAGfdpv-Vg_rskfib8jzp-a6VI92QuC2I0&v=3.exp&types=address&libraries=places"></script>
+
+    {{ form.media }}
   </head>
 
   <body>
@@ -121,10 +123,10 @@
 
           <div class="row three-halves-margin-top">
               {{form.event_privacy.0.tag}}
-              <label for="id-event-privacy">Public event</label>
+              <label for="id-event-privacy_0">Public event</label>
 
               {{form.event_privacy.1.tag}}
-              <label for="id-event-privacy" class="two-margin-left">Invite only</label>
+              <label for="id-event-privacy_1" class="two-margin-left">Invite only</label>
 
               <a class="privacy-info-popup_open"><i class="half-margin-left fa fa-lg fa-question-circle grey"></i></a>
           </div>

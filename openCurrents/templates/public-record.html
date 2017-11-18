@@ -8,10 +8,10 @@
     <script type="text/javascript" src="{% static 'js/jquery-ui-datepicker.js' %}"></script>
     <link href="{% static 'css/jquery-ui-datepicker.css' %}" rel="stylesheet" type="text/css">
   </head>
-  
+
   <body>
     {% include "partials/header.html" %}
-    
+
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
         {% if status_msg %}
@@ -19,7 +19,7 @@
           {{status_msg}}
         </div>
         {% endif %}
-        
+
         <div class="row">
           <h3 class="title-sub">Public record</h3>
         </div>
@@ -39,19 +39,27 @@
             </select>
           </div>
         </div>
-        
+
         <div class="row one-margin-bottom">
           <div class="small-12 medium-8 small-centered columns">
             <div class="row">
               <div class="left small-6 columns">
-                <p class="half-margin-bottom"><strong><span id="record-name">Organization</span> name</strong></p>
+                <p class="half-margin-bottom">
+                  <strong><span id="record-name">
+                    Organization</span> name
+                  </strong>
+                </p>
               </div>
 
               <div class="right small-6 columns">
-                <p class="half-margin-bottom"><strong>Currents <span id="record-label">issued</span></strong></p>
+                <p class="half-margin-bottom">
+                  <strong>
+                    Currents <span id="record-label">issued</span>
+                  </strong>
+                </p>
               </div>
             </div>
-            
+
             <ol>
               <!-- for org/vol/biz in db -->
               <div class="row qtr-margin-bottom">
@@ -60,7 +68,10 @@
                 </div>
 
                 <div class="right small-4 columns">
-                  <span class="no-wrap grey"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 123</span>
+                  <span class="no-wrap grey">
+                    <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
+                    123
+                  </span>
                 </div>
               </div>
               <!-- end for -->
@@ -72,7 +83,10 @@
                       </div>
 
                       <div class="right small-4 columns">
-                        <span class="no-wrap grey"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 123</span>
+                        <span class="no-wrap grey">
+                          <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
+                          123
+                        </span>
                       </div>
                     </div>
 
@@ -82,7 +96,10 @@
                       </div>
 
                       <div class="right small-4 columns">
-                        <span class="no-wrap grey"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 123</span>
+                        <span class="no-wrap grey">
+                          <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
+                          123
+                        </span>
                       </div>
                     </div>
 
@@ -92,7 +109,10 @@
                       </div>
 
                       <div class="right small-4 columns">
-                        <span class="no-wrap grey"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 123</span>
+                        <span class="no-wrap grey">
+                          <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
+                          123
+                        </span>
                       </div>
                     </div>
 
@@ -102,7 +122,10 @@
                       </div>
 
                       <div class="right small-4 columns">
-                        <span class="no-wrap grey"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 123</span>
+                        <span class="no-wrap grey">
+                          <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
+                          123
+                        </span>
                       </div>
                     </div>
 
@@ -112,7 +135,10 @@
                       </div>
 
                       <div class="right small-4 columns">
-                        <span class="no-wrap grey"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 123</span>
+                        <span class="no-wrap grey">
+                          <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
+                          123
+                        </span>
                       </div>
                     </div>
 
@@ -122,7 +148,10 @@
                       </div>
 
                       <div class="right small-4 columns">
-                        <span class="no-wrap grey"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 123</span>
+                        <span class="no-wrap grey">
+                          <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
+                          123
+                        </span>
                       </div>
                     </div>
 
@@ -132,7 +161,10 @@
                       </div>
 
                       <div class="right small-4 columns">
-                        <span class="no-wrap grey"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 123</span>
+                        <span class="no-wrap grey">
+                          <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
+                          123
+                        </span>
                       </div>
                     </div>
 
@@ -142,7 +174,10 @@
                       </div>
 
                       <div class="right small-4 columns">
-                        <span class="no-wrap grey"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 123</span>
+                        <span class="no-wrap grey">
+                          <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
+                          123
+                        </span>
                       </div>
                     </div>
 
@@ -152,7 +187,10 @@
                       </div>
 
                       <div class="right small-4 columns">
-                        <span class="no-wrap grey"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 123</span>
+                        <span class="no-wrap grey">
+                          <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
+                          123
+                        </span>
                       </div>
                     </div>
                     <!-- end delete -->
@@ -163,23 +201,23 @@
             </div>
           </div>
         </div>
-        
+
         <div id="push"></div>
-    
+
       <!-- wrapper div-->
       </div>
-      
+
       {% include 'partials/footer.html' %}
-            
+
     <!--container div -->
     </div>
-    
+
     <div id="bottom-stripe" class="full-width"></div>
-    
+
     <div off-canvas="menu right shift" id="menu">
       {% include 'partials/menu.html' %}
     </div>
-  
+
     <div id="public-export-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
         <h3 class="popup-title">Export data</h3>
@@ -202,7 +240,7 @@
             <p class="half-margin-bottom"><input type="checkbox" name="vol-name" id="vol-name" class="custom-checkbox" checked/><label for="vol-name" >Volunteer name</label></p>
             <p class="half-margin-bottom"><input type="checkbox" name="date" id="date" class="custom-checkbox" checked/><label for="date" >Event date</label></p>
             <p class="half-margin-bottom"><input type="checkbox" name="description"  id="description" class="custom-checkbox" checked/><label for="description">Event description</label></p>
-            
+
           </div>
 
           <div class="left small-8 medium-5 columns">
@@ -229,7 +267,7 @@
           </div>
         </div>
       </div>
-      
+
       <div class="row one-margin-top center">
         <div class="small-centered medium-10 columns">
           <button type="submit" class="button round">Export</button>
@@ -237,7 +275,7 @@
         </div>
       </div>
     </div>
-    
+
     <script type="text/javascript">
       $(document).ready(function(){
         $('#public-export-popup').popup({
@@ -263,18 +301,18 @@
           }
         });
 
-        $('#start-range').datepicker({ 
+        $('#start-range').datepicker({
           dateFormat: 'yy-mm-dd',
           maxDate: 0,
         })
 
-        $('#end-range').datepicker({ 
+        $('#end-range').datepicker({
           dateFormat: 'yy-mm-dd',
           maxDate: 0,
         }).datepicker("setDate", new Date());
       });
     </script>
-    
+
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
   </body>
 </html>
