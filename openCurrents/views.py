@@ -1274,7 +1274,7 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
     def _create_event(self, location, form_data):
         if not self.project:
             project = Project(
-                org=Org.objects.get(id=self.orgid),
+                org=Org.objects.get(id=self.org.id),
                 name=form_data['project_name']
             )
             project.save()
