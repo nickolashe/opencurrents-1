@@ -58,9 +58,14 @@
 
         <div class="row center three-halves-margin-top two-margin-bottom">
           <div class="small-12 medium-6 large-4 small-centered columns">
-            <a class="signup-box_open button round clear large">Join the community</a>
+            <a class="signup-box_open button round clear large">
+              Join the community
+            </a>
 
-            <a href="#2" class="home-link white"><p class="no-margin-bottom">Benefits</p><i class="half-margin-left fa fa-lg fa-angle-down"></i></a>
+            <a href="#2" class="home-link white">
+              <p class="no-margin-bottom">Benefits</p>
+              <i class="half-margin-left fa fa-lg fa-angle-down"></i>
+            </a>
           </div>
         </div>
       </div>
@@ -199,8 +204,17 @@
 
         <div class="row collapse center">
           <div class="small-11 medium-6 small-centered columns">
-            <h2 class="title-sub">Join openCurrents</h2>
-            <p>Apply to be among the first organizations to issue Currents. We'll be in touch soon!</p>
+            <h3 class="title-sub">Apply as a nonprofit</h3>
+            <div class="one-margin-top">
+              <a href="{% url 'openCurrents:volunteer' %}"
+              class="tag button round tiny secondary">
+                Register as individual
+              </a>
+              <a href="{% url 'openCurrents:business' %}"
+              class="tag button round tiny secondary">
+                Register a business
+              </a>
+            </div>
           </div>
         </div>
 
@@ -250,7 +264,7 @@
 
     <div id="signup-box" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
-        <h2 class="one-margin-top">Join openCurrents</h2>
+        <h2 class="one-margin-top">Apply as a nonprofit</h2>
       </div>
 
       {% if status_msg %}
