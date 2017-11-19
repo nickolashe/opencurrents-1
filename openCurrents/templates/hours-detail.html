@@ -1,6 +1,14 @@
 {% extends "layouts/base.html" %}
 
-{% block title %} My hours for {{ orgname }} {% endblock title %}
+{% block heading %}
+  <div class="row">
+    <div class="small-12 columns">
+      <h4 class="title">
+        {% block title %} My hours for {{ orgname }} {% endblock title %}
+      </h4>
+    </div>
+  </div>
+{% endblock heading %}
 
 {% block content %}
   <div class="row">
