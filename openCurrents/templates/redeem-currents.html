@@ -297,7 +297,9 @@
             $('#progress-'+page+'').removeClass('progress-highlight').siblings('label').removeClass('blue');
             $('#progress-'+(page+1)+'').addClass('progress-highlight').siblings('label').addClass('blue');
 
-            page ++;
+            setTimeout(function(){
+              page ++;
+            }, 1000);
           }
         });
 
