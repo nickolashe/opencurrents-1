@@ -275,9 +275,10 @@
         var page = 1;
 
         $('.next-offer').click(function() {
+          var $lefty = $('#offer-'+page+'');
+          var $righty = $('#offer-'+(page+1)+'');
+
           if (page < 3) {
-            var $lefty = $('#offer-'+page+'');
-            var $righty = $('#offer-'+(page+1)+'');
 
             $('#container').animate({
               scrollTop: $("#header").offset().top
@@ -290,7 +291,9 @@
             }, 777);
             $righty.animate({
               left: 0
-            }, 777);
+            }, 777, function(){
+              $lefty.hide();
+            });
 
             $('#progress-'+page+'').removeClass('progress-highlight').siblings('label').removeClass('blue');
             $('#progress-'+(page+1)+'').addClass('progress-highlight').siblings('label').addClass('blue');
