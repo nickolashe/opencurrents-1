@@ -235,7 +235,14 @@
         <div class="row collapse center">
           <div class="small-11 medium-6 small-centered columns">
             <h2 class="title-sub white">Join openCurrents</h2>
-            <p class="white">Register now to get additional benefits as a pilot business. We'll be in touch soon!</p>
+            <div class="one-margin-top">
+              <a href="{% url 'openCurrents:volunteer' %}" class="tag button round tiny clear">
+                Register as individual
+              </a>
+              <a href="{% url 'openCurrents:nonprofit' %}" class="tag button round tiny clear">
+                Register a nonprofit
+              </a>
+            </div>
           </div>
         </div>
 
