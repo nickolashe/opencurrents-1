@@ -13,9 +13,9 @@
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
         {% if status_msg %}
-        <div class="alert row half-margin-top">
-          {{status_msg}}
-        </div>
+          <div class="alert row half-margin-top">
+            {{status_msg}}
+          </div>
         {% endif %}
 
         <div class="row two-margin-top two-margin-bottom">
@@ -68,21 +68,25 @@
               <div class="small-12 medium-8 small-centered columns">
                 <h4 class="one-margin-bottom">Upload receipt or proof of purchase</h4>
                 <p class="three-halves-margin-bottom">
-                  To exchange Currents for dollars with {{ offer.org.name }}, upload your receipt as proof of purchase. Other forms, such as an image of your bank statement or description of your purchase, may or may not be accepted.
+                  To exchange Currents for dollars with {{ offer.org.name }},
+                  upload your receipt as proof of purchase. Other forms, such as
+                  an image of your bank statement or description of your
+                  purchase, may or may not be accepted.
 
                   <a class="redeem-info-popup_open no-wrap">
                     Why do I pay full price?
                   </a>
                 </p>
 
-                <!-- form.redeem_receipt_if_checked -->
+                <!--  form.redeem_receipt_if_checked -->
 
                 <!-- <input type="checkbox" name="receipt-if-checked" id="receipt-if-checked" class="hidden" checked /> -->
 
                 {{ form.redeem_receipt }}
                 <!--input type="file" accept="image/*" capture="camera" id="upload-receipt" name="upload-receipt" class="hidden-file" /-->
 
-                <label for="upload-receipt" id="receipt-label" class="upload-receipt-label button round small secondary">
+                <label for="upload-receipt" id="receipt-label"
+                class="upload-receipt-label button round small secondary">
                   <i class="one-margin-right fa fa-upload"></i>
                   <span>Choose an image...</span>
                 </label>
@@ -107,7 +111,7 @@
             <div class="row">
               <div class="small-12 medium-8 small-centered columns">
                 <h4 class="">Record price</h4>
-
+<!--
                 <p class="half-margin-bottom">
                   Price of {{ offer.item.name }} before tax:
                 </p>
@@ -118,7 +122,7 @@
                   {{ form.redeem_price }}
                   {{ form.redeem_currents_amount }}
 
-                </div>
+                </div> -->
               </div>
             </div>
 
@@ -228,7 +232,7 @@
     </div>
 
 
-    <!-- <script type="text/javascript">
+    <script type="text/javascript">
       let getUserBalance = function(callback) {
         // let userid = {{ request.user.id }};
         $.ajax({
@@ -242,9 +246,9 @@
           callback(null, balanceAvailable);
         });
       };
-    </script> -->
+    </script>
 
-    <!-- <script type="text/javascript">
+    <script type="text/javascript">
       $(document).ready(function(){
         $('#redeem-info-popup, #no-receipt-popup').popup({
           vertical: 'top',
@@ -256,12 +260,12 @@
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: true,
-          // Copy input value from popup to form input
-          // onclose: function() {
-          //   var text = $('#no-proof-typed').val();
-          //   $('#id_redeem_no_proof').val(text).slideDown();
-          //   $('#redeem-spacer').animate({height: '+=88'});
-          // }
+          Copy input value from popup to form input
+          onclose: function() {
+            var text = $('#no-proof-typed').val();
+            $('#id_redeem_no_proof').val(text).slideDown();
+            $('#redeem-spacer').animate({height: '+=88'});
+          }
         });
 
         // Set height of spacer = to height of content
@@ -328,213 +332,77 @@
           }
         });
 
-        // // Display filename in upload-receipt label
-        // $('#upload-receipt').change(function(){
-        //   var fileName = $(this).val().split('\\').pop();;
-        //
-        //   if (fileName != '') {
-        //     $('.upload-receipt-label').find('span').text(fileName);
-        //   }
-        //
-        //   else {
-        //     $('.upload-receipt-label').find('span').text('Choose an image...');
-        //   }
+        // Display filename in upload-receipt label
+        $('#upload-receipt').change(function(){
+          var fileName = $(this).val().split('\\').pop();;
+
+          if (fileName != '') {
+            $('.upload-receipt-label').find('span').text(fileName);
+          }
+
+          else {
+            $('.upload-receipt-label').find('span').text('Choose an image...');
+          }
+        });
+
+        // // Uncheck receipt-if-checked when 'Other PoP' label is clicked
+        // $('#pop-label').click(function(){
+        //   $('#receipt-if-checked').prop('checked', false);
         // });
-        //
-        // // // Uncheck receipt-if-checked when 'Other PoP' label is clicked
-        // // $('#pop-label').click(function(){
-        // //   $('#receipt-if-checked').prop('checked', false);
-        // // });
-        //
-        // // // Uncheck receipt-if-checked when 'Other PoP' label is clicked
-        // // $('#receipt-label').click(function(){
-        // //   $('#receipt-if-checked').prop('checked', true);
-        // // });
-        //
-        // let shareToCurrents = function (priceSubjectToShare) {
-        //   var share = {{ offer.currents_share }} /100.;
-        //   var dollars = (priceSubjectToShare * share).toFixed(2);
-        //
-        //   // TODO: switch to an API call to get the converstion rate
-        //   var currents = dollars/10.;
-        //
-        //   return {
-        //     'currents': currents,
-        //     'dollars': dollars
-        //   }
-        // }
-        //
-        // // Display current and dollar totals based on price input
-        // $('#offer-2').on('input', function(){
-        //   let priceOfferSubjectToShareCurrents = shareToCurrents(
-        //     $('#id_redeem_price').val()
-        //   );
-        //
-        //   getUserBalance(function(err, res) {
-        //     let priceSubjectToShare;
-        //     const userBalanceCurrents = res;
-        //
-        //     if (userBalanceCurrents < priceOfferSubjectToShareCurrents.currents) {
-        //       priceSubjectToShare = {
-        //         currents: userBalanceCurrents,
-        //         dollars: userBalanceCurrents * 10
-        //       };
-        //     } else {
-        //       priceSubjectToShare = priceOfferSubjectToShareCurrents;
-        //     }
-        //
-        //     console.log('priceUsed:' + priceSubjectToShare.currents);
-        //     const fee = (0.1 * priceSubjectToShare.dollars).toFixed(2);
-        //     let dollarsReceived = (priceSubjectToShare.dollars - fee).toFixed(2);
-        //
-        //     $('.currents-total').text(priceSubjectToShare.currents);
-        //     $('.dollars-total').text(priceSubjectToShare.dollars);
-        //     $('.dollars-fee').text(fee);
-        //     $('.dollars-received').text(dollarsReceived);
-        //
-        //     $("input[name^=redeem_currents_amount]").val(
-        //       priceSubjectToShare.currents
-        //     );
-        //   });
+
+        // // Uncheck receipt-if-checked when 'Other PoP' label is clicked
+        // $('#receipt-label').click(function(){
+        //   $('#receipt-if-checked').prop('checked', true);
         // });
-      });
-    </script> -->
 
-        <script type="text/javascript">
-          $(document).ready(function(){
-            $('#value-info-popup, #add-item-popup').popup({
-              vertical: 'top',
-              transition: 'all 0.75s',
-              scrolllock: true,
-            });
+        let shareToCurrents = function (priceSubjectToShare) {
+          var share = {{ offer.currents_share }} /100.;
+          var dollars = (priceSubjectToShare * share).toFixed(2);
 
-            $('#redeem-spacer').height($('#offer-3').height());
+          // TODO: switch to an API call to get the converstion rate
+          var currents = dollars/10.;
 
-            // Add item
-            // var id = 3
+          return {
+            'currents': currents,
+            'dollars': dollars
+          }
+        }
 
-            // $('#add-item').click(function(){
-            //   $('#goods-div').append('<div id="item-'+id+'" class="row collapse hidden"><div class="input-left small-3 columns"><div class="relative"><input name="discount-amount-'+id+'" type="number" class="fit-left qtr-margin-right" placeholder="20" value="20"/><span class="input-icon-right">%</span></div></div><div class="input-right small-9 columns"><div class="fit-left half-margin-top one-margin-right one-margin-left">of</div><div class="relative input-sizer"><input name="item-name-'+id+'" type="text" placeholder="Item or category name" /><i class="remove-input alert fa fa-times"></i></div></div></div>');
-            //   $('#item-'+id+'').slideDown();
+        // Display current and dollar totals based on price input
+        $('#offer-2').on('input', function(){
+          let priceOfferSubjectToShareCurrents = shareToCurrents(
+            $('#id_redeem_price').val()
+          );
 
-            //   if (id > 3) {
-            //     $('#offer-spacer').animate({height: '+=58'});
-            //   }
-            //   id ++
-            // });
+          getUserBalance(function(err, res) {
+            let priceSubjectToShare;
+            const userBalanceCurrents = res;
 
-            // // Remove item
-            // $('body').on('click', '.remove-input', function(){
-            //   $(this).closest('.row').slideUp(function(){
-            //     $(this).remove();
-            //   });
+            if (userBalanceCurrents < priceOfferSubjectToShareCurrents.currents) {
+              priceSubjectToShare = {
+                currents: userBalanceCurrents,
+                dollars: userBalanceCurrents * 10
+              };
+            } else {
+              priceSubjectToShare = priceOfferSubjectToShareCurrents;
+            }
 
-            //   if (id > 4) {
-            //     $('#offer-spacer').animate({height: '-=58'});
-            //   }
+            console.log('priceUsed:' + priceSubjectToShare.currents);
+            const fee = (0.1 * priceSubjectToShare.dollars).toFixed(2);
+            let dollarsReceived = (priceSubjectToShare.dollars - fee).toFixed(2);
 
-            //   $('#add-item').slideDown();
-            // });
+            $('.currents-total').text(priceSubjectToShare.currents);
+            $('.dollars-total').text(priceSubjectToShare.dollars);
+            $('.dollars-fee').text(fee);
+            $('.dollars-received').text(dollarsReceived);
 
-            // // Show add-item if products/services edited
-            // $('.good-cat').change(function(){
-            //   $('#add-item').slideDown();
-            // });
-
-            // Change text on Confirm page based on inputs
-
-            $('#wrapper').on('input',function(){
-              var share = $('#id_offer_current_share').val();
-              var item = $('#id_offer_item').val();
-              var limit = $('#id_offer_limit_value').val();
-
-              $('#currents-share-text').text(share);
-              $('#item-text').text(item);
-              $('#limit-amount-text').text(limit);
-            });
-
-            // Display limit dropdown if "Set limit" is checked
-            $(document).ready(function(){
-              if ($('#id_offer_limit_choice_1').is(':checked')) {
-                $('#monthly-limit-div').removeClass('hidden');
-              }
-            });
-
-            // Show/hide monthly limit input
-            $('#id_offer_limit_choice_1').click(function(){
-              var limit = $('#id_offer_limit_value').val();
-
-              $('#monthly-limit-div').slideDown();
-              $('#limit-yes-text').html('for up to <span id="limit-amount-text">100</span> transactions per month ');
-            });
-
-            $('#id_offer_limit_choice_0').click(function(){
-              $('#monthly-limit-div').slideUp();
-              $('#limit-yes-text').text('');
-            });
-
-            // Slide left on 'Next'
-            var page = 1;
-
-            $('.next-offer').click(function() {
-              if (page < 4) {
-                var $lefty = $('#offer-'+page+'');
-                var $righty = $('#offer-'+(page+1)+'');
-
-                $('#container').animate({
-                  scrollTop: $("#header").offset().top
-                }, 1111);
-
-                $righty.show()
-
-                $lefty.animate({
-                  left: parseInt(-$lefty.outerWidth())
-                }, 777);
-                $righty.animate({
-                  left: 0
-                }, 777);
-
-                setTimeout(function() {
-                  $lefty.hide();
-                }, 1000);
-
-                $('#progress-'+page+'').removeClass('progress-highlight').siblings('label').removeClass('blue');
-                $('#progress-'+(page+1)+'').addClass('progress-highlight').siblings('label').addClass('blue');
-
-                page ++;
-              }
-            });
-
-            // Slide right on 'Back'
-            $('.prev-offer').click(function(e) {
-              if (page > 1) {
-                var $lefty = $('#offer-'+(page-1)+'');
-                var $righty = $('#offer-'+page+'');
-
-                $('#container').animate({
-                  scrollTop: $("#header").offset().top
-                }, 1111);
-
-                $lefty.show();
-                $lefty.animate({
-                  left: 0
-                }, 777);
-                $righty.animate({
-                  left: parseInt($lefty.outerWidth())
-                }, 777);
-
-                setTimeout(function() {
-                  $righty.hide();
-                }, 1000);
-
-                $('#progress-'+(page-1)+'').addClass('progress-highlight').siblings('label').addClass('blue');
-                $('#progress-'+page+'').removeClass('progress-highlight').siblings('label').removeClass('blue');
-
-                page --;
-              }
-            });
+            $("input[name^=redeem_currents_amount]").val(
+              priceSubjectToShare.currents
+            );
           });
-        </script>
+        });
+      });
+    </script>
 
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
   </body>
