@@ -146,7 +146,7 @@
                 </p>
 
                 <p>
-                  I understand that $<span class="dollars-received">o.00</span> will
+                  I understand that $<span class="dollars-received">0.00</span> will
                   be added to my account as Pending Dollars, which will become
                   Available Dollars once {{ offer.org.name }} validates the
                   transaction at the end of the month.
@@ -292,6 +292,10 @@
             $righty.animate({
               left: 0
             }, 777);
+
+            setTimeout(function() {
+              $lefty.hide();
+            }, 1000);
 
             $('#progress-'+page+'').removeClass('progress-highlight').siblings('label').removeClass('blue');
             $('#progress-'+(page+1)+'').addClass('progress-highlight').siblings('label').addClass('blue');
