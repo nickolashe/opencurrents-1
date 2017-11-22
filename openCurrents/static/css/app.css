@@ -1401,7 +1401,6 @@ input[type="checkbox"] + label.vol-arrived {
   position: absolute;
   width: 100%;
   left: 100%;
-  display: none;
 }
 
 .discount-amount {
