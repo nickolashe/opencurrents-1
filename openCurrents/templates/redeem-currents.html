@@ -293,8 +293,9 @@
             }, 777);
 
             setTimeout(function() {
-              $lefty.hide();
-              page ++;
+              $lefty.hide(function(){
+                page ++;
+              });
             }, 1000);
 
             $('#progress-'+page+'').removeClass('progress-highlight').siblings('label').removeClass('blue');
