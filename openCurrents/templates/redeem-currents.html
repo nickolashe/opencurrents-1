@@ -287,19 +287,17 @@
 
             $lefty.animate({
               left: parseInt(-$lefty.outerWidth())
-            }, 777);
+            }, 777, function(){
+              $lefty.hide();
+            });
             $righty.animate({
               left: 0
             }, 777);
 
-            setTimeout(function() {
-              $lefty.hide(function(){
-                page ++;
-              });
-            }, 1000);
-
             $('#progress-'+page+'').removeClass('progress-highlight').siblings('label').removeClass('blue');
             $('#progress-'+(page+1)+'').addClass('progress-highlight').siblings('label').addClass('blue');
+
+            page ++;
           }
         });
 
