@@ -288,9 +288,7 @@
 
             $lefty.animate({
               left: parseInt(-$lefty.outerWidth())
-            }, 777, function(){
-              $(this).hide();
-            });
+            }, 777);
             $righty.animate({
               left: 0
             }, 777);
@@ -298,9 +296,7 @@
             $('#progress-'+page+'').removeClass('progress-highlight').siblings('label').removeClass('blue');
             $('#progress-'+(page+1)+'').addClass('progress-highlight').siblings('label').addClass('blue');
 
-            setTimeout(function(){
-              page ++;
-            }, 1000);
+            page ++;
           }
         });
 
