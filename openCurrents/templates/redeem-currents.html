@@ -45,7 +45,7 @@
           </div>
         </div>
 
-        <form method='post' enctype='multipart/form-data'>
+        <form method='post'>
 
           {% csrf_token %}
 
@@ -111,7 +111,7 @@
             <div class="row">
               <div class="small-12 medium-8 small-centered columns">
                 <h4 class="">Record price</h4>
-<!--
+
                 <p class="half-margin-bottom">
                   Price of {{ offer.item.name }} before tax:
                 </p>
@@ -122,7 +122,7 @@
                   {{ form.redeem_price }}
                   {{ form.redeem_currents_amount }}
 
-                </div> -->
+                </div>
               </div>
             </div>
 
@@ -140,17 +140,17 @@
                 <p class="one-margin-bottom">
                   I agree to give
                   <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
-                  <span class="currents-total"></span> to {{ offer.org.name }}
-                  in exchange for $<span class="dollars-total"></span> minus a
-                  10% transaction fee of $<span class="dollars-fee"></span>.
+                  <span class="currents-total">0.00</span> to {{ offer.org.name }}
+                  in exchange for $<span class="dollars-total">0.00</span> minus a
+                  10% transaction fee of $<span class="dollars-fee">0.00</span>.
                 </p>
 
                 <p>
-                  I understand that $<span class="dollars-received"></span> will
+                  I understand that $<span class="dollars-received">o.00</span> will
                   be added to my account as Pending Dollars, which will become
                   Available Dollars once {{ offer.org.name }} validates the
                   transaction at the end of the month.
-                  <span class="currents-total"></span> Currents will be deducted
+                  <span class="currents-total">0.00</span> Currents will be deducted
                   from my account at this time. I can then transfer Available
                   Dollars to my bank account or keep the balance in my
                   openCurrents account.
