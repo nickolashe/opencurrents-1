@@ -291,13 +291,16 @@
             }, 777);
             $righty.animate({
               left: 0
-            }, 777, function(){
-              $lefty.hide();
-              page ++;
-            });
+            }, 777);
 
             $('#progress-'+page+'').removeClass('progress-highlight').siblings('label').removeClass('blue');
             $('#progress-'+(page+1)+'').addClass('progress-highlight').siblings('label').addClass('blue');
+
+            setTimeout(function() {
+              $lefty.hide(function(){
+                page ++;
+              });
+            }, 1000);
           }
         });
 
