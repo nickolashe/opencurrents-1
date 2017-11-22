@@ -75,7 +75,7 @@
                   </a>
                 </p>
 
-                {# form.redeem_receipt_if_checked #}
+                <!-- form.redeem_receipt_if_checked -->
 
                 <!-- <input type="checkbox" name="receipt-if-checked" id="receipt-if-checked" class="hidden" checked /> -->
 
@@ -244,7 +244,7 @@
       };
     </script> -->
 
-    <script type="text/javascript">
+    <!-- <script type="text/javascript">
       $(document).ready(function(){
         $('#redeem-info-popup, #no-receipt-popup').popup({
           vertical: 'top',
@@ -398,7 +398,143 @@
         //   });
         // });
       });
-    </script>
+    </script> -->
+
+        <script type="text/javascript">
+          $(document).ready(function(){
+            $('#value-info-popup, #add-item-popup').popup({
+              vertical: 'top',
+              transition: 'all 0.75s',
+              scrolllock: true,
+            });
+
+            $('#redeem-spacer').height($('#offer-3').height());
+
+            // Add item
+            // var id = 3
+
+            // $('#add-item').click(function(){
+            //   $('#goods-div').append('<div id="item-'+id+'" class="row collapse hidden"><div class="input-left small-3 columns"><div class="relative"><input name="discount-amount-'+id+'" type="number" class="fit-left qtr-margin-right" placeholder="20" value="20"/><span class="input-icon-right">%</span></div></div><div class="input-right small-9 columns"><div class="fit-left half-margin-top one-margin-right one-margin-left">of</div><div class="relative input-sizer"><input name="item-name-'+id+'" type="text" placeholder="Item or category name" /><i class="remove-input alert fa fa-times"></i></div></div></div>');
+            //   $('#item-'+id+'').slideDown();
+
+            //   if (id > 3) {
+            //     $('#offer-spacer').animate({height: '+=58'});
+            //   }
+            //   id ++
+            // });
+
+            // // Remove item
+            // $('body').on('click', '.remove-input', function(){
+            //   $(this).closest('.row').slideUp(function(){
+            //     $(this).remove();
+            //   });
+
+            //   if (id > 4) {
+            //     $('#offer-spacer').animate({height: '-=58'});
+            //   }
+
+            //   $('#add-item').slideDown();
+            // });
+
+            // // Show add-item if products/services edited
+            // $('.good-cat').change(function(){
+            //   $('#add-item').slideDown();
+            // });
+
+            // Change text on Confirm page based on inputs
+
+            $('#wrapper').on('input',function(){
+              var share = $('#id_offer_current_share').val();
+              var item = $('#id_offer_item').val();
+              var limit = $('#id_offer_limit_value').val();
+
+              $('#currents-share-text').text(share);
+              $('#item-text').text(item);
+              $('#limit-amount-text').text(limit);
+            });
+
+            // Display limit dropdown if "Set limit" is checked
+            $(document).ready(function(){
+              if ($('#id_offer_limit_choice_1').is(':checked')) {
+                $('#monthly-limit-div').removeClass('hidden');
+              }
+            });
+
+            // Show/hide monthly limit input
+            $('#id_offer_limit_choice_1').click(function(){
+              var limit = $('#id_offer_limit_value').val();
+
+              $('#monthly-limit-div').slideDown();
+              $('#limit-yes-text').html('for up to <span id="limit-amount-text">100</span> transactions per month ');
+            });
+
+            $('#id_offer_limit_choice_0').click(function(){
+              $('#monthly-limit-div').slideUp();
+              $('#limit-yes-text').text('');
+            });
+
+            // Slide left on 'Next'
+            var page = 1;
+
+            $('.next-offer').click(function() {
+              if (page < 4) {
+                var $lefty = $('#offer-'+page+'');
+                var $righty = $('#offer-'+(page+1)+'');
+
+                $('#container').animate({
+                  scrollTop: $("#header").offset().top
+                }, 1111);
+
+                $righty.show()
+
+                $lefty.animate({
+                  left: parseInt(-$lefty.outerWidth())
+                }, 777);
+                $righty.animate({
+                  left: 0
+                }, 777);
+
+                setTimeout(function() {
+                  $lefty.hide();
+                }, 1000);
+
+                $('#progress-'+page+'').removeClass('progress-highlight').siblings('label').removeClass('blue');
+                $('#progress-'+(page+1)+'').addClass('progress-highlight').siblings('label').addClass('blue');
+
+                page ++;
+              }
+            });
+
+            // Slide right on 'Back'
+            $('.prev-offer').click(function(e) {
+              if (page > 1) {
+                var $lefty = $('#offer-'+(page-1)+'');
+                var $righty = $('#offer-'+page+'');
+
+                $('#container').animate({
+                  scrollTop: $("#header").offset().top
+                }, 1111);
+
+                $lefty.show();
+                $lefty.animate({
+                  left: 0
+                }, 777);
+                $righty.animate({
+                  left: parseInt($lefty.outerWidth())
+                }, 777);
+
+                setTimeout(function() {
+                  $righty.hide();
+                }, 1000);
+
+                $('#progress-'+(page-1)+'').addClass('progress-highlight').siblings('label').addClass('blue');
+                $('#progress-'+page+'').removeClass('progress-highlight').siblings('label').removeClass('blue');
+
+                page --;
+              }
+            });
+          });
+        </script>
 
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
   </body>
