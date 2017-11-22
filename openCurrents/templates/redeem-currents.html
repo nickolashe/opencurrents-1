@@ -288,7 +288,9 @@
 
             $lefty.animate({
               left: parseInt(-$lefty.outerWidth())
-            }, 777);
+            }, 777, function(){
+              $lefty.hide();
+            });
             $righty.animate({
               left: 0
             }, 777);
@@ -296,11 +298,7 @@
             $('#progress-'+page+'').removeClass('progress-highlight').siblings('label').removeClass('blue');
             $('#progress-'+(page+1)+'').addClass('progress-highlight').siblings('label').addClass('blue');
 
-            setTimeout(function() {
-              $lefty.hide(400, function(){
-                page ++;
-              });
-            }, 1111);
+            page ++;
           }
         });
 
