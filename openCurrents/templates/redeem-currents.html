@@ -260,7 +260,7 @@
           vertical: 'top',
           transition: 'all 0.75s',
           scrolllock: true,
-          Copy input value from popup to form input
+          // Copy input value from popup to form input
           onclose: function() {
             var text = $('#no-proof-typed').val();
             $('#id_redeem_no_proof').val(text).slideDown();
@@ -344,16 +344,6 @@
             $('.upload-receipt-label').find('span').text('Choose an image...');
           }
         });
-
-        // // Uncheck receipt-if-checked when 'Other PoP' label is clicked
-        // $('#pop-label').click(function(){
-        //   $('#receipt-if-checked').prop('checked', false);
-        // });
-
-        // // Uncheck receipt-if-checked when 'Other PoP' label is clicked
-        // $('#receipt-label').click(function(){
-        //   $('#receipt-if-checked').prop('checked', true);
-        // });
 
         let shareToCurrents = function (priceSubjectToShare) {
           var share = {{ offer.currents_share }} /100.;
