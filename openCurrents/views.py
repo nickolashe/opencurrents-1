@@ -344,23 +344,8 @@ class ApproveHoursView(OrgAdminPermissionMixin, OrgSessionContextView, ListView)
         userid = self.request.user.id
         orguserinfo = OrgUserInfo(userid)
         orgid = orguserinfo.get_org_id()
-        projects = Project.objects.filter(org__id=orgid)
-        events = Event.objects.filter(
-            project__in=projects
-        ).filter(
-            event_type='MN'
-        )
+        requested_actions = self.orgadmin.get_hours_requested()
 
-        # fetch unverified time logs
-        requested_actions = AdminActionUserTime.objects.filter(
-            user__id=userid
-        ).filter(
-            action_type='req'
-        ).filter(
-            usertimelog__is_verified = False
-        ).filter(
-            usertimelog__event__in=events
-        )
         logger.info(requested_actions)
         # week list holds dictionary ordered pairs for 7 days of timelogs
         week = []
