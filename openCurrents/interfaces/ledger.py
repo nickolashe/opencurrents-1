@@ -129,7 +129,7 @@ class OcLedger(object):
         queryset = Ledger.objects.filter(
             entity_to__id=entity_id,
             currency='cur',
-            is_issued=True
+            is_issued=False
         )
         if period == 'month':
             last_month = datetime.now() - timedelta(days=30)
