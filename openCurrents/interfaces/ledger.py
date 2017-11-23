@@ -112,9 +112,8 @@ class OcLedger(object):
         return credit_total - debit_total
 
     def get_issued_cur_amount(self, entity_id, period):
-        org = self._get_entity(entity_id, 'org')
         queryset = Ledger.objects.filter(
-            entity_from__id=org.id,
+            entity_from__id=entity_id,
             currency='cur',
             is_issued=True
         )
@@ -125,9 +124,8 @@ class OcLedger(object):
         return queryset.aggregate(total=Sum('amount'))
 
     def get_accepted_cur_amount(self, entity_id, period):
-        biz = self._get_entity(entity_id, 'org')
         queryset = Ledger.objects.filter(
-            entity_to__id=biz.id,
+            entity_to__id=entity_id,
             currency='cur',
             is_issued=True
         )
@@ -138,9 +136,8 @@ class OcLedger(object):
         return queryset.aggregate(total=Sum('amount'))
 
     def get_earned_cur_amount(self, entity_id, period):
-        user = self._get_entity(entity_id, 'user')
         queryset = Ledger.objects.filter(
-            entity_to__id=user.id,
+            entity_to__id=entity_id,
             currency='cur',
             is_issued=True
         )
