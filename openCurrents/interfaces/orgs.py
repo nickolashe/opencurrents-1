@@ -93,7 +93,7 @@ class OcOrg(object):
         orgs = Org.objects.filter(status='npf').select_related('orgentity')
 
         for org in orgs:
-            issued_cur_amount = OcLedger().get_issued_cur_amount(org.orgentity.id, period)
+            issued_cur_amount = OcLedger().get_issued_cur_amount(org.id, period)
             if not issued_cur_amount['total']:
                 issued_cur_amount['total'] = 0
             result.append({'name': org.name, 'total': issued_cur_amount['total']})
@@ -106,7 +106,7 @@ class OcOrg(object):
         bizs = Org.objects.filter(status='biz').select_related('orgentity')
 
         for biz in bizs:
-            accepted_cur_amount = OcLedger().get_accepted_cur_amount(biz.orgentity.id, period)
+            accepted_cur_amount = OcLedger().get_accepted_cur_amount(biz.id, period)
             if not accepted_cur_amount['total']:
                 accepted_cur_amount['total'] = 0
             result.append({'name': biz.name, 'total': accepted_cur_amount['total']})

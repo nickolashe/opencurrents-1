@@ -267,7 +267,7 @@ class OcUser(object):
         users = User.objects.all().select_related('userentity')
 
         for user in users:
-            earned_cur_amount = OcLedger().get_earned_cur_amount(user.userentity.id, period)
+            earned_cur_amount = OcLedger().get_earned_cur_amount(user.id, period)
             if not earned_cur_amount['total']:
                 earned_cur_amount['total'] = 0
             result.append({'name': user.username, 'total': earned_cur_amount['total']})
