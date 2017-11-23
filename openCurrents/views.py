@@ -647,12 +647,14 @@ class PublicRecordView(View):
             return OcOrg().get_top_accepted_bizs(period)
 
     def get(self, request, *args, **kwargs):
-        entity_type = request.GET.get('record_type', 'top-org')
-        period = request.GET.get('period', 'month')
-
         context = dict()
-        context['entries'] = self.get_top_list(entity_type, period)
-        context['form'] = PublicRecordsForm(request.GET or None)
+
+        form = PublicRecordsForm(request.GET or None)
+        context['form'] = form
+        if form.is_valid():
+            context['entries'] = self.get_top_list(form.cleaned_data['record_type'], form.cleaned_data['period'])
+        else:
+            context['entries'] = None
 
         return render(request, self.template_name, context)
 
