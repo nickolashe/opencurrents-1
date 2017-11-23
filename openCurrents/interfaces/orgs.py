@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from django.contrib.auth.models import Group
 from openCurrents.models import \
     Org, \
@@ -21,7 +22,7 @@ class OrgUserInfo(object):
 
     def setup_orguser(self, org, affiliation=None):
         org_user = None
-        user=OcUser(self.userid).get_user()
+        user = OcUser(self.userid).get_user()
 
         try:
             org_user = OrgUser(
@@ -87,14 +88,40 @@ class OcOrg(object):
 
         return org
 
+    def get_top_issued_npfs(self, period):
+        result = list()
+        orgs = Org.objects.filter(status='npf').select_related('orgentity')
+
+        for org in orgs:
+            issued_cur_amount = OcLedger().get_issued_cur_amount(org.orgentity.id, period)
+            if not issued_cur_amount['total']:
+                issued_cur_amount['total'] = 0
+            result.append({'name': org.name, 'total': issued_cur_amount['total']})
+
+        result.sort(key=lambda org_dict: org_dict['total'], reverse=True)
+        return result[:10]
+
+    def get_top_accepted_bizs(self, period):
+        result = list()
+        bizs = Org.objects.filter(status='biz').select_related('orgentity')
+
+        for biz in bizs:
+            accepted_cur_amount = OcLedger().get_accepted_cur_amount(biz.orgentity.id, period)
+            if not accepted_cur_amount['total']:
+                accepted_cur_amount['total'] = 0
+            result.append({'name': biz.name, 'total': accepted_cur_amount['total']})
+
+        result.sort(key=lambda biz_dict: biz_dict['total'], reverse=True)
+        return result[:10]
+
 
 class InvalidOrgException(Exception):
-	pass
+    pass
 
 
 class OrgExistsException(Exception):
-	pass
+    pass
 
 
 class InvalidOrgUserException(Exception):
-	pass
+    pass
