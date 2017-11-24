@@ -262,18 +262,18 @@ class OcUser(object):
 
         return admin_actions
 
-    def get_top_received_users(self, period):
+    def get_top_received_users(self, period, quantity=10):
         result = list()
-        users = User.objects.all().select_related('userentity')
+        users = User.objects.filter(userentity__isnull=False)
 
         for user in users:
-            earned_cur_amount = OcLedger().get_earned_cur_amount(user.id, period)
-            if not earned_cur_amount['total']:
-                earned_cur_amount['total'] = 0
-            result.append({'name': user.username, 'total': earned_cur_amount['total']})
+            earned_cur_amount = OcLedger().get_earned_cur_amount(user.id, period)['total']
+            if not earned_cur_amount:
+                earned_cur_amount = 0
+            result.append({'name': user.username, 'total': earned_cur_amount})
 
         result.sort(key=lambda user_dict: user_dict['total'], reverse=True)
-        return result
+        return result[:quantity]
 
     def _get_usertimelogs(self, verified=False):
         # determine whether there are any unverified timelogs for admin

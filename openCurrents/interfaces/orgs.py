@@ -88,31 +88,31 @@ class OcOrg(object):
 
         return org
 
-    def get_top_issued_npfs(self, period):
+    def get_top_issued_npfs(self, period, quantity=10):
         result = list()
-        orgs = Org.objects.filter(status='npf').select_related('orgentity')
+        orgs = Org.objects.filter(status='npf')
 
         for org in orgs:
-            issued_cur_amount = OcLedger().get_issued_cur_amount(org.id, period)
-            if not issued_cur_amount['total']:
-                issued_cur_amount['total'] = 0
-            result.append({'name': org.name, 'total': issued_cur_amount['total']})
+            issued_cur_amount = OcLedger().get_issued_cur_amount(org.id, period)['total']
+            if not issued_cur_amount:
+                issued_cur_amount = 0
+            result.append({'name': org.name, 'total': issued_cur_amount})
 
         result.sort(key=lambda org_dict: org_dict['total'], reverse=True)
-        return result[:10]
+        return result[:quantity]
 
-    def get_top_accepted_bizs(self, period):
+    def get_top_accepted_bizs(self, period, quantity=10):
         result = list()
-        bizs = Org.objects.filter(status='biz').select_related('orgentity')
+        bizs = Org.objects.filter(status='biz')
 
         for biz in bizs:
-            accepted_cur_amount = OcLedger().get_accepted_cur_amount(biz.id, period)
-            if not accepted_cur_amount['total']:
-                accepted_cur_amount['total'] = 0
-            result.append({'name': biz.name, 'total': accepted_cur_amount['total']})
+            accepted_cur_amount = OcLedger().get_accepted_cur_amount(biz.id, period)['total']
+            if not accepted_cur_amount:
+                accepted_cur_amount = 0
+            result.append({'name': biz.name, 'total': accepted_cur_amount})
 
         result.sort(key=lambda biz_dict: biz_dict['total'], reverse=True)
-        return result[:10]
+        return result[:quantity]
 
 
 class InvalidOrgException(Exception):
