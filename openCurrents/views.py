@@ -638,7 +638,7 @@ class InventoryView(TemplateView):
 class PublicRecordView(View):
     template_name = 'public-record.html'
 
-    def get_top_list(self, entity_type, period):
+    def get_top_list(self, entity_type='top_org', period='month'):
         if entity_type == 'top-org':
             return OcOrg().get_top_issued_npfs(period)
         elif entity_type == 'top-vol':
@@ -654,7 +654,7 @@ class PublicRecordView(View):
         if form.is_valid():
             context['entries'] = self.get_top_list(form.cleaned_data['record_type'], form.cleaned_data['period'])
         else:
-            context['entries'] = None
+            context['entries'] = self.get_top_list()
 
         return render(request, self.template_name, context)
 
