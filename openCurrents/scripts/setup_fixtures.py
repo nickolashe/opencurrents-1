@@ -7,8 +7,16 @@ from openCurrents.interfaces.orgs import OcOrg, \
     InvalidOrgException, \
     InvalidOrgUserException, \
     ExistingAdminException
-from openCurrents.models import Org
 
+from openCurrents.models import Org, \
+    AdminActionUserTime, \
+    UserTimeLog, \
+    TransactionAction, \
+    Transaction
+
+from datetime import datetime, timedelta
+from numpy import random
+import string
 
 fixtures_user = [
     {
@@ -89,3 +97,56 @@ for fxt in fixtures_user:
             print 'error: %s does not have admin group' % org.name
         except ExistingAdminException:
             print '%s already admin of %s' % (user.email, org.name)
+
+
+def volunteer_requests():
+    for i in xrange(random.randint(10)):
+        user = random.choice(User.objects.all())
+        admin = random.choice(User.objects.filter(
+            lastname='GreatDeedsAdmin'
+        ))
+        org = random.choice(Org.objects.all())
+        action = random.choice(['req', 'app', 'dec'])
+
+        project = Project.objects.get_or_create(
+            org=org,
+            name='ManualTracking'
+        )
+        project.save()
+
+        rnd_digits = ''.join([
+            random.choice(string.digits)
+            for i in xrange(8)
+        ])
+        rnd_chars = ''.join([
+            random.choice(string.letters)
+            for i in xrange(15)
+        ])
+
+        datetime_start = datetime.now() - \
+            timedelta(days=random.randint(7)) + \
+            timedelta(hours=random.randint(24)) + \
+            timedelta(minutes=random.randint(4) * 15)
+        datetime_end = datetime_start + \
+            timedelta(minutes=random.randint(16) * 15)
+
+        event = Event.objects.create(
+            project=project,
+            description=rnd_chars + rnd_digits,
+            event_type='MN',
+            datetime_start=datetime_start,
+            datetime_end=datetime_end
+        )
+
+        usertimelog = UserTimeLog.objects.create(
+            user=user,
+            event=event,
+            datetime_start=datetime_start,
+            datetime_end=datetime_end
+        )
+
+        actiontimelog = AdminActionUserTime.objects.create(
+            user=,
+            usertimelog=usertimelog,
+            action_type=action
+        )
