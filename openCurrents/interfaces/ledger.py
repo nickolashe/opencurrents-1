@@ -3,7 +3,9 @@ from openCurrents.models import \
     Entity, \
     UserEntity, \
     OrgEntity, \
-    Ledger
+    Ledger, \
+    AdminActionUserTime, \
+    TransactionAction
 
 import logging
 
@@ -57,10 +59,15 @@ class OcLedger(object):
         ledger_rec = Ledger(
             entity_from=entity_from,
             entity_to=entity_to,
-            action=action,
             amount=amount,
             is_issued=is_issued
         )
+
+        # TODO: refactor using a joint table for actions
+        if isinstance(action, AdminActionUserTime):
+            ledger_rec.action = action
+        elif isinstance(action, TransactionAction):
+            ledger_rec.transaction = action
         #logger.info(ledger_rec)
 
         ledger_rec.save()
