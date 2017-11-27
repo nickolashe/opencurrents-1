@@ -188,7 +188,8 @@ def setup_events(users, orgs):
             )
             print str(event)
 
-            users_reg = random.choice(users, random.randint(len(users)), replace=False)
+            # register for event
+            users_reg = random.choice(users, random.randint(1, len(users)), replace=False)
             for user in users_reg:
                 try:
                     uer = UserEventRegistration.objects.create(
@@ -201,27 +202,27 @@ def setup_events(users, orgs):
                     print e.message
                     pass
 
-                users_checkin = random.choice(users_reg, random.randint(len(users_reg)), replace=False)
-                event_duration = datetime_end - datetime_start
+            # checkin at random time
+            users_checkin = random.choice(users_reg, random.randint(len(users_reg)), replace=False)
+            event_duration = datetime_end - datetime_start
 
-                # checkin at random time
-                for user_chk in users_checkin:
-                    try:
-                        utl = UserTimeLog.objects.create(
-                            user=user_chk,
-                            event=event,
-                            is_verified=True,
-                            datetime_start=datetime_start + _get_random_item([-1, 0, 1]) * random.randint(4) * event_duration
-                        )
+            for user_chk in users_checkin:
+                try:
+                    utl = UserTimeLog.objects.create(
+                        user=user_chk,
+                        event=event,
+                        is_verified=True,
+                        datetime_start=datetime_start + _get_random_item([-1, 0, 1]) * random.randint(4) * event_duration
+                    )
 
-                        # randomly checkout
-                        if random.randint(2):
-                            utl.datetime_end = datetime_start + timedelta(hours=random.randint(12))
-                            utl.save()
-                        print str(utl)
-                    except Exception as e:
-                        print e.message
-                        pass
+                    # randomly checkout
+                    if random.randint(2):
+                        utl.datetime_end = datetime_start + timedelta(hours=random.randint(12))
+                        utl.save()
+                    print str(utl)
+                except Exception as e:
+                    print e.message
+                    pass
 
 def setup_volunteer_requests(users, orgs):
     npf_orgs = [org for org in orgs if org.status == 'npf']
