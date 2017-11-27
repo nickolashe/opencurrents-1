@@ -306,7 +306,7 @@ def setup_offers(orgs):
                     currents_share=random.randint(1, 20) * 5,
                     limit=(-1 if limit <= 0 else limit * 5)
                 )
-                orgs_offers.append(offer)
+                #orgs_offers.append(offer)
                 #print 'Offer for %s by %s' % (offer.item.name, offer.org.name)
                 print str(offer)
         else:
