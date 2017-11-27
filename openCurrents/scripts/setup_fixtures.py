@@ -106,6 +106,7 @@ def setup_orgs():
     for fxt in fixtures_orgs:
         try:
             org = OcOrg().setup_org(fxt['name'], fxt['status'])
+            print 'Created org %s' % org.name
         except OrgExistsException:
             org = Org.objects.get(name=fxt['name'])
             print 'Org %s already exists' % fxt['name']
@@ -125,6 +126,7 @@ def setup_users():
                 fxt['firstname'],
                 fxt['lastname']
             )
+            print 'Created user %s' % user.username
         except UserExistsException:
             user = User.objects.get(email=fxt['email'])
             print 'User %s already exists' % fxt['email']
