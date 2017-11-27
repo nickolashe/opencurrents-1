@@ -2,6 +2,9 @@
 
 {% load staticfiles %}
 {% load tags %}
+{% load staticfiles %}
+
+{% block main %}
 
 {% block status %}
   <div class="row">
@@ -40,17 +43,17 @@
         {% endif %}
       </div>
     </div>
-  {% endif %}        
+  {% endif %}
 {% endblock status %}
-          
+
 
 {% block heading-left %}
-  
+
   {{ block.super }}
-  
-  <a href="{% url 'openCurrents:create-event' orgid %}" 
-    {% if user_time_log_status %} class="button secondary tiny round" 
-    {% else %} class="button tiny round" 
+
+  <a href="{% url 'openCurrents:create-event' orgid %}"
+    {% if user_time_log_status %} class="button secondary tiny round"
+    {% else %} class="button tiny round"
     {% endif %}>
     Create event
   </a>
@@ -125,7 +128,7 @@
 
       {% for event in events_group_upcoming %}
         <div class="row one-margin-bottom">
-          <div class="left small-9 columns">    
+          <div class="left small-9 columns">
             Let's {{event.project.name}}!
             on {{event.datetime_start|day:timezone}}
             at {{event.datetime_start|time:timezone}}
@@ -228,5 +231,5 @@
     function status(){
       $('#status_msg').html("There are no hours that need your approval.");
     }
-  </script>  
+  </script>
 {% endblock js %}

@@ -177,7 +177,7 @@
     </div>
   </div>
 {% endblock popups %}
-    
+
 
 {% block js %}
   <script type="text/javascript">
@@ -195,10 +195,10 @@
       $('#event-starttime, #event-endtime').timepicker({
         step: 30,
         minTime: '7:00am',
-      });   
+      });
     });
   </script>
-  
+
   <script type="text/javascript" src="{% static 'js/auto-complete.min.js' %}"></script>
   <script type="text/javascript">
     // initialize
@@ -227,11 +227,11 @@
 
         google.maps.event.addListener(autocomplete);
 
-        google.maps.event.addDomListener(inputs[i], 'keydown', function(e) { 
-            if (e.keyCode == 13 && $('.pac-container:visible').length) { 
-                e.preventDefault(); 
+        google.maps.event.addDomListener(inputs[i], 'keydown', function(e) {
+            if (e.keyCode == 13 && $('.pac-container:visible').length) {
+                e.preventDefault();
             }
-        }); 
+        });
       }
     }
 
@@ -257,7 +257,7 @@
       $(this).parent('div').slideUp(function(){
         $(this).remove();
       });
-      
+
     });
 
     $(document).ready(function(){

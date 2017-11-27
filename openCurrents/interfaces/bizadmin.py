@@ -10,7 +10,10 @@ from openCurrents.models import \
     Transaction, \
     TransactionAction
 
-from openCurrents.orgs import OrgUserInfo
+from openCurrents.interfaces import common
+from openCurrents.interfaces import convert
+from openCurrents.interfaces.orgs import OrgUserInfo
+from openCurrents.interfaces.ledger import OcLedger
 
 import pytz
 
@@ -26,6 +29,30 @@ class BizAdmin(object):
 
         if not self.org or self.org.status != 'biz':
         	raise InvalidAffiliation
+
+    def get_balance_available(self, currency='cur'):
+        '''
+        report total available currents
+        '''
+        balance = OcLedger().get_balance(
+            entity_id=self.org.orgentity.id,
+            entity_type='org',
+            currency=currency
+        )
+
+        return balance
+
+    def get_balance_pending(self):
+        '''
+        pending currents from offer redemption requests
+        '''
+        active_redemption_reqs = self.get_redemptions(status='pending')
+
+        total_redemptions = common._get_redemption_total(
+            active_redemption_reqs
+        )
+
+        return total_redemptions
 
     def get_offers_all(self):
         offers = Offer.objects.filter(
@@ -58,7 +85,6 @@ class BizAdmin(object):
             )
 
         return org_offers_redeemed
-
 
 class InvalidAffiliation(Exception):
 	pass

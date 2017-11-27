@@ -64,9 +64,17 @@
         <div class="small-11 medium-8 small-centered columns">
           <h5 class="one-margin-bottom">How transactions work</h5>
 
-          <p>To make it as easy as possible to accept Currents, nothing changes at point of sale. Customers pay full price and provide openCurrents with proof of purchase.</p>
+          <p>To make it as easy as possible to accept Currents, nothing changes
+            at point of sale. Customers pay full price and provide openCurrents
+            with proof of purchase.</p>
 
-          <p>For each Current received, you can either keep the Current or claim a $10 charitable donation. Initial value: $10 per <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>1.</span></p>
+          <p>For each Current received, you can either keep the Current or claim
+            a $10 charitable donation. Initial value: $10 per
+            <span class="no-wrap">
+              <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
+              1.
+            </span>
+          </p>
 
           <div class="row half-margin-top one-margin-bottom">
             <div class="medium-10 small-centered columns">
@@ -76,7 +84,7 @@
         </div>
       </div>
     </div>
-  
+
     <!-- offer 2 -->
     <div id="offer-2">
       <div class="row one-margin-bottom">
@@ -89,7 +97,9 @@
         <div class="small-12 medium-6 small-centered columns">
           <div class="row collapse">
             <div class="input-left small-3 columns">
-              <p><strong><img class="" src="{% static 'img/symbol-navy.svg' %}"/> share</strong></p>
+              <p><strong>
+                <img class="" src="{% static 'img/symbol-navy.svg' %}"/> share
+              </strong></p>
             </div>
 
             <div class="input-right small-9 columns">
@@ -112,12 +122,12 @@
             </div>
 
             <div class="input-right small-9 columns">
-              <div class="fit-left half-margin-top one-margin-right one-margin-left">of</div>
+              <div class="fit-left half-margin-top one-margin-right one-margin-left">
+                of
+              </div>
               <div class="relative input-sizer">
-
                 {{ form.offer_item }}
-                {# <i class="remove-input alert fa fa-times"></i> #}
-
+                <!-- <i class="remove-input alert fa fa-times"></i> -->
               </div>
             </div>
           </div>
@@ -141,11 +151,21 @@
         </div>
       </div>
 
-      <p><a class="add-item-popup_open"><i class="half-margin-top half-margin-bottom fa fa-plus-circle half-margin-right"></i>Add item or category</a></p>
+      <p><a class="add-item-popup_open">
+        <i class="half-margin-top half-margin-bottom fa fa-plus-circle half-margin-right"></i>
+        Add item or category
+      </a></p>
 
       <div class="row half-margin-top">
         <div class="medium-8 small-centered columns">
-          <p class="three-halves-margin-bottom grey">Example: If you accept Currents for 20% of $100 in sales,<br class="hide-for-small-only" /> you would net $80 and either <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>2</span> or a $20 writeoff.</p>
+          <p class="three-halves-margin-bottom grey">
+            Example: If you accept Currents for 20% of $100 in sales,
+            <br class="hide-for-small-only" />
+            you would net $80 and either
+            <span class="no-wrap">
+              <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
+              2
+            </span> or a $20 writeoff.</p>
 
           <a class="prev-offer button round secondary">Back</a>
           <a class="next-offer button round">Next</a>
@@ -157,7 +177,9 @@
     <div id="offer-3">
       <div class="row">
         <div class="small-12 medium-11 small-centered columns">
-          <h5 class="one-margin-bottom">Do you want to accept all transactions?</h5>
+          <h5 class="one-margin-bottom">
+            Do you want to accept all transactions?
+          </h5>
         </div>
       </div>
 
@@ -198,13 +220,27 @@
       <div class="row left">
         <div class="small-12 medium-8 small-centered columns">
           <h5 class="one-margin-bottom center">Confirm offer details</h5>
-          <p>As an authorized representative of {{ orgname }}, I agree to accept Currents <span id="limit-yes-text"></span>as partial payment for the following products and services:</p>
-          
+          <p>As an authorized representative of {{ orgname }}, I agree to accept
+            Currents <span id="limit-yes-text"></span>as partial payment for the
+            following products and services:</p>
+
           <ul>
-            <li><span id="currents-share-text">25</span>% of <span id="item-text">All products and services</span></li>
+            <li>
+              <span id="currents-share-text">25</span>% of
+              <span id="item-text">All products and services</span>
+            </li>
           </ul>
-            
-          <p>At the end of the month, openCurrents will invoice {{ orgname }} the total value of Currents accepted, send customers dollars in exchange for Currents, and transfer Currents to {{ orgname }}. For each Current received, {{ orgname }} can either keep the Current or claim a $10 charitable donation. Initial value: $10 per <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>1.</span></p>
+
+          <p>At the end of the month, openCurrents will invoice {{ orgname }}
+            the total value of Currents accepted, send customers dollars in
+            exchange for Currents, and transfer Currents to {{ orgname }}. For
+            each Current received, {{ orgname }} can either keep the Current or
+            claim a $10 charitable donation. Initial value: $10 per
+            <span class="no-wrap">
+              <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
+              1.
+            </span>
+          </p>
         </div>
       </div>
 
@@ -228,7 +264,9 @@
     </div>
     <div class="row">
       <div class="small-centered medium-10 columns">
-        <p>To add more offers, complete this offer first. From your business profile, you can click "Post an offer" to list additional products and services.</p>
+        <p>To add more offers, complete this offer first. From your business
+          profile, you can click "Post an offer" to list additional products and
+          services.</p>
 
         <p class="center three-halves-margin-top">
           <a class="add-item-popup_close button round">Got it</a>
@@ -236,17 +274,21 @@
       </div>
     </div>
   </div>
-  
+
   <div id="value-info-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
     <div class="row center">
       <h4 class="popup-title">How to value Currents</h4>
     </div>
-    <p>You are welcome to value Currents however you choose. Please note, however, that the more you value you give for Currents, the higher priority your offer will receive in the marketplace - meaning more customers will see your business.</p>
+    <p>You are welcome to value Currents however you choose. Please note,
+      however, that the more you value you give for Currents, the higher
+      priority your offer will receive in the marketplace - meaning more
+      customers will see your business.</p>
     <div class="row">
       <div class="small-centered medium-10 columns">
         <p class="center three-halves-margin-top">
           <a class="value-info-popup_close button round">Got it</a>
-          <a href="javascript:void(Tawk_API.toggle())" class="button round secondary">Contact us</a>
+          <a href="javascript:void(Tawk_API.toggle())"
+          class="button round secondary">Contact us</a>
         </p>
       </div>
     </div>
@@ -266,7 +308,7 @@
       $('#offer-spacer').height($('#offer-4').height());
 
       // Add offer item
-      
+
       // var id = 3
 
       // $('#add-item').click(function(){
@@ -328,7 +370,7 @@
         $('#monthly-limit-div').slideUp();
         $('#limit-yes-text').text('');
       });
-      
+
       // Slide left on 'Next'
       var page = 1;
 
@@ -365,7 +407,7 @@
         if (page > 1) {
           var $lefty = $('#offer-'+(page-1)+'');
           var $righty = $('#offer-'+page+'');
-          
+
           $('#container').animate({
             scrollTop: $("#header").offset().top
           }, 1111);
@@ -384,7 +426,7 @@
 
           $('#progress-'+(page-1)+'').addClass('progress-highlight').siblings('label').addClass('blue');
           $('#progress-'+page+'').removeClass('progress-highlight').siblings('label').removeClass('blue');
-        
+
           page --;
         }
       });

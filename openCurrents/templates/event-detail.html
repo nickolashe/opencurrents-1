@@ -27,8 +27,8 @@
           {% if event.is_public %}
             Public
           {% else %}
-            Private 
-          {% endif %} 
+            Private
+          {% endif %}
 
           event
         </p>
@@ -52,7 +52,7 @@
           {% else %}
             <h6 class="navy inline">{{ form.contact_message.label }}</h6>
           {% endif %}
-        
+
         {% if form.contact_message.help_text %}
           <p class="small-text grey no-margin-bottom">
             {% if not coordinator %}

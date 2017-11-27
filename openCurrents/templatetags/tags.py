@@ -14,6 +14,10 @@ def day(val, tz='UTC'):
     return val.astimezone(pytz.timezone(tz)).strftime('%b %d, %Y')
 
 @register.filter
+def day_only(val, tz='UTC'):
+    return val.astimezone(pytz.timezone(tz)).strftime('%b %d')
+
+@register.filter
 def time(val, tz='UTC'):
     return val.astimezone(pytz.timezone(tz)).strftime('%-I:%M %p')
 
@@ -45,3 +49,11 @@ def mult(arg1, arg2):
 @register.filter
 def mult_three(arg1, arg2, arg3):
 	return float(arg1) * float(arg2) * float(arg3)
+
+@register.filter
+def str_to_num(arg1):
+	return float(arg1)
+
+@register.filter
+def get_hours_total(arg1, arg2):
+    return (arg2 - arg1).total_seconds() / 3600

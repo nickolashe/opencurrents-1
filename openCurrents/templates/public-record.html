@@ -12,8 +12,8 @@
       {% block title %} Public record {% endblock title %}
     </h3>
   </div>
-{% endblock heading %}   
-        
+{% endblock heading %}
+
 
 {% block content %}
   <div class="row half-margin-bottom">
@@ -31,19 +31,23 @@
       </select>
     </div>
   </div>
-  
+
   <div class="row one-margin-bottom">
     <div class="small-12 medium-8 small-centered columns">
       <div class="row">
         <div class="left small-6 columns">
-          <p class="half-margin-bottom"><strong><span id="record-name">Organization</span> name</strong></p>
+          <p class="half-margin-bottom"><strong>
+            <span id="record-name">Organization</span> name
+          </strong></p>
         </div>
+      </form>
+    </div>
 
         <div class="right small-6 columns">
           <p class="half-margin-bottom"><strong>Currents <span id="record-label">issued</span></strong></p>
         </div>
       </div>
-      
+
       <ol>
         <!-- for org/vol/biz in db -->
         <div class="row qtr-margin-bottom">
@@ -181,7 +185,7 @@
           <p class="half-margin-bottom"><input type="checkbox" name="vol-name" id="vol-name" class="custom-checkbox" checked/><label for="vol-name" >Volunteer name</label></p>
           <p class="half-margin-bottom"><input type="checkbox" name="date" id="date" class="custom-checkbox" checked/><label for="date" >Event date</label></p>
           <p class="half-margin-bottom"><input type="checkbox" name="description"  id="description" class="custom-checkbox" checked/><label for="description">Event description</label></p>
-          
+
         </div>
 
         <div class="left small-8 medium-5 columns">
@@ -208,7 +212,7 @@
         </div>
       </div>
     </div>
-    
+
     <div class="row one-margin-top center">
       <div class="small-centered medium-10 columns">
         <button type="submit" class="button round">Export</button>
@@ -245,12 +249,12 @@
         }
       });
 
-      $('#start-range').datepicker({ 
+      $('#start-range').datepicker({
         dateFormat: 'yy-mm-dd',
         maxDate: 0,
       })
 
-      $('#end-range').datepicker({ 
+      $('#end-range').datepicker({
         dateFormat: 'yy-mm-dd',
         maxDate: 0,
       }).datepicker("setDate", new Date());

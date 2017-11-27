@@ -215,13 +215,20 @@
           }).success(function( data ) {
             let userid = data;
 
+            let form_data = {
+              csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
+              user_firstname: new_firstname,
+              user_lastname: new_lastname,
+              user_email: new_email,
+            }
+            if (invite_optin) {
+              form_data['org_admin_id'] = "{{ request.user.id }}"
+            }
+
             $.ajax({
               url: "{% url 'openCurrents:event_register_live' eventid=event.id %}",
               type: 'POST',
-              data : {
-                csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
-                userid: userid
-              },
+              data: form_data,
               dataType : "json",
             }).complete(function( data ) {
               let test_data = data;

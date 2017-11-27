@@ -11,6 +11,9 @@ from openCurrents.models import Org, \
     Project, \
     Event
 
+from openCurrents.interfaces.ocuser import OcUser
+from openCurrents.interfaces.ledger import OcLedger
+
 from datetime import datetime
 
 import logging
@@ -90,6 +93,16 @@ class UserSignupForm(forms.Form):
         })
     )
     org_name = forms.CharField(required=False, min_length=2)
+
+    org_status = forms.ChoiceField(
+        choices=[
+            ('npf', 'nonprofit'),
+            ('biz', 'business'),
+        ],
+        required=False
+    )
+
+    org_admin_id = forms.IntegerField(required=False)
 
 
 class PasswordResetRequestForm(forms.Form):
@@ -198,9 +211,8 @@ class OrgSignupForm(forms.Form):
     )
     org_status = forms.ChoiceField(
         choices=[
-            ('nonprofit', 'nonprofit'),
-            ('business', 'business'),
-            ('unregistered', 'unregistered')
+            ('npf', 'nonprofit'),
+            ('biz', 'business'),
         ]
     )
     org_mission = forms.CharField(required=False)
@@ -248,8 +260,8 @@ class CreateEventForm(forms.Form):
     event_date = forms.CharField(
         label='on',
         widget=widgets.TextWidget(attrs={
-            'class': 'center',
             'id': 'event-date',
+            'class': ' center',
             'placeholder': 'yyyy-mm-dd',
         })
     )
@@ -257,8 +269,8 @@ class CreateEventForm(forms.Form):
     event_starttime = forms.CharField(
         label='from',
         widget=widgets.TextWidget(attrs={
-            'class': 'center',
             'id': 'event-starttime',
+            'class': ' center',
             'placeholder': '12:00 pm'
         })
     )
@@ -266,8 +278,8 @@ class CreateEventForm(forms.Form):
     event_endtime = forms.CharField(
         label='to',
         widget=widgets.TextWidget(attrs={
-            'class': 'center',
             'id': 'event-endtime',
+            'class': ' center',
             'placeholder': '1:00 pm',
         })
     )
@@ -408,8 +420,7 @@ class EditEventForm(CreateEventForm):
 class EventRegisterForm(forms.Form):
     contact_message = forms.CharField(
         required=False,
-        label='Contact event coordinator (optional)',
-        help_text='Ask a question, confirm your attendance, or just say hello',
+        label='Get in touch (optional)',
         widget=forms.Textarea(attrs={
             'rows': '3'
         }),
@@ -435,13 +446,18 @@ class TimeTrackerForm(forms.Form):
             int(org_admin_group.name.split('_')[1])
             for org_admin_group in orgs_approved_admins
         ]
+
+        orgs = Org.objects.filter(
+            id__in=org_ids
+        ).filter(
+            status='npf'
+        ).order_by(
+            'name'
+        )
+
         choices_orgs_approved_admins = [
             (org.id, org.name)
-            for org in Org.objects.filter(
-                id__in=org_ids
-            ).order_by(
-                'name'
-            )
+            for org in orgs
         ]
 
         # build the dynamic choices list
@@ -556,8 +572,11 @@ class TimeTrackerForm(forms.Form):
         cleaned_data['datetime_end'] = pytz.timezone(tz).localize(datetime_end)
 
         # check: start time before end time
-        if datetime_end <= datetime_start:
+        if cleaned_data['datetime_end'] <= cleaned_data['datetime_start']:
             raise ValidationError(_('Start time must be before end time'))
+
+        if cleaned_data['datetime_end'] > datetime.now(tz=pytz.utc):
+            raise ValidationError(_('Hours can only be submitted once work is completed'))
 
         return cleaned_data
 
@@ -676,6 +695,7 @@ class RedeemCurrentsForm(forms.Form):
     def __init__(self, *args, **kwargs):
         offer_id = kwargs.pop('offer_id')
         self.offer = Offer.objects.get(id=offer_id)
+        self.user = kwargs.pop('user')
 
         super(RedeemCurrentsForm, self).__init__(*args, **kwargs)
 
@@ -684,16 +704,17 @@ class RedeemCurrentsForm(forms.Form):
             'class': 'hidden-file',
             'id': 'upload-receipt',
             'accept': 'image/*'
-        })       
+        }),
+        required=False
     )
 
-    redeem_receipt_if_checked = forms.BooleanField(
-        widget=forms.CheckboxInput(attrs={
-            'class': 'hidden',
-            'id': 'receipt-if-checked'
-        }),
-        initial=True,
-    )
+    # redeem_receipt_if_checked = forms.BooleanField(
+    #     widget=forms.CheckboxInput(attrs={
+    #         'class': 'hidden',
+    #         'id': 'receipt-if-checked'
+    #     }),
+    #     initial=True,
+    # )
 
     redeem_no_proof = forms.CharField(
         required=False,
@@ -704,5 +725,55 @@ class RedeemCurrentsForm(forms.Form):
         )
 
     redeem_price = forms.IntegerField(
-        widget=forms.NumberInput()
+        widget=forms.NumberInput(),
+        required=False
     )
+
+    redeem_currents_amount = forms.FloatField(
+        widget=forms.NumberInput(
+            attrs={
+                'class': 'hidden'
+            }
+        )
+    )
+
+    def clean(self):
+        cleaned_data = super(RedeemCurrentsForm, self).clean()
+        redeem_receipt = cleaned_data['redeem_receipt']
+        redeem_no_proof = cleaned_data['redeem_no_proof']
+        redeem_price = cleaned_data['redeem_price']
+
+        user_balance_available = OcUser(self.user.id).get_balance_available()
+
+        if user_balance_available <= 0:
+            raise ValidationError(
+                _('You don\'t have any currents to spend at this time')
+            )
+
+        if redeem_price <= 0:
+            raise ValidationError(
+                _('Invalid purchase price reported')
+            )
+
+        if not (redeem_no_proof or redeem_receipt):
+            raise ValidationError(
+                _('Receipt or description of purchase is required')
+            )
+
+        return cleaned_data
+
+
+class PublicRecordsForm(forms.Form):
+    periods = (
+        ('month', 'Last 30 days'),
+        ('all-time', 'All-time'),
+    )
+
+    record_types = (
+        ('top-org', 'Top organizations'),
+        ('top-vol', 'Top volunteers'),
+        ('top-biz', 'Top businesses'),
+    )
+
+    record_type = forms.ChoiceField(choices=record_types)
+    period = forms.ChoiceField(choices=periods)
