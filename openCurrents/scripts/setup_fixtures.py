@@ -163,6 +163,12 @@ def setup_events(users, orgs):
     npf_orgs = [org for org in orgs if org.status == 'npf']
     names = random.choice(list(string.letters), 10, replace=False)
 
+    projects = Project.objects.filter(org__in=npf_orgs)
+
+    if len(projects) >= 10:
+        print 'Sufficient number of projects created already'
+        return
+
     for name in names:
         org = _get_random_item(npf_orgs)
         project, created = Project.objects.get_or_create(
@@ -177,11 +183,12 @@ def setup_events(users, orgs):
         num_locations = random.randint(3)
 
         for loc in xrange(num_locations):
+            admin = _get_random_item(User.objects.filter(last_name=org.name + 'Admin'))
             event = Event.objects.create(
                 project=project,
                 description=_get_random_string(),
                 location='Location' + str(loc),
-                coordinator=_get_random_item(User.objects.filter(last_name=org.name + 'Admin')),
+                coordinator=admin,
                 is_public=True,
                 datetime_start=datetime_start,
                 datetime_end=datetime_end
@@ -220,13 +227,30 @@ def setup_events(users, orgs):
                         utl.datetime_end = datetime_start + timedelta(hours=random.randint(12))
                         utl.save()
                     print str(utl)
+
+                    actiontimelog = AdminActionUserTime.objects.create(
+                        user=admin,
+                        usertimelog=utl,
+                        action_type='app'
+                    )
+
+                    OcLedger().issue_currents(
+                        entity_id_from=org.orgentity.id,
+                        entity_id_to=user_chk.userentity.id,
+                        action=actiontimelog,
+                        amount=diffInHours(datetime_start, datetime_end)
+                    )
+
                 except Exception as e:
                     print e.message
                     pass
 
 def setup_volunteer_requests(users, orgs):
     npf_orgs = [org for org in orgs if org.status == 'npf']
-    usertimelogs = UserTimeLog.objects.filter(user__in=users)
+    usertimelogs = UserTimeLog.objects.filter(
+        user__in=users,
+        event__event_type='MN'
+    )
     if len(usertimelogs) >= 30:
         print 'Sufficient number of existing hour requests already'
         return
@@ -274,7 +298,6 @@ def setup_volunteer_requests(users, orgs):
             action_type=action
         )
         amount = diffInHours(datetime_start, datetime_end)
-        # print 'Action [%s] for %.2f hours submitted by %s' % (action, amount, user.email)
         print str(actiontimelog)
 
         if is_verified:
