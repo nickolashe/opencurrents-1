@@ -376,10 +376,10 @@
           </div>
 
           <div class="one-margin-top">
-            <a href="{% url 'openCurrents:nonprofit' %}" class="tag button round tiny clear">
+            <a class="nonprofit-signup-box_open tag button round tiny clear">
               Register a nonprofit
             </a>
-            <a href="{% url 'openCurrents:business' %}" class="tag button round tiny clear">
+            <a class="business-signup-box_open tag button round tiny clear">
               Register a business
             </a>
           </div>
@@ -428,116 +428,10 @@
       {% include 'partials/home-menu.html' %}
     </div>
 
-
-    <div id="play-intro" class="modal small-12 medium-9 large-7 small-centered columns">
-      <div class="videoWrapper">
-        <!--<iframe id="intro-video" width="1280" height="720" src="https://www.youtube.com/embed/U698XPB13-Y?rel=0" allowscriptaccess="always" frameborder="0" allowfullscreen></iframe>-->
-      </div>
-    </div>
-
-    <div id="signup-box" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <div class="row center">
-        <h2 class="one-margin-top">Join openCurrents</h2>
-      </div>
-
-      <form method="post" action="{% url 'openCurrents:process_signup' %}">
-        {% csrf_token %}
-        <div class="row three-halves-margin-bottom half-margin-top">
-          <div class="center small-12 medium-9 small-centered columns">
-
-            <div class="input-left small-6 columns">
-              <input type="text" name="user_firstname" placeholder="First name"
-              class="large-text center" tabindex="0" required />
-            </div>
-
-            <div class="input-right small-6 columns">
-              <input type="text" name="user_lastname" placeholder="Last name"
-              class="large-text center" tabindex="0" required />
-            </div>
-            <div class="small-12 columns">
-              <input type="email" name="user_email" placeholder="Email address"
-              class="large-text center" tabindex="0" required />
-            </div>
-          </div>
-        </div>
-
-        <div class="row center half-margin-top">
-          <input type="submit" class="button large round" value="Create account"/>
-          <p class="grey">Existing member?
-            <a href="{% url 'openCurrents:login' %}">
-              Log in
-            </a>
-          </p>
-        </div>
-      </form>
-    </div>
+    {% include "popups/home-popups.html" %}
 
     <script type="text/javascript" src="{% static "js/home.js" %}"></script>
     <script type="text/javascript" src="{% static "js/history.js" %}"></script>
-
-<!--     <script type="text/javascript">
-      var page = 1;
-
-      $(document).ready(function(){
-
-        history.replaceState(page, null, "");
-
-        $('#intro-button-1').click(function(){
-          $("html, body").animate({ scrollTop: 0 }, "slow");
-          // $('#home-logo').animate({width: "280px", height: "42px", marginTop: '3rem'}, 1555);
-          $('#intro-1').fadeOut(777, function(){
-            $('#intro-2').fadeIn(777);
-            $('#back-button').fadeIn(777);
-          });
-
-          page = 2;
-        });
-
-        $('#intro-button-2').click(function(){
-          $("html, body").animate({ scrollTop: 0 }, "slow");
-          $('#intro-2').fadeOut(777, function(){
-            $('#intro-3').fadeIn(777);
-          });
-
-          page = 3;
-        });
-
-        $('#intro-button-3').click(function(){
-          $("html, body").animate({ scrollTop: 0 }, "slow");
-          $('#intro-3').fadeOut(777, function(){
-            $('#intro-4').fadeIn(777);
-          });
-
-          page = 4;
-
-          //history.pushState(page, null, "");
-        });
-      });
-
-
-      window.addEventListener('previous', function(){
-        if(page > 1){
-          page -= 1;
-        }
-
-        $("html, body").animate({ scrollTop: 0 }, "slow");
-        $('#intro-'+(page+1)+'').fadeOut(777, function(){
-          $('#intro-'+page+'').fadeIn(777);
-        });
-      }, false);
-
-      window.addEventListener('next', function(){
-        if(page < 4){
-          page += 1;
-        }
-
-        $("html, body").animate({ scrollTop: 0 }, "slow");
-        $('#intro-'+(page-1)+'').fadeOut(777, function(){
-          $('#intro-'+page+'').fadeIn(777);
-        });
-      }, false);
-
-    </script> -->
 
     <script type="text/javascript">
       $('#signup-type-2').click(function(){
@@ -591,43 +485,6 @@
             $('#benefit-3').fadeIn(555);
           });
           val = 3;
-        });
-      });
-    </script>
-
-    <script type="text/javascript">
-
-      $(document).ready(function(){
-
-        // var $root = $('html, body');
-        // $('a').click(function() {
-        //     var href = $.attr(this, 'href');
-        //     $root.animate({
-        //         scrollTop: $(href).offset().top
-        //     }, 1111, function () {
-        //         window.location.hash = href;
-        //     });
-        //     return false;
-        // });
-
-        $('#play-intro').popup({
-          vertical: 'top',
-          transition: 'all 0.75s',
-          scrolllock: false,
-          onclose: function() {
-            var vid = jQuery('.videoWrapper iframe[src*="youtube"]');
-            if ( vid.length > 0 ){
-              var src = vid.attr('src');
-                vid.attr('src', '');
-                vid.attr('src', src);
-            }
-          }
-        });
-
-        $('#signup-box, #suggestion-box, #demo-box').popup({
-          vertical: 'top',
-          transition: 'all 0.75s',
-          scrolllock: false,
         });
       });
     </script>
