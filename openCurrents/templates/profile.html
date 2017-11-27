@@ -173,7 +173,12 @@
                             {{ amount_cur|floatformat:3 }}
                             for ${{ amount_usd|floatformat:2 }}
 
-                          {# add declined #}
+                          {% else %}
+                            {{ status }}
+                            <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
+                            {{ amount_cur|floatformat:3 }}
+                            for ${{ amount_usd|floatformat:2 }}
+
                           {% endif %}
 
                         {% endwith %}

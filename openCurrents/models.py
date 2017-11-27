@@ -461,8 +461,8 @@ class Offer(models.Model):
 
     def __unicode__(self):
         return ' '.join([
-            str(self.currents_share),
-            '% on',
+            'Offer for',
+            str(self.currents_share) + '% on',
             self.item.name,
             'by',
             self.org.name

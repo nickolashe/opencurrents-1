@@ -13,6 +13,7 @@ from openCurrents.interfaces.orgs import OcOrg, \
 from openCurrents.models import Org, \
     Project, \
     Event, \
+    UserEventRegistration, \
     AdminActionUserTime, \
     UserTimeLog, \
     Item, \
@@ -28,40 +29,60 @@ import pytz
 
 fixtures_user = [
     {
-        'email': 'replace1@withyouremail.com',
+        'email': 'volunteer1@opencurrents.com',
         'firstname': 'John',
         'lastname': 'Volunteer',
         'type': 'volunteer'
     },
     {
-        'email': 'replace2@withyouremail.com',
+        'email': 'volunteer2@opencurrents.com',
         'firstname': 'Patrick',
         'lastname': 'Volunteer',
         'type': 'volunteer'
     },
     {
-        'email': 'replace3@withyouremail.com',
+        'email': 'greatdeeds_admin1@opencurrents.com',
         'firstname': 'Chris',
         'lastname': 'GreatDeedsAdmin',
         'type': 'npf'
     },
     {
-        'email': 'replace4@withyouremail.com',
+        'email': 'greatdeeds_admin2@opencurrents.com',
         'firstname': 'Ed',
         'lastname': 'GreatDeedsAdmin',
         'type': 'npf'
     },
     {
-        'email': 'replace5@withyouremail.com',
+        'email': 'goodvibes_admin@opencurrents.com',
+        'firstname': 'Kate',
+        'lastname': 'GoodVibesAdmin',
+        'type': 'npf'
+    },
+    {
+        'email': 'consciousbiz_admin1@opencurrents.com',
         'firstname': 'Mark',
         'lastname': 'ConciousBizAdmin',
+        'type': 'biz'
+    },
+    {
+        'email': 'consciousbiz_admin2@opencurrents.com',
+        'firstname': 'Andrew',
+        'lastname': 'ConciousBizAdmin',
+        'type': 'biz'
+    },
+    {
+        'email': 'greenbiz_admin@opencurrents.com',
+        'firstname': 'Ann',
+        'lastname': 'GreenBizAdmin',
         'type': 'biz'
     }
 ]
 
 fixtures_orgs = [
     {'name': 'GreatDeeds', 'status': 'npf'},
-    {'name': 'ConciousBiz', 'status': 'biz'}
+    {'name': 'GoodVibes', 'status': 'npf'},
+    {'name': 'ConciousBiz', 'status': 'biz'},
+    {'name': 'GreenBiz', 'status': 'biz'}
 ]
 
 def _get_random_item(items):
@@ -108,45 +129,110 @@ def setup_users():
             user = User.objects.get(email=fxt['email'])
             print 'User %s already exists' % fxt['email']
 
+        user.set_password(fxt['lastname'])
+        user.save()
         users_all.append(user)
 
         if fxt['type'] != 'volunteer':
             org = None
-            if fxt['type'] == 'npf':
-                org = Org.objects.get(name='GreatDeeds')
-            else:
-                org = Org.objects.get(name='ConciousBiz')
+            orgname = fxt['lastname'].strip('Admin')
+            try:
+                org = Org.objects.get(name=orgname)
+            except Exception as e:
+                print 'No org named %s (%s)' % (orgname, org.name)
+                return
 
             oui = OrgUserInfo(user.id)
 
             try:
                 oui.setup_orguser(org)
             except InvalidOrgUserException:
-                print 'org <=> %s mapping already exists' % fxt['email']
+                print 'Unable to configure %s <=> %s mapping (possible it already exists)' % (org.name, fxt['email'])
 
             try:
                 oui.make_org_admin(org.id)
             except InvalidOrgException:
-                print 'error: %s does not have admin group' % org.name
+                print 'Unable to grant admin privilege to %s on org %s (check for exitence of admin group)' % (user.username, org.name)
             except ExistingAdminException:
-                print '%s already admin of %s' % (user.email, org.name)
+                print '%s already granted admin privilege on org %s' % (user.username, org.name)
 
     return users_all
 
 
-def setup_volunteer_requests():
-    users = User.objects.filter(email__endswith='withyouremail.com')
+def setup_events(users, orgs):
+    npf_orgs = [org for org in orgs if org.status == 'npf']
+    names = random.choice(list(string.letters), 10, replace=False)
+
+    for name in names:
+        org = _get_random_item(npf_orgs)
+        project, created = Project.objects.get_or_create(
+            name=' '.join(['Let\'s', name]),
+            org=org
+        )
+
+        datetime_start = datetime.now(tz=pytz.utc) + \
+            _get_random_item([-1, 1]) * timedelta(days=random.randint(60)) + \
+            timedelta(hours=random.randint(12, 24))
+        datetime_end = datetime_start + timedelta(hours=random.randint(4))
+        num_locations = random.randint(3)
+
+        for loc in xrange(num_locations):
+            event = Event.objects.create(
+                project=project,
+                description=_get_random_string(),
+                location='Location' + str(loc),
+                coordinator=_get_random_item(User.objects.filter(last_name=org.name + 'Admin')),
+                is_public=True,
+                datetime_start=datetime_start,
+                datetime_end=datetime_end
+            )
+            print str(event)
+
+            users_reg = random.choice(users, random.randint(len(users)), replace=False)
+            for user in users_reg:
+                try:
+                    uer = UserEventRegistration.objects.create(
+                        user=user,
+                        event=event,
+                        is_confirmed=True
+                    )
+                    print str(uer)
+                except Exception as e:
+                    print e.message
+                    pass
+
+                users_checkin = random.choice(users_reg, random.randint(len(users_reg)), replace=False)
+                event_duration = datetime_end - datetime_start
+
+                # checkin at random time
+                for user_chk in users_checkin:
+                    try:
+                        utl = UserTimeLog.objects.create(
+                            user=user_chk,
+                            event=event,
+                            is_verified=True,
+                            datetime_start=datetime_start + _get_random_item([-1, 0, 1]) * random.randint(4) * event_duration
+                        )
+
+                        # randomly checkout
+                        if random.randint(2):
+                            utl.datetime_end = datetime_start + timedelta(hours=random.randint(12))
+                            utl.save()
+                        print str(utl)
+                    except Exception as e:
+                        print e.message
+                        pass
+
+def setup_volunteer_requests(users, orgs):
+    npf_orgs = [org for org in orgs if org.status == 'npf']
     usertimelogs = UserTimeLog.objects.filter(user__in=users)
-    if len(usertimelogs) >= 10:
-        print 'Enough hour requests by user fixtures'
+    if len(usertimelogs) >= 30:
+        print 'Sufficient number of existing hour requests already'
         return
 
-    for i in xrange(10):
-        user = _get_random_item(User.objects.filter(
-            email__endswith='withyouremail.com'
-        ))
-
-        org = random.choice(Org.objects.filter(name='GreatDeeds'))
+    for i in xrange(30):
+        user = _get_random_item(users)
+        org = random.choice(npf_orgs)
         action = random.choice(['req', 'app', 'dec'])
         is_verified = action == 'app'
 
@@ -179,7 +265,7 @@ def setup_volunteer_requests():
         )
 
         admin = _get_random_item(User.objects.filter(
-            last_name='GreatDeedsAdmin'
+            last_name=org.name + 'Admin'
         ))
         actiontimelog = AdminActionUserTime.objects.create(
             user=admin,
@@ -199,61 +285,62 @@ def setup_volunteer_requests():
             )
 
 
-def setup_offers():
-    org = Org.objects.get(name='ConciousBiz')
+def setup_offers(orgs):
+    biz_orgs = [org for org in orgs if org.status == 'biz']
+
     offer_items = [
         'All products',
         'Kombucha',
         'Jun'
     ]
 
-    offers_all = Offer.objects.filter(org=org)
-    if len(offers_all) < 3:
-        offers_all = []
-        for name in offer_items:
-            limit = random.randint(-5, 5)
-            item, created = Item.objects.get_or_create(name=name)
-            offer, created = Offer.objects.get_or_create(
-                org=org,
-                item=item,
-                currents_share=random.randint(1, 20) * 5,
-                limit=(-1 if limit <= 0 else limit * 5)
-            )
-            offers_all.append(offer)
-            #print 'Offer for %s by %s' % (offer.item.name, offer.org.name)
-            print str(offer)
-    else:
-        print '%s already has enough offers' % org.name
+    for org in biz_orgs:
+        orgs_offers = Offer.objects.filter(org=org)
+        if len(orgs_offers) < 3:
+            for name in offer_items:
+                limit = random.randint(-5, 5)
+                item, created = Item.objects.get_or_create(name=name)
+                offer, created = Offer.objects.get_or_create(
+                    org=org,
+                    item=item,
+                    currents_share=random.randint(1, 20) * 5,
+                    limit=(-1 if limit <= 0 else limit * 5)
+                )
+                orgs_offers.append(offer)
+                #print 'Offer for %s by %s' % (offer.item.name, offer.org.name)
+                print str(offer)
+        else:
+            print '%s has enough offers already' % org.name
 
-    return offers_all
+    return
 
 
-def setup_redemptions():
-    users_all = User.objects.filter(email__endswith='withyouremail.com')
-    transactions = Transaction.objects.filter(user__in=users_all)
-    if len(transactions) >= 10:
-        print 'Enough user transactions'
+def setup_redemptions(users, orgs):
+    biz_orgs = [org for org in orgs if org.status == 'biz']
+
+    transactions = Transaction.objects.filter(user__in=users)
+    if len(transactions) >= 20:
+        print 'Sufficient number of redemptions already'
         return
 
-    org = Org.objects.get(name='ConciousBiz')
-    offers_all = Offer.objects.filter(org=org)
-
-    for i in xrange(10):
+    for i in xrange(20):
+        org = _get_random_item(biz_orgs)
+        orgs_offers = Offer.objects.filter(org=org)
         users = [
             user
-            for user in users_all
-            if OcLedger().get_balance(user.userentity.id) > 0
+            for user in users
+            if OcUser(user.id).get_balance_available() > 0
         ]
 
         if not users:
-            print 'No users with currents!'
+            print 'No users with currents available!'
             return
 
         user = _get_random_item(users)
-        user_balance = OcLedger().get_balance(user.userentity.id)
+        user_balance = OcUser(user.id).get_balance_available()
         amount_spent_cur = round(random.random() * float(user_balance), 3)
 
-        offer = _get_random_item(offers_all)
+        offer = _get_random_item(orgs_offers)
         price_reported = round(
             1000. / offer.currents_share * amount_spent_cur,
             2
@@ -273,12 +360,6 @@ def setup_redemptions():
             transaction=transaction,
             action_type=action
         )
-        # print 'Action [%s] for %s\'s redemption of %s\'s offer for %s' % (
-        #     action,
-        #     user.email,
-        #     offer.org.name,
-        #     offer.item.name
-        # )
         print str(transaction_action)
 
         is_verified = (action in ['app', 'red'])
@@ -294,8 +375,9 @@ def setup_redemptions():
 
 
 if __name__ == '__main__':
-    setup_orgs()
-    setup_users()
-    setup_volunteer_requests()
-    setup_offers()
-    setup_redemptions()
+    orgs = setup_orgs()
+    users = setup_users()
+    setup_events(users, orgs)
+    setup_volunteer_requests(users, orgs)
+    setup_offers(orgs)
+    setup_redemptions(users, orgs)
