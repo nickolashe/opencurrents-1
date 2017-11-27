@@ -13,9 +13,9 @@
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
         {% if status_msg %}
-        <div class="alert row half-margin-top">
-          {{status_msg}}
-        </div>
+          <div class="alert row half-margin-top">
+            {{status_msg}}
+          </div>
         {% endif %}
 
         <div class="row two-margin-top two-margin-bottom">
@@ -68,21 +68,25 @@
               <div class="small-12 medium-8 small-centered columns">
                 <h4 class="one-margin-bottom">Upload receipt or proof of purchase</h4>
                 <p class="three-halves-margin-bottom">
-                  To exchange Currents for dollars with {{ offer.org.name }}, upload your receipt as proof of purchase. Other forms, such as an image of your bank statement or description of your purchase, may or may not be accepted.
+                  To exchange Currents for dollars with {{ offer.org.name }},
+                  upload your receipt as proof of purchase. Other forms, such as
+                  an image of your bank statement or description of your
+                  purchase, may or may not be accepted.
 
                   <a class="redeem-info-popup_open no-wrap">
                     Why do I pay full price?
                   </a>
                 </p>
 
-                {# form.redeem_receipt_if_checked #}
+                <!--  form.redeem_receipt_if_checked -->
 
                 <!-- <input type="checkbox" name="receipt-if-checked" id="receipt-if-checked" class="hidden" checked /> -->
 
                 {{ form.redeem_receipt }}
                 <!--input type="file" accept="image/*" capture="camera" id="upload-receipt" name="upload-receipt" class="hidden-file" /-->
 
-                <label for="upload-receipt" id="receipt-label" class="upload-receipt-label button round small secondary">
+                <label for="upload-receipt" id="receipt-label"
+                class="upload-receipt-label button round small secondary">
                   <i class="one-margin-right fa fa-upload"></i>
                   <span>Choose an image...</span>
                 </label>
@@ -136,17 +140,17 @@
                 <p class="one-margin-bottom">
                   I agree to give
                   <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
-                  <span class="currents-total"></span> to {{ offer.org.name }}
-                  in exchange for $<span class="dollars-total"></span> minus a
-                  10% transaction fee of $<span class="dollars-fee"></span>.
+                  <span class="currents-total">0.00</span> to {{ offer.org.name }}
+                  in exchange for $<span class="dollars-total">0.00</span> minus a
+                  10% transaction fee of $<span class="dollars-fee">0.00</span>.
                 </p>
 
                 <p>
-                  I understand that $<span class="dollars-received"></span> will
+                  I understand that $<span class="dollars-received">0.00</span> will
                   be added to my account as Pending Dollars, which will become
                   Available Dollars once {{ offer.org.name }} validates the
                   transaction at the end of the month.
-                  <span class="currents-total"></span> Currents will be deducted
+                  <span class="currents-total">0.00</span> Currents will be deducted
                   from my account at this time. I can then transfer Available
                   Dollars to my bank account or keep the balance in my
                   openCurrents account.
@@ -242,7 +246,9 @@
           callback(null, balanceAvailable);
         });
       };
+    </script>
 
+    <script type="text/javascript">
       $(document).ready(function(){
         $('#redeem-info-popup, #no-receipt-popup').popup({
           vertical: 'top',
@@ -269,6 +275,7 @@
         var page = 1;
 
         $('.next-offer').click(function() {
+
           if (page < 3) {
             var $lefty = $('#offer-'+page+'');
             var $righty = $('#offer-'+(page+1)+'');
@@ -287,7 +294,7 @@
             }, 777);
 
             setTimeout(function() {
-                $lefty.hide();
+              $lefty.hide();
             }, 1000);
 
             $('#progress-'+page+'').removeClass('progress-highlight').siblings('label').removeClass('blue');
@@ -316,7 +323,7 @@
             }, 777);
 
             setTimeout(function() {
-                $righty.hide();
+              $righty.hide();
             }, 1000);
 
             $('#progress-'+(page-1)+'').addClass('progress-highlight').siblings('label').addClass('blue');
@@ -338,16 +345,6 @@
             $('.upload-receipt-label').find('span').text('Choose an image...');
           }
         });
-
-        // // Uncheck receipt-if-checked when 'Other PoP' label is clicked
-        // $('#pop-label').click(function(){
-        //   $('#receipt-if-checked').prop('checked', false);
-        // });
-
-        // // Uncheck receipt-if-checked when 'Other PoP' label is clicked
-        // $('#receipt-label').click(function(){
-        //   $('#receipt-if-checked').prop('checked', true);
-        // });
 
         let shareToCurrents = function (priceSubjectToShare) {
           var share = {{ offer.currents_share }} /100.;

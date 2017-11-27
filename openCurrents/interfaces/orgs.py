@@ -18,21 +18,20 @@ logger.setLevel(logging.DEBUG)
 class OrgUserInfo(object):
     def __init__(self, userid):
         self.userid = userid
+        self.user=OcUser(self.userid).get_user()
         self.orgusers = OrgUser.objects.filter(user__id=userid)
 
     def setup_orguser(self, org, affiliation=None):
         org_user = None
-        user = OcUser(self.userid).get_user()
 
         try:
             org_user = OrgUser(
                 org=org,
-                user=user,
+                user=self.user,
                 affiliation=affiliation
             )
             org_user.save()
         except Exception as e:
-            logger.error(e)
             raise InvalidOrgUserException()
 
         return org_user
@@ -53,12 +52,25 @@ class OrgUserInfo(object):
         return self.orgusers[0].org.timezone if self.orgusers else 'America/Chicago'
 
     def is_org_admin(self, orgid):
-        admin_org_group_name = ['_'.join(['admin', str(orgid)])]
+        admin_org_group_name = '_'.join(['admin', str(orgid)])
         admin_org_group = Group.objects.filter(
-            name__in=admin_org_group_name,
+            name=admin_org_group_name,
             user__id=self.userid
         ).exists()
         return True if admin_org_group else False
+
+    def make_org_admin(self, orgid):
+        admin_org_group_name = '_'.join(['admin', str(orgid)])
+        admin_org_group = Group.objects.filter(
+            name=admin_org_group_name
+        )
+        if admin_org_group:
+            try:
+                admin_org_group[0].user_set.add(self.user)
+            except Exception:
+                raise ExistingAdminException()
+        else:
+            raise InvalidOrgException()
 
 
 class OcOrg(object):
@@ -76,16 +88,16 @@ class OcOrg(object):
         try:
             org = Org(
                 name=name,
-                website=website,
-                status=status
+                status=status,
+                website=website
             )
             org.save()
         except Exception as e:
-            logger.error(e)
             raise OrgExistsException
 
         OrgEntity.objects.create(org=org)
 
+        Group.objects.create(name='admin_%s' % org.id)
         return org
 
     def get_top_issued_npfs(self, period, quantity=10):
@@ -121,6 +133,10 @@ class InvalidOrgException(Exception):
 
 class OrgExistsException(Exception):
     pass
+
+
+class ExistingAdminException(Exception):
+	pass
 
 
 class InvalidOrgUserException(Exception):

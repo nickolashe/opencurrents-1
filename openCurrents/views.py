@@ -239,7 +239,7 @@ class BizAdminPermissionMixin(AdminPermissionMixin):
         )
 
 
-class HomeView(SessionContextView, TemplateView):
+class HomeView(TemplateView):
     template_name = 'home.html'
 
     def dispatch(self, *args, **kwargs):
@@ -337,7 +337,7 @@ class InviteFriendsView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'invite-friends.html'
 
 
-class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
+class ApproveHoursView(OrgAdminPermissionMixin, OrgSessionContextView, ListView):
     template_name = 'approve-hours.html'
     context_object_name = 'week'
 
@@ -345,23 +345,8 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
         userid = self.request.user.id
         orguserinfo = OrgUserInfo(userid)
         orgid = orguserinfo.get_org_id()
-        projects = Project.objects.filter(org__id=orgid)
-        events = Event.objects.filter(
-            project__in=projects
-        ).filter(
-            event_type='MN'
-        )
+        requested_actions = self.orgadmin.get_hours_requested()
 
-        # fetch unverified time logs
-        requested_actions = AdminActionUserTime.objects.filter(
-            user__id=userid
-        ).filter(
-            action_type='req'
-        ).filter(
-            usertimelog__is_verified = False
-        ).filter(
-            usertimelog__event__in=events
-        )
         logger.info(requested_actions)
         # week list holds dictionary ordered pairs for 7 days of timelogs
         week = []
@@ -1295,7 +1280,7 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
     def _create_event(self, location, form_data):
         if not self.project:
             project = Project(
-                org=Org.objects.get(id=self.orgid),
+                org=Org.objects.get(id=self.org.id),
                 name=form_data['project_name']
             )
             project.save()
@@ -2828,7 +2813,7 @@ def process_login(request):
             today = date.today()
 
             # do a weekly check for unapproved requests (popup)
-            if user.last_login.date() < today - timedelta(days=today.weekday()):
+            if not user.last_login or user.last_login.date() < today - timedelta(days=today.weekday()):
                 try:
                     orgadmin = OrgAdmin(userid)
                     admin_requested_hours = orgadmin.get_hours_requested()

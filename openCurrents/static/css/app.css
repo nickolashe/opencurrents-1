@@ -193,6 +193,11 @@ h1, h2, h3, h4, h5, h6 {
   vertical-align: baseline;
 }
 
+.button.tag {
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}
+
 .round {
   border-radius: 999px;
 }
@@ -296,54 +301,6 @@ textarea:focus {
   font-family: "FontAwesome";
   content: "\f00c";
   color: #24b2e7;
-}
-
-/* custom radio buttons */
-
-.custom-radio {
-  border: 0;
-  clip: rect(0 0 0 0);
-  height: 1px;
-  margin: -1px;
-  overflow: hidden;
-  padding: 0;
-  position: absolute;
-  width: 1px;
-}
-.custom-radio + label {
-  position: relative;
-  cursor: pointer;
-  padding: 0;
-}
-.custom-radio + label:before {
-  content: '\f1db';
-  font-family: 'FontAwesome';
-  margin-right: 10px;
-  color: #24b2e7;
-  font-size: 1.25rem;
-}
-.custom-radio:hover + label:before {
-  background: #ffffff;
-}
-.custom-radio:checked + label:before {
-  background: #ffffff;
-}
-.custom-radio:disabled + label {
-  color: #b8b8b8;
-  cursor: auto;
-}
-.custom-radio:disabled + label:before {
-  box-shadow: none;
-  background: #ddd;
-}
-.custom-radio:checked + label:after {
-  content: '\f058';
-  font-family: 'FontAwesome';
-  position: absolute;
-  left: 0;
-  top: 0;
-  color: #24b2e7;
-  font-size: 1.25rem;
 }
 
 /* inputs */
@@ -721,7 +678,6 @@ label {
   height: 0.1px;
   opacity: 0;
   overflow: hidden;
-  position: absolute;
   z-index: -1;
 }
 
