@@ -1,157 +1,62 @@
 {% extends "layouts/base.html" %}
-{% load staticfiles %}
 
-{% block head %}
-  <script type="text/javascript" src="{% static 'js/jquery-ui-datepicker.js' %}"></script>
-  <link href="{% static 'css/jquery-ui-datepicker.css' %}" rel="stylesheet" type="text/css">
-{% endblock head %}
+{% load staticfiles %}
 
 {% block heading %}
   <div class="row">
-    <h3 class="title-sub">
-      {% block title %} Public record {% endblock title %}
-    </h3>
+    <h3 class="title-sub">Public record</h3>
   </div>
 {% endblock heading %}
 
-
 {% block content %}
   <div class="row half-margin-bottom">
-    <div class="small-6 medium-4 medium-offset-2 columns">
-      <select id="public-record-filter" name="public-record-filter">
-        <option value="top-org">Top organizations</option>
-        <option value="top-vol">Top volunteers</option>
-        <option value="top-biz">Top businesses</option>
-      </select>
-    </div>
-    <div class="small-6 medium-4 columns end">
-      <select name="time-filter">
-        <option>Last 30 days</option>
-        <option>All-time</option>
-      </select>
-    </div>
+    <form id="filter_form">
+      <div class="small-6 medium-4 medium-offset-2 columns">
+        {{ form.record_type }}
+      </div>
+      <div class="small-6 medium-4 columns end">
+        {{ form.period }}
+      </div>
+    </form>
   </div>
 
   <div class="row one-margin-bottom">
     <div class="small-12 medium-8 small-centered columns">
       <div class="row">
         <div class="left small-6 columns">
-          <p class="half-margin-bottom"><strong>
-            <span id="record-name">Organization</span> name
-          </strong></p>
+          <p class="half-margin-bottom">
+            <strong>
+              <span id="record-name"></span> name
+            </strong>
+          </p>
         </div>
-      </form>
-    </div>
 
         <div class="right small-6 columns">
-          <p class="half-margin-bottom"><strong>Currents <span id="record-label">issued</span></strong></p>
+          <p class="half-margin-bottom">
+            <strong>
+              Currents <span id="record-label"></span>
+            </strong>
+          </p>
         </div>
       </div>
 
       <ol>
         <!-- for org/vol/biz in db -->
-        <div class="row qtr-margin-bottom">
-          <div class="left small-8 columns">
-            <li class="grey">Keep Austin Beautiful</li>
-          </div>
+        {% for entry in entries %}
+          <div class="row qtr-margin-bottom">
+            <div class="left small-8 columns">
+              <li class="grey">{{ entry.name }}</li>
+            </div>
 
-          <div class="right small-4 columns">
-            <span class="no-wrap grey"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 123</span>
+            <div class="right small-4 columns">
+                <span class="no-wrap grey">
+                  <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
+                  {{ entry.total }}
+                </span>
+            </div>
           </div>
-        </div>
+        {% endfor %}
         <!-- end for -->
-
-            <!-- delete once forloop created -->
-              <div class="row qtr-margin-bottom">
-                <div class="left small-8 columns">
-                  <li class="grey">Keep Austin Beautiful</li>
-                </div>
-
-                <div class="right small-4 columns">
-                  <span class="no-wrap grey"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 123</span>
-                </div>
-              </div>
-
-              <div class="row qtr-margin-bottom">
-                <div class="left small-8 columns">
-                  <li class="grey">Keep Austin Beautiful</li>
-                </div>
-
-                <div class="right small-4 columns">
-                  <span class="no-wrap grey"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 123</span>
-                </div>
-              </div>
-
-              <div class="row qtr-margin-bottom">
-                <div class="left small-8 columns">
-                  <li class="grey">Keep Austin Beautiful</li>
-                </div>
-
-                <div class="right small-4 columns">
-                  <span class="no-wrap grey"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 123</span>
-                </div>
-              </div>
-
-              <div class="row qtr-margin-bottom">
-                <div class="left small-8 columns">
-                  <li class="grey">Keep Austin Beautiful</li>
-                </div>
-
-                <div class="right small-4 columns">
-                  <span class="no-wrap grey"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 123</span>
-                </div>
-              </div>
-
-              <div class="row qtr-margin-bottom">
-                <div class="left small-8 columns">
-                  <li class="grey">Keep Austin Beautiful</li>
-                </div>
-
-                <div class="right small-4 columns">
-                  <span class="no-wrap grey"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 123</span>
-                </div>
-              </div>
-
-              <div class="row qtr-margin-bottom">
-                <div class="left small-8 columns">
-                  <li class="grey">Keep Austin Beautiful</li>
-                </div>
-
-                <div class="right small-4 columns">
-                  <span class="no-wrap grey"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 123</span>
-                </div>
-              </div>
-
-              <div class="row qtr-margin-bottom">
-                <div class="left small-8 columns">
-                  <li class="grey">Keep Austin Beautiful</li>
-                </div>
-
-                <div class="right small-4 columns">
-                  <span class="no-wrap grey"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 123</span>
-                </div>
-              </div>
-
-              <div class="row qtr-margin-bottom">
-                <div class="left small-8 columns">
-                  <li class="grey">Keep Austin Beautiful</li>
-                </div>
-
-                <div class="right small-4 columns">
-                  <span class="no-wrap grey"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 123</span>
-                </div>
-              </div>
-
-              <div class="row qtr-margin-bottom">
-                <div class="left small-8 columns">
-                  <li class="grey">Keep Austin Beautiful</li>
-                </div>
-
-                <div class="right small-4 columns">
-                  <span class="no-wrap grey"><img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/> 123</span>
-                </div>
-              </div>
-              <!-- end delete -->
       </ol>
 
       <div class="row three-halves-margin-top">
@@ -160,7 +65,6 @@
     </div>
   </div>
 {% endblock content %}
-
 
 {% block popups %}
   <div id="public-export-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
@@ -172,34 +76,50 @@
       <div class="small-centered small-10 medium-7 columns">
         <p class="fit-left grey large-text half-margin-top half-margin-right">for</p>
         <span class="input-sizer"><select class="large-text">
-          <option selected>All organizations</option>
-          <option>(List of orgs)</option>
-        </select></span>
+              <option selected>All organizations</option>
+              <option>(List of orgs)</option>
+            </select></span>
       </div>
     </div>
 
     <div class="row one-margin-top">
       <div class="small-centered medium-10 columns">
         <div class="left small-8 medium-6 medium-offset-1 columns">
-          <p class="half-margin-bottom"><input type="checkbox" name="org-name" id="org-name" class="custom-checkbox" checked/><label for="org-name" >Organization name</label></p>
-          <p class="half-margin-bottom"><input type="checkbox" name="vol-name" id="vol-name" class="custom-checkbox" checked/><label for="vol-name" >Volunteer name</label></p>
-          <p class="half-margin-bottom"><input type="checkbox" name="date" id="date" class="custom-checkbox" checked/><label for="date" >Event date</label></p>
-          <p class="half-margin-bottom"><input type="checkbox" name="description"  id="description" class="custom-checkbox" checked/><label for="description">Event description</label></p>
-
+          <p class="half-margin-bottom">
+            <input type="checkbox" name="org-name" id="org-name" class="custom-checkbox" checked/><label for="org-name">Organization
+            name</label></p>
+          <p class="half-margin-bottom">
+            <input type="checkbox" name="vol-name" id="vol-name" class="custom-checkbox" checked/><label for="vol-name">Volunteer
+            name</label></p>
+          <p class="half-margin-bottom">
+            <input type="checkbox" name="date" id="date" class="custom-checkbox" checked/><label for="date">Event
+            date</label></p>
+          <p class="half-margin-bottom">
+            <input type="checkbox" name="description" id="description" class="custom-checkbox" checked/><label for="description">Event
+            description</label></p>
         </div>
 
         <div class="left small-8 medium-5 columns">
-          <p class="half-margin-bottom"><input type="checkbox" name="start-time" id="start-time" class="custom-checkbox" checked/><label for="start-time">Start time</label></p>
-          <p class="half-margin-bottom"><input type="checkbox" name="end-time" id="end-time" class="custom-checkbox" checked/><label for="end-time">End time</label></p>
-          <p class="half-margin-bottom"><input type="checkbox" name="location" id="location" class="custom-checkbox" checked/><label for="location">Event location</label></p>
-          <p class="half-margin-bottom"><input type="checkbox" name="admin-full-name" id="admin-full-name" class="custom-checkbox" checked/><label for="admin-full-name">Admin name</label></p>
+          <p class="half-margin-bottom">
+            <input type="checkbox" name="start-time" id="start-time" class="custom-checkbox" checked/><label for="start-time">Start
+            time</label></p>
+          <p class="half-margin-bottom">
+            <input type="checkbox" name="end-time" id="end-time" class="custom-checkbox" checked/><label for="end-time">End
+            time</label></p>
+          <p class="half-margin-bottom">
+            <input type="checkbox" name="location" id="location" class="custom-checkbox" checked/><label for="location">Event
+            location</label></p>
+          <p class="half-margin-bottom">
+            <input type="checkbox" name="admin-full-name" id="admin-full-name" class="custom-checkbox" checked/><label for="admin-full-name">Admin
+            name</label></p>
         </div>
       </div>
     </div>
 
     <div class="row one-margin-top">
       <div class="medium-8 small-centered columns">
-        <p>Set the date range for which you would like to export data (leave start date blank to export from the earliest records):</p>
+        <p>Set the date range for which you would like to export data (leave start date blank to export from the earliest
+          records):</p>
 
         <div class="left small-6 columns">
           <label>Start date</label>
@@ -225,29 +145,43 @@
 
 {% block js %}
   <script type="text/javascript">
-    $(document).ready(function(){
+    function makeRequest() {
+      var params = $.param({
+        'type': $('#public-record-filter').val(),
+        'period': $('#time-filter').val()
+      });
+      window.location.href = "{% url 'openCurrents:public-record' %}" + "?" + $('#filter_form').serialize();
+    }
+
+    $(document).ready(function () {
       $('#public-export-popup').popup({
         vertical: 'top',
         transition: 'all 0.75s',
         scrolllock: true,
       });
 
-      $('#public-record-filter').change(function(){
-        if($(this).val() == "top-org") {
-          $('#record-name').text('Organization');
-          $('#record-label').text('issued');
-        }
-
-        else if ($(this).val() == "top-vol") {
-          $('#record-name').text('Volunteer');
-          $('#record-label').text('earned');
-        }
-
-        else {
-          $('#record-name').text('Business');
-          $('#record-label').text('accepted');
-        }
+      $('#id_record_type').change(function () {
+        makeRequest();
       });
+
+      $('#id_period').change(function () {
+        makeRequest();
+      });
+
+      if ($("#id_record_type").val() === "top-org") {
+        $('#record-name').text('Organization');
+        $('#record-label').text('issued');
+      }
+
+      else if ($("#id_record_type").val() === "top-vol") {
+        $('#record-name').text('Volunteer');
+        $('#record-label').text('earned');
+      }
+
+      else if ($("#id_record_type").val() === "top-biz") {
+        $('#record-name').text('Business');
+        $('#record-label').text('accepted');
+      }
 
       $('#start-range').datepicker({
         dateFormat: 'yy-mm-dd',
