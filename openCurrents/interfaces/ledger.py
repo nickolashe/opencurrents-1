@@ -9,6 +9,8 @@ from openCurrents.models import \
     TransactionAction
 
 import logging
+import pytz
+
 
 logging.basicConfig(level=logging.DEBUG, filename="log/views.log")
 logger = logging.getLogger(__name__)
@@ -126,7 +128,7 @@ class OcLedger(object):
             is_issued=True
         )
         if period == 'month':
-            last_month = datetime.now() - timedelta(days=30)
+            last_month = datetime.now(tz=pytz.utc) - timedelta(days=30)
             queryset = queryset.filter(date_created__gte=last_month)
 
         return queryset.aggregate(total=Sum('amount'))
@@ -139,7 +141,7 @@ class OcLedger(object):
             is_issued=False
         )
         if period == 'month':
-            last_month = datetime.now() - timedelta(days=30)
+            last_month = datetime.now(tz=pytz.utc) - timedelta(days=30)
             queryset = queryset.filter(date_created__gte=last_month)
 
         return queryset.aggregate(total=Sum('amount'))
@@ -152,7 +154,7 @@ class OcLedger(object):
             is_issued=True
         )
         if period == 'month':
-            last_month = datetime.now() - timedelta(days=30)
+            last_month = datetime.now(tz=pytz.utc) - timedelta(days=30)
             queryset = queryset.filter(date_created__gte=last_month)
 
         return queryset.aggregate(total=Sum('amount'))
