@@ -61,7 +61,8 @@ from openCurrents.forms import \
     TimeTrackerForm, \
     OfferCreateForm, \
     OfferEditForm, \
-    RedeemCurrentsForm
+    RedeemCurrentsForm, \
+    PublicRecordsForm
 
 
 from datetime import datetime, timedelta
@@ -619,8 +620,28 @@ class InventoryView(TemplateView):
     template_name = 'inventory.html'
 
 
-class PublicRecordView(TemplateView):
+class PublicRecordView(View):
     template_name = 'public-record.html'
+
+    def get_top_list(self, entity_type='top_org', period='month'):
+        if entity_type == 'top-org':
+            return OcOrg().get_top_issued_npfs(period)
+        elif entity_type == 'top-vol':
+            return OcUser().get_top_received_users(period)
+        elif entity_type == 'top-biz':
+            return OcOrg().get_top_accepted_bizs(period)
+
+    def get(self, request, *args, **kwargs):
+        context = dict()
+
+        form = PublicRecordsForm(request.GET or None)
+        context['form'] = form
+        if form.is_valid():
+            context['entries'] = self.get_top_list(form.cleaned_data['record_type'], form.cleaned_data['period'])
+        else:
+            context['entries'] = self.get_top_list()
+
+        return render(request, self.template_name, context)
 
 
 class MarketplaceView(LoginRequiredMixin, SessionContextView, ListView):

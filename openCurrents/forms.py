@@ -743,3 +743,19 @@ class RedeemCurrentsForm(forms.Form):
             )
 
         return cleaned_data
+
+
+class PublicRecordsForm(forms.Form):
+    periods = (
+        ('month', 'Last 30 days'),
+        ('all-time', 'All-time'),
+    )
+
+    record_types = (
+        ('top-org', 'Top organizations'),
+        ('top-vol', 'Top volunteers'),
+        ('top-biz', 'Top businesses'),
+    )
+
+    record_type = forms.ChoiceField(choices=record_types)
+    period = forms.ChoiceField(choices=periods)

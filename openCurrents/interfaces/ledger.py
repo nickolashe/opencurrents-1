@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from django.db.models import Sum
 from openCurrents.models import \
     Entity, \
@@ -8,6 +9,8 @@ from openCurrents.models import \
     TransactionAction
 
 import logging
+import pytz
+
 
 logging.basicConfig(level=logging.DEBUG, filename="log/views.log")
 logger = logging.getLogger(__name__)
@@ -25,7 +28,7 @@ class OcLedger(object):
         '''
         valid_entity_types = ['user', 'org']
         try:
-            assert(entity_type in valid_entity_types)
+            assert (entity_type in valid_entity_types)
 
             if entity_type == 'user':
                 entity = UserEntity.objects.get(id=entity_id)
@@ -38,14 +41,14 @@ class OcLedger(object):
             raise InvalidEntityException()
 
     def transact_currents(
-        self,
-        entity_type_from,
-        entity_id_from,
-        entity_type_to,
-        entity_id_to,
-        action,
-        amount,
-        is_issued=False
+            self,
+            entity_type_from,
+            entity_id_from,
+            entity_type_to,
+            entity_id_to,
+            action,
+            amount,
+            is_issued=False
     ):
         entity_from = self._get_entity(entity_id_from, entity_type_from)
 
@@ -73,13 +76,13 @@ class OcLedger(object):
         ledger_rec.save()
 
     def issue_currents(
-        self,
-        entity_id_from,
-        entity_id_to,
-        action,
-        amount,
-        entity_type_to='user',
-        entity_type_from='org',
+            self,
+            entity_id_from,
+            entity_id_to,
+            action,
+            amount,
+            entity_type_to='user',
+            entity_type_from='org',
     ):
         self.transact_currents(
             entity_type_from,
@@ -117,9 +120,49 @@ class OcLedger(object):
 
         return credit_total - debit_total
 
+    def get_issued_cur_amount(self, org_id, period):
+        entity_id = OrgEntity.objects.get(org__id=org_id).id
+        queryset = Ledger.objects.filter(
+            entity_from__id=entity_id,
+            currency='cur',
+            is_issued=True
+        )
+        if period == 'month':
+            last_month = datetime.now(tz=pytz.utc) - timedelta(days=30)
+            queryset = queryset.filter(date_created__gte=last_month)
+
+        return queryset.aggregate(total=Sum('amount'))
+
+    def get_accepted_cur_amount(self, org_id, period):
+        entity_id = OrgEntity.objects.get(org__id=org_id).id
+        queryset = Ledger.objects.filter(
+            entity_to__id=entity_id,
+            currency='cur',
+            is_issued=False
+        )
+        if period == 'month':
+            last_month = datetime.now(tz=pytz.utc) - timedelta(days=30)
+            queryset = queryset.filter(date_created__gte=last_month)
+
+        return queryset.aggregate(total=Sum('amount'))
+
+    def get_earned_cur_amount(self, user_id, period):
+        entity_id = UserEntity.objects.get(user__id=user_id).id
+        queryset = Ledger.objects.filter(
+            entity_to__id=entity_id,
+            currency='cur',
+            is_issued=True
+        )
+        if period == 'month':
+            last_month = datetime.now(tz=pytz.utc) - timedelta(days=30)
+            queryset = queryset.filter(date_created__gte=last_month)
+
+        return queryset.aggregate(total=Sum('amount'))
+
 
 class InvalidEntityException(Exception):
-	pass
+    pass
+
 
 class InsufficientFundsException(Exception):
-	pass
+    pass
