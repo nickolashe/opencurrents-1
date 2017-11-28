@@ -310,6 +310,11 @@
       });
 
       $('#offer-spacer').height($('#offer-4').height());
+      
+      // Disable submit on Enter
+      $("form input").on("keypress", function(e) {
+        return e.keyCode != 13;
+      });
 
       // Add offer item
 
