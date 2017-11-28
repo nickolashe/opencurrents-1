@@ -10,7 +10,7 @@
         <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="fit-left round" />
         <span class="input-sizer"> -->
           <h5 class="one-margin-top no-margin-bottom trim-text">
-            {{ orgname }}
+            {% block title %} {{ orgname }} {% endblock title %}
           </h5>
           <h6>{{ user.first_name }} {{ user.last_name }}</h6>
         <!-- </span> -->

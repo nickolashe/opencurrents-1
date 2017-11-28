@@ -17,6 +17,10 @@
             You have invited {{ num_vols  }} volunteer{{ num_vols|pluralize }} to the openCurrents community. Nice!
 
         {% endif %}
+      {% else %}
+        <div id="status_msg">
+          {{ status_msg }}
+        </div>
       {% endif %}
 
       {% if vols_approved or vols_declined %}
@@ -29,6 +33,10 @@
         {% elif vols_approved|add:"0" == 0 and vols_declined|add:"0" >= 1 %}
           You have declined hours for {{ vols_declined }} volunteer{{ vols_declined|pluralize }}.
         {% endif %}
+      {% else %}
+        <div id="status_msg">
+          {{ status_msg }}
+        </div>
       {% endif %}
     </div>
   </div>
@@ -57,7 +65,13 @@
     My hours tracked: {{ issued_by_admin }}
   </h6>
 
-  <a {% if user_time_log_status %} href="{% url 'openCurrents:approve-hours' %}" class="button round tiny"{% else %} href="javascript:status()" class="button round tiny secondary"{% endif %}>Approve hours</a>
+  <a
+    {% if user_time_log_status %}
+      href="{% url 'openCurrents:approve-hours' %}" class="button round tiny"
+    {% else %}
+      href="javascript:status()" class="button round tiny secondary"
+    {% endif %}>Approve hours
+  </a>
 {% endblock heading-right %}
 
 
