@@ -613,7 +613,7 @@ class OfferCreateForm(forms.Form):
     )
 
     offer_limit_choice = forms.ChoiceField(
-        widget=forms.RadioSelect(attrs={
+        widget=widgets.RadioWidget(attrs={
             'class': 'custom-radio'
         }),
         choices=[(0, 0), (1, 1)],

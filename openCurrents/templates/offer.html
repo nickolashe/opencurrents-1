@@ -2,6 +2,10 @@
 {% load staticfiles %}
 {% load tags %}
 
+{% block head %}
+  {{ form.media }}
+{% endblock head %}
+
 {% block heading %}
   <!-- progress bar 1-4 -->
   <div class="row two-margin-top two-margin-bottom">

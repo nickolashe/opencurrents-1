@@ -1,8 +1,7 @@
 {% extends "layouts/base.html" %}
-
 {% load staticfiles %}
 
-{% block content %}
+{% block status %}
   {% for date in week %}
     {% for key,val in date.iteritems %}
       {% if key == "vols_approved" %}
@@ -13,87 +12,96 @@
     {% endfor %}
   {% endfor %}
 
-  <div class ="row">
-    <div class="success row one-margin-top"> <span name="vols_status_msg" id="vols_status_msg"></span></h5> </div>
-  </div>
-
   <div class="row">
-    <h3 class="title-sub">Approve hours</h3>
-    {% for date in week %}
-      {% if not forloop.last %}
-      <h5 class="subtitle">for the week of <span id="week_display"></span></h5>
+    <div class="success row one-margin-top">
+      <span name="vols_status_msg" id="vols_status_msg"></span>
     </div>
-    
+  </div>
+{% endblock status %}
+
+{% block heading %}
+  <div class="row">
+    <h3 class="title-sub">
+      {% block title %} Approve hours {% endblock title %}
+    </h3>
+  </div>
+  {% for date in week %}
+    {% if not forloop.last %}
+      <h5 class="subtitle">
+        for the week of <span id="week_display"></span>
+      </h5>
+{% endblock heading %}
+
+{% block content %}
       <form action ="" method="post">
-         {% csrf_token %}
-         <div class="row left one-margin-top one-margin-bottom">
-           <div class="small-12 medium-8 small-centered columns">
-             <ul id="volunteer-list" class="accordion" data-accordion data-allow-all-closed="true">
-               {% for key_m, value_m in date.iteritems %}
-
-                 <input type="hidden" id="week_display_draft" name="" value="{{key_m}}">
-                 <input type="hidden" id="week_month" name="" value="{{key_m.date.month}}-{{key_m.date.day}}-{{key_m.date.year}}"> 
-                    
-                 {% for key,value in value_m.iteritems %}
-                     <li class="accordion-item {% if forloop.first %}is-active{% endif %}" data-accordion-item>  
-                       <a href="#" class="accordion-title">{% for k, v in value.items %} {% if k == "name" %} {{v}} {% endif %}{% endfor %}
-                         <span class="float-right">
-                           {% for k, v in value.items %} {% if k == "Total" %} {{v}} {% endif %}{% endfor %} hrs
-                         </span>
-                       </a>
-                       <div class="accordion-content" data-tab-content>
-
-                         {% for k, v in value.iteritems %} 
-                           {% if k != "Total" and v != 0 and k != "name" %}   
-                            <div class="row">   
-                              <div class="small-9 columns">
-                                <p class="no-margin-bottom">{{k}}</p>
-                                <p class="half-margin-left">{{v|slice:"1:"|join:"<br> "}}</p>
-                              </div>
-                              <div class="right small-3 columns">
-                                <p>{{v.0}}  hrs</p>
-                              </div>
-                            </div>
-                           {% endif %}
-                         {% endfor %}
-
-                         <p class="edit-volunteer center">
-                           <!-- <input type="radio" id="defer-vol-1" name="vol-status-1" class="vol-radio hidden" />
-                             <label for="defer-vol-1">
-                                <a onclick="def_vol(this)" class="defer-volunteer button round tiny caution" tabindex="0">Defer hours
-                                <span style="display:none">{{key}}</span>
-                             </a>
-                             </label> -->
-                           <input type="radio" id="decline-vol-1" name="vol-status-1" class="vol-radio hidden"/>
-                             <label for="decline-vol-1">
-                               <a onclick="dec_vol(this)" class="decline-volunteer button round tiny alert">Decline hours
-                                 <span style="display:none">{{key}}</span>
-                               </a>
-                             </label>
-                         </p>
-
-                         <p class="volunteer-declined hidden alert">Hours declined. <a onclick="acc_vol(this)" class="undo-decline">Undo
-                         <span style="display:none">{{key}}</span>
-                         </a></p>
-                       </div>
-                     </li>
-                   {% endfor %}
-               {% endfor %}  
-
-             </ul>
-           </div>
-         </div>
-         <input type="hidden" id="result_sel" name="post-data" value="" /><!---->
-         <div class="row center">
+      {% csrf_token %}
+        <div class="row left one-margin-top one-margin-bottom">
           <div class="small-12 medium-8 small-centered columns">
-           <!--<a href="{% url 'openCurrents:hours-approved' %}" onclick="test()" class="button round">Approve hours</a>-->
-           <p class="no-margin-bottom">By clicking "Confirm", all hours above will be approved unless you've declined them. To see hours for additional weeks, please approve or decline hours for this week first.</p>
-           <button type='submit' class="one-margin-top button round">Confirm</button>
+            <ul id="volunteer-list" class="accordion" data-accordion data-allow-all-closed="true">
+              {% for key_m, value_m in date.iteritems %}
+
+                <input type="hidden" id="week_display_draft" name="" value="{{key_m}}">
+                <input type="hidden" id="week_month" name="" value="{{key_m.date.month}}-{{key_m.date.day}}-{{key_m.date.year}}">
+
+                {% for key,value in value_m.iteritems %}
+                  <li class="accordion-item {% if forloop.first %}is-active{% endif %}" data-accordion-item>
+                    <a href="#" class="accordion-title">{% for k, v in value.items %} {% if k == "name" %} {{v}} {% endif %}{% endfor %}
+                      <span class="float-right">
+                        {% for k, v in value.items %} {% if k == "Total" %} {{v}} {% endif %}{% endfor %} hrs
+                      </span>
+                    </a>
+                    <div class="accordion-content" data-tab-content>
+
+                      {% for k, v in value.iteritems %}
+                        {% if k != "Total" and v != 0 and k != "name" %}
+                          <div class="row">
+                            <div class="small-9 columns">
+                              <p class="no-margin-bottom">{{k}}</p>
+                              <p class="half-margin-left">{{v|slice:"1:"|join:"<br> "}}</p>
+                            </div>
+                            <div class="right small-3 columns">
+                              <p>{{v.0}}  hrs</p>
+                            </div>
+                          </div>
+                        {% endif %}
+                      {% endfor %}
+
+                      <p class="edit-volunteer center">
+                         <!-- <input type="radio" id="defer-vol-1" name="vol-status-1" class="vol-radio hidden" />
+                           <label for="defer-vol-1">
+                              <a onclick="def_vol(this)" class="defer-volunteer button round tiny caution" tabindex="0">Defer hours
+                              <span style="display:none">{{key}}</span>
+                           </a>
+                           </label> -->
+                        <input type="radio" id="decline-vol-1" name="vol-status-1" class="vol-radio hidden"/>
+                        <label for="decline-vol-1">
+                          <a onclick="dec_vol(this)" class="decline-volunteer button round tiny alert">Decline hours
+                            <span style="display:none">{{key}}</span>
+                          </a>
+                        </label>
+                      </p>
+
+                      <p class="volunteer-declined hidden alert">Hours declined. <a onclick="acc_vol(this)" class="undo-decline">Undo
+                      <span style="display:none">{{key}}</span>
+                      </a></p>
+                    </div>
+                  </li>
+                {% endfor %}
+              {% endfor %}
+            </ul>
           </div>
-         </div>
+        </div>
+        <input type="hidden" id="result_sel" name="post-data" value="" /><!---->
+        <div class="row center">
+          <div class="small-12 medium-8 small-centered columns">
+          <!--<a href="{% url 'openCurrents:hours-approved' %}" onclick="test()" class="button round">Approve hours</a>-->
+            <p class="no-margin-bottom">By clicking "Confirm", all hours above will be approved unless you've declined them. To see hours for additional weeks, please approve or decline hours for this week first.</p>
+            <button type='submit' class="one-margin-top button round">Confirm</button>
+          </div>
+        </div>
       </form>
     {% endif %}
-  {% endfor %}  
+  {% endfor %}
 {% endblock content %}
 
 {% block js %}
@@ -172,7 +180,7 @@
       else{
         var vols_approved = document.getElementById("vols_approved_val").value;
         var vols_declined = document.getElementById("vols_declined_val").value;
-      
+
 
         if(vols_approved >= 1 && vols_declined >= 1)
         {
@@ -201,8 +209,8 @@
       }
       document.getElementById("week_display").innerHTML = week_display;
       var week_format = document.getElementById("week_month").value;
-      
-      
+
+
 
       for(var i=0;i<rep_list.length;i++)
       {
@@ -240,10 +248,8 @@
       //     $(this).siblings('.edit-volunteer').fadeIn(333);
       //     $(this).parent().siblings('.accordion-title').css('color', '#1f4975');
       //   });
-      // });         
+      // });
     });
 
-  </script>      
-{% endblock js %}    
-    
-
+  </script>
+{% endblock js %}

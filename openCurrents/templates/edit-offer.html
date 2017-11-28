@@ -2,31 +2,28 @@
 {% load staticfiles %}
 {% load tags %}
 
+{% block title %} Edit offer {% endblock title %}
+
+{% block status %}
+  {% if form.errors %}
+    <div class="row">
+      {% for field, error in form.errors.iteritems %}
+        <div class="center alert">
+          {% if field != '__all__' %}
+            {{ field|addstr:': '}} {{ error }}
+          {% else %}
+            {{ error }}
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endblock status %}
+
+
 {% block content %}
   <form method='post'>
-
-    {% csrf_token %}
-
-    {% if form.errors %}
-      <div class="row">
-        {% for field, error in form.errors.iteritems %}
-          <div class="center alert">
-            {% if field != '__all__' %}
-              {{ field|addstr:': '}} {{ error }}
-            {% else %}
-              {{ error }}
-            {% endif %}
-          </div>
-        {% endfor %}
-      </div>
-    {% endif %}
-
-    <div class="row">
-      <h3 class="title">
-        {% block title %}Edit offer{% endblock title %}
-      </h3>
-    </div>
-
+  {% csrf_token %}
     <div class="row left">
       <div class="small-12 medium-6 small-centered columns">
         <div class="row collapse">
@@ -90,30 +87,30 @@
           <span class="no-wrap">
             <div id="monthly-limit-input" class="relative inline-block">
               <!-- <img class="current-placeholder" src="{% static 'img/symbol.svg' %}"/> -->
-              
+
                  {{ form.offer_limit_value }}
             </div>
           transactions</span><span> per month</span>
         </div>
       </div>
     </div>
-    
+
     <div class="row one-margin-top center">
       <div class="small-12 medium-8 small-centered columns">
         <!--a class="button round">Save</a-->
-        <input type='submit' value="Save" class="one-margin-top button round"></input>                
+        <input type='submit' value="Save" class="one-margin-top button round"></input>
       </div>
     </div>
 
   </form>
 {% endblock content %}
 
-  
+
 {% block js %}
   <script type="text/javascript">
     $(document).ready(function(){
       if ($('input[name=offer_limit_choice]:checked').val() == 1) {
-        $('#monthly-limit-div').show();          
+        $('#monthly-limit-div').show();
       }
 
       // Show/hide monthly limit input

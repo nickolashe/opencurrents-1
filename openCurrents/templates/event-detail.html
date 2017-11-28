@@ -3,16 +3,18 @@
 {% load staticfiles %}
 {% load tags %}
 
+{% block heading %}
+  <div class="row">
+    <h4 class="title-sub">
+      {% block title %}Let's {{ event.project.name }}!{% endblock title %}
+    </h4>
+    <p>with <strong>{{ event.project.org.name }}</strong> </p>
+  </div>
+{% endblock heading %}
+
 {% block content %}
   <form method="post" action="{% url 'openCurrents:event_register' event.id %}">
     {% csrf_token %}
-
-    <div class="row">
-      <h4 class="title-sub">
-        {% block title %}Let's {{ event.project.name }}!{% endblock title %}
-      </h4>
-      <p>with <strong>{{ event.project.org.name }}</strong> </p>
-    </div>
 
     <div class="row center">
       <div class="small-12 medium-8 small-centered columns">
