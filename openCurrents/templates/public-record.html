@@ -4,7 +4,9 @@
 
 {% block heading %}
   <div class="row">
-    <h3 class="title-sub">Public record</h3>
+    <h3 class="title-sub">
+      {% block title %} Public record {% endblock title %}
+    </h3>
   </div>
 {% endblock heading %}
 
