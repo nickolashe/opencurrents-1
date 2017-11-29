@@ -57,19 +57,19 @@
         <div class="small-12 medium-8 small-centered columns">
           <h4 class="one-margin-bottom">Upload receipt or proof of purchase</h4>
           <p class="three-halves-margin-bottom">
-            To exchange Currents for dollars with {{ offer.org.name }}, upload your receipt as proof of purchase. Other forms, such as an image of your bank statement or description of your purchase, may or may not be accepted.
-
+            To exchange Currents for dollars with {{ offer.org.name }}, upload
+            your receipt as proof of purchase. Other forms, such as an image of
+            your bank statement or description of your purchase, may or may not
+            be accepted.
             <a class="redeem-info-popup_open no-wrap">
               Why do I pay full price?
             </a>
           </p>
 
-          <!-- <input type="checkbox" name="receipt-if-checked" id="receipt-if-checked" class="hidden" checked /> -->
-
           {{ form.redeem_receipt }}
-          <!--input type="file" accept="image/*" capture="camera" id="upload-receipt" name="upload-receipt" class="hidden-file" /-->
 
-          <label for="upload-receipt" id="receipt-label" class="upload-receipt-label button round small secondary">
+          <label for="upload-receipt" id="receipt-label"
+          class="upload-receipt-label button round small secondary">
             <i class="one-margin-right fa fa-upload"></i>
             <span>Choose an image...</span>
           </label>
@@ -119,11 +119,22 @@
           <h4 class="one-margin-bottom">Confirm exchange</h4>
 
           <p class="one-margin-bottom">
-            I agree to give <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}"/><span class="currents-total"></span> to {{ offer.org.name }} in exchange for $<span class="dollars-total"></span> minus a 10% transaction fee of $<span class="dollars-fee"></span>.
+            I agree to give <img class="med-text-symbol"
+            src="{% static 'img/symbol-navy.svg' %}"/>
+            <span class="currents-total"></span>
+            to {{ offer.org.name }} in exchange for
+            $<span class="dollars-total"></span>
+            minus a 10% transaction fee of $<span class="dollars-fee"></span>.
           </p>
 
           <p>
-            I understand that $<span class="dollars-received"></span> will be added to my account as Pending Dollars, which will become Available Dollars once {{ offer.org.name }} validates the transaction at the end of the month. <span class="currents-total"></span> Currents will be deducted from my account at this time. I can then transfer Available Dollars to my bank account or keep the balance in my openCurrents account.
+            I understand that $<span class="dollars-received"></span>
+            will be added to my account as Pending Dollars, which will become
+            Available Dollars once {{ offer.org.name }} validates the
+            transaction at the end of the month.
+            <span class="currents-total"></span> Currents will be deducted from
+            my account at this time. I can then transfer Available Dollars to my
+            bank account or keep the balance in my openCurrents account.
           </p>
 
           <div class="row three-halves-margin-top">
