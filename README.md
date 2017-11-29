@@ -1,87 +1,24 @@
-#Install instructions for the Mac
-+ Install XCode (to get gcc compiler, done through appstore)
-+ Upgrade mac os from 10.10.5 -> 10.12.3 (Sierra), 10.11.x required
-+ <del>Used this to install [Python](http://docs.python-guide.org/en/latest/starting/install3/osx/)</del> Not needed as Mac comes default with Python 2.7 which we currently use for oc work
-
-# Install Pip (we are Using version v. 1.11.x)
-    sudo easy_install pip
-## Upgrade pip: 
-    pip install -U pip
-## Install Django
-    sudo pip install django
-
-    Password:
-    The directory '/Users/ronak.rahman/Library/Caches/pip/http' or its parent directory is not owned by the current user and the cache has been disabled. Please check the permissions and owner of that directory. If executing pip with sudo, you may want sudo's -H flag.
-    The directory '/Users/ronak.rahman/Library/Caches/pip' or its parent directory is not owned by the current user and caching wheels has been disabled. check the permissions and owner of that directory. If executing pip with sudo, you may want sudo's -H flag.
-    Collecting django
-    Downloading Django-1.10.5-py2.py3-none-any.whl (6.8MB)
-    100% |████████████████████████████████| 6.8MB 107kB/s
-    Installing collected packages: django
-    Successfully installed django-1.10.5
+# openCurrents platform architecture: a bird's eye overview
 
 
-# Verify Django is installed:
+## Goal
+We are building an alternative currency platform where users can earn "currents" for volunteering their time with non-profits. These can then be spent with businesses which post offers on the platform.
 
-    $ python
-    >>> import django
-    >>> print(django.get_version())
-    1.10
-Exit by typing Ctrl + D
+## Orgs
+Architecturally, both non-profits and businesses are modeled using [Org](https://github.com/opencurrents/opencurrents/blob/develop/openCurrents/models.py#L17) model. The **status** field differentiates between the two types of organizations.
 
+## Users
+For the users we are using Django's internal auth **User** model.
+Users can be affiliated with Orgs through [OrgUser](https://github.com/opencurrents/opencurrents/blob/develop/openCurrents/models.py#L50) mapping.
+Some users can have admin permissions for an org, and these are modeled using Django's internal auth **Group** model. The convention is to name the group *admin_<id>*, where id is the id of the organization. Any member of the group is be granted admin privileges on the respective org.
 
-# [Virtual env](https://virtualenvwrapper.readthedocs.io/en/latest/)
-    sudo su
-    pip install virtualenvwrapper --ignore-installed six #on the mac you have to ignore the six install
-    #exit sudo
+## Business logic interfaces
+Much of the business logic has been separated into [interfaces]:
+(https://github.com/opencurrents/opencurrents/tree/develop/openCurrents/interfaces)
 
-    ## configure your shell
-    vi ~/.bash_profile 
-    ...
-    source /usr/local/bin/virtualenvwrapper.sh
+### Examples of using the interfaces
 
-# Install DB
-## Install postgres
-    brew install postgresql
-## add Postgres to your ~/.bash_profile
-    vi ~/.bash_profile
-    # Add this at the bottom
-    # PATH=/usr/local/Cellar/postgresql/9.6.2/bin:$PATH
-
-## Run this to actually source our adds
-    source ~/.bash_profile
-
-# Launching site on localhost
-## Open a virtual environment (called env)
-    mkvirtualenv env1
-
-## install requirements
-    sudo pip install -r requirements.txt
-## start the server
-    python manage.py runserver
-
-
-# COMMON ISSUES
-
-## Exiting the virtual environment
-    deactivate
-
-## Database has not been created
-If you see this error after you launch your site (in the terminal):
-
-    return Database.Cursor.execute(self, query, params)
-    OperationalError: no such table: auth_user
-
-Then:
-Shut down server (go to terminal, and Ctrl + C in the screen running the server)
-
-    python manage.py migrate
-    python manage.py runserver
-
-Now try and open your [instance here](http://localhost:8000/)
-
-## Need to create admin user for admin page
-    python manage.py createsuperuser
-    select name (ex. admin)
-    select pass (ex. adminuser)
-
-Once you server is back up and running, you can access the admin page [here](http://localhost:8000/admin/)
+* The following method checks whether a user has admin privilege for a given org:
+https://github.com/opencurrents/opencurrents/blob/develop/openCurrents/interfaces/orgs.py#L54
+* Org admin can call [get_hours_approved] (https://github.com/opencurrents/opencurrents/blob/develop/openCurrents/interfaces/orgadmin.py#L31) method to obtain volunteer requests pending approval
+* Biz admin can call [get_redemptions] (https://github.com/opencurrents/opencurrents/blob/develop/openCurrents/interfaces/bizadmin.py#L63) method to obtain offer redemption requests
