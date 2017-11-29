@@ -1,5 +1,12 @@
 from openCurrents.interfaces import convert
 
+
+def one_week_from_now():
+    return datetime.now() + timedelta(days=7)
+
+def diffInHours(t1, t2):
+    return round((t2 - t1).total_seconds() / 3600, 2)
+
 def _get_redemption_total(records, currency='cur'):
     balance = 0
 

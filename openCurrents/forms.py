@@ -258,6 +258,7 @@ class CreateEventForm(forms.Form):
     event_date = forms.CharField(
         widget=widgets.TextWidget(attrs={
             'id': 'event-date',
+            'class': ' center',
             'placeholder': 'yyyy-mm-dd',
         })
     )
@@ -265,6 +266,7 @@ class CreateEventForm(forms.Form):
     event_starttime = forms.CharField(
         widget=widgets.TextWidget(attrs={
             'id': 'event-starttime',
+            'class': ' center',
             'placeholder': '12:00 pm'
         })
     )
@@ -272,12 +274,13 @@ class CreateEventForm(forms.Form):
     event_endtime = forms.CharField(
         widget=widgets.TextWidget(attrs={
             'id': 'event-endtime',
+            'class': ' center',
             'placeholder': '1:00 pm',
         })
     )
 
     event_privacy = forms.ChoiceField(
-        widget=forms.RadioSelect(
+        widget=widgets.RadioWidget(
             attrs={
                 'class': 'custom-radio',
                 'id': 'id-event-privacy'
@@ -733,3 +736,19 @@ class RedeemCurrentsForm(forms.Form):
             )
 
         return cleaned_data
+
+
+class PublicRecordsForm(forms.Form):
+    periods = (
+        ('month', 'Last 30 days'),
+        ('all-time', 'All-time'),
+    )
+
+    record_types = (
+        ('top-org', 'Top organizations'),
+        ('top-vol', 'Top volunteers'),
+        ('top-biz', 'Top businesses'),
+    )
+
+    record_type = forms.ChoiceField(choices=record_types)
+    period = forms.ChoiceField(choices=periods)

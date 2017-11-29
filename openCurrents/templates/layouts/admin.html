@@ -21,7 +21,8 @@
       {% block heading-right %}
         <span class="no-wrap">
           <h6 class="no-margin-bottom inline-block">Available Currents:</h6>
-          <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/><h6 class="inline-block">
+          <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
+          <h6 class="inline-block">
             {{ user_balance }}
           </h6>
         </span>
@@ -48,14 +49,16 @@
         <div class="one-margin-top">
           <!-- <h6 class="no-margin-bottom">My hours tracked: 10.0</h6> -->
           <h6 class="inline">Currents available: </h6>
-          <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/><h6 class="inline-block">
+          <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
+          <h6 class="inline-block">
             {{ user_balance }}
           </h6>
         </div>
         <div class="no-margin-bottom">
           <span class="no-wrap">
             <h6 class="one-margin-bottom inline-block">Pending:</h6>
-            <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/><h6 class="inline-block">
+            <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
+            <h6 class="inline-block">
               [X]
             </h6>
           </span>
@@ -156,7 +159,8 @@
                       ${{ discount|floatformat:2 }}
                       for
                       <span class="no-wrap">
-                        <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ discount|usd_to_current|floatformat:3 }}
+                        <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
+                        {{ discount|usd_to_current|floatformat:3 }}
                       </span>
                     {% endwith %}
                   {% endwith %}
