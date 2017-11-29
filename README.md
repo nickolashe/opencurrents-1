@@ -14,31 +14,31 @@ Some users can have admin permissions for an org. These are modeled using Django
 In some cases unverified users are created with email only so we can start tracking their hours even before they verify their account.
 
 ### Event
-Events are created by non-profit admins. All volunteer tracked hours are associated with events. Events can be either *group* or *manual*. Several volunteers can check in to group events, which are usually held at set times and locations (*live-dashboard*). Manual events are created each time volunteer submits individual requests for approval of their hours (*time-tracker*).
+Events are created by non-profit admins. All volunteer tracked hours are associated with events. Events can be either *group* or *manual*. Several volunteers can check in to group events, which are usually held at set times and locations (*live-dashboard*). Manual events are created each time volunteer submits individual requests for hour approval (*time-tracker*).
 
 ### UserTimeLog
-This model registers all hours submitted by / for volunteers. *is_verified* flag determines whether the requests have been approved or not.
+This model registers all submitted volunteer hours. A boolean flag *is_verified* registers whether a given request has been approved or not.
 
 #### AdminActionUserTime
-The purpose of this auxiliary model is to track actions non-profit admins take on hour requests in [UserTimeLog](#usertimelog) model. Initial volunteer request generates an action of type *request* in this table. Subsequently, the admin can either *approve* or *decline* the request.
+The purpose of this auxiliary model is to track actions non-profit admins take on the requests in [UserTimeLog](#usertimelog) model. Initial volunteer request generates an action of type *request* in this table. Subsequently, an admin can either *approve* or *decline* the request.
 
 ### Offer
-This model contains offers created by businesses. Offer is characterized by a product item and a *currents share*, which represents percentage of price for which a businesses agrees to accept currents. Optionally, a business can specify a limit on how many transactions it is willing to accept for a given offer.
+This model contains offers created by businesses. Offer is characterized by a product item and a *currents share*, which represents percentage of price for which a business agrees to accept currents. Optionally, a business can specify a limit on how many transactions it is willing to accept for a given offer.
 
 ### Transaction
-A transaction is an act of offer redemption by users (*redeem-currents*). In order to redeem a transaction, a user must have a positive available currents balance. The actual amount of currents transacted is specified in *currents_amount* field.
+A transaction is an act of redeeming offers by users (*redeem-currents*). In order to redeem an offer, a user must have a positive available currents balance. Actual amount of currents transacted is specified in *currents_amount* field.
 
 #### TransactionAction
-The purpose of this auxiliary table is to track actions taken by business admins on redemption requests in [Transaction](#transaction) model. Initial redemption request generates an action of type *request* in this table. Subsequently, the admin can either *approve* or *decline* the request. The status of *redeemed* signifies that the funds have been transferred and the transaction can be considered closed. See [#755](https://github.com/opencurrents/opencurrents/issues/755) on the immediate plan to combine [AdminActionUserTime](#adminactionusertime) and [TransactionAction](#transactionaction) into a single model.
+The purpose of this auxiliary table is to track actions taken by business admins on redemption requests in [Transaction](#transaction) model. Initial redemption request generates an action of type *request* in this table. Subsequently, an admin can either *approve* or *decline* the request. The status of *redeemed* signifies that the funds have been transferred and the transaction can be considered closed. See [#755](https://github.com/opencurrents/opencurrents/issues/755) on the immediate plan to combine [AdminActionUserTime](#adminactionusertime) and [TransactionAction](#transactionaction) into a single model.
 
 ### Ledger  
 This model serves as a single source of truth for the currency ownership.
 Users and orgs are referenced in the ledger through their respective entities. Issuance of currents to users by non-profits is recorded using *is_issued* flag.
 
 Examples of instances where a new ledger record is created are:
-* Non-profit admin approving volunteer hour request
+* Non-profit admin approves volunteer hour request
 * Volunteer checks in at a group event
-* Offer redemption moves to *redeemed* status
+* Offer redemption is assigned *redeemed* status
 
 In each of these instances the new ledger record references the triggering action. See [#755](https://github.com/opencurrents/opencurrents/issues/755) on the immediate plan to combine [AdminActionUserTime](#adminactionusertime) and [TransactionAction](#transactionaction) into a single model.
 
