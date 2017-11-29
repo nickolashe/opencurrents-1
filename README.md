@@ -23,6 +23,7 @@ This model registers all hours submitted by / for volunteers. *is_verified* flag
 The purpose of this auxiliary model is to track actions non-profit admins take on hour requests from [UserTimeLog](#usertimelog) model. Initial volunteer request generates an action of type *request* in this table. Subsequently, the admin can either *approve* or *decline* the request.
 
 ### Offer
+This model contains offers created by businesses. Offer is characterized by a product item and a *currents share*, which represents percentage of price for which a businesses agrees to accept currents. Optionally, a business can specify a limit on how many transactions it is willing to accept for a given offer.
 
 ### Transaction
 
