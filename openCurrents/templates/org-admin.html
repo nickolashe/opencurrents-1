@@ -174,6 +174,22 @@
     </div>
   </div>
 
+  <div class="left row one-margin-top full-width collapse">
+    <div class="small-11 medium-10 small-centered columns">
+      <h6 class="half-margin-bottom">Hours pending</h6>
+      <a href="{% url 'openCurrents:hours-detail' %}" class="button round tiny secondary">Admin1: X</a>
+      <a href="{% url 'openCurrents:hours-detail' %}" class="button round tiny secondary">Admin2: Y</a>
+    </div>
+  </div>
+
+  <div class="left row one-margin-top full-width collapse">
+    <div class="small-11 medium-10 small-centered columns">
+      <h6 class="half-margin-bottom">Hours approved</h6>
+      <a href="{% url 'openCurrents:hours-detail' %}" class="button round tiny secondary">Admin1: X</a>
+      <a href="{% url 'openCurrents:hours-detail' %}" class="button round tiny secondary">Admin2: Y</a>
+    </div>
+  </div>
+
   {% if events_group_past %}
     <div id="past-event-list" class="left row one-margin-top full-width collapse">
       <div class="small-11 medium-10 small-centered columns">
