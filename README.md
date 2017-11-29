@@ -20,18 +20,27 @@ Events are created by non-profit admins. All volunteer tracked hours are associa
 This model registers all hours submitted by / for volunteers. *is_verified* flag determines whether the requests have been approved or not.
 
 #### AdminActionUserTime
-The purpose of this auxiliary model is to track actions non-profit admins take on hour requests from [UserTimeLog](#usertimelog) model. Initial volunteer request generates an action of type *request* in this table. Subsequently, the admin can either *approve* or *decline* the request.
+The purpose of this auxiliary model is to track actions non-profit admins take on hour requests in [UserTimeLog](#usertimelog) model. Initial volunteer request generates an action of type *request* in this table. Subsequently, the admin can either *approve* or *decline* the request.
 
 ### Offer
 This model contains offers created by businesses. Offer is characterized by a product item and a *currents share*, which represents percentage of price for which a businesses agrees to accept currents. Optionally, a business can specify a limit on how many transactions it is willing to accept for a given offer.
 
 ### Transaction
+A transaction is an act of offer redemption by users (*redeem-currents*). In order to redeem a transaction, a user must have a positive available currents balance. The actual amount of currents transacted is specified in *currents_amount* field.
 
 #### TransactionAction
-### Ledger
+The purpose of this auxiliary table is to track actions taken by business admins on redemption requests in [Transaction](#transaction) model. Initial redemption request generates an action of type *request* in this table. Subsequently, the admin can either *approve* or *decline* the request. The status of *redeemed* signifies that the funds have been transferred and the transaction can be considered closed. See [#755](https://github.com/opencurrents/opencurrents/issues/755) on the immediate plan to combine [AdminActionUserTime](#adminactionusertime) and [TransactionAction](#transactionaction) into a single model.
 
+### Ledger  
+This model serves as a single source of truth for the currency ownership.
+Users and orgs are referenced in the ledger through their respective entities. Issuance of currents to users by non-profits is recorded using *is_issued* flag.
 
+Examples of instances where a new ledger record is created are:
+* Non-profit admin approving volunteer hour request
+* Volunteer checks in at a group event
+* Offer redemption moves to *redeemed* status
 
+In each of these instances the new ledger record references the triggering action. See [#755](https://github.com/opencurrents/opencurrents/issues/755) on the immediate plan to combine [AdminActionUserTime](#adminactionusertime) and [TransactionAction](#transactionaction) into a single model.
 
 ## Business logic interfaces
 Much of openCurrents business logic has been separated into [interfaces](https://github.com/opencurrents/opencurrents/tree/develop/openCurrents/interfaces).
@@ -73,8 +82,13 @@ https://github.com/opencurrents/opencurrents/blob/develop/openCurrents/interface
   * [get_balance_pending](https://github.com/opencurrents/opencurrents/blob/develop/openCurrents/interfaces/bizadmin.py#L45) is a method to obtain business' pending balance in currents. Pending balance results from redemptions that have not been approved yet.
   * [get_offers_all](https://github.com/opencurrents/opencurrents/blob/develop/openCurrents/interfaces/bizadmin.py#L57) is a method to obtain all of the business' marketplace offers.
 
-* Ledger
+* [OcLedger](https://github.com/opencurrents/opencurrents/blob/develop/openCurrents/interfaces/ledger.py) is the interface for the [Ledger](#ledger) model. Its main use cases are as follows:
+  * [transact_currents](https://github.com/opencurrents/opencurrents/blob/develop/openCurrents/interfaces/ledger.py#L43) transacts currents from one entity to another
+  * [issue_currents](https://github.com/opencurrents/opencurrents/blob/develop/openCurrents/interfaces/ledger.py#L78) issues currents from a non-profit to a user
+  * [get_balance](https://github.com/opencurrents/opencurrents/blob/develop/openCurrents/interfaces/ledger.py#L103) returns the balance for the specified entity in the specified currency
+
+
 ## Creating test fixtures
-A python [script](https://github.com/opencurrents/opencurrents/blob/develop/openCurrents/scripts/setup_fixtures.py) is available to assist you in creating all the necessary test fixtures. It creates 2 non-profits (GreatDeeds and GoodVibes) and 2 businesses (ConsciousBiz and GreenBiz). GreatDeeds and ConsciousBiz have 2 admin users each, while GoodVibes and GreenBiz have a single admin each. There are also 2 volunteer users. All users are assigned the password 'oc'.
+A python [script](https://github.com/opencurrents/opencurrents/blob/develop/openCurrents/scripts/setup_fixtures.py) is available to assist you in creating all the necessary test fixtures. It creates 2 non-profits (GreatDeeds and GoodVibes) and 2 businesses (ConsciousBiz and GreenBiz). GreatDeeds and ConsciousBiz have 2 admin users each, while GoodVibes and GreenBiz have a single admin each. There are also 2 volunteer users. All users are assigned the password *oc*.
 
 The script will also create several events for each of the non-profits, active offers for each of the businesses as well as volunteer hour and offer redemption requests in various states of approval for all of the 8 users. All of these fixtures are generated in a random way with the idea of capturing as many test cases as possible.
