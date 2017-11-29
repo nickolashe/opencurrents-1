@@ -1,3 +1,4 @@
+{% extends "layouts/base.html" %}
 {% load staticfiles %}
 {% load tags %}
 
@@ -19,7 +20,7 @@
         </div>
 
         <div class="right small-3 columns">
-          <a href="mailto:shavone@bikeaustin.org" target="_blank" class="button round small">Contact</a>
+          <a href="mailto:shavone@bikeaustin.org" target="_blank" class="button round small secondary">Contact</a>
         </div>
       </div>
 
@@ -34,7 +35,7 @@
         </div>
 
         <div class="right small-3 columns">
-          <a href="mailto:geoff@coloradoriver.org" target="_blank" class="button round small">Contact</a>
+          <a href="mailto:geoff@coloradoriver.org" target="_blank" class="button round small secondary">Contact</a>
         </div>
       </div>
 
@@ -49,7 +50,7 @@
         </div>
 
         <div class="right small-3 columns">
-          <a href="mailto:saraines.calderon@gmail.com" target="_blank" class="button round small">Contact</a>
+          <a href="mailto:saraines.calderon@gmail.com" target="_blank" class="button round small secondary">Contact</a>
         </div>
       </div>
 
@@ -64,7 +65,7 @@
         </div>
 
         <div class="right small-3 columns">
-          <a href="mailto:gerardo.bolanos@costasverdas.org" target="_blank" class="button round small">Contact</a>
+          <a href="mailto:gerardo.bolanos@costasverdas.org" target="_blank" class="button round small secondary">Contact</a>
         </div>
       </div>
 
@@ -79,7 +80,7 @@
         </div>
 
         <div class="right small-3 columns">
-          <a href="mailto:erin.damm@healthstartfoundation.org" target="_blank" class="button round small">Contact</a>
+          <a href="mailto:erin.damm@healthstartfoundation.org" target="_blank" class="button round small secondary">Contact</a>
         </div>
       </div>
 
@@ -94,7 +95,7 @@
         </div>
 
         <div class="right small-3 columns">
-          <a href="mailto:joshua.levy@joshuasstage.org" target="_blank" class="button round small">Contact</a>
+          <a href="mailto:joshua.levy@joshuasstage.org" target="_blank" class="button round small secondary">Contact</a>
         </div>
       </div>
     </div>
@@ -132,5 +133,11 @@
         {% endfor %}
       </div>
     </div>
+  </div>
+
+  <div class="row">
+    <a href="{% url 'openCurrents:profile' %}" class="button round">
+      Back to profile
+    </a>
   </div>
 {% endblock content %}
