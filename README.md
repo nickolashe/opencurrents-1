@@ -5,12 +5,12 @@
 We are building an alternative currency platform where users can earn "currents" for volunteering their time with non-profits. Once a non-profit approves volunteer hours, these can then be spent with businesses which post offers on the platform.
 
 ## Orgs
-Architecturally, both non-profits and businesses are modeled using [Org](https://github.com/opencurrents/opencurrents/blob/develop/openCurrents/models.py#L17) model. The **status** field differentiates between the two types of organizations.
+Architecturally, both non-profits and businesses are modeled using [Org](https://github.com/opencurrents/opencurrents/blob/develop/openCurrents/models.py#L17) model. The ..*status..* field differentiates between the two types of organizations.
 
 ## Users
-For the users we are using Django's internal auth **User** model.
+For the users we are using Django's internal auth ..*User..* model.
 Users can be affiliated with Orgs through [OrgUser](https://github.com/opencurrents/opencurrents/blob/develop/openCurrents/models.py#L50) mapping.
-Some users can have admin permissions for an org. These are modeled using Django's internal auth **Group** model. The convention is to name the group *admin_$id*, where id is the id of the organization. Any member of the group is granted admin privileges on the respective org.
+Some users can have admin permissions for an org. These are modeled using Django's internal auth ..*Group..* model. The convention is to name the group *admin_$id*, where id is the id of the organization. Any member of the group is granted admin privileges on the respective org.
 
 ## Business logic interfaces
 Much of openCurrents business logic has been separated into [interfaces](https://github.com/opencurrents/opencurrents/tree/develop/openCurrents/interfaces).
@@ -18,36 +18,36 @@ Much of openCurrents business logic has been separated into [interfaces](https:/
 ### Examples of using the interfaces
 
 * OcUser
-** To set up a user and all the related fixtures, call:
+..* To set up a user and all the related fixtures, call:
 https://github.com/opencurrents/opencurrents/blob/develop/openCurrents/interfaces/ocuser.py#L38
 More on creating fixture in:
-** User's available balance in currents is composed of earned currents minus pending offer redemptions. To get user's available balance in currents call:
+..* User's available balance in currents is composed of earned currents minus pending offer redemptions. To get user's available balance in currents call:
 https://github.com/opencurrents/opencurrents/blob/develop/openCurrents/interfaces/ocuser.py#L103
 
-** User's pending balance in currents is equal to sum of volunteer hours request. To get user's pending balance in currents:
+..* User's pending balance in currents is equal to sum of volunteer hours request. To get user's pending balance in currents:
 https://github.com/opencurrents/opencurrents/blob/develop/openCurrents/interfaces/ocuser.py#L142
 
-** User's available USD balance is equal to the sum of offer redemptions in **redeemed** status. To get user's available balance in USD:
+..* User's available USD balance is equal to the sum of offer redemptions in ..*redeemed..* status. To get user's available balance in USD:
 https://github.com/opencurrents/opencurrents/blob/develop/openCurrents/interfaces/ocuser.py#L174
 
-** User's available USD balance is equal to the sum of offer redemptions in **requested** or **approved** status. To get user's pending balance in USD:
+..* User's available USD balance is equal to the sum of offer redemptions in ..*requested..* or ..*approved..* status. To get user's pending balance in USD:
 https://github.com/opencurrents/opencurrents/blob/develop/openCurrents/interfaces/ocuser.py#L187
 
 * OcOrg
-** To set up an org and all the related fixtures, call:
+..* To set up an org and all the related fixtures, call:
 https://github.com/opencurrents/opencurrents/blob/develop/openCurrents/interfaces/orgs.py#L86
 
 * OrgUser
-** To set up an *OrgUser* mapping, call:
+..* To set up an *OrgUser* mapping, call:
 https://github.com/opencurrents/opencurrents/blob/develop/openCurrents/interfaces/orgs.py#L24
-** The following method checks whether a user has admin privilege for a given org:
+..* The following method checks whether a user has admin privilege for a given org:
 https://github.com/opencurrents/opencurrents/blob/develop/openCurrents/interfaces/orgs.py#L54
 
 * Org admin can call:
 [get_hours_requested](https://github.com/opencurrents/opencurrents/blob/develop/openCurrents/interfaces/orgadmin.py#L31) method to obtain volunteer requests pending approval
-** [get_hours_approved](https://github.com/opencurrents/opencurrents/blob/develop/openCurrents/interfaces/orgadmin.py#L37) method to obtain approved volunteer requests
+..* [get_hours_approved](https://github.com/opencurrents/opencurrents/blob/develop/openCurrents/interfaces/orgadmin.py#L37) method to obtain approved volunteer requests
 
 * Businesses can receive currents from users in exchange for their products or services. Biz admins can call:
-** [get_balance_available](https://github.com/opencurrents/opencurrents/blob/develop/openCurrents/interfaces/bizadmin.py#L33) method to obtain their businesses available balance in currents. Available balance results from business' offer redemptions that have been approved.
-** [get_balance_pending](https://github.com/opencurrents/opencurrents/blob/develop/openCurrents/interfaces/bizadmin.py#L45) method to obtain their business' pending balance in currents. Pending balance results from redemptions that have not been approved yet.
-** [get_offers_all](https://github.com/opencurrents/opencurrents/blob/develop/openCurrents/interfaces/bizadmin.py#L57) method to obtain all business' marketplace offers.
+..* [get_balance_available](https://github.com/opencurrents/opencurrents/blob/develop/openCurrents/interfaces/bizadmin.py#L33) method to obtain their businesses available balance in currents. Available balance results from business' offer redemptions that have been approved.
+..* [get_balance_pending](https://github.com/opencurrents/opencurrents/blob/develop/openCurrents/interfaces/bizadmin.py#L45) method to obtain their business' pending balance in currents. Pending balance results from redemptions that have not been approved yet.
+..* [get_offers_all](https://github.com/opencurrents/opencurrents/blob/develop/openCurrents/interfaces/bizadmin.py#L57) method to obtain all business' marketplace offers.
