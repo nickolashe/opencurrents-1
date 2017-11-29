@@ -8,30 +8,32 @@
     <div class="medium-8 columns small-centered">
       {% if num_events or num_vols %}
         {% if num_events|add:"0" >= 1 and num_vols|add:"0" >= 1 %}
-            You have created events at {{ num_events }} location{{ num_events|pluralize }} and registered {{ num_vols }} volunteer{{ num_vols|pluralize }} to the event. Nice!
+            You have created events at {{ num_events }}
+            location{{ num_events|pluralize }} and registered {{ num_vols }}
+            volunteer{{ num_vols|pluralize }} to the event. Nice!
 
         {% elif num_events|add:"0" >= 1 and num_vols|add:"0" == 0 %}
-            You have created events at {{ num_events }} location{{ num_events|pluralize }}. Nice!
+            You have created events at {{ num_events }}
+            location{{ num_events|pluralize }}. Nice!
 
         {% elif num_events|add:"0" == 0 and num_vols|add:"0" >= 1 %}
-            You have invited {{ num_vols  }} volunteer{{ num_vols|pluralize }} to the openCurrents community. Nice!
-
+            You have invited {{ num_vols  }} volunteer{{ num_vols|pluralize }}
+            to the openCurrents community. Nice!
         {% endif %}
-      {% else %}
-        <div id="status_msg">
-          {{ status_msg }}
-        </div>
-      {% endif %}
 
-      {% if vols_approved or vols_declined %}
+      {% elif vols_approved or vols_declined %}
         {% if vols_approved|add:"0" >= 1 and vols_declined|add:"0" >= 1 %}
-          You have approved hours for {{ vols_approved }} volunteer{{ vols_approved|pluralize }} and declined hours for {{ vols_declined }} volunteer{{ vols_declined|pluralize }}. Nice!
+          You have approved hours for {{ vols_approved }}
+          volunteer{{ vols_approved|pluralize }} and declined hours for
+          {{ vols_declined }} volunteer{{ vols_declined|pluralize }}. Nice!
 
         {% elif vols_approved|add:"0" >= 1 and vols_declined|add:"0" == 0 %}
-          You have approved hours for {{ vols_approved }} volunteer{{ vols_approved|pluralize }}. Nice!
+          You have approved hours for {{ vols_approved }}
+          volunteer{{ vols_approved|pluralize }}. Nice!
 
         {% elif vols_approved|add:"0" == 0 and vols_declined|add:"0" >= 1 %}
-          You have declined hours for {{ vols_declined }} volunteer{{ vols_declined|pluralize }}.
+          You have declined hours for {{ vols_declined }}
+          volunteer{{ vols_declined|pluralize }}.
         {% endif %}
       {% else %}
         <div id="status_msg">
@@ -92,7 +94,7 @@
     </h6>
 
     <a href="{% url 'openCurrents:create-event' orgid %}"
-      {% if has_hours_requested %} 
+      {% if has_hours_requested %}
         class="button secondary tiny round"
       {% else %}
         class="button tiny round"

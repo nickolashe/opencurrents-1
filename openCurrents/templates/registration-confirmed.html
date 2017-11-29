@@ -7,29 +7,16 @@
 
 
 {% block content %}
-      <!-- <span class="addtocalendar one-margin-bottom">
-        <var class="atc_event">
-          <var class="atc_date_start">2017-04-01 12:00:00</var>
-          <var class="atc_date_end">2017-04-02 12:00:00</var>
-          <var class="atc_timezone">America/Chicago</var>
-          <var class="atc_title">Let's clean up Lady Bird Lake with </var>
-          <var class="atc_description"></var>
-          <var class="atc_location"></var>
-          <var class="atc_organizer"></var>
-          <var class="atc_organizer_email"></var>
-        </var>
-      </span> -->
-      <p>
-        Thank you for helping {{ event.project.org.name }} {{ event.project.name }} on {{ event.datetime_start|day }}. Enjoy the event!
-      </p>
-    </div>
-  </div>
+  <p>
+    Thank you for helping {{ event.project.org.name }} {{ event.project.name }}
+    on {{ event.datetime_start|day }}. Enjoy the event!
+  </p>
 
   <div class="row three-halves-margin-top center">
     <div class="small-12 medium-8 small-centered columns">
-      <a href="{% url 'openCurrents:profile' %}"/>
-        <button class="button round">Return to profile</button>
-      </a>  
+      <a href="{% url 'openCurrents:profile' %}" class="button round">
+        Return to profile
+      </a>
     </div>
   </div>
 {% endblock content %}
