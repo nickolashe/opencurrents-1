@@ -61,13 +61,13 @@ fixtures_user = [
     {
         'email': 'consciousbiz_admin1@opencurrents.com',
         'firstname': 'Mark',
-        'lastname': 'ConciousBizAdmin',
+        'lastname': 'ConsciousBizAdmin',
         'type': 'biz'
     },
     {
         'email': 'consciousbiz_admin2@opencurrents.com',
         'firstname': 'Andrew',
-        'lastname': 'ConciousBizAdmin',
+        'lastname': 'ConsciousBizAdmin',
         'type': 'biz'
     },
     {
@@ -81,7 +81,7 @@ fixtures_user = [
 fixtures_orgs = [
     {'name': 'GreatDeeds', 'status': 'npf'},
     {'name': 'GoodVibes', 'status': 'npf'},
-    {'name': 'ConciousBiz', 'status': 'biz'},
+    {'name': 'ConsciousBiz', 'status': 'biz'},
     {'name': 'GreenBiz', 'status': 'biz'}
 ]
 
@@ -131,7 +131,7 @@ def setup_users():
             user = User.objects.get(email=fxt['email'])
             print 'User %s already exists' % fxt['email']
 
-        user.set_password(fxt['lastname'])
+        user.set_password('oc')
         user.save()
         users_all.append(user)
 
