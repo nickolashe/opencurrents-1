@@ -6,24 +6,22 @@
 
     {% include "partials/head.html" %}
     {% block head %}{% endblock head %}
-    
+
     <title>openCurrents</title>
 
   </head>
-  
+
   <body>
 
     {% include "partials/header.html" %}
-    
+
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
 
         {% block status %}
-          {% if status_msg %}
-            <div class="row half-margin-top">
-              {{ status_msg }}
-            </div>
-          {% endif %}
+          <div class="success row one-margin-top">
+            {{ status_msg }}
+          </div>
         {% endblock status %}
 
         {% block heading %}
@@ -33,25 +31,25 @@
                 {% block title %} openCurrents {% endblock title %}
               </h3>
             </div>
-          </div>  
+          </div>
         {% endblock heading %}
 
         {% block content %}{% endblock content %}
-        
+
         <div id="push"></div>
-    
+
       <!-- wrapper div-->
       </div>
-      
+
       {% block footer %}
         {% include 'partials/footer.html' %}
       {% endblock footer %}
-            
+
     <!--container div -->
     </div>
-    
+
     <div id="bottom-stripe" class="full-width"></div>
-    
+
     {% block menu %}
       <div off-canvas="menu right shift" id="menu">
         {% include 'partials/menu.html' %}
@@ -60,9 +58,9 @@
 
 
     {% block popups %}{% endblock popups %}
-    
+
     {% block js %}{% endblock js %}
-    
+
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
   </body>
 </html>
