@@ -2,6 +2,10 @@
 {% load staticfiles %}
 {% load tags %}
 
+{% block head %}
+  {{ form.media }}
+{% endblock head %}
+
 {% block title %} Edit offer {% endblock title %}
 
 {% block status %}
