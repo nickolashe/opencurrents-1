@@ -48,7 +48,7 @@
   {{ block.super }}
 
   <a href="{% url 'openCurrents:create-event' orgid %}"
-    {% if user_time_log_status %} class="button secondary tiny round"
+    {% if has_hours_requested %} class="button secondary tiny round"
     {% else %} class="button tiny round"
     {% endif %}>
     Create event
@@ -66,11 +66,12 @@
   </h6>
 
   <a
-    {% if user_time_log_status %}
+    {% if has_hours_requested %}
       href="{% url 'openCurrents:approve-hours' %}" class="button round tiny"
     {% else %}
       href="javascript:status()" class="button round tiny secondary"
-    {% endif %}>Approve hours
+    {% endif %}>
+    Approve hours
   </a>
 {% endblock heading-right %}
 
@@ -90,8 +91,21 @@
       My hours tracked: {{ issued_by_admin }}
     </h6>
 
-    <a href="{% url 'openCurrents:create-event' orgid %}" {% if user_time_log_status %} class="button secondary tiny round" {% else %} class="button tiny round" {% endif %}>Create event</a>
-    <a {% if user_time_log_status %} href="{% url 'openCurrents:approve-hours' %}" class="button round tiny"{% else %} href="javascript:status()" class="button round tiny secondary"{% endif %}>Approve hours</a>
+    <a href="{% url 'openCurrents:create-event' orgid %}"
+      {% if has_hours_requested %} 
+        class="button secondary tiny round"
+      {% else %}
+        class="button tiny round"
+      {% endif %}>
+      Create event
+    </a>
+    <a {% if has_hours_requested %}
+      href="{% url 'openCurrents:approve-hours' %}" class="button round tiny"
+      {% else %}
+        href="javascript:status()" class="button round tiny secondary"
+      {% endif %}>
+      Approve hours
+    </a>
   </div>
 {% endblock heading-small %}
 
