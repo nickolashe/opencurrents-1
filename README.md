@@ -20,7 +20,7 @@ Events are created by non-profit admins. All volunteer tracked hours are associa
 This model registers all hours submitted by / for volunteers. *is_verified* flag determines whether the requests have been approved or not.
 
 #### AdminActionUserTime
-The purpose of this model is to track actions non-profit admin take on hour requests from [UserTimeLog](#usertimelog) model.
+The purpose of this auxiliary model is to track actions non-profit admins take on hour requests from [UserTimeLog](#usertimelog) model. Initial volunteer request generates an action of type *request* in this table. Subsequently, the admin can either *approve* or *decline* the request.
 
 ### Offer
 
