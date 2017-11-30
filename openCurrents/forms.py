@@ -261,6 +261,7 @@ class CreateEventForm(forms.Form):
         label='on',
         widget=widgets.TextWidget(attrs={
             'id': 'event-date',
+            'class': ' center',
             'placeholder': 'yyyy-mm-dd',
         })
     )
@@ -269,6 +270,7 @@ class CreateEventForm(forms.Form):
         label='from',
         widget=widgets.TextWidget(attrs={
             'id': 'event-starttime',
+            'class': ' center',
             'placeholder': '12:00 pm'
         })
     )
@@ -277,12 +279,13 @@ class CreateEventForm(forms.Form):
         label='to',
         widget=widgets.TextWidget(attrs={
             'id': 'event-endtime',
+            'class': ' center',
             'placeholder': '1:00 pm',
         })
     )
 
     event_privacy = forms.ChoiceField(
-        widget=forms.RadioSelect(
+        widget=widgets.RadioWidget(
             attrs={
                 'class': 'custom-radio',
                 'id': 'id-event-privacy'
@@ -555,7 +558,7 @@ class TimeTrackerForm(forms.Form):
             raise ValidationError(_('Start time must be before end time'))
 
         if cleaned_data['datetime_end'] > datetime.now(tz=pytz.utc):
-            raise ValidationError(_('Hours can be submitted for past events only'))
+            raise ValidationError(_('Hours can only be submitted once work is completed'))
 
         return cleaned_data
 
@@ -682,7 +685,7 @@ class RedeemCurrentsForm(forms.Form):
          widget=forms.ClearableFileInput(attrs={
             'class': 'hidden-file',
             'id': 'upload-receipt',
-            'accept': 'image/*'            
+            'accept': 'image/*'
         }),
         required=False
     )
@@ -740,3 +743,19 @@ class RedeemCurrentsForm(forms.Form):
             )
 
         return cleaned_data
+
+
+class PublicRecordsForm(forms.Form):
+    periods = (
+        ('month', 'Last 30 days'),
+        ('all-time', 'All-time'),
+    )
+
+    record_types = (
+        ('top-org', 'Top organizations'),
+        ('top-vol', 'Top volunteers'),
+        ('top-biz', 'Top businesses'),
+    )
+
+    record_type = forms.ChoiceField(choices=record_types)
+    period = forms.ChoiceField(choices=periods)

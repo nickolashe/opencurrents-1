@@ -6,10 +6,10 @@
   <head>
     {% include "partials/head.html" %}
   </head>
-  
+
   <body>
     {% include "partials/header.html" %}
-    
+
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
         {% if status_msg %}
@@ -17,7 +17,7 @@
           {{status_msg}}
         </div>
         {% endif %}
-        
+
         <!-- progress bar 1-4 -->
         <div class="row two-margin-top two-margin-bottom">
           <div class="small-12 medium-9 small-centered columns">
@@ -77,9 +77,16 @@
               <div class="small-11 medium-8 small-centered columns">
                 <h5 class="one-margin-bottom">How transactions work</h5>
 
-                <p>To make it as easy as possible to accept Currents, nothing changes at point of sale. Customers pay full price and provide openCurrents with proof of purchase.</p>
+                <p>To make it as easy as possible to accept Currents, nothing
+                  changes at point of sale. Customers pay full price and provide
+                  openCurrents with proof of purchase.</p>
 
-                <p>For each Current received, you can either keep the Current or claim a $10 charitable donation. Initial value: $10 per <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>1.</span></p>
+                <p>For each Current received, you can either keep the Current or
+                  claim a $10 charitable donation. Initial value: $10 per
+                  <span class="no-wrap">
+                    <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/> 1.
+                  </span>
+                </p>
 
                 <div class="row half-margin-top one-margin-bottom">
                   <div class="medium-10 small-centered columns">
@@ -89,7 +96,7 @@
               </div>
             </div>
           </div>
-        
+
           <!-- offer 2 -->
           <div id="offer-2">
             <div class="row one-margin-bottom">
@@ -129,7 +136,7 @@
                     <div class="relative input-sizer">
 
                       {{ form.offer_item }}
-                      {# <i class="remove-input alert fa fa-times"></i> #}
+                      <!-- <i class="remove-input alert fa fa-times"></i> -->
 
                     </div>
                   </div>
@@ -154,7 +161,10 @@
               </div>
             </div>
 
-            <p><a class="add-item-popup_open"><i class="half-margin-top half-margin-bottom fa fa-plus-circle half-margin-right"></i>Add item or category</a></p>
+            <p><a class="add-item-popup_open">
+              <i class="half-margin-top half-margin-bottom fa fa-plus-circle half-margin-right"></i>
+              Add item or category
+            </a></p>
 
             <div class="row half-margin-top">
               <div class="medium-8 small-centered columns">
@@ -211,20 +221,35 @@
             <div class="row left">
               <div class="small-12 medium-8 small-centered columns">
                 <h5 class="one-margin-bottom center">Confirm offer details</h5>
-                <p>As an authorized representative of {{ orgname }}, I agree to accept Currents <span id="limit-yes-text"></span>as partial payment for the following products and services:</p>
-                
+                <p>As an authorized representative of {{ orgname }}, I agree to
+                  accept Currents <span id="limit-yes-text"></span>as partial
+                  payment for the following products and services:</p>
+
                 <ul>
-                  <li><span id="currents-share-text">25</span>% of <span id="item-text">All products and services</span></li>
+                  <li>
+                    <span id="currents-share-text">25</span>% of
+                    <span id="item-text">All products and services</span>
+                  </li>
                 </ul>
-                  
-                <p>At the end of the month, openCurrents will invoice {{ orgname }} the total value of Currents accepted, send customers dollars in exchange for Currents, and transfer Currents to {{ orgname }}. For each Current received, {{ orgname }} can either keep the Current or claim a $10 charitable donation. Initial value: $10 per <span class="no-wrap"><img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>1.</span></p>
+
+                <p>At the end of the month, openCurrents will invoice
+                  {{ orgname }} the total value of Currents accepted, send
+                  customers dollars in exchange for Currents, and transfer
+                  Currents to {{ orgname }}. For each Current received,
+                  {{ orgname }} can either keep the Current or claim a $10
+                  charitable donation. Initial value: $10 per
+                  <span class="no-wrap">
+                    <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
+                    1.
+                  </span>
+                </p>
               </div>
             </div>
 
             <div class="row one-margin-top">
               <a class="prev-offer button round secondary">Back</a>
               <!--a class="button round">Confirm offer</a-->
-              <input type='submit' value="Confirm offer" class="button round"></input>              
+              <input type='submit' value="Confirm offer" class="button round"></input>
             </div>
           </div>
 
@@ -235,14 +260,14 @@
         </form>
       <!-- wrapper div-->
       </div>
-      
+
       {% include 'partials/footer.html' %}
-            
+
     <!--container div -->
     </div>
-    
+
     <div id="bottom-stripe" class="full-width"></div>
-    
+
     <div off-canvas="menu right shift" id="menu">
       {% include 'partials/menu.html' %}
     </div>
@@ -253,7 +278,9 @@
       </div>
       <div class="row">
         <div class="small-centered medium-10 columns">
-          <p>To add more offers, complete this offer first. From your business profile, you can click "Post an offer" to list additional products and services.</p>
+          <p>To add more offers, complete this offer first. From your business
+            profile, you can click "Post an offer" to list additional products
+            and services.</p>
 
           <p class="center three-halves-margin-top">
             <a class="add-item-popup_close button round">Got it</a>
@@ -261,22 +288,27 @@
         </div>
       </div>
     </div>
-  
+
     <div id="value-info-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
         <h4 class="popup-title">How to value Currents</h4>
       </div>
-      <p>You are welcome to value Currents however you choose. Please note, however, that the more you value you give for Currents, the higher priority your offer will receive in the marketplace - meaning more customers will see your business.</p>
+      <p>You are welcome to value Currents however you choose. Please note,
+        however, that the more you value you give for Currents, the higher
+        priority your offer will receive in the marketplace - meaning more
+        customers will see your business.</p>
       <div class="row">
         <div class="small-centered medium-10 columns">
           <p class="center three-halves-margin-top">
             <a class="value-info-popup_close button round">Got it</a>
-            <a href="javascript:void(Tawk_API.toggle())" class="button round secondary">Contact us</a>
+            <a href="javascript:void(Tawk_API.toggle())" class="button round secondary">
+              Contact us
+            </a>
           </p>
         </div>
       </div>
     </div>
-     
+
     <script type="text/javascript">
       $(document).ready(function(){
         $('#value-info-popup, #add-item-popup').popup({
@@ -349,7 +381,7 @@
           $('#monthly-limit-div').slideUp();
           $('#limit-yes-text').text('');
         });
-        
+
         // Slide left on 'Next'
         var page = 1;
 
@@ -363,6 +395,7 @@
             }, 1111);
 
             $righty.show()
+
             $lefty.animate({
               left: parseInt(-$lefty.outerWidth())
             }, 777);
@@ -386,7 +419,7 @@
           if (page > 1) {
             var $lefty = $('#offer-'+(page-1)+'');
             var $righty = $('#offer-'+page+'');
-            
+
             $('#container').animate({
               scrollTop: $("#header").offset().top
             }, 1111);
@@ -405,13 +438,13 @@
 
             $('#progress-'+(page-1)+'').addClass('progress-highlight').siblings('label').addClass('blue');
             $('#progress-'+page+'').removeClass('progress-highlight').siblings('label').removeClass('blue');
-          
+
             page --;
           }
         });
       });
     </script>
-    
+
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
   </body>
 </html>

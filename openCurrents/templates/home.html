@@ -183,7 +183,15 @@
         <div id="5" class="header-spacer"></div>
 
         <div class="row center">
-          <h2 class="title white">Join openCurrents</h2>
+          <h2 class="title-sub white">Join openCurrents</h2>
+          <div class="one-margin-top">
+            <a href="{% url 'openCurrents:nonprofit' %}" class="tag button round tiny clear">
+              Register a nonprofit
+            </a>
+            <a href="{% url 'openCurrents:business' %}" class="tag button round tiny clear">
+              Register a business
+            </a>
+          </div>
         </div>
 
         <form method="post" action="{% url 'openCurrents:process_signup' %}">
@@ -206,7 +214,12 @@
 
           <div class="row center one-margin-top">
             <input type="submit" class="button large round clear" value="I'm in!"/>
-            <a href="javascript:void(Tawk_API.toggle())" class="large-text white home-link"><p class="no-margin-bottom">I have a question<i class="half-margin-left fa fa-angle-right"></i></p></a>
+            <a href="javascript:void(Tawk_API.toggle())" class="large-text white home-link">
+              <p>
+                I have a question
+                <i class="half-margin-left fa fa-angle-right"></i>
+              </p>
+            </a>
           </div>
         </form>
       </div>
