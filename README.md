@@ -60,7 +60,7 @@ https://github.com/opencurrents/opencurrents/blob/develop/openCurrents/interface
   * User's available USD balance is equal to the sum of offer redemptions in *redeemed* status. To get user's available balance in USD:
 https://github.com/opencurrents/opencurrents/blob/develop/openCurrents/interfaces/ocuser.py#L174
 
-  * User's available USD balance is equal to the sum of offer redemptions in *requested* or *approved* status. To get user's pending balance in USD:
+  * User's pending USD balance is equal to the sum of offer redemptions in *requested* or *approved* status. To get user's pending balance in USD:
 https://github.com/opencurrents/opencurrents/blob/develop/openCurrents/interfaces/ocuser.py#L187
 
 * [OcOrg](https://github.com/opencurrents/opencurrents/blob/develop/openCurrents/interfaces/orgs.py#L76)
