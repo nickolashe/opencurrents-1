@@ -2144,60 +2144,62 @@ def event_checkin(request, pk):
             # volunteer checkin
             vol_user = User.objects.get(id=userid)
             try:
-                usertimelog = UserTimeLog(
-                    user=vol_user,
-                    event=event,
-                    is_verified=True,
-                    datetime_start=datetime.now(tz=pytz.UTC)
-                )
-                usertimelog.save()
+                with transaction.atomic():
+                    usertimelog = UserTimeLog(
+                        user=vol_user,
+                        event=event,
+                        is_verified=True,
+                        datetime_start=datetime.now(tz=pytz.UTC)
+                    )
+                    usertimelog.save()
 
-                # admin action record
-                actiontimelog = AdminActionUserTime(
-                    user_id=admin_id,
-                    usertimelog=usertimelog,
-                    action_type='app'
-                )
-                actiontimelog.save()
+                    # admin action record
+                    actiontimelog = AdminActionUserTime(
+                        user_id=admin_id,
+                        usertimelog=usertimelog,
+                        action_type='app'
+                    )
+                    actiontimelog.save()
 
-                OcLedger().issue_currents(
-                    admin_org.orgentity,
-                    vol_user.userentity,
-                    actiontimelog,
-                    (event.datetime_start - event.datetime_end).total_seconds() / 3600
-                )
-                clogger.info(
-                    'at %s: user %s checkin',
-                    str(usertimelog.datetime_start),
-                    userid
-                )
+                    OcLedger().issue_currents(
+                        admin_org.orgentity.id,
+                        vol_user.userentity.id,
+                        actiontimelog,
+                        (event.datetime_start - event.datetime_end).total_seconds() / 3600
+                    )
+                    clogger.info(
+                        'at %s: user %s checkin',
+                        str(usertimelog.datetime_start),
+                        userid
+                    )
             except Exception as e:
                 clogger.info('user %s already checked in', userid)
 
             # check in admin/coordinator
             try:
-                usertimelog = UserTimeLog(
-                    user=User.objects.get(id=request.user.id),
-                    event=event,
-                    is_verified=True,
-                    datetime_start=datetime.now(tz=pytz.UTC)
-                )
-                usertimelog.save()
+                with transaction.atomic():
+                    usertimelog = UserTimeLog(
+                        user=User.objects.get(id=request.user.id),
+                        event=event,
+                        is_verified=True,
+                        datetime_start=datetime.now(tz=pytz.UTC)
+                    )
+                    usertimelog.save()
 
-                # admin action record
-                actiontimelog = AdminActionUserTime(
-                    user_id=admin_id,
-                    usertimelog=usertimelog,
-                    action_type='app'
-                )
-                actiontimelog.save()
+                    # admin action record
+                    actiontimelog = AdminActionUserTime(
+                        user_id=admin_id,
+                        usertimelog=usertimelog,
+                        action_type='app'
+                    )
+                    actiontimelog.save()
 
-                OcLedger().issue_currents(
-                    admin_org.orgentity,
-                    admin_user.userentity,
-                    actiontimelog,
-                    amount
-                )
+                    OcLedger().issue_currents(
+                        admin_org.orgentity.id,
+                        admin_user.userentity.id,
+                        actiontimelog,
+                        amount
+                    )
             except Exception as e:
                 return HttpResponse(status=409)
 
