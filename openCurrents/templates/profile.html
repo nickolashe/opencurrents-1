@@ -113,176 +113,33 @@
 
   <div class="row collapse one-margin-top left">
     <div class="small-11 medium-10 small-centered columns">
+      <h6 class="half-margin-bottom">Community activity</h6>
+      <a href="{% url 'openCurrents:public-record' %}" class="tag button tiny round secondary">
+        Currents issued: X
+      </a>
+      <a href="{% url 'openCurrents:public-record' %}" class="tag button tiny round secondary">
+        Active volunteers: Y
+      </a>
+      <a href="{% url 'openCurrents:public-record' %}" class="tag button tiny round secondary">
+        Currents accepted: Z
+      </a>
+    </div>
+  </div>
+
+  <div class="row collapse one-margin-top left">
+    <div class="small-11 medium-10 small-centered columns">
       <div class="row">
         <div class="small-8 columns">
           <h6 class="half-margin-bottom">My redeemed offers</h6>
         </div>
 
-<<<<<<< HEAD
-        <div class="row collapse one-margin-top left">
-          <div class="small-11 medium-10 small-centered columns">
-            <h6 class="half-margin-bottom">Community activity</h6>
-            <a href="{% url 'openCurrents:public-record' %}" class="tag button tiny round secondary">
-              Currents issued: X
-            </a>
-            <a href="{% url 'openCurrents:public-record' %}" class="tag button tiny round secondary">
-              Active volunteers: Y
-            </a>
-            <a href="{% url 'openCurrents:public-record' %}" class="tag button tiny round secondary">
-              Currents accepted: Z
-            </a>
-          </div>
-        </div>
-
-        <div class="row collapse one-margin-top left">
-          <div class="small-11 medium-10 small-centered columns">
-            <div class="row">
-              <div class="small-8 columns">
-                <h6 class="half-margin-bottom">My redeemed offers</h6>
-              </div>
-
-              <div class="right small-4 columns">
-                {% if offers_redeemed %}
-                  <h6 class="half-margin-bottom">Status</h6>
-                {% endif %}
-              </div>
-            </div>
-
-            {% if offers_redeemed %}
-              {% for offer_redeemed in offers_redeemed %}
-                {% with transaction=offer_redeemed.transaction status=offer_redeemed.get_action_type_display %}
-                  <div class="row half-margin-bottom">
-                    <div class="left small-9 columns">
-                      {{ offer_redeemed.date_updated|day:timezone }} -
-                      <strong>
-                        {{ transaction.offer.org.name }}
-                      </strong>
-                      {% with amount_cur=transaction.currents_amount %}
-                        {% with amount_usd=amount_cur|current_to_usd %}
-                          {% if status == 'pending' %}
-                            offers ${{ amount_usd|floatformat:2 }} for
-                            <span class="no-wrap">
-                              <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
-                              {{ amount_cur|floatformat:3 }}
-                            </span>
-
-                          {% elif status == 'approved' %}
-                            accepted
-                            <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
-                            {{ amount_cur|floatformat:3 }}
-                            for ${{ amount_usd|floatformat:2 }}
-
-                          {% elif status == 'redeemed' %}
-                            received
-                            <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
-                            {{ amount_cur|floatformat:3 }}
-                            for ${{ amount_usd|floatformat:2 }}
-
-                          {% else %}
-                            {{ status }}
-                            <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
-                            {{ amount_cur|floatformat:3 }}
-                            for ${{ amount_usd|floatformat:2 }}
-
-                          {% endif %}
-
-                        {% endwith %}
-                      {% endwith %}
-                    </div>
-
-                    <div class="right relative small-3 columns">
-                      {{ status }}
-                    </div>
-                  </div>
-                {% endwith %}
-              {% endfor %}
-            {% else %}
-              <p>You have not yet redeemed any offers. Check out the
-                <a href="{% url 'openCurrents:marketplace' %}">
-                  marketplace!
-                </a>
-              </p>
-            {% endif %}
-
-          </div>
-=======
         <div class="right small-4 columns">
           {% if offers_redeemed %}
             <h6 class="half-margin-bottom">Status</h6>
           {% endif %}
->>>>>>> 812673af4dfc2c4c82b85159b16d2694d6377b48
         </div>
       </div>
 
-<<<<<<< HEAD
-        {% macro user_hour_request_list_macro arg_list arg_status arg_timezone %}
-          {% block user_hour_request_list %}
-            {% with hours_list=arg_list hours_status=arg_status timezone=arg_timezone %}
-              {{ block.super }}
-            {% endwith %}
-          {% endblock %}
-        {% endmacro %}
-
-        <div class="left row one-margin-top collapse">
-          <div class="small-11 medium-10 small-centered columns">
-            <div class="row">
-              <div class="small-9 columns">
-                <h6 class="half-margin-bottom">Hours requested</h6>
-              </div>
-            </div>
-
-            {% usemacro user_hour_request_list_macro hours_requested 'requested' timezone %}
-          </div>
-        </div>
-
-        <div class="row collapse one-margin-top left">
-          <div class="small-11 medium-10 small-centered columns">
-            <h6 class="half-margin-bottom">Hours approved</h6>
-            <a href="{% url 'openCurrents:hours-detail' %}" class="button round tiny secondary">Orgname: X</a>
-            <a href="{% url 'openCurrents:hours-detail' %}" class="button round tiny secondary">Orgname2: Y</a>
-          </div>
-        </div>
-
-
-        <!-- community feed code. Hardcoded not dynamic -->
-        <!-- <div class="row full-width collapse one-margin-bottom">
-          <div class="left small-11 medium-10 large-8 small-centered columns">
-            <h6 class="one-margin-top one-margin-bottom">Community activity</h6>
-            <div id="community-feed">
-              <div class="feed-item">
-                <strong>Jacob Jacobs</strong> joined openCurrents!
-              </div>
-
-              <div class="feed-item">
-                <strong>Keep Austin Beautiful</strong> created a project: <strong><a>Let's clean up Lady Bird Lake<span class="no-wrap">!<i class="half-margin-left fa fa-arrow-circle-right"></i></span></a></strong>
-              </div>
-
-              <div class="feed-item">
-                <strong>Jacob Jacobs</strong> will be helping <strong>Keep Austin Beautiful</strong> clean up Lady Bird Lake!
-              </div>
-
-              <div class="feed-item">
-                <strong>Keep Austin Beautiful</strong> issued 2 Currents to <strong>Jacob Jacobs</strong>.
-              </div>
-              <div class="feed-item">
-                <strong>Jacob Jacobs</strong> joined openCurrents!
-              </div>
-
-              <div class="feed-item">
-                <strong>Keep Austin Beautiful</strong> created a project: <strong><a>Let's clean up Lady Bird Lake<span class="no-wrap">!<i class="half-margin-left fa fa-arrow-circle-right"></i></span></a></strong>
-              </div>
-
-              <div class="feed-item">
-                <strong>Jacob Jacobs</strong> will be helping <strong>Keep Austin Beautiful</strong> clean up Lady Bird Lake!
-              </div>
-
-              <div class="feed-item">
-                <strong>Keep Austin Beautiful</strong> issued 2 Currents to <strong>Jacob Jacobs</strong>.
-              </div>
-              <div class="feed-item">
-                <strong>Jacob Jacobs</strong> joined openCurrents!
-              </div>
-=======
       {% if offers_redeemed %}
         {% for offer_redeemed in offers_redeemed %}
           {% with transaction=offer_redeemed.transaction status=offer_redeemed.get_action_type_display %}
@@ -318,7 +175,6 @@
                       <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
                       {{ amount_cur|floatformat:3 }}
                       for ${{ amount_usd|floatformat:2 }}
->>>>>>> 812673af4dfc2c4c82b85159b16d2694d6377b48
 
                     {% endif %}
 
@@ -351,9 +207,25 @@
     {% endblock %}
   {% endmacro %}
 
-  {% usemacro user_hour_request_list_macro hours_requested 'requested' timezone %}
-  {% usemacro user_hour_request_list_macro hours_approved 'approved' timezone %}
+  <div class="left row one-margin-top collapse">
+    <div class="small-11 medium-10 small-centered columns">
+      <div class="row">
+        <div class="small-9 columns">
+          <h6 class="half-margin-bottom">Hours requested</h6>
+        </div>
+      </div>
 
+      {% usemacro user_hour_request_list_macro hours_requested 'requested' timezone %}
+    </div>
+  </div>
+
+  <div class="row collapse one-margin-top left">
+    <div class="small-11 medium-10 small-centered columns">
+      <h6 class="half-margin-bottom">Hours approved</h6>
+      <a href="{% url 'openCurrents:hours-detail' %}" class="button round tiny secondary">Orgname: X</a>
+      <a href="{% url 'openCurrents:hours-detail' %}" class="button round tiny secondary">Orgname2: Y</a>
+    </div>
+  </div>
 {% endblock content %}
 
 {% block popups %}
