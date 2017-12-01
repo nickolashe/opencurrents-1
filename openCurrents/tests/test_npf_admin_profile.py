@@ -199,27 +199,35 @@ class NpfAdminView(TestCase):
         """
         response = self.client.get('/org-admin/')
 
+
+        # @@ TODO @@
+        # DELETE THIS BLOCK
+        # print "\nHERE"
+        # print response.content
+        # print Project.objects.all()
+        # print Event.objects.all()
+        # print response.templates[0].name
+        # print "HERE\n"
+
         # check if users sees NFL org profile page
         self.assertEqual(response.status_code, 200)
         #self.assertTemplateUsed(response, 'org-admin.html')
 
         # assert org/my hours tracked are displayed
-        self.assertContains(response, '<h6 class="one-margin-top no-margin-bottom">Org hours tracked: 4.0</h6>')
-        self.assertContains(response, '<h6 class="half-margin-bottom">My hours tracked: 4.0</h6>')
+        self.assertContains(response, 'Org hours tracked: 4.0')
+        self.assertContains(response, 'My hours tracked: 4.0')
 
         # assert displayed events sections
         self.assertContains(response, 'at <strong>test_location_1</strong>') # testing upcoming events
-        self.assertContains(response, '<h6 class="half-margin-bottom">Events happening now</h6>')
-        self.assertContains(response, '<h6 class="half-margin-bottom">Past events</h6>')
+        self.assertContains(response, 'Events happening now')
+        self.assertContains(response, 'Past events')
 
-        # hours pending and approved
-        # @@ TODO @@
-        # add numbers to hours
-        self.assertContains(response, '<h6 class="half-margin-bottom">Hours pending</h6>')
-        self.assertContains(response, '<h6 class="half-margin-bottom">Hours approved</h6>')
+        # hours pending and approved are there
+        self.assertContains(response, 'Hours pending')
+        self.assertContains(response, 'Hours approved')
 
         # check for buttons
-        self.assertContains(response, '<button class="button round small">Start</button>', count=1)
+        self.assertContains(response, 'Start</button>', count=1)
         self.assertContains(response, 'href="javascript:status()" class="button round tiny secondary"') #check for approve hours button
         self.assertContains(response, 'Create event', count=2)
 
