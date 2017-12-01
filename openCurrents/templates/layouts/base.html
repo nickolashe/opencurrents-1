@@ -6,6 +6,7 @@
 
     {% include "partials/head.html" %}
     {% block head %}{% endblock head %}
+<<<<<<< HEAD
     
     <title>openCurrents</title>
 
@@ -15,15 +16,32 @@
 
     {% include "partials/header.html" %}
     
+=======
+
+    <title>openCurrents</title>
+
+  </head>
+
+  <body>
+
+    {% include "partials/header.html" %}
+
+>>>>>>> 812673af4dfc2c4c82b85159b16d2694d6377b48
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
 
         {% block status %}
+<<<<<<< HEAD
           {% if status_msg %}
             <div class="row half-margin-top">
               {{ status_msg }}
             </div>
           {% endif %}
+=======
+          <div class="success row one-margin-top">
+            {{ status_msg }}
+          </div>
+>>>>>>> 812673af4dfc2c4c82b85159b16d2694d6377b48
         {% endblock status %}
 
         {% block heading %}
@@ -33,6 +51,7 @@
                 {% block title %} openCurrents {% endblock title %}
               </h3>
             </div>
+<<<<<<< HEAD
           </div>  
         {% endblock heading %}
 
@@ -52,6 +71,27 @@
     
     <div id="bottom-stripe" class="full-width"></div>
     
+=======
+          </div>
+        {% endblock heading %}
+
+        {% block content %}{% endblock content %}
+
+        <div id="push"></div>
+
+      <!-- wrapper div-->
+      </div>
+
+      {% block footer %}
+        {% include 'partials/footer.html' %}
+      {% endblock footer %}
+
+    <!--container div -->
+    </div>
+
+    <div id="bottom-stripe" class="full-width"></div>
+
+>>>>>>> 812673af4dfc2c4c82b85159b16d2694d6377b48
     {% block menu %}
       <div off-canvas="menu right shift" id="menu">
         {% include 'partials/menu.html' %}
@@ -60,9 +100,18 @@
 
 
     {% block popups %}{% endblock popups %}
+<<<<<<< HEAD
     
     {% block js %}{% endblock js %}
     
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
   </body>
 </html>
+=======
+
+    {% block js %}{% endblock js %}
+
+    <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
+  </body>
+</html>
+>>>>>>> 812673af4dfc2c4c82b85159b16d2694d6377b48
