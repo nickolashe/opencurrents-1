@@ -27,49 +27,6 @@
           volunteer{{ vols_approved|pluralize }} and declined hours for
           {{ vols_declined }} volunteer{{ vols_declined|pluralize }}. Nice!
 
-<<<<<<< HEAD
-        <div class="hide-for-small-only row full-width collapse one-margin-top one-margin-bottom">
-          <div class="left medium-6 medium-offset-1 columns">
-            <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="fit-left round" />
-            <span class="input-sizer"> -->
-              <h5 class="one-margin-top no-margin-bottom">{{orgname}}</h5>
-              <h6>{{ user.first_name }} {{ user.last_name }}</h6>
-              <a href="{% url 'openCurrents:create-event' orgid %}"
-                {% if has_hours_requested %}
-                  class="button tiny round secondary"
-                {% else %}
-                  class="button tiny round"
-                {% endif %}>Create event
-              </a>
-            <!-- </span> -->
-          </div>
-
-          <div class="right qtr-margin-top medium-4 columns end">
-            <!--h6 class="no-margin-bottom two-line-height">My hours tracked: [my_total]</h6-->
-
-            <h6 class="one-margin-top no-margin-bottom">Org hours tracked: {{ issued_by_all }}</h6>
-            <h6 class="half-margin-bottom">My hours tracked:
-            {% for admin in org_admins %}
-                {% if admin.user.id == user.id %}
-                    {% for i in issued_by_admin %}
-                        {% if i|keyvalue:admin != None %}
-                            {{i|keyvalue:admin}}
-                        {% endif %}
-                    {% endfor %}
-                {% endif %}
-            {% endfor %}
-            </h6>
-
-            <a
-              {% if has_hours_requested %}
-                href="{% url 'openCurrents:approve-hours' %}"
-                class="button round tiny"
-              {% else %}
-                href="javascript:status()" class="button round tiny secondary"
-              {% endif %}>Approve hours
-            </a>
-          </div>
-=======
         {% elif vols_approved|add:"0" >= 1 and vols_declined|add:"0" == 0 %}
           You have approved hours for {{ vols_approved }}
           volunteer{{ vols_approved|pluralize }}. Nice!
@@ -81,7 +38,6 @@
       {% else %}
         <div id="status_msg">
           {{ status_msg }}
->>>>>>> 812673af4dfc2c4c82b85159b16d2694d6377b48
         </div>
       {% endif %}
     </div>
@@ -173,44 +129,11 @@
                 at <strong>{{event.location}}</strong>
               </div>
 
-<<<<<<< HEAD
-        <div class="show-for-small-only row one-margin-top one-margin-bottom">
-          <div class="columns">
-            <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="round" /> -->
-            <h4>{{orgname}}</h4>
-            <h5>{{ user.first_name }} {{ user.last_name }}</h5>
-
-
-            <div>
-              <!-- <h6 class="no-margin-bottom">My hours tracked: 10.0</h6> -->
-              <h6 class="no-margin-bottom">
-                Org hours tracked: {{ issued_by_all }}
-              </h6>
-              <h6 class="one-margin-bottom">
-                My hours tracked: {{ issued_by_admin }}
-              </h6>
-              <a href="{% url 'openCurrents:create-event' orgid %}"
-                {% if has_hours_requested %}
-                  class="button tiny round secondary"
-                {% else %}
-                  class="button tiny round"
-                {% endif %}>Create event
-              </a>
-              <a
-                {% if has_hours_requested %}
-                  href="{% url 'openCurrents:approve-hours' %}"
-                  class="button round tiny"
-                {% else %}
-                  href="javascript:status()" class="button round tiny secondary"
-                {% endif %}>Approve hours
-              </a>
-=======
               <div class="right small-4 columns">
                 <a href="{% url 'openCurrents:live-dashboard' event.id %}"/>
                   <button class="button round small">Start</button>
                 </a>
               </div>
->>>>>>> 812673af4dfc2c4c82b85159b16d2694d6377b48
             </div>
         {% endfor %}
       </div>
@@ -240,130 +163,6 @@
               <a href="{% url 'openCurrents:live-dashboard' event.id %}"><li>Preview live check-in</li></a>
             </ul>
           </div>
-<<<<<<< HEAD
-        {% endif %}
-
-        <!-- TODO: refactor using template inheritance -->
-        <div id="upcoming-event-list" class="left row one-margin-top full-width collapse">
-          <div class="small-11 medium-10 small-centered columns">
-            <h6 class="half-margin-bottom">Upcoming events</h6>
-            {% if events_group_upcoming %}
-              {% for event in events_group_upcoming %}
-                <div class="row half-margin-bottom">
-                  <div class="left small-9 columns">
-                    Let's {{event.project.name}}!
-                    on {{event.datetime_start|day:timezone}}
-                    at {{event.datetime_start|time:timezone}}
-                    to {{event.datetime_end|time:timezone}}
-                    at <strong>{{event.location}}</strong>
-                  </div>
-
-                  <div class="right relative small-3 columns">
-                    <a class="mini-open"><i class="blue half-margin-right fa-chevron-circle-down fa fa-lg"></i></a>
-                    <ul class="mini-menu">
-                      <a href="{% url 'openCurrents:event-detail' event.id %}"><li>View event details</li></a>
-                      {% if request.user.id == event.coordinator.id %}
-                        <a href="{% url 'openCurrents:event-detail' event.id %}">
-                          <li>View &amp; contact invitees</li>
-                        </a>
-                      {% endif %}
-                      <a href="{% url 'openCurrents:invite-volunteers' event.id %}"><li>Invite volunteers</li></a>
-                      <a href="{% url 'openCurrents:edit-event' event.id %}"><li>Edit event</li></a>
-                      <a href="{% url 'openCurrents:live-dashboard' event.id %}"><li>Preview live check-in</li></a>
-                    </ul>
-                  </div>
-                </div>
-              {% endfor %}
-            {% else %}
-              <div class="row">
-                <div class="left small-12 columns">
-                  <p>{{ orgname }} has no upcoming events. <a href="{% url 'openCurrents:create-event' orgid %}">Create one!</a></p>
-                </div>
-              </div>
-            {% endif %}
-          </div>
-        </div>
-
-        <div class="left row one-margin-top full-width collapse">
-          <div class="small-11 medium-10 small-centered columns">
-            <h6 class="half-margin-bottom">Hours pending</h6>
-
-            {% if org_admins %}
-                {% for admin in org_admins %}
-                    <a href="{% url 'openCurrents:hours-detail' %}" class="button round tiny secondary">{{ admin.user.first_name }} {{ admin.user.last_name }}:  {% for i in hours_pending_by_admin %}
-                        {% if i|keyvalue:admin != None %}
-                            {{i|keyvalue:admin}}
-                        {% endif %}
-                    {% endfor %}</a>
-                {% endfor %}
-            {% endif %}
-          </div>
-        </div>
-
-
-
-        <div class="left row one-margin-top full-width collapse">
-          <div class="small-11 medium-10 small-centered columns">
-            <h6 class="half-margin-bottom">Hours approved</h6>
-            {% if org_admins %}
-                {% for admin in org_admins %}
-                    <a href="{% url 'openCurrents:hours-detail' %}" class="button round tiny secondary">{{ admin.user.first_name }} {{ admin.user.last_name }}:
-                    {% for i in issued_by_admin %}
-                        {% if i|keyvalue:admin != None %}
-                            {{i|keyvalue:admin}}
-                        {% endif %}
-                    {% endfor %}</a>
-                {% endfor %}
-            {% endif %}
-          </div>
-        </div>
-
-        <!-- TODO: refactor using template inheritance -->
-        {% if events_group_past %}
-          <div id="past-event-list" class="left row one-margin-top full-width collapse">
-            <div class="small-11 medium-10 small-centered columns">
-              <h6 class="half-margin-bottom">Past events</h6>
-
-              {% for event in events_group_past %}
-                  <div class="row half-margin-bottom">
-                    <div class="left input-left small-9 columns">
-                      Let's {{event.project.name}}!
-                      on {{event.datetime_start|day:timezone}}
-                      at {{event.datetime_start|time:timezone}}
-                      to {{event.datetime_end|time:timezone}}
-                      at <strong>{{event.location}}</strong>
-                    </div>
-
-                  <div class="right relative small-3 columns">
-                    <a class="mini-open"><i class="half-margin-right blue fa-chevron-circle-down fa fa-lg"></i></a>
-                    <ul class="mini-menu">
-                      <a href="{% url 'openCurrents:live-dashboard' event.id %}"><li>Review attendees</li></a>
-                    </ul>
-                  </div>
-                </div>
-              {% endfor %}
-            </div>
-          </div>
-        {% endif %}
-
-        {% macro admin_hour_request_list_macro arg_list arg_status arg_timezone %}
-          {% block admin_hour_request_list %}
-            {% with hours_list=arg_list hours_status=arg_status timezone=arg_timezone %}
-              {{ block.super }}
-            {% endwith %}
-          {% endblock %}
-        {% endmacro %}
-
-
-        <!-- community feed code. Hardcoded not dynamic -->
-        <!-- <div class="row one-margin-top">
-          <div class="left medium-8 small-centered columns">
-            <h6 class="center half-margin-bottom">Community activity</h6>
-            <div id="community-feed">
-              <div class="feed-item">
-                <strong>Jacob Jacobs</strong> joined openCurrents!
-              </div>
-=======
         </div>
       {% empty %}
         <div class="row">
@@ -389,7 +188,6 @@
               to {{event.datetime_end|time:timezone}}
               at <strong>{{event.location}}</strong>
             </div>
->>>>>>> 812673af4dfc2c4c82b85159b16d2694d6377b48
 
             <div class="right relative small-3 columns">
               <a class="mini-open"><i class="half-margin-right blue fa-chevron-circle-down fa fa-lg"></i></a>
@@ -411,81 +209,17 @@
       <h3 class="popup-title">Volunteers request approval</h3>
     </div>
 
-<<<<<<< HEAD
-    <div id="delete-event-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <div class="row center">
-        <h3 class="popup-title">Are you sure?</h3>
-        <input type='submit' name='del-button' class="button round alert" value="Yes - Delete event" />
-        <a class="button round secondary">Cancel</a>
-      </div>
-    </div>
-
-    <div id="hours-pending-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <div class="row center">
-        <h4 class="popup-title">Hours pending for (selected admin name)</h4>
-      </div>
-
-      {% usemacro admin_hour_request_list_macro hours_requested 'requested' timezone %}
-
-      <div class="center one-margin-top">
-        <a class="hours-pending-popup_close button round small">Close</a>
-      </div>
-    </div>
-
-    <div id="hours-approved-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <div class="row center">
-        <h4 class="popup-title">Hours approved by (selected admin name)</h4>
-      </div>
-
-      {% usemacro admin_hour_request_list_macro hours_approved 'approved' timezone %}
-
-      <div class="center one-margin-top">
-        <a class="hours-approved-popup_close button round small">Close</a>
-      </div>
-    </div>
-
-    <div id="approve-hours-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <div class="row center">
-        <h3 class="popup-title">Volunteers request approval</h3>
-      </div>
-=======
     <div class="row center">
       <div class="small-centered medium-10 columns">
->>>>>>> 812673af4dfc2c4c82b85159b16d2694d6377b48
 
         <p class="three-halves-margin-bottom">Volunteers have tracked hours and need your signoff before Currents are issued to them. It is recommended that you approve volunteer hours once a week.</p>
 
-<<<<<<< HEAD
-          <p class="three-halves-margin-bottom">Volunteers have tracked hours and need your signoff before Currents are issued to them. It is recommended that you approve volunteer hours once a week.</p>
-
-          <a href="{% url 'openCurrents:approve-hours' %}" class="button round">
-            View requests
-          </a>
-          <a class="approve-hours-popup_close button round secondary">
-            Close
-          </a>
-        </div>
-=======
         <a href="{% url 'openCurrents:approve-hours' %}" class="button round">View requests</button>
         <a><button class="approve-hours-popup_close button round secondary">Close</button></a>
->>>>>>> 812673af4dfc2c4c82b85159b16d2694d6377b48
       </div>
     </div>
   </div>
 
-<<<<<<< HEAD
-
-    <script type="text/javascript">
-      $(document).ready(function(){
-
-        $('#delete-event-popup, #hours-approved-popup, #hours-pending-popup').popup({
-          vertical: 'top',
-          transition: 'all 0.75s',
-          scrolllock: true,
-        });
-
-        $('.mini-open').click(function(){
-=======
   <div class="delete-event-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
     <div class="row center">
       <h3 class="popup-title">Are you sure?</h3>
@@ -507,7 +241,6 @@
       $(document).click(function(e) {
         var target = e.target;
         if (!$(target).is('.mini-open') && !$(target).parents().is('.mini-open')) {
->>>>>>> 812673af4dfc2c4c82b85159b16d2694d6377b48
           $('.mini-menu').hide();
         }
       });
