@@ -1182,6 +1182,14 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
         except KeyError:
             pass
 
+        # getting all admins for organization
+        context['org_admins'] = org_admins = []
+        try:
+            org_admins = [u for u in OrgUser.objects.filter(org = self.org) if OcAuth(u.id).is_admin_org]
+        except:
+            pass
+        context['org_admins'] = org_admins
+
         # find events created by admin that they have not been notified of
         new_events = Event.objects.filter(
             project__org__id=self.org.id
@@ -1210,23 +1218,37 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
         ])
 
         issued_by_all = 0
-        issued_by_admin = 0
+        context['issued_by_admin'] = []
 
-        for timelog in verified_time:
-            if not timelog.user.id in org_event_user[timelog.event.id]:
-                org_event_user[timelog.event.id].add(timelog.user.id)
-                event_hours = (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
-                issued_by_all += event_hours
+        for admin in org_admins:
+            issued_by_admin = issued_by_current_admin = 0
+            amount_issued_by_admin = {admin : issued_by_admin }
 
-                admin_approved_actions = timelog.adminactionusertime_set.filter(
-                    user_id=self.user.id,
-                    action_type='app'
-                )
-                if admin_approved_actions:
-                    issued_by_admin += event_hours
+            for timelog in verified_time:
+
+                if not timelog.user.id in org_event_user[timelog.event.id]:
+                    org_event_user[timelog.event.id].add(timelog.user.id)
+                    event_hours = (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
+                    issued_by_all += event_hours
+
+                    admin_approved_actions = timelog.adminactionusertime_set.filter(
+                        user_id=admin.user.id,
+                        action_type='app'
+                    )
+
+                    if admin_approved_actions:
+                        amount_issued_by_admin[admin] += event_hours
+
+                    if admin.user.id == self.user.id:
+                        issued_by_current_admin += event_hours
+
+
+            amount_issued_by_admin[admin] = round(amount_issued_by_admin[admin], 2)
+            context['issued_by_admin'].append(amount_issued_by_admin)
+            context['issued_by_current_admin']=round(issued_by_current_admin,2)
 
         context['issued_by_all'] = round(issued_by_all, 2)
-        context['issued_by_admin'] = round(issued_by_admin, 2)
+
 
         # past org events
         context['events_group_past'] = Event.objects.filter(

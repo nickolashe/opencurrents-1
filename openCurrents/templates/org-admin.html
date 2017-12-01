@@ -83,7 +83,17 @@
             <!--h6 class="no-margin-bottom two-line-height">My hours tracked: [my_total]</h6-->
 
             <h6 class="one-margin-top no-margin-bottom">Org hours tracked: {{ issued_by_all }}</h6>
-            <h6 class="half-margin-bottom">My hours tracked: {{ issued_by_admin }}</h6>
+            <h6 class="half-margin-bottom">My hours tracked:
+            {% for admin in org_admins %}
+                {% if admin.user.id == user.id %}
+                    {% for i in issued_by_admin %}
+                        {% if i|keyvalue:admin != None %}
+                            {{i|keyvalue:admin}}
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
+            </h6>
 
             <a
               {% if has_hours_requested %}
@@ -178,7 +188,7 @@
                       <a href="{% url 'openCurrents:event-detail' event.id %}"><li>View event details</li></a>
                       {% if request.user.id == event.coordinator.id %}
                         <a href="{% url 'openCurrents:event-detail' event.id %}">
-                          <li>View & contact invitees</li>
+                          <li>View &amp; contact invitees</li>
                         </a>
                       {% endif %}
                       <a href="{% url 'openCurrents:invite-volunteers' event.id %}"><li>Invite volunteers</li></a>
@@ -201,16 +211,30 @@
         <div class="left row one-margin-top full-width collapse">
           <div class="small-11 medium-10 small-centered columns">
             <h6 class="half-margin-bottom">Hours pending</h6>
-            <a href="{% url 'openCurrents:hours-detail' %}" class="button round tiny secondary">Admin1: X</a>
-            <a href="{% url 'openCurrents:hours-detail' %}" class="button round tiny secondary">Admin2: Y</a>
+
+            {% if org_admins %}
+                {% for admin in org_admins %}
+                    <a href="{% url 'openCurrents:hours-detail' %}" class="button round tiny secondary">{{ admin.user.first_name }} {{ admin.user.last_name }}:  x</a>
+                {% endfor %}
+            {% endif %}
           </div>
         </div>
+
+
 
         <div class="left row one-margin-top full-width collapse">
           <div class="small-11 medium-10 small-centered columns">
             <h6 class="half-margin-bottom">Hours approved</h6>
-            <a href="{% url 'openCurrents:hours-detail' %}" class="button round tiny secondary">Admin1: X</a>
-            <a href="{% url 'openCurrents:hours-detail' %}" class="button round tiny secondary">Admin2: Y</a>
+            {% if org_admins %}
+                {% for admin in org_admins %}
+                    <a href="{% url 'openCurrents:hours-detail' %}" class="button round tiny secondary">{{ admin.user.first_name }} {{ admin.user.last_name }}:
+                    {% for i in issued_by_admin %}
+                        {% if i|keyvalue:admin != None %}
+                            {{i|keyvalue:admin}}
+                        {% endif %}
+                    {% endfor %}</a>
+                {% endfor %}
+            {% endif %}
           </div>
         </div>
 

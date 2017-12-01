@@ -37,6 +37,7 @@ import pytz
 import uuid
 import random
 import string
+import re
 
 
 class NpfAdminView(TestCase):
@@ -53,7 +54,9 @@ class NpfAdminView(TestCase):
 
         org_user = OcUser().setup_user(
             username = org_user_name,
-            email = org_user_name+'@email.cc'
+            email = org_user_name+'@email.cc',
+            first_name=org_user_name + '_first_name',
+            last_name= org_user_name + '_last_name'
         )
 
         if is_org_user:
@@ -198,12 +201,12 @@ class NpfAdminView(TestCase):
         tests the content of an NPF org profile page
         """
         response = self.client.get('/org-admin/')
-
+        processed_content = re.sub(r'\s+', ' ', response.content )
 
         # @@ TODO @@
         # DELETE THIS BLOCK
         # print "\nHERE"
-        # print response.content
+        # print processed_content
         # print Project.objects.all()
         # print Event.objects.all()
         # print response.templates[0].name
@@ -214,25 +217,27 @@ class NpfAdminView(TestCase):
         #self.assertTemplateUsed(response, 'org-admin.html')
 
         # assert org/my hours tracked are displayed
-        self.assertContains(response, 'Org hours tracked: 4.0')
-        self.assertContains(response, 'My hours tracked: 4.0')
+        self.assertIn('Org hours tracked: 4.0', processed_content)
+        self.assertIn('My hours tracked: 4.0', processed_content, )
 
         # assert displayed events sections
-        self.assertContains(response, 'at <strong>test_location_1</strong>') # testing upcoming events
-        self.assertContains(response, 'Events happening now')
-        self.assertContains(response, 'Past events')
+        self.assertIn('at <strong>test_location_1</strong>', processed_content, ) # testing upcoming events
+        self.assertIn('Events happening now', processed_content)
+        self.assertIn( 'Past events', processed_content)
 
         # hours pending and approved are there
-        self.assertContains(response, 'Hours pending')
-        self.assertContains(response, 'Hours approved')
+        self.assertIn( 'Hours pending', processed_content)
+        self.assertIn( 'Hours approved', processed_content)
 
         # check for buttons
-        self.assertContains(response, 'Start</button>', count=1)
-        self.assertContains(response, 'href="javascript:status()" class="button round tiny secondary"') #check for approve hours button
-        self.assertContains(response, 'Create event', count=2)
+        self.assertIn( '<a href="/live-dashboard/2/"/>', processed_content) # testing start button
+        self.assertIn( 'Approve hours', processed_content)
+        self.assertIn( '<a href="javascript:status()"', processed_content)
+        self.assertIn( 'Create event', processed_content)
+        self.assertIn( '<a href="/create-event/1/"', processed_content)
 
         # assert that events' titles are displayed correctly
-        self.assertContains(response, "Let's test_project_1!", count=3)
+        self.assertIn( "Let's test_project_1!", processed_content)
 
         # assert that correct LOCATIONS are there
         self.assertContains(response, 'test_location_1', count=1)
@@ -240,11 +245,15 @@ class NpfAdminView(TestCase):
         self.assertContains(response, 'test_location_3', count=1)
 
 
-    def npf_admins_displayed_under_pending_approved_hours(self):
+    def test_npf_admins_displayed_under_pending_approved_hours(self):
 
         response = self.client.get('/org-admin/')
+        processed_content = re.sub(r'\s+', ' ', response.content )
 
-        # @@TODO add NUMBER instead X @@
-        self.assertContains(response, '<a href="/hours-detail/" class="button round tiny secondary">Admin1: X</a>')
-        self.assertContains(response, '<a href="/hours-detail/" class="button round tiny secondary">Admin2: Y</a>')
+        # @@TODO add user ID to URLs @@
+        self.assertIn('<a href="/hours-detail/"', processed_content)
+        self.assertIn('org_user_1_first_name org_user_1_last_name: 4.0 </a>', processed_content)
+        self.assertIn('<a href="/hours-detail/"',processed_content)
+        self.assertIn('<a href="/hours-detail/"', processed_content)
+        self.assertIn('org_user_2_first_name org_user_2_last_name: 0.0 </a>',processed_content)
 
