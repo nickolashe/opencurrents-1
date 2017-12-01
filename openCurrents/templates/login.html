@@ -1,98 +1,70 @@
+{% extends "layouts/base.html" %}
 {% load staticfiles %}
 
-<!DOCTYPE html>
-<html>
-  <head>
-    {% include "partials/head.html" %}
-  </head>
+{% block heading %}
+  <div class="row">
+    <h2 class="title-sub">
+      {% block title %} Log in {% endblock title %}
+    </h2>
+  </div>
+{% endblock heading %}
 
-  <body>
-    {% include "partials/header.html" %}
-
-    <div id="container" class="js-close-any" canvas="container">
-      <div id="wrapper">
-        <div class="row">
-            <h2 class="title-sub">Log in</h2>
+{% block content %}
+  <form method="post" action="{% url 'openCurrents:process_login' %}">
+    {% csrf_token %}
+      <div class="row half-margin-top">
+        <div class="small-12 medium-6 small-centered columns">
+          <input type="email" name="user_email" class="center" placeholder="Email address"/>
+          <input type="password" name="user_password" class="center" placeholder="Password"/>
+          <a class="forgotpassword-box_open">Forgot password?</a>
         </div>
-
-        {% if status_msg %}
-        <div class="alert row one-margin-bottom">
-          {{ status_msg }}
-        </div>
-        {% endif %}
-
-        <form method="post" action="{% url "openCurrents:process_login" %}">
-          {% csrf_token %}
-            <div class="row half-margin-top">
-              <div class="small-12 medium-6 small-centered columns">
-                <input type="email" name="user_email" class="center" placeholder="Email address"/>
-                <input type="password" name="user_password" class="center" placeholder="Password"/>
-                <a class="forgotpassword-box_open">Forgot password?</a>
-              </div>
-            </div>
-            <div class="row center">
-              <div class="checkbox one-margin-bottom">
-                <input type="checkbox" name="remember-me" id="remember-me" class="custom-checkbox" />
-                  <label for="remember-me">Keep me logged in</label>
-              </div>
-
-              <button type="submit" class="button round">Enter</button>
-            </div>
-
-            <div class="row center half-margin-top">
-              <p class="grey">New member?<br/> <a href="{% url 'openCurrents:signup' %}">Join openCurrents</a></p>
-            </div>
-        </form>
-
-        <div id="push"></div>
-
       </div>
-
-      {% include 'partials/footer.html' %}
-
-      <!--container div -->
-      </div>
-
-      <div id="bottom-stripe" class="full-width"></div>
-
-      <div off-canvas="menu right shift" id="menu">
-        {% include 'partials/menu.html' %}
-      </div>
-
-    <div id="forgotpassword-box" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
-        <h2 class="one-margin-top no-margin-bottom">Request password reset</h2>
+        <div class="checkbox one-margin-bottom">
+          <input type="checkbox" name="remember-me" id="remember-me" class="custom-checkbox" />
+            <label for="remember-me">Keep me logged in</label>
+        </div>
+
+        <button type="submit" class="button round">Enter</button>
       </div>
 
-      <form method="post" action="{% url 'openCurrents:password_reset_request' %}"> 
-        {% csrf_token %}
-        <div class="row three-halves-margin-bottom half-margin-top">
-          <div class="center small-12 medium-9 small-centered columns">
-            <div class="small-12 columns">
-              <input type="email" name="user_email" class="center" placeholder="Email address"/>
-              <div class="three-halves-margin-top">
-                <input type="submit" class="button round" value="Enter"/>
-                <a class="forgotpassword-box_close button round secondary">Cancel</a>
-              </div>
+      <div class="row center half-margin-top">
+        <p class="grey">New member?<br/> <a href="{% url 'openCurrents:signup' %}">Join openCurrents</a></p>
+      </div>
+  </form>
+{% endblock content %}
+
+{% block popups %}
+  <div id="forgotpassword-box" class="modal center small-12 medium-9 large-7 small-centered columns">
+    <div class="row center">
+      <h2 class="one-margin-top no-margin-bottom">Request password reset</h2>
+    </div>
+
+    <form method="post" action="{% url 'openCurrents:password_reset_request' %}"> 
+      {% csrf_token %}
+      <div class="row three-halves-margin-bottom half-margin-top">
+        <div class="center small-12 medium-9 small-centered columns">
+          <div class="small-12 columns">
+            <input type="email" name="user_email" class="center" placeholder="Email address"/>
+            <div class="three-halves-margin-top">
+              <input type="submit" class="button round" value="Enter"/>
+              <a class="forgotpassword-box_close button round secondary">Cancel</a>
             </div>
           </div>
         </div>
-      </form>
-    </div>
+      </div>
+    </form>
+  </div>
+{% endblock popups %}
 
-
-   <script type="text/javascript"> 
-     $(document).ready(function(){
-
-        $('#forgotpassword-box').popup({
-          vertical: 'top',
-          transition: 'all 0.75s',
-          scrolllock: false,
-        });
-      });
-    </script>
-    
-    <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
-
-  </body>
-</html>
+{% block js %}
+  <script type="text/javascript"> 
+    $(document).ready(function(){
+       $('#forgotpassword-box').popup({
+         vertical: 'top',
+         transition: 'all 0.75s',
+         scrolllock: false,
+       });
+     });
+   </script>
+{% endblock js %}

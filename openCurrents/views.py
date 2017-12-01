@@ -291,10 +291,12 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, TemplateView)
 
         # list biz's pending offer redemption requests
         redeemed_pending = self.bizadmin.get_redemptions(status='pending')
+        logger.info(redeemed_pending)
         context['redeemed_pending'] = redeemed_pending
 
         # list biz's accepted offer redemption requests
         redeemed_approved = self.bizadmin.get_redemptions(status='approved')
+        logger.info(redeemed_approved)
         context['redeemed_approved'] = redeemed_approved
 
         # current balance
