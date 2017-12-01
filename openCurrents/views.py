@@ -716,7 +716,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
                 'openCurrents:marketplace',
                 status_msg=' '.join([
                     'You need Currents to redeem an offer.',
-                    '<a href="{% url "openCurrents:upcoming-events" %}">',
+                    '<a href="{% url "openCurrents:volunteer-opportunities" %}">',
                     'Find a volunteer opportunity!</a>'
                 ])
             )
@@ -1633,6 +1633,10 @@ class UpcomingEventsView(LoginRequiredMixin, SessionContextView, ListView):
         ).filter(
             event_query_filter
         )
+
+
+class VolunteerOpportunitiesView(TemplateView):
+    template_name = 'volunteer-opportunities.html'
 
 
 class ProjectDetailsView(TemplateView):
