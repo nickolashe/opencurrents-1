@@ -12,9 +12,8 @@
 {% endmacro %}
 
 {% block content %}
-  {% block lists %}
-    {{ block.super }}
-  {% endblock %}
+
+  {{ block.super }}
 
   {% usemacro redemption_list_macro redeemed_pending 'Pending' org_timezone %}
 
