@@ -14,7 +14,7 @@ Some users can have admin permissions for an org. These are modeled using Django
 In some cases unverified users are created with email only so we can start tracking their hours even before they verify their account.
 
 ### Event
-Events are created by nonprofit admins. All volunteer tracked hours are associated with events. Events can be either *group* or *manual*. Several volunteers can check in to group events, which are usually held at set times and locations (*live-dashboard*). Manual events are created each time volunteer submits individual requests for hour approval (*time-tracker*). For group events, volunteer receives currents for the entire event duration no matter when he is checked in to the event.
+Events are created by nonprofit admins. All volunteer tracked hours are associated with events. Events can be either *group* or *manual*. Several volunteers can check in to group events, which are usually held at set times and locations (*live-dashboard*). Manual events are created each time volunteer submits individual requests for hour approval (*time-tracker*). For group events, volunteer receives currents for the entire event duration no matter when he is checked in to the event. Each time a volunteer records hours through time-tracker, a manual event for the respective times is created.
 
 ### UserTimeLog
 This model registers all submitted volunteer hours. A boolean flag *is_verified* registers whether a given request has been approved or not.
