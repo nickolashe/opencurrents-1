@@ -1207,6 +1207,28 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             event.notified=True
             event.save()
 
+        # pending hours:
+        pending_hours = UserTimeLog.objects.filter(
+            event__project__org__id=self.org.id
+        ).filter(
+            is_verified=False
+        )
+
+        context['hours_pending_by_admin'] = []
+        for admin in org_admins:
+            pending_by_admin = 0
+            hours_pending = {admin : pending_by_admin }
+
+            hours_pending[admin] = [
+                (log.event.datetime_end - log.event.datetime_start).total_seconds() / 3600 \
+                for log in pending_hours if log.event.coordinator_id != None \
+                and log.event.coordinator_id == admin.user.id]
+
+            hours_pending[admin] = sum(hours_pending[admin])
+            hours_pending[admin] = round(hours_pending[admin],2)
+            context['hours_pending_by_admin'].append(hours_pending)
+
+
         # calculate total currents verified by admin's org
         verified_time = UserTimeLog.objects.filter(
             event__project__org__id=self.org.id
@@ -1223,7 +1245,7 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
         context['issued_by_admin'] = []
 
         for admin in org_admins:
-            issued_by_admin = issued_by_current_admin = 0
+            issued_by_admin = 0
             amount_issued_by_admin = {admin : issued_by_admin }
 
             for timelog in verified_time:
@@ -1241,13 +1263,9 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
                     if admin_approved_actions:
                         amount_issued_by_admin[admin] += event_hours
 
-                    if admin.user.id == self.user.id:
-                        issued_by_current_admin += event_hours
-
-
             amount_issued_by_admin[admin] = round(amount_issued_by_admin[admin], 2)
             context['issued_by_admin'].append(amount_issued_by_admin)
-            context['issued_by_current_admin']=round(issued_by_current_admin,2)
+
 
         context['issued_by_all'] = round(issued_by_all, 2)
 

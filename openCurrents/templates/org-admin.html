@@ -290,7 +290,11 @@
 
             {% if org_admins %}
                 {% for admin in org_admins %}
-                    <a href="{% url 'openCurrents:hours-detail' %}" class="button round tiny secondary">{{ admin.user.first_name }} {{ admin.user.last_name }}:  x</a>
+                    <a href="{% url 'openCurrents:hours-detail' %}" class="button round tiny secondary">{{ admin.user.first_name }} {{ admin.user.last_name }}:  {% for i in hours_pending_by_admin %}
+                        {% if i|keyvalue:admin != None %}
+                            {{i|keyvalue:admin}}
+                        {% endif %}
+                    {% endfor %}</a>
                 {% endfor %}
             {% endif %}
           </div>
