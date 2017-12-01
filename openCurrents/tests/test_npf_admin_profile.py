@@ -167,7 +167,6 @@ class NpfAdminView(TestCase):
             )
 
 
-
     def setUp(self):
         # setting up objects
         self.set_up_objects()
@@ -200,16 +199,6 @@ class NpfAdminView(TestCase):
         """
         response = self.client.get('/org-admin/')
 
-
-        # @@ TODO @@
-        # DELETE THIS BLOCK
-        # print "\nHERE"
-        # print response.content
-        # print Project.objects.all()
-        # print Event.objects.all()
-        # print response.templates[0].name
-        # print "HERE\n"
-
         # check if users sees NFL org profile page
         self.assertEqual(response.status_code, 200)
         #self.assertTemplateUsed(response, 'org-admin.html')
@@ -234,12 +223,8 @@ class NpfAdminView(TestCase):
         self.assertContains(response, 'href="javascript:status()" class="button round tiny secondary"') #check for approve hours button
         self.assertContains(response, 'Create event', count=2)
 
-
-
         # assert that events' titles are displayed correctly
         self.assertContains(response, "Let's test_project_1!", count=3)
-
-
 
         # assert that correct LOCATIONS are there
         self.assertContains(response, 'test_location_1', count=1)
@@ -254,6 +239,4 @@ class NpfAdminView(TestCase):
         # @@TODO add NUMBER instead X @@
         self.assertContains(response, '<a href="/hours-detail/" class="button round tiny secondary">Admin1: X</a>')
         self.assertContains(response, '<a href="/hours-detail/" class="button round tiny secondary">Admin2: Y</a>')
-
-
 
