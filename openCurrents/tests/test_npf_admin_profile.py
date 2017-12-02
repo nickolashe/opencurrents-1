@@ -77,6 +77,7 @@ class NpfAdminView(TestCase):
     def set_up_objects(self, old=False, user=False):
         # creaing org
         org = OcOrg().setup_org(name="NPF_org_1", status="npf")
+        self.org_id = org_id = org.id
 
         # creating users
         # admins
@@ -325,8 +326,7 @@ class NpfAdminView(TestCase):
         self.assertEqual(response.context['events_group_past'][0], past_event_obj)
 
 
-    @skip("Test Is Not Ready Yet")
-    def test_npf_page_create_event_button(self):
+    def test_npf_page_create_event_button_url(self):
         response = self.client.get('/org-admin/')
-
-
+        processed_content = re.sub(r'\s+', ' ', response.content )
+        self.assertIn('<a href="/create-event/{}/"'.format(self.org_id), processed_content)
