@@ -38,8 +38,12 @@ import uuid
 import random
 import string
 
+from unittest import skip
+
 
 class TestUserPopup(TestCase):
+
+    test_is_ready = False
 
     def setUp(self):
         # creaing org
@@ -60,7 +64,7 @@ class TestUserPopup(TestCase):
         org_user = User.objects.filter(username="volunteer1")
         self.client.login(username='volunteer1', password='password')
 
-
+    @skip("Test Is Not Ready Yet")
     def test_popup_is_on(self):
         response = self.client.get('/profile/')
         self.assertEqual(response.status_code, 200)
