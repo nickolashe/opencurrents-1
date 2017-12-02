@@ -39,6 +39,8 @@ import random
 import string
 import re
 
+from unittest import skip
+
 
 class NpfAdminView(TestCase):
 
@@ -302,14 +304,33 @@ class NpfAdminView(TestCase):
         self.assertListEqual(response.context['hours_pending_by_admin'],expected_list_of_pending_hours_by_each_admin)
 
 
-    def test_npf_admins_displayed_under_pending_approved_hours(self):
+    def test_npf_admins_displayed_in_pending_approved_hours_section(self):
 
         response = self.client.get('/org-admin/')
         processed_content = re.sub(r'\s+', ' ', response.content )
 
-        # @@TODO add user ID to URLs @@
+        print "\nHERE"
+        print processed_content
+        print "HERE\n"
+
         self.assertIn('<a href="/hours-detail/"', processed_content)
         self.assertIn('org_user_1_first_name org_user_1_last_name: 4.0 </a>', processed_content)
-        self.assertIn('<a href="/hours-detail/"',processed_content)
-        self.assertIn('<a href="/hours-detail/"', processed_content)
         self.assertIn('org_user_2_first_name org_user_2_last_name: 0.0 </a>',processed_content)
+
+
+    def test_npf_page_upcoming_events_list(self):
+        response = self.client.get('/org-admin/')
+        upcoming_event_obj = Event.objects.filter(pk=1)[0]
+        self.assertEqual(response.context['events_group_upcoming'][0], upcoming_event_obj)
+
+
+    @skip("Test Is Not Ready Yet")
+    def test_npf_page_past_events_list(self):
+        response = self.client.get('/org-admin/')
+
+
+    @skip("Test Is Not Ready Yet")
+    def test_npf_page_create_event_button(self):
+        response = self.client.get('/org-admin/')
+
+

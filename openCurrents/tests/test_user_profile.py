@@ -43,8 +43,6 @@ from unittest import skip
 
 class TestUserPopup(TestCase):
 
-    test_is_ready = False
-
     def setUp(self):
         # creaing org
         org = OcOrg().setup_org(name="NPF_org_1", status="npf")
