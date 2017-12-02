@@ -61,7 +61,8 @@ from openCurrents.forms import \
     TimeTrackerForm, \
     OfferCreateForm, \
     OfferEditForm, \
-    RedeemCurrentsForm
+    RedeemCurrentsForm, \
+    PublicRecordsForm
 
 
 from datetime import datetime, timedelta
@@ -238,7 +239,7 @@ class BizAdminPermissionMixin(AdminPermissionMixin):
         )
 
 
-class HomeView(SessionContextView, TemplateView):
+class HomeView(TemplateView):
     template_name = 'home.html'
 
     def dispatch(self, *args, **kwargs):
@@ -290,10 +291,12 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, TemplateView)
 
         # list biz's pending offer redemption requests
         redeemed_pending = self.bizadmin.get_redemptions(status='pending')
+        logger.info(redeemed_pending)
         context['redeemed_pending'] = redeemed_pending
 
         # list biz's accepted offer redemption requests
         redeemed_approved = self.bizadmin.get_redemptions(status='approved')
+        logger.info(redeemed_approved)
         context['redeemed_approved'] = redeemed_approved
 
         # current balance
@@ -336,7 +339,7 @@ class InviteFriendsView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'invite-friends.html'
 
 
-class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
+class ApproveHoursView(OrgAdminPermissionMixin, OrgSessionContextView, ListView):
     template_name = 'approve-hours.html'
     context_object_name = 'week'
 
@@ -344,23 +347,8 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
         userid = self.request.user.id
         orguserinfo = OrgUserInfo(userid)
         orgid = orguserinfo.get_org_id()
-        projects = Project.objects.filter(org__id=orgid)
-        events = Event.objects.filter(
-            project__in=projects
-        ).filter(
-            event_type='MN'
-        )
+        requested_actions = self.orgadmin.get_hours_requested()
 
-        # fetch unverified time logs
-        requested_actions = AdminActionUserTime.objects.filter(
-            user__id=userid
-        ).filter(
-            action_type='req'
-        ).filter(
-            usertimelog__is_verified = False
-        ).filter(
-            usertimelog__event__in=events
-        )
         logger.info(requested_actions)
         # week list holds dictionary ordered pairs for 7 days of timelogs
         week = []
@@ -566,9 +554,10 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
 
                         # issue currents for hours approved
                         OcLedger().issue_currents(
-                            entity_id_from=self.org.orgentity.id,
-                            entity_id_to=usertimelog.user.userentity.id,
-                            amount=(usertimelog.datetime_end - usertimelog.datetime_start).total_seconds() / 3600
+                            self.org.orgentity.id,
+                            usertimelog.user.userentity.id,
+                            action,
+                            (usertimelog.datetime_end - usertimelog.datetime_start).total_seconds() / 3600
                         )
 
                     vols_approved += 1
@@ -587,26 +576,8 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
                     action.action_type=action_type
                     action.save()
 
-        # lastly, determine if there any approval requests remaining
-        usertimelogs = UserTimeLog.objects.filter(
-            event__in=events
-        ).filter(
-            is_verified=False
-        ).annotate(
-            last_action_created=Max('adminactionusertime__date_created')
-        )
-
-        # admin-specific requests
-        admin_requested_hours = AdminActionUserTime.objects.filter(
-            user_id=admin_userid
-        ).filter(
-            date_created__in=[
-                utl.last_action_created for utl in usertimelogs
-            ]
-        ).filter(
-            action_type='req'
-        )
-
+        # lastly, determine if there any approval requests remaining for admin
+        admin_requested_hours = self.orgadmin.get_hours_requested()
         redirect_url = 'approve-hours' if admin_requested_hours else 'org-admin'
 
         return redirect(
@@ -655,8 +626,28 @@ class InventoryView(TemplateView):
     template_name = 'inventory.html'
 
 
-class PublicRecordView(TemplateView):
+class PublicRecordView(View):
     template_name = 'public-record.html'
+
+    def get_top_list(self, entity_type='top_org', period='month'):
+        if entity_type == 'top-org':
+            return OcOrg().get_top_issued_npfs(period)
+        elif entity_type == 'top-vol':
+            return OcUser().get_top_received_users(period)
+        elif entity_type == 'top-biz':
+            return OcOrg().get_top_accepted_bizs(period)
+
+    def get(self, request, *args, **kwargs):
+        context = dict()
+
+        form = PublicRecordsForm(request.GET or None)
+        context['form'] = form
+        if form.is_valid():
+            context['entries'] = self.get_top_list(form.cleaned_data['record_type'], form.cleaned_data['period'])
+        else:
+            context['entries'] = self.get_top_list()
+
+        return render(request, self.template_name, context)
 
 
 class MarketplaceView(LoginRequiredMixin, SessionContextView, ListView):
@@ -976,7 +967,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                     None,
                     [
                         {
-                            'name': 'ADMIN_FNAME',
+                            'name': 'ADMIN_NAME',
                             'content': admin_name
                         },
                         {
@@ -1262,11 +1253,9 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
         )
 
         hours_requested = self.orgadmin.get_hours_requested()
-        logger.info(hours_requested)
         context['hours_requested'] = hours_requested
 
         hours_approved = self.orgadmin.get_hours_approved()
-        logger.info(hours_approved)
         context['hours_approved'] = hours_approved
 
         context['has_hours_requested'] = hours_requested.exists()
@@ -1286,10 +1275,18 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
     template_name = 'create-event.html'
     form_class = CreateEventForm
 
+    def dispatch(self, request, *args, **kwargs):
+        org_id = kwargs.get('org_id')
+        self.org = Org.objects.get(id=org_id)
+        return super(CreateEventView, self).dispatch(
+            request, *args, **kwargs
+        )
+
+
     def _create_event(self, location, form_data):
         if not self.project:
             project = Project(
-                org=Org.objects.get(id=self.orgid),
+                org=Org.objects.get(id=self.org.id),
                 name=form_data['project_name']
             )
             project.save()
@@ -1445,20 +1442,22 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
             - userid
         '''
         kwargs = super(CreateEventView, self).get_form_kwargs()
-        kwargs.update({'org_id': self.kwargs['org_id']})
+
+        kwargs.update({'org_id': self.org.id})
         kwargs.update({'user_id': self.userid})
 
         return kwargs
 
 
 # needs to be implemented using UpdateView
-class EditEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
+class EditEventView(CreateEventView):
     template_name = 'edit-event.html'
     form_class = EditEventForm
 
     def dispatch(self, request, *args, **kwargs):
-        event_id = kwargs.get('event_id')
+        event_id = kwargs.pop('event_id')
         self.event = Event.objects.get(id=event_id)
+        kwargs.update({'org_id': self.event.project.org.id})
 
         self.redirect_url = redirect('openCurrents:org-admin')
 
@@ -1474,8 +1473,23 @@ class EditEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
 
         email_to_list = []
 
-        if self.event.project.name != data['project_name'] or \
-            self.event.is_public != bool(data['event_privacy']) or \
+        # name change requires changing the project
+        if self.event.project.name != data['project_name']:
+            project = None
+            try:
+                project = Project.objects.get(
+                    org__id=self.org.id,
+                    name=data['project_name']
+                )
+                self.event.project = project
+            except Project.DoesNotExist:
+                self.event.project.name = data['project_name']
+
+            self.event.project.save()
+            self.event.save()
+
+        # event detail changes
+        if self.event.is_public != bool(data['event_privacy']) or \
             self.event.location != data['event_location'] or \
             self.event.description != data['event_description'] or \
             self.event.coordinator.id != int(data['event_coordinator']) or \
@@ -1575,11 +1589,8 @@ class EditEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
             self.event.datetime_start = data['datetime_start']
             self.event.datetime_end = data['datetime_end']
             self.event.is_public = data['event_privacy']
-            self.event.save()
 
-            # project name
-            self.event.project.name = data['project_name']
-            self.event.project.save()
+            self.event.save()
 
             self.redirect_url = redirect(
                 'openCurrents:org-admin',
@@ -2111,6 +2122,8 @@ class OfferEditView(OfferCreateView):
 def event_checkin(request, pk):
     form = EventCheckinForm(request.POST)
     admin_id = request.user.id
+    admin_user = User.objects.get(id=admin_id)
+    admin_org = OrgUserInfo(admin_id).get_org()
 
     # validate form data
     if form.is_valid():
@@ -2135,46 +2148,69 @@ def event_checkin(request, pk):
 
         if checkin:
             # volunteer checkin
-            usertimelog = UserTimeLog(
-                user=User.objects.get(id=userid),
-                event=event,
-                is_verified=True,
-                datetime_start=datetime.now(tz=pytz.UTC)
-            )
-            usertimelog.save()
+            vol_user = User.objects.get(id=userid)
+            try:
+                with transaction.atomic():
+                    usertimelog = UserTimeLog(
+                        user=vol_user,
+                        event=event,
+                        is_verified=True,
+                        datetime_start=datetime.now(tz=pytz.UTC)
+                    )
+                    usertimelog.save()
 
-            # admin action record
-            actiontimelog = AdminActionUserTime(
-                user_id=admin_id,
-                usertimelog=usertimelog,
-                action_type='app'
-            )
-            actiontimelog.save()
+                    # admin action record
+                    actiontimelog = AdminActionUserTime(
+                        user_id=admin_id,
+                        usertimelog=usertimelog,
+                        action_type='app'
+                    )
+                    actiontimelog.save()
 
-            clogger.info(
-                'at %s: checkin',
-                str(usertimelog.datetime_start)
-            )
+                    OcLedger().issue_currents(
+                        admin_org.orgentity.id,
+                        vol_user.userentity.id,
+                        actiontimelog,
+                        (event.datetime_start - event.datetime_end).total_seconds() / 3600
+                    )
+                    clogger.info(
+                        'at %s: user %s checkin',
+                        str(usertimelog.datetime_start),
+                        userid
+                    )
+            except Exception as e:
+                clogger.info('user %s already checked in', userid)
 
-            # credit admin/coordinator only if not already done
-            if not UserTimeLog.objects.filter(event__id=event.id, user__id=request.user.id):
-                usertimelog = UserTimeLog(
-                    user=User.objects.get(id=request.user.id),
-                    event=event,
-                    is_verified=True,
-                    datetime_start=datetime.now(tz=pytz.UTC)
-                )
-                usertimelog.save()
+            # check in admin/coordinator
+            try:
+                with transaction.atomic():
+                    usertimelog = UserTimeLog(
+                        user=User.objects.get(id=request.user.id),
+                        event=event,
+                        is_verified=True,
+                        datetime_start=datetime.now(tz=pytz.UTC)
+                    )
+                    usertimelog.save()
 
-                # admin action record
-                actiontimelog = AdminActionUserTime(
-                    user_id=admin_id,
-                    usertimelog=usertimelog,
-                    action_type='app'
-                )
-                actiontimelog.save()
+                    # admin action record
+                    actiontimelog = AdminActionUserTime(
+                        user_id=admin_id,
+                        usertimelog=usertimelog,
+                        action_type='app'
+                    )
+                    actiontimelog.save()
+
+                    OcLedger().issue_currents(
+                        admin_org.orgentity.id,
+                        admin_user.userentity.id,
+                        actiontimelog,
+                        amount
+                    )
+            except Exception as e:
+                return HttpResponse(status=409)
 
             return HttpResponse(status=201)
+
         else:
             # volunteer checkout
             usertimelog = UserTimeLog.objects.filter(
@@ -2785,7 +2821,7 @@ def process_login(request):
             today = date.today()
 
             # do a weekly check for unapproved requests (popup)
-            if user.last_login.date() < today - timedelta(days=today.weekday()):
+            if not user.last_login or user.last_login.date() < today - timedelta(days=today.weekday()):
                 try:
                     orgadmin = OrgAdmin(userid)
                     admin_requested_hours = orgadmin.get_hours_requested()

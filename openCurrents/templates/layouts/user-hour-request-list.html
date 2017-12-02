@@ -1,3 +1,4 @@
+{% extends "layouts/base.html" %}
 {% load staticfiles %}
 {% load tags %}
 
@@ -24,10 +25,8 @@
 
                   {% if hours_status == 'requested' %}
                     at <strong> {{ tl.event.project.org.name }} </strong>
-                  {% endif %}
-
-                  {% if hours_status == 'approved' %}
-                    have been approved by
+                  {% else %}
+                    have been {{ hours_status }} by
                     <strong>
                       {{ tl.event.project.org.name }}
                     </strong>

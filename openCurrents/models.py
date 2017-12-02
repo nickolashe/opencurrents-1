@@ -6,22 +6,11 @@ from uuid import uuid4
 
 from datetime import datetime, timedelta
 
+from openCurrents.interfaces.common import one_week_from_now, diffInHours
 import pytz
 
 # Notes:
 # *) unverified users are still created as User objects but with unusable password
-
-
-def one_week_from_now():
-    return datetime.now() + timedelta(days=7)
-
-
-def diffInMinutes(t1, t2):
-    return round((t2 - t1).total_seconds() / 60, 1)
-
-
-def diffInHours(t1, t2):
-    return round((t2 - t1).total_seconds() / 3600, 1)
 
 
 # org model
@@ -149,18 +138,47 @@ class Ledger(models.Model):
     amount = models.DecimalField(max_digits=12, decimal_places=2)
     is_issued = models.BooleanField(default=False)
 
+    # related actions
+    # TODO:
+    #   - refactor using a joint table for actions
+    #   - *and* enforce uniqueness constraint (action, entity_to, entity_from)
+    action = models.ForeignKey(
+        'AdminActionUserTime',
+        on_delete=models.CASCADE,
+        null=True
+    )
+    transaction = models.ForeignKey(
+        'TransactionAction',
+        on_delete=models.CASCADE,
+        null=True
+    )
+
     # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)
     date_updated = models.DateTimeField('date updated', auto_now=True)
 
     def __unicode__(self):
+        try:
+            entity = OrgEntity.objects.get(id=self.entity_from.id)
+            name_from = entity.org.name
+        except:
+            entity = UserEntity.objects.get(id=self.entity_from.id)
+            name_from = entity.user.username
+
+        try:
+            entity = OrgEntity.objects.get(id=self.entity_to.id)
+            name_to = entity.org.name
+        except:
+            entity = UserEntity.objects.get(id=self.entity_to.id)
+            name_to = entity.user.username
+
         return ' '.join([
-            'Transaction from',
-            self.entity_from,
+            'Issued by' if self.is_issued else 'Transaction from',
+            name_from,
             'to',
-            self.entity_to,
+            name_to,
             'in the amount of',
-            self.amount,
+            str(self.amount),
             'on',
             self.date_created.strftime(
                 '%Y-%m-%d %I-%M %p'
@@ -287,35 +305,48 @@ class UserTimeLog(models.Model):
 
     class Meta:
         get_latest_by = 'datetime_start'
+        unique_together = ('user', 'event')
 
     def __unicode__(self):
         tz = self.event.project.org.timezone
         status = ' '.join([
             self.user.username,
-            'contributed %s starting',
+            'contributed %s',
+            'to',
+            self.event.project.org.name,
+            'starting',
             self.datetime_start.astimezone(pytz.timezone(tz)).strftime('%Y-%m-%d %I-%M %p'),
-            'at',
-            self.event.project.name
         ])
 
-        if self.datetime_end:
-            minutes = ' '.join([
-                str(diffInHours(self.datetime_start, self.datetime_end)),
-                'hours'
+        if self.event.event_type == 'GR':
+            status = ' '.join([
+                status,
+                'at event',
+                self.event.project.name
             ])
-        else:
-            minutes = '(but has not been checked out)'
 
-        status %= minutes
+            hours = diffInHours(
+                self.event.datetime_start,
+                self.event.datetime_end
+            )
+        else:
+            hours = diffInHours(
+                self.datetime_start,
+                self.datetime_end
+            )
+
+        status %= str(hours) + ' hr.'
         return status
 
 
 class AdminActionUserTime(models.Model):
     user = models.ForeignKey(User)
-    usertimelog = models.ForeignKey(UserTimeLog)
+    usertimelog = models.ForeignKey(
+        UserTimeLog,
+        on_delete=models.CASCADE
+    )
     action_type_choices = (
         ('app', 'approved'),
-        ('def', 'deferred'),
         ('dec', 'declined'),
         ('req', 'approval_request')
     )
@@ -332,16 +363,46 @@ class AdminActionUserTime(models.Model):
         unique_together = ('action_type', 'user', 'usertimelog')
 
     def __unicode__(self):
-        return ' '.join([
-            self.usertimelog.event.project.org.name,
-            'admin',
-            self.user.email,
-            self.action_type,
-            'time by',
-            self.usertimelog.user.email,
-            'starting on',
-            str(self.usertimelog.datetime_start),
-        ])
+        if self.usertimelog.datetime_end:
+            hours = diffInHours(
+                self.usertimelog.datetime_start,
+                self.usertimelog.datetime_end
+            )
+        else:
+            hours = diffInHours(
+                self.usertimelog.event.datetime_start,
+                self.usertimelog.event.datetime_end
+            )
+
+        if self.action_type == 'req':
+            return ' '.join([
+                self.usertimelog.user.username,
+                'requested approval of',
+                str(hours),
+                'hr. starting on',
+                self.usertimelog.datetime_start.strftime('%m/%d/%Y %H:%M:%S'),
+                'from',
+                self.usertimelog.event.project.org.name,
+                'admin',
+                self.user.username,
+            ])
+        else:
+            if self.action_type == 'app':
+                act = 'approved'
+            elif self.action_type == 'dec':
+                act = 'declined'
+
+            return ' '.join([
+                self.usertimelog.event.project.org.name,
+                'admin',
+                self.user.email,
+                act,
+                str(hours),
+                'hr. by',
+                self.usertimelog.user.email,
+                'starting on',
+                self.usertimelog.datetime_start.strftime('%m/%d/%Y %H:%M:%S')
+            ])
 
 
 # verification tokens
@@ -402,8 +463,8 @@ class Offer(models.Model):
 
     def __unicode__(self):
         return ' '.join([
-            str(self.currents_share),
-            '% on',
+            'Offer for',
+            str(self.currents_share) + '% on',
             self.item.name,
             'by',
             self.org.name
@@ -471,7 +532,9 @@ class Transaction(models.Model):
             self.user.username,
             'for offer',
             str(self.offer.id),
-            'at',
+            'in the amount of',
+            str(self.currents_amount),
+            'currents at',
             self.date_updated.strftime('%m/%d/%Y %H:%M:%S'),
         ])
 
@@ -496,12 +559,15 @@ class TransactionAction(models.Model):
     date_created = models.DateTimeField('date created', auto_now_add=True)
     date_updated = models.DateTimeField('date updated', auto_now=True)
 
+    class Meta:
+        unique_together = ('transaction', 'action_type')
+
     def __unicode__(self):
         return ' '.join([
             'Action',
             '[%s]' % self.action_type,
-            'taken for transaction',
-            str(self.transaction.id),
-            'at',
+            'taken at',
             self.date_updated.strftime('%m/%d/%Y %H:%M:%S'),
+            'for',
+            str(self.transaction)
         ])
