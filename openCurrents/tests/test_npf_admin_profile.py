@@ -144,7 +144,7 @@ class NpfAdminView(TestCase):
             location="test_location_3",
             coordinator=org_admin,
             creator_id=org_admin.id,
-            event_type="MT",
+            event_type="MN",
             datetime_start=datetime_start,
             datetime_end=datetime_end
         )
@@ -156,11 +156,13 @@ class NpfAdminView(TestCase):
             datetime_end=datetime_end,
             is_verified=True
         )
+
         actiontimelog = AdminActionUserTime.objects.create(
             user=org_admin,
             usertimelog=org_admin_timelog,
             action_type='app'
         )
+
         amount = diffInHours(datetime_start, datetime_end)
         OcLedger().issue_currents(
                 entity_id_from=org.orgentity.id,
@@ -244,6 +246,14 @@ class NpfAdminView(TestCase):
         self.assertContains(response, 'test_location_2', count=1)
         self.assertContains(response, 'test_location_3', count=1)
 
+        # checking if approved hours are correct
+        expected_list_of_approved_hours_by_each_admin = [{1: 4.0}, {2: 0.0}]
+        sent_list_of_approved_hours_by_each_admin_keys = sent_list_of_approved_hours_by_each_admin_values = []
+        self.assertListEqual(response.context['issued_by_admin'],expected_list_of_approved_hours_by_each_admin)
+
+        # checking if pending hours are correct
+        pass
+
 
     def test_npf_admins_displayed_under_pending_approved_hours(self):
 
@@ -256,4 +266,3 @@ class NpfAdminView(TestCase):
         self.assertIn('<a href="/hours-detail/"',processed_content)
         self.assertIn('<a href="/hours-detail/"', processed_content)
         self.assertIn('org_user_2_first_name org_user_2_last_name: 0.0 </a>',processed_content)
-

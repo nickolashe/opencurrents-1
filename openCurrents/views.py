@@ -1238,7 +1238,7 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
 
         for admin in org_admins:
             issued_by_admin = 0
-            amount_issued_by_admin = {admin : issued_by_admin }
+            amount_issued_by_admin = {admin.user.id : issued_by_admin }
 
             for x in OrgAdmin(admin.user.id).get_hours_approved():
                 event_hours = (x.usertimelog.datetime_end - x.usertimelog.datetime_start).total_seconds() / 3600
@@ -1248,15 +1248,14 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
 
                 # adding to current admin's approved hours
                 if admin.user.id == self.user.id:
-                    print "BINGO!!"
                     time_issued_by_logged_admin += event_hours
 
                 # adding to the dictionary with admin's approved hours
-                amount_issued_by_admin[admin] += event_hours
+                amount_issued_by_admin[admin.user.id] += event_hours
 
 
             context['issued_by_logged_admin'] = round(time_issued_by_logged_admin,2)
-            amount_issued_by_admin[admin] = round(amount_issued_by_admin[admin], 2)
+            amount_issued_by_admin[admin.user.id] = round(amount_issued_by_admin[admin.user.id], 2)
             context['issued_by_admin'].append(amount_issued_by_admin)
 
         context['issued_by_all'] = round(issued_by_all, 2)
