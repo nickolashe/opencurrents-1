@@ -154,28 +154,20 @@
                     {% if status == 'pending' %}
                       offers ${{ amount_usd|floatformat:2 }} for
                       <span class="no-wrap">
-                        <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
-                        {{ amount_cur|floatformat:3 }}
+                        <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ amount_cur|floatformat:3 }}
                       </span>
 
                     {% elif status == 'approved' %}
                       accepted
-                      <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
-                      {{ amount_cur|floatformat:3 }}
+                      <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ amount_cur|floatformat:3 }}
                       for ${{ amount_usd|floatformat:2 }}
 
                     {% elif status == 'redeemed' %}
                       received
-                      <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
-                      {{ amount_cur|floatformat:3 }}
+                      <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ amount_cur|floatformat:3 }}
                       for ${{ amount_usd|floatformat:2 }}
 
-                    {% else %}
-                      {{ status }}
-                      <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
-                      {{ amount_cur|floatformat:3 }}
-                      for ${{ amount_usd|floatformat:2 }}
-
+                    {# add declined #}
                     {% endif %}
 
                   {% endwith %}
@@ -195,7 +187,6 @@
           </a>
         </p>
       {% endif %}
-
     </div>
   </div>
 
@@ -294,29 +285,6 @@
       <h3 class="popup-title">No dollars available</h3>
     </div>
 
-<<<<<<< HEAD
-    <div id="my-approved-hours-popup" class="modal center small-12 medium-9 small-centered columns">
-      <div class="row center">
-        <h3 class="one-margin-top">
-          My hours at {{ tl.event.project.org.name }}
-        </h3>
-      </div>
-
-      {% usemacro user_hour_request_list_macro hours_approved 'approved' timezone %}
-    </div>
-
-    <div id="balance-popup" class="modal center small-12 medium-9 small-centered columns">
-      <div class="row collapse center">
-        <div class="small-centered medium-11 columns">
-          <h6 class="popup-title">
-            Balance &ndash; Requested offers = Currents available
-          </h6>
-        </div>
-      </div>
-      <div class="row">
-        <div class="medium-4 columns"><h6></h6></div>
-        <div class="medium-4 columns"><h6></h6></div>
-        <div class="medium-4 columns"><h6></h6></div>
 =======
     <div class="row center">
       <div class="small-centered medium-10 columns">
@@ -327,7 +295,6 @@
         <p>To see offers from businesses in the community, please visit the
           marketplace by clicking "Redeem" in your profile.</p>
         <a class="no-cash-popup_close button round">Got it</a>
->>>>>>> 812673af4dfc2c4c82b85159b16d2694d6377b48
       </div>
     </div>
   </div>
@@ -417,20 +384,12 @@
         scrolllock: true,
       });
 
-<<<<<<< HEAD
-        $('#rsvp-popup, #earn-currents-popup, #balance-popup, #no-cash-popup, #cash-out-popup, #my-approved-hours-popup').popup({
-          vertical: 'top',
-          transition: 'all 0.75s',
-          scrolllock: true,
-        });
-=======
       $('#welcome-popup').popup({
         vertical: 'top',
         transition: 'all 0.75s',
         scrolllock: true,
         //autoopen: true,
       });
->>>>>>> 812673af4dfc2c4c82b85159b16d2694d6377b48
 
       $('.mini-open').click(function(){
         $('.mini-menu').hide();
