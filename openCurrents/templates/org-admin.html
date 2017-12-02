@@ -65,7 +65,7 @@
     Org hours tracked: {{ issued_by_all }}
   </h6>
   <h6 class="half-margin-bottom">
-    My hours tracked: {{ issued_by_admin }}
+    My hours tracked: {{ issued_by_logged_admin }}
   </h6>
 
   <a
@@ -91,7 +91,7 @@
       Org hours tracked: {{ issued_by_all }}
     </h6>
     <h6 class="one-margin-bottom">
-      My hours tracked: {{ issued_by_admin }}
+      My hours tracked: {{ issued_by_logged_admin }}
     </h6>
 
     <a href="{% url 'openCurrents:create-event' orgid %}"

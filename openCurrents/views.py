@@ -1214,6 +1214,8 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             is_verified=False
         )
 
+        hours_requested = OrgAdmin(self.user.id).get_hours_requested
+
         context['hours_pending_by_admin'] = []
         for admin in org_admins:
             pending_by_admin = 0
@@ -1229,45 +1231,36 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             context['hours_pending_by_admin'].append(hours_pending)
 
 
-        # calculate total currents verified by admin's org
-        verified_time = UserTimeLog.objects.filter(
-            event__project__org__id=self.org.id
-        ).filter(
-            is_verified=True
-        )
 
-        org_event_user = dict([
-            (event.id, set())
-            for event in Event.objects.filter(project__org__id=self.org.id)
-        ])
-
-        issued_by_all = 0
+        # calculating approved hours for every admin and total
         context['issued_by_admin'] = []
+        context['issued_by_logged_admin'] = time_issued_by_logged_admin = issued_by_all = 0
 
         for admin in org_admins:
             issued_by_admin = 0
             amount_issued_by_admin = {admin : issued_by_admin }
 
-            for timelog in verified_time:
+            for x in OrgAdmin(admin.user.id).get_hours_approved():
+                event_hours = (x.usertimelog.datetime_end - x.usertimelog.datetime_start).total_seconds() / 3600
 
-                if not timelog.user.id in org_event_user[timelog.event.id]:
-                    org_event_user[timelog.event.id].add(timelog.user.id)
-                    event_hours = (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
-                    issued_by_all += event_hours
+                # adding to total approved hours
+                issued_by_all += event_hours
 
-                    admin_approved_actions = timelog.adminactionusertime_set.filter(
-                        user_id=admin.user.id,
-                        action_type='app'
-                    )
+                # adding to current admin's approved hours
+                if admin.user.id == self.user.id:
+                    print "BINGO!!"
+                    time_issued_by_logged_admin += event_hours
 
-                    if admin_approved_actions:
-                        amount_issued_by_admin[admin] += event_hours
+                # adding to the dictionary with admin's approved hours
+                amount_issued_by_admin[admin] += event_hours
 
+
+            context['issued_by_logged_admin'] = round(time_issued_by_logged_admin,2)
             amount_issued_by_admin[admin] = round(amount_issued_by_admin[admin], 2)
             context['issued_by_admin'].append(amount_issued_by_admin)
 
-
         context['issued_by_all'] = round(issued_by_all, 2)
+
 
 
         # past org events
