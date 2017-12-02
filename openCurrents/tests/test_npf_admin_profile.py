@@ -133,9 +133,14 @@ class NpfAdminView(TestCase):
         )
 
 
-        #creating approved 2 hours for org admin
+        #creating approved 4 hours for NPF admin1
         datetime_start = past_date + timedelta(hours=2)
         datetime_end = past_date + timedelta(hours=6)
+
+        project = Project.objects.create(
+            org=org,
+            name="test_project_2"
+        )
 
         org_admin_mt_event = Event.objects.create(
             project=project,
@@ -170,6 +175,42 @@ class NpfAdminView(TestCase):
                 action=actiontimelog,
                 amount=amount
             )
+
+
+        #creating pending 2 hours assigned to NPF admin2
+        self.create_user('volunteer_1', org, is_org_user=False, is_org_admin=False)
+        volunteer1 = User.objects.get(username='volunteer_1')
+        org_admin = User.objects.get(username='org_user_2')
+        datetime_start = past_date + timedelta(hours=2)
+        datetime_end = past_date + timedelta(hours=4)
+
+        volunteer1_mt_event = Event.objects.create(
+            project=project,
+            is_public = True,
+            description="pending event",
+            location="test_location_4",
+            coordinator=org_admin,
+            #creator_id=volunteer1.id,
+            event_type="MN",
+            datetime_start=datetime_start,
+            datetime_end=datetime_end
+        )
+
+        volunteer1_timelog = UserTimeLog.objects.create(
+            user=volunteer1,
+            event=volunteer1_mt_event,
+            datetime_start=datetime_start,
+            datetime_end=datetime_end,
+            is_verified=False
+        )
+
+        actiontimelog = AdminActionUserTime.objects.create(
+            user=org_admin,
+            usertimelog=volunteer1_timelog,
+            action_type='req'
+        )
+
+
 
 
     def setUp(self):
@@ -246,13 +287,19 @@ class NpfAdminView(TestCase):
         self.assertContains(response, 'test_location_2', count=1)
         self.assertContains(response, 'test_location_3', count=1)
 
+
+    def test_npf_admin_approved_hours(self):
+        response = self.client.get('/org-admin/')
         # checking if approved hours are correct
         expected_list_of_approved_hours_by_each_admin = [{1: 4.0}, {2: 0.0}]
-        sent_list_of_approved_hours_by_each_admin_keys = sent_list_of_approved_hours_by_each_admin_values = []
         self.assertListEqual(response.context['issued_by_admin'],expected_list_of_approved_hours_by_each_admin)
 
+
+    def test_npf_admin_pending_hours(self):
+        response = self.client.get('/org-admin/')
         # checking if pending hours are correct
-        pass
+        expected_list_of_pending_hours_by_each_admin = [{1: 0.0}, {2: 2.0}]
+        self.assertListEqual(response.context['hours_pending_by_admin'],expected_list_of_pending_hours_by_each_admin)
 
 
     def test_npf_admins_displayed_under_pending_approved_hours(self):
