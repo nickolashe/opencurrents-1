@@ -305,13 +305,8 @@ class NpfAdminView(TestCase):
 
 
     def test_npf_admins_displayed_in_pending_approved_hours_section(self):
-
         response = self.client.get('/org-admin/')
         processed_content = re.sub(r'\s+', ' ', response.content )
-
-        print "\nHERE"
-        print processed_content
-        print "HERE\n"
 
         self.assertIn('<a href="/hours-detail/"', processed_content)
         self.assertIn('org_user_1_first_name org_user_1_last_name: 4.0 </a>', processed_content)
@@ -324,9 +319,10 @@ class NpfAdminView(TestCase):
         self.assertEqual(response.context['events_group_upcoming'][0], upcoming_event_obj)
 
 
-    @skip("Test Is Not Ready Yet")
     def test_npf_page_past_events_list(self):
         response = self.client.get('/org-admin/')
+        past_event_obj = Event.objects.filter(pk=3)[0]
+        self.assertEqual(response.context['events_group_past'][0], past_event_obj)
 
 
     @skip("Test Is Not Ready Yet")
