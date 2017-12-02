@@ -261,6 +261,7 @@ class CreateEventForm(forms.Form):
         label='on',
         widget=widgets.TextWidget(attrs={
             'id': 'event-date',
+            'class': ' center',
             'placeholder': 'yyyy-mm-dd',
         })
     )
@@ -269,6 +270,7 @@ class CreateEventForm(forms.Form):
         label='from',
         widget=widgets.TextWidget(attrs={
             'id': 'event-starttime',
+            'class': ' center',
             'placeholder': '12:00 pm'
         })
     )
@@ -277,12 +279,13 @@ class CreateEventForm(forms.Form):
         label='to',
         widget=widgets.TextWidget(attrs={
             'id': 'event-endtime',
+            'class': ' center',
             'placeholder': '1:00 pm',
         })
     )
 
     event_privacy = forms.ChoiceField(
-        widget=forms.RadioSelect(
+        widget=widgets.RadioWidget(
             attrs={
                 'class': 'custom-radio',
                 'id': 'id-event-privacy'
@@ -468,7 +471,7 @@ class TimeTrackerForm(forms.Form):
         })
     )
 
-    choices_admin = [("select_admin","Select admin")]
+    choices_admin = [("select_admin","Select coordinator")]
     admin = forms.CharField(
         #choices=choices_admin,
         required=True,
@@ -510,6 +513,24 @@ class TimeTrackerForm(forms.Form):
             'id': 'end-time',
             'name':'',
             'value': '12:00:00'
+        })
+    )
+    new_org = forms.CharField(
+        required=False,
+        widget=widgets.TextWidget(attrs={
+            'placeholder': 'Organization name',
+        })
+    )
+    new_admin_name = forms.CharField(
+        required=False,
+        widget=widgets.TextWidget(attrs={
+            'placeholder':'Coordinator name',
+        })
+    )
+    new_admin_email = forms.CharField(
+        required=False,
+        widget=widgets.TextWidget(attrs={
+            'placeholder': 'Coordinator email'
         })
     )
 
@@ -592,7 +613,7 @@ class OfferCreateForm(forms.Form):
     )
 
     offer_limit_choice = forms.ChoiceField(
-        widget=forms.RadioSelect(attrs={
+        widget=widgets.RadioWidget(attrs={
             'class': 'custom-radio'
         }),
         choices=[(0, 0), (1, 1)],
@@ -740,3 +761,19 @@ class RedeemCurrentsForm(forms.Form):
             )
 
         return cleaned_data
+
+
+class PublicRecordsForm(forms.Form):
+    periods = (
+        ('month', 'Last 30 days'),
+        ('all-time', 'All-time'),
+    )
+
+    record_types = (
+        ('top-org', 'Top organizations'),
+        ('top-vol', 'Top volunteers'),
+        ('top-biz', 'Top businesses'),
+    )
+
+    record_type = forms.ChoiceField(choices=record_types)
+    period = forms.ChoiceField(choices=periods)

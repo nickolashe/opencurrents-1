@@ -1,361 +1,298 @@
+{% extends "layouts/base.html" %}
 {% load staticfiles %}
 {% load tags %}
 
-<!DOCTYPE html>
-<html>
-  <head>
-    {% include "partials/head.html" %}
+{% block head %}
+  <script type="text/javascript" src="{% static 'js/jquery.timepicker.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/jquery-ui-datepicker.js' %}"></script>
+  <link href="{% static 'css/jquery.timepicker.css' %}" rel="stylesheet" type="text/css">
+  <link href="{% static 'css/jquery-ui-datepicker.css' %}" rel="stylesheet" type="text/css">
+{% endblock head %}
 
-    <script type="text/javascript" src="{% static 'js/jquery.timepicker.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/jquery-ui-datepicker.js' %}"></script>
-    <link href="{% static 'css/jquery.timepicker.css' %}" rel="stylesheet" type="text/css">
-    <link href="{% static 'css/jquery-ui-datepicker.css' %}" rel="stylesheet" type="text/css">
-  </head>
 
-  <body>
-    {% include "partials/header.html" %}
+{% block heading %}
+  <div class="row">
+    <div class="columns">
+      <h3 class="title-sub">
+        {% block title %} Record volunteer hours {% endblock title %}
+      </h3>
+    </div>
+  </div>
+{% endblock heading %}
 
-    <div id="container" class="js-close-any" canvas="container">
-      <div id="wrapper">
-        <div class="row">
-          <h3 class="title-sub">Record volunteer hours</h3>
 
-            {% if status_msg %}
-              <div class="alert row one-margin-bottom">
-                {{status_msg}}
-              </div>
+{% block content %}
+  <form action ="" method="post">
+  {% csrf_token %}
+
+    {% if form.errors %}
+      <div class="row">
+        {% for field, error in form.errors.iteritems %}
+          <div class="center alert">
+            {% if field != '__all__' %}
+              {{ field|addstr:': '}} {{ error }}
+            {% else %}
+              {{ error }}
             {% endif %}
-        </div>
-
-        <form action ="" method="post">
-          {% csrf_token %}
-
-          {% if form.errors %}
-            <div class="row">
-              {% for field, error in form.errors.iteritems %}
-                <div class="center alert">
-                  {% if field != '__all__' %}
-                    {{ field|addstr:': '}} {{ error }}
-                  {% else %}
-                    {{ error }}
-                  {% endif %}
-                </div>
-              {% endfor %}
-            </div>
-          {% endif %}
-
-          <div class="row">
-            <div class="left medium-8 small-centered columns">
-              <div class="row">
-                <div class="three-halves-margin-top two-margin-bottom small-12 columns">
-                  <!--<input type="text" name="" class="center large-text" placeholder="Description of work"/>-->
-                  {{ form.description }}
-                </div>
-
-                <div class="small-12 medium-4 columns">
-                  <label>{{form.date_start.label}}</label>
-                  <!--<input type="text" id="volunteer-date" name="volunteer-date" placeholder="yyyy-mm-dd"/>-->
-                  {{ form.date_start }}
-                </div>
-
-                <div class="small-6 medium-4 columns">
-                  <label>{{ form.time_start.label }}</label>
-                  <!--<input type="text" id="start-time" name="" value="12:00:00"/>-->
-                  {{ form.time_start }}
-                </div>
-
-                <div class="small-6 medium-4 columns">
-                  <label>{{ form.time_end.label }}</label>
-                  <!--<input type="text" id="end-time" name="" value="12:00:00"/>-->
-                  {{ form.time_end }}
-                </div>
-              </div>
-
-              <div class="row one-margin-top">
-                <div class="small-6 columns">
-                  {{form.org}}
-                </div>
-
-                <div class="small-6 columns">
-                  {{form.admin}}
-                </div>
-              </div>
-
-              <div id="new-admin" class="row hidden">
-                <div class="small-6 columns">
-                  <input type="text" name="admin_fname" placeholder="Admin first name" />
-                </div>
-
-                <div class="small-6 columns">
-                  <input id="admin-email" type="email" name="admin_email" placeholder="Admin email" />
-                </div>
-              </div> 
-            </div>
-
-            <div class="row center one-margin-top">
-              <!--<a href="{% url 'openCurrents:time-tracked' %}" class="button round">Save</a>-->
-              <input type='submit' value="Submit for approval" class="one-margin-top button round"></input>
-              <p><a class="nominate-popup_open">Organization not listed?</a></p>
-            </div>
           </div>
-
-        </form>
-
-        <div id="push"></div>
-
-      <!-- wrapper div-->
+        {% endfor %}
       </div>
+    {% endif %}
 
-      {% include 'partials/footer.html' %}
-
-    <!--container div -->
-    </div>
-
-    <div id="bottom-stripe" class="full-width"></div>
-
-    <div off-canvas="menu right shift" id="menu">
-      {% include 'partials/menu.html' %}
-    </div>
-
-    <div id="nominate-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <div class="row center">
-        <h3 class="popup-title">Nominate an organization</h3>
-        <div class="medium-10 medium-offset-1 columns end">
-          <p>As a member of this community, you can help us grow by inviting an organization for which you volunteer. Fill out this form and we'll reach out to your volunteer coordinator, but feel free to contact them personally as well.</p>
-        </div>
-      </div>
-
-      <form method="post" action="{% url "openCurrents:process_OrgNomination" %}">
-        {% csrf_token %}
-        <div class="row three-halves-margin-bottom half-margin-top">
-          <div class="center small-12 medium-9 small-centered columns">
-
-            <div id="org-signup-name" class="small-12 columns">
-              <input type="text" name="org_name" placeholder="Organization name" class="center" tabindex="0" required />
-            </div>
-
-            <div class="input-left small-12 columns">
-              <input type="text" name="contact_name" placeholder="Coordinator name" class="center" tabindex="0" />
-            </div>
-
-            <div class="small-12 columns">
-              <input type="email" name="contact_email" placeholder="Coordinator email address" class="center" tabindex="0" />
-            </div>
-          </div>
-        </div>
-
-        <div class="row center half-margin-top">
-          <input type="submit" class="button round" value="Nominate"/>
-          <a class="nominate-popup_close button round secondary">Cancel</a>
-        </div>
-      </form>
-    </div>
-
-    <div id="no-admin-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <div class="row center">
-        <h3 class="popup-title">Please contact organization</h3>
-        <div class="medium-10 medium-offset-1 columns end">
-          <p>You'll need to know who will approve your hours before tracking your time. Please contact the organization to ask for the name of your openCurrents admin.</p>
-          <a href="{% url 'openCurrents:profile' %}" class="button round">Back to profile</a>
-          <a class="no-admin-popup_close button round secondary">Cancel</a>
-        </div>
-      </div>
-    </div>
-
-    <!-- <div id="add-org-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <div class="row center">
-        <h3 class="popup-title">Volunteer request</h3>
-        <div class="medium-10 medium-offset-1 columns end">
-          <p>Select the participating organization that you are volunteering with. You can record hours today, but the organizer will need to confirm your participation before you receive Currents. If your organization is not listed, you can nominate it.</p>
-        </div>
-      </div>
-
-      <form>
+    <div class="row">
+      <div class="left medium-8 small-centered columns">
         <div class="row">
-          <div class="small-12 medium-8 medium-offset-2 columns end">
-            <label for="all-orgs" class="inline">Organization name</label>
+          <div class="three-halves-margin-top two-margin-bottom small-12 columns">
+            <!--<input type="text" name="" class="center large-text" placeholder="Description of work"/>-->
+            {{ form.description }}
+          </div>
 
-            <select id="all-orgs">
-              <option disabled selected hidden>Select organization</option>
-              <option>Bike Austin</option>
-              <option>Keep Austin Beautiful</option>
-              <option>Keep Austin Fed</option>
-              <option>Urban Patchwork</option>
-              <option>Casa Marianella</option>
-            </select>
+          <div class="small-12 medium-4 columns">
+            <label>{{form.date_start.label}}</label>
+            <!--<input type="text" id="volunteer-date" name="volunteer-date" placeholder="yyyy-mm-dd"/>-->
+            {{ form.date_start }}
+          </div>
+
+          <div class="small-6 medium-4 columns">
+            <label>{{ form.time_start.label }}</label>
+            <!--<input type="text" id="start-time" name="" value="12:00:00"/>-->
+            {{ form.time_start }}
+          </div>
+
+          <div class="small-6 medium-4 columns">
+            <label>{{ form.time_end.label }}</label>
+            <!--<input type="text" id="end-time" name="" value="12:00:00"/>-->
+            {{ form.time_end }}
           </div>
         </div>
 
-        <div class="row center one-margin-top">
-          <a id="add-org" type="submit" class="save-org add-org-popup_close button round">Request approval</a>
-          <a href="{% url 'openCurrents:org-signup' %}" class="button round secondary">Nominate new org</a>
+        <div id="existing-org-admin" class="row one-margin-top">
+          <div class="small-6 columns">
+            {{form.org}}
+          </div>
+
+          <div class="small-6 columns">
+            {{form.admin}}
+          </div>
         </div>
-      </form>
-    </div> -->
 
-    <script type="text/javascript">
-      $(document).ready(function(){
-        $('#id_admin_choice').append(`<option disabled selected hidden>Select admin</option>`)
+        <div id="new-org" class="row hidden">
+          <div class="columns">
+            {{ form.new_org }}
+          </div>
+        </div>
 
-        $("#volunteer-date").mask("9999-99-99");
+        <div id="new-admin" class="row hidden">
+          <div class="medium-6 columns">
+            {{ form.new_admin_name }}
+          </div>
 
-        $('#volunteer-date').datepicker({
-          dateFormat: 'yy-mm-dd',
-          minDate: -6,
-          maxDate: 0,
-        }).datepicker("setDate", new Date());
+          <div class="medium-6 columns">
+            {{ form.new_admin_email }}
+          </div>
+        </div>
+      </div>
 
-        $('#start-time, #end-time').timepicker({
-          step: 15,
-          minTime: '7:00am',
-        });
+      <div class="row center one-margin-top">
+        <input type='submit' value="Submit for approval" class="button round"></input>
+        <p>
+          <!-- <a id="request-new-org"> -->
+          <a class="nominate-popup_open">
+            Request Currents from another nonprofit
+          </a>
+          <a id="request-existing-org" class="hidden">
+            Return to existing nonprofits
+          </a>
+        </p>
 
-        $('#nominate-popup, #no-admin-popup').popup({
-          vertical: 'top',
-          transition: 'all 0.75s',
-          scrolllock: false,
-        });
+      </div>
+    </div>
+  </form>
+{% endblock content %}
 
-        $('#id_admin_choice').on('change', function(){
-          if($(this).val() == "not-sure") {
-            $('#no-admin-popup').popup('show');
-          }
 
-          if ($(this).val() == "other-admin") {
-            $('#new-admin').slideDown();
-            $('#admin-email').prop('required', true);
-          }
+{% block popups %}
+  <div id="nominate-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+    <div class="row center">
+      <h3 class="popup-title">Nominate an organization</h3>
+      <div class="medium-10 medium-offset-1 columns end">
+        <p>As a member of this community, you can help us grow by inviting an organization for which you volunteer. Fill out this form and we'll reach out to your volunteer coordinator, but feel free to contact them personally as well.</p>
+      </div>
+    </div>
 
-          else {
-            $('#new-admin').slideUp();
-            $('#admin-email').prop('required', false);
-          }
-        });
+    <form method="post" action="{% url "openCurrents:process_OrgNomination" %}">
+      {% csrf_token %}
+      <div class="row three-halves-margin-bottom half-margin-top">
+        <div class="center small-12 medium-9 small-centered columns">
 
-        document.getElementById('id_org_choice').options[0].disabled = true;
-        document.getElementById('id_org_choice').options[0].selected = true;
+          <div id="org-signup-name" class="small-12 columns">
+            <input type="text" name="org_name" placeholder="Organization name" class="center" tabindex="0" required />
+          </div>
 
-        {% if org_stat_id %}
-          $("#id_org_choice").val({{org_stat_id}});
-          $("#id_admin_choice").prop('disabled', false);
-        {% endif %}
+          <div class="input-left small-12 columns">
+            <input type="text" name="contact_name" placeholder="Coordinator name" class="center" tabindex="0" />
+          </div>
 
-        //$( "#id_userorgs option[value='sel_org']" ).selected=true;
-        let orgSelect = $('#id_org_choice');
-        orgSelect.change(function(){
-          $('#id_admin_choice')
-            .find('option')
-            .remove()
-            .end()
-            .append('<option value="sel-admin" disabled selected >Select admin</option>');
+          <div class="small-12 columns">
+            <input type="email" name="contact_email" placeholder="Coordinator email address" class="center" tabindex="0" />
+          </div>
+        </div>
+      </div>
 
-          let orgId = orgSelect.val();
-          let csrf_token = document.getElementsByName(
-            'csrfmiddlewaretoken'
-          )[0].value;
-          let orgUserListUrl = `/org_user_list/${orgId}`;
+      <div class="row center half-margin-top">
+        <input type="submit" class="button round" value="Nominate"/>
+        <a class="nominate-popup_close button round secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
 
-          $.ajax
-          (
-            {
-              url: orgUserListUrl,
-              type: 'GET',
-              async: false,
-              data : {csrfmiddlewaretoken: csrf_token},
-              dataType : 'json'
-            }
-          ).complete(function( res ) {
-              let data = res.responseJSON;
+  <div id="no-admin-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+    <div class="row center">
+      <h3 class="popup-title">Please contact organization</h3>
+      <div class="medium-10 medium-offset-1 columns end">
+        <p>You'll need to know who will approve your hours before tracking your time. Please contact the organization to ask for the name of your openCurrents admin.</p>
+        <a href="{% url 'openCurrents:profile' %}" class="button round">Back to profile</a>
+        <a class="no-admin-popup_close button round secondary">Cancel</a>
+      </div>
+    </div>
+  </div>
+{% endblock popups %}
 
-              // populate select with org admin names
-              Object.keys(data).forEach(function (adminId) {
-                  let adminFirstName = data[adminId].firstname;
-                  let adminLastName = data[adminId].lastname;
 
-                  $('#id_admin_choice').append(
-                    `<option value=${adminId}> 
-                      ${adminFirstName} ${adminLastName}
-                    </option>`
-                  );
+{% block js %}
+  <script type="text/javascript">
+    $(document).ready(function(){
+      $('#id_admin_choice').append(`<option disabled selected hidden>Select admin</option>`)
 
-                  // disable the option if admin is the user
-                  if (adminId == {{user.id}}) {
-                    $('#id_admin_choice option[value="'+adminId+'"]').attr("disabled", true);
-                  }
-              });
+      $("#volunteer-date").mask("9999-99-99");
 
-              // add two non-admin specific options
-              $('#id_admin_choice').append(`<option value="other-admin">Someone else</option>`),
-              $('#id_admin_choice').append(`<option value="not-sure">Not sure</option>`)
-              $("#id_admin_choice").prop('disabled', false);
-            });
-          }
-        )
+      $('#volunteer-date').datepicker({
+        dateFormat: 'yy-mm-dd',
+        minDate: -6,
+        maxDate: 0,
+      }).datepicker("setDate", new Date());
+
+      $('#start-time, #end-time').timepicker({
+        step: 15,
+        minTime: '7:00am',
+      });
+
+      $('#nominate-popup, #no-admin-popup').popup({
+        vertical: 'top',
+        transition: 'all 0.75s',
+        scrolllock: false,
+      });
+
+      $('#id_admin_choice').on('change', function(){
+        if($(this).val() == "not-sure") {
+          $('#no-admin-popup').popup('show');
+        }
+
+        if ($(this).val() == "other-admin") {
+          $('#new-admin').slideDown();
+          $('#admin-email').prop('required', true);
+        }
+
+        else {
+          $('#new-admin').slideUp();
+          $('#admin-email').prop('required', false);
+        }
+      });
+
+      $('#request-new-org').click(function(){
+        $(this).hide();
+        $('#request-existing-org').show();
+        $('#existing-org-admin').slideUp();
+        $('#new-org').slideDown();
+        $('#new-admin').slideDown();
+      });
+
+      $("#request-existing-org").click(function(){
+        $(this).hide();
+        $('#request-new-org').show();
+        $('#new-org').slideUp();
+        $('#new-admin').slideUp();
+        $('#existing-org-admin').slideDown();
+      });
+
+      document.getElementById('id_org_choice').options[0].disabled = true;
+      document.getElementById('id_org_choice').options[0].selected = true;
+
       {% if org_stat_id %}
-        $("#id_org_choice").trigger('change');
-        if ("{{admin_name}}"){
-          $('#id_admin_choice').val("{{admin_name}}")//.val("karthikbm01@gmail.com")        
-        }
-        else{
-
-        }
+        $("#id_org_choice").val({{org_stat_id}});
+        $("#id_admin_choice").prop('disabled', false);
       {% endif %}
 
-      });
-    </script>
+      //$( "#id_userorgs option[value='sel_org']" ).selected=true;
+      let orgSelect = $('#id_org_choice');
+      orgSelect.change(function(){
+        $('#id_admin_choice')
+          .find('option')
+          .remove()
+          .end()
+          .append('<option value="sel-admin" disabled selected >Select coordinator</option>');
 
-    <script type="text/javascript">
+        let orgId = orgSelect.val();
+        let csrf_token = document.getElementsByName(
+          'csrfmiddlewaretoken'
+        )[0].value;
+        let orgUserListUrl = `/org_user_list/${orgId}`;
 
+        $.ajax
+        (
+          {
+            url: orgUserListUrl,
+            type: 'GET',
+            async: false,
+            data : {csrfmiddlewaretoken: csrf_token},
+            dataType : 'json'
+          }
+        ).complete(function( res ) {
+            let data = res.responseJSON;
 
-    </script>
+            // populate select with org admin names
+            Object.keys(data).forEach(function (adminId) {
+                let adminFirstName = data[adminId].firstname;
+                let adminLastName = data[adminId].lastname;
 
-<!--     <script type="text/javascript">
-      $('#clock-in').on('click', function(){
-        var minutesLabel = document.getElementById("minutes");
-        var secondsLabel = document.getElementById("seconds");
-        var totalSeconds = 0;
-        setInterval(setTime, 1000);
+                $('#id_admin_choice').append(
+                  `<option value=${adminId}>
+                    ${adminFirstName} ${adminLastName}
+                  </option>`
+                );
 
-        $("#ticker").css('color', '#24b2e7');
+                // disable the option if admin is the user
+                if (adminId == {{user.id}}) {
+                  $('#id_admin_choice option[value="'+adminId+'"]').attr("disabled", true);
+                }
+            });
 
-        $(this).text('Clock out').attr('id', 'clock-out').css({
-          'background-color' : '#999999',
-          'border-color' : '#999999',
-        });
-
-
-        function setTime()
-        {
-            ++totalSeconds;
-            secondsLabel.innerHTML = pad(totalSeconds%60);
-            minutesLabel.innerHTML = pad(parseInt(totalSeconds/60));
+            // add two non-admin specific options
+            $('#id_admin_choice').append(`<option value="other-admin">Someone else</option>`),
+            $('#id_admin_choice').append(`<option value="not-sure">Not sure</option>`)
+            $("#id_admin_choice").prop('disabled', false);
+          });
         }
+      )
+    {% if org_stat_id %}
+      $("#id_org_choice").trigger('change');
+      if ("{{admin_name}}"){
+        $('#id_admin_choice').val("{{admin_name}}")//.val("karthikbm01@gmail.com")
+      }
+      else{
 
-        function pad(val)
-        {
-            var valString = val + "";
-            if(valString.length < 2)
-            {
-                return "0" + valString;
-            }
-            else
-            {
-                return valString;
-            }
-        }
-      });
+      }
+    {% endif %}
 
-    </script> -->
+    });
+  </script>
 
-    <script type="text/javascript">
-      var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-      var n = new Date();
-      var y = n.getFullYear();
-      var m = n.getMonth();
-      var d = n.getDate();
-      document.getElementById("volunteer-date").innerHTML = d + " " + months[m] + " " + y;
-    </script>
-
-    <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
-  </body>
-</html>
+  <script type="text/javascript">
+    var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    var n = new Date();
+    var y = n.getFullYear();
+    var m = n.getMonth();
+    var d = n.getDate();
+    document.getElementById("volunteer-date").innerHTML = d + " " + months[m] + " " + y;
+  </script>
+{% endblock js %}

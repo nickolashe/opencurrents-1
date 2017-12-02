@@ -5,7 +5,7 @@ from django.db.models import Max
 
 from openCurrents.models import \
     UserEntity, \
-	UserEventRegistration, \
+    UserEventRegistration, \
     UserSettings, \
     UserTimeLog, \
     AdminActionUserTime, \
@@ -22,6 +22,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG, filename="log/views.log")
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
+
 
 class OcUser(object):
     def __init__(self, userid=None):
@@ -89,7 +90,7 @@ class OcUser(object):
 
         datetime_from = datetime.now(tz=pytz.utc)
         if argv:
-            assert(isinstance(argv[0], datetime))
+            assert (isinstance(argv[0], datetime))
             datetime_from = argv[0]
 
         user_event_regs = user_event_regs.filter(
@@ -261,6 +262,19 @@ class OcUser(object):
 
         return admin_actions
 
+    def get_top_received_users(self, period, quantity=10):
+        result = list()
+        users = User.objects.filter(userentity__isnull=False)
+
+        for user in users:
+            earned_cur_amount = OcLedger().get_earned_cur_amount(user.id, period)['total']
+            if not earned_cur_amount:
+                earned_cur_amount = 0
+            result.append({'name': user.username, 'total': earned_cur_amount})
+
+        result.sort(key=lambda user_dict: user_dict['total'], reverse=True)
+        return result[:quantity]
+
     def _get_usertimelogs(self, verified=False):
         # determine whether there are any unverified timelogs for admin
         usertimelogs = UserTimeLog.objects.filter(
@@ -289,7 +303,8 @@ class OcUser(object):
 
 
 class UserExistsException(Exception):
-	pass
+    pass
+
 
 class InvalidUserException(Exception):
-	pass
+    pass

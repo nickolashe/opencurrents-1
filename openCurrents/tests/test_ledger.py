@@ -18,6 +18,7 @@ from openCurrents.interfaces.orgs import OcOrg
 
 from datetime import datetime, timedelta
 
+import pytz
 
 class TestOcLedger(TestCase):
     def setUp(self):
@@ -63,8 +64,8 @@ class TestOcLedger(TestCase):
             coordinator=self.userOrg,
             creator_id=self.userOrg.id,
             event_type='MN',
-            datetime_start=datetime.now() - timedelta(hours=2),
-            datetime_end=datetime.now() - timedelta(hours=1)
+            datetime_start=datetime.now(tz=pytz.utc) - timedelta(hours=2),
+            datetime_end=datetime.now(tz=pytz.utc) - timedelta(hours=1)
         )
         self.eventUserRegMT.save()
 
@@ -72,8 +73,8 @@ class TestOcLedger(TestCase):
             user=self.userReg,
             event=self.eventUserRegMT,
             is_verified=True,
-            datetime_start=datetime.now(),
-            datetime_end=datetime.now() + timedelta(hours=1)
+            datetime_start=datetime.now(tz=pytz.utc),
+            datetime_end=datetime.now(tz=pytz.utc) + timedelta(hours=1)
         )
         self.userRegTimeLog.save()
 

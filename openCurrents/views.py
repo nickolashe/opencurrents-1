@@ -61,7 +61,8 @@ from openCurrents.forms import \
     TimeTrackerForm, \
     OfferCreateForm, \
     OfferEditForm, \
-    RedeemCurrentsForm
+    RedeemCurrentsForm, \
+    PublicRecordsForm
 
 
 from datetime import datetime, timedelta
@@ -238,7 +239,7 @@ class BizAdminPermissionMixin(AdminPermissionMixin):
         )
 
 
-class HomeView(SessionContextView, TemplateView):
+class HomeView(TemplateView):
     template_name = 'home.html'
 
     def dispatch(self, *args, **kwargs):
@@ -290,10 +291,12 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, TemplateView)
 
         # list biz's pending offer redemption requests
         redeemed_pending = self.bizadmin.get_redemptions(status='pending')
+        logger.info(redeemed_pending)
         context['redeemed_pending'] = redeemed_pending
 
         # list biz's accepted offer redemption requests
         redeemed_approved = self.bizadmin.get_redemptions(status='approved')
+        logger.info(redeemed_approved)
         context['redeemed_approved'] = redeemed_approved
 
         # current balance
@@ -336,7 +339,7 @@ class InviteFriendsView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'invite-friends.html'
 
 
-class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
+class ApproveHoursView(OrgAdminPermissionMixin, OrgSessionContextView, ListView):
     template_name = 'approve-hours.html'
     context_object_name = 'week'
 
@@ -344,23 +347,8 @@ class ApproveHoursView(OrgAdminPermissionMixin, SessionContextView, ListView):
         userid = self.request.user.id
         orguserinfo = OrgUserInfo(userid)
         orgid = orguserinfo.get_org_id()
-        projects = Project.objects.filter(org__id=orgid)
-        events = Event.objects.filter(
-            project__in=projects
-        ).filter(
-            event_type='MN'
-        )
+        requested_actions = self.orgadmin.get_hours_requested()
 
-        # fetch unverified time logs
-        requested_actions = AdminActionUserTime.objects.filter(
-            user__id=userid
-        ).filter(
-            action_type='req'
-        ).filter(
-            usertimelog__is_verified = False
-        ).filter(
-            usertimelog__event__in=events
-        )
         logger.info(requested_actions)
         # week list holds dictionary ordered pairs for 7 days of timelogs
         week = []
@@ -634,8 +622,28 @@ class InventoryView(TemplateView):
     template_name = 'inventory.html'
 
 
-class PublicRecordView(TemplateView):
+class PublicRecordView(View):
     template_name = 'public-record.html'
+
+    def get_top_list(self, entity_type='top_org', period='month'):
+        if entity_type == 'top-org':
+            return OcOrg().get_top_issued_npfs(period)
+        elif entity_type == 'top-vol':
+            return OcUser().get_top_received_users(period)
+        elif entity_type == 'top-biz':
+            return OcOrg().get_top_accepted_bizs(period)
+
+    def get(self, request, *args, **kwargs):
+        context = dict()
+
+        form = PublicRecordsForm(request.GET or None)
+        context['form'] = form
+        if form.is_valid():
+            context['entries'] = self.get_top_list(form.cleaned_data['record_type'], form.cleaned_data['period'])
+        else:
+            context['entries'] = self.get_top_list()
+
+        return render(request, self.template_name, context)
 
 
 class MarketplaceView(LoginRequiredMixin, SessionContextView, ListView):
@@ -1274,7 +1282,7 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
     def _create_event(self, location, form_data):
         if not self.project:
             project = Project(
-                org=Org.objects.get(id=self.orgid),
+                org=Org.objects.get(id=self.org.id),
                 name=form_data['project_name']
             )
             project.save()
@@ -2138,60 +2146,62 @@ def event_checkin(request, pk):
             # volunteer checkin
             vol_user = User.objects.get(id=userid)
             try:
-                usertimelog = UserTimeLog(
-                    user=vol_user,
-                    event=event,
-                    is_verified=True,
-                    datetime_start=datetime.now(tz=pytz.UTC)
-                )
-                usertimelog.save()
+                with transaction.atomic():
+                    usertimelog = UserTimeLog(
+                        user=vol_user,
+                        event=event,
+                        is_verified=True,
+                        datetime_start=datetime.now(tz=pytz.UTC)
+                    )
+                    usertimelog.save()
 
-                # admin action record
-                actiontimelog = AdminActionUserTime(
-                    user_id=admin_id,
-                    usertimelog=usertimelog,
-                    action_type='app'
-                )
-                actiontimelog.save()
+                    # admin action record
+                    actiontimelog = AdminActionUserTime(
+                        user_id=admin_id,
+                        usertimelog=usertimelog,
+                        action_type='app'
+                    )
+                    actiontimelog.save()
 
-                OcLedger().issue_currents(
-                    admin_org.orgentity,
-                    vol_user.userentity,
-                    actiontimelog,
-                    (event.datetime_start - event.datetime_end).total_seconds() / 3600
-                )
-                clogger.info(
-                    'at %s: user %s checkin',
-                    str(usertimelog.datetime_start),
-                    userid
-                )
+                    OcLedger().issue_currents(
+                        admin_org.orgentity.id,
+                        vol_user.userentity.id,
+                        actiontimelog,
+                        (event.datetime_start - event.datetime_end).total_seconds() / 3600
+                    )
+                    clogger.info(
+                        'at %s: user %s checkin',
+                        str(usertimelog.datetime_start),
+                        userid
+                    )
             except Exception as e:
                 clogger.info('user %s already checked in', userid)
 
             # check in admin/coordinator
             try:
-                usertimelog = UserTimeLog(
-                    user=User.objects.get(id=request.user.id),
-                    event=event,
-                    is_verified=True,
-                    datetime_start=datetime.now(tz=pytz.UTC)
-                )
-                usertimelog.save()
+                with transaction.atomic():
+                    usertimelog = UserTimeLog(
+                        user=User.objects.get(id=request.user.id),
+                        event=event,
+                        is_verified=True,
+                        datetime_start=datetime.now(tz=pytz.UTC)
+                    )
+                    usertimelog.save()
 
-                # admin action record
-                actiontimelog = AdminActionUserTime(
-                    user_id=admin_id,
-                    usertimelog=usertimelog,
-                    action_type='app'
-                )
-                actiontimelog.save()
+                    # admin action record
+                    actiontimelog = AdminActionUserTime(
+                        user_id=admin_id,
+                        usertimelog=usertimelog,
+                        action_type='app'
+                    )
+                    actiontimelog.save()
 
-                OcLedger().issue_currents(
-                    admin_org.orgentity,
-                    admin_user.userentity,
-                    actiontimelog,
-                    amount
-                )
+                    OcLedger().issue_currents(
+                        admin_org.orgentity.id,
+                        admin_user.userentity.id,
+                        actiontimelog,
+                        amount
+                    )
             except Exception as e:
                 return HttpResponse(status=409)
 
@@ -2807,7 +2817,7 @@ def process_login(request):
             today = date.today()
 
             # do a weekly check for unapproved requests (popup)
-            if user.last_login.date() < today - timedelta(days=today.weekday()):
+            if not user.last_login or user.last_login.date() < today - timedelta(days=today.weekday()):
                 try:
                     orgadmin = OrgAdmin(userid)
                     admin_requested_hours = orgadmin.get_hours_requested()
