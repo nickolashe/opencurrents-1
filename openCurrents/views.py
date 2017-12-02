@@ -1207,32 +1207,24 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             event.notified=True
             event.save()
 
-        # pending hours:
-        pending_hours = UserTimeLog.objects.filter(
-            event__project__org__id=self.org.id
-        ).filter(
-            is_verified=False
-        )
 
-        hours_requested = OrgAdmin(self.user.id).get_hours_requested
-
+        # calculating pending hours for every NPF admin
         context['hours_pending_by_admin'] = []
+
         for admin in org_admins:
             pending_by_admin = 0
-            hours_pending = {admin : pending_by_admin }
+            hours_pending = {admin.user.id : pending_by_admin }
 
-            hours_pending[admin] = [
-                (log.event.datetime_end - log.event.datetime_start).total_seconds() / 3600 \
-                for log in pending_hours if log.event.coordinator_id != None \
-                and log.event.coordinator_id == admin.user.id]
+            for x in OrgAdmin(admin.user.id).get_hours_requested():
+                pending_hours = (x.usertimelog.datetime_end - x.usertimelog.datetime_start).total_seconds() / 3600
+                hours_pending[admin.user.id] += pending_hours
 
-            hours_pending[admin] = sum(hours_pending[admin])
-            hours_pending[admin] = round(hours_pending[admin],2)
+            hours_pending[admin.user.id] = round(hours_pending[admin.user.id],2)
             context['hours_pending_by_admin'].append(hours_pending)
 
 
 
-        # calculating approved hours for every admin and total
+        # calculating approved hours for every NPF admin and total NPF Org hours tracked
         context['issued_by_admin'] = []
         context['issued_by_logged_admin'] = time_issued_by_logged_admin = issued_by_all = 0
 
