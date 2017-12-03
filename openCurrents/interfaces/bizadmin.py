@@ -57,6 +57,8 @@ class BizAdmin(object):
     def get_offers_all(self):
         offers = Offer.objects.filter(
             org__id=self.org.id
+        ).order_by(
+            '-date_updated'
         )
         return offers
 
