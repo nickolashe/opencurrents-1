@@ -291,17 +291,14 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, TemplateView)
 
         # list biz's pending offer redemption requests
         redeemed_pending = self.bizadmin.get_redemptions(status='pending')
-        logger.info(redeemed_pending)
         context['redeemed_pending'] = redeemed_pending
 
         # list biz's accepted offer redemption requests
         redeemed_approved = self.bizadmin.get_redemptions(status='approved')
-        logger.info(redeemed_approved)
         context['redeemed_approved'] = redeemed_approved
 
         # current balance
         currents_balance = self.bizadmin.get_balance_available()
-        logger.info(currents_balance)
         context['currents_balance'] = currents_balance
 
         # pending currents balance
@@ -651,7 +648,7 @@ class MarketplaceView(LoginRequiredMixin, SessionContextView, ListView):
     context_object_name = 'offers'
 
     def get_queryset(self):
-        return Offer.objects.all()
+        return Offer.objects.all().order_by('-date_updated')
 
     def get_context_data(self, **kwargs):
         context = super(MarketplaceView, self).get_context_data(**kwargs)
