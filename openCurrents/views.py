@@ -27,6 +27,8 @@ from interfaces.orgs import OcOrg, \
     OrgExistsException, \
     InvalidOrgUserException
 
+from openCurrents.interfaces.common import diffInHours
+
 import math
 import re
 
@@ -1206,7 +1208,7 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
         # getting all admins for organization
         context['org_admins'] = []
         try:
-            context['org_admins'] = [u for u in OrgUser.objects.filter(org = 1) if OcAuth(u.user.id).is_admin_org()]
+            context['org_admins'] = [u for u in OrgUser.objects.filter(org = self.org.id) if OcAuth(u.user.id).is_admin_org()]
         except:
             pass
 
@@ -1234,12 +1236,16 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             pending_by_admin = 0
             hours_pending = {admin.user.id : pending_by_admin }
 
-            for x in OrgAdmin(admin.user.id).get_hours_requested():
-                pending_hours = (x.usertimelog.datetime_end - x.usertimelog.datetime_start).total_seconds() / 3600
-                hours_pending[admin.user.id] += pending_hours
+            try:
+                hours_pending[admin.user.id] = reduce(lambda x,y : x + y, [diffInHours(x.usertimelog.datetime_start, x.usertimelog.datetime_end) for x in OrgAdmin(admin.user.id).get_hours_requested()])
+            except TypeError:
+                print "No hours approved for this admin!"
 
-            hours_pending[admin.user.id] = round(hours_pending[admin.user.id],2)
-            context['hours_pending_by_admin'].append(hours_pending)
+            if hours_pending[admin.user.id] > 0:
+                context['hours_pending_by_admin'].append(hours_pending)
+
+                # sorting the list of admins by # of pending hours descending
+                context['hours_pending_by_admin'] = sorted(context['hours_pending_by_admin'], key=lambda d: d.keys()[0])
 
 
         # calculating approved hours for every NPF admin and total NPF Org hours tracked
@@ -1250,23 +1256,26 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             issued_by_admin = 0
             amount_issued_by_admin = {admin.user.id : issued_by_admin }
 
-            for x in OrgAdmin(admin.user.id).get_hours_approved():
-                event_hours = (x.usertimelog.datetime_end - x.usertimelog.datetime_start).total_seconds() / 3600
+            try:
+                amount_issued_by_admin[admin.user.id] = reduce(lambda x,y : x + y, [diffInHours(x.usertimelog.datetime_start, x.usertimelog.datetime_end) for x in OrgAdmin(admin.user.id).get_hours_approved()])
+            except TypeError:
+                print "No hours approved for this admin!"
 
-                # adding to total approved hours
-                issued_by_all += event_hours
 
-                # adding to current admin's approved hours
-                if admin.user.id == self.user.id:
-                    time_issued_by_logged_admin += event_hours
+            # adding to total approved hours
+            issued_by_all += amount_issued_by_admin[admin.user.id]
 
-                # adding to the dictionary with admin's approved hours
-                amount_issued_by_admin[admin.user.id] += event_hours
+            # adding to current admin's approved hours
+            if admin.user.id == self.user.id:
+                time_issued_by_logged_admin += amount_issued_by_admin[admin.user.id]
 
+            if amount_issued_by_admin[admin.user.id] > 0:
+                context['issued_by_admin'].append(amount_issued_by_admin)
+
+                # sorting the list of admins by # of issued hours descending
+                context['issued_by_admin'] = sorted(context['issued_by_admin'], key=lambda d: d.keys()[0])
 
             context['issued_by_logged_admin'] = round(time_issued_by_logged_admin,2)
-            amount_issued_by_admin[admin.user.id] = round(amount_issued_by_admin[admin.user.id], 2)
-            context['issued_by_admin'].append(amount_issued_by_admin)
 
         context['issued_by_all'] = round(issued_by_all, 2)
 
