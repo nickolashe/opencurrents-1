@@ -620,6 +620,7 @@ class HoursApprovedView(LoginRequiredMixin, SessionContextView, TemplateView):
 class HoursDetailView(LoginRequiredMixin, SessionContextView, ListView):
     template_name = 'hours-detail.html'
     model = AdminActionUserTime
+    context_object_name = 'hours_detail'
 
     def get_queryset(self):
         queryset = None
@@ -1197,12 +1198,18 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
     template_name = 'org-admin.html'
 
     def _sorting_hours(self, list_of_dicts, user_id):
+        """
+        Takes the list of dictionaries eg '{admin.user.id : time_pending_per_admin }' and an NPF admin user id,
+        then finds and add currently logged NPF admin user to the beginning of the sorted by values list of
+        dictionaries.
+        Returns sorted by values list of dictionaries with hours for currently logged NPF admin as the first element.
+        """
         temp_current_admin_dic=[]
         for item in list_of_dicts:
             if item.has_key(user_id):
                 temp_current_admin_dic = list_of_dicts.pop(list_of_dicts.index(item))
 
-        list_of_dicts = sorted(list_of_dicts, key=lambda d: d.keys()[0])
+        list_of_dicts = sorted(list_of_dicts, key=lambda d: d.values()[0], reverse=False)
         if len(temp_current_admin_dic) > 0:
             list_of_dicts.insert(0, temp_current_admin_dic)
 
@@ -1224,7 +1231,7 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
         try:
             context['org_admins'] = [u for u in OrgUser.objects.filter(org = self.org.id) if OcAuth(u.user.id).is_admin_org()]
         except (UnboundLocalError, InvalidUserException) as e:
-            print e
+            logger.debug("Error %s happened when tried to get the list of admins for NPF org %s", str(e), str(self.org.id))
 
 
         # find events created by admin that they have not been notified of
@@ -1256,7 +1263,7 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             try:
                 hours_pending[admin.user.id] = reduce(lambda x,y : x + y, [diffInHours(x.usertimelog.datetime_start, x.usertimelog.datetime_end) for x in OrgAdmin(admin.user.id).get_hours_requested()])
             except TypeError:
-                print "No hours approved for this admin!"
+                logger.debug("No hours approved for admin %s", admin.user.username)
 
             if hours_pending[admin.user.id] > 0:
                 context['hours_pending_by_admin'].append(hours_pending)
@@ -1281,7 +1288,7 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             try:
                 amount_issued_by_admin[admin.user.id] = reduce(lambda x,y : x + y, [diffInHours(x.usertimelog.datetime_start, x.usertimelog.datetime_end) for x in OrgAdmin(admin.user.id).get_hours_approved()])
             except TypeError:
-                print "No approved hours for this admin!"
+                logger.debug("No hours approved for admin %s", admin.user.username)
 
             # adding to total approved hours
             context['issued_by_all']  += amount_issued_by_admin[admin.user.id]

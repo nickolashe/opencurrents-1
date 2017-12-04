@@ -36,29 +36,28 @@
     </div>
   </div>
 
-{% if object_list %}
-    {% for object in object_list  %}
-      <div class="row">
-        <div class="medium-10 small-centered columns">
-          <div class="left row">
-            <div class="small-3 columns">
-              <p class="half-margin-bottom">{{ object.usertimelog.datetime_start|date:"M d" }}</p>
-            </div>
 
-            <div class="small-6 columns">
-              <p class="half-margin-bottom">{{ object.usertimelog.event.description }}</p>
-            </div>
+{% for object in hours_detail  %}
+  <div class="row">
+    <div class="medium-10 small-centered columns">
+      <div class="left row">
+        <div class="small-3 columns">
+          <p class="half-margin-bottom">{{ object.usertimelog.datetime_start|date:"M d" }}</p>
+        </div>
 
-            <div class="right small-2 columns">
-              <p class="half-margin-bottom">{{ object.usertimelog.datetime_end|subtract_time:object.usertimelog.datetime_start }}</p>
-            </div>
-          </div>
+        <div class="small-6 columns">
+          <p class="half-margin-bottom">{{ object.usertimelog.event.description }}</p>
+        </div>
+
+        <div class="right small-2 columns">
+          <p class="half-margin-bottom">{{ object.usertimelog.datetime_end|subtract_time:object.usertimelog.datetime_start }}</p>
         </div>
       </div>
-    {% endfor %}
-{% else %}
+    </div>
+  </div>
+{% empty %}
     <h5>No records available</h5>
-{% endif %}
+{% endfor %}
 
 
   <div class="row three-halves-margin-top">
