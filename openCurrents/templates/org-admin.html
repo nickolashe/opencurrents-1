@@ -4,7 +4,7 @@
 {% load tags %}
 
 {% block status %}
-  <div class="success row one-margin-top">
+  <div id="status_msg" class="success row one-margin-top">
     <div class="medium-8 columns small-centered">
       {% if num_events or num_vols %}
         {% if num_events|add:"0" >= 1 and num_vols|add:"0" >= 1 %}
@@ -36,9 +36,7 @@
           volunteer{{ vols_declined|pluralize }}.
         {% endif %}
       {% else %}
-        <div id="status_msg">
-          {{ status_msg }}
-        </div>
+        {{ status_msg }}
       {% endif %}
     </div>
   </div>
