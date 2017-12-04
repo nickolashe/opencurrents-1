@@ -1204,12 +1204,12 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             pass
 
         # getting all admins for organization
-        context['org_admins'] = org_admins = []
+        context['org_admins'] = []
         try:
-            org_admins = [u for u in OrgUser.objects.filter(org = self.org) if OcAuth(u.id).is_admin_org]
+            context['org_admins'] = [u for u in OrgUser.objects.filter(org = 1) if OcAuth(u.user.id).is_admin_org()]
         except:
             pass
-        context['org_admins'] = org_admins
+
 
         # find events created by admin that they have not been notified of
         new_events = Event.objects.filter(
@@ -1230,7 +1230,7 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
         # calculating pending hours for every NPF admin
         context['hours_pending_by_admin'] = []
 
-        for admin in org_admins:
+        for admin in context['org_admins']:
             pending_by_admin = 0
             hours_pending = {admin.user.id : pending_by_admin }
 
@@ -1246,7 +1246,7 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
         context['issued_by_admin'] = []
         context['issued_by_logged_admin'] = time_issued_by_logged_admin = issued_by_all = 0
 
-        for admin in org_admins:
+        for admin in context['org_admins']:
             issued_by_admin = 0
             amount_issued_by_admin = {admin.user.id : issued_by_admin }
 
