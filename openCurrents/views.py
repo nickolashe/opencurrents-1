@@ -65,6 +65,7 @@ from openCurrents.forms import \
     OfferEditForm, \
     RedeemCurrentsForm, \
     PublicRecordsForm
+    #HoursDetailsForm
 
 
 from datetime import datetime, timedelta
@@ -1195,6 +1196,19 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
 class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView):
     template_name = 'org-admin.html'
 
+    def _sorting_hours(self, list_of_dicts, user_id):
+        temp_current_admin_dic=[]
+        for item in list_of_dicts:
+            if item.has_key(user_id):
+                temp_current_admin_dic = list_of_dicts.pop(list_of_dicts.index(item))
+
+        list_of_dicts = sorted(list_of_dicts, key=lambda d: d.keys()[0])
+        if len(temp_current_admin_dic) > 0:
+            list_of_dicts.insert(0, temp_current_admin_dic)
+
+        return list_of_dicts
+
+
     def get_context_data(self, **kwargs):
         context = super(OrgAdminView, self).get_context_data(**kwargs)
         context['timezone'] = self.org.timezone
@@ -1209,8 +1223,8 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
         context['org_admins'] = []
         try:
             context['org_admins'] = [u for u in OrgUser.objects.filter(org = self.org.id) if OcAuth(u.user.id).is_admin_org()]
-        except:
-            pass
+        except (UnboundLocalError, InvalidUserException) as e:
+            print e
 
 
         # find events created by admin that they have not been notified of
@@ -1231,10 +1245,13 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
 
         # calculating pending hours for every NPF admin
         context['hours_pending_by_admin'] = []
+        context['admin_forms_by_admin'] = []
 
         for admin in context['org_admins']:
             pending_by_admin = 0
+            form = None
             hours_pending = {admin.user.id : pending_by_admin }
+            admin_forms = {admin.user.id : form }
 
             try:
                 hours_pending[admin.user.id] = reduce(lambda x,y : x + y, [diffInHours(x.usertimelog.datetime_start, x.usertimelog.datetime_end) for x in OrgAdmin(admin.user.id).get_hours_requested()])
@@ -1244,13 +1261,18 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             if hours_pending[admin.user.id] > 0:
                 context['hours_pending_by_admin'].append(hours_pending)
 
-                # sorting the list of admins by # of pending hours descending
-                context['hours_pending_by_admin'] = sorted(context['hours_pending_by_admin'], key=lambda d: d.keys()[0])
+                # creting the form per admin
+                # admin_forms[admin.user.id] = HoursDetailsForm(initial={'is_admin': 1, 'user_id': admin.user.id, 'hours_type': 'pending'})
+                # context['admin_forms_by_admin'].append(admin_forms)
+
+
+        # sorting the list of admins by # of pending hours descending and putting current admin at the beginning of the list
+        context['hours_pending_by_admin'] = self._sorting_hours(context['hours_pending_by_admin'], admin.user.id)
 
 
         # calculating approved hours for every NPF admin and total NPF Org hours tracked
         context['issued_by_admin'] = []
-        context['issued_by_logged_admin'] = time_issued_by_logged_admin = issued_by_all = 0
+        context['issued_by_logged_admin'] = context['issued_by_all'] = time_issued_by_logged_admin = 0
 
         for admin in context['org_admins']:
             issued_by_admin = 0
@@ -1259,11 +1281,10 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             try:
                 amount_issued_by_admin[admin.user.id] = reduce(lambda x,y : x + y, [diffInHours(x.usertimelog.datetime_start, x.usertimelog.datetime_end) for x in OrgAdmin(admin.user.id).get_hours_approved()])
             except TypeError:
-                print "No hours approved for this admin!"
-
+                print "No approved hours for this admin!"
 
             # adding to total approved hours
-            issued_by_all += amount_issued_by_admin[admin.user.id]
+            context['issued_by_all']  += amount_issued_by_admin[admin.user.id]
 
             # adding to current admin's approved hours
             if admin.user.id == self.user.id:
@@ -1272,12 +1293,10 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             if amount_issued_by_admin[admin.user.id] > 0:
                 context['issued_by_admin'].append(amount_issued_by_admin)
 
-                # sorting the list of admins by # of issued hours descending
-                context['issued_by_admin'] = sorted(context['issued_by_admin'], key=lambda d: d.keys()[0])
-
             context['issued_by_logged_admin'] = round(time_issued_by_logged_admin,2)
 
-        context['issued_by_all'] = round(issued_by_all, 2)
+        # sorting the list of admins by # of approved hours descending and putting current admin at the beginning of the list
+        context['issued_by_admin'] = self._sorting_hours(context['issued_by_admin'], admin.user.id)
 
 
         # past org events
