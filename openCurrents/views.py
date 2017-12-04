@@ -619,7 +619,7 @@ class InventoryView(TemplateView):
     template_name = 'inventory.html'
 
 
-class PublicRecordView(View):
+class PublicRecordView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'public-record.html'
 
     def get_top_list(self, entity_type='top_org', period='month'):
@@ -671,7 +671,7 @@ class MyHoursView(TemplateView):
     template_name = 'my-hours.html'
 
 
-class NominateView(TemplateView):
+class NominateView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'nominate.html'
 
 
