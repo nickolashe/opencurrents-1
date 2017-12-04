@@ -2048,6 +2048,15 @@ class OfferCreateView(LoginRequiredMixin, BizSessionContextView, FormView):
             'Your offer for %s is now live!' % offer_item.name
         )
 
+    def form_invalid(self, form):
+        existing_item_err = form.errors.get('offer_item', '')
+        if existing_item_err:
+            return redirect(
+                'openCurrents:biz-admin',
+                status_msg=existing_item_err
+            )
+
+        return super(OfferCreateView, self).form_invalid(form)
 
     def get_context_data(self, **kwargs):
         context = super(OfferCreateView, self).get_context_data(**kwargs)
