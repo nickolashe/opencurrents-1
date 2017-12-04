@@ -284,14 +284,14 @@ class NpfAdminView(TestCase):
     def test_npf_admin_approved_hours(self):
         response = self.client.get('/org-admin/')
         # checking if approved hours are correct
-        expected_list_of_approved_hours_by_each_admin = [{1: 4.0}, {2: 0.0}]
+        expected_list_of_approved_hours_by_each_admin = [{1: 4.0}]
         self.assertListEqual(response.context['issued_by_admin'],expected_list_of_approved_hours_by_each_admin)
 
 
     def test_npf_admin_pending_hours(self):
         response = self.client.get('/org-admin/')
         # checking if pending hours are correct
-        expected_list_of_pending_hours_by_each_admin = [{1: 0.0}, {2: 2.0}]
+        expected_list_of_pending_hours_by_each_admin = [{2: 2.0}]
         self.assertListEqual(response.context['hours_pending_by_admin'],expected_list_of_pending_hours_by_each_admin)
 
 
@@ -299,12 +299,10 @@ class NpfAdminView(TestCase):
         response = self.client.get('/org-admin/')
         processed_content = re.sub(r'\s+', ' ', response.content )
 
-        self.assertIn('<a href="/hours-detail/?is_admin=1&user_id=1&type=pending"', processed_content)
         self.assertIn('<a href="/hours-detail/?is_admin=1&user_id=1&type=approved"', processed_content)
         self.assertIn('<a href="/hours-detail/?is_admin=1&user_id=2&type=pending"', processed_content)
-        self.assertIn('<a href="/hours-detail/?is_admin=1&user_id=2&type=approved"', processed_content)
-        self.assertIn('org_user_1_first_name org_user_1_last_name: 4.0 </a>', processed_content)
-        self.assertIn('org_user_2_first_name org_user_2_last_name: 0.0 </a>',processed_content)
+        self.assertIn('org_user_1_first_name org_user_1_last_name: 4.0</a>', processed_content)
+        self.assertIn('org_user_2_first_name org_user_2_last_name: 2.0</a>',processed_content)
 
 
     def test_npf_page_upcoming_events_list(self):
@@ -324,28 +322,35 @@ class NpfAdminView(TestCase):
         processed_content = re.sub(r'\s+', ' ', response.content )
         self.assertIn('<a href="/create-event/{}/"'.format(self.org_id), processed_content)
 
-    @skip("Test Is Not Ready Yet")
+
     def test_hours_details_clickable(self):
         response = self.client.get('/org-admin/')
 
+        #check hours_pending_npf_admin1.context
         hours_pending_npf_admin1 = self.client.get('/hours-detail/?is_admin=1&user_id=1&type=pending')
         self.assertEqual(hours_pending_npf_admin1.status_code, 200)
-
-        #check hours_pending_npf_admin1.context
-
-        hours_approved_npf_admin1 = self.client.get('/hours-detail/?is_admin=1&user_id=1&type=approved')
-        self.assertEqual(hours_pending_npf_admin1.status_code, 200)
+        expected_queryset = []
+        self.assertQuerysetEqual(hours_pending_npf_admin1.context['object_list'].all(), expected_queryset)
 
         #check hours_approved_npf_admin1.context
+        hours_approved_npf_admin1 = self.client.get('/hours-detail/?is_admin=1&user_id=1&type=approved')
+        self.assertEqual(hours_approved_npf_admin1.status_code, 200)
+        expected_queryset_len = 1
+        self.assertEqual(len(hours_approved_npf_admin1.context['object_list'].all()), expected_queryset_len)
 
-        hours_pending_npf_admin2 = self.client.get('/hours-detail/?is_admin=1&user_id=2&type=pending')
-        self.assertEqual(hours_pending_npf_admin1.status_code, 200)
 
         #check hours_pending_npf_admin2.context
+        hours_pending_npf_admin2 = self.client.get('/hours-detail/?is_admin=1&user_id=2&type=pending')
+        self.assertEqual(hours_pending_npf_admin2.status_code, 200)
+        expected_queryset_len = 1
+        self.assertEqual(len(hours_pending_npf_admin2.context['object_list'].all()), expected_queryset_len)
 
-        hours_approved_npf_admin2 = self.client.get('/hours-detail/?is_admin=1&user_id=2&type=approved')
-        self.assertEqual(hours_pending_npf_admin1.status_code, 200)
 
         #check hours_approved_npf_admin2.context
+        hours_approved_npf_admin2 = self.client.get('/hours-detail/?is_admin=1&user_id=2&type=approved')
+        self.assertEqual(hours_approved_npf_admin2.status_code, 200)
+        expected_queryset = []
+        self.assertQuerysetEqual(hours_approved_npf_admin2.context['object_list'].all(), expected_queryset)
+
 
 
