@@ -1,6 +1,12 @@
 {% extends "layouts/base.html" %}
 {% load staticfiles %}
 
+{% block status %}
+  <div class="success row one-margin-top">
+    {{ status_msg|safe }}
+  </div>
+{% endblock status %}
+
 {% block heading %}
   <div class="row">
     <div class="small-12 medium-9 small-centered columns">
