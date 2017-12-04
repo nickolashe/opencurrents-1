@@ -629,10 +629,10 @@ class HoursDetailView(LoginRequiredMixin, SessionContextView, ListView):
                 user_instance = OcUser(self.request.GET.get('user_id'))
 
         if self.request.GET.get('type') == 'pending':
-            queryset = user_instance.get_hours_requested().order_by('-date_created')
+            queryset = user_instance.get_hours_requested().order_by('-usertimelog__datetime_start')
 
         if self.request.GET.get('type') == 'approved':
-            queryset = user_instance.get_hours_approved()
+            queryset = user_instance.get_hours_approved().order_by('-usertimelog__datetime_start')
 
         return queryset
 
