@@ -614,8 +614,27 @@ class HoursApprovedView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'hours-approved.html'
 
 
-class HoursDetailView(LoginRequiredMixin, SessionContextView, TemplateView):
+class HoursDetailView(LoginRequiredMixin, SessionContextView, ListView):
     template_name = 'hours-detail.html'
+    model = AdminActionUserTime
+
+    def get_queryset(self):
+        queryset = None
+
+        if self.request.GET.get('is_admin'):
+            if self.request.GET.get('user_id'):
+                user_instance = OrgAdmin(self.request.GET.get('user_id'))
+        else:
+            if self.request.GET.get('user_id'):
+                user_instance = OcUser(self.request.GET.get('user_id'))
+
+        if self.request.GET.get('type') == 'pending':
+            queryset = user_instance.get_hours_requested().order_by('-date_created')
+
+        if self.request.GET.get('type') == 'approved':
+            queryset = user_instance.get_hours_approved()
+
+        return queryset
 
 
 class InviteAdminsView(TemplateView):
@@ -1223,7 +1242,6 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             context['hours_pending_by_admin'].append(hours_pending)
 
 
-
         # calculating approved hours for every NPF admin and total NPF Org hours tracked
         context['issued_by_admin'] = []
         context['issued_by_logged_admin'] = time_issued_by_logged_admin = issued_by_all = 0
@@ -1251,7 +1269,6 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             context['issued_by_admin'].append(amount_issued_by_admin)
 
         context['issued_by_all'] = round(issued_by_all, 2)
-
 
 
         # past org events

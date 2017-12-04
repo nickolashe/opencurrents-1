@@ -33,6 +33,9 @@ def get_value_from_dict(dict_data, key):
     if key:
         return dict_data.get(key)
 
+@register.filter('subtract_time')
+def subtract_time(value1, arg1):
+    return round((value1 - arg1).total_seconds() / 3600,2)
 
 @register.filter
 def addstr(arg1, arg2):
