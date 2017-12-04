@@ -619,7 +619,7 @@ class InventoryView(TemplateView):
     template_name = 'inventory.html'
 
 
-class PublicRecordView(View):
+class PublicRecordView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'public-record.html'
 
     def get_top_list(self, entity_type='top_org', period='month'):
@@ -671,7 +671,7 @@ class MyHoursView(TemplateView):
     template_name = 'my-hours.html'
 
 
-class NominateView(TemplateView):
+class NominateView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'nominate.html'
 
 
@@ -2048,6 +2048,15 @@ class OfferCreateView(LoginRequiredMixin, BizSessionContextView, FormView):
             'Your offer for %s is now live!' % offer_item.name
         )
 
+    def form_invalid(self, form):
+        existing_item_err = form.errors.get('offer_item', '')
+        if existing_item_err:
+            return redirect(
+                'openCurrents:biz-admin',
+                status_msg=existing_item_err
+            )
+
+        return super(OfferCreateView, self).form_invalid(form)
 
     def get_context_data(self, **kwargs):
         context = super(OfferCreateView, self).get_context_data(**kwargs)
