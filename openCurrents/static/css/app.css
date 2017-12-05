@@ -72,8 +72,8 @@ h1, h2, h3, h4, h5, h6 {
 
 .h6-symbol {
   vertical-align: top;
-  margin-top: 0.1875rem;
-  margin-right: -0.0625rem;
+  margin-top: 0.25rem;
+  margin-right: -0.125rem;
   height: 1.25rem;
 }
 
@@ -84,8 +84,8 @@ h1, h2, h3, h4, h5, h6 {
 
 .med-text-symbol {
   vertical-align: -3px;
-  height: 1.0875rem;
-  margin-right: -0.0625rem;
+  height: 1.0625rem;
+  margin-right: -0.125rem;
 }
 
 
