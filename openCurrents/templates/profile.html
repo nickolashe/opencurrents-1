@@ -221,7 +221,8 @@
 
 {% block popups %}
   <div id="welcome-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-    <form method='post'>
+    <form method='post' action="{% url 'openCurrents:edit-profile' %}">
+        {% csrf_token %}
       <div class="row center">
         <div class="small-centered medium-10 columns">
           <h4 class="popup-title">Welcome to the openCurrents beta</h4>
@@ -232,8 +233,8 @@
             nonprofits where you volunteer, or friends who might be interested?</p>
 
           <p class="three-halves-margin-top">
-            <button type="submit" class="button round">Yes</button>
-            <button type="submit" class="button round secondary">No</button>
+            <button type="submit" name='yes' class="button round">Yes</button>
+            <button type="submit" name='no' class="button round secondary">No</button>
           </p>
         </div>
       </div>
@@ -383,12 +384,17 @@
         scrolllock: true,
       });
 
+    {# Turning on/off welcome popup #}
+    {% if user.usersettings_set.all.0.popup_reaction  == None %}
+
       $('#welcome-popup').popup({
         vertical: 'top',
         transition: 'all 0.75s',
         scrolllock: true,
         autoopen: true,
       });
+
+    {% endif %}
 
       $('.mini-open').click(function(){
         $('.mini-menu').hide();

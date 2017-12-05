@@ -64,7 +64,8 @@ from openCurrents.forms import \
     OfferCreateForm, \
     OfferEditForm, \
     RedeemCurrentsForm, \
-    PublicRecordsForm
+    PublicRecordsForm, \
+    PopUpAnswer
     #HoursDetailsForm
 
 
@@ -1356,8 +1357,27 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
         return context
 
 
-class EditProfileView(TemplateView):
-    template_name = 'edit-profile.html'
+class EditProfileView(View):
+    form_class = PopUpAnswer
+
+    def get(self, request, *args, **kwargs):
+        return HttpResponseRedirect('/profile/')
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        userid = self.request.user
+        profile_settings_instance = UserSettings.objects.get(user=userid)
+
+        if form.is_valid():
+            if 'yes' in request.POST:
+                profile_settings_instance.popup_reaction = True
+                profile_settings_instance.save()
+            if 'no' in request.POST:
+                profile_settings_instance.popup_reaction = False
+                profile_settings_instance.save()
+
+        return HttpResponseRedirect('/profile/')
+
 
 
 class BlogView(TemplateView):

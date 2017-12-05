@@ -385,15 +385,6 @@ class NpfAdminView(TestCase):
         response = self.client.get('/org-admin/')
         processed_content = re.sub(r'\s+', ' ', response.content )
 
-        # @@ TODO @@
-        # DELETE THIS BLOCK
-        # print "\nHERE"
-        # print processed_content
-        # print Project.objects.all()
-        # print Event.objects.all()
-        # print response.templates[0].name
-        # print "HERE\n"
-
         # check if users sees NFL org profile page
         self.assertEqual(response.status_code, 200)
         #self.assertTemplateUsed(response, 'org-admin.html')

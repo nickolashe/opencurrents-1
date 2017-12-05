@@ -16,7 +16,8 @@ from openCurrents.models import \
     Event, \
     UserTimeLog, \
     AdminActionUserTime, \
-    Ledger
+    Ledger, \
+    UserSettings
 
 from openCurrents.interfaces.ocuser import \
     OcUser, \
@@ -37,6 +38,7 @@ import pytz
 import uuid
 import random
 import string
+import re
 
 from unittest import skip
 
@@ -48,29 +50,98 @@ class TestUserPopup(TestCase):
         org = OcOrg().setup_org(name="NPF_org_1", status="npf")
 
 
-        org_user = OcUser().setup_user(
-            username = "volunteer1",
-            email = 'volunteer1@email.cc',
+        #creating a volunteer that sees the popup
+        oc_user = OcUser().setup_user(
+            username = "volunteer_default",
+            email = 'volunteer_default@email.cc',
             first_name='volunteer1_first_name',
             last_name= 'volunteer1_last_name'
         )
+        oc_user.set_password('password')
+        oc_user.save()
 
-        org_user.set_password('password')
-        org_user.save()
 
+        #creating a volunteer that answered NO to the popup question
+        oc_user = OcUser().setup_user(
+            username = "volunteer_no",
+            email = 'volunteer_no@email.cc',
+            first_name='volunteer_no_first_name',
+            last_name= 'volunteer_no_last_name'
+        )
+        oc_user.set_password('password')
+        oc_user.save()
+
+        # changing setting emulating NO answer to the tooltip
+        oc_user = User.objects.get(username="volunteer_no")
+        oc_user_settings = UserSettings.objects.get(user=oc_user)
+        oc_user_settings.popup_reaction = False
+        oc_user_settings.save()
+
+        # setting up client
         self.client = Client()
-        org_user = User.objects.filter(username="volunteer1")
-        self.client.login(username='volunteer1', password='password')
 
-    @skip("Test Is Not Ready Yet")
-    def test_popup_is_on(self):
+
+        #creating a volunteer that answered YES to the popup question
+        oc_user = OcUser().setup_user(
+            username = "volunteer_yes",
+            email = 'volunteer_yes@email.cc',
+            first_name='volunteer_yes_first_name',
+            last_name= 'volunteer_yes_last_name'
+        )
+        oc_user.set_password('password')
+        oc_user.save()
+
+        # changing setting emulating NO answer to the tooltip
+        oc_user = User.objects.get(username="volunteer_yes")
+        oc_user_settings = UserSettings.objects.get(user=oc_user)
+        oc_user_settings.popup_reaction = True
+        oc_user_settings.save()
+
+        # setting up client
+        self.client = Client()
+
+
+    def test_user_sees_popup(self):
+        #logging in user
+        oc_user = User.objects.get(username="volunteer_default")
+        self.client.login(username=oc_user.username, password='password')
+
+        # did user accessed the page?
         response = self.client.get('/profile/')
+        processed_content = re.sub(r'\s+', ' ', response.content )
         self.assertEqual(response.status_code, 200)
 
-        print response.content
+        # popup code is in the page
+        self.assertIn("$('#welcome-popup').popup({", processed_content)
 
-        popup='<div id="welcome-popup" class="modal center small-12 medium-9 large-7 small-centered columns popup_content" data-popup-initialized="true" aria-hidden="false" role="dialog" tabindex="-1" style="display: inline-block; outline: none; transition: all 0.75s; text-align: left; position: relative; visibility: visible; opacity: 1; vertical-align: top;">'
-        self.assertInHTML(popup, response.content)
+
+    def test_user_answ_no_doesnt_see_popup(self):
+        #logging in user
+        oc_user = User.objects.get(username="volunteer_no")
+        self.client.login(username=oc_user.username, password='password')
+
+        # did user accessed the page?
+        response = self.client.get('/profile/')
+        processed_content = re.sub(r'\s+', ' ', response.content )
+        self.assertEqual(response.status_code, 200)
+
+        # popup code is in the page
+        self.assertNotIn("$('#welcome-popup').popup({", processed_content)
+
+
+    def test_user_answ_yes_doesnt_see_popup(self):
+        #logging in user
+        oc_user = User.objects.get(username="volunteer_yes")
+        self.client.login(username=oc_user.username, password='password')
+
+        # did user accessed the page?
+        response = self.client.get('/profile/')
+        processed_content = re.sub(r'\s+', ' ', response.content )
+        self.assertEqual(response.status_code, 200)
+
+        # popup code is in the page
+        self.assertNotIn("$('#welcome-popup').popup({", processed_content)
+
 
 
 

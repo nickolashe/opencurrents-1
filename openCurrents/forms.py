@@ -778,6 +778,10 @@ class PublicRecordsForm(forms.Form):
     record_type = forms.ChoiceField(choices=record_types)
     period = forms.ChoiceField(choices=periods)
 
+class PopUpAnswer(forms.Form):
+    answer = forms.CharField(max_length=3,required=False)
+
+
 
 # class HoursDetailsForm(forms.Form):
 
