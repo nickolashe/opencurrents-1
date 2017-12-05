@@ -628,8 +628,6 @@ class BizDetailsForm(forms.Form):
     )
 
 
-
-
 class OfferCreateForm(forms.Form):
     def __init__(self, *args, **kwargs):
         orgid = kwargs.pop('orgid')
