@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime, timedelta
 
 from django.contrib.auth.models import User
 from django.db.models import Max
@@ -9,6 +9,7 @@ from openCurrents.models import \
     UserSettings, \
     UserTimeLog, \
     AdminActionUserTime, \
+    Offer, \
     Transaction, \
     TransactionAction
 
@@ -246,6 +247,36 @@ class OcUser(object):
         )
 
         return transaction_actions
+
+    def get_offers_marketplace(self):
+        '''
+        get all offers in the marketplace
+            - annotated by number of redeemed for given timeframe
+        '''
+        offers_all = Offer.objects.all().order_by('-date_updated')
+
+        for offer in offers_all:
+            # logger.debug('%d: %d', offer.id, num_redeemed)
+            offer.num_redeemed = self.get_offer_num_redeemed(offer)
+
+        return offers_all
+
+    def get_offer_num_redeemed(self, offer, date_since=date.today().replace(day=1)):
+        '''
+        return the number of remaining number of redeemed for given timeframe
+        '''
+        transactions = offer.transaction_set.filter(
+            date_updated__gte=date_since
+        )
+
+        num_redeemed = 0
+        if transactions:
+            for tr in transactions:
+                action = tr.transactionaction_set.latest()
+                if action.action_type != 'dec':
+                    num_redeemed += 1
+
+        return num_redeemed
 
     def get_hours_requested(self):
         usertimelogs = self._get_usertimelogs()

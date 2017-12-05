@@ -562,6 +562,7 @@ class TransactionAction(models.Model):
 
     class Meta:
         unique_together = ('transaction', 'action_type')
+        get_latest_by = 'date_updated'
 
     def __unicode__(self):
         return ' '.join([
