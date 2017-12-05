@@ -59,6 +59,7 @@ from openCurrents.forms import \
     EventCheckinForm, \
     OrgNominationForm, \
     TimeTrackerForm, \
+    BizDetailsForm, \
     OfferCreateForm, \
     OfferEditForm, \
     RedeemCurrentsForm, \
@@ -281,6 +282,7 @@ class AssignAdminsView(TemplateView):
 
 class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, TemplateView):
     template_name = 'biz-admin.html'
+    form_class = BizDetailsForm
 
     def get_context_data(self, **kwargs):
         context = super(BizAdminView, self).get_context_data(**kwargs)
