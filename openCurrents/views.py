@@ -1199,7 +1199,7 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
 
     def _sorting_hours(self, list_of_dicts, user_id):
         """
-        Takes the list of dictionaries eg '{admin.user.id : time_pending_per_admin }' and an NPF admin user id,
+        Takes the list of dictionaries eg '{admin.user.id : time_pending_per_admin }' and currently logged in NPF admin user id,
         then finds and add currently logged NPF admin user to the beginning of the sorted by values list of
         dictionaries.
         Returns sorted by values list of dictionaries with hours for currently logged NPF admin as the first element.
@@ -1209,11 +1209,12 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             if item.has_key(user_id):
                 temp_current_admin_dic = list_of_dicts.pop(list_of_dicts.index(item))
 
-        list_of_dicts = sorted(list_of_dicts, key=lambda d: d.values()[0], reverse=False)
-        if len(temp_current_admin_dic) > 0:
-            list_of_dicts.insert(0, temp_current_admin_dic)
+        list_of_dicts2 = sorted(list_of_dicts, key=lambda d: d.values()[0], reverse=True)
 
-        return list_of_dicts
+        if len(temp_current_admin_dic) > 0:
+            list_of_dicts2.insert(0, temp_current_admin_dic)
+
+        return list_of_dicts2
 
 
     def get_context_data(self, **kwargs):
@@ -1274,7 +1275,7 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
 
 
         # sorting the list of admins by # of pending hours descending and putting current admin at the beginning of the list
-        context['hours_pending_by_admin'] = self._sorting_hours(context['hours_pending_by_admin'], admin.user.id)
+        context['hours_pending_by_admin'] = self._sorting_hours(context['hours_pending_by_admin'], self.user.id)
 
 
         # calculating approved hours for every NPF admin and total NPF Org hours tracked
@@ -1303,7 +1304,7 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             context['issued_by_logged_admin'] = round(time_issued_by_logged_admin,2)
 
         # sorting the list of admins by # of approved hours descending and putting current admin at the beginning of the list
-        context['issued_by_admin'] = self._sorting_hours(context['issued_by_admin'], admin.user.id)
+        context['issued_by_admin'] = self._sorting_hours(context['issued_by_admin'], self.user.id)
 
 
         # past org events

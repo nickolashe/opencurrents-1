@@ -45,7 +45,7 @@ from unittest import skip
 class NpfAdminView(TestCase):
 
     @staticmethod
-    def create_user(org_user_name, org, is_org_user=False, is_org_admin=False):
+    def create_user(org_user_name, org, is_org_user=False, is_org_admin=False, password = 'password'):
         """
         users and maps them to the org if needed.
         org_user_name - string
@@ -70,7 +70,7 @@ class NpfAdminView(TestCase):
             if is_org_admin:
                 oui.make_org_admin(org.id)
 
-        org_user.set_password('password')
+        org_user.set_password(password)
         org_user.save()
 
 
@@ -82,10 +82,12 @@ class NpfAdminView(TestCase):
         # creating users
         # admins
         self.create_user('org_user_1', org, is_org_user=True, is_org_admin=True)
-        self.create_user('org_user_2', org, is_org_user=True, is_org_admin=True)
+        self.create_user('org_user_2', org, is_org_user=True, is_org_admin=True, password = 'password2')
+        self.create_user('org_user_3', org, is_org_user=True, is_org_admin=True, password = 'password3')
 
         # volunteer user
         self.create_user('volunteer_1', org, is_org_user=False, is_org_admin=False)
+        self.create_user('volunteer_2', org, is_org_user=False, is_org_admin=False)
 
         # setup Project
         project = Project.objects.create(
@@ -136,7 +138,12 @@ class NpfAdminView(TestCase):
         )
 
 
-        #creating approved 4 hours for NPF admin1
+        # @@ TODO @@
+        # move repeatable actions during setting up testing environment to a class in tests/interfaces
+        #
+
+
+        #creating APPROVED 4 hours for NPF admin1
         volunteer1 = User.objects.get(username='volunteer_1')
         datetime_start = past_date + timedelta(hours=2)
         datetime_end = past_date + timedelta(hours=6)
@@ -150,7 +157,7 @@ class NpfAdminView(TestCase):
             project=project,
             is_public = True,
             description="finished event",
-            location="test_location_3",
+            location="test_location_4",
             coordinator=org_admin,
             event_type="MN",
             datetime_start=datetime_start,
@@ -171,8 +178,112 @@ class NpfAdminView(TestCase):
             action_type='app'
         )
 
+        #creating APPROVED 2 hours for NPF admin2
+        org_admin = User.objects.get(username='org_user_2')
+        volunteer2 = User.objects.get(username='volunteer_2')
+        datetime_start = past_date + timedelta(hours=1)
+        datetime_end = past_date + timedelta(hours=3)
 
-        #creating pending 2 hours assigned to NPF admin2
+        project = Project.objects.create(
+            org=org,
+            name="test_project_2"
+        )
+
+        volunteer2_mt_event_1 = Event.objects.create(
+            project=project,
+            is_public = True,
+            description="finished event 2",
+            location="test_location_5",
+            coordinator=org_admin,
+            event_type="MN",
+            datetime_start=datetime_start,
+            datetime_end=datetime_end
+        )
+
+        volunteer2_timelog = UserTimeLog.objects.create(
+            user=volunteer2,
+            event=volunteer2_mt_event_1,
+            datetime_start=datetime_start,
+            datetime_end=datetime_end,
+            is_verified=True
+        )
+
+        actiontimelog = AdminActionUserTime.objects.create(
+            user=org_admin,
+            usertimelog=volunteer2_timelog,
+            action_type='app'
+        )
+
+
+        #creating APPROVED 6 hours for NPF admin3
+        org_admin = User.objects.get(username='org_user_3')
+        volunteer2 = User.objects.get(username='volunteer_2')
+        datetime_start = past_date + timedelta(hours=4)
+        datetime_end = past_date + timedelta(hours=10)
+
+        project = Project.objects.create(
+            org=org,
+            name="test_project_2"
+        )
+
+        volunteer2_mt_event_1 = Event.objects.create(
+            project=project,
+            is_public = True,
+            description="finished event 2",
+            location="test_location_5",
+            coordinator=org_admin,
+            event_type="MN",
+            datetime_start=datetime_start,
+            datetime_end=datetime_end
+        )
+
+        volunteer2_timelog = UserTimeLog.objects.create(
+            user=volunteer2,
+            event=volunteer2_mt_event_1,
+            datetime_start=datetime_start,
+            datetime_end=datetime_end,
+            is_verified=True
+        )
+
+        actiontimelog = AdminActionUserTime.objects.create(
+            user=org_admin,
+            usertimelog=volunteer2_timelog,
+            action_type='app'
+        )
+
+
+        #creating PENDING 1 hour assigned to NPF admin1 (currently logged in)
+        volunteer2 = User.objects.get(username='volunteer_2')
+        org_admin = User.objects.get(username='org_user_1')
+        datetime_start = past_date + timedelta(hours=5)
+        datetime_end = past_date + timedelta(hours=6)
+
+        volunteer2_mt_event_2 = Event.objects.create(
+            project=project,
+            is_public = True,
+            description="pending event",
+            location="test_location_6",
+            coordinator=org_admin,
+            event_type="MN",
+            datetime_start=datetime_start,
+            datetime_end=datetime_end
+        )
+
+        volunteer2_timelog = UserTimeLog.objects.create(
+            user=volunteer2,
+            event=volunteer2_mt_event_2,
+            datetime_start=datetime_start,
+            datetime_end=datetime_end,
+            is_verified=False
+        )
+
+        actiontimelog = AdminActionUserTime.objects.create(
+            user=org_admin,
+            usertimelog=volunteer2_timelog,
+            action_type='req'
+        )
+
+        #creating PENDING 2 hours assigned to NPF admin2
         volunteer1 = User.objects.get(username='volunteer_1')
         org_admin = User.objects.get(username='org_user_2')
         datetime_start = past_date + timedelta(hours=2)
@@ -182,7 +293,7 @@ class NpfAdminView(TestCase):
             project=project,
             is_public = True,
             description="pending event",
-            location="test_location_4",
+            location="test_location_7",
             coordinator=org_admin,
             event_type="MN",
             datetime_start=datetime_start,
@@ -204,6 +315,41 @@ class NpfAdminView(TestCase):
         )
 
 
+        #creating PENDING 3 hours assigned to NPF admin3
+        volunteer2 = User.objects.get(username='volunteer_2')
+        org_admin = User.objects.get(username='org_user_3')
+        datetime_start = past_date + timedelta(hours=1)
+        datetime_end = past_date + timedelta(hours=4)
+
+        volunteer2_mt_event_2 = Event.objects.create(
+            project=project,
+            is_public = True,
+            description="pending event",
+            location="test_location_8",
+            coordinator=org_admin,
+            event_type="MN",
+            datetime_start=datetime_start,
+            datetime_end=datetime_end
+        )
+
+        volunteer2_timelog = UserTimeLog.objects.create(
+            user=volunteer2,
+            event=volunteer2_mt_event_2,
+            datetime_start=datetime_start,
+            datetime_end=datetime_end,
+            is_verified=False
+        )
+
+        actiontimelog = AdminActionUserTime.objects.create(
+            user=org_admin,
+            usertimelog=volunteer2_timelog,
+            action_type='req'
+        )
+
+
+
+
+
 
 
     def setUp(self):
@@ -212,8 +358,8 @@ class NpfAdminView(TestCase):
 
         # logging in user
         self.client = Client()
-        org_user = User.objects.filter(username="org_user_1")
-        self.client.login(username='org_user_1', password='password')
+        org_user = User.objects.get(username="org_user_1")
+        self.client.login(username=org_user.username, password='password')
 
 
     def test_npf_org_admin_profile_page(self):
@@ -253,7 +399,7 @@ class NpfAdminView(TestCase):
         #self.assertTemplateUsed(response, 'org-admin.html')
 
         # assert org/my hours tracked are displayed
-        self.assertIn('Org hours tracked: 4.0', processed_content)
+        self.assertIn('Org hours tracked: 12.0', processed_content)
         self.assertIn('My hours tracked: 4.0', processed_content, )
 
         # assert displayed events sections
@@ -268,7 +414,7 @@ class NpfAdminView(TestCase):
         # check for buttons
         self.assertIn( '<a href="/live-dashboard/2/"/>', processed_content) # testing start button
         self.assertIn( 'Approve hours', processed_content)
-        self.assertIn( '<a href="javascript:status()"', processed_content)
+        self.assertIn( '<a href="/approve-hours/"', processed_content)
         self.assertIn( 'Create event', processed_content)
         self.assertIn( '<a href="/create-event/1/"', processed_content)
 
@@ -283,15 +429,15 @@ class NpfAdminView(TestCase):
 
     def test_npf_admin_approved_hours(self):
         response = self.client.get('/org-admin/')
-        # checking if approved hours are correct
-        expected_list_of_approved_hours_by_each_admin = [{1: 4.0}]
+        # checking if pending hours are correctly sorted (logged in admin first then all other admins by amount of pending hours in descending order)
+        expected_list_of_approved_hours_by_each_admin = [{1: 4.0}, {3: 6.0}, {2: 2.0}]
         self.assertListEqual(response.context['issued_by_admin'],expected_list_of_approved_hours_by_each_admin)
 
 
     def test_npf_admin_pending_hours(self):
         response = self.client.get('/org-admin/')
-        # checking if pending hours are correct
-        expected_list_of_pending_hours_by_each_admin = [{2: 2.0}]
+        # checking if pending hours are correctly sorted (logged in admin first then all other admins by amount of pending hours in descending order)
+        expected_list_of_pending_hours_by_each_admin = [{1: 1.0}, {3: 3.0}, {2: 2.0}]
         self.assertListEqual(response.context['hours_pending_by_admin'],expected_list_of_pending_hours_by_each_admin)
 
 
@@ -329,28 +475,28 @@ class NpfAdminView(TestCase):
         #check hours_pending_npf_admin1.context
         hours_pending_npf_admin1 = self.client.get('/hours-detail/?is_admin=1&user_id=1&type=pending')
         self.assertEqual(hours_pending_npf_admin1.status_code, 200)
-        expected_queryset = []
-        self.assertQuerysetEqual(hours_pending_npf_admin1.context['object_list'].all(), expected_queryset)
+        expected_queryset_len = 1
+        self.assertEqual(len(hours_pending_npf_admin1.context['hours_detail'].all()), expected_queryset_len)
 
         #check hours_approved_npf_admin1.context
         hours_approved_npf_admin1 = self.client.get('/hours-detail/?is_admin=1&user_id=1&type=approved')
         self.assertEqual(hours_approved_npf_admin1.status_code, 200)
         expected_queryset_len = 1
-        self.assertEqual(len(hours_approved_npf_admin1.context['object_list'].all()), expected_queryset_len)
+        self.assertEqual(len(hours_approved_npf_admin1.context['hours_detail'].all()), expected_queryset_len)
 
 
         #check hours_pending_npf_admin2.context
         hours_pending_npf_admin2 = self.client.get('/hours-detail/?is_admin=1&user_id=2&type=pending')
         self.assertEqual(hours_pending_npf_admin2.status_code, 200)
         expected_queryset_len = 1
-        self.assertEqual(len(hours_pending_npf_admin2.context['object_list'].all()), expected_queryset_len)
+        self.assertEqual(len(hours_pending_npf_admin2.context['hours_detail'].all()), expected_queryset_len)
 
 
         #check hours_approved_npf_admin2.context
         hours_approved_npf_admin2 = self.client.get('/hours-detail/?is_admin=1&user_id=2&type=approved')
         self.assertEqual(hours_approved_npf_admin2.status_code, 200)
-        expected_queryset = []
-        self.assertQuerysetEqual(hours_approved_npf_admin2.context['object_list'].all(), expected_queryset)
+        expected_queryset_len = 1
+        self.assertEqual(len(hours_approved_npf_admin2.context['hours_detail'].all()), expected_queryset_len)
 
 
 
