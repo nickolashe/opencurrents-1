@@ -117,9 +117,9 @@
                   <a href="{% url 'openCurrents:edit-offer' offer.id %}">
                     <li> Edit offer </li>
                   </a>
-                  <a class="delete-offer-popup_open">
+                  <!-- <a class="delete-offer-popup_open">
                     <li class="alert"> Delete offer </li>
-                  </a>
+                  </a> -->
                 </ul>
               </div>
             </div>
@@ -150,7 +150,7 @@
           </h6>
 
           {% for req in redemptions %}
-            {% with tr=req.transaction %}
+            {% with tr=req.transaction status=req.get_action_type_display %}
               <div class="row">
                 <div class="left small-9 columns">
                   <p class="half-margin-bottom">
@@ -162,14 +162,18 @@
                       {{ tr.offer.item.name }} for
                       ${{ tr.price_reported }}
                     </strong>
-                    and will receive
-                    {% with percent_share=tr.offer.currents_share|percent_to_price %}
-                      {% with discount=tr.price_reported|mult:percent_share %}
-                        ${{ discount|floatformat:2 }}
+                    and
+                    {% if status == 'pending' %} would {% else %} will {% endif %}
+                    receive
+                    {% with amount_cur=tr.currents_amount %}
+                      {% with amount_usd=amount_cur|current_to_usd %}
+                    <!-- with percent_share=tr.offer.currents_share|percent_to_price %} -->
+                      <!-- with discount=tr.price_reported|mult:percent_share %} -->
+                        ${{ amount_usd|floatformat:2 }}
                         for
                         <span class="no-wrap">
                           <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
-                          {{ discount|usd_to_current|floatformat:3 }}
+                          {{ amount_cur|floatformat:3 }}
                         </span>
                       {% endwith %}
                     {% endwith %}
