@@ -13,23 +13,27 @@
 {% endblock heading %}
 
 {% block content %}
-  {{ forms.biz_website }}
+  <form class="" method="post">
+  {% csrf_token %}
+  
+    {{ forms.biz_website }}
 
-  <div class="row">
-    <div class="medium-6 columns">
-      {{ forms.biz_phone }}
+    <div class="row">
+      <div class="medium-6 columns">
+        {{ forms.biz_phone }}
+      </div>
+
+      <div class="medium-6 columns">
+        {{ forms.biz_email }}
+      </div>
+
+      <div class="columns">
+        {{ forms.biz_address }}
+      </div>
     </div>
 
-    <div class="medium-6 columns">
-      {{ forms.biz_email }}
-    </div>
-
-    <div class="columns">
-      {{ forms.biz_address }}
-    </div>
-  </div>
-
-  {{ forms.biz_intro }}
+    {{ forms.biz_intro }}
+  </form>
 {% endblock content %}
 
 {% block buttons %}
