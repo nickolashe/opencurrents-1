@@ -587,11 +587,6 @@ class EventCheckinForm(forms.Form):
 
 
 class BizDetailsForm(forms.Form):
-    def __init__(self, *args, **kwargs):
-        orgid = kwargs.pop('orgid')
-        self.org = Org.objects.get(id=orgid)
-        super(BizDetailsForm, self).__init(*args, **kwargs)
-
     biz_website = forms.CharField(
         widget=forms.TextInput(attrs={
             'placeholder': 'Website',
