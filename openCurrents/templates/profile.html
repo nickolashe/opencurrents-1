@@ -113,6 +113,21 @@
 
   <div class="row collapse one-margin-top left">
     <div class="small-11 medium-10 small-centered columns">
+      <h6 class="half-margin-bottom">Community activity</h6>
+      <a href="{% url 'openCurrents:public-record' %}" class="tag button tiny round secondary">
+        Currents issued: X
+      </a>
+      <a href="{% url 'openCurrents:public-record' %}" class="tag button tiny round secondary">
+        Active volunteers: Y
+      </a>
+      <a href="{% url 'openCurrents:public-record' %}" class="tag button tiny round secondary">
+        Currents accepted: Z
+      </a>
+    </div>
+  </div>
+
+  <div class="row collapse one-margin-top left">
+    <div class="small-11 medium-10 small-centered columns">
       <div class="row">
         <div class="small-8 columns">
           <h6 class="half-margin-bottom">My redeemed offers</h6>
@@ -145,22 +160,17 @@
 
                     {% elif status == 'approved' %}
                       accepted
-                      <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
+                      <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
                       {{ amount_cur|floatformat:3 }}
                       for ${{ amount_usd|floatformat:2 }}
 
                     {% elif status == 'redeemed' %}
                       received
-                      <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
+                      <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
                       {{ amount_cur|floatformat:3 }}
                       for ${{ amount_usd|floatformat:2 }}
 
-                    {% else %}
-                      {{ status }}
-                      <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
-                      {{ amount_cur|floatformat:3 }}
-                      for ${{ amount_usd|floatformat:2 }}
-
+                    {# add declined #}
                     {% endif %}
 
                   {% endwith %}
@@ -180,7 +190,6 @@
           </a>
         </p>
       {% endif %}
-
     </div>
   </div>
 
@@ -192,28 +201,34 @@
     {% endblock %}
   {% endmacro %}
 
-  <div class="row collapse one-margin-top left">
+  <div class="left row one-margin-top collapse">
     <div class="small-11 medium-10 small-centered columns">
-      <h6 class="half-margin-bottom">My hours</h6>
-
-      <a href="{% url 'openCurrents:hours-detail' %}" class="button round tiny secondary">Orgname 1: X</a>
-      <a href="{% url 'openCurrents:hours-detail' %}" class="button round tiny secondary">Orgname 2: Y</a>
-    </div>
-  </div>
-
-  <div class="row collapse one-margin-top left">
-    <div class="small-11 medium-10 small-centered columns">
-      <h6 class="half-margin-bottom">Pending hours</h6>
+      <div class="row">
+        <div class="small-9 columns">
+          <h6 class="half-margin-bottom">Hours requested</h6>
+        </div>
+      </div>
 
       {% usemacro user_hour_request_list_macro hours_requested 'requested' timezone %}
     </div>
   </div>
 
+  <div class="row collapse one-margin-top left">
+    <div class="small-11 medium-10 small-centered columns">
+      <h6 class="half-margin-bottom">Hours approved</h6>
+      {% for org, hours in hours_by_org.0.items %}
+        <a href="{% url 'openCurrents:hours-detail' %}?user_id={{user.id}}&org_id={{org.id}}&type=approved" class="button round tiny secondary">{{org.name}}: {{hours}}</a>
+      {% empty %}
+        <h5>No records available</h5>
+      {% endfor %}
+    </div>
+  </div>
 {% endblock content %}
 
 {% block popups %}
   <div id="welcome-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-    <form method='post'>
+    <form method='post' action="{% url 'openCurrents:edit-profile' %}">
+        {% csrf_token %}
       <div class="row center">
         <div class="small-centered medium-10 columns">
           <h4 class="popup-title">Welcome to the openCurrents beta</h4>
@@ -224,8 +239,8 @@
             nonprofits where you volunteer, or friends who might be interested?</p>
 
           <p class="three-halves-margin-top">
-            <button type="submit" class="button round">Yes</button>
-            <button type="submit" class="button round secondary">No</button>
+            <button type="submit" name='yes' class="button round">Yes</button>
+            <button type="submit" name='no' class="button round secondary">No</button>
           </p>
         </div>
       </div>
@@ -375,18 +390,17 @@
         scrolllock: true,
       });
 
-      $('#rsvp-popup, #earn-currents-popup, #balance-popup, #no-cash-popup, #cash-out-popup, #my-approved-hours-popup').popup({
-        vertical: 'top',
-        transition: 'all 0.75s',
-        scrolllock: true,
-      });
+    {# Turning on/off welcome popup #}
+    {% if user.usersettings_set.all.0.popup_reaction  == None %}
 
       $('#welcome-popup').popup({
         vertical: 'top',
         transition: 'all 0.75s',
         scrolllock: true,
-        //autoopen: true,
+        autoopen: true,
       });
+
+    {% endif %}
 
       $('.mini-open').click(function(){
         $('.mini-menu').hide();

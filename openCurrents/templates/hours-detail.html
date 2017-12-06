@@ -1,4 +1,5 @@
 {% extends "layouts/base.html" %}
+{% load tags %}
 
 {% block heading %}
   <div class="row">
@@ -35,64 +36,29 @@
     </div>
   </div>
 
-  <!-- for record in user's hours_approved -->
+
+{% for object in hours_detail  %}
   <div class="row">
     <div class="medium-10 small-centered columns">
       <div class="left row">
         <div class="small-3 columns">
-          <p class="half-margin-bottom">Nov 17</p>
+          <p class="half-margin-bottom">{{ object.usertimelog.datetime_start|date:"M d" }}</p>
         </div>
 
         <div class="small-6 columns">
-          <p class="half-margin-bottom">Doing my thing for the greater good</p>
+          <p class="half-margin-bottom">{{ object.usertimelog.event.description }}</p>
         </div>
 
         <div class="right small-2 columns">
-          <p class="half-margin-bottom">2.25</p>
+          <p class="half-margin-bottom">{{ object.usertimelog.datetime_end|subtract_time:object.usertimelog.datetime_start }}</p>
         </div>
       </div>
     </div>
   </div>
-  <!-- endfor -->
+{% empty %}
+    <h5>No records available</h5>
+{% endfor %}
 
-      <!-- delete once forloop added -->
-      <div class="row">
-        <div class="medium-10 small-centered columns">
-          <div class="left row">
-            <div class="small-3 columns">
-              <p class="half-margin-bottom">Nov 17</p>
-            </div>
-
-            <div class="small-6 columns">
-              <p class="half-margin-bottom">Doing my thing for the greater good</p>
-            </div>
-
-            <div class="right small-2 columns">
-              <p class="half-margin-bottom">2.25</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="medium-10 small-centered columns">
-          <div class="left row">
-            <div class="small-3 columns">
-              <p class="half-margin-bottom">Nov 17</p>
-            </div>
-
-            <div class="small-6 columns">
-              <p class="half-margin-bottom">Doing my thing for the greater good</p>
-            </div>
-
-            <div class="right small-2 columns">
-              <p class="half-margin-bottom">2.25</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- end delete -->
 
   <div class="row three-halves-margin-top">
     <a href="{% url 'openCurrents:profile' %}" class="button round">

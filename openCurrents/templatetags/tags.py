@@ -25,6 +25,18 @@ def time(val, tz='UTC'):
 def keyvalue(d, key):
     return d[key]
 
+@register.filter('get_value_from_dict')
+def get_value_from_dict(dict_data, key):
+    """
+    usage example {{ your_dict|get_value_from_dict:your_key }}
+    """
+    if key:
+        return dict_data.get(key)
+
+@register.filter('subtract_time')
+def subtract_time(value1, arg1):
+    return round((value1 - arg1).total_seconds() / 3600,2)
+
 @register.filter
 def addstr(arg1, arg2):
     """concatenate arg1 & arg2"""
