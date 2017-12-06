@@ -25,9 +25,7 @@ from openCurrents.interfaces.ocuser import \
 
 from openCurrents.interfaces.orgs import \
     OcOrg, \
-    OrgUserInfo, \
-    OcUser , \
-    OcLedger
+    OrgUserInfo
 
 from openCurrents.interfaces.orgadmin import OrgAdmin
 
