@@ -57,3 +57,7 @@ def str_to_num(arg1):
 @register.filter
 def get_hours_total(arg1, arg2):
     return (arg2 - arg1).total_seconds() / 3600
+
+@register.filter
+def less(arg1, arg2):
+    return arg1 - arg2

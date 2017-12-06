@@ -139,7 +139,9 @@ class Ledger(models.Model):
     is_issued = models.BooleanField(default=False)
 
     # related actions
-    # TODO: refactor using a joint table for actions
+    # TODO:
+    #   - refactor using a joint table for actions
+    #   - *and* enforce uniqueness constraint (action, entity_to, entity_from)
     action = models.ForeignKey(
         'AdminActionUserTime',
         on_delete=models.CASCADE,
@@ -559,6 +561,7 @@ class TransactionAction(models.Model):
 
     class Meta:
         unique_together = ('transaction', 'action_type')
+        get_latest_by = 'date_updated'
 
     def __unicode__(self):
         return ' '.join([

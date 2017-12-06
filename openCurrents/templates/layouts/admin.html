@@ -4,22 +4,26 @@
 {% load tags %}
 
 {% block heading %}
-  <div class="hide-for-small-only row full-width collapse one-margin-top">
+  <div class="hide-for-small-only row full-width collapse one-margin-top one-margin-bottom">
     <div class="left medium-5 medium-offset-1 columns">
       {% block heading-left %}
-        <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="fit-left round" />
-        <span class="input-sizer"> -->
-          <h5 class="one-margin-top no-margin-bottom trim-text">
-            {% block title %} {{ orgname }} {% endblock title %}
-          </h5>
-          <h6>{{ user.first_name }} {{ user.last_name }}</h6>
-        <!-- </span> -->
+        <h5 class="one-margin-top no-margin-bottom trim-text">
+          {% block title %} {{ orgname }} {% endblock title %}
+        </h5>
+        <h6 class="half-margin-bottom">
+          {{ user.first_name }} {{ user.last_name }}
+        </h6>
+        {% block button-left %}
+          <a class="biz-details-popup_open button round tiny secondary">
+            Add business details
+          </a>
+        {% endblock button-left %}
       {% endblock heading-left %}
     </div>
 
     <div class="right one-margin-top medium-5 columns end">
       {% block heading-right %}
-        <span class="no-wrap">
+        <div class="no-wrap qtr-margin-top">
           <h6 class="no-margin-bottom inline-block">
             Currents available:
           </h6>
@@ -27,7 +31,7 @@
           <h6 class="inline">
             {{ currents_balance }}
           </h6>
-        </span>
+        </div>
 
         <div class="no-margin-bottom">
           <span class="no-wrap">
@@ -40,11 +44,16 @@
             </h6>
           </span>
         </div>
+        {% block button-right %}
+          <a href="{% url 'openCurrents:offer' %}" class="button round tiny">
+            Post an offer
+          </a>
+        {% endblock button-right %}
       {% endblock heading-right %}
     </div>
   </div>
 
-  <div class="show-for-small-only row one-margin-top">
+  <div class="show-for-small-only row one-margin-top half-margin-bottom">
     <div class="columns">
       {% block heading-small %}
         <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="round" /> -->
@@ -61,16 +70,27 @@
             {{ currents_balance }}
           </h6>
         </div>
-        <div class="no-margin-bottom">
+        <div class="half-margin-bottom">
           <span class="no-wrap">
-            <h6 class="one-margin-bottom inline-block">
+            <h6 class="inline-block">
               Pending:
             </h6>
-            <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
+            <img class="med-text-symbol" src="{% static 'img/symbol.svg' %}"/>
             <h6 class="inline-block">
               {{ currents_pending }}
             </h6>
           </span>
+        </div>
+
+        <div class="row">
+          <div class="small-12 columns">
+            <a href="{% url 'openCurrents:offer' %}" class="button round tiny">
+              Post an offer
+            </a>
+            <a class="biz-details-popup_open button round tiny secondary">
+              Add business details
+            </a>
+          </div>
         </div>
       {% endblock heading-small %}
     </div>
@@ -79,14 +99,8 @@
 
 
 {% block content %}
-  <p class="no-margin-bottom">
-    <a href="{% url 'openCurrents:offer' %}" class="button round small">
-      Post an offer
-    </a>
-  </p>
-
   {% block lists %}
-    <div class="left row one-margin-top full-width collapse">
+    <div class="left row full-width collapse">
       <div class="small-11 medium-10 small-centered columns">
         <h6 class="half-margin-bottom">Our offers</h6>
 
@@ -117,9 +131,9 @@
                   <a href="{% url 'openCurrents:edit-offer' offer.id %}">
                     <li> Edit offer </li>
                   </a>
-                  <a class="delete-offer-popup_open">
+                  <!-- <a class="delete-offer-popup_open">
                     <li class="alert"> Delete offer </li>
-                  </a>
+                  </a> -->
                 </ul>
               </div>
             </div>
@@ -150,7 +164,7 @@
           </h6>
 
           {% for req in redemptions %}
-            {% with tr=req.transaction %}
+            {% with tr=req.transaction status=req.get_action_type_display %}
               <div class="row">
                 <div class="left small-9 columns">
                   <p class="half-margin-bottom">
@@ -162,14 +176,18 @@
                       {{ tr.offer.item.name }} for
                       ${{ tr.price_reported }}
                     </strong>
-                    and will receive
-                    {% with percent_share=tr.offer.currents_share|percent_to_price %}
-                      {% with discount=tr.price_reported|mult:percent_share %}
-                        ${{ discount|floatformat:2 }}
+                    and
+                    {% if status == 'pending' %} would {% else %} will {% endif %}
+                    receive
+                    {% with amount_cur=tr.currents_amount %}
+                      {% with amount_usd=amount_cur|current_to_usd %}
+                    <!-- with percent_share=tr.offer.currents_share|percent_to_price %} -->
+                      <!-- with discount=tr.price_reported|mult:percent_share %} -->
+                        ${{ amount_usd|floatformat:2 }}
                         for
                         <span class="no-wrap">
-                          <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
-                          {{ discount|usd_to_current|floatformat:3 }}
+                          <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
+                          {{ amount_cur|floatformat:3 }}
                         </span>
                       {% endwith %}
                     {% endwith %}
@@ -195,6 +213,10 @@
 
 
 {% block popups %}
+  <div id="biz-details-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+    {% include "popups/biz-details-popup.html" %}
+  </div>
+
   <div id="delete-offer-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
     <div class="row center">
       <h3 class="popup-title">Are you sure?</h3>
@@ -235,7 +257,7 @@
 {% block js %}
   <script type="text/javascript">
     $(document).ready(function(){
-      $('#view-receipt-popup, #delete-offer-popup').popup({
+      $('#view-receipt-popup, #delete-offer-popup, #biz-details-popup').popup({
         vertical: 'top',
         transition: 'all 0.75s',
         scrolllock: true,
@@ -254,8 +276,5 @@
         }
       });
     });
-    function status(){
-      $('#status_msg').html("There are no hours that need your approval.");
-    }
   </script>
 {% endblock js %}

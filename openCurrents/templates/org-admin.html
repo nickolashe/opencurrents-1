@@ -4,7 +4,7 @@
 {% load tags %}
 
 {% block status %}
-  <div class="success row one-margin-top">
+  <div id="status_msg" class="success row one-margin-top">
     <div class="medium-8 columns small-centered">
       {% if num_events or num_vols %}
         {% if num_events|add:"0" >= 1 and num_vols|add:"0" >= 1 %}
@@ -36,31 +36,25 @@
           volunteer{{ vols_declined|pluralize }}.
         {% endif %}
       {% else %}
-        <div id="status_msg">
-          {{ status_msg }}
-        </div>
+        {{ status_msg }}
       {% endif %}
     </div>
   </div>
 {% endblock status %}
 
 
-{% block heading-left %}
-
-  {{ block.super }}
-
+{% block button-left %}
   <a href="{% url 'openCurrents:create-event' orgid %}"
     {% if has_hours_requested %} class="button secondary tiny round"
     {% else %} class="button tiny round"
     {% endif %}>
     Create event
   </a>
-  <!-- </span> -->
-{% endblock heading-left %}
+{% endblock button-left %}
 
 
 {% block heading-right %}
-  <h6 class="one-margin-top no-margin-bottom">
+  <h6 class="qtr-margin-top no-margin-bottom">
     Org hours tracked: {{ issued_by_all }}
   </h6>
   <h6 class="half-margin-bottom">
@@ -94,15 +88,14 @@
     </h6>
 
     <a href="{% url 'openCurrents:create-event' orgid %}"
-      {% if has_hours_requested %}
-        class="button secondary tiny round"
-      {% else %}
-        class="button tiny round"
+      {% if has_hours_requested %} class="button secondary tiny round"
+      {% else %} class="button tiny round"
       {% endif %}>
       Create event
     </a>
-    <a {% if has_hours_requested %}
-      href="{% url 'openCurrents:approve-hours' %}" class="button round tiny"
+    <a
+      {% if has_hours_requested %}
+        href="{% url 'openCurrents:approve-hours' %}" class="button round tiny"
       {% else %}
         href="javascript:status()" class="button round tiny secondary"
       {% endif %}>

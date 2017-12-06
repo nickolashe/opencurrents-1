@@ -582,6 +582,43 @@ class EventCheckinForm(forms.Form):
     checkin = VolunteerCheckinField()
 
 
+class BizDetailsForm(forms.Form):
+    biz_website = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Website',
+            'class': 'center',
+        })
+    )
+
+    biz_phone = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Phone',
+            'class': 'center',
+        })
+    )
+
+    biz_email = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Email',
+            'class': 'center',
+        })
+    )
+
+    biz_address = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Address',
+            'class': 'center',
+        })
+    )
+
+    biz_intro = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'placeholder': 'Introduce your business',
+            'rows': '3'
+        })
+    )
+
+
 class OfferCreateForm(forms.Form):
     def __init__(self, *args, **kwargs):
         orgid = kwargs.pop('orgid')

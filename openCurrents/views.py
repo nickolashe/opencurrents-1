@@ -59,13 +59,14 @@ from openCurrents.forms import \
     EventCheckinForm, \
     OrgNominationForm, \
     TimeTrackerForm, \
+    BizDetailsForm, \
     OfferCreateForm, \
     OfferEditForm, \
     RedeemCurrentsForm, \
     PublicRecordsForm
 
 
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
 import json
 import mandrill
@@ -279,8 +280,9 @@ class AssignAdminsView(TemplateView):
     template_name = 'assign-admins.html'
 
 
-class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, TemplateView):
+class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, FormView):
     template_name = 'biz-admin.html'
+    form_class = BizDetailsForm
 
     def get_context_data(self, **kwargs):
         context = super(BizAdminView, self).get_context_data(**kwargs)
@@ -299,7 +301,6 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, TemplateView)
 
         # current balance
         currents_balance = self.bizadmin.get_balance_available()
-        logger.info(currents_balance)
         context['currents_balance'] = currents_balance
 
         # pending currents balance
@@ -624,7 +625,7 @@ class InventoryView(TemplateView):
     template_name = 'inventory.html'
 
 
-class PublicRecordView(View):
+class PublicRecordView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'public-record.html'
 
     def get_top_list(self, entity_type='top_org', period='month'):
@@ -653,7 +654,8 @@ class MarketplaceView(LoginRequiredMixin, SessionContextView, ListView):
     context_object_name = 'offers'
 
     def get_queryset(self):
-        return Offer.objects.all()
+        offers_all = self.ocuser.get_offers_marketplace()
+        return offers_all
 
     def get_context_data(self, **kwargs):
         context = super(MarketplaceView, self).get_context_data(**kwargs)
@@ -662,6 +664,8 @@ class MarketplaceView(LoginRequiredMixin, SessionContextView, ListView):
         )
         context['user_balance_available'] = user_balance_available
 
+        # workaround with status message for ListView
+        context['status_msg'] = self.kwargs.get('status_msg', '')
         return context
 
 
@@ -673,7 +677,7 @@ class MyHoursView(TemplateView):
     template_name = 'my-hours.html'
 
 
-class NominateView(TemplateView):
+class NominateView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'nominate.html'
 
 
@@ -709,19 +713,35 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         offer_id = kwargs.get('offer_id')
         self.offer = Offer.objects.get(id=offer_id)
         self.userid = request.user.id
+        self.ocuser = OcUser(self.userid)
 
-        user_balance_available = OcUser(self.userid).get_balance_available()
-        logger.info(user_balance_available)
+        reqForbidden = False
+        user_balance_available = self.ocuser.get_balance_available()
+        # logger.debug(user_balance_available)
+
         if user_balance_available <= 0:
             # TODO: replace with a page explaining no sufficient funds
-            return redirect(
-                'openCurrents:marketplace',
-                status_msg=' '.join([
-                    'You need Currents to redeem an offer.',
-                    '<a href="{% url "openCurrents:upcoming-events" %}">',
-                    'Find a volunteer opportunity!</a>'
-                ])
-            )
+            reqForbidden = True
+            status_msg = ' '.join([
+                'You need Currents to redeem an offer. <br>',
+                # '<a href="{% url "openCurrents:upcoming-events" %}">',
+                # 'Find a volunteer opportunity!</a>'
+            ])
+
+        offer_num_redeemed = self.ocuser.get_offer_num_redeemed(self.offer)
+        # logger.debug(offer_num_redeemed)
+
+        offer_has_limit = self.offer.limit != -1
+        offer_limit_exceeded = self.offer.limit - offer_num_redeemed <= 0
+        if not reqForbidden and offer_has_limit and offer_limit_exceeded:
+            reqForbidden = True
+            status_msg = ' '.join([
+                'Vendor %s chose to set a limit',
+                'on the number of redemptions for %s this month'
+            ]) % (self.offer.org.name, self.offer.item.name)
+
+        if reqForbidden:
+            return redirect('openCurrents:marketplace', status_msg)
 
         return super(RedeemCurrentsView, self).dispatch(request, *args, **kwargs)
 
@@ -2034,6 +2054,15 @@ class OfferCreateView(LoginRequiredMixin, BizSessionContextView, FormView):
             'Your offer for %s is now live!' % offer_item.name
         )
 
+    def form_invalid(self, form):
+        existing_item_err = form.errors.get('offer_item', '')
+        if existing_item_err:
+            return redirect(
+                'openCurrents:biz-admin',
+                status_msg=existing_item_err
+            )
+
+        return super(OfferCreateView, self).form_invalid(form)
 
     def get_context_data(self, **kwargs):
         context = super(OfferCreateView, self).get_context_data(**kwargs)
@@ -2148,60 +2177,62 @@ def event_checkin(request, pk):
             # volunteer checkin
             vol_user = User.objects.get(id=userid)
             try:
-                usertimelog = UserTimeLog(
-                    user=vol_user,
-                    event=event,
-                    is_verified=True,
-                    datetime_start=datetime.now(tz=pytz.UTC)
-                )
-                usertimelog.save()
+                with transaction.atomic():
+                    usertimelog = UserTimeLog(
+                        user=vol_user,
+                        event=event,
+                        is_verified=True,
+                        datetime_start=datetime.now(tz=pytz.UTC)
+                    )
+                    usertimelog.save()
 
-                # admin action record
-                actiontimelog = AdminActionUserTime(
-                    user_id=admin_id,
-                    usertimelog=usertimelog,
-                    action_type='app'
-                )
-                actiontimelog.save()
+                    # admin action record
+                    actiontimelog = AdminActionUserTime(
+                        user_id=admin_id,
+                        usertimelog=usertimelog,
+                        action_type='app'
+                    )
+                    actiontimelog.save()
 
-                OcLedger().issue_currents(
-                    admin_org.orgentity,
-                    vol_user.userentity,
-                    actiontimelog,
-                    (event.datetime_start - event.datetime_end).total_seconds() / 3600
-                )
-                clogger.info(
-                    'at %s: user %s checkin',
-                    str(usertimelog.datetime_start),
-                    userid
-                )
+                    OcLedger().issue_currents(
+                        admin_org.orgentity.id,
+                        vol_user.userentity.id,
+                        actiontimelog,
+                        (event.datetime_start - event.datetime_end).total_seconds() / 3600
+                    )
+                    clogger.info(
+                        'at %s: user %s checkin',
+                        str(usertimelog.datetime_start),
+                        userid
+                    )
             except Exception as e:
                 clogger.info('user %s already checked in', userid)
 
             # check in admin/coordinator
             try:
-                usertimelog = UserTimeLog(
-                    user=User.objects.get(id=request.user.id),
-                    event=event,
-                    is_verified=True,
-                    datetime_start=datetime.now(tz=pytz.UTC)
-                )
-                usertimelog.save()
+                with transaction.atomic():
+                    usertimelog = UserTimeLog(
+                        user=User.objects.get(id=request.user.id),
+                        event=event,
+                        is_verified=True,
+                        datetime_start=datetime.now(tz=pytz.UTC)
+                    )
+                    usertimelog.save()
 
-                # admin action record
-                actiontimelog = AdminActionUserTime(
-                    user_id=admin_id,
-                    usertimelog=usertimelog,
-                    action_type='app'
-                )
-                actiontimelog.save()
+                    # admin action record
+                    actiontimelog = AdminActionUserTime(
+                        user_id=admin_id,
+                        usertimelog=usertimelog,
+                        action_type='app'
+                    )
+                    actiontimelog.save()
 
-                OcLedger().issue_currents(
-                    admin_org.orgentity,
-                    admin_user.userentity,
-                    actiontimelog,
-                    amount
-                )
+                    OcLedger().issue_currents(
+                        admin_org.orgentity.id,
+                        admin_user.userentity.id,
+                        actiontimelog,
+                        amount
+                    )
             except Exception as e:
                 return HttpResponse(status=409)
 

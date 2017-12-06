@@ -47,7 +47,7 @@
       </p>
       <p class="no-margin-bottom">
         <a href="{% url 'openCurrents:marketplace' %}" class="button round secondary tiny">
-          Redeem
+          Marketplace
         </a>
       </p>
     </div>
@@ -139,7 +139,7 @@
                     {% if status == 'pending' %}
                       offers ${{ amount_usd|floatformat:2 }} for
                       <span class="no-wrap">
-                        <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
+                        <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
                         {{ amount_cur|floatformat:3 }}
                       </span>
 
