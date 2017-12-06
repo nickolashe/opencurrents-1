@@ -742,7 +742,6 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
 
         if reqForbidden:
             return redirect('openCurrents:marketplace', status_msg)
->>>>>>> 0383d9b24f7eadc592025647affa381c0ea4c092
 
         return super(RedeemCurrentsView, self).dispatch(request, *args, **kwargs)
 
