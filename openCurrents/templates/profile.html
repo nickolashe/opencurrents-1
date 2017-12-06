@@ -103,7 +103,7 @@
         {% endfor %}
       {% else %}
         <p>You are not registered for any upcoming events.
-          <a href="{% url 'openCurrents:upcoming-events' %}">
+          <a href="{% url 'openCurrents:volunteer-opportunities' %}">
             Find one!
           </a>
         </p>
@@ -242,7 +242,7 @@
       <div class="half-margin-bottom small-12 medium-6 columns">
         <h6>I want to volunteer</h6>
         <p>Check out upcoming opportunities with participating organizations:</p>
-        <a href="{% url 'openCurrents:upcoming-events' %}" class="button round small">
+        <a href="{% url 'openCurrents:volunteer-opportunities' %}" class="button round small">
           View opportunities
         </a>
       </div>
