@@ -280,7 +280,7 @@ class AssignAdminsView(TemplateView):
     template_name = 'assign-admins.html'
 
 
-class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, TemplateView, FormView):
+class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, FormView):
     template_name = 'biz-admin.html'
     form_class = BizDetailsForm
 
