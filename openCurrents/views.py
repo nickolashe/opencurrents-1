@@ -721,16 +721,6 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
 
         if user_balance_available <= 0:
             # TODO: replace with a page explaining no sufficient funds
-<<<<<<< HEAD
-            return redirect(
-                'openCurrents:marketplace',
-                status_msg=' '.join([
-                    'You need Currents to redeem an offer.',
-                    '<a href="{% url "openCurrents:volunteer-opportunities" %}">',
-                    'Find a volunteer opportunity!</a>'
-                ])
-            )
-=======
             reqForbidden = True
             status_msg = ' '.join([
                 'You need Currents to redeem an offer. <br>',
