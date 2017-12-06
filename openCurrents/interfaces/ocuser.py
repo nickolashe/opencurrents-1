@@ -284,8 +284,8 @@ class OcUser(object):
 
         return admin_actions
 
-    def get_hours_approved(self):
-        usertimelogs = self._get_usertimelogs(verified=True)
+    def get_hours_approved(self, **kwargs):
+        usertimelogs = self._get_usertimelogs(verified=True, **kwargs)
         admin_actions = self._get_adminactions_for_usertimelogs(
             usertimelogs,
             'app'
@@ -306,17 +306,34 @@ class OcUser(object):
         result.sort(key=lambda user_dict: user_dict['total'], reverse=True)
         return result[:quantity]
 
-    def _get_usertimelogs(self, verified=False):
+    def _get_usertimelogs(self, verified=False, **kwargs):
         # determine whether there are any unverified timelogs for admin
-        usertimelogs = UserTimeLog.objects.filter(
+
+        if 'org_id' in kwargs:
+            usertimelogs = UserTimeLog.objects.filter(
             user__id=self.userid
-        ).filter(
-            event__event_type='MN'
-        ).filter(
-            is_verified=verified
-        ).annotate(
-            last_action_created=Max('adminactionusertime__date_created')
-        )
+            ).filter(
+                event__event_type='MN'
+            ).filter(
+                is_verified=verified
+            ).filter(
+                event__project__org_id = kwargs['org_id']
+            ).annotate(
+                last_action_created=Max('adminactionusertime__date_created')
+            )
+
+        else:
+            usertimelogs = UserTimeLog.objects.filter(
+            user__id=self.userid
+            ).filter(
+                event__event_type='MN'
+            ).filter(
+                is_verified=verified
+            ).annotate(
+                last_action_created=Max('adminactionusertime__date_created')
+            )
+
+
 
         return usertimelogs
 

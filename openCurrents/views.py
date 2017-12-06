@@ -27,7 +27,7 @@ from interfaces.orgs import OcOrg, \
     OrgExistsException, \
     InvalidOrgUserException
 
-from openCurrents.interfaces.common import diffInHours
+from openCurrents.interfaces.common import diffInHours, diffInMinutes
 
 import math
 import re
@@ -83,13 +83,6 @@ logging.basicConfig(level=logging.DEBUG, filename="log/views.log")
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-
-def diffInMinutes(t1, t2):
-    return round((t2 - t1).total_seconds() / 60, 1)
-
-
-def diffInHours(t1, t2):
-    return round((t2 - t1).total_seconds() / 3600, 1)
 
 # Create and save a new group for admins of a new org
 def new_org_admins_group(orgid):
@@ -621,9 +614,9 @@ class HoursDetailView(LoginRequiredMixin, SessionContextView, ListView):
     context_object_name = 'hours_detail'
 
     def get_queryset(self):
-        queryset = None
+        queryset = []
 
-        if self.request.GET.get('is_admin'):
+        if self.request.GET.get('is_admin')=='1':
             if self.request.GET.get('user_id'):
                 user_instance = OrgAdmin(self.request.GET.get('user_id'))
         else:
@@ -634,7 +627,15 @@ class HoursDetailView(LoginRequiredMixin, SessionContextView, ListView):
             queryset = user_instance.get_hours_requested().order_by('-usertimelog__datetime_start')
 
         if self.request.GET.get('type') == 'approved':
-            queryset = user_instance.get_hours_approved().order_by('-usertimelog__datetime_start')
+            try:
+                org_id = self.request.GET.get('org_id')
+            except:
+                org_id = None
+
+            if org_id:
+                queryset = user_instance.get_hours_approved(org_id=org_id).order_by('-usertimelog__datetime_start')
+            else:
+                queryset = user_instance.get_hours_approved().order_by('-usertimelog__datetime_start')
 
         return queryset
 
@@ -1201,12 +1202,32 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         hours_requested = self.ocuser.get_hours_requested()
         context['hours_requested'] = hours_requested
 
+        # hour approved
         hours_approved = self.ocuser.get_hours_approved()
         context['hours_approved'] = hours_approved
+
+        # hour approved by organization
+        context['hours_by_org']=[]
+        hours_by_org = {}
+        temp_orgs_set = set()
+
+        for h in hours_approved:
+            org = h.usertimelog.event.project.org
+            approved_hours = diffInHours(h.usertimelog.datetime_start, h.usertimelog.datetime_end)
+            if approved_hours > 0:
+                if not org in temp_orgs_set:
+                    temp_orgs_set.add(org)
+                    hours_by_org[org] = approved_hours
+                else:
+                    hours_by_org[org] += approved_hours
+
+        context['hours_by_org'].append(hours_by_org)
+
 
         # user timezone
         #context['timezone'] = self.request.user.account.timezone
         context['timezone'] = 'America/Chicago'
+
 
         return context
 
@@ -1357,7 +1378,7 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
         return context
 
 
-class EditProfileView(View):
+class EditProfileView(LoginRequiredMixin, View):
     form_class = PopUpAnswer
 
     def get(self, request, *args, **kwargs):

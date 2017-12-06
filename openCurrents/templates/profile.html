@@ -213,8 +213,11 @@
   <div class="row collapse one-margin-top left">
     <div class="small-11 medium-10 small-centered columns">
       <h6 class="half-margin-bottom">Hours approved</h6>
-      <a href="{% url 'openCurrents:hours-detail' %}" class="button round tiny secondary">Orgname: X</a>
-      <a href="{% url 'openCurrents:hours-detail' %}" class="button round tiny secondary">Orgname2: Y</a>
+      {% for org, hours in hours_by_org.0.items %}
+        <a href="{% url 'openCurrents:hours-detail' %}?user_id={{user.id}}&org_id={{org.id}}&type=approved" class="button round tiny secondary">{{org.name}}: {{hours}}</a>
+      {% empty %}
+        <h5>No records available</h5>
+      {% endfor %}
     </div>
   </div>
 {% endblock content %}
