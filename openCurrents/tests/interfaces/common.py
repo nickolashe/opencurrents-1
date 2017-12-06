@@ -15,22 +15,13 @@ from openCurrents.models import \
     AdminActionUserTime, \
     Ledger
 
-from openCurrents.interfaces.orgs import \
-    OcOrg, \
-    OrgUserInfo, \
-    OcUser , \
-    OcLedger
-
 from openCurrents.interfaces.ocuser import \
     OcUser, \
     InvalidUserException, \
     UserExistsException
 
 from openCurrents.interfaces.orgs import \
-    OcOrg, \
-    OrgUserInfo, \
-    OcUser , \
-    OcLedger
+    OrgUserInfo
 
 from openCurrents.interfaces.orgadmin import OrgAdmin
 
@@ -51,20 +42,20 @@ import re
 #
 
 
-def _create_test_user(org_user_name, org, is_org_user=False, is_org_admin=False, password = 'password'):
+def _create_test_user(user_name, org, is_org_user=False, is_org_admin=False, password = 'password'):
         """
         users and maps them to the org if needed.
-        org_user_name - string
+        user_name - string
         if is_org_user = True, the user will be mapped to the org
         if is_org_admin = True, the user will be made an org admin
         org - Org object
         """
 
         org_user = OcUser().setup_user(
-            username = org_user_name,
-            email = org_user_name+'@email.cc',
-            first_name=org_user_name + '_first_name',
-            last_name= org_user_name + '_last_name'
+            username = user_name,
+            email = user_name+'@email.cc',
+            first_name=user_name + '_first_name',
+            last_name= user_name + '_last_name'
         )
 
         if is_org_user:
@@ -78,7 +69,7 @@ def _create_test_user(org_user_name, org, is_org_user=False, is_org_admin=False,
 
         org_user.set_password(password)
         org_user.save()
-
+'''
 def _setup_hours(volunteer, npf_admin, project ..... ):
     """
     Takes:
@@ -129,3 +120,4 @@ def _setup_hours(volunteer, npf_admin, project ..... ):
         usertimelog=volunteer1_timelog,
         action_type='app'
     )
+'''
