@@ -15,32 +15,32 @@
 {% block content %}
   <form class="" method="post">
   {% csrf_token %}
-  
-    {{ forms.biz_website }}
+
+    {{ form.biz_website }}
 
     <div class="row">
       <div class="medium-6 columns">
-        {{ forms.biz_phone }}
+        {{ form.biz_phone }}
       </div>
 
       <div class="medium-6 columns">
-        {{ forms.biz_email }}
+        {{ form.biz_email }}
       </div>
 
       <div class="columns">
-        {{ forms.biz_address }}
+        {{ form.biz_address }}
       </div>
     </div>
 
-    {{ forms.biz_intro }}
+    {{ form.biz_intro }}
+
+    <div class="row three-halves-margin-top">
+      <button type="submit" class="button round small">
+        Save
+      </button>
+      <a class="biz-details-popup_close button round small secondary">
+        Cancel
+      </a>
+    </div>
   </form>
 {% endblock content %}
-
-{% block buttons %}
-  <button type="submit" class="button round small">
-    Save
-  </button>
-  <a class="biz-details-popup_close button round small secondary">
-    Cancel
-  </a>
-{% endblock buttons %}

@@ -618,7 +618,7 @@ class BizDetailsForm(forms.Form):
     biz_intro = forms.CharField(
         widget=forms.Textarea(attrs={
             'placeholder': 'Introduce your business',
-            'class': 'center',
+            'rows': '3'
         })
     )
 
