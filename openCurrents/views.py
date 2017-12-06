@@ -46,7 +46,8 @@ from openCurrents.models import \
     Item, \
     Offer, \
     Transaction, \
-    TransactionAction
+    TransactionAction, \
+    Ledger
 
 from openCurrents.forms import \
     UserSignupForm, \
@@ -1228,6 +1229,24 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         #context['timezone'] = self.request.user.account.timezone
         context['timezone'] = 'America/Chicago'
 
+
+        # getting issued currents
+        try:
+            context['currents_amount_total'] = reduce(lambda x,y : x + y, [x['total'] for x in OcOrg().get_top_issued_npfs(period='all-time') if x['total']>0])
+        except:
+            context['currents_amount_total'] = []
+
+        # getting active volunteers
+        try:
+            context['active_volunteers_total'] = len([x for x in OcUser().get_top_received_users(period='all-time')])
+        except:
+            context['active_volunteers_total'] = []
+
+        # getting currents accepted
+        try:
+            context['currents_accepted'] = reduce(lambda x,y : x + y, [x['total'] for x in OcOrg().get_top_accepted_bizs(period='all-time') if x['total']>0])
+        except:
+            context['currents_accepted'] = []
 
         return context
 
