@@ -28,6 +28,7 @@ from interfaces.orgs import OcOrg, \
     InvalidOrgUserException
 
 from openCurrents.interfaces.common import diffInHours, diffInMinutes
+from openCurrents.interfaces.community import OcCommunity
 
 import math
 import re
@@ -1232,16 +1233,16 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
 
         # getting issued currents
         try:
-            context['currents_amount_total'] = sum([x['total'] for x in OcOrg().get_top_issued_npfs(period='all-time') if x['total']>0])
+            context['currents_amount_total'] = OcCommunity().get_amount_currents_total()
         except:
             context['currents_amount_total'] = []
 
         # getting active volunteers
-        context['active_volunteers_total'] = len([x for x in OcUser().get_top_received_users(period='all-time')])
+        context['active_volunteers_total'] = OcCommunity().get_active_volunteers_total()
 
         # getting currents accepted
         try:
-            context['currents_accepted'] = reduce(lambda x,y : x + y, [x['total'] for x in OcOrg().get_top_accepted_bizs(period='all-time') if x['total']>0])
+            context['currents_accepted'] = OcCommunity().get_currents_accepted_total()
         except:
             context['currents_accepted'] = []
 
@@ -1316,7 +1317,7 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             admin_forms = {admin.user.id : form }
 
             try:
-                hours_pending[admin.user.id] = sum([diffInHours(x.usertimelog.datetime_start, x.usertimelog.datetime_end) for x in OrgAdmin(admin.user.id).get_hours_requested()])
+                hours_pending[admin.user.id] = OcCommunity().get_hours_pending_admin(admin.user.id)
             except TypeError:
                 logger.debug("No hours approved for admin %s", admin.user.username)
 
@@ -1341,7 +1342,7 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             amount_issued_by_admin = {admin.user.id : issued_by_admin }
 
             try:
-                amount_issued_by_admin[admin.user.id] = reduce(lambda x,y : x + y, [diffInHours(x.usertimelog.datetime_start, x.usertimelog.datetime_end) for x in OrgAdmin(admin.user.id).get_hours_approved()])
+                amount_issued_by_admin[admin.user.id] = OcCommunity().get_hours_issued_admin(admin.user.id)
             except TypeError:
                 logger.debug("No hours approved for admin %s", admin.user.username)
 
