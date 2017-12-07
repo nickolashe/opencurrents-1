@@ -309,31 +309,20 @@ class OcUser(object):
     def _get_usertimelogs(self, verified=False, **kwargs):
         # determine whether there are any unverified timelogs for admin
 
+        usertimelogs = UserTimeLog.objects.filter(
+            user__id=self.userid
+            ).filter(
+                event__event_type='MN'
+            ).filter(
+                is_verified=verified
+            ).annotate(
+                last_action_created=Max('adminactionusertime__date_created')
+            )
+
         if 'org_id' in kwargs:
-            usertimelogs = UserTimeLog.objects.filter(
-            user__id=self.userid
-            ).filter(
-                event__event_type='MN'
-            ).filter(
-                is_verified=verified
-            ).filter(
+            usertimelogs = usertimelogs.filter(
                 event__project__org_id = kwargs['org_id']
-            ).annotate(
-                last_action_created=Max('adminactionusertime__date_created')
             )
-
-        else:
-            usertimelogs = UserTimeLog.objects.filter(
-            user__id=self.userid
-            ).filter(
-                event__event_type='MN'
-            ).filter(
-                is_verified=verified
-            ).annotate(
-                last_action_created=Max('adminactionusertime__date_created')
-            )
-
-
 
         return usertimelogs
 

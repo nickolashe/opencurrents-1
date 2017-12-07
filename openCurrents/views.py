@@ -1232,15 +1232,12 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
 
         # getting issued currents
         try:
-            context['currents_amount_total'] = reduce(lambda x,y : x + y, [x['total'] for x in OcOrg().get_top_issued_npfs(period='all-time') if x['total']>0])
+            context['currents_amount_total'] = sum([x['total'] for x in OcOrg().get_top_issued_npfs(period='all-time') if x['total']>0])
         except:
             context['currents_amount_total'] = []
 
         # getting active volunteers
-        try:
-            context['active_volunteers_total'] = len([x for x in OcUser().get_top_received_users(period='all-time')])
-        except:
-            context['active_volunteers_total'] = []
+        context['active_volunteers_total'] = len([x for x in OcUser().get_top_received_users(period='all-time')])
 
         # getting currents accepted
         try:
@@ -1319,7 +1316,7 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             admin_forms = {admin.user.id : form }
 
             try:
-                hours_pending[admin.user.id] = reduce(lambda x,y : x + y, [diffInHours(x.usertimelog.datetime_start, x.usertimelog.datetime_end) for x in OrgAdmin(admin.user.id).get_hours_requested()])
+                hours_pending[admin.user.id] = sum([diffInHours(x.usertimelog.datetime_start, x.usertimelog.datetime_end) for x in OrgAdmin(admin.user.id).get_hours_requested()])
             except TypeError:
                 logger.debug("No hours approved for admin %s", admin.user.username)
 

@@ -278,10 +278,6 @@ class TestUserProfileCommunityActivity(TestCase):
 
         response = self.client.get('/profile/')
 
-        print "\nHERE"
-        print response.context
-        print "HERE\n"
-
         self.assertEqual(response.status_code, 200)
 
         # @@ TODO @@
