@@ -715,16 +715,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
 
         if user_balance_available <= 0:
             # TODO: replace with a page explaining no sufficient funds
-<<<<<<< HEAD
-            return redirect(
-                'openCurrents:marketplace',
-                status_msg=' '.join([
-                    'You need Currents to redeem an offer.',
-                    '<a href="{% url "openCurrents:volunteer-opportunities" %}">',
-                    'Find a volunteer opportunity!</a>'
-                ])
-            )
-=======
+
             reqForbidden = True
             status_msg = ' '.join([
                 'You need Currents to redeem an offer. <br>',
@@ -746,7 +737,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
 
         if reqForbidden:
             return redirect('openCurrents:marketplace', status_msg)
->>>>>>> 0383d9b24f7eadc592025647affa381c0ea4c092
+
 
         return super(RedeemCurrentsView, self).dispatch(request, *args, **kwargs)
 
@@ -935,14 +926,27 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             usertimelog.save()
             self.create_approval_request(org.id, usertimelog, form_data['admin'])
 
+
             return True, None
 
         elif form_data['admin'] == 'other-admin':
             # TODO (@karbmk): switch to using forms
-            admin_name = self.request.POST['admin_fname']
-            admin_email = self.request.POST['admin_email']
+
+            admin_name = form_data['new_admin_name']
+            admin_email = form_data['new_admin_email']
+
+            if form_data['new_org'] != '':
+                org = form_data['new_org']
+
             if admin_email:
-                user = self.invite_new_admin(org, admin_email, admin_name)
+                user = self.invite_new_admin(
+                    org,
+                    admin_email,
+                    admin_name,
+                    description=form_data['description'],
+                    datetime_start=form_data['datetime_start'],
+                    datetime_end=form_data['datetime_end']
+                )
 
                 # as of now, do not submit hours prior to admin registering
                 #self.create_approval_request(org.id,usertimelog,user)
@@ -957,6 +961,20 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             ])
             return False, status_msg
 
+    def add_to_email_vars(self, email_var_list, new_var_name, new_var_value):
+        """
+        adds kwargs passed to the email vars
+        email_var_list - list of dictionaries
+        new_var_name - string
+        new_var_value - form_data['xxxx_xxxx']
+        """
+        email_var_list.append(
+                {
+                    'name': str(new_var_name.upper()),
+                    'content': new_var_value
+                }
+            )
+
     def create_approval_request(self, orgid, usertimelog, admin_id):
         # save admin-specific request for approval of hours
         actiontimelog = AdminActionUserTime(
@@ -968,7 +986,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
 
         return True
 
-    def invite_new_admin(self, org, admin_email, admin_name):
+    def invite_new_admin(self, org, admin_email, admin_name, **kwargs):
         user_new = None
         doInvite = False
         try:
@@ -983,37 +1001,50 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             # user_new.save()
             doInvite = True
 
+        # adapting function for sending org.name or form_data['new_org'] to new admin
+        if isinstance(org, Org):
+            org = org.name  # the Org instance was passed, using name
+        else:
+            org = org  # the sting was passed, using it as an org name
+
+        email_vars = [
+                    {
+                        'name': 'ADMIN_NAME',
+                        'content': admin_name
+                    },
+                    {
+                        'name': 'FNAME',
+                        'content': self.request.user.first_name
+                    },
+                    {
+                        'name': 'LNAME',
+                        'content': self.request.user.last_name
+                    },
+                    {
+                        'name': 'EVENT',
+                        'content': False
+                    },
+                    {
+                        'name': 'ORG_NAME',
+                        'content': org
+                    },
+                    {
+                        'name': 'EMAIL',
+                        'content': admin_email
+                    },
+                ]
+
+        # adding kwargs to email vars
+        if kwargs:
+            for kw_key, kw_value in kwargs.iteritems():
+                self.add_to_email_vars(email_vars, kw_key, kw_value)
+
         if doInvite:
             try:
                 sendTransactionalEmail(
                     'volunteer-invites-admin',
                     None,
-                    [
-                        {
-                            'name': 'ADMIN_NAME',
-                            'content': admin_name
-                        },
-                        {
-                            'name': 'FNAME',
-                            'content': self.request.user.first_name
-                        },
-                        {
-                            'name': 'LNAME',
-                            'content': self.request.user.last_name
-                        },
-                        {
-                            'name': 'EVENT',
-                            'content': False
-                        },
-                        {
-                            'name': 'ORG_NAME',
-                            'content': org.name
-                        },
-                        {
-                            'name': 'EMAIL',
-                            'content': admin_email
-                        }
-                    ],
+                    email_vars,
                     admin_email
                 )
             except Exception as e:
@@ -1036,13 +1067,10 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         #     )
 
         try:
-            sendTransactionalEmail(
-                'new-admin-invited',
-                None,
-                [
+            email_vars_ransactional = [
                     {
                         'name': 'ORG_NAME',
-                        'content': org.name
+                        'content': org
                     },
                     {
                         'name': 'ADMIN_NAME',
@@ -1060,7 +1088,17 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                         'name': 'LNAME',
                         'content': self.request.user.last_name
                     }
-                ],
+                ]
+
+            # adding kwargs to email vars
+            if kwargs:
+                for kw_key, kw_value in kwargs.iteritems():
+                    self.add_to_email_vars(email_vars, kw_key, kw_value)
+
+            sendTransactionalEmail(
+                'new-admin-invited',
+                None,
+                email_vars_ransactional,
                 'bizdev@opencurrents.com'
             )
         except Exception as e:
