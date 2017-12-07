@@ -1,0 +1,14 @@
+<script type="text/javascript">
+  $('.mini-open').click(function(){
+    $('.mini-menu').hide();
+    $(this).siblings('.mini-menu').toggle();
+    $(this).attr('visibility', 'visible');
+  });
+
+  $(document).click(function(e) {
+    var target = e.target;
+    if (!$(target).is('.mini-open') && !$(target).parents().is('.mini-open')) {
+      $('.mini-menu').hide();
+    }
+  });
+</script>
