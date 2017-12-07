@@ -2333,7 +2333,7 @@ def event_checkin(request, pk):
                         admin_org.orgentity.id,
                         vol_user.userentity.id,
                         actiontimelog,
-                        (event.datetime_start - event.datetime_end).total_seconds() / 3600
+                        diffInHours(event.datetime_start, event.datetime_end)
                     )
                     clogger.info(
                         'at %s: user %s checkin',
