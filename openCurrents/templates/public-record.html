@@ -1,6 +1,7 @@
 {% extends "layouts/base.html" %}
 
 {% load staticfiles %}
+{% load tags %}
 
 {% block heading %}
   <div class="row">
@@ -47,7 +48,9 @@
         {% for entry in entries %}
           <div class="row qtr-margin-bottom">
             <div class="left small-8 columns">
-              <li class="grey">{{ entry.name }}</li>
+              <li class="grey">
+                {{ entry.name }}
+              </li>
             </div>
 
             <div class="right small-4 columns">

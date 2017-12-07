@@ -652,7 +652,7 @@ class InventoryView(TemplateView):
 class PublicRecordView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'public-record.html'
 
-    def get_top_list(self, entity_type='top_org', period='month'):
+    def get_top_list(self, entity_type='top-vol', period='month'):
         if entity_type == 'top-org':
             return OcOrg().get_top_issued_npfs(period)
         elif entity_type == 'top-vol':
@@ -2333,7 +2333,7 @@ def event_checkin(request, pk):
                         admin_org.orgentity.id,
                         vol_user.userentity.id,
                         actiontimelog,
-                        (event.datetime_start - event.datetime_end).total_seconds() / 3600
+                        diffInHours(event.datetime_start, event.datetime_end)
                     )
                     clogger.info(
                         'at %s: user %s checkin',
