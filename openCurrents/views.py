@@ -591,10 +591,6 @@ class CausesView(TemplateView):
     template_name = 'causes.html'
 
 
-class CreateOrgView(TemplateView):
-    template_name = 'create-org.html'
-
-
 class EditHoursView(TemplateView):
     template_name = 'edit-hours.html'
 
