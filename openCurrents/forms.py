@@ -777,3 +777,30 @@ class PublicRecordsForm(forms.Form):
 
     record_type = forms.ChoiceField(choices=record_types)
     period = forms.ChoiceField(choices=periods)
+
+class PopUpAnswer(forms.Form):
+    answer = forms.CharField(max_length=3,required=False)
+
+
+
+# class HoursDetailsForm(forms.Form):
+
+#     is_admin = forms.IntegerField(
+#         widget=forms.HiddenInput(),
+#         initial=0,
+#         required=False
+#         )
+
+#     user_id = forms.IntegerField(
+#         widget=forms.HiddenInput(),
+#         initial=0,
+#         required=False
+#         )
+
+#     hours_type = forms.CharField(
+#         widget=forms.HiddenInput(),
+#         max_length=10,
+#         required=False
+#         )
+
+

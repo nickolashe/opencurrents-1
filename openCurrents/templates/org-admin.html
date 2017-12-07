@@ -2,6 +2,7 @@
 
 {% load staticfiles %}
 {% load tags %}
+{% load macros %}
 
 {% block status %}
   <div id="status_msg" class="success row one-margin-top">
@@ -62,7 +63,7 @@
     Org hours tracked: {{ issued_by_all }}
   </h6>
   <h6 class="half-margin-bottom">
-    My hours tracked: {{ issued_by_admin }}
+    My hours tracked: {{ issued_by_logged_admin }}
   </h6>
 
   <a
@@ -88,7 +89,7 @@
       Org hours tracked: {{ issued_by_all }}
     </h6>
     <h6 class="one-margin-bottom">
-      My hours tracked: {{ issued_by_admin }}
+      My hours tracked: {{ issued_by_logged_admin }}
     </h6>
 
     <a href="{% url 'openCurrents:create-event' orgid %}"
@@ -172,6 +173,40 @@
     </div>
   </div>
 
+<br>
+
+<!--
+    @TODO@
+    Block looks very similar to the following.
+    Use a macros here
+-->
+  <div class="left row one-margin-top full-width collapse">
+    <div class="small-11 medium-10 small-centered columns">
+      <h6 class="half-margin-bottom">Hours pending</h6>
+      {% for admin in org_admins %}
+            {% for i in hours_pending_by_admin %}
+                {% if i|keyvalue:admin.user.id != None %}
+                    <a href="{% url 'openCurrents:hours-detail' %}?is_admin=1&user_id={{admin.user.id}}&type=pending" class="button round tiny secondary">{{ admin.user.first_name }} {{ admin.user.last_name }}: {{i|keyvalue:admin.user.id}}</a>
+                {% endif %}
+            {% endfor %}
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="left row one-margin-top full-width collapse">
+    <div class="small-11 medium-10 small-centered columns">
+        <h6 class="half-margin-bottom">Hours approved</h6>
+        {% for admin in org_admins %}
+             {% for i in issued_by_admin %}
+                {% if i|keyvalue:admin.user.id != None %}
+                    <a href="{% url 'openCurrents:hours-detail' %}?is_admin=1&user_id={{admin.user.id}}&type=approved" class="button round tiny secondary">{{ admin.user.first_name }} {{ admin.user.last_name }}: {{i|keyvalue:admin.user.id}}</a>
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+    </div>
+  </div>
+
+  <!-- TODO: refactor using template inheritance -->
   {% if events_group_past %}
     <div id="past-event-list" class="left row one-margin-top full-width collapse">
       <div class="small-11 medium-10 small-centered columns">
@@ -195,10 +230,17 @@
             </div>
           </div>
         {% endfor %}
-
       </div>
     </div>
   {% endif %}
+
+  {% macro admin_hour_request_list_macro arg_list arg_status arg_timezone %}
+    {% block admin_hour_request_list %}
+      {% with hours_list=arg_list hours_status=arg_status timezone=arg_timezone %}
+        {{ block.super }}
+      {% endwith %}
+    {% endblock %}
+  {% endmacro %}
 {% endblock content %}
 
 {% block popups %}
