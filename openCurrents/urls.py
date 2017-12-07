@@ -14,6 +14,7 @@ urlpatterns = [
     url(r'^check-email/(?P<user_email>[\w\.@\+\-]+)/(?P<orgid>\d+)/$', views.CheckEmailView.as_view(), name='check-email'),
     url(r'^check-email/(?P<user_email>[\w\.@\+\-]+)/(?P<status>.*)/$', views.CheckEmailView.as_view(), name='check-email'),
     url(r'^communities/$', views.CommunitiesView.as_view(), name='communities'),
+    url(r'^create-org/$', views.CreateOrgView.as_view(), name='create-org'),
     url(r'^reset-password/(?P<user_email>[\w\.@\+\-]+)/$', views.ResetPasswordView.as_view(), name='reset-password'),
     url(r'^reset-password/(?P<user_email>[\w\.@\+\-]+)/(?P<token>\w{8}-\w{4}-\w{4}-\w{4}-\w{12})/$', views.ResetPasswordView.as_view(), name='reset-password'),
     url(r'^reset-password/(?P<user_email>[\w\.@\+\-]+)/(?P<token>\w{8}-\w{4}-\w{4}-\w{4}-\w{12})/(?P<status_msg>.*)/$', views.ResetPasswordView.as_view(), name='reset-password'),

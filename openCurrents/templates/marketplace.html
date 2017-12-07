@@ -15,8 +15,12 @@
       <h3 class="title-sub">
         {% block title %} Marketplace {% endblock title %}
       </h3>
+      <a href="{% url 'openCurrents:create-org' %}"
+      class="half-margin-top button round tiny">
+        Post an offer
+      </a>
       <h6 class="three-halves-margin-bottom">
-        Check out these offers from openCurrents businesses:
+        or check out these offers from openCurrents businesses:
       </h6>
     </div>
   </div>
@@ -47,12 +51,13 @@
             </p>
           </div>
 
-          <div class="right input-right small-3 columns">
-            <a
-              href="{% url 'openCurrents:redeem-currents' offer.id %}"
-              class="button round tiny secondary {% if offer.limit != -1 and num_remaining <= 0 %} disabled {% endif %}">
-              Redeem
-            </a>
+          <div class="right relative small-3 columns">
+            <a class="mini-open"><i class="half-margin-right blue fa-chevron-circle-down fa fa-lg"></i></a>
+            <ul class="mini-menu">
+              <a href="{% url 'openCurrents:live-dashboard' event.id %}">
+                <li>Redeem offer</li>
+              </a>
+            </ul>
           </div>
         {% endwith %}
       {% empty %}
@@ -103,6 +108,8 @@
         scrolllock: true,
         autoopen: true,
       });
+
+      {% static "js/mini-menu.js" %}
     });
   </script>
 {% endblock js %}

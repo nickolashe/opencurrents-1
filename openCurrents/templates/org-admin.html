@@ -230,22 +230,12 @@
 {% block js %}
   <script type="text/javascript">
     $(document).ready(function(){
-      $('.mini-open').click(function(){
-        $('.mini-menu').hide();
-        $(this).siblings('.mini-menu').toggle();
-        $(this).attr('visibility', 'visible');
-      });
 
-      $(document).click(function(e) {
-        var target = e.target;
-        if (!$(target).is('.mini-open') && !$(target).parents().is('.mini-open')) {
-          $('.mini-menu').hide();
-        }
-      });
+      {% static "js/mini-menu.js" %}
+
+      function status(){
+        $('#status_msg').html("There are no hours that need your approval.");
+      }
     });
-
-    function status(){
-      $('#status_msg').html("There are no hours that need your approval.");
-    }
   </script>
 {% endblock js %}
