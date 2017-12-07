@@ -1,0 +1,41 @@
+{% extends "layouts/base.html" %}
+{% load staticfiles %}
+
+{% block heading %}
+<div class="row">
+  <div class="medium-8 small-centered columns">
+    <h3 class="title-sub">Register an organization</h3>
+    <p>To post an offer, add a business on openCurrents. To record hours and
+      reward volunteers, add a nonprofit.</p>
+  </div>
+</div>
+{% endblock heading %}
+
+{% block content %}
+<div class="row">
+  <div class="medium-6 small-centered columns">
+    <div class="row left">
+      <div class="medium-8 small-centered columns">
+        <label for="id_org_type">Org type</label>
+        <select id="id_org_type" name="org_type">
+          <option value="biz">Business</option>
+          <option value="npf">Nonprofit</option>
+        </select>
+      </div>
+    </div>
+
+    <input type="text" name="org_name" class="center" placeholder="Organization name" />
+    <input type="text" name="website" class="center" placeholder="Website (optional)" />
+  </div>
+</div>
+{% endblock content %}
+
+{% block js %}
+  <script type="text/javascript">
+    $('#id_org_type').change(function(){
+      if ($(this).val() == 'npf') {
+        $('#')
+      }
+    });
+  </script>
+{% endblock js %}
