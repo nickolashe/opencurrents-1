@@ -36,7 +36,7 @@
           <label for="id_bulk_invites" class="left">
             Copy/paste email list separated by commas
           </label>
-          <textarea id="id_bulk_invites" rows="4"></textarea>
+          <textarea name="bulk-vol" id="id_bulk_invites" rows="4"></textarea>
         </div>
 
         <div id="single-invites-box">
@@ -77,7 +77,7 @@
           <label for="personal-message-text">
             A message from {{ user.first_name }} {{ user.last_name }} (optional):
           </label>
-          <textarea id="personal-message-text"></textarea>
+          <textarea name="personal_message" id="personal-message-text"></textarea>
         </div>
 
         <p class="three-halves-margin-top no-margin-bottom">
@@ -99,7 +99,6 @@
         Skip for now
       </a>
     {% endif %}
-    <input type="hidden" id="bulk-vol" name="bulk-vol" value="" />
 
     <p class="no-margin-bottom">
       <a class="preview-email-popup_open">
