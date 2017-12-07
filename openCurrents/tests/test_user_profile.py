@@ -56,11 +56,11 @@ class TestUserPopup(TestCase):
 
         #creating a volunteer that sees the popup
         user_name = 'volunteer_default'
-        _create_test_user(user_name, org,)
+        _create_test_user(user_name)
 
         #creating a volunteer that answered NO to the popup question
         user_name = 'volunteer_no'
-        _create_test_user(user_name, org,)
+        _create_test_user(user_name)
 
         # changing setting emulating NO answer to the tooltip
         oc_user = User.objects.get(username=user_name)
@@ -70,7 +70,7 @@ class TestUserPopup(TestCase):
 
         #creating a volunteer that answered YES to the popup question
         user_name = 'volunteer_yes'
-        _create_test_user(user_name, org,)
+        _create_test_user(user_name)
 
         # changing setting emulating NO answer to the tooltip
         oc_user = User.objects.get(username=user_name)
@@ -137,12 +137,11 @@ class TestUserProfileHoursApprovedButtons(TestCase):
         org2 = OcOrg().setup_org(name="NPF_org_2", status="npf")
 
         # creating a volunteer
-        volunteer_1 = _create_test_user('volunteer_1', org1)
+        volunteer_1 = _create_test_user('volunteer_1')
 
         # creating an admins for NPF_orgs
-        npf_admin_1 = _create_test_user('npf_admin_1', org1)
-
-        npf_admin_2 = _create_test_user('npf_admin_2', org2,)
+        npf_admin_1 = _create_test_user('npf_admin_1', org = org1, is_org_admin=True)
+        npf_admin_2 = _create_test_user('npf_admin_2', org = org2, is_org_admin=True)
 
         # creating 2 projects for 2 npf orgs
         project_1 = _create_project(org1, 'org1_project_1')
@@ -160,7 +159,7 @@ class TestUserProfileHoursApprovedButtons(TestCase):
 
         _setup_volunteer_hours(volunteer_1, npf_admin_2, org2, project_2, datetime_start_2, datetime_end_2, is_verified = True, action_type = 'app')
 
-         # setting up client
+        # setting up client
         self.client = Client()
 
 
@@ -205,4 +204,97 @@ class TestUserProfileHoursApprovedButtons(TestCase):
         self.assertEqual(response.context['hours_detail'][0].usertimelog.event.project.org.name, 'NPF_org_2')
 
         self.assertEqual(diffInHours(response.context['hours_detail'][0].usertimelog.datetime_start, response.context['hours_detail'][0].usertimelog.datetime_end), 2.0)
+
+
+class TestUserProfileCommunityActivity(TestCase):
+    def setUp(self):
+        # dates
+        future_date = timezone.now() + timedelta(days=1)
+        past_date = timezone.now() - timedelta(days=2)
+
+        # creating org
+        org1 = OcOrg().setup_org(name="NPF_org_1", status="npf")
+        org2 = OcOrg().setup_org(name="NPF_org_2", status="npf")
+
+        # creating a volunteer
+        volunteer_1 = _create_test_user('volunteer_1')
+        vol_1_entity = UserEntity.objects.get(user=volunteer_1)
+
+        volunteer_2 = _create_test_user('volunteer_2')
+        vol_2_entity = UserEntity.objects.get(user=volunteer_2)
+
+        # creating an admins for NPF_orgs
+        npf_admin_1 = _create_test_user('npf_admin_1', org = org1, is_org_admin=True)
+        npf_adm_1_entity = UserEntity.objects.get(user=npf_admin_1)
+
+        npf_admin_2 = _create_test_user('npf_admin_2', org = org2, is_org_admin=True)
+        npf_adm_1_entity = UserEntity.objects.get(user=npf_admin_2)
+
+        # creating 2 projects for 2 npf orgs
+        # project_1 = _create_project(org1, 'org1_project')
+        # project_2 = _create_project(org2, 'org2_project')
+
+        # 1st event time = 3 hours
+        datetime_start_1 = past_date
+        datetime_end_1 = past_date + timedelta(hours=3)
+
+        # 2nd event time = 2 hours
+        datetime_start_2 = past_date + timedelta(hours=3)
+        datetime_end_2 = past_date + timedelta(hours=5)
+
+        # setting 2 approved events for different NPF orgs in the past
+        # _setup_volunteer_hours(volunteer_1, npf_admin_1, org1, project_1, datetime_start_1, datetime_end_1, is_verified = True, action_type = 'app')
+
+        # _setup_volunteer_hours(volunteer_1, npf_admin_2, org2, project_2, datetime_start_2, datetime_end_2, is_verified = True, action_type = 'app')
+
+        # creating ledger entries for CURRENTS
+        ledger_currents_approved_1 = Ledger(
+                entity_from = npf_adm_1_entity,
+                entity_to = vol_1_entity,
+                amount = 20,
+                is_issued = True,
+                date_created = past_date,
+                date_updated = past_date,
+            )
+        ledger_currents_approved_1.save()
+
+        ledger_currents_pending_1 = Ledger(
+                entity_from = npf_adm_1_entity,
+                entity_to = vol_1_entity,
+                amount = 40,
+                is_issued = False,
+                date_created = past_date,
+                date_updated = past_date,
+            )
+        ledger_currents_pending_1.save()
+
+        # setting up client
+        self.client = Client()
+
+
+    def test_community_activity(self):
+        oc_user = User.objects.get(username="volunteer_1")
+        self.client.login(username=oc_user.username, password='password')
+
+        response = self.client.get('/profile/')
+
+        print "\nHERE"
+        print response.context
+        print "HERE\n"
+
+        self.assertEqual(response.status_code, 200)
+
+        # @@ TODO @@
+        # THIS TEST IS CRUSHING
+        # self.assertIn('Currents issued: 20.00', response.content)
+        # self.assertEqual(response.context['currents_amount_total'], 20)
+
+        self.assertIn('Active volunteers: 4', response.content)
+        self.assertEqual(response.context['active_volunteers_total'], 4)
+
+        # @@ TODO @@
+        # NEED MORE INFO ON OBJECTS THAT NEED TO BE SET UP TO TEST THIS PART
+        # self.assertIn('Currents accepted: No currents accepted', response.content)
+        # self.assertEqual(response.context['currents_accepted'], 'xx')
+
 

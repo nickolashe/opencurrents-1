@@ -7,6 +7,8 @@
 
     <link href="{% static "css/home.css" %}" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Alegreya+Sans+SC:300" rel="stylesheet">
+
+    <title>openCurrents | Businesses</title>
   </head>
 
   <body id="business" class="splash" onunload=''>
@@ -236,10 +238,10 @@
           <div class="small-11 medium-6 small-centered columns">
             <h2 class="title-sub white">Register a business</h2>
             <div class="one-margin-top">
-              <a class="signup-box_open tag button round tiny clear">
+              <a href="{% url 'openCurrents:volunteer' %}#5" class="tag button round tiny clear">
                 Register as individual
               </a>
-              <a class="nonprofit-signup-box_open tag button round tiny clear">
+              <a href="{% url 'openCurrents:nonprofit' %}#4" class="tag button round tiny clear">
                 Register a nonprofit
               </a>
             </div>

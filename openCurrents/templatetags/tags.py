@@ -73,3 +73,7 @@ def get_hours_total(arg1, arg2):
 @register.filter
 def less(arg1, arg2):
     return arg1 - arg2
+
+@register.filter
+def fullname(firstname, lastname):
+    return ' '.join([firstname, lastname])

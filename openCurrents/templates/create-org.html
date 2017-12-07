@@ -1,0 +1,23 @@
+{% extends "layouts/base.html" %}
+{% load staticfiles %}
+
+{% block heading %}
+  <div class="row center">
+    <div class="columns">
+      <h3 class="title-sub">
+        {% block title %} Register organization {% endblock title %}
+      </h3>
+      <p>
+        To post an offer, add your business to openCurrents. To record hours and
+        reward volunteers, add your nonprofit.
+      </p>
+    </div>
+  </div>
+{% endblock heading %}
+
+
+{% block content %}
+  <form class="" method="post">
+    {{ form. }}
+  </form>
+{% endblock content %}

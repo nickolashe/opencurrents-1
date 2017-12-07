@@ -46,7 +46,8 @@ from openCurrents.models import \
     Item, \
     Offer, \
     Transaction, \
-    TransactionAction
+    TransactionAction, \
+    Ledger
 
 from openCurrents.forms import \
     UserSignupForm, \
@@ -653,7 +654,7 @@ class InventoryView(TemplateView):
 class PublicRecordView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'public-record.html'
 
-    def get_top_list(self, entity_type='top_org', period='month'):
+    def get_top_list(self, entity_type='top-vol', period='month'):
         if entity_type == 'top-org':
             return OcOrg().get_top_issued_npfs(period)
         elif entity_type == 'top-vol':
@@ -1230,6 +1231,24 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         #context['timezone'] = self.request.user.account.timezone
         context['timezone'] = 'America/Chicago'
 
+
+        # getting issued currents
+        try:
+            context['currents_amount_total'] = reduce(lambda x,y : x + y, [x['total'] for x in OcOrg().get_top_issued_npfs(period='all-time') if x['total']>0])
+        except:
+            context['currents_amount_total'] = []
+
+        # getting active volunteers
+        try:
+            context['active_volunteers_total'] = len([x for x in OcUser().get_top_received_users(period='all-time')])
+        except:
+            context['active_volunteers_total'] = []
+
+        # getting currents accepted
+        try:
+            context['currents_accepted'] = reduce(lambda x,y : x + y, [x['total'] for x in OcOrg().get_top_accepted_bizs(period='all-time') if x['total']>0])
+        except:
+            context['currents_accepted'] = []
 
         return context
 
@@ -2320,7 +2339,7 @@ def event_checkin(request, pk):
                         admin_org.orgentity.id,
                         vol_user.userentity.id,
                         actiontimelog,
-                        (event.datetime_start - event.datetime_end).total_seconds() / 3600
+                        diffInHours(event.datetime_start, event.datetime_end)
                     )
                     clogger.info(
                         'at %s: user %s checkin',

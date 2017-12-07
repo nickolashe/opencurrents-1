@@ -376,7 +376,7 @@ def setup_redemptions(users, orgs):
             user=user,
             offer=offer,
             pop_no_proof=_get_random_string(),
-            pop_type='other',
+            pop_type='oth',
             price_reported=price_reported,
             currents_amount=amount_spent_cur
         )
