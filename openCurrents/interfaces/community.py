@@ -50,7 +50,7 @@ class OcCommunity(object):
         """
         returns admin's pending hours
         """
-        hours_pending_admin = sum([diffInHours(x.usertimelog.datetime_start, x.usertimelog.datetime_end) for x in OrgAdmin(admin_id).get_hours_requested()])
+        hours_pending_admin = sum([diffInHours(x.usertimelog.event.datetime_start, x.usertimelog.event.datetime_end) for x in OrgAdmin(admin_id).get_hours_requested()])
 
         return hours_pending_admin
 
@@ -60,7 +60,7 @@ class OcCommunity(object):
         returns admin's issued hours
         """
         hours_issued_admin = sum(
-                    [diffInHours(x.usertimelog.datetime_start, x.usertimelog.datetime_end) for x in OrgAdmin(admin_id).get_hours_approved()])
+                    [diffInHours(x.usertimelog.event.datetime_start, x.usertimelog.event.datetime_end) for x in OrgAdmin(admin_id).get_hours_approved()])
 
         return hours_issued_admin
 

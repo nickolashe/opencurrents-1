@@ -1213,9 +1213,11 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         hours_by_org = {}
         temp_orgs_set = set()
 
-        for h in hours_approved:
-            org = h.usertimelog.event.project.org
-            approved_hours = diffInHours(h.usertimelog.datetime_start, h.usertimelog.datetime_end)
+        for hr in hours_approved:
+            event = hr.usertimelog.event
+            org = event.project.org
+
+            approved_hours = diffInHours(event.datetime_start, event.datetime_end)
             if approved_hours > 0:
                 if not org in temp_orgs_set:
                     temp_orgs_set.add(org)
@@ -1403,14 +1405,14 @@ class EditProfileView(LoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
-        userid = self.request.user
+        userid = self.request.user.id
         profile_settings_instance = UserSettings.objects.get(user=userid)
 
         if form.is_valid():
-            if 'yes' in request.POST:
+            if 'yes' in form.data:
                 profile_settings_instance.popup_reaction = True
                 profile_settings_instance.save()
-            if 'no' in request.POST:
+            if 'no' in form.data:
                 profile_settings_instance.popup_reaction = False
                 profile_settings_instance.save()
 

@@ -47,8 +47,6 @@ class OrgAdmin(object):
         projects = Project.objects.filter(org__id=self.org.id)
         events = Event.objects.filter(
             project__in=projects
-        ).filter(
-            event_type='MN'
         )
 
         # determine whether there are any unverified timelogs for admin
