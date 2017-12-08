@@ -598,29 +598,53 @@ class BizDetailsForm(forms.Form):
         widget=forms.TextInput(attrs={
             'placeholder': 'Phone',
             'class': 'center',
-        })
+        }),
+        required=False
     )
 
-    email = forms.CharField(
+    email = forms.EmailField(
         widget=forms.TextInput(attrs={
             'placeholder': 'Email',
             'class': 'center',
-        })
+        }),
+        required=False
     )
 
     address = forms.CharField(
         widget=forms.TextInput(attrs={
             'placeholder': 'Address',
             'class': 'center',
-        })
+        }),
+        required=False
     )
 
     intro = forms.CharField(
         widget=forms.Textarea(attrs={
             'placeholder': 'Introduce your business',
             'rows': '3'
-        })
+        }),
+        required=False
     )
+
+    def clean_phone(self):
+        phone = self.cleaned_data['phone']
+        phone = unicode.translate(
+            phone,
+            dict(
+                zip(
+                    map(ord, string.punctuation),
+                    [None for x in xrange(len(string.punctuation))]
+                )
+            )
+        )
+
+        if not phone.isdigit():
+            raise ValidationError(_('Invalid phone number'))
+
+        if len(phone) < 10:
+            raise ValidationError(_('Please enter area code'))
+
+        return phone
 
 
 class OfferCreateForm(forms.Form):
@@ -839,5 +863,3 @@ class PopUpAnswer(forms.Form):
 #         max_length=10,
 #         required=False
 #         )
-
-
