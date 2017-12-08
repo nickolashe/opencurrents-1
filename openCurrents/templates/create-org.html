@@ -12,29 +12,34 @@
 {% endblock heading %}
 
 {% block content %}
-<div class="row">
-  <div class="medium-6 small-centered columns">
-    <div class="row left">
-      <div class="medium-8 small-centered columns">
-        <label for="id_org_type">Org type</label>
-        <select id="id_org_type" name="org_type">
-          <option value="biz">Business</option>
-          <option value="npf">Nonprofit</option>
-        </select>
+  <div class="row">
+    <div class="medium-6 small-centered columns">
+      <div class="row left">
+        <div class="medium-8 small-centered columns">
+          <label for="id_org_type">Org type</label>
+          <select id="id_org_type" name="org_type">
+            <option value="biz">Business</option>
+            <option value="npf">Nonprofit</option>
+          </select>
+        </div>
       </div>
-    </div>
 
-    <input type="text" name="org_name" class="center" placeholder="Organization name" />
-    <input type="text" name="website" class="center" placeholder="Website (optional)" />
+      <input type="text" id="id_org_name" name="org_name" class="center" placeholder="Business name" />
+      <input type="text" name="website" class="center" placeholder="Website (optional)" />
+      <textarea name="mission" rows="2" class="center three-halves-margin-bottom" placeholder="Our mission"></textarea>
+      <input type="submit" class="button round small" value="Create org" />
+    </div>
   </div>
-</div>
 {% endblock content %}
 
 {% block js %}
   <script type="text/javascript">
     $('#id_org_type').change(function(){
       if ($(this).val() == 'npf') {
-        $('#')
+        $('#id_org_name').attr('placeholder','Nonprofit name');
+      }
+      else {
+        $('#id_org_name').attr('placeholder','Business name');
       }
     });
   </script>
