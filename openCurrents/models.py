@@ -108,6 +108,7 @@ class UserSettings(models.Model):
     )
     timezone = models.CharField(max_length=128, default='America/Chicago')
     monthly_updates = models.BooleanField(default=False)
+    popup_reaction = models.NullBooleanField(blank=True, null=True, default=None)
 
     # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)

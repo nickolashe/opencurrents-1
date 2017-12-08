@@ -27,6 +27,8 @@ from interfaces.orgs import OcOrg, \
     OrgExistsException, \
     InvalidOrgUserException
 
+from openCurrents.interfaces.common import diffInHours, diffInMinutes
+
 import math
 import re
 
@@ -44,7 +46,8 @@ from openCurrents.models import \
     Item, \
     Offer, \
     Transaction, \
-    TransactionAction
+    TransactionAction, \
+    Ledger
 
 from openCurrents.forms import \
     UserSignupForm, \
@@ -63,7 +66,9 @@ from openCurrents.forms import \
     OfferCreateForm, \
     OfferEditForm, \
     RedeemCurrentsForm, \
-    PublicRecordsForm
+    PublicRecordsForm, \
+    PopUpAnswer
+    #HoursDetailsForm
 
 
 from datetime import date, datetime, timedelta
@@ -80,13 +85,6 @@ logging.basicConfig(level=logging.DEBUG, filename="log/views.log")
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-
-def diffInMinutes(t1, t2):
-    return round((t2 - t1).total_seconds() / 60, 1)
-
-
-def diffInHours(t1, t2):
-    return round((t2 - t1).total_seconds() / 3600, 1)
 
 # Create and save a new group for admins of a new org
 def new_org_admins_group(orgid):
@@ -627,6 +625,38 @@ class HoursApprovedView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'hours-approved.html'
 
 
+class HoursDetailView(LoginRequiredMixin, SessionContextView, ListView):
+    template_name = 'hours-detail.html'
+    model = AdminActionUserTime
+    context_object_name = 'hours_detail'
+
+    def get_queryset(self):
+        queryset = []
+
+        if self.request.GET.get('is_admin')=='1':
+            if self.request.GET.get('user_id'):
+                user_instance = OrgAdmin(self.request.GET.get('user_id'))
+        else:
+            if self.request.GET.get('user_id'):
+                user_instance = OcUser(self.request.GET.get('user_id'))
+
+        if self.request.GET.get('type') == 'pending':
+            queryset = user_instance.get_hours_requested().order_by('-usertimelog__datetime_start')
+
+        if self.request.GET.get('type') == 'approved':
+            try:
+                org_id = self.request.GET.get('org_id')
+            except:
+                org_id = None
+
+            if org_id:
+                queryset = user_instance.get_hours_approved(org_id=org_id).order_by('-usertimelog__datetime_start')
+            else:
+                queryset = user_instance.get_hours_approved().order_by('-usertimelog__datetime_start')
+
+        return queryset
+
+
 class InviteAdminsView(TemplateView):
     template_name = 'invite-admins.html'
 
@@ -638,7 +668,7 @@ class InventoryView(TemplateView):
 class PublicRecordView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'public-record.html'
 
-    def get_top_list(self, entity_type='top_org', period='month'):
+    def get_top_list(self, entity_type='top-vol', period='month'):
         if entity_type == 'top-org':
             return OcOrg().get_top_issued_npfs(period)
         elif entity_type == 'top-vol':
@@ -1189,18 +1219,76 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         hours_requested = self.ocuser.get_hours_requested()
         context['hours_requested'] = hours_requested
 
+        # hour approved
         hours_approved = self.ocuser.get_hours_approved()
         context['hours_approved'] = hours_approved
+
+        # hour approved by organization
+        context['hours_by_org']=[]
+        hours_by_org = {}
+        temp_orgs_set = set()
+
+        for h in hours_approved:
+            org = h.usertimelog.event.project.org
+            approved_hours = diffInHours(h.usertimelog.datetime_start, h.usertimelog.datetime_end)
+            if approved_hours > 0:
+                if not org in temp_orgs_set:
+                    temp_orgs_set.add(org)
+                    hours_by_org[org] = approved_hours
+                else:
+                    hours_by_org[org] += approved_hours
+
+        context['hours_by_org'].append(hours_by_org)
+
 
         # user timezone
         #context['timezone'] = self.request.user.account.timezone
         context['timezone'] = 'America/Chicago'
+
+
+        # getting issued currents
+        try:
+            context['currents_amount_total'] = reduce(lambda x,y : x + y, [x['total'] for x in OcOrg().get_top_issued_npfs(period='all-time') if x['total']>0])
+        except:
+            context['currents_amount_total'] = []
+
+        # getting active volunteers
+        try:
+            context['active_volunteers_total'] = len([x for x in OcUser().get_top_received_users(period='all-time')])
+        except:
+            context['active_volunteers_total'] = []
+
+        # getting currents accepted
+        try:
+            context['currents_accepted'] = reduce(lambda x,y : x + y, [x['total'] for x in OcOrg().get_top_accepted_bizs(period='all-time') if x['total']>0])
+        except:
+            context['currents_accepted'] = []
 
         return context
 
 
 class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView):
     template_name = 'org-admin.html'
+
+    def _sorting_hours(self, list_of_dicts, user_id):
+        """
+        Takes the list of dictionaries eg '{admin.user.id : time_pending_per_admin }' and currently logged in NPF admin user id,
+        then finds and add currently logged NPF admin user to the beginning of the sorted by values list of
+        dictionaries.
+        Returns sorted by values list of dictionaries with hours for currently logged NPF admin as the first element.
+        """
+        temp_current_admin_dic=[]
+        for item in list_of_dicts:
+            if item.has_key(user_id):
+                temp_current_admin_dic = list_of_dicts.pop(list_of_dicts.index(item))
+
+        list_of_dicts2 = sorted(list_of_dicts, key=lambda d: d.values()[0], reverse=True)
+
+        if len(temp_current_admin_dic) > 0:
+            list_of_dicts2.insert(0, temp_current_admin_dic)
+
+        return list_of_dicts2
+
 
     def get_context_data(self, **kwargs):
         context = super(OrgAdminView, self).get_context_data(**kwargs)
@@ -1211,6 +1299,14 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             context['vols_declined'] = self.kwargs.pop('vols_declined')
         except KeyError:
             pass
+
+        # getting all admins for organization
+        context['org_admins'] = []
+        try:
+            context['org_admins'] = [u for u in OrgUser.objects.filter(org = self.org.id) if OcAuth(u.user.id).is_admin_org()]
+        except (UnboundLocalError, InvalidUserException) as e:
+            logger.debug("Error %s happened when tried to get the list of admins for NPF org %s", str(e), str(self.org.id))
+
 
         # find events created by admin that they have not been notified of
         new_events = Event.objects.filter(
@@ -1227,36 +1323,62 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             event.notified=True
             event.save()
 
-        # calculate total currents verified by admin's org
-        verified_time = UserTimeLog.objects.filter(
-            event__project__org__id=self.org.id
-        ).filter(
-            is_verified=True
-        )
 
-        org_event_user = dict([
-            (event.id, set())
-            for event in Event.objects.filter(project__org__id=self.org.id)
-        ])
+        # calculating pending hours for every NPF admin
+        context['hours_pending_by_admin'] = []
+        context['admin_forms_by_admin'] = []
 
-        issued_by_all = 0
-        issued_by_admin = 0
+        for admin in context['org_admins']:
+            pending_by_admin = 0
+            form = None
+            hours_pending = {admin.user.id : pending_by_admin }
+            admin_forms = {admin.user.id : form }
 
-        for timelog in verified_time:
-            if not timelog.user.id in org_event_user[timelog.event.id]:
-                org_event_user[timelog.event.id].add(timelog.user.id)
-                event_hours = (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
-                issued_by_all += event_hours
+            try:
+                hours_pending[admin.user.id] = reduce(lambda x,y : x + y, [diffInHours(x.usertimelog.datetime_start, x.usertimelog.datetime_end) for x in OrgAdmin(admin.user.id).get_hours_requested()])
+            except TypeError:
+                logger.debug("No hours approved for admin %s", admin.user.username)
 
-                admin_approved_actions = timelog.adminactionusertime_set.filter(
-                    user_id=self.user.id,
-                    action_type='app'
-                )
-                if admin_approved_actions:
-                    issued_by_admin += event_hours
+            if hours_pending[admin.user.id] > 0:
+                context['hours_pending_by_admin'].append(hours_pending)
 
-        context['issued_by_all'] = round(issued_by_all, 2)
-        context['issued_by_admin'] = round(issued_by_admin, 2)
+                # creting the form per admin
+                # admin_forms[admin.user.id] = HoursDetailsForm(initial={'is_admin': 1, 'user_id': admin.user.id, 'hours_type': 'pending'})
+                # context['admin_forms_by_admin'].append(admin_forms)
+
+
+        # sorting the list of admins by # of pending hours descending and putting current admin at the beginning of the list
+        context['hours_pending_by_admin'] = self._sorting_hours(context['hours_pending_by_admin'], self.user.id)
+
+
+        # calculating approved hours for every NPF admin and total NPF Org hours tracked
+        context['issued_by_admin'] = []
+        context['issued_by_logged_admin'] = context['issued_by_all'] = time_issued_by_logged_admin = 0
+
+        for admin in context['org_admins']:
+            issued_by_admin = 0
+            amount_issued_by_admin = {admin.user.id : issued_by_admin }
+
+            try:
+                amount_issued_by_admin[admin.user.id] = reduce(lambda x,y : x + y, [diffInHours(x.usertimelog.datetime_start, x.usertimelog.datetime_end) for x in OrgAdmin(admin.user.id).get_hours_approved()])
+            except TypeError:
+                logger.debug("No hours approved for admin %s", admin.user.username)
+
+            # adding to total approved hours
+            context['issued_by_all']  += amount_issued_by_admin[admin.user.id]
+
+            # adding to current admin's approved hours
+            if admin.user.id == self.user.id:
+                time_issued_by_logged_admin += amount_issued_by_admin[admin.user.id]
+
+            if amount_issued_by_admin[admin.user.id] > 0:
+                context['issued_by_admin'].append(amount_issued_by_admin)
+
+            context['issued_by_logged_admin'] = round(time_issued_by_logged_admin,2)
+
+        # sorting the list of admins by # of approved hours descending and putting current admin at the beginning of the list
+        context['issued_by_admin'] = self._sorting_hours(context['issued_by_admin'], self.user.id)
+
 
         # past org events
         context['events_group_past'] = Event.objects.filter(
@@ -1291,8 +1413,27 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
         return context
 
 
-class EditProfileView(TemplateView):
-    template_name = 'edit-profile.html'
+class EditProfileView(LoginRequiredMixin, View):
+    form_class = PopUpAnswer
+
+    def get(self, request, *args, **kwargs):
+        return HttpResponseRedirect('/profile/')
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        userid = self.request.user
+        profile_settings_instance = UserSettings.objects.get(user=userid)
+
+        if form.is_valid():
+            if 'yes' in request.POST:
+                profile_settings_instance.popup_reaction = True
+                profile_settings_instance.save()
+            if 'no' in request.POST:
+                profile_settings_instance.popup_reaction = False
+                profile_settings_instance.save()
+
+        return HttpResponseRedirect('/profile/')
+
 
 
 class BlogView(TemplateView):
@@ -2183,6 +2324,8 @@ def event_checkin(request, pk):
             'user %s; event %s' % (userid, event.project.name)
         )
 
+        event_duration = diffInHours(event.datetime_start, event.datetime_end)
+
         if checkin:
             # volunteer checkin
             vol_user = User.objects.get(id=userid)
@@ -2208,7 +2351,7 @@ def event_checkin(request, pk):
                         admin_org.orgentity.id,
                         vol_user.userentity.id,
                         actiontimelog,
-                        (event.datetime_start - event.datetime_end).total_seconds() / 3600
+                        event_duration
                     )
                     clogger.info(
                         'at %s: user %s checkin',
@@ -2241,7 +2384,7 @@ def event_checkin(request, pk):
                         admin_org.orgentity.id,
                         admin_user.userentity.id,
                         actiontimelog,
-                        amount
+                        event_duration
                     )
             except Exception as e:
                 return HttpResponse(status=409)

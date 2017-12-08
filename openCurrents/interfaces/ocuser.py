@@ -284,8 +284,8 @@ class OcUser(object):
 
         return admin_actions
 
-    def get_hours_approved(self):
-        usertimelogs = self._get_usertimelogs(verified=True)
+    def get_hours_approved(self, **kwargs):
+        usertimelogs = self._get_usertimelogs(verified=True, **kwargs)
         admin_actions = self._get_adminactions_for_usertimelogs(
             usertimelogs,
             'app'
@@ -301,22 +301,45 @@ class OcUser(object):
             earned_cur_amount = OcLedger().get_earned_cur_amount(user.id, period)['total']
             if not earned_cur_amount:
                 earned_cur_amount = 0
-            result.append({'name': user.username, 'total': earned_cur_amount})
+
+            if user.first_name and user.last_name:
+                name = ' '.join([user.first_name, user.last_name])
+            else:
+                name = user.username
+
+            result.append({'name': name, 'total': earned_cur_amount})
 
         result.sort(key=lambda user_dict: user_dict['total'], reverse=True)
         return result[:quantity]
 
-    def _get_usertimelogs(self, verified=False):
+    def _get_usertimelogs(self, verified=False, **kwargs):
         # determine whether there are any unverified timelogs for admin
-        usertimelogs = UserTimeLog.objects.filter(
+
+        if 'org_id' in kwargs:
+            usertimelogs = UserTimeLog.objects.filter(
             user__id=self.userid
-        ).filter(
-            event__event_type='MN'
-        ).filter(
-            is_verified=verified
-        ).annotate(
-            last_action_created=Max('adminactionusertime__date_created')
-        )
+            ).filter(
+                event__event_type='MN'
+            ).filter(
+                is_verified=verified
+            ).filter(
+                event__project__org_id = kwargs['org_id']
+            ).annotate(
+                last_action_created=Max('adminactionusertime__date_created')
+            )
+
+        else:
+            usertimelogs = UserTimeLog.objects.filter(
+            user__id=self.userid
+            ).filter(
+                event__event_type='MN'
+            ).filter(
+                is_verified=verified
+            ).annotate(
+                last_action_created=Max('adminactionusertime__date_created')
+            )
+
+
 
         return usertimelogs
 

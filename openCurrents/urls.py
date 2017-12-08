@@ -47,6 +47,7 @@ urlpatterns = [
     url(r'^faq/$', views.FaqView.as_view(), name='faq'),
     url(r'^find-orgs/$', views.FindOrgsView.as_view(), name='find-orgs'),
     url(r'^hours-approved/$', views.HoursApprovedView.as_view(), name='hours-approved'),
+    url(r'^hours-detail/$', views.HoursDetailView.as_view(), name='hours-detail'),
     url(r'^inventory/$', views.InventoryView.as_view(), name='inventory'),
     url(r'^mission/$', views.MissionView.as_view(), name='mission'),
     url(r'^nominate/$', views.NominateView.as_view(), name='nominate'),
