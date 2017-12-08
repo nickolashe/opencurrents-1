@@ -1,5 +1,7 @@
 {% extends "layouts/popup.html" %}
 
+{% load tags %}
+
 {% block heading %}
   <div class="row center">
     <h3 class="one-margin-top half-margin-bottom">
@@ -15,24 +17,37 @@
 {% block content %}
   <form class="" method="post">
   {% csrf_token %}
+    {% if form.errors %}
+      <div class="row">
+        {% for field, error in form.errors.iteritems %}
+          <div class="center alert">
+            {% if field != '__all__' %}
+              {{ field|addstr:': '}} {{ error }}
+            {% else %}
+              {{ error }}
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
 
-    {{ form.biz_website }}
+    {{ form.website }}
 
     <div class="row">
       <div class="medium-6 columns">
-        {{ form.biz_phone }}
+        {{ form.phone }}
       </div>
 
       <div class="medium-6 columns">
-        {{ form.biz_email }}
+        {{ form.email }}
       </div>
 
       <div class="columns">
-        {{ form.biz_address }}
+        {{ form.address }}
       </div>
     </div>
 
-    {{ form.biz_intro }}
+    {{ form.intro }}
 
     <div class="row three-halves-margin-top">
       <button type="submit" class="button round small">

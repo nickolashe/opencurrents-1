@@ -17,8 +17,10 @@ import pytz
 class Org(models.Model):
     name = models.CharField(max_length=100, unique=True)
     website = models.CharField(max_length=100, null=True, blank=True)
-    # mission = models.CharField(max_length=4096, null=True)
-    # reason = models.CharField(max_length=4096, null=True)
+    phone = models.CharField(max_length=10, null=True)
+    email = models.EmailField(null=True)
+    address = models.CharField(max_length=1024, null=True)
+    intro = models.CharField(max_length=16192, null=True)
 
     org_types = (
         ('biz', 'business'),

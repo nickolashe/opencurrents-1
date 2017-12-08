@@ -309,6 +309,20 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, FormView):
 
         return context
 
+    def form_valid(self, form):
+        data = form.cleaned_data
+        Org.objects.filter(id=self.org.id).update(
+            website=data['website'],
+            phone=data['phone'],
+            email=data['email'],
+            address=data['address'],
+            intro=data['intro']
+        )
+
+        return redirect(
+            'openCurrents:biz-admin',
+            status_msg='Thank you for adding %s\'s details' % self.org.name
+        )
 
 class BusinessView(TemplateView):
     template_name = 'business.html'

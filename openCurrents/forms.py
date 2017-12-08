@@ -587,35 +587,35 @@ class EventCheckinForm(forms.Form):
 
 
 class BizDetailsForm(forms.Form):
-    biz_website = forms.CharField(
+    website = forms.CharField(
         widget=forms.TextInput(attrs={
             'placeholder': 'Website',
             'class': 'center',
         })
     )
 
-    biz_phone = forms.CharField(
+    phone = forms.CharField(
         widget=forms.TextInput(attrs={
             'placeholder': 'Phone',
             'class': 'center',
         })
     )
 
-    biz_email = forms.CharField(
+    email = forms.CharField(
         widget=forms.TextInput(attrs={
             'placeholder': 'Email',
             'class': 'center',
         })
     )
 
-    biz_address = forms.CharField(
+    address = forms.CharField(
         widget=forms.TextInput(attrs={
             'placeholder': 'Address',
             'class': 'center',
         })
     )
 
-    biz_intro = forms.CharField(
+    intro = forms.CharField(
         widget=forms.Textarea(attrs={
             'placeholder': 'Introduce your business',
             'rows': '3'
