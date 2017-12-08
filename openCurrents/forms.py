@@ -620,7 +620,8 @@ class BizDetailsForm(forms.Form):
 
     intro = forms.CharField(
         widget=forms.Textarea(attrs={
-            'placeholder': 'Introduce your business',
+            'placeholder': 'Introduce your business - What\'s your mission? \
+            What sets you apart?',
             'rows': '3'
         }),
         required=False
