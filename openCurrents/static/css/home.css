@@ -60,7 +60,7 @@
     content:"";
     position:fixed;
     top:0;
-    height:100vh; 
+    height:100vh;
     left:0;
     right:0;
     z-index:-1;
@@ -75,7 +75,7 @@
     content:"";
     position:fixed;
     top:0;
-    height:100vh; 
+    height:100vh;
     left:0;
     right:0;
     z-index:-1;
@@ -90,7 +90,7 @@
     content:"";
     position:fixed;
     top:0;
-    height:100vh; 
+    height:100vh;
     left:0;
     right:0;
     z-index:-1;
@@ -105,7 +105,7 @@
     content:"";
     position:fixed;
     top:0;
-    height:100vh; 
+    height:100vh;
     left:0;
     right:0;
     z-index:-1;
@@ -120,7 +120,7 @@
     content:"";
     position:fixed;
     top:0;
-    height:100vh; 
+    height:100vh;
     left:0;
     right:0;
     z-index:-1;
@@ -129,7 +129,7 @@
     -moz-background-size: cover;
     -o-background-size: cover;
     background-size: cover;
-  }  
+  }
 }
 
 #intro-1, #intro-2, #intro-3, #intro-4, #intro-5, #intro-6, #intro-7 {
@@ -178,9 +178,9 @@ input.home-input::placeholder {
 }
 
 #home-tagline {
-  font-size: 1.875rem;
+  font-size: 2.5rem;
   margin-top: 3.5rem;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
 }
 
 #home-symbol {
@@ -220,14 +220,14 @@ input.home-input::placeholder {
   font-weight: normal;
 }
 
-.button.clear:hover {
-  background-color: #24b2e7;
-  border-color: #24b2e7;
+.splash .button.blue-bg:hover {
+  background-color: transparent;
+  border-color: #fff;
 }
 
-.button.clear:focus {
-  background-color: #24b2e7;
-  border-color: #24b2e7;
+.splash .button.blue-bg:focus {
+  background-color: transparent;
+  border-color: #fff;
 }
 
 #back-button {
@@ -345,9 +345,8 @@ input.home-input::placeholder {
 @media screen and (min-width: 42em) {
 
   #home-tagline {
-    margin-top: 4.5rem;
-    margin-bottom: 1.5rem;
-    font-size: 2.75rem;
+    margin-bottom: 1rem;
+    font-size: 3rem;
   }
 
   #signup-box .button:hover {
