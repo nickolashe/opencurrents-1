@@ -37,24 +37,26 @@
   </div>
 
 
-{% for object in hours_detail  %}
+{% for hr in hours_detail  %}
+  {% with event=hr.usertimelog.event %}
   <div class="row">
     <div class="medium-10 small-centered columns">
       <div class="left row">
         <div class="small-3 columns">
-          <p class="half-margin-bottom">{{ object.usertimelog.datetime_start|date:"M d" }}</p>
+          <p class="half-margin-bottom">{{ event.datetime_start|date:"M d" }}</p>
         </div>
 
         <div class="small-6 columns">
-          <p class="half-margin-bottom">{{ object.usertimelog.event.description }}</p>
+          <p class="half-margin-bottom">{{ event.description }}</p>
         </div>
 
         <div class="right small-2 columns">
-          <p class="half-margin-bottom">{{ object.usertimelog.datetime_end|subtract_time:object.usertimelog.datetime_start }}</p>
+          <p class="half-margin-bottom">{{ event.datetime_end|subtract_time:event.datetime_start }}</p>
         </div>
       </div>
     </div>
   </div>
+  {% endwith %}
 {% empty %}
     <h5>No records available</h5>
 {% endfor %}

@@ -1212,9 +1212,10 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         hours_by_org = {}
         temp_orgs_set = set()
 
-        for h in hours_approved:
-            org = h.usertimelog.event.project.org
-            approved_hours = diffInHours(h.usertimelog.datetime_start, h.usertimelog.datetime_end)
+        for hr in hours_approved:
+            event = hr.usertimelog.event
+            org = event.project.org
+            approved_hours = diffInHours(event.datetime_start, event.datetime_end)
             if approved_hours > 0:
                 if not org in temp_orgs_set:
                     temp_orgs_set.add(org)
@@ -2130,19 +2131,10 @@ class LiveDashboardView(OrgAdminPermissionMixin, SessionContextView, TemplateVie
             event__id=event_id
         )
 
-        # create a map of checked in user id => checked in timestamp
-        checkedin_users = {}
-        for usertimelog in usertimelogs:
-            if not usertimelog.datetime_end:
-                if usertimelog.user.id not in checkedin_users:
-                    checkedin_users[usertimelog.user.id] = usertimelog.datetime_start
-                elif checkedin_users[usertimelog.user.id] < usertimelog.datetime_start:
-                    checkedin_users[usertimelog.user.id] = usertimelog.datetime_start
-            else:
-                if usertimelog.user.id in checkedin_users:
-                    checkedin_users.pop(usertimelog.user.id)
-
-        context['checkedin_users'] = checkedin_users.keys()
+        # include users checked in to the event
+        context['checkedin_users'] = list(set(
+            [ut.user.id for ut in usertimelogs]
+        ))
 
         return context
 
@@ -2308,6 +2300,8 @@ def event_checkin(request, pk):
             'user %s; event %s' % (userid, event.project.name)
         )
 
+        event_duration = diffInHours(event.datetime_start, event.datetime_end)
+
         if checkin:
             # volunteer checkin
             vol_user = User.objects.get(id=userid)
@@ -2333,7 +2327,7 @@ def event_checkin(request, pk):
                         admin_org.orgentity.id,
                         vol_user.userentity.id,
                         actiontimelog,
-                        diffInHours(event.datetime_start, event.datetime_end)
+                        event_duration
                     )
                     clogger.info(
                         'at %s: user %s checkin',
@@ -2341,6 +2335,7 @@ def event_checkin(request, pk):
                         userid
                     )
             except Exception as e:
+                clogger.info(e.message)
                 clogger.info('user %s already checked in', userid)
 
             # check in admin/coordinator
@@ -2366,7 +2361,7 @@ def event_checkin(request, pk):
                         admin_org.orgentity.id,
                         admin_user.userentity.id,
                         actiontimelog,
-                        amount
+                        event_duration
                     )
             except Exception as e:
                 return HttpResponse(status=409)

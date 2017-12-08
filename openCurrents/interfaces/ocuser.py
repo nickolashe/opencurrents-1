@@ -319,11 +319,9 @@ class OcUser(object):
             usertimelogs = UserTimeLog.objects.filter(
             user__id=self.userid
             ).filter(
-                event__event_type='MN'
+                event__project__org_id = kwargs['org_id']
             ).filter(
                 is_verified=verified
-            ).filter(
-                event__project__org_id = kwargs['org_id']
             ).annotate(
                 last_action_created=Max('adminactionusertime__date_created')
             )
@@ -331,8 +329,6 @@ class OcUser(object):
         else:
             usertimelogs = UserTimeLog.objects.filter(
             user__id=self.userid
-            ).filter(
-                event__event_type='MN'
             ).filter(
                 is_verified=verified
             ).annotate(
