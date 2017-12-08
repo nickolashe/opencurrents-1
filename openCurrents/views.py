@@ -2308,6 +2308,8 @@ def event_checkin(request, pk):
             'user %s; event %s' % (userid, event.project.name)
         )
 
+        event_duration = diffInHours(event.datetime_start, event.datetime_end)
+
         if checkin:
             # volunteer checkin
             vol_user = User.objects.get(id=userid)
@@ -2333,7 +2335,7 @@ def event_checkin(request, pk):
                         admin_org.orgentity.id,
                         vol_user.userentity.id,
                         actiontimelog,
-                        diffInHours(event.datetime_start, event.datetime_end)
+                        event_duration
                     )
                     clogger.info(
                         'at %s: user %s checkin',
@@ -2366,7 +2368,7 @@ def event_checkin(request, pk):
                         admin_org.orgentity.id,
                         admin_user.userentity.id,
                         actiontimelog,
-                        amount
+                        event_duration
                     )
             except Exception as e:
                 return HttpResponse(status=409)
