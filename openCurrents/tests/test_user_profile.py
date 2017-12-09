@@ -276,8 +276,8 @@ class TestUserProfileCommunityActivity(TestCase):
         self.assertIn('Currents issued: 20.00', response.content)
         self.assertEqual(response.context['currents_amount_total'], 20.00)
 
-        self.assertIn('Active volunteers: 5', response.content)
-        self.assertEqual(response.context['active_volunteers_total'], 5)
+        self.assertIn('Active volunteers: 1', response.content)
+        self.assertEqual(response.context['active_volunteers_total'], 1)
 
         self.assertIn('Currents accepted: 4', response.content)
         self.assertEqual(response.context['currents_accepted'], 4.00)
