@@ -28,6 +28,7 @@ from interfaces.orgs import OcOrg, \
     InvalidOrgUserException
 
 from openCurrents.interfaces.common import diffInHours, diffInMinutes
+from openCurrents.interfaces.community import OcCommunity
 
 import math
 import re
@@ -1265,6 +1266,7 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
             event = hr.usertimelog.event
             org = event.project.org
             approved_hours = diffInHours(event.datetime_start, event.datetime_end)
+
             if approved_hours > 0:
                 if not org in temp_orgs_set:
                     temp_orgs_set.add(org)
@@ -1282,19 +1284,16 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
 
         # getting issued currents
         try:
-            context['currents_amount_total'] = reduce(lambda x,y : x + y, [x['total'] for x in OcOrg().get_top_issued_npfs(period='all-time') if x['total']>0])
+            context['currents_amount_total'] = OcCommunity().get_amount_currents_total()
         except:
             context['currents_amount_total'] = []
 
         # getting active volunteers
-        try:
-            context['active_volunteers_total'] = len([x for x in OcUser().get_top_received_users(period='all-time')])
-        except:
-            context['active_volunteers_total'] = []
+        context['active_volunteers_total'] = OcCommunity().get_active_volunteers_total()
 
         # getting currents accepted
         try:
-            context['currents_accepted'] = reduce(lambda x,y : x + y, [x['total'] for x in OcOrg().get_top_accepted_bizs(period='all-time') if x['total']>0])
+            context['currents_accepted'] = OcCommunity().get_currents_accepted_total()
         except:
             context['currents_accepted'] = []
 
@@ -1363,17 +1362,18 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
         context['admin_forms_by_admin'] = []
 
         for admin in context['org_admins']:
+            admin_id = admin.user.id
             pending_by_admin = 0
             form = None
-            hours_pending = {admin.user.id : pending_by_admin }
-            admin_forms = {admin.user.id : form }
+            hours_pending = {admin_id : pending_by_admin }
+            admin_forms = {admin_id : form }
 
             try:
-                hours_pending[admin.user.id] = reduce(lambda x,y : x + y, [diffInHours(x.usertimelog.datetime_start, x.usertimelog.datetime_end) for x in OrgAdmin(admin.user.id).get_hours_requested()])
+                hours_pending[admin_id] = OrgAdmin(admin_id).get_total_hours_pending()
             except TypeError:
                 logger.debug("No hours approved for admin %s", admin.user.username)
 
-            if hours_pending[admin.user.id] > 0:
+            if hours_pending[admin_id] > 0:
                 context['hours_pending_by_admin'].append(hours_pending)
 
                 # creting the form per admin
@@ -1390,11 +1390,12 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
         context['issued_by_logged_admin'] = context['issued_by_all'] = time_issued_by_logged_admin = 0
 
         for admin in context['org_admins']:
+            admin_id = admin.user.id
             issued_by_admin = 0
-            amount_issued_by_admin = {admin.user.id : issued_by_admin }
+            amount_issued_by_admin = {admin_id : issued_by_admin }
 
             try:
-                amount_issued_by_admin[admin.user.id] = reduce(lambda x,y : x + y, [diffInHours(x.usertimelog.datetime_start, x.usertimelog.datetime_end) for x in OrgAdmin(admin.user.id).get_hours_approved()])
+                amount_issued_by_admin[admin_id] = OrgAdmin(admin_id).get_total_hours_issued()
             except TypeError:
                 logger.debug("No hours approved for admin %s", admin.user.username)
 
@@ -1402,13 +1403,13 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             context['issued_by_all']  += amount_issued_by_admin[admin.user.id]
 
             # adding to current admin's approved hours
-            if admin.user.id == self.user.id:
-                time_issued_by_logged_admin += amount_issued_by_admin[admin.user.id]
+            if admin_id == self.user.id:
+                time_issued_by_logged_admin += amount_issued_by_admin[admin_id]
 
-            if amount_issued_by_admin[admin.user.id] > 0:
+            if amount_issued_by_admin[admin_id] > 0:
                 context['issued_by_admin'].append(amount_issued_by_admin)
 
-            context['issued_by_logged_admin'] = round(time_issued_by_logged_admin,2)
+            context['issued_by_logged_admin'] = round(time_issued_by_logged_admin, 2)
 
         # sorting the list of admins by # of approved hours descending and putting current admin at the beginning of the list
         context['issued_by_admin'] = self._sorting_hours(context['issued_by_admin'], self.user.id)
@@ -1455,14 +1456,14 @@ class EditProfileView(LoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
-        userid = self.request.user
+        userid = self.request.user.id
         profile_settings_instance = UserSettings.objects.get(user=userid)
 
         if form.is_valid():
-            if 'yes' in request.POST:
+            if 'yes' in form.data:
                 profile_settings_instance.popup_reaction = True
                 profile_settings_instance.save()
-            if 'no' in request.POST:
+            if 'no' in form.data:
                 profile_settings_instance.popup_reaction = False
                 profile_settings_instance.save()
 

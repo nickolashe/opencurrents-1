@@ -299,15 +299,15 @@ class OcUser(object):
 
         for user in users:
             earned_cur_amount = OcLedger().get_earned_cur_amount(user.id, period)['total']
-            if not earned_cur_amount:
-                earned_cur_amount = 0
 
-            if user.first_name and user.last_name:
-                name = ' '.join([user.first_name, user.last_name])
-            else:
-                name = user.username
+            # only include active volunteers
+            if earned_cur_amount > 0:
+                if user.first_name and user.last_name:
+                    name = ' '.join([user.first_name, user.last_name])
+                else:
+                    name = user.username
 
-            result.append({'name': name, 'total': earned_cur_amount})
+                result.append({'name': name, 'total': earned_cur_amount})
 
         result.sort(key=lambda user_dict: user_dict['total'], reverse=True)
         return result[:quantity]
@@ -315,27 +315,18 @@ class OcUser(object):
     def _get_usertimelogs(self, verified=False, **kwargs):
         # determine whether there are any unverified timelogs for admin
 
+        usertimelogs = UserTimeLog.objects.filter(
+            user__id=self.userid
+            ).filter(
+                is_verified=verified
+            ).annotate(
+                last_action_created=Max('adminactionusertime__date_created')
+            )
+
         if 'org_id' in kwargs:
-            usertimelogs = UserTimeLog.objects.filter(
-            user__id=self.userid
-            ).filter(
+            usertimelogs = usertimelogs.filter(
                 event__project__org_id = kwargs['org_id']
-            ).filter(
-                is_verified=verified
-            ).annotate(
-                last_action_created=Max('adminactionusertime__date_created')
             )
-
-        else:
-            usertimelogs = UserTimeLog.objects.filter(
-            user__id=self.userid
-            ).filter(
-                is_verified=verified
-            ).annotate(
-                last_action_created=Max('adminactionusertime__date_created')
-            )
-
-
 
         return usertimelogs
 
