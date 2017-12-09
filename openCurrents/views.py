@@ -1886,6 +1886,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         user = User.objects.get(id=userid)
         post_data = self.request.POST
         event_create_id = None
+
         try:
             event_create_id = kwargs.pop('event_ids')
             if type(json.loads(event_create_id)) == list:
@@ -1905,11 +1906,15 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         OrgUsers = OrgUserInfo(self.request.user.id)
         if OrgUsers:
             Organisation = OrgUsers.get_org_name()
+
         if post_data['bulk-vol'].encode('ascii','ignore') == '':
             num_vols = int(post_data['count-vol'])
         else:
-            bulk_list = re.split(',| |\n',post_data['bulk-vol'])
+            bulk_list = re.split(',|\s|\n',post_data['bulk-vol'])
+            # removing extra splits from bulk_list preventing from creating users with empty name.
+            bulk_list = [x for x in bulk_list if x != '']
             num_vols = len(bulk_list)
+
         for i in range(num_vols):
             if post_data['bulk-vol'].encode('ascii','ignore') == '':
                 email_list = post_data['vol-email-'+str(i+1)]
@@ -1970,12 +1975,22 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                             user_event_registration.save()
                     except Exception as e:
                         logger.error('unable to register user for event')
+
+        email_template_merge_vars = []
+
+        if post_data['personal_message'] != '':
+            email_template_merge_vars.append(
+                {
+                    'name':'PERSONAL_MESSAGE',
+                    'content': str(post_data['personal_message'])
+                })
+
         try:
             event=Event.objects.get(id=event_create_id[0])
             events = Event.objects.filter(id__in=event_create_id)
             loc = [str(i.location).split(',')[0] for i in events]
             tz = event.project.org.timezone
-            email_template_merge_vars = [
+            email_template_merge_vars.extend([
                 {
                     'name': 'ADMIN_FIRSTNAME',
                     'content': user.first_name
@@ -2008,7 +2023,8 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                     'name':'EVENT_END_TIME',
                     'content': str(event.datetime_end.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p'))
                 },
-            ]
+            ])
+
             try:
                 if k:
                     sendBulkEmail(
@@ -2037,7 +2053,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                 sendBulkEmail(
                     'invite-volunteer',
                     None,
-                    [
+                    email_template_merge_vars.extend([
                         {
                             'name': 'ADMIN_FIRSTNAME',
                             'content': user.first_name
@@ -2049,8 +2065,8 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                         {
                             'name': 'ORG_NAME',
                             'content': Organisation
-                        }
-                    ],
+                        },
+                    ]),
                     k,
                     user.email
                 )

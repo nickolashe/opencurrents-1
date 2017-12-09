@@ -2,6 +2,22 @@
 {% load staticfiles %}
 {% load tags %}
 
+<<<<<<< HEAD
+<!DOCTYPE html>
+<html>
+  <head>
+    {% include "partials/head.html" %}
+  </head>
+
+  <body>
+    {% include "partials/header.html" %}
+
+    <div id="container" class="js-close-any" canvas="container">
+      <div id="wrapper">
+        {% if status_msg %}
+        <div class="alert row half-margin-top">
+          {{ status_msg }}
+=======
 {% block head %}
   {{ form.media }}
 {% endblock head %}
@@ -16,6 +32,7 @@
             <h6>1</h6>
           </div>
           <label class="small-text blue">Intro</label>
+>>>>>>> 812673af4dfc2c4c82b85159b16d2694d6377b48
         </div>
 
         <div class="small-3 columns">
