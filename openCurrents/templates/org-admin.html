@@ -173,6 +173,26 @@
     </div>
   </div>
 
+  <div class="left row one-margin-top full-width collapse">
+    <div class="small-11 medium-10 small-centered columns">
+        <h6 class="half-margin-bottom">Hours approved</h6>
+        {% for admin in org_admins %}
+             {% for i in issued_by_admin %}
+                {% if i|keyvalue:admin.user.id != None %}
+                    <a href="{% url 'openCurrents:hours-detail' %}?is_admin=1&user_id={{admin.user.id}}&type=approved" class="button round tiny secondary">{{ admin.user.first_name }} {{ admin.user.last_name }}: {{i|keyvalue:admin.user.id}}</a>
+                {% endif %}
+            {% empty %}
+              <p>
+                No hours have been approved.
+                <a href="{% url 'openCurrents:invite-volunteers' %}">
+                  Invite volunteers
+                </a> to track hours!
+              </p>
+            {% endfor %}
+        {% endfor %}
+    </div>
+  </div>
+  
 <!--
     @TODO@
     Block looks very similar to the following.
@@ -186,21 +206,12 @@
                 {% if i|keyvalue:admin.user.id != None %}
                     <a href="{% url 'openCurrents:hours-detail' %}?is_admin=1&user_id={{admin.user.id}}&type=pending" class="button round tiny secondary">{{ admin.user.first_name }} {{ admin.user.last_name }}: {{i|keyvalue:admin.user.id}}</a>
                 {% endif %}
+            {% empty %}
+              <p>
+                No hours are currently pending approval.
+              </p>
             {% endfor %}
       {% endfor %}
-    </div>
-  </div>
-
-  <div class="left row one-margin-top full-width collapse">
-    <div class="small-11 medium-10 small-centered columns">
-        <h6 class="half-margin-bottom">Hours approved</h6>
-        {% for admin in org_admins %}
-             {% for i in issued_by_admin %}
-                {% if i|keyvalue:admin.user.id != None %}
-                    <a href="{% url 'openCurrents:hours-detail' %}?is_admin=1&user_id={{admin.user.id}}&type=approved" class="button round tiny secondary">{{ admin.user.first_name }} {{ admin.user.last_name }}: {{i|keyvalue:admin.user.id}}</a>
-                {% endif %}
-            {% endfor %}
-        {% endfor %}
     </div>
   </div>
 
