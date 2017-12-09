@@ -1,0 +1,29 @@
+{% load staticfiles %}
+
+{% block heading %}
+  <div class="row center">
+    <h3 class="popup-title">
+      {% block title %}
+        Popup title
+      {% endblock title %}
+    </h3>
+  </div>
+{% endblock heading %}
+
+
+{% block body %}
+  <div class="row center">
+    <div class="small-centered medium-10 columns">
+
+      {% block content %}
+        <p>Test content</p>
+      {% endblock content %}
+
+      <div class="row">
+        {% block buttons %}
+          <a class="-popup_close button round">Fix button</a>
+        {% endblock buttons %}
+      </div>
+    </div>
+  </div>
+{% endblock body %}
