@@ -176,11 +176,8 @@ class PublicRecordViewTestSuite(TestCase):
         # And compared to interface output
         top_users_last_month = OcUser().get_top_received_users('month')
         # 10 users for 5 orgs is because each org contains admin
-        self.assertEqual(len(top_users_last_month), 10)
+        self.assertEqual(len(top_users_last_month), 5)
         self.assertEqual(top_users_last_month[0], self.top_with_names[0])
-        # 5 last users are admins, they've got 0 earned currency
-        for x in range(5, 10):
-            self.assertEqual(top_users_last_month[x]['total'], 0)
 
         # Create 10 more organisations to check that interface method outputs 10 items
         [self.set_up_org(status='npf') for _ in range(10)]
@@ -195,12 +192,9 @@ class PublicRecordViewTestSuite(TestCase):
         # Random transaction amounts are recorded to the list
         # And compared to interface output
         top_users_last_month = OcUser().get_top_received_users('all-time')
-        # 10 users for 5 orgs is because each org contains admin
-        self.assertEqual(len(top_users_last_month), 10)
+
+        self.assertEqual(len(top_users_last_month), 5)
         self.assertEqual(top_users_last_month[0], self.old_top_with_names[0])
-        # 5 last users are admins, they've got 0 earned currency
-        for x in range(5, 10):
-            self.assertEqual(top_users_last_month[x]['total'], 0)
 
         # Create 10 more organisations to check that interface method outputs 10 items
         [self.set_up_org(status='npf') for _ in range(10)]

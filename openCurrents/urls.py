@@ -98,6 +98,7 @@ urlpatterns = [
     url(r'^live-dashboard/(?P<event_id>\d+)/$',
         views.LiveDashboardView.as_view(), name='live-dashboard'),
     url(r'^upcoming-events/$', views.UpcomingEventsView.as_view(), name='upcoming-events'),
+    url(r'^volunteer-opportunities/$', views.VolunteerOpportunitiesView.as_view(), name='volunteer-opportunities'),
     url(r'^event-detail/(?P<pk>\d+)/$', views.EventDetailView.as_view(), name='event-detail'),
     url(r'^event-detail/(?P<pk>\d+)/(?P<status_msg>.*)/$', views.EventDetailView.as_view(), name='event-detail'),
     url(r'^registration-confirmed/(?P<pk>\d+)/$',

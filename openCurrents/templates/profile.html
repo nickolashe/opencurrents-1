@@ -103,7 +103,7 @@
         {% endfor %}
       {% else %}
         <p>You are not registered for any upcoming events.
-          <a href="{% url 'openCurrents:upcoming-events' %}">
+          <a href="{% url 'openCurrents:volunteer-opportunities' %}">
             Find one!
           </a>
         </p>
@@ -123,6 +123,38 @@
       <a href="{% url 'openCurrents:public-record' %}?record_type=top-biz&period=month" class="tag button tiny round secondary">
         Currents accepted: {% if currents_accepted %}{{ currents_accepted }}{% else %}No currents accepted{% endif %}
       </a>
+    </div>
+  </div>
+
+  <div class="row collapse one-margin-top left">
+    <div class="small-11 medium-10 small-centered columns">
+      <h6 class="half-margin-bottom">My volunteer hours</h6>
+      {% for org, hours in hours_by_org.0.items %}
+        <a href="{% url 'openCurrents:hours-detail' %}?user_id={{user.id}}&org_id={{org.id}}&type=approved"
+        class="button round tiny secondary">{{org.name}}: {{hours}}</a>
+      {% empty %}
+        <h5>No records available</h5>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% macro user_hour_request_list_macro arg_list arg_status arg_timezone %}
+    {% block user_hour_request_list %}
+      {% with hours_list=arg_list hours_status=arg_status timezone=arg_timezone %}
+        {{ block.super }}
+      {% endwith %}
+    {% endblock %}
+  {% endmacro %}
+
+  <div class="left row one-margin-top collapse">
+    <div class="small-11 medium-10 small-centered columns">
+      <div class="row">
+        <div class="small-9 columns">
+          <h6 class="half-margin-bottom">My hours requested</h6>
+        </div>
+      </div>
+
+      {% usemacro user_hour_request_list_macro hours_requested 'requested' timezone %}
     </div>
   </div>
 
@@ -189,37 +221,6 @@
       {% endif %}
     </div>
   </div>
-
-  {% macro user_hour_request_list_macro arg_list arg_status arg_timezone %}
-    {% block user_hour_request_list %}
-      {% with hours_list=arg_list hours_status=arg_status timezone=arg_timezone %}
-        {{ block.super }}
-      {% endwith %}
-    {% endblock %}
-  {% endmacro %}
-
-  <div class="left row one-margin-top collapse">
-    <div class="small-11 medium-10 small-centered columns">
-      <div class="row">
-        <div class="small-9 columns">
-          <h6 class="half-margin-bottom">Hours requested</h6>
-        </div>
-      </div>
-
-      {% usemacro user_hour_request_list_macro hours_requested 'requested' timezone %}
-    </div>
-  </div>
-
-  <div class="row collapse one-margin-top left">
-    <div class="small-11 medium-10 small-centered columns">
-      <h6 class="half-margin-bottom">Hours approved</h6>
-      {% for org, hours in hours_by_org.0.items %}
-        <a href="{% url 'openCurrents:hours-detail' %}?user_id={{user.id}}&org_id={{org.id}}&type=approved" class="button round tiny secondary">{{org.name}}: {{hours}}</a>
-      {% empty %}
-        <h5>No records available</h5>
-      {% endfor %}
-    </div>
-  </div>
 {% endblock content %}
 
 {% block popups %}
@@ -254,7 +255,7 @@
       <div class="half-margin-bottom small-12 medium-6 columns">
         <h6>I want to volunteer</h6>
         <p>Check out upcoming opportunities with participating organizations:</p>
-        <a href="{% url 'openCurrents:upcoming-events' %}" class="button round small">
+        <a href="{% url 'openCurrents:volunteer-opportunities' %}" class="button round small">
           View opportunities
         </a>
       </div>

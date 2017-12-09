@@ -28,6 +28,7 @@ from interfaces.orgs import OcOrg, \
     InvalidOrgUserException
 
 from openCurrents.interfaces.common import diffInHours, diffInMinutes
+from openCurrents.interfaces.community import OcCommunity
 
 import math
 import re
@@ -761,6 +762,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
 
         if user_balance_available <= 0:
             # TODO: replace with a page explaining no sufficient funds
+
             reqForbidden = True
             status_msg = ' '.join([
                 'You need Currents to redeem an offer. <br>',
@@ -782,6 +784,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
 
         if reqForbidden:
             return redirect('openCurrents:marketplace', status_msg)
+
 
         return super(RedeemCurrentsView, self).dispatch(request, *args, **kwargs)
 
@@ -970,14 +973,27 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             usertimelog.save()
             self.create_approval_request(org.id, usertimelog, form_data['admin'])
 
+
             return True, None
 
         elif form_data['admin'] == 'other-admin':
             # TODO (@karbmk): switch to using forms
-            admin_name = self.request.POST['admin_fname']
-            admin_email = self.request.POST['admin_email']
+
+            admin_name = form_data['new_admin_name']
+            admin_email = form_data['new_admin_email']
+
+            if form_data['new_org'] != '':
+                org = form_data['new_org']
+
             if admin_email:
-                user = self.invite_new_admin(org, admin_email, admin_name)
+                user = self.invite_new_admin(
+                    org,
+                    admin_email,
+                    admin_name,
+                    description=form_data['description'],
+                    datetime_start=form_data['datetime_start'],
+                    datetime_end=form_data['datetime_end']
+                )
 
                 # as of now, do not submit hours prior to admin registering
                 #self.create_approval_request(org.id,usertimelog,user)
@@ -992,6 +1008,20 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             ])
             return False, status_msg
 
+    def add_to_email_vars(self, email_var_list, new_var_name, new_var_value):
+        """
+        adds kwargs passed to the email vars
+        email_var_list - list of dictionaries
+        new_var_name - string
+        new_var_value - form_data['xxxx_xxxx']
+        """
+        email_var_list.append(
+                {
+                    'name': str(new_var_name.upper()),
+                    'content': new_var_value
+                }
+            )
+
     def create_approval_request(self, orgid, usertimelog, admin_id):
         # save admin-specific request for approval of hours
         actiontimelog = AdminActionUserTime(
@@ -1003,7 +1033,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
 
         return True
 
-    def invite_new_admin(self, org, admin_email, admin_name):
+    def invite_new_admin(self, org, admin_email, admin_name, **kwargs):
         user_new = None
         doInvite = False
         try:
@@ -1018,37 +1048,50 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             # user_new.save()
             doInvite = True
 
+        # adapting function for sending org.name or form_data['new_org'] to new admin
+        if isinstance(org, Org):
+            org = org.name  # the Org instance was passed, using name
+        else:
+            org = org  # the sting was passed, using it as an org name
+
+        email_vars = [
+                    {
+                        'name': 'ADMIN_NAME',
+                        'content': admin_name
+                    },
+                    {
+                        'name': 'FNAME',
+                        'content': self.request.user.first_name
+                    },
+                    {
+                        'name': 'LNAME',
+                        'content': self.request.user.last_name
+                    },
+                    {
+                        'name': 'EVENT',
+                        'content': False
+                    },
+                    {
+                        'name': 'ORG_NAME',
+                        'content': org
+                    },
+                    {
+                        'name': 'EMAIL',
+                        'content': admin_email
+                    },
+                ]
+
+        # adding kwargs to email vars
+        if kwargs:
+            for kw_key, kw_value in kwargs.iteritems():
+                self.add_to_email_vars(email_vars, kw_key, kw_value)
+
         if doInvite:
             try:
                 sendTransactionalEmail(
                     'volunteer-invites-admin',
                     None,
-                    [
-                        {
-                            'name': 'ADMIN_NAME',
-                            'content': admin_name
-                        },
-                        {
-                            'name': 'FNAME',
-                            'content': self.request.user.first_name
-                        },
-                        {
-                            'name': 'LNAME',
-                            'content': self.request.user.last_name
-                        },
-                        {
-                            'name': 'EVENT',
-                            'content': False
-                        },
-                        {
-                            'name': 'ORG_NAME',
-                            'content': org.name
-                        },
-                        {
-                            'name': 'EMAIL',
-                            'content': admin_email
-                        }
-                    ],
+                    email_vars,
                     admin_email
                 )
             except Exception as e:
@@ -1071,13 +1114,10 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         #     )
 
         try:
-            sendTransactionalEmail(
-                'new-admin-invited',
-                None,
-                [
+            email_vars_ransactional = [
                     {
                         'name': 'ORG_NAME',
-                        'content': org.name
+                        'content': org
                     },
                     {
                         'name': 'ADMIN_NAME',
@@ -1095,7 +1135,17 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                         'name': 'LNAME',
                         'content': self.request.user.last_name
                     }
-                ],
+                ]
+
+            # adding kwargs to email vars
+            if kwargs:
+                for kw_key, kw_value in kwargs.iteritems():
+                    self.add_to_email_vars(email_vars, kw_key, kw_value)
+
+            sendTransactionalEmail(
+                'new-admin-invited',
+                None,
+                email_vars_ransactional,
                 'bizdev@opencurrents.com'
             )
         except Exception as e:
@@ -1228,9 +1278,11 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         hours_by_org = {}
         temp_orgs_set = set()
 
-        for h in hours_approved:
-            org = h.usertimelog.event.project.org
-            approved_hours = diffInHours(h.usertimelog.datetime_start, h.usertimelog.datetime_end)
+        for hr in hours_approved:
+            event = hr.usertimelog.event
+            org = event.project.org
+            approved_hours = diffInHours(event.datetime_start, event.datetime_end)
+
             if approved_hours > 0:
                 if not org in temp_orgs_set:
                     temp_orgs_set.add(org)
@@ -1248,19 +1300,16 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
 
         # getting issued currents
         try:
-            context['currents_amount_total'] = reduce(lambda x,y : x + y, [x['total'] for x in OcOrg().get_top_issued_npfs(period='all-time') if x['total']>0])
+            context['currents_amount_total'] = OcCommunity().get_amount_currents_total()
         except:
             context['currents_amount_total'] = []
 
         # getting active volunteers
-        try:
-            context['active_volunteers_total'] = len([x for x in OcUser().get_top_received_users(period='all-time')])
-        except:
-            context['active_volunteers_total'] = []
+        context['active_volunteers_total'] = OcCommunity().get_active_volunteers_total()
 
         # getting currents accepted
         try:
-            context['currents_accepted'] = reduce(lambda x,y : x + y, [x['total'] for x in OcOrg().get_top_accepted_bizs(period='all-time') if x['total']>0])
+            context['currents_accepted'] = OcCommunity().get_currents_accepted_total()
         except:
             context['currents_accepted'] = []
 
@@ -1329,17 +1378,18 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
         context['admin_forms_by_admin'] = []
 
         for admin in context['org_admins']:
+            admin_id = admin.user.id
             pending_by_admin = 0
             form = None
-            hours_pending = {admin.user.id : pending_by_admin }
-            admin_forms = {admin.user.id : form }
+            hours_pending = {admin_id : pending_by_admin }
+            admin_forms = {admin_id : form }
 
             try:
-                hours_pending[admin.user.id] = reduce(lambda x,y : x + y, [diffInHours(x.usertimelog.datetime_start, x.usertimelog.datetime_end) for x in OrgAdmin(admin.user.id).get_hours_requested()])
+                hours_pending[admin_id] = OrgAdmin(admin_id).get_total_hours_pending()
             except TypeError:
                 logger.debug("No hours approved for admin %s", admin.user.username)
 
-            if hours_pending[admin.user.id] > 0:
+            if hours_pending[admin_id] > 0:
                 context['hours_pending_by_admin'].append(hours_pending)
 
                 # creting the form per admin
@@ -1356,11 +1406,12 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
         context['issued_by_logged_admin'] = context['issued_by_all'] = time_issued_by_logged_admin = 0
 
         for admin in context['org_admins']:
+            admin_id = admin.user.id
             issued_by_admin = 0
-            amount_issued_by_admin = {admin.user.id : issued_by_admin }
+            amount_issued_by_admin = {admin_id : issued_by_admin }
 
             try:
-                amount_issued_by_admin[admin.user.id] = reduce(lambda x,y : x + y, [diffInHours(x.usertimelog.datetime_start, x.usertimelog.datetime_end) for x in OrgAdmin(admin.user.id).get_hours_approved()])
+                amount_issued_by_admin[admin_id] = OrgAdmin(admin_id).get_total_hours_issued()
             except TypeError:
                 logger.debug("No hours approved for admin %s", admin.user.username)
 
@@ -1368,13 +1419,13 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             context['issued_by_all']  += amount_issued_by_admin[admin.user.id]
 
             # adding to current admin's approved hours
-            if admin.user.id == self.user.id:
-                time_issued_by_logged_admin += amount_issued_by_admin[admin.user.id]
+            if admin_id == self.user.id:
+                time_issued_by_logged_admin += amount_issued_by_admin[admin_id]
 
-            if amount_issued_by_admin[admin.user.id] > 0:
+            if amount_issued_by_admin[admin_id] > 0:
                 context['issued_by_admin'].append(amount_issued_by_admin)
 
-            context['issued_by_logged_admin'] = round(time_issued_by_logged_admin,2)
+            context['issued_by_logged_admin'] = round(time_issued_by_logged_admin, 2)
 
         # sorting the list of admins by # of approved hours descending and putting current admin at the beginning of the list
         context['issued_by_admin'] = self._sorting_hours(context['issued_by_admin'], self.user.id)
@@ -1421,14 +1472,14 @@ class EditProfileView(LoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
-        userid = self.request.user
+        userid = self.request.user.id
         profile_settings_instance = UserSettings.objects.get(user=userid)
 
         if form.is_valid():
-            if 'yes' in request.POST:
+            if 'yes' in form.data:
                 profile_settings_instance.popup_reaction = True
                 profile_settings_instance.save()
-            if 'no' in request.POST:
+            if 'no' in form.data:
                 profile_settings_instance.popup_reaction = False
                 profile_settings_instance.save()
 
@@ -1808,6 +1859,10 @@ class UpcomingEventsView(LoginRequiredMixin, SessionContextView, ListView):
         )
 
 
+class VolunteerOpportunitiesView(TemplateView):
+    template_name = 'volunteer-opportunities.html'
+
+
 class ProjectDetailsView(TemplateView):
     template_name = 'project-details.html'
 
@@ -1847,6 +1902,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         user = User.objects.get(id=userid)
         post_data = self.request.POST
         event_create_id = None
+
         try:
             event_create_id = kwargs.pop('event_ids')
             if type(json.loads(event_create_id)) == list:
@@ -1866,11 +1922,15 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         OrgUsers = OrgUserInfo(self.request.user.id)
         if OrgUsers:
             Organisation = OrgUsers.get_org_name()
+
         if post_data['bulk-vol'].encode('ascii','ignore') == '':
             num_vols = int(post_data['count-vol'])
         else:
-            bulk_list = re.split(',| |\n',post_data['bulk-vol'])
+            bulk_list = re.split(',|\s|\n',post_data['bulk-vol'])
+            # removing extra splits from bulk_list preventing from creating users with empty name.
+            bulk_list = [x for x in bulk_list if x != '']
             num_vols = len(bulk_list)
+
         for i in range(num_vols):
             if post_data['bulk-vol'].encode('ascii','ignore') == '':
                 email_list = post_data['vol-email-'+str(i+1)]
@@ -1931,12 +1991,22 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                             user_event_registration.save()
                     except Exception as e:
                         logger.error('unable to register user for event')
+
+        email_template_merge_vars = []
+
+        if post_data['personal_message'] != '':
+            email_template_merge_vars.append(
+                {
+                    'name':'PERSONAL_MESSAGE',
+                    'content': str(post_data['personal_message'])
+                })
+
         try:
             event=Event.objects.get(id=event_create_id[0])
             events = Event.objects.filter(id__in=event_create_id)
             loc = [str(i.location).split(',')[0] for i in events]
             tz = event.project.org.timezone
-            email_template_merge_vars = [
+            email_template_merge_vars.extend([
                 {
                     'name': 'ADMIN_FIRSTNAME',
                     'content': user.first_name
@@ -1969,7 +2039,8 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                     'name':'EVENT_END_TIME',
                     'content': str(event.datetime_end.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p'))
                 },
-            ]
+            ])
+
             try:
                 if k:
                     sendBulkEmail(
@@ -1998,7 +2069,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                 sendBulkEmail(
                     'invite-volunteer',
                     None,
-                    [
+                    email_template_merge_vars.extend([
                         {
                             'name': 'ADMIN_FIRSTNAME',
                             'content': user.first_name
@@ -2010,8 +2081,8 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                         {
                             'name': 'ORG_NAME',
                             'content': Organisation
-                        }
-                    ],
+                        },
+                    ]),
                     k,
                     user.email
                 )
@@ -2146,19 +2217,10 @@ class LiveDashboardView(OrgAdminPermissionMixin, SessionContextView, TemplateVie
             event__id=event_id
         )
 
-        # create a map of checked in user id => checked in timestamp
-        checkedin_users = {}
-        for usertimelog in usertimelogs:
-            if not usertimelog.datetime_end:
-                if usertimelog.user.id not in checkedin_users:
-                    checkedin_users[usertimelog.user.id] = usertimelog.datetime_start
-                elif checkedin_users[usertimelog.user.id] < usertimelog.datetime_start:
-                    checkedin_users[usertimelog.user.id] = usertimelog.datetime_start
-            else:
-                if usertimelog.user.id in checkedin_users:
-                    checkedin_users.pop(usertimelog.user.id)
-
-        context['checkedin_users'] = checkedin_users.keys()
+        # include users checked in to the event
+        context['checkedin_users'] = list(set(
+            [ut.user.id for ut in usertimelogs]
+        ))
 
         return context
 
@@ -2359,6 +2421,7 @@ def event_checkin(request, pk):
                         userid
                     )
             except Exception as e:
+                clogger.info(e.message)
                 clogger.info('user %s already checked in', userid)
 
             # check in admin/coordinator

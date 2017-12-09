@@ -1167,15 +1167,6 @@ a.list-group-item {
   margin-top: 0.125rem;
 }
 
-/* volunteering */
-
-/*#end-time {
-  width: 99px;
-  margin: auto;
-  margin-bottom: 0px;
-  height: 2rem;
-}*/
-
 /* community */
 
 .atcb-list {
@@ -1326,16 +1317,6 @@ i:hover ~ .addtocalendar {
   padding-right: 1.5rem;
 }
 
-/* upcoming-events */
-
-.upcoming-event {
-  min-height: 67px;
-  padding-top: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #cccccc;
-  overflow: hidden;
-  text-align: left;
-}
 
 /* live-dashboard */
 
@@ -1349,6 +1330,13 @@ input[type="checkbox"] + label.vol-arrived {
 
 .large-icon {
   font-size: 1.5rem;
+}
+
+/* volunteer-opportunities */
+
+.other-volunteering {
+  height: 3rem;
+  margin: 1rem;
 }
 
 /* time-tracker */

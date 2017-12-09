@@ -518,18 +518,21 @@ class TimeTrackerForm(forms.Form):
     new_org = forms.CharField(
         required=False,
         widget=widgets.TextWidget(attrs={
+            'class': 'center',
             'placeholder': 'Organization name',
         })
     )
     new_admin_name = forms.CharField(
         required=False,
         widget=widgets.TextWidget(attrs={
+            'class': 'center',
             'placeholder':'Coordinator name',
         })
     )
     new_admin_email = forms.CharField(
         required=False,
         widget=widgets.TextWidget(attrs={
+            'class': 'center',
             'placeholder': 'Coordinator email'
         })
     )
