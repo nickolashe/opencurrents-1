@@ -17,19 +17,6 @@
 {% block content %}
   <form class="" method="post">
   {% csrf_token %}
-    {% if form.errors %}
-      <div class="row">
-        {% for field, error in form.errors.iteritems %}
-          <div class="center alert">
-            {% if field != '__all__' %}
-              {{ field|addstr:': '}} {{ error }}
-            {% else %}
-              {{ error }}
-            {% endif %}
-          </div>
-        {% endfor %}
-      </div>
-    {% endif %}
 
     {{ form.website }}
 

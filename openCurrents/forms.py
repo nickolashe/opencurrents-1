@@ -594,7 +594,8 @@ class BizDetailsForm(forms.Form):
         widget=forms.TextInput(attrs={
             'placeholder': 'Website',
             'class': 'center',
-        })
+        }),
+        required=False
     )
 
     phone = forms.CharField(

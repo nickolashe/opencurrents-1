@@ -10,20 +10,15 @@
 
   {% else %}
     <div class="alert row one-margin-top">
-      <!-- Catch and display field and non-field errors-->
       {% if form.errors %}
         <div class="row">
-          {% for field in form %}
-            {% for error in field.errors %}
-              <div class="alert">
+          {% for field, error in form.errors.iteritems %}
+            <div class="center alert">
+              {% if field != '__all__' %}
+                {{ field|addstr:': '}} {{ error }}
+              {% else %}
                 {{ error }}
-              </div>
-            {% endfor %}
-          {% endfor %}
-
-          {% for error in form.non_field_errors %}
-            <div class="alert">
-              {{ error }}
+              {% endif %}
             </div>
           {% endfor %}
         </div>
