@@ -1313,17 +1313,18 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
         context['admin_forms_by_admin'] = []
 
         for admin in context['org_admins']:
+            admin_id = admin.user.id
             pending_by_admin = 0
             form = None
-            hours_pending = {admin.user.id : pending_by_admin }
-            admin_forms = {admin.user.id : form }
+            hours_pending = {admin_id : pending_by_admin }
+            admin_forms = {admin_id : form }
 
             try:
-                hours_pending[admin.user.id] = OcCommunity().get_hours_pending_admin(admin.user.id)
+                hours_pending[admin_id] = OrgAdmin(admin_id).get_total_hours_pending()
             except TypeError:
                 logger.debug("No hours approved for admin %s", admin.user.username)
 
-            if hours_pending[admin.user.id] > 0:
+            if hours_pending[admin_id] > 0:
                 context['hours_pending_by_admin'].append(hours_pending)
 
                 # creting the form per admin
@@ -1340,11 +1341,12 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
         context['issued_by_logged_admin'] = context['issued_by_all'] = time_issued_by_logged_admin = 0
 
         for admin in context['org_admins']:
+            admin_id = admin.user.id
             issued_by_admin = 0
-            amount_issued_by_admin = {admin.user.id : issued_by_admin }
+            amount_issued_by_admin = {admin_id : issued_by_admin }
 
             try:
-                amount_issued_by_admin[admin.user.id] = OcCommunity().get_hours_issued_admin(admin.user.id)
+                amount_issued_by_admin[admin_id] = OrgAdmin(admin_id).get_total_hours_issued()
             except TypeError:
                 logger.debug("No hours approved for admin %s", admin.user.username)
 
@@ -1352,13 +1354,13 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             context['issued_by_all']  += amount_issued_by_admin[admin.user.id]
 
             # adding to current admin's approved hours
-            if admin.user.id == self.user.id:
-                time_issued_by_logged_admin += amount_issued_by_admin[admin.user.id]
+            if admin_id == self.user.id:
+                time_issued_by_logged_admin += amount_issued_by_admin[admin_id]
 
-            if amount_issued_by_admin[admin.user.id] > 0:
+            if amount_issued_by_admin[admin_id] > 0:
                 context['issued_by_admin'].append(amount_issued_by_admin)
 
-            context['issued_by_logged_admin'] = round(time_issued_by_logged_admin,2)
+            context['issued_by_logged_admin'] = round(time_issued_by_logged_admin, 2)
 
         # sorting the list of admins by # of approved hours descending and putting current admin at the beginning of the list
         context['issued_by_admin'] = self._sorting_hours(context['issued_by_admin'], self.user.id)

@@ -119,7 +119,7 @@ class OcOrg(object):
 
         for biz in bizs:
             accepted_cur_amount = OcLedger().get_accepted_cur_amount(biz.id, period)['total']
-            if not accepted_cur_amount:
+            if accepted_cur_amount:
                 accepted_cur_amount = 0
             result.append({'name': biz.name, 'total': accepted_cur_amount})
 

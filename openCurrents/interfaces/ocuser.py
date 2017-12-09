@@ -299,15 +299,15 @@ class OcUser(object):
 
         for user in users:
             earned_cur_amount = OcLedger().get_earned_cur_amount(user.id, period)['total']
-            if not earned_cur_amount:
-                earned_cur_amount = 0
 
-            if user.first_name and user.last_name:
-                name = ' '.join([user.first_name, user.last_name])
-            else:
-                name = user.username
+            # only include active volunteers
+            if earned_cur_amount > 0:
+                if user.first_name and user.last_name:
+                    name = ' '.join([user.first_name, user.last_name])
+                else:
+                    name = user.username
 
-            result.append({'name': name, 'total': earned_cur_amount})
+                result.append({'name': name, 'total': earned_cur_amount})
 
         result.sort(key=lambda user_dict: user_dict['total'], reverse=True)
         return result[:quantity]
