@@ -45,6 +45,10 @@ class TestApproveHoursOneWeek(TestCase):
         self.volunteer_1 = _create_test_user('volunteer_1')
         self.volunteer_2 = _create_test_user('volunteer_2')
 
+        # getting full names of volunteers
+        self.volunteer_1_full_name = self.volunteer_1.first_name + ' ' + self.volunteer_1.last_name
+        self.volunteer_2_full_name = self.volunteer_2.first_name + ' ' + self.volunteer_2.last_name
+
         # creating an admins for NPF_orgs
         self.npf_admin_1 = _create_test_user('npf_admin_1', org = self.org1, is_org_admin=True)
 
@@ -64,70 +68,55 @@ class TestApproveHoursOneWeek(TestCase):
         _setup_volunteer_hours(self.volunteer_2, self.npf_admin_1, self.org1, self.project_1, datetime_start_2, datetime_end_2,)
 
         # getting previous week start
-        self.monday = (timezone.now() - timedelta(days=timezone.now().weekday())).strftime("%b. %d, %Y")
-
+        self.monday = (timezone.now() - timedelta(days=timezone.now().weekday())).strftime("%-m-%-d-%Y")#.strftime("%b. %d, %Y")
 
         # setting up client
         self.client = Client()
         self.client.login(username=self.npf_admin_1.username, password='password')
         self.response = self.client.get('/approve-hours/')
 
-    def test_one(self):
 
-        processed_content = re.sub(r'\s+', ' ', self.response.content)
+
+    def test_logged_hours_displayed(self):
 
         self.assertEqual(self.response.status_code, 200)
 
-        print "\nHERE"
-        print self.response.context[0]
-        print "HERE\n"
+        # digging into response dictionaries
+        for k in self.response.context[0]['week'][0]:
 
-        # finding week
+            self.assertEqual(2, len(self.response.context[0]['week'][0][k]))
 
-        for d in self.response.context[0]:
-            if 'week' in d.keys():
-                print d['week']
-
-        # print "\nHERE"
-        # print self.response.content
-        # print
-        # print self.response.context
-        # print "HERE\n"
-
-        #response.context[0]
-
-        # assert displayed week starting date
-        # print self.monday
-        # self.assertIn(self.monday, processed_content)
-
-        # assert context
-        #self.assertIn('volunteer_1_first_name volunteer_1_last_name', self.response.context)
+            self.assertEqual(3, len(self.response.context[0]['week'][0][k][self.volunteer_1.email]))
+            self.assertEqual(3.0, self.response.context[0]['week'][0][k][self.volunteer_1.email]['Total'])
+            self.assertEqual(self.volunteer_1_full_name, self.response.context[0]['week'][0][k][self.volunteer_1.email]['name'])
 
 
-        # print "\nHERE"
-        # print User.objects.all()
-        # print Project.objects.all()
-        # print Org.objects.all()
-        # events = Event.objects.all()
-        # u_timelogs =  UserTimeLog.objects.all()
-        # a_actions = AdminActionUserTime.objects.all()
-        # print a_actions
-        # print "HERE\n"
+            self.assertEqual(3, len(self.response.context[0]['week'][0][k][self.volunteer_2.email]))
+            self.assertEqual(2.0, self.response.context[0]['week'][0][k][self.volunteer_2.email]['Total'])
+            self.assertEqual(self.volunteer_2_full_name, self.response.context[0]['week'][0][k][self.volunteer_2.email]['name'])
 
-        # print
-        # for action in a_actions:
-        #      print action.date_created
 
-        # print
-        # print "Events"
-        # print Event.objects.all()
-        # for event in events:
-        #     print event.is_public
-        #     print event.notified
+    def test_logged_hours_accept(self):
 
-        # print
-        # for tlog in u_timelogs:
-        #     print tlog.is_verified
+        self.assertEqual(self.response.status_code, 200)
+
+        self.response = self.client.post('/approve-hours/', {
+                'post-data': self.volunteer_1.username + ':1:' + self.monday +',' + self.volunteer_2.username + ':1:' + self.monday
+                })
+
+        self.assertRedirects(self.response, '/org-admin/2/0/', status_code=302)
+
+
+
+        # DECLINING
+        # HERE
+        # <QueryDict: { u'post-data': [u',volunteer1@opencurrents.com:0:12-4-2017,']}>
+        # cleared post data --> ,volunteer1@opencurrents.com:0:12-4-2017,
+        # HERE
+
+        # APPROVING:
+        # <QueryDict: { u'post-data': [u'volunteer1@opencurrents.com:1:12-4-2017,volunteer2@opencurrents.com:1:12-4-2017,']}>
+        # cleared post data -->  volunteer1@opencurrents.com:1:12-4-2017,volunteer2@opencurrents.com:1:12-4-2017,
 
 
 
