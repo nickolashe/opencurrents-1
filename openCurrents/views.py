@@ -3326,9 +3326,10 @@ def sendTransactionalEmail(template_name, template_content, merge_vars, recipien
     #kwargs['session']['transactional'] = kwargs['marker']
 
     # adding launch function marker to session for testing purpose
-    sess = kwargs['session']
-    marker = kwargs['marker']
-    sess['transactional'] = kwargs['marker']
+    if kwargs:
+        sess = kwargs['session']
+        marker = kwargs['marker']
+        sess['transactional'] = kwargs['marker']
 
     mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)
     message = {
