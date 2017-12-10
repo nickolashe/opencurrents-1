@@ -1045,7 +1045,10 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                     'volunteer-invites-admin',
                     None,
                     email_vars,
-                    admin_email
+                    admin_email,
+                    # marker for testing purpose
+                    session=self.request.session,
+                    marker='1'
                 )
             except Exception as e:
                 logger.error(
@@ -1067,7 +1070,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         #     )
 
         try:
-            email_vars_ransactional = [
+            email_vars_transactional = [
                     {
                         'name': 'ORG_NAME',
                         'content': org
@@ -1093,13 +1096,16 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             # adding kwargs to email vars
             if kwargs:
                 for kw_key, kw_value in kwargs.iteritems():
-                    self.add_to_email_vars(email_vars, kw_key, kw_value)
+                    self.add_to_email_vars(email_vars_transactional, kw_key, kw_value)
 
             sendTransactionalEmail(
                 'new-admin-invited',
                 None,
-                email_vars_ransactional,
-                'bizdev@opencurrents.com'
+                email_vars_transactional,
+                'bizdev@opencurrents.com',
+                # marker for testing purpose
+                session=self.request.session,
+                marker='1'
             )
         except Exception as e:
                 logger.error(
@@ -3314,7 +3320,16 @@ def sendContactEmail(template_name, template_content, merge_vars, admin_email, u
 
 
 
-def sendTransactionalEmail(template_name, template_content, merge_vars, recipient_email):
+def sendTransactionalEmail(template_name, template_content, merge_vars, recipient_email, **kwargs):
+
+    # adding session marker for testing purpose
+    #kwargs['session']['transactional'] = kwargs['marker']
+
+    # adding launch function marker to session for testing purpose
+    sess = kwargs['session']
+    marker = kwargs['marker']
+    sess['transactional'] = kwargs['marker']
+
     mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)
     message = {
         'from_email': 'info@opencurrents.com',
