@@ -101,6 +101,8 @@ class TestApproveHoursOneWeek(TestCase):
 
         # checking pending hours before approving
         self.assertListEqual(org_admin_response.context['hours_pending_by_admin'], [{self.npf_admin_1.id: 5.0}])
+        self.assertEqual(0, len(AdminActionUserTime.objects.filter(action_type='app')))
+        self.assertEqual(2, len(AdminActionUserTime.objects.filter(action_type='req')))
 
         # checking total approved hours
         self.assertEqual(org_admin_response.context['issued_by_all'], 0)
@@ -112,6 +114,15 @@ class TestApproveHoursOneWeek(TestCase):
 
         # return to org-amdin after approving
         self.assertRedirects(self.response, '/org-admin/2/0/', status_code=302)
+
+        # assert the creation of the corresponding usertimelog and adminaction records
+        self.assertEqual(2, len(AdminActionUserTime.objects.filter(action_type='app')))
+        self.assertEqual(0, len(AdminActionUserTime.objects.filter(action_type='req')))
+
+        self.assertEqual(1, len(UserTimeLog.objects.filter(user=self.volunteer_1).filter(is_verified=True)))
+        self.assertEqual(1, len(AdminActionUserTime.objects.filter(usertimelog__user=self.volunteer_1).filter(action_type='app')))
+        self.assertEqual(1, len(UserTimeLog.objects.filter(user=self.volunteer_2).filter(is_verified=True)))
+        self.assertEqual(1, len(AdminActionUserTime.objects.filter(usertimelog__user=self.volunteer_2).filter(action_type='app')))
 
         # checking approved hours after approving
         org_admin_response_approved = self.client.get('/org-admin/')
@@ -140,6 +151,17 @@ class TestApproveHoursOneWeek(TestCase):
 
         # return to org-amdin after declining
         self.assertRedirects(self.response, '/org-admin/0/2/', status_code=302)
+
+        # assert the creation of the corresponding usertimelog and adminaction records
+        # assert the creation of the corresponding usertimelog and adminaction records
+        self.assertEqual(0, len(AdminActionUserTime.objects.filter(action_type='app')))
+        self.assertEqual(0, len(AdminActionUserTime.objects.filter(action_type='app')))
+        self.assertEqual(2, len(AdminActionUserTime.objects.filter(action_type='dec')))
+
+        self.assertEqual(1, len(UserTimeLog.objects.filter(user=self.volunteer_1).filter(is_verified=False)))
+        self.assertEqual(1, len(AdminActionUserTime.objects.filter(usertimelog__user=self.volunteer_1).filter(action_type='dec')))
+        self.assertEqual(1, len(UserTimeLog.objects.filter(user=self.volunteer_2).filter(is_verified=False)))
+        self.assertEqual(1, len(AdminActionUserTime.objects.filter(usertimelog__user=self.volunteer_2).filter(action_type='dec')))
 
         # checking approved hours after declining
         org_admin_response_approved = self.client.get('/org-admin/')
