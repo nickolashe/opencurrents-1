@@ -718,9 +718,9 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
 
             reqForbidden = True
             status_msg = ' '.join([
-                'You need Currents to redeem an offer. <br>',
-                # '<a href="{% url "openCurrents:upcoming-events" %}">',
-                # 'Find a volunteer opportunity!</a>'
+                'You need Currents to redeem an offer. <br/>',
+                '<a href="{% url "openCurrents:upcoming-events" %}">',
+                'Find a volunteer opportunity!</a>'
             ])
 
         offer_num_redeemed = self.ocuser.get_offer_num_redeemed(self.offer)
