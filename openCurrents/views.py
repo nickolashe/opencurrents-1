@@ -989,6 +989,13 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
     def invite_new_admin(self, org, admin_email, admin_name, **kwargs):
         user_new = None
         doInvite = False
+
+        # adding flag to not call Mandrill during unittests
+        if 'test_time_tracker_mode' in  self.request.POST and self.request.POST['test_time_tracker_mode']=='1':
+            test_time_tracker_mode = True
+        else:
+            test_time_tracker_mode = False
+
         try:
             user_new = User.objects.get(username = admin_email)
             doInvite = not user_new.has_usable_password()
@@ -1048,7 +1055,8 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                     admin_email,
                     # marker for testing purpose
                     session=self.request.session,
-                    marker='1'
+                    marker='1',
+                    test_time_tracker_mode=test_time_tracker_mode
                 )
             except Exception as e:
                 logger.error(
@@ -1105,7 +1113,8 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                 'bizdev@opencurrents.com',
                 # marker for testing purpose
                 session=self.request.session,
-                marker='1'
+                marker='1',
+                test_time_tracker_mode=test_time_tracker_mode
             )
         except Exception as e:
                 logger.error(
@@ -3322,31 +3331,32 @@ def sendContactEmail(template_name, template_content, merge_vars, admin_email, u
 
 def sendTransactionalEmail(template_name, template_content, merge_vars, recipient_email, **kwargs):
 
-    # adding session marker for testing purpose
-    #kwargs['session']['transactional'] = kwargs['marker']
-
     # adding launch function marker to session for testing purpose
     if kwargs:
         sess = kwargs['session']
         marker = kwargs['marker']
         sess['transactional'] = kwargs['marker']
+        test_time_tracker_mode = kwargs['test_time_tracker_mode']
 
-    mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)
-    message = {
-        'from_email': 'info@opencurrents.com',
-        'from_name': 'openCurrents',
-        'to': [{
-            'email': recipient_email,
-            'type': 'to'
-        }],
-        'global_merge_vars': merge_vars
-    }
+    if not test_time_tracker_mode:
+        mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)
+        message = {
+            'from_email': 'info@opencurrents.com',
+            'from_name': 'openCurrents',
+            'to': [{
+                'email': recipient_email,
+                'type': 'to'
+            }],
+            'global_merge_vars': merge_vars
+        }
 
-    mandrill_client.messages.send_template(
-        template_name=template_name,
-        template_content=template_content,
-        message=message
-    )
+        mandrill_client.messages.send_template(
+            template_name=template_name,
+            template_content=template_content,
+            message=message
+        )
+    else:
+        print "We don't send emails during tests."
 
 def sendBulkEmail(template_name, template_content, merge_vars, recipient_email, sender_email):
     mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)

@@ -112,6 +112,7 @@ class TestTimeTracker(TestCase):
 
         self.client.login(username=self.volunteer1.username, password='password')
         session = self.client.session
+
         self.response = self.client.get('/time-tracker/')
 
         self.assertEqual(self.response.status_code, 200)
@@ -127,6 +128,7 @@ class TestTimeTracker(TestCase):
             'new_org': 'new_npf_org',
             'time_start':'7:00am',
             'time_end':'8:00am',
+            'test_time_tracker_mode':'1' # letting know the app that we're testing, so it shouldnt send emails via Mandrill
             })
 
         # asserting that transactional email function has been launched
