@@ -153,7 +153,6 @@ class TestApproveHoursOneWeek(TestCase):
         self.assertRedirects(self.response, '/org-admin/0/2/', status_code=302)
 
         # assert the creation of the corresponding usertimelog and adminaction records
-        # assert the creation of the corresponding usertimelog and adminaction records
         self.assertEqual(0, len(AdminActionUserTime.objects.filter(action_type='app')))
         self.assertEqual(0, len(AdminActionUserTime.objects.filter(action_type='app')))
         self.assertEqual(2, len(AdminActionUserTime.objects.filter(action_type='dec')))
