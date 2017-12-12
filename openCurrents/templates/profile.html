@@ -129,9 +129,11 @@
   <div class="row collapse one-margin-top left">
     <div class="small-11 medium-10 small-centered columns">
       <h6 class="half-margin-bottom">My volunteer hours</h6>
-      {% for org, hours in hours_by_org.0.items %}
+      {% for org, hours in hours_by_org.items %}
         <a href="{% url 'openCurrents:hours-detail' %}?user_id={{user.id}}&org_id={{org.id}}&type=approved"
-        class="button round tiny secondary">{{org.name}}: {{hours}}</a>
+        class="button round tiny secondary">
+          {{org.name}}: {{hours}}
+        </a>
       {% empty %}
         <h5>No records available</h5>
       {% endfor %}
@@ -184,24 +186,18 @@
                 {% with amount_cur=transaction.currents_amount %}
                   {% with amount_usd=amount_cur|current_to_usd %}
                     {% if status == 'pending' %}
-                      offers ${{ amount_usd|floatformat:2 }} for
-                      <span class="no-wrap">
-                        <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ amount_cur|floatformat:3 }}
-                      </span>
-
+                      would receive
                     {% elif status == 'approved' %}
-                      accepted
-                      <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ amount_cur|floatformat:3 }}
-                      for ${{ amount_usd|floatformat:2 }}
-
+                      will receive
                     {% elif status == 'redeemed' %}
                       received
-                      <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ amount_cur|floatformat:3 }}
-                      for ${{ amount_usd|floatformat:2 }}
-
                     {# add declined #}
                     {% endif %}
 
+                    ${{ amount_usd|floatformat:2 }} for
+                    <span class="no-wrap">
+                      <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ amount_cur|floatformat:3 }}
+                    </span>
                   {% endwith %}
                 {% endwith %}
               </div>
