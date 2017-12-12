@@ -34,10 +34,6 @@ class TestApproveHoursOneWeek(TestCase):
 
     def setUp(self):
 
-        # dates
-        future_date = timezone.now() + timedelta(days=1)
-        past_date = timezone.now() - timedelta(days=2)
-
         # creating org
         self.org1 = OcOrg().setup_org(name="NPF_org_1", status="npf")
 
@@ -55,12 +51,12 @@ class TestApproveHoursOneWeek(TestCase):
         # creating a project
         self.project_1 = _create_project(self.org1, 'org1_project_1')
 
-         # 1st event time = 3 hours
-        datetime_start_1 = past_date
-        datetime_end_1 = past_date + timedelta(hours=3)
+        # 1st event time = 3 hours
+        datetime_start_1 = timezone.now() - timedelta(hours=4)
+        datetime_end_1 = datetime_start_1 + timedelta(hours=3)
         # 2nd event time = 2 hours
-        datetime_start_2 = past_date + timedelta(hours=3)
-        datetime_end_2 = past_date + timedelta(hours=5)
+        datetime_start_2 = timezone.now() - timedelta(hours=4)
+        datetime_end_2 = datetime_start_2 + timedelta(hours=2)
 
         # setting 2 pending events
         _setup_volunteer_hours(self.volunteer_1, self.npf_admin_1, self.org1, self.project_1, datetime_start_1, datetime_end_1)
@@ -68,7 +64,7 @@ class TestApproveHoursOneWeek(TestCase):
         _setup_volunteer_hours(self.volunteer_2, self.npf_admin_1, self.org1, self.project_1, datetime_start_2, datetime_end_2,)
 
         # getting previous week start
-        self.monday = (timezone.now() - timedelta(days=timezone.now().weekday())).strftime("%-m-%-d-%Y")#.strftime("%b. %d, %Y")
+        self.monday = (timezone.now() - timedelta(days=timezone.now().weekday())).strftime("%-m-%-d-%Y")
 
         # setting up client
         self.client = Client()
@@ -100,23 +96,238 @@ class TestApproveHoursOneWeek(TestCase):
 
         self.assertEqual(self.response.status_code, 200)
 
+        org_admin_response = self.client.get('/org-admin/')
+        self.assertEqual(org_admin_response.status_code, 200)
+
+        # checking pending hours before approving
+        self.assertListEqual(org_admin_response.context['hours_pending_by_admin'], [{self.npf_admin_1.id: 5.0}])
+        self.assertEqual(0, len(AdminActionUserTime.objects.filter(action_type='app')))
+        self.assertEqual(2, len(AdminActionUserTime.objects.filter(action_type='req')))
+
+        # checking total approved hours
+        self.assertEqual(org_admin_response.context['issued_by_all'], 0)
+
+        # approving hours
         self.response = self.client.post('/approve-hours/', {
                 'post-data': self.volunteer_1.username + ':1:' + self.monday +',' + self.volunteer_2.username + ':1:' + self.monday
                 })
 
+        # return to org-amdin after approving
         self.assertRedirects(self.response, '/org-admin/2/0/', status_code=302)
 
+        # assert the creation of the corresponding usertimelog and adminaction records
+        self.assertEqual(2, len(AdminActionUserTime.objects.filter(action_type='app')))
+        self.assertEqual(0, len(AdminActionUserTime.objects.filter(action_type='req')))
+
+        self.assertEqual(1, len(UserTimeLog.objects.filter(user=self.volunteer_1).filter(is_verified=True)))
+        self.assertEqual(1, len(AdminActionUserTime.objects.filter(usertimelog__user=self.volunteer_1).filter(action_type='app')))
+        self.assertEqual(1, len(UserTimeLog.objects.filter(user=self.volunteer_2).filter(is_verified=True)))
+        self.assertEqual(1, len(AdminActionUserTime.objects.filter(usertimelog__user=self.volunteer_2).filter(action_type='app')))
+
+        # checking approved hours after approving
+        org_admin_response_approved = self.client.get('/org-admin/')
+        self.assertEqual(org_admin_response_approved.status_code, 200)
+        self.assertEqual(org_admin_response_approved.context['issued_by_all'], 5.0)
+        # checking pending hours
+        self.assertListEqual(org_admin_response_approved.context['hours_pending_by_admin'], [])
 
 
-        # DECLINING
-        # HERE
-        # <QueryDict: { u'post-data': [u',volunteer1@opencurrents.com:0:12-4-2017,']}>
-        # cleared post data --> ,volunteer1@opencurrents.com:0:12-4-2017,
-        # HERE
 
-        # APPROVING:
-        # <QueryDict: { u'post-data': [u'volunteer1@opencurrents.com:1:12-4-2017,volunteer2@opencurrents.com:1:12-4-2017,']}>
-        # cleared post data -->  volunteer1@opencurrents.com:1:12-4-2017,volunteer2@opencurrents.com:1:12-4-2017,
+    def test_logged_hours_declined(self):
+        self.assertEqual(self.response.status_code, 200)
+
+        org_admin_response = self.client.get('/org-admin/')
+        self.assertEqual(org_admin_response.status_code, 200)
+
+        # checking pending hours before declining
+        self.assertListEqual(org_admin_response.context['hours_pending_by_admin'], [{self.npf_admin_1.id: 5.0}])
+
+        # checking total approved hours
+        self.assertEqual(org_admin_response.context['issued_by_all'], 0)
+
+        self.response = self.client.post('/approve-hours/', {
+                'post-data': self.volunteer_1.username + ':0:' + self.monday +',' + self.volunteer_2.username + ':0:' + self.monday
+                })
+
+        # return to org-amdin after declining
+        self.assertRedirects(self.response, '/org-admin/0/2/', status_code=302)
+
+        # assert the creation of the corresponding usertimelog and adminaction records
+        self.assertEqual(0, len(AdminActionUserTime.objects.filter(action_type='app')))
+        self.assertEqual(0, len(AdminActionUserTime.objects.filter(action_type='app')))
+        self.assertEqual(2, len(AdminActionUserTime.objects.filter(action_type='dec')))
+
+        self.assertEqual(1, len(UserTimeLog.objects.filter(user=self.volunteer_1).filter(is_verified=False)))
+        self.assertEqual(1, len(AdminActionUserTime.objects.filter(usertimelog__user=self.volunteer_1).filter(action_type='dec')))
+        self.assertEqual(1, len(UserTimeLog.objects.filter(user=self.volunteer_2).filter(is_verified=False)))
+        self.assertEqual(1, len(AdminActionUserTime.objects.filter(usertimelog__user=self.volunteer_2).filter(action_type='dec')))
+
+        # checking approved hours after declining
+        org_admin_response_approved = self.client.get('/org-admin/')
+        self.assertEqual(org_admin_response_approved.status_code, 200)
+        self.assertEqual(org_admin_response_approved.context['issued_by_all'], 0.0)
+        # checking pending hours
+        self.assertListEqual(org_admin_response_approved.context['hours_pending_by_admin'], [])
 
 
+
+class TestApproveHoursTwoWeeks(TestCase):
+
+    def setUp(self):
+
+        # creating org
+        self.org1 = OcOrg().setup_org(name="NPF_org_1", status="npf")
+
+        #creating volunteers
+        self.volunteer_1 = _create_test_user('volunteer_1')
+        self.volunteer_2 = _create_test_user('volunteer_2')
+
+        # getting full names of volunteers
+        self.volunteer_1_full_name = self.volunteer_1.first_name + ' ' + self.volunteer_1.last_name
+        self.volunteer_2_full_name = self.volunteer_2.first_name + ' ' + self.volunteer_2.last_name
+
+        # creating an admins for NPF_orgs
+        self.npf_admin_1 = _create_test_user('npf_admin_1', org = self.org1, is_org_admin=True)
+
+        # creating a project
+        self.project_1 = _create_project(self.org1, 'org1_project_1')
+
+        # 1st event time = 3 hours (last week)
+        datetime_start_1 = timezone.now() - timedelta(hours=4)
+        datetime_end_1 = datetime_start_1 + timedelta(hours=3)
+        # 2nd event time = 2 hours (previous week)
+        datetime_start_2 = timezone.now() - timedelta(days=7, hours=4)
+        datetime_end_2 = datetime_start_2 + timedelta(hours=2)
+
+        # setting 2 pending events
+        _setup_volunteer_hours(self.volunteer_1, self.npf_admin_1, self.org1, self.project_1, datetime_start_1, datetime_end_1)
+
+        _setup_volunteer_hours(self.volunteer_2, self.npf_admin_1, self.org1, self.project_1, datetime_start_2, datetime_end_2,)
+
+        # getting previous week start
+        self.monday_prev = (timezone.now() - timedelta(days=timezone.now().weekday()+7)).strftime("%-m-%-d-%Y")
+        self.monday_last = (timezone.now() - timedelta(days=timezone.now().weekday())).strftime("%-m-%-d-%Y")
+
+        # setting up client
+        self.client = Client()
+        self.client.login(username=self.npf_admin_1.username, password='password')
+        self.response = self.client.get('/approve-hours/')
+
+
+
+    def test_logged_hours_displayed(self):
+
+        self.assertEqual(self.response.status_code, 200)
+
+        # digging into response dictionaries
+        context_hr_displayed = self.response.context[0]['week'][0]
+        for k in context_hr_displayed:
+
+            self.assertEqual(1, len(context_hr_displayed[k]))
+
+            self.assertEqual(3, len(context_hr_displayed[k][self.volunteer_2.email]))
+            self.assertEqual(2.0, context_hr_displayed[k][self.volunteer_2.email]['Total'])
+            self.assertEqual(self.volunteer_2_full_name, context_hr_displayed[k][self.volunteer_2.email]['name'])
+
+
+    def test_logged_hours_accept(self):
+
+        self.assertEqual(self.response.status_code, 200)
+
+        org_admin_response = self.client.get('/org-admin/')
+        self.assertEqual(org_admin_response.status_code, 200)
+
+        # checking pending hours before approving
+        self.assertListEqual(org_admin_response.context['hours_pending_by_admin'], [{self.npf_admin_1.id: 5.0}])
+
+        # checking total approved hours
+        self.assertEqual(org_admin_response.context['issued_by_all'], 0)
+
+        # approving hours
+        self.response = self.client.post('/approve-hours/', {
+                'post-data': self.volunteer_2.username + ':1:' + self.monday_prev
+                })
+
+        # return to org-amdin after approving
+        self.assertRedirects(self.response, '/approve-hours/1/0/', status_code=302)
+
+        # checking approved hours after approving
+        org_admin_response_approved = self.client.get('/org-admin/')
+        self.assertEqual(org_admin_response_approved.status_code, 200)
+        self.assertEqual(org_admin_response_approved.context['issued_by_all'], 2.0)
+
+        # checking pending hours
+        self.assertListEqual(org_admin_response_approved.context['hours_pending_by_admin'], [{3: 3.0}])
+
+        # checking that the the last week submitted hours are displayed
+        org_admin_response_approve_second_week = self.client.get('/approve-hours/2/0/')
+        context_hr_last_week = org_admin_response_approve_second_week.context[0]['week'][0]
+        for k in context_hr_last_week:
+            self.assertEqual(1, len(context_hr_last_week[k]))
+
+            self.assertEqual(3, len(context_hr_last_week[k][self.volunteer_1.email]))
+            self.assertEqual(3.0, context_hr_last_week[k][self.volunteer_1.email]['Total'])
+            self.assertEqual(self.volunteer_1_full_name, context_hr_last_week[k][self.volunteer_1.email]['name'])
+
+
+        # approving hours for the last week
+        response_post_last_week = self.client.post('/approve-hours/', {
+                'post-data': self.volunteer_1.username + ':1:' + self.monday_last
+                })
+
+        # return to org-amdin after approving
+        self.assertRedirects(response_post_last_week, '/org-admin/1/0/', status_code=302)
+
+        # checking approved hours after approving
+        org_admin_response_approved = self.client.get('/org-admin/')
+        self.assertEqual(org_admin_response_approved.status_code, 200)
+        self.assertEqual(org_admin_response_approved.context['issued_by_all'], 5.0)
+
+        # checking pending hours
+        self.assertListEqual(org_admin_response_approved.context['hours_pending_by_admin'], [])
+
+
+    def test_logged_hours_decline(self):
+        self.assertEqual(self.response.status_code, 200)
+
+        org_admin_response = self.client.get('/org-admin/')
+        self.assertEqual(org_admin_response.status_code, 200)
+
+        # checking pending hours before declining
+        self.assertListEqual(org_admin_response.context['hours_pending_by_admin'], [{self.npf_admin_1.id: 5.0}])
+
+        # checking total approved hours
+        self.assertEqual(org_admin_response.context['issued_by_all'], 0)
+
+        # declining hrs for the previous week
+        post_decline_hours = self.client.post('/approve-hours/', {
+                'post-data': self.volunteer_2.username + ':0:' + self.monday_prev
+                })
+
+        # return to org-amdin after declining
+        self.assertRedirects(post_decline_hours, '/approve-hours/0/1/', status_code=302)
+
+        # checking approved hours after declining
+        org_admin_response_declined_first = self.client.get('/org-admin/')
+        self.assertEqual(org_admin_response_declined_first.status_code, 200)
+        self.assertEqual(org_admin_response_declined_first.context['issued_by_all'], 0.0)
+
+        # checking pending hours before second declining
+        self.assertListEqual(org_admin_response_declined_first.context['hours_pending_by_admin'], [{3: 3.0}])
+
+        # declining for the last week
+        post_decline_hours_last = self.client.post('/approve-hours/0/1/', {
+                'post-data': self.volunteer_1.username + ':0:' + self.monday_last
+                })
+
+        # return to org-amdin after declining
+        self.assertRedirects(post_decline_hours_last, '/org-admin/0/1/', status_code=302)
+
+        # checking approved hours after declining
+        org_admin_response_declined_second = self.client.get('/org-admin/')
+        self.assertEqual(org_admin_response_declined_second.status_code, 200)
+        self.assertEqual(org_admin_response_declined_second.context['issued_by_all'], 0.0)
+
+        # checking pending hours before second declining
+        self.assertListEqual(org_admin_response_declined_second.context['hours_pending_by_admin'], [])
 
