@@ -290,13 +290,11 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, FormView):
         offers = self.bizadmin.get_offers_all()
         context['offers'] = offers
 
-        # list biz's pending offer redemption requests
-        redeemed_pending = self.bizadmin.get_redemptions(status='pending')
-        context['redeemed_pending'] = redeemed_pending
-
-        # list biz's accepted offer redemption requests
-        redeemed_approved = self.bizadmin.get_redemptions(status='approved')
-        context['redeemed_approved'] = redeemed_approved
+        # list biz's redemptions
+        for status in ['pending', 'approved', 'redeemed']:
+            context['redeemed_%s' % status] = self.bizadmin.get_redemptions(
+                status=status
+            )
 
         # current balance
         currents_balance = self.bizadmin.get_balance_available()
@@ -1237,81 +1235,43 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
             context['app_hr'] = 0
 
         # verified currents balance
-        balance_available = self.ocuser.get_balance_available()
-        context['balance_available'] = format(round(balance_available, 2), '.2f')
+        context['balance_available'] = self.ocuser.get_balance_available()
 
         # pending currents balance
-        balance_pending = self.ocuser.get_balance_pending()
-        context['balance_pending'] = format(round(balance_pending, 2), '.2f')
+        context['balance_pending'] = self.ocuser.get_balance_pending()
 
         # available usd balance
-        balance_available_usd = self.ocuser.get_balance_available_usd()
-        context['balance_available_usd'] = format(
-            round(balance_available_usd, 2),
-            '.2f'
-        )
+        context['balance_available_usd'] = self.ocuser.get_balance_available_usd()
 
         # pending usd balance
-        balance_pending_usd = self.ocuser.get_balance_pending_usd()
-        context['balance_pending_usd'] = format(
-            round(balance_pending_usd, 2),
-            '.2f'
-        )
+        context['balance_pending_usd'] = self.ocuser.get_balance_pending_usd()
 
         # upcoming events user is registered for
-        events_upcoming = self.ocuser.get_events_registered()
-        context['events_upcoming'] = events_upcoming
+        context['events_upcoming'] = self.ocuser.get_events_registered()
 
-        offers_redeemed = self.ocuser.get_offers_redeemed()
-        context['offers_redeemed'] = offers_redeemed
+        # offers redeemed
+        context['offers_redeemed'] = self.ocuser.get_offers_redeemed()
 
         # hour requests
-        hours_requested = self.ocuser.get_hours_requested()
-        context['hours_requested'] = hours_requested
-
-        # hour approved
-        hours_approved = self.ocuser.get_hours_approved()
-        context['hours_approved'] = hours_approved
+        context['hours_requested'] = self.ocuser.get_hours_requested()
 
         # hour approved by organization
-        context['hours_by_org']=[]
-        hours_by_org = {}
-        temp_orgs_set = set()
-
-        for hr in hours_approved:
-            event = hr.usertimelog.event
-            org = event.project.org
-            approved_hours = diffInHours(event.datetime_start, event.datetime_end)
-
-            if approved_hours > 0:
-                if not org in temp_orgs_set:
-                    temp_orgs_set.add(org)
-                    hours_by_org[org] = approved_hours
-                else:
-                    hours_by_org[org] += approved_hours
-
-        context['hours_by_org'].append(hours_by_org)
-
+        context['hours_by_org']= self.ocuser.get_hours_approved(
+            **{'by_org': True}
+        )
 
         # user timezone
         #context['timezone'] = self.request.user.account.timezone
         context['timezone'] = 'America/Chicago'
 
-
         # getting issued currents
-        try:
-            context['currents_amount_total'] = OcCommunity().get_amount_currents_total()
-        except:
-            context['currents_amount_total'] = []
+        context['currents_amount_total'] = OcCommunity().get_amount_currents_total()
 
         # getting active volunteers
         context['active_volunteers_total'] = OcCommunity().get_active_volunteers_total()
 
         # getting currents accepted
-        try:
-            context['currents_accepted'] = OcCommunity().get_currents_accepted_total()
-        except:
-            context['currents_accepted'] = []
+        context['currents_accepted'] = OcCommunity().get_currents_accepted_total()
 
         return context
 
