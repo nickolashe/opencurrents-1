@@ -13,7 +13,8 @@ from openCurrents.models import \
     Event, \
     UserTimeLog, \
     AdminActionUserTime, \
-    Ledger
+    Ledger, \
+    UserEventRegistration
 
 from openCurrents.interfaces.ocuser import \
     OcUser, \
@@ -65,7 +66,6 @@ def _create_test_user(user_name, password = 'password', org = None,  is_org_admi
 
     test_user.set_password(password)
     test_user.save()
-
     return test_user
 
 
@@ -75,10 +75,52 @@ def _create_project(org, project_name):
     project_name - string
     """
 
-    return Project.objects.create(
+    project = Project(
         org=org,
         name=project_name
     )
+    project.save()
+    return project
+
+
+def _create_event(
+        project,
+        datetime_start,
+        datetime_end,
+        description="Test Event",
+        location="test_location",
+        is_public=False,
+        event_type="MN",
+        coordinator=None,
+        creator_id = None
+    ):
+
+    event = Event(
+        project=project,
+        description=description,
+        location=location,
+        is_public=is_public,
+        datetime_start=datetime_start,
+        datetime_end=datetime_end,
+        coordinator=coordinator,
+        creator_id=creator_id
+    )
+    event.save()
+    return event
+
+
+def _setup_user_event_registration(
+        user,
+        event,
+        is_confirmed=True
+    ):
+
+    user_event_registration = UserEventRegistration(
+        user=user,
+        event=event,
+    )
+    user_event_registration.save()
+    return user_event_registration
 
 
 def _setup_volunteer_hours(volunteer, npf_admin, org, project, datetime_start, datetime_end, description="Manually tracked time ", event_type="MN", is_verified = False, action_type = 'req'):

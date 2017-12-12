@@ -72,7 +72,7 @@ class TestUserPopup(TestCase):
         user_name = 'volunteer_yes'
         _create_test_user(user_name)
 
-        # changing setting emulating NO answer to the tooltip
+        # changing setting emulating YES answer to the tooltip
         oc_user = User.objects.get(username=user_name)
         oc_user_settings = UserSettings.objects.get(user=oc_user)
         oc_user_settings.popup_reaction = True
@@ -106,7 +106,7 @@ class TestUserPopup(TestCase):
         processed_content = re.sub(r'\s+', ' ', response.content )
         self.assertEqual(response.status_code, 200)
 
-        # popup code is in the page
+        # popup code is not on the page
         self.assertNotIn("$('#welcome-popup').popup({", processed_content)
 
 
@@ -123,6 +123,68 @@ class TestUserPopup(TestCase):
         # popup code is in the page
         self.assertNotIn("$('#welcome-popup').popup({", processed_content)
 
+    def test_user_answers_yes(self):
+        #logging in user
+        oc_user = User.objects.get(username="volunteer_default")
+        self.client.login(username=oc_user.username, password='password')
+
+        # did user accessed the page?
+        response = self.client.get('/profile/')
+        processed_content = re.sub(r'\s+', ' ', response.content )
+        self.assertEqual(response.status_code, 200)
+
+        # popup code is in the page
+        self.assertIn("$('#welcome-popup').popup({", processed_content)
+
+        # posting "YES"
+        response = self.client.post('/edit-profile/',
+            {
+                'yes':'',
+            })
+        # user is redirected back to profile page
+        self.assertRedirects(response, '/profile/', status_code=302)
+
+        # getting user settings
+        self.assertEqual(True, UserSettings.objects.filter(user=oc_user)[0].popup_reaction)
+
+        response = self.client.get('/profile/')
+        processed_content = re.sub(r'\s+', ' ', response.content )
+        self.assertEqual(response.status_code, 200)
+
+        # popup code is not on the page anymore
+        self.assertNotIn("$('#welcome-popup').popup({", processed_content)
+
+
+    def test_user_answers_no(self):
+        #logging in user
+        oc_user = User.objects.get(username="volunteer_default")
+        self.client.login(username=oc_user.username, password='password')
+
+        # did user accessed the page?
+        response = self.client.get('/profile/')
+        processed_content = re.sub(r'\s+', ' ', response.content )
+        self.assertEqual(response.status_code, 200)
+
+        # popup code is in the page
+        self.assertIn("$('#welcome-popup').popup({", processed_content)
+
+        # posting "YES"
+        response = self.client.post('/edit-profile/',
+            {
+                'no':'',
+            })
+        # user is redirected back to profile page
+        self.assertRedirects(response, '/profile/', status_code=302)
+
+        # getting user settings
+        self.assertEqual(False, UserSettings.objects.filter(user=oc_user)[0].popup_reaction)
+
+        response = self.client.get('/profile/')
+        processed_content = re.sub(r'\s+', ' ', response.content )
+        self.assertEqual(response.status_code, 200)
+
+        # popup code is not on the page anymore
+        self.assertNotIn("$('#welcome-popup').popup({", processed_content)
 
 
 class TestUserProfileHoursApprovedButtons(TestCase):
