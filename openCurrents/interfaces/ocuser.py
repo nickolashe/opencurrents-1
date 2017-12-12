@@ -1,4 +1,5 @@
 from datetime import date, datetime, timedelta
+from decimal import Decimal
 
 from django.contrib.auth.models import User
 from django.db.models import Max
@@ -228,7 +229,7 @@ class OcUser(object):
 
         return balance
 
-    def get_offers_redeemed(self):
+    def get_offers_redeemed(self, fees=True):
         if not self.userid:
             raise InvalidUserException
 
@@ -245,6 +246,10 @@ class OcUser(object):
                 tr.last_action_created for tr in transactions
             ]
         )
+
+        if fees == True:
+            for act in transaction_actions:
+                act.transaction.currents_amount *= Decimal(0.9)
 
         return transaction_actions
 

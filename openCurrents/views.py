@@ -288,13 +288,11 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, TemplateView)
         offers = self.bizadmin.get_offers_all()
         context['offers'] = offers
 
-        # list biz's pending offer redemption requests
-        redeemed_pending = self.bizadmin.get_redemptions(status='pending')
-        context['redeemed_pending'] = redeemed_pending
-
-        # list biz's accepted offer redemption requests
-        redeemed_approved = self.bizadmin.get_redemptions(status='approved')
-        context['redeemed_approved'] = redeemed_approved
+        # list biz's redemptions
+        for status in ['pending', 'approved', 'redeemed']:
+            context['redeemed_%s' % status] = self.bizadmin.get_redemptions(
+                status=status
+            )
 
         # current balance
         currents_balance = self.bizadmin.get_balance_available()
