@@ -1219,37 +1219,25 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
             context['app_hr'] = 0
 
         # verified currents balance
-        balance_available = self.ocuser.get_balance_available()
-        context['balance_available'] = format(round(balance_available, 2), '.2f')
+        context['balance_available'] = self.ocuser.get_balance_available()
 
         # pending currents balance
-        balance_pending = self.ocuser.get_balance_pending()
-        context['balance_pending'] = format(round(balance_pending, 2), '.2f')
+        context['balance_pending'] = self.ocuser.get_balance_pending()
 
         # available usd balance
-        balance_available_usd = self.ocuser.get_balance_available_usd()
-        context['balance_available_usd'] = format(
-            round(balance_available_usd, 2),
-            '.2f'
-        )
+        context['balance_available_usd'] = self.ocuser.get_balance_available_usd()
 
         # pending usd balance
-        balance_pending_usd = self.ocuser.get_balance_pending_usd()
-        context['balance_pending_usd'] = format(
-            round(balance_pending_usd, 2),
-            '.2f'
-        )
+        context['balance_pending_usd'] = self.ocuser.get_balance_pending_usd()
 
         # upcoming events user is registered for
-        events_upcoming = self.ocuser.get_events_registered()
-        context['events_upcoming'] = events_upcoming
+        context['events_upcoming'] = self.ocuser.get_events_registered()
 
-        offers_redeemed = self.ocuser.get_offers_redeemed()
-        context['offers_redeemed'] = offers_redeemed
+        # offers redeemed
+        context['offers_redeemed'] = self.ocuser.get_offers_redeemed()
 
         # hour requests
-        hours_requested = self.ocuser.get_hours_requested()
-        context['hours_requested'] = hours_requested
+        context['hours_requested'] = self.ocuser.get_hours_requested()
 
         # hour approved by organization
         context['hours_by_org']= self.ocuser.get_hours_approved(
@@ -1260,21 +1248,14 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         #context['timezone'] = self.request.user.account.timezone
         context['timezone'] = 'America/Chicago'
 
-
         # getting issued currents
-        try:
-            context['currents_amount_total'] = OcCommunity().get_amount_currents_total()
-        except:
-            context['currents_amount_total'] = []
+        context['currents_amount_total'] = OcCommunity().get_amount_currents_total()
 
         # getting active volunteers
         context['active_volunteers_total'] = OcCommunity().get_active_volunteers_total()
 
         # getting currents accepted
-        try:
-            context['currents_accepted'] = OcCommunity().get_currents_accepted_total()
-        except:
-            context['currents_accepted'] = []
+        context['currents_accepted'] = OcCommunity().get_currents_accepted_total()
 
         return context
 
