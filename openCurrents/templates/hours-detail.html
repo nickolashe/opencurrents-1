@@ -47,7 +47,11 @@
         </div>
 
         <div class="small-6 columns">
+        {% if event.event_type == 'MN' %}
           <p class="half-margin-bottom">{{ event.description }}</p>
+        {% else %}
+          <p class="half-margin-bottom">{{ event.project.name }} </p>
+        {% endif %}
         </div>
 
         <div class="right small-2 columns">

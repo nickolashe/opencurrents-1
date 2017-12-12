@@ -278,9 +278,12 @@ class OcUser(object):
 
         return num_redeemed
 
-    def get_hours_requested(self):
+    def get_hours_requested(self, **kwargs):
         usertimelogs = self._get_usertimelogs()
         admin_actions = self._get_adminactions_for_usertimelogs(usertimelogs)
+
+        if 'by_org' in kwargs:
+            admin_actions = self._split_by_org(admin_actions)
 
         return admin_actions
 
@@ -291,7 +294,31 @@ class OcUser(object):
             'app'
         )
 
+        if 'by_org' in kwargs:
+            admin_actions = self._split_by_org(admin_actions)
+
         return admin_actions
+
+    def _split_by_org(self, actions):
+        hours_by_org = {}
+        temp_orgs_set = set()
+
+        for action in actions:
+            event = action.usertimelog.event
+            org = event.project.org
+            approved_hours = common.diffInHours(
+                event.datetime_start,
+                event.datetime_end
+            )
+
+            if approved_hours > 0:
+                if not org in temp_orgs_set:
+                    temp_orgs_set.add(org)
+                    hours_by_org[org] = approved_hours
+                else:
+                    hours_by_org[org] += approved_hours
+
+        return hours_by_org
 
     def get_top_received_users(self, period, quantity=10):
         result = list()
@@ -317,11 +344,11 @@ class OcUser(object):
 
         usertimelogs = UserTimeLog.objects.filter(
             user__id=self.userid
-            ).filter(
-                is_verified=verified
-            ).annotate(
-                last_action_created=Max('adminactionusertime__date_created')
-            )
+        ).filter(
+            is_verified=verified
+        ).annotate(
+            last_action_created=Max('adminactionusertime__date_created')
+        )
 
         if 'org_id' in kwargs:
             usertimelogs = usertimelogs.filter(

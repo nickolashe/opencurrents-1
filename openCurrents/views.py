@@ -1253,29 +1253,10 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         hours_requested = self.ocuser.get_hours_requested()
         context['hours_requested'] = hours_requested
 
-        # hour approved
-        hours_approved = self.ocuser.get_hours_approved()
-        context['hours_approved'] = hours_approved
-
         # hour approved by organization
-        context['hours_by_org']=[]
-        hours_by_org = {}
-        temp_orgs_set = set()
-
-        for hr in hours_approved:
-            event = hr.usertimelog.event
-            org = event.project.org
-            approved_hours = diffInHours(event.datetime_start, event.datetime_end)
-
-            if approved_hours > 0:
-                if not org in temp_orgs_set:
-                    temp_orgs_set.add(org)
-                    hours_by_org[org] = approved_hours
-                else:
-                    hours_by_org[org] += approved_hours
-
-        context['hours_by_org'].append(hours_by_org)
-
+        context['hours_by_org']= self.ocuser.get_hours_approved(
+            **{'by_org': True}
+        )
 
         # user timezone
         #context['timezone'] = self.request.user.account.timezone
