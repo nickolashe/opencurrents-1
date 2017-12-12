@@ -635,6 +635,7 @@ class BizDetailsForm(forms.Form):
 
     def clean_phone(self):
         phone = self.cleaned_data['phone']
+
         phone = unicode.translate(
             phone,
             dict(
@@ -649,7 +650,7 @@ class BizDetailsForm(forms.Form):
             raise ValidationError(_('Invalid phone number'))
 
         if len(phone) < 10:
-            raise ValidationError(_('Please enter area code'))
+            raise ValidationError(_('Please enter phone area code'))
 
         return phone
 

@@ -304,6 +304,13 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, FormView):
         currents_pending = self.bizadmin.get_balance_pending()
         context['currents_pending'] = currents_pending
 
+        for field in context['form'].declared_fields.keys():
+            context['form'].fields[field].widget.attrs['value'] = getattr(self.org, field)
+
+        # workaround with status message for anything but TemplateView
+        if 'status_msg' in self.kwargs and not context['form'].errors:
+            context['status_msg'] = self.kwargs.get('status_msg', '')
+
         return context
 
     def form_valid(self, form):
@@ -705,6 +712,7 @@ class MarketplaceView(LoginRequiredMixin, SessionContextView, ListView):
 
         # workaround with status message for ListView
         context['status_msg'] = self.kwargs.get('status_msg', '')
+
         return context
 
 

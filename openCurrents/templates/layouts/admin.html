@@ -15,7 +15,8 @@
           {% for field, error in form.errors.iteritems %}
             <div class="center alert">
               {% if field != '__all__' %}
-                {{ field|addstr:': '}} {{ error }}
+                <!--{{ field|addstr:': '}} {{ error }}-->
+                {{ error }}
               {% else %}
                 {{ error }}
               {% endif %}
