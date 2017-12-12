@@ -2,6 +2,11 @@ from django.conf.urls import url, include
 from openCurrents import views
 
 urlpatterns = [
+
+    # sitemap and robots.txt
+    url(r'^sitemap/$', views.SitemapView.as_view(), name='sitemap'),
+    url(r'^robots\.txt/$', views.RobotsView.as_view(), name='robots'),
+
     # template views
     url(r'^$', views.HomeView.as_view(), name='root'),
     url(r'^home/$', views.HomeView.as_view(), name='home'),

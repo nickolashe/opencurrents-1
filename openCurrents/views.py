@@ -238,6 +238,14 @@ class BizAdminPermissionMixin(AdminPermissionMixin):
         )
 
 
+class SitemapView(TemplateView):
+    template_name = 'sitemap.xml'
+
+
+class RobotsView(TemplateView):
+    template_name = 'robots.txt'
+
+
 class HomeView(SessionContextView, TemplateView):
     template_name = 'home.html'
 
