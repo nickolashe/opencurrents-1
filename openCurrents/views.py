@@ -63,6 +63,7 @@ from openCurrents.forms import \
     EventCheckinForm, \
     OrgNominationForm, \
     TimeTrackerForm, \
+    BizDetailsForm, \
     OfferCreateForm, \
     OfferEditForm, \
     RedeemCurrentsForm, \
@@ -278,8 +279,9 @@ class AssignAdminsView(TemplateView):
     template_name = 'assign-admins.html'
 
 
-class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, TemplateView):
+class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, FormView):
     template_name = 'biz-admin.html'
+    form_class = BizDetailsForm
 
     def get_context_data(self, **kwargs):
         context = super(BizAdminView, self).get_context_data(**kwargs)
@@ -302,8 +304,29 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, TemplateView)
         currents_pending = self.bizadmin.get_balance_pending()
         context['currents_pending'] = currents_pending
 
+        for field in context['form'].declared_fields.keys():
+            context['form'].fields[field].widget.attrs['value'] = getattr(self.org, field)
+
+        # workaround with status message for anything but TemplateView
+        if 'status_msg' in self.kwargs and not context['form'].errors:
+            context['status_msg'] = self.kwargs.get('status_msg', '')
+
         return context
 
+    def form_valid(self, form):
+        data = form.cleaned_data
+        Org.objects.filter(id=self.org.id).update(
+            website=data['website'],
+            phone=data['phone'],
+            email=data['email'],
+            address=data['address'],
+            intro=data['intro']
+        )
+
+        return redirect(
+            'openCurrents:biz-admin',
+            status_msg='Thank you for adding %s\'s details' % self.org.name
+        )
 
 class BusinessView(TemplateView):
     template_name = 'business.html'
@@ -689,6 +712,7 @@ class MarketplaceView(LoginRequiredMixin, SessionContextView, ListView):
 
         # workaround with status message for ListView
         context['status_msg'] = self.kwargs.get('status_msg', '')
+
         return context
 
 
