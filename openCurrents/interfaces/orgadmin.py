@@ -55,7 +55,7 @@ class OrgAdmin(object):
             for x in self.get_hours_requested()
         ])
 
-        return hours_pending_admin
+        return round(hours_pending_admin, 2)
 
 
     def get_total_hours_issued (self):
@@ -70,7 +70,7 @@ class OrgAdmin(object):
             for x in self.get_hours_approved()
         ])
 
-        return hours_issued_admin
+        return round(hours_issued_admin, 2)
 
 
     def _get_usertimelogs(self, verified=False):
