@@ -11,7 +11,8 @@ from openCurrents.models import \
     Project, \
     Event, \
     UserTimeLog, \
-    AdminActionUserTime
+    AdminActionUserTime, \
+    Ledger
 
 # INTERFACES
 from openCurrents.interfaces.orgadmin import OrgAdmin
@@ -124,13 +125,20 @@ class TestApproveHoursOneWeek(TestCase):
         self.assertEqual(1, len(UserTimeLog.objects.filter(user=self.volunteer_2).filter(is_verified=True)))
         self.assertEqual(1, len(AdminActionUserTime.objects.filter(usertimelog__user=self.volunteer_2).filter(action_type='app')))
 
-        # checking approved hours after approving
-        org_admin_response_approved = self.client.get('/org-admin/')
-        self.assertEqual(org_admin_response_approved.status_code, 200)
-        self.assertEqual(org_admin_response_approved.context['issued_by_all'], 5.0)
-        # checking pending hours
-        self.assertListEqual(org_admin_response_approved.context['hours_pending_by_admin'], [])
+        # checkign ledger records
+        ledger_query = Ledger.objects.all()
+        self.assertEqual(2, len(ledger_query))
+        # asserting the first user
+        self.assertEqual(1, len(ledger_query.filter(action__usertimelog__user=self.volunteer_1)))
+        self.assertEqual('cur', ledger_query.get(action__usertimelog__user=self.volunteer_1).currency)
+        self.assertEqual(3, ledger_query.get(action__usertimelog__user=self.volunteer_1).amount)
+        self.assertEqual(True, ledger_query.get(action__usertimelog__user=self.volunteer_1).is_issued)
 
+        # asserting the 2nd user
+        self.assertEqual(1, len(ledger_query.filter(action__usertimelog__user=self.volunteer_2)))
+        self.assertEqual('cur', ledger_query.get(action__usertimelog__user=self.volunteer_2).currency)
+        self.assertEqual(2, ledger_query.get(action__usertimelog__user=self.volunteer_2).amount)
+        self.assertEqual(True, ledger_query.get(action__usertimelog__user=self.volunteer_2).is_issued)
 
 
     def test_logged_hours_declined(self):
@@ -162,13 +170,16 @@ class TestApproveHoursOneWeek(TestCase):
         self.assertEqual(1, len(UserTimeLog.objects.filter(user=self.volunteer_2).filter(is_verified=False)))
         self.assertEqual(1, len(AdminActionUserTime.objects.filter(usertimelog__user=self.volunteer_2).filter(action_type='dec')))
 
-        # checking approved hours after declining
-        org_admin_response_approved = self.client.get('/org-admin/')
-        self.assertEqual(org_admin_response_approved.status_code, 200)
-        self.assertEqual(org_admin_response_approved.context['issued_by_all'], 0.0)
-        # checking pending hours
-        self.assertListEqual(org_admin_response_approved.context['hours_pending_by_admin'], [])
+        # checkign ledger records
+        ledger_query = Ledger.objects.all()
+        self.assertEqual(0, len(ledger_query))
+        # asserting the first user
+        self.assertEqual(0, len(ledger_query.filter(action__usertimelog__user=self.volunteer_1)))
+        self.assertEqual(0, len(OcUser(self.volunteer_1.id).get_hours_approved()))
 
+        # asserting the 2nd user
+        self.assertEqual(0, len(ledger_query.filter(action__usertimelog__user=self.volunteer_2)))
+        self.assertEqual(0, len(OcUser(self.volunteer_2.id).get_hours_approved()))
 
 
 class TestApproveHoursTwoWeeks(TestCase):
@@ -251,13 +262,18 @@ class TestApproveHoursTwoWeeks(TestCase):
         # return to org-amdin after approving
         self.assertRedirects(self.response, '/approve-hours/1/0/', status_code=302)
 
-        # checking approved hours after approving
-        org_admin_response_approved = self.client.get('/org-admin/')
-        self.assertEqual(org_admin_response_approved.status_code, 200)
-        self.assertEqual(org_admin_response_approved.context['issued_by_all'], 2.0)
+        # checkign ledger records
+        ledger_query = Ledger.objects.all()
+        self.assertEqual(1, len(ledger_query))
+        # asserting the first user
+        self.assertEqual(0, len(ledger_query.filter(action__usertimelog__user=self.volunteer_1)))
 
-        # checking pending hours
-        self.assertListEqual(org_admin_response_approved.context['hours_pending_by_admin'], [{3: 3.0}])
+        # asserting the 2nd user
+        self.assertEqual(1, len(ledger_query.filter(action__usertimelog__user=self.volunteer_2)))
+        self.assertEqual('cur', ledger_query.get(action__usertimelog__user=self.volunteer_2).currency)
+        self.assertEqual(2, ledger_query.get(action__usertimelog__user=self.volunteer_2).amount)
+        self.assertEqual(True, ledger_query.get(action__usertimelog__user=self.volunteer_2).is_issued)
+
 
         # checking that the the last week submitted hours are displayed
         org_admin_response_approve_second_week = self.client.get('/approve-hours/2/0/')
@@ -278,13 +294,20 @@ class TestApproveHoursTwoWeeks(TestCase):
         # return to org-amdin after approving
         self.assertRedirects(response_post_last_week, '/org-admin/1/0/', status_code=302)
 
-        # checking approved hours after approving
-        org_admin_response_approved = self.client.get('/org-admin/')
-        self.assertEqual(org_admin_response_approved.status_code, 200)
-        self.assertEqual(org_admin_response_approved.context['issued_by_all'], 5.0)
+        # checkign ledger records
+        ledger_query = Ledger.objects.all()
+        self.assertEqual(2, len(ledger_query))
+        # asserting the first user
+        self.assertEqual(1, len(ledger_query.filter(action__usertimelog__user=self.volunteer_1)))
+        self.assertEqual('cur', ledger_query.get(action__usertimelog__user=self.volunteer_1).currency)
+        self.assertEqual(3, ledger_query.get(action__usertimelog__user=self.volunteer_1).amount)
+        self.assertEqual(True, ledger_query.get(action__usertimelog__user=self.volunteer_1).is_issued)
 
-        # checking pending hours
-        self.assertListEqual(org_admin_response_approved.context['hours_pending_by_admin'], [])
+        # asserting the 2nd user
+        self.assertEqual(1, len(ledger_query.filter(action__usertimelog__user=self.volunteer_2)))
+        self.assertEqual('cur', ledger_query.get(action__usertimelog__user=self.volunteer_2).currency)
+        self.assertEqual(2, ledger_query.get(action__usertimelog__user=self.volunteer_2).amount)
+        self.assertEqual(True, ledger_query.get(action__usertimelog__user=self.volunteer_2).is_issued)
 
 
     def test_logged_hours_decline(self):
@@ -307,13 +330,16 @@ class TestApproveHoursTwoWeeks(TestCase):
         # return to org-amdin after declining
         self.assertRedirects(post_decline_hours, '/approve-hours/0/1/', status_code=302)
 
-        # checking approved hours after declining
-        org_admin_response_declined_first = self.client.get('/org-admin/')
-        self.assertEqual(org_admin_response_declined_first.status_code, 200)
-        self.assertEqual(org_admin_response_declined_first.context['issued_by_all'], 0.0)
+        # checking hours after declining
+        # checkign ledger records
+        ledger_query = Ledger.objects.all()
+        self.assertEqual(0, len(ledger_query))
+        # asserting the first user
+        self.assertEqual(0, len(ledger_query.filter(action__usertimelog__user=self.volunteer_1)))
 
-        # checking pending hours before second declining
-        self.assertListEqual(org_admin_response_declined_first.context['hours_pending_by_admin'], [{3: 3.0}])
+        # asserting the 2nd user
+        self.assertEqual(0, len(ledger_query.filter(action__usertimelog__user=self.volunteer_2)))
+
 
         # declining for the last week
         post_decline_hours_last = self.client.post('/approve-hours/0/1/', {
@@ -323,11 +349,12 @@ class TestApproveHoursTwoWeeks(TestCase):
         # return to org-amdin after declining
         self.assertRedirects(post_decline_hours_last, '/org-admin/0/1/', status_code=302)
 
-        # checking approved hours after declining
-        org_admin_response_declined_second = self.client.get('/org-admin/')
-        self.assertEqual(org_admin_response_declined_second.status_code, 200)
-        self.assertEqual(org_admin_response_declined_second.context['issued_by_all'], 0.0)
+        # checking hours after declining
+        # checkign ledger records
+        ledger_query = Ledger.objects.all()
+        self.assertEqual(0, len(ledger_query))
+        # asserting the first user
+        self.assertEqual(0, len(ledger_query.filter(action__usertimelog__user=self.volunteer_1)))
 
-        # checking pending hours before second declining
-        self.assertListEqual(org_admin_response_declined_second.context['hours_pending_by_admin'], [])
-
+        # asserting the 2nd user
+        self.assertEqual(0, len(ledger_query.filter(action__usertimelog__user=self.volunteer_2)))
