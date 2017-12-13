@@ -12,9 +12,11 @@ from openCurrents.models import \
     Event, \
     UserTimeLog, \
     AdminActionUserTime, \
-    Ledger
+    Ledger, \
+    UserEntity
 
 # INTERFACES
+from openCurrents.interfaces.ledger import OcLedger
 from openCurrents.interfaces.orgadmin import OrgAdmin
 from openCurrents.interfaces.common import diffInHours
 from openCurrents.interfaces.ocuser import OcUser
@@ -67,6 +69,16 @@ class TestApproveHoursOneWeek(TestCase):
         # getting previous week start
         self.monday = (timezone.now() - timedelta(days=timezone.now().weekday())).strftime("%-m-%-d-%Y")
 
+
+        # oc instances
+        self.oc_vol_1 = OcUser(self.volunteer_1.id)
+        self.oc_vol_2 = OcUser(self.volunteer_2.id)
+
+        # user entities
+        self.user_enitity_id_vol_1 = UserEntity.objects.get(user = self.volunteer_1).id
+        self.user_enitity_id_vol_2 = UserEntity.objects.get(user = self.volunteer_2).id
+
+
         # setting up client
         self.client = Client()
         self.client.login(username=self.npf_admin_1.username, password='password')
@@ -108,6 +120,12 @@ class TestApproveHoursOneWeek(TestCase):
         # checking total approved hours
         self.assertEqual(org_admin_response.context['issued_by_all'], 0)
 
+        # checking initial balance
+        self.assertEqual(0, len(self.oc_vol_1.get_hours_approved()))
+        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_1))
+        self.assertEqual(0, len(self.oc_vol_2.get_hours_approved()))
+        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_2))
+
         # approving hours
         self.response = self.client.post('/approve-hours/', {
                 'post-data': self.volunteer_1.username + ':1:' + self.monday +',' + self.volunteer_2.username + ':1:' + self.monday
@@ -125,7 +143,7 @@ class TestApproveHoursOneWeek(TestCase):
         self.assertEqual(1, len(UserTimeLog.objects.filter(user=self.volunteer_2).filter(is_verified=True)))
         self.assertEqual(1, len(AdminActionUserTime.objects.filter(usertimelog__user=self.volunteer_2).filter(action_type='app')))
 
-        # checkign ledger records
+        # checking ledger records
         ledger_query = Ledger.objects.all()
         self.assertEqual(2, len(ledger_query))
         # asserting the first user
@@ -134,11 +152,17 @@ class TestApproveHoursOneWeek(TestCase):
         self.assertEqual(3, ledger_query.get(action__usertimelog__user=self.volunteer_1).amount)
         self.assertEqual(True, ledger_query.get(action__usertimelog__user=self.volunteer_1).is_issued)
 
+        self.assertEqual(1, len(self.oc_vol_1.get_hours_approved()))
+        self.assertEqual(3, OcLedger().get_balance(self.user_enitity_id_vol_1))
+
         # asserting the 2nd user
         self.assertEqual(1, len(ledger_query.filter(action__usertimelog__user=self.volunteer_2)))
         self.assertEqual('cur', ledger_query.get(action__usertimelog__user=self.volunteer_2).currency)
         self.assertEqual(2, ledger_query.get(action__usertimelog__user=self.volunteer_2).amount)
         self.assertEqual(True, ledger_query.get(action__usertimelog__user=self.volunteer_2).is_issued)
+
+        self.assertEqual(1, len(self.oc_vol_2.get_hours_approved()))
+        self.assertEqual(2, OcLedger().get_balance(self.user_enitity_id_vol_2))
 
 
     def test_logged_hours_declined(self):
@@ -152,6 +176,12 @@ class TestApproveHoursOneWeek(TestCase):
 
         # checking total approved hours
         self.assertEqual(org_admin_response.context['issued_by_all'], 0)
+
+        # checking initial balance
+        self.assertEqual(0, len(self.oc_vol_1.get_hours_approved()))
+        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_1))
+        self.assertEqual(0, len(self.oc_vol_2.get_hours_approved()))
+        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_2))
 
         self.response = self.client.post('/approve-hours/', {
                 'post-data': self.volunteer_1.username + ':0:' + self.monday +',' + self.volunteer_2.username + ':0:' + self.monday
@@ -170,16 +200,24 @@ class TestApproveHoursOneWeek(TestCase):
         self.assertEqual(1, len(UserTimeLog.objects.filter(user=self.volunteer_2).filter(is_verified=False)))
         self.assertEqual(1, len(AdminActionUserTime.objects.filter(usertimelog__user=self.volunteer_2).filter(action_type='dec')))
 
-        # checkign ledger records
+        # checking ledger records
         ledger_query = Ledger.objects.all()
         self.assertEqual(0, len(ledger_query))
         # asserting the first user
         self.assertEqual(0, len(ledger_query.filter(action__usertimelog__user=self.volunteer_1)))
-        self.assertEqual(0, len(OcUser(self.volunteer_1.id).get_hours_approved()))
+        self.assertEqual(0, len(self.oc_vol_1.get_hours_approved()))
+
+        self.assertEqual(0, len(self.oc_vol_1.get_hours_approved()))
+        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_1))
 
         # asserting the 2nd user
         self.assertEqual(0, len(ledger_query.filter(action__usertimelog__user=self.volunteer_2)))
-        self.assertEqual(0, len(OcUser(self.volunteer_2.id).get_hours_approved()))
+        self.assertEqual(0, len(self.oc_vol_2.get_hours_approved()))
+
+        self.assertEqual(0, len(self.oc_vol_2.get_hours_approved()))
+        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_1))
+
+
 
 
 class TestApproveHoursTwoWeeks(TestCase):
@@ -219,6 +257,14 @@ class TestApproveHoursTwoWeeks(TestCase):
         self.monday_prev = (timezone.now() - timedelta(days=timezone.now().weekday()+7)).strftime("%-m-%-d-%Y")
         self.monday_last = (timezone.now() - timedelta(days=timezone.now().weekday())).strftime("%-m-%-d-%Y")
 
+        # oc instances
+        self.oc_vol_1 = OcUser(self.volunteer_1.id)
+        self.oc_vol_2 = OcUser(self.volunteer_2.id)
+
+        # user entities
+        self.user_enitity_id_vol_1 = UserEntity.objects.get(user = self.volunteer_1).id
+        self.user_enitity_id_vol_2 = UserEntity.objects.get(user = self.volunteer_2).id
+
         # setting up client
         self.client = Client()
         self.client.login(username=self.npf_admin_1.username, password='password')
@@ -254,6 +300,12 @@ class TestApproveHoursTwoWeeks(TestCase):
         # checking total approved hours
         self.assertEqual(org_admin_response.context['issued_by_all'], 0)
 
+        # checking initial balance
+        self.assertEqual(0, len(self.oc_vol_1.get_hours_approved()))
+        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_1))
+        self.assertEqual(0, len(self.oc_vol_2.get_hours_approved()))
+        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_2))
+
         # approving hours
         self.response = self.client.post('/approve-hours/', {
                 'post-data': self.volunteer_2.username + ':1:' + self.monday_prev
@@ -262,7 +314,7 @@ class TestApproveHoursTwoWeeks(TestCase):
         # return to org-amdin after approving
         self.assertRedirects(self.response, '/approve-hours/1/0/', status_code=302)
 
-        # checkign ledger records
+        # checking ledger records
         ledger_query = Ledger.objects.all()
         self.assertEqual(1, len(ledger_query))
         # asserting the first user
@@ -273,6 +325,9 @@ class TestApproveHoursTwoWeeks(TestCase):
         self.assertEqual('cur', ledger_query.get(action__usertimelog__user=self.volunteer_2).currency)
         self.assertEqual(2, ledger_query.get(action__usertimelog__user=self.volunteer_2).amount)
         self.assertEqual(True, ledger_query.get(action__usertimelog__user=self.volunteer_2).is_issued)
+
+        self.assertEqual(1, len(self.oc_vol_2.get_hours_approved()))
+        self.assertEqual(2, OcLedger().get_balance(self.user_enitity_id_vol_2))
 
 
         # checking that the the last week submitted hours are displayed
@@ -294,7 +349,7 @@ class TestApproveHoursTwoWeeks(TestCase):
         # return to org-amdin after approving
         self.assertRedirects(response_post_last_week, '/org-admin/1/0/', status_code=302)
 
-        # checkign ledger records
+        # checking ledger records
         ledger_query = Ledger.objects.all()
         self.assertEqual(2, len(ledger_query))
         # asserting the first user
@@ -303,11 +358,17 @@ class TestApproveHoursTwoWeeks(TestCase):
         self.assertEqual(3, ledger_query.get(action__usertimelog__user=self.volunteer_1).amount)
         self.assertEqual(True, ledger_query.get(action__usertimelog__user=self.volunteer_1).is_issued)
 
+        self.assertEqual(1, len(self.oc_vol_2.get_hours_approved()))
+        self.assertEqual(3, OcLedger().get_balance(self.user_enitity_id_vol_1))
+
         # asserting the 2nd user
         self.assertEqual(1, len(ledger_query.filter(action__usertimelog__user=self.volunteer_2)))
         self.assertEqual('cur', ledger_query.get(action__usertimelog__user=self.volunteer_2).currency)
         self.assertEqual(2, ledger_query.get(action__usertimelog__user=self.volunteer_2).amount)
         self.assertEqual(True, ledger_query.get(action__usertimelog__user=self.volunteer_2).is_issued)
+
+        self.assertEqual(1, len(self.oc_vol_2.get_hours_approved()))
+        self.assertEqual(2, OcLedger().get_balance(self.user_enitity_id_vol_2))
 
 
     def test_logged_hours_decline(self):
@@ -322,6 +383,12 @@ class TestApproveHoursTwoWeeks(TestCase):
         # checking total approved hours
         self.assertEqual(org_admin_response.context['issued_by_all'], 0)
 
+        # checking initial balance
+        self.assertEqual(0, len(self.oc_vol_1.get_hours_approved()))
+        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_1))
+        self.assertEqual(0, len(self.oc_vol_2.get_hours_approved()))
+        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_2))
+
         # declining hrs for the previous week
         post_decline_hours = self.client.post('/approve-hours/', {
                 'post-data': self.volunteer_2.username + ':0:' + self.monday_prev
@@ -331,7 +398,7 @@ class TestApproveHoursTwoWeeks(TestCase):
         self.assertRedirects(post_decline_hours, '/approve-hours/0/1/', status_code=302)
 
         # checking hours after declining
-        # checkign ledger records
+        # checking ledger records
         ledger_query = Ledger.objects.all()
         self.assertEqual(0, len(ledger_query))
         # asserting the first user
@@ -339,6 +406,9 @@ class TestApproveHoursTwoWeeks(TestCase):
 
         # asserting the 2nd user
         self.assertEqual(0, len(ledger_query.filter(action__usertimelog__user=self.volunteer_2)))
+
+        self.assertEqual(0, len(self.oc_vol_2.get_hours_approved()))
+        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_2))
 
 
         # declining for the last week
@@ -350,7 +420,7 @@ class TestApproveHoursTwoWeeks(TestCase):
         self.assertRedirects(post_decline_hours_last, '/org-admin/0/1/', status_code=302)
 
         # checking hours after declining
-        # checkign ledger records
+        # checking ledger records
         ledger_query = Ledger.objects.all()
         self.assertEqual(0, len(ledger_query))
         # asserting the first user
@@ -358,3 +428,8 @@ class TestApproveHoursTwoWeeks(TestCase):
 
         # asserting the 2nd user
         self.assertEqual(0, len(ledger_query.filter(action__usertimelog__user=self.volunteer_2)))
+
+        self.assertEqual(0, len(self.oc_vol_1.get_hours_approved()))
+        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_1))
+        self.assertEqual(0, len(self.oc_vol_2.get_hours_approved()))
+        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_2))
