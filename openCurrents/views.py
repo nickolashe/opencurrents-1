@@ -997,8 +997,8 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                     admin_email,
                     admin_name,
                     description=form_data['description'],
-                    datetime_start=form_data['datetime_start'],
-                    datetime_end=form_data['datetime_end']
+                    datetime_start=form_data['datetime_start'].strftime("%Y-%m-%d %H:%M:%S"),
+                    datetime_end=form_data['datetime_end'].strftime("%Y-%m-%d %H:%M:%S")
                 )
 
                 # as of now, do not submit hours prior to admin registering
