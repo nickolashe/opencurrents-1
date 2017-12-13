@@ -251,6 +251,11 @@
       // Set height of spacer = to height of content
       $('#redeem-spacer').height($('#offer-3').height());
 
+      // Disable submit on Enter
+      $("form input").on("keypress", function(e) {
+        return e.keyCode != 13;
+      });
+
       // Slide left on 'Next'
       var page = 1;
 

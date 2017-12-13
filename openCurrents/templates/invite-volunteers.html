@@ -188,6 +188,11 @@
         scrolllock: true,
       });
 
+      // Disable submit on Enter
+      $("form input").on("keypress", function(e) {
+        return e.keyCode != 13;
+      });
+
       // Add volunteers
       var vols = 3;
 
