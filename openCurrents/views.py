@@ -63,6 +63,7 @@ from openCurrents.forms import \
     EventCheckinForm, \
     OrgNominationForm, \
     TimeTrackerForm, \
+    BizDetailsForm, \
     OfferCreateForm, \
     OfferEditForm, \
     RedeemCurrentsForm, \
@@ -278,8 +279,9 @@ class AssignAdminsView(TemplateView):
     template_name = 'assign-admins.html'
 
 
-class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, TemplateView):
+class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, FormView):
     template_name = 'biz-admin.html'
+    form_class = BizDetailsForm
 
     def get_context_data(self, **kwargs):
         context = super(BizAdminView, self).get_context_data(**kwargs)
@@ -288,13 +290,11 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, TemplateView)
         offers = self.bizadmin.get_offers_all()
         context['offers'] = offers
 
-        # list biz's pending offer redemption requests
-        redeemed_pending = self.bizadmin.get_redemptions(status='pending')
-        context['redeemed_pending'] = redeemed_pending
-
-        # list biz's accepted offer redemption requests
-        redeemed_approved = self.bizadmin.get_redemptions(status='approved')
-        context['redeemed_approved'] = redeemed_approved
+        # list biz's redemptions
+        for status in ['pending', 'approved', 'redeemed']:
+            context['redeemed_%s' % status] = self.bizadmin.get_redemptions(
+                status=status
+            )
 
         # current balance
         currents_balance = self.bizadmin.get_balance_available()
@@ -304,8 +304,29 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, TemplateView)
         currents_pending = self.bizadmin.get_balance_pending()
         context['currents_pending'] = currents_pending
 
+        for field in context['form'].declared_fields.keys():
+            context['form'].fields[field].widget.attrs['value'] = getattr(self.org, field)
+
+        # workaround with status message for anything but TemplateView
+        if 'status_msg' in self.kwargs and not context['form'].errors:
+            context['status_msg'] = self.kwargs.get('status_msg', '')
+
         return context
 
+    def form_valid(self, form):
+        data = form.cleaned_data
+        Org.objects.filter(id=self.org.id).update(
+            website=data['website'],
+            phone=data['phone'],
+            email=data['email'],
+            address=data['address'],
+            intro=data['intro']
+        )
+
+        return redirect(
+            'openCurrents:biz-admin',
+            status_msg='Thank you for adding %s\'s details' % self.org.name
+        )
 
 class BusinessView(TemplateView):
     template_name = 'business.html'
@@ -653,7 +674,7 @@ class InventoryView(TemplateView):
 class PublicRecordView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'public-record.html'
 
-    def get_top_list(self, entity_type='top-vol', period='month'):
+    def get_top_list(self, entity_type='top-org', period='month'):
         if entity_type == 'top-org':
             return OcOrg().get_top_issued_npfs(period)
         elif entity_type == 'top-vol':
@@ -691,6 +712,7 @@ class MarketplaceView(LoginRequiredMixin, SessionContextView, ListView):
 
         # workaround with status message for ListView
         context['status_msg'] = self.kwargs.get('status_msg', '')
+
         return context
 
 
@@ -749,9 +771,9 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
 
             reqForbidden = True
             status_msg = ' '.join([
-                'You need Currents to redeem an offer. <br>',
-                # '<a href="{% url "openCurrents:upcoming-events" %}">',
-                # 'Find a volunteer opportunity!</a>'
+                'You need Currents to redeem an offer. <br/>',
+                '<a href="{% url "openCurrents:upcoming-events" %}">',
+                'Find a volunteer opportunity!</a>'
             ])
 
         offer_num_redeemed = self.ocuser.get_offer_num_redeemed(self.offer)
@@ -1020,6 +1042,13 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
     def invite_new_admin(self, org, admin_email, admin_name, **kwargs):
         user_new = None
         doInvite = False
+
+        # adding flag to not call Mandrill during unittests
+        if 'test_time_tracker_mode' in  self.request.POST and self.request.POST['test_time_tracker_mode']=='1':
+            test_time_tracker_mode = True
+        else:
+            test_time_tracker_mode = False
+
         try:
             user_new = User.objects.get(username = admin_email)
             doInvite = not user_new.has_usable_password()
@@ -1076,7 +1105,11 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                     'volunteer-invites-admin',
                     None,
                     email_vars,
-                    admin_email
+                    admin_email,
+                    # marker for testing purpose
+                    session=self.request.session,
+                    marker='1',
+                    test_time_tracker_mode=test_time_tracker_mode
                 )
             except Exception as e:
                 logger.error(
@@ -1098,7 +1131,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         #     )
 
         try:
-            email_vars_ransactional = [
+            email_vars_transactional = [
                     {
                         'name': 'ORG_NAME',
                         'content': org
@@ -1124,13 +1157,17 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             # adding kwargs to email vars
             if kwargs:
                 for kw_key, kw_value in kwargs.iteritems():
-                    self.add_to_email_vars(email_vars, kw_key, kw_value)
+                    self.add_to_email_vars(email_vars_transactional, kw_key, kw_value)
 
             sendTransactionalEmail(
                 'new-admin-invited',
                 None,
-                email_vars_ransactional,
-                'bizdev@opencurrents.com'
+                email_vars_transactional,
+                'bizdev@opencurrents.com',
+                # marker for testing purpose
+                session=self.request.session,
+                marker='1',
+                test_time_tracker_mode=test_time_tracker_mode
             )
         except Exception as e:
                 logger.error(
@@ -1221,81 +1258,43 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
             context['app_hr'] = 0
 
         # verified currents balance
-        balance_available = self.ocuser.get_balance_available()
-        context['balance_available'] = format(round(balance_available, 2), '.2f')
+        context['balance_available'] = self.ocuser.get_balance_available()
 
         # pending currents balance
-        balance_pending = self.ocuser.get_balance_pending()
-        context['balance_pending'] = format(round(balance_pending, 2), '.2f')
+        context['balance_pending'] = self.ocuser.get_balance_pending()
 
         # available usd balance
-        balance_available_usd = self.ocuser.get_balance_available_usd()
-        context['balance_available_usd'] = format(
-            round(balance_available_usd, 2),
-            '.2f'
-        )
+        context['balance_available_usd'] = self.ocuser.get_balance_available_usd()
 
         # pending usd balance
-        balance_pending_usd = self.ocuser.get_balance_pending_usd()
-        context['balance_pending_usd'] = format(
-            round(balance_pending_usd, 2),
-            '.2f'
-        )
+        context['balance_pending_usd'] = self.ocuser.get_balance_pending_usd()
 
         # upcoming events user is registered for
-        events_upcoming = self.ocuser.get_events_registered()
-        context['events_upcoming'] = events_upcoming
+        context['events_upcoming'] = self.ocuser.get_events_registered()
 
-        offers_redeemed = self.ocuser.get_offers_redeemed()
-        context['offers_redeemed'] = offers_redeemed
+        # offers redeemed
+        context['offers_redeemed'] = self.ocuser.get_offers_redeemed()
 
         # hour requests
-        hours_requested = self.ocuser.get_hours_requested()
-        context['hours_requested'] = hours_requested
-
-        # hour approved
-        hours_approved = self.ocuser.get_hours_approved()
-        context['hours_approved'] = hours_approved
+        context['hours_requested'] = self.ocuser.get_hours_requested()
 
         # hour approved by organization
-        context['hours_by_org']=[]
-        hours_by_org = {}
-        temp_orgs_set = set()
-
-        for hr in hours_approved:
-            event = hr.usertimelog.event
-            org = event.project.org
-            approved_hours = diffInHours(event.datetime_start, event.datetime_end)
-
-            if approved_hours > 0:
-                if not org in temp_orgs_set:
-                    temp_orgs_set.add(org)
-                    hours_by_org[org] = approved_hours
-                else:
-                    hours_by_org[org] += approved_hours
-
-        context['hours_by_org'].append(hours_by_org)
-
+        context['hours_by_org']= self.ocuser.get_hours_approved(
+            **{'by_org': True}
+        )
 
         # user timezone
         #context['timezone'] = self.request.user.account.timezone
         context['timezone'] = 'America/Chicago'
 
-
         # getting issued currents
-        try:
-            context['currents_amount_total'] = OcCommunity().get_amount_currents_total()
-        except:
-            context['currents_amount_total'] = []
+        context['currents_amount_total'] = OcCommunity().get_amount_currents_total()
 
         # getting active volunteers
         context['active_volunteers_total'] = OcCommunity().get_active_volunteers_total()
 
         # getting currents accepted
-        try:
-            context['currents_accepted'] = OcCommunity().get_currents_accepted_total()
-        except:
-            context['currents_accepted'] = []
+        context['currents_accepted'] = OcCommunity().get_currents_accepted_total()
 
         return context
 
@@ -3467,23 +3466,34 @@ def sendContactEmail(template_name, template_content, merge_vars, admin_email, u
 
 
 
-def sendTransactionalEmail(template_name, template_content, merge_vars, recipient_email):
-    mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)
-    message = {
-        'from_email': 'info@opencurrents.com',
-        'from_name': 'openCurrents',
-        'to': [{
-            'email': recipient_email,
-            'type': 'to'
-        }],
-        'global_merge_vars': merge_vars
-    }
+def sendTransactionalEmail(template_name, template_content, merge_vars, recipient_email, **kwargs):
 
-    mandrill_client.messages.send_template(
-        template_name=template_name,
-        template_content=template_content,
-        message=message
-    )
+    # adding launch function marker to session for testing purpose
+    if kwargs:
+        sess = kwargs['session']
+        marker = kwargs['marker']
+        sess['transactional'] = kwargs['marker']
+        test_time_tracker_mode = kwargs['test_time_tracker_mode']
+
+    if not test_time_tracker_mode:
+        mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)
+        message = {
+            'from_email': 'info@opencurrents.com',
+            'from_name': 'openCurrents',
+            'to': [{
+                'email': recipient_email,
+                'type': 'to'
+            }],
+            'global_merge_vars': merge_vars
+        }
+
+        mandrill_client.messages.send_template(
+            template_name=template_name,
+            template_content=template_content,
+            message=message
+        )
+    else:
+        print "We don't send emails during tests."
 
 def sendBulkEmail(template_name, template_content, merge_vars, recipient_email, sender_email):
     mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)

@@ -1,4 +1,5 @@
 from datetime import datetime
+from decimal import Decimal
 
 from django.db.models import Max
 
@@ -62,7 +63,7 @@ class BizAdmin(object):
         )
         return offers
 
-    def get_redemptions(self, status=None):
+    def get_redemptions(self, status=None, fees=True):
         transactions = Transaction.objects.filter(
             offer__org__id=self.org.id
         ).annotate(
@@ -85,6 +86,15 @@ class BizAdmin(object):
             org_offers_redeemed = org_offers_redeemed.filter(
                 action_type='app'
             )
+        elif status == 'redeemed':
+            org_offers_redeemed = org_offers_redeemed.filter(
+                action_type='red'
+            )
+
+
+        if fees == True:
+            for act in org_offers_redeemed:
+                act.transaction.currents_amount *= Decimal(0.9)
 
         return org_offers_redeemed
 

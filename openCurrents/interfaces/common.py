@@ -30,4 +30,9 @@ def _get_redemption_total(records, currency='cur'):
 
         balance += amount
 
+    if currency == 'usd':
+        balance = round(balance, 2)
+    else:
+        balance = round(balance, 3)
+
     return balance
