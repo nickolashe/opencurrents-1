@@ -114,13 +114,13 @@
   <div class="row collapse one-margin-top left">
     <div class="small-11 medium-10 small-centered columns">
       <h6 class="half-margin-bottom">Community activity</h6>
-      <a href="{% url 'openCurrents:public-record' %}?record_type=top-org&period=month" class="tag button tiny round secondary">
+      <a href="{% url 'openCurrents:public-record' %}?record_type=top-org&period=month" class="button tiny round secondary">
         Currents issued: {% if currents_amount_total %}{{ currents_amount_total }}{% else %}No currents issued{% endif %}
       </a>
-      <a href="{% url 'openCurrents:public-record' %}?record_type=top-vol&period=month" class="tag button tiny round secondary">
+      <a href="{% url 'openCurrents:public-record' %}?record_type=top-vol&period=month" class="button tiny round secondary">
         Active volunteers: {% if active_volunteers_total %}{{ active_volunteers_total }}{% else %}No active volunteers{% endif %}
       </a>
-      <a href="{% url 'openCurrents:public-record' %}?record_type=top-biz&period=month" class="tag button tiny round secondary">
+      <a href="{% url 'openCurrents:public-record' %}?record_type=top-biz&period=month" class="button tiny round secondary">
         Currents accepted: {% if currents_accepted %}{{ currents_accepted }}{% else %}No currents accepted{% endif %}
       </a>
     </div>

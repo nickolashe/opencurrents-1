@@ -18,9 +18,7 @@
                     Your
                   {% endif %}
 
-                  <strong>
-                    {{ tl.datetime_start|get_hours_total:tl.datetime_end|floatformat:2 }}
-                  </strong>
+                  {{ tl.datetime_start|get_hours_total:tl.datetime_end|floatformat:2 }}
                   hours for {{ tl.event.description }}
 
                   {% if hours_status == 'requested' %}
