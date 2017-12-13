@@ -12,23 +12,25 @@
 {% endblock heading %}
 
 {% block content %}
-  <div class="row">
-    <div class="medium-6 small-centered columns">
-      <div class="row left">
-        <div class="medium-8 small-centered columns">
-          <label for="id_org_type">Org type</label>
-          <select id="id_org_type" name="org_type">
-            <option value="biz">Business</option>
-            <option value="npf">Nonprofit</option>
-          </select>
+  <form class="" method="post">
+    <div class="row">
+      <div class="medium-6 small-centered columns">
+        <div class="row left">
+          <div class="medium-8 small-centered columns">
+            <label for="id_org_type">Org type</label>
+            <select id="id_org_type" name="org_type">
+              <option value="biz">Business</option>
+              <option value="npf">Nonprofit</option>
+            </select>
+          </div>
         </div>
-      </div>
 
-      <input type="text" id="id_org_name" name="org_name" class="center" placeholder="Business name" />
-      <input type="text" name="website" class="center" placeholder="Website (optional)" />
-      <input type="submit" class="half-margin-top button round small" value="Register" />
+        <input type="text" id="id_org_name" name="org_name" class="center" placeholder="Business name" />
+        <input type="text" name="website" class="center" placeholder="Website (optional)" />
+        <input type="submit" class="half-margin-top button round small" value="Register" />
+      </div>
     </div>
-  </div>
+  </form>
 {% endblock content %}
 
 {% block js %}
