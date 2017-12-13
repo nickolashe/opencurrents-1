@@ -135,7 +135,7 @@ class OcUser(object):
             active_redemption_reqs
         )
 
-        return current_balance - total_req_redemptions
+        return round(current_balance - total_req_redemptions, 3)
 
     def get_balance_pending(self):
         '''
@@ -180,7 +180,7 @@ class OcUser(object):
             currency='usd'
         )
 
-        return balance_usd
+        return round(balance_usd, 2)
 
     def get_balance_pending_usd(self):
         '''
@@ -207,7 +207,7 @@ class OcUser(object):
             'usd'
         )
 
-        return total_redemptions
+        return round(total_redemptions, 2)
 
     def _get_unique_hour_total(self, records, from_admin_actions=False):
         event_user = set()

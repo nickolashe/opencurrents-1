@@ -122,12 +122,6 @@ class OcLedger(object):
 
         total = credit_total - debit_total
 
-        if total > 0:
-            if currency == 'usd':
-                total = round(total, 2)
-            else:
-                total = round(total, 3)
-
         return total
 
     def get_issued_cur_amount(self, org_id, period):
