@@ -5,7 +5,11 @@ from django.shortcuts import redirect
 
 from openCurrents.models import \
     Org, \
-    Event
+    Event, \
+    Ledger, \
+    AdminActionUserTime, \
+    UserEntity, \
+    UserTimeLog
 
 from openCurrents.interfaces.ocuser import OcUser
 from openCurrents.interfaces.orgs import \
@@ -72,14 +76,21 @@ class TestTimeTracker(TestCase):
         self.assertEqual(len(Event.objects.all()), 1)
 
         # created user_time_log instance
-        user_time_log = Event.objects.all()[0].usertimelog_set.filter(id=1)[0]
+        user_time_log = Event.objects.all()[0].usertimelog_set.filter(user=self.volunteer1)
 
         # assert a proper user time log has been created
         self.assertEqual(len(Event.objects.all()[0].usertimelog_set.filter(id=1)), 1)
-        self.assertIn('test_user_1 contributed 1.0 hr', unicode(user_time_log))
+        self.assertIn('test_user_1 contributed 1.0 hr', unicode(user_time_log[0]))
 
-        # assert creator's id == volunteer1.id
-        self.assertEqual(user_time_log.user.id, self.volunteer1.id)
+        # assert UserTimeLog is created for volunteer1 and isn't verified
+        self.assertEqual(len(user_time_log.filter(is_verified = False)), 1)
+
+        # assert there is a requested action
+        self.assertEqual(len(AdminActionUserTime.objects.filter(action_type='req')), 1)
+        # assert requested action came from volunteer
+        self.assertEqual(len(AdminActionUserTime.objects.filter(usertimelog__user=self.volunteer1).filter(action_type='req')), 1)
+        # assert there are no approved actions
+        self.assertEqual(len(AdminActionUserTime.objects.filter(action_type='app')), 0)
 
 
     def test_vol_hours_existing_org_new_adm(self):
@@ -108,8 +119,28 @@ class TestTimeTracker(TestCase):
         # assert if we've been redirected
         self.assertRedirects(response, '/time-tracked/', status_code=302)
 
-        # assert a MT event was created
+        # assert a MT event wasn't created
         self.assertEqual(len(Event.objects.all()), 0)
+
+        """
+        @@ TODO finish this part when the functionality is implemented @@
+         # created user_time_log instance
+        user_time_log = Event.objects.all()[0].usertimelog_set.filter(user=self.volunteer1)
+
+        # assert a proper user time log has been created
+        self.assertEqual(len(Event.objects.all()[0].usertimelog_set.filter(id=1)), 1)
+        self.assertIn('test_user_1 contributed 1.0 hr', unicode(user_time_log[0]))
+
+        # assert UserTimeLog is created for volunteer1 and isn't verified
+        self.assertEqual(len(user_time_log.filter(is_verified = False)), 1)
+
+        # assert there is a requested action
+        self.assertEqual(len(AdminActionUserTime.objects.filter(action_type='req')), 1)
+        # assert requested action came from volunteer
+        self.assertEqual(len(AdminActionUserTime.objects.filter(usertimelog__user=self.volunteer1).filter(action_type='req')), 1)
+        # assert there are no approved actions
+        self.assertEqual(len(AdminActionUserTime.objects.filter(action_type='app')), 0)
+        """
 
 
     def test_vol_hours_new_org_new_adm(self):
@@ -141,5 +172,25 @@ class TestTimeTracker(TestCase):
         # assert if we've been redirected
         self.assertRedirects(response, '/time-tracked/', status_code=302)
 
-        # assert a MT event was created
+        # assert a MT event wasn't created
         self.assertEqual(len(Event.objects.all()), 0)
+
+        """
+        @@ TODO finish this part when the functionality is implemented @@
+         # created user_time_log instance
+        user_time_log = Event.objects.all()[0].usertimelog_set.filter(user=self.volunteer1)
+
+        # assert a proper user time log has been created
+        self.assertEqual(len(Event.objects.all()[0].usertimelog_set.filter(id=1)), 1)
+        self.assertIn('test_user_1 contributed 1.0 hr', unicode(user_time_log[0]))
+
+        # assert UserTimeLog is created for volunteer1 and isn't verified
+        self.assertEqual(len(user_time_log.filter(is_verified = False)), 1)
+
+        # assert there is a requested action
+        self.assertEqual(len(AdminActionUserTime.objects.filter(action_type='req')), 1)
+        # assert requested action came from volunteer
+        self.assertEqual(len(AdminActionUserTime.objects.filter(usertimelog__user=self.volunteer1).filter(action_type='req')), 1)
+        # assert there are no approved actions
+        self.assertEqual(len(AdminActionUserTime.objects.filter(action_type='app')), 0)
+        """
