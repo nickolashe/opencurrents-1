@@ -1128,7 +1128,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
 
     def invite_new_admin(self, org, admin_email, admin_name, **kwargs):
         user_new = None
-        doInvite = False
+        doInvite = True
 
         # adding flag to not call Mandrill during unittests
         if 'test_time_tracker_mode' in  self.request.POST and self.request.POST['test_time_tracker_mode']=='1':
