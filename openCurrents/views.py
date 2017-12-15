@@ -662,6 +662,13 @@ class HoursDetailView(LoginRequiredMixin, SessionContextView, ListView):
 
         return queryset
 
+    def get_context_data(self, **kwargs):
+        context = super(HoursDetailView, self).get_context_data(**kwargs)
+
+        if self.request.GET.get('is_admin') == '1':
+            context['hours_admin'] = True
+
+        return context
 
 class InviteAdminsView(TemplateView):
     template_name = 'invite-admins.html'
