@@ -212,7 +212,7 @@
                     {% endif %}
 
                     {% with amount_cur=tr.currents_amount %}
-                      {% with amount_usd=amount_cur|current_to_usd %}
+                      {% with amount_usd=amount_cur|current_to_usd:'with_fee' %}
                         ${{ amount_usd|floatformat:2 }}
                         for
                         <span class="no-wrap">
