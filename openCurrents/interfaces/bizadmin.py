@@ -91,11 +91,6 @@ class BizAdmin(object):
                 action_type='red'
             )
 
-
-        if fees == True:
-            for act in org_offers_redeemed:
-                act.transaction.currents_amount *= Decimal(0.9)
-
         return org_offers_redeemed
 
 class InvalidAffiliation(Exception):
