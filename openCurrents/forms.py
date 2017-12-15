@@ -198,25 +198,28 @@ class OrgNominationForm(forms.Form):
         contact_email = cleaned_data['contact_email']
 
 
-class OrgSignupForm(forms.Form):
-    org_name = forms.CharField(min_length=1)
-    org_website = forms.CharField(min_length=1,required=False)
-    user_affiliation = forms.ChoiceField(
-        choices=[
-            ('employee', 'employee'),
-            ('leader', 'leader'),
-            ('volunteer', 'volunteer'),
-            ('unaffiliated', 'unaffiliated')
-        ]
+class CreateOrgForm(forms.Form):
+    name = forms.CharField(
+        min_length=1,
+        widget=forms.TextInput(attrs={
+            'class': 'center',
+            'placeholder': 'Business name'
+        })
     )
-    org_status = forms.ChoiceField(
+    website = forms.CharField(
+        min_length=1,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'center',
+            'placeholder': 'Website (optional)'
+        })
+    )
+    status = forms.ChoiceField(
         choices=[
-            ('npf', 'nonprofit'),
             ('biz', 'business'),
+            ('npf', 'nonprofit'),
         ]
     )
-    org_mission = forms.CharField(required=False)
-    org_reason = forms.CharField(required=False)
 
     def clean_user_affiliation(self):
         return str(self.cleaned_data['user_affiliation'])

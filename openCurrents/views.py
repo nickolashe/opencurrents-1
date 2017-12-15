@@ -52,7 +52,7 @@ from openCurrents.forms import \
     EmailVerificationForm, \
     PasswordResetForm, \
     PasswordResetRequestForm, \
-    OrgSignupForm, \
+    CreateOrgForm, \
     CreateEventForm, \
     EditEventForm, \
     EventRegisterForm, \
@@ -591,8 +591,9 @@ class CausesView(TemplateView):
     template_name = 'causes.html'
 
 
-class CreateOrgView(TemplateView):
+class CreateOrgView(FormView):
     template_name = 'create-org.html'
+    form_class = CreateOrgForm
 
 
 class EditHoursView(TemplateView):
