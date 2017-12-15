@@ -305,7 +305,9 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, FormView):
         context['currents_pending'] = currents_pending
 
         for field in context['form'].declared_fields.keys():
-            context['form'].fields[field].widget.attrs['value'] = getattr(self.org, field)
+            val = getattr(self.org, field)
+            if val:
+                context['form'].fields[field].widget.attrs['value'] = val
 
         # workaround with status message for anything but TemplateView
         if 'status_msg' in self.kwargs and not context['form'].errors:
