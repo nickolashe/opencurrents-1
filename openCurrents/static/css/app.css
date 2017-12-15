@@ -1453,3 +1453,11 @@ input[disabled].good-cat {
 #offer-spacer {
   visibility: hidden;
 }
+
+/* marketplace */
+
+.biz-deets-item {
+  margin-bottom: 0;
+  color: #888;
+  font-size: 0.875rem;
+}
