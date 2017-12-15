@@ -209,6 +209,8 @@
                       will receive
                     {% elif status == 'redeemed' %}
                       has received
+                    {% elif status == 'declined' %}
+                      will not receive
                     {% endif %}
 
                     {% with amount_cur=tr.currents_amount %}
