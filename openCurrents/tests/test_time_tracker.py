@@ -167,6 +167,7 @@ class TestTimeTracker(TestCase):
         response = self.client.post("/time-tracker/", {
             'description':'test manual tracker non-existing NPF org and admin',
             'admin':'other-admin',
+            'org':self.org.id,
             'new_org':'new_npf_org',
             'new_admin_name':'new_npf_admin',
             'new_admin_email':'new_npf_admin@e.co',

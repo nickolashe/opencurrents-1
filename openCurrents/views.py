@@ -968,61 +968,65 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             admin_name = form_data['new_admin_name']
             admin_email = form_data['new_admin_email']
 
-            if form_data['org'].isdigit():
-                org = int(form_data['org'])
-
-                # creating a new npf-admin user
-                existing_org = None
-                try:
-                    existing_org = Org.objects.get(id=org)
-                except:
-                    logger.debug('Cannot find org with ID %s', org)
-
-                if existing_org:
-                    try:
-                        new_npf_user = OcUser().setup_user(
-                            username=admin_email,
-                            email=admin_email,
-                            first_name=admin_name,
-                        )
-                        new_npf_user.set_password('')
-                        new_npf_user.save()
-
-                    except UserExistsException:
-                        logger.debug('user %s already exists', user_email)
-
-
-                    try:
-                        OrgUserInfo(new_npf_user.id).setup_orguser(existing_org)
-                    except InvalidOrgUserException:
-                        logger.debug('Cannot setup NPF user: %s', new_npf_user)
-
-
-                    # creating DB records for logged time
-                    self.create_proj_event_utimelog(
-                        user,
-                        new_npf_user.id,
-                        existing_org,
-                        form_data['description'],
-                        form_data['datetime_start'],
-                        form_data['datetime_end']
-                    )
-
-                    new_npf_admin_user = self.invite_new_admin(
-                        existing_org,
-                        admin_email,
-                        admin_name,
-                        description=form_data['description'],
-                        datetime_start=form_data['datetime_start'].strftime("%Y-%m-%d %H:%M:%S"),
-                        datetime_end=form_data['datetime_end'].strftime("%Y-%m-%d %H:%M:%S")
-                    )
-                return True, None
+            if not admin_email:
+                return False, 'Please enter admin\'s email'
 
             else:
-                return False, "Couldn't find the organization."
+                if form_data['org'].isdigit():
+                    org = int(form_data['org'])
+
+                    # creating a new npf-admin user
+                    existing_org = None
+                    try:
+                        existing_org = Org.objects.get(id=org)
+                    except:
+                        logger.debug('Cannot find org with ID %s', org)
+
+                    if existing_org:
+                        try:
+                            new_npf_user = OcUser().setup_user(
+                                username=admin_email,
+                                email=admin_email,
+                                first_name=admin_name,
+                            )
+                            new_npf_user.set_password('')
+                            new_npf_user.save()
+
+                        except UserExistsException:
+                            logger.debug('user %s already exists', user_email)
 
 
-        if not form_data['new_org'] and not form_data['new_admin_name']:
+                        try:
+                            OrgUserInfo(new_npf_user.id).setup_orguser(existing_org)
+                        except InvalidOrgUserException:
+                            logger.debug('Cannot setup NPF user: %s', new_npf_user)
+
+
+                        # creating DB records for logged time
+                        self.create_proj_event_utimelog(
+                            user,
+                            new_npf_user.id,
+                            existing_org,
+                            form_data['description'],
+                            form_data['datetime_start'],
+                            form_data['datetime_end']
+                        )
+
+                        new_npf_admin_user = self.invite_new_admin(
+                            existing_org,
+                            admin_email,
+                            admin_name,
+                            description=form_data['description'],
+                            datetime_start=form_data['datetime_start'].strftime("%Y-%m-%d %H:%M:%S"),
+                            datetime_end=form_data['datetime_end'].strftime("%Y-%m-%d %H:%M:%S")
+                        )
+                    return True, None
+
+                else:
+                    return False, "Couldn't find the organization."
+
+
+        if form_data['new_org'] and form_data['new_admin_name']:
 
             org = form_data['new_org']
             admin_name = form_data['new_admin_name']
@@ -1040,8 +1044,6 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
 
                 # as of now, do not submit hours prior to admin registering
                 #self.create_approval_request(org.id,usertimelog,new_npf_admin_user)
-
-                print "Processed non-existing npf admin in existing npf org"
 
                 return True, None
             else:
