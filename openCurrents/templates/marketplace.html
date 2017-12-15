@@ -68,35 +68,46 @@
             </div>
           </div>
 
-          <div class="biz-deets left row hidden">
-            <div class="small-12 columns">
-              <!-- if website/location/phone/email/intro -->
-              <p class="biz-deets-item">
-                <i class="half-margin-right fa-fw fa fa-link"></i>
-                www.awesomefood.com
-              </p>
+          {% with org=offer.org %}
+            <div class="biz-deets left row hidden">
+              <div class="small-12 columns">
+                {% if org.website %}
+                  <p class="biz-deets-item">
+                    <i class="half-margin-right fa-fw fa fa-link"></i>
+                    {{ org.website }}
+                  </p>
+                {% endif %}
 
-              <p class="biz-deets-item">
-                <i class="half-margin-right fa-fw fa fa-home"></i>
-                123 Fourth Street, Austin, TX 78701
-              </p>
+                {% if org.address %}
+                  <p class="biz-deets-item">
+                    <i class="half-margin-right fa-fw fa fa-home"></i>
+                    {{ org.address }}
+                  </p>
+                {% endif %}
 
-              <p class="biz-deets-item">
-                <i class="half-margin-right fa-fw fa fa-phone"></i>
-                123-456-7890
-              </p>
+                {% if org.phone %}
+                  <p class="biz-deets-item">
+                    <i class="half-margin-right fa-fw fa fa-phone"></i>
+                    {{ org.phone }}
+                  </p>
+                {% endif %}
 
-              <p class="biz-deets-item">
-                <i class="half-margin-right fa-fw fa fa-envelope-open-o"></i>
-                info@someawesomefood.com
-              </p>
+                {% if org.email %}
+                  <p class="biz-deets-item">
+                    <i class="half-margin-right fa-fw fa fa-envelope-open-o"></i>
+                    {{ org.email }}
+                  </p>
+                {% endif %}
 
-              <p class="biz-deets-item">
-                <i class="half-margin-right fa-fw fa fa-comment"></i>
-                Our mission is to make you awesome food time and time again!
-              </p>
+                {% if org.intro %}
+                  <p class="biz-deets-item">
+                    <i class="half-margin-right fa-fw fa fa-comment"></i>
+                    {{ org.intro }}
+                  </p>
+                {% endif %}
+              </div>
             </div>
-          </div>
+          {% endwith %}
         {% endwith %}
       {% empty %}
         <p>We are talking with businesses in Austin and around the country about
