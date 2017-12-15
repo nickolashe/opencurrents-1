@@ -948,53 +948,88 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                 #return redirect('openCurrents:time-tracker', status_time)
                 return False, status_time
 
+
         if form_data['admin'].isdigit():
             # create admin-specific approval request
-            project = None
-            try:
-                project = Project.objects.get(
-                        org__id=org.id,
-                        name='ManualTracking'
-                    )
-            except Project.DoesNotExist:
-                project = Project(
-                    org=org,
-                    name='ManualTracking'
+            self.create_proj_event_utimelog(
+                    user,
+                    form_data['admin'],
+                    org,
+                    form_data['description'],
+                    form_data['datetime_start'],
+                    form_data['datetime_end']
                 )
-                project.save()
-
-            event = Event(
-                project=project,
-                description=form_data['description'],
-                event_type="MN",
-                datetime_start=form_data['datetime_start'],
-                datetime_end=form_data['datetime_end']
-            )
-            event.save()
-
-            usertimelog = UserTimeLog(
-                user=user,
-                event=event,
-                datetime_start=form_data['datetime_start'],
-                datetime_end=form_data['datetime_end']
-                )
-            usertimelog.save()
-            self.create_approval_request(org.id, usertimelog, form_data['admin'])
-
-
             return True, None
 
-        elif form_data['admin'] == 'other-admin':
+
+        if form_data['admin'] == 'other-admin' and not form_data['new_org']:
             # TODO (@karbmk): switch to using forms
 
             admin_name = form_data['new_admin_name']
             admin_email = form_data['new_admin_email']
 
-            if form_data['new_org'] != '':
-                org = form_data['new_org']
+            if form_data['org'].isdigit():
+                org = int(form_data['org'])
+
+                # creating a new npf-admin user
+                existing_org = None
+                try:
+                    existing_org = Org.objects.get(id=org)
+                except:
+                    logger.debug('Cannot find org with ID %s', org)
+
+                if existing_org:
+                    try:
+                        new_npf_user = OcUser().setup_user(
+                            username=admin_email,
+                            email=admin_email,
+                            first_name=admin_name,
+                        )
+                        new_npf_user.set_password('')
+                        new_npf_user.save()
+
+                    except UserExistsException:
+                        logger.debug('user %s already exists', user_email)
+
+
+                    try:
+                        OrgUserInfo(new_npf_user.id).setup_orguser(existing_org)
+                    except InvalidOrgUserException:
+                        logger.debug('Cannot setup NPF user: %s', new_npf_user)
+
+
+                    # creating DB records for logged time
+                    self.create_proj_event_utimelog(
+                        user,
+                        new_npf_user.id,
+                        existing_org,
+                        form_data['description'],
+                        form_data['datetime_start'],
+                        form_data['datetime_end']
+                    )
+
+                    new_npf_admin_user = self.invite_new_admin(
+                        existing_org,
+                        admin_email,
+                        admin_name,
+                        description=form_data['description'],
+                        datetime_start=form_data['datetime_start'].strftime("%Y-%m-%d %H:%M:%S"),
+                        datetime_end=form_data['datetime_end'].strftime("%Y-%m-%d %H:%M:%S")
+                    )
+                return True, None
+
+            else:
+                return False, "Couldn't find the organization."
+
+
+        if not form_data['new_org'] and not form_data['new_admin_name']:
+
+            org = form_data['new_org']
+            admin_name = form_data['new_admin_name']
+            admin_email = form_data['new_admin_email']
 
             if admin_email:
-                user = self.invite_new_admin(
+                new_npf_admin_user = self.invite_new_admin(
                     org,
                     admin_email,
                     admin_name,
@@ -1004,7 +1039,10 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                 )
 
                 # as of now, do not submit hours prior to admin registering
-                #self.create_approval_request(org.id,usertimelog,user)
+                #self.create_approval_request(org.id,usertimelog,new_npf_admin_user)
+
+                print "Processed non-existing npf admin in existing npf org"
+
                 return True, None
             else:
                 return False, 'Please enter admin\'s email'
@@ -1015,6 +1053,53 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                 'You can also invite new admins to the platform.'
             ])
             return False, status_msg
+
+
+    def create_proj_event_utimelog(
+        self,
+        user,
+        new_npf_user_id,
+        org,
+        event_descr,
+        datetime_start,
+        datetime_end):
+        """
+        user = user object
+        new_npf_user_id = new NPF admin ID
+        org = org object
+        event_descr = string, eg form_data['description']
+        datetime_start, datetime_start = datetime.datetime obj
+        """
+        project = None
+        try:
+            project = Project.objects.get(
+                    org__id=org.id,
+                    name='ManualTracking'
+                )
+        except Project.DoesNotExist:
+            project = Project(
+                org=org,
+                name='ManualTracking'
+            )
+            project.save()
+
+        event = Event(
+            project=project,
+            description=event_descr,
+            event_type="MN",
+            datetime_start=datetime_start,
+            datetime_end=datetime_end
+        )
+        event.save()
+
+        usertimelog = UserTimeLog(
+            user=user,
+            event=event,
+            datetime_start=datetime_start,
+            datetime_end=datetime_end
+            )
+        usertimelog.save()
+        self.create_approval_request(org.id, usertimelog, new_npf_user_id)
 
     def add_to_email_vars(self, email_var_list, new_var_name, new_var_value):
         """
@@ -1051,17 +1136,20 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         else:
             test_time_tracker_mode = False
 
-        try:
-            user_new = User.objects.get(username = admin_email)
-            doInvite = not user_new.has_usable_password()
-        except User.DoesNotExist:
-            # user_new = User(
-            #     username=admin_email,
-            #     email=admin_email,
-            #     first_name=admin_name
-            # )
-            # user_new.save()
-            doInvite = True
+        # looks like we don't need this piece anymore
+        # try:
+        #     user_new = User.objects.get(username = admin_email)
+        #     doInvite = not user_new.has_usable_password()
+        # except User.DoesNotExist:
+        #     # user_new = User(
+        #     #     username=admin_email,
+        #     #     email=admin_email,
+        #     #     first_name=admin_name
+        #     # )
+        #     # user_new.save()
+        #     doInvite = True
+
+
 
         # adapting function for sending org.name or form_data['new_org'] to new admin
         if isinstance(org, Org):
@@ -1184,6 +1272,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         #Get the status msg from URL
         context = super(TimeTrackerView, self).get_context_data(**kwargs)
         userid = self.request.user.id
+
         try:
             usertimelog = UserTimeLog.objects.filter(user__id=userid).order_by('datetime_start').reverse()[0]
             actiontimelog = AdminActionUserTime.objects.filter(usertimelog = usertimelog)
