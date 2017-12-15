@@ -24,13 +24,16 @@
       <i class="half-margin-right fa-fw fa fa-user-plus"></i>
       Invite admins
     </a> -->
-  {% endif %}
-
-  {% if is_admin_biz %}
-    <a class="list-group-item" href="{% url 'openCurrents:offer' %}">
-      <i class="half-margin-right fa-fw fa fa-bullhorn"></i>
-      Post an offer
-    </a>
+    {% elif is_admin_biz %}
+      <a class="list-group-item" href="{% url 'openCurrents:offer' %}">
+        <i class="half-margin-right fa-fw fa fa-bullhorn"></i>
+        Post an offer
+      </a>
+    {% else %}
+      <a class="list-group-item" href="{% url 'openCurrents:create-org' %}">
+        <i class="half-margin-right fa-fw fa fa-briefcase"></i>
+        Register an org
+      </a>
   {% endif %}
 
   <a class="list-group-item" href="{% url 'openCurrents:nominate' %}">
