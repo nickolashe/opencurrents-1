@@ -344,6 +344,39 @@
         }
       }
 
+      $( window ).on( "load", function(){
+        let priceOfferSubjectToShareCurrents = shareToCurrents(
+          $('#id_redeem_price').val()
+        );
+        
+        getUserBalance(function(err, res) {
+          let priceSubjectToShare;
+          const userBalanceCurrents = res;
+
+          if (userBalanceCurrents < priceOfferSubjectToShareCurrents.currents) {
+            priceSubjectToShare = {
+              currents: userBalanceCurrents,
+              dollars: userBalanceCurrents * 10
+            };
+          } else {
+            priceSubjectToShare = priceOfferSubjectToShareCurrents;
+          }
+
+          console.log('priceUsed:' + priceSubjectToShare.currents);
+          const fee = (0.1 * priceSubjectToShare.dollars).toFixed(2);
+          let dollarsReceived = (priceSubjectToShare.dollars - fee).toFixed(2);
+
+          $('.currents-total').text(priceSubjectToShare.currents);
+          $('.dollars-total').text(priceSubjectToShare.dollars);
+          $('.dollars-fee').text(fee);
+          $('.dollars-received').text(dollarsReceived);
+
+          $("input[name^=redeem_currents_amount]").val(
+            priceSubjectToShare.currents
+          );
+        });
+      });
+
       // Display current and dollar totals based on price input
       $('#offer-2').on('input', function(){
         let priceOfferSubjectToShareCurrents = shareToCurrents(
