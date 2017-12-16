@@ -130,7 +130,7 @@
     <div class="small-11 medium-10 small-centered columns">
       <h6 class="half-margin-bottom">My volunteer hours</h6>
       {% for org, hours in hours_by_org.items %}
-        <a href="{% url 'openCurrents:hours-detail' %}?user_id={{user.id}}&org_id={{org.id}}&type=approved"
+        <a href="{% url 'openCurrents:hours-detail' %}?user_id={{user.id}}&amp;org_id={{org.id}}&amp;type=approved"
         class="button round tiny secondary">
           {{org.name}}: {{hours}}
         </a>
