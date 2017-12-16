@@ -224,12 +224,6 @@ class CreateOrgForm(forms.Form):
         })
     )
 
-    def clean_user_affiliation(self):
-        return str(self.cleaned_data['user_affiliation'])
-
-    def clean_org_status(self):
-        return str(self.cleaned_data['org_status'])
-
 
 class CreateEventForm(forms.Form):
     def __init__(self, *args, **kwargs):
