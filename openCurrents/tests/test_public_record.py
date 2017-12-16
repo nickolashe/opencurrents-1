@@ -88,9 +88,9 @@ class PublicRecordViewTestSuite(TestCase):
             t.date_created -= timedelta(days=33)
             t.save()
 
-            action_ut = AdminActionUserTime.objects.last()
-            action_ut.date_created -= timedelta(days=33)
-            action_ut.save()
+            event_prev_month = Event.objects.last()
+            event_prev_month.date_created -= timedelta(days=33)
+            event_prev_month.save()
 
             if user:
                 self.old_top_with_names.append({'name': regular_user.username, 'total': amount})
