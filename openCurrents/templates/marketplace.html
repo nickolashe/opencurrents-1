@@ -15,12 +15,22 @@
       <h3 class="title-sub">
         {% block title %} Marketplace {% endblock title %}
       </h3>
-      <a href="{% url 'openCurrents:create-org' %}"
-      class="half-margin-top button round tiny">
-        Post an offer
-      </a>
+
+      {% if is_admin_biz %}
+        <a href="{% url 'openCurrents:offer' %}"
+        class="half-margin-top button round tiny">
+          Post an offer
+        </a>
+      {% elif is_admin_org %}
+      {% else %}
+        <a href="{% url 'openCurrents:create-org' %}"
+        class="half-margin-top button round tiny">
+          Post an offer
+        </a>
+      {% endif %}
+
       <h6 class="three-halves-margin-bottom">
-        or check out these offers from openCurrents businesses:
+        Check out these offers from openCurrents businesses:
       </h6>
     </div>
   </div>
