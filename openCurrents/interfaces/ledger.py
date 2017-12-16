@@ -164,7 +164,7 @@ class OcLedger(object):
             queryset_hours = queryset.filter(
                 query_date_filter_hours
             ).filter(
-                action__date_created__gte=last_month
+                action__usertimelog__event__date_created__gte=last_month
             )
 
             query_date_filter_transactions = Q(transaction__isnull=False)

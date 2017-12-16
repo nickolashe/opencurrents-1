@@ -15,7 +15,7 @@
       <h3 class="title-sub">
         {% block title %} Marketplace {% endblock title %}
       </h3>
-      <h6 class="three-halves-margin-bottom">
+      <h6 class="half-margin-bottom">
         Check out these offers from openCurrents businesses:
       </h6>
     </div>
@@ -27,39 +27,93 @@
     <div class="small-12 medium-10 small-centered columns">
       {% for offer in offers %}
         {% with num_remaining=offer.limit|less:offer.num_redeemed %}
-          <div class="left input-left small-9 columns">
-            <p class="">
-              <strong> {{ offer.org.name }} </strong>
-              accepts Currents for
-              <a href="{% url 'openCurrents:redeem-currents' offer.id %}">
-                {{ offer.currents_share }}% of {{ offer.item.name }}
-              </a>
+          <div class="row one-margin-top">
+            <div class="left input-left small-9 columns">
+              <p class="no-margin-bottom">
+                <a class="show-biz-deets">
+                  <strong> {{ offer.org.name }} </strong>
+                </a>
+                accepts Currents for
+                <a href="{% url 'openCurrents:redeem-currents' offer.id %}">
+                  {{ offer.currents_share }}% of {{ offer.item.name }}
+                </a>
 
-                {% if offer.limit != -1 %}
-                  (
-                  {% if num_remaining > 0 %}
-                    {{ num_remaining }}
-                  {% else %}
-                    0
+                <span class="grey small-text">
+                  {% if offer.limit != -1 %}
+                    {% if num_remaining > 0 %}
+                      ({{ num_remaining }}
+                    {% else %}
+                      (0
+                    {% endif %}
+                    remaining this month)
                   {% endif %}
-                  remaining this month)
-                {% endif %}
-            </p>
+                </span>
+              </p>
+            </div>
+
+            <div class="relative right input-right small-3 columns">
+              <a class="mini-open">
+                <i class="blue half-margin-right fa-chevron-circle-down fa fa-lg"></i>
+              </a>
+              <ul class="mini-menu">
+                <a
+                  href="{% url 'openCurrents:redeem-currents' offer.id %}"
+                  {% if offer.limit != -1 and num_remaining <= 0 %} disabled {% endif %}>
+                  <li>Redeem offer</li>
+                </a>
+                <a class="show-biz-deets">
+                  <li><span>Show</span> business details</li>
+                </a>
+              </ul>
+            </div>
           </div>
 
-          <div class="right input-right small-3 columns">
-            <a
-              href="{% url 'openCurrents:redeem-currents' offer.id %}"
-              class="button round tiny secondary {% if offer.limit != -1 and num_remaining <= 0 %} disabled {% endif %}">
-              Redeem
-            </a>
-          </div>
+          {% with org=offer.org %}
+            <div class="biz-deets left row hidden">
+              <div class="small-12 columns">
+                {% if org.website %}
+                  <p class="biz-deets-item">
+                    <i class="half-margin-right fa-fw fa fa-link"></i>
+                    {{ org.website }}
+                  </p>
+                {% endif %}
+
+                {% if org.address %}
+                  <p class="biz-deets-item">
+                    <i class="half-margin-right fa-fw fa fa-home"></i>
+                    {{ org.address }}
+                  </p>
+                {% endif %}
+
+                {% if org.phone %}
+                  <p class="biz-deets-item">
+                    <i class="half-margin-right fa-fw fa fa-phone"></i>
+                    {{ org.phone }}
+                  </p>
+                {% endif %}
+
+                {% if org.email %}
+                  <p class="biz-deets-item">
+                    <i class="half-margin-right fa-fw fa fa-envelope-open-o"></i>
+                    {{ org.email }}
+                  </p>
+                {% endif %}
+
+                {% if org.intro %}
+                  <p class="biz-deets-item">
+                    <i class="half-margin-right fa-fw fa fa-comment"></i>
+                    {{ org.intro }}
+                  </p>
+                {% endif %}
+              </div>
+            </div>
+          {% endwith %}
         {% endwith %}
       {% empty %}
         <p>We are talking with businesses in Austin and around the country about
           exciting opportunities to use Currents for all kinds of products and
           services. We aim to have this marketplace connecting you with
-          businesses accepting Currents this month!</p>
+          businesses accepting Currents in January 2018!</p>
       {% endfor %}
     </div>
   </div>
@@ -103,6 +157,16 @@
         scrolllock: true,
         autoopen: true,
       });
+
+      $('.show-biz-deets').click(function(){
+        $(this).parents('.row').next('.biz-deets').slideToggle();
+        $(this).find('span').text(function(i, text){
+          return text === "Show" ? "Hide" : "Show";
+        })
+      });
     });
   </script>
+
+  {% include "scripts/mini-menu.html" %}
+
 {% endblock js %}

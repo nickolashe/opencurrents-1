@@ -243,10 +243,6 @@ class OcUser(object):
             ]
         )
 
-        if fees == True:
-            for act in transaction_actions:
-                act.transaction.currents_amount *= Decimal(0.9)
-
         return transaction_actions
 
     def get_offers_marketplace(self):

@@ -94,17 +94,17 @@
       </button>
     </div>
 
+    <p class="half-margin-bottom">
+      <a class="preview-email-popup_open">
+        Preview email
+      </a>
+    </p>
+
     {% if skip == 1 %}
       <a href="{% url 'openCurrents:org-admin' num_vols=0 %}">
         Skip for now
       </a>
     {% endif %}
-
-    <p class="no-margin-bottom">
-      <a class="preview-email-popup_open">
-        Preview email
-      </a>
-    </p>
   </form>
 {% endblock content %}
 

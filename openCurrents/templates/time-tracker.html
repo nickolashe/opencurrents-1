@@ -111,20 +111,6 @@
 {% endblock content %}
 
 
-{% block popups %}
-  <div id="no-admin-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-    <div class="row center">
-      <h3 class="popup-title">Please contact organization</h3>
-      <div class="medium-10 medium-offset-1 columns end">
-        <p>You'll need to know who will approve your hours before tracking your time. Please contact the organization to ask for the name of your openCurrents admin.</p>
-        <a href="{% url 'openCurrents:profile' %}" class="button round">Back to profile</a>
-        <a class="no-admin-popup_close button round secondary">Cancel</a>
-      </div>
-    </div>
-  </div>
-{% endblock popups %}
-
-
 {% block js %}
   <script type="text/javascript">
     $(document).ready(function(){
@@ -134,7 +120,7 @@
 
       $('#volunteer-date').datepicker({
         dateFormat: 'yy-mm-dd',
-        minDate: -6,
+        minDate: -13,
         maxDate: 0,
       }).datepicker("setDate", new Date());
 
@@ -150,10 +136,6 @@
       });
 
       $('#id_admin_choice').on('change', function(){
-        if($(this).val() == "not-sure") {
-          $('#no-admin-popup').popup('show');
-        }
-
         if ($(this).val() == "other-admin") {
           $('#new-admin').slideDown();
           $('#admin-email').prop('required', true);

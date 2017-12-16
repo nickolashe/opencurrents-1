@@ -5,7 +5,13 @@
   <div class="row">
     <div class="small-12 columns">
       <h4 class="title">
-        {% block title %} My hours for {{ orgname }} {% endblock title %}
+        {% block title %}
+          {% if is_admin %}
+            Hours
+          {% else %}
+            My hours for {{ orgname }}
+          {% endif %}
+        {% endblock title %}
       </h4>
     </div>
   </div>
@@ -43,7 +49,9 @@
     <div class="medium-10 small-centered columns">
       <div class="left row">
         <div class="small-3 columns">
-          <p class="half-margin-bottom">{{ event.datetime_start|date:"M d" }}</p>
+          <p class="half-margin-bottom">
+            {{ event.datetime_start|date:"M d" }}
+          </p>
         </div>
 
         <div class="small-6 columns">
@@ -55,7 +63,9 @@
         </div>
 
         <div class="right small-2 columns">
-          <p class="half-margin-bottom">{{ event.datetime_end|subtract_time:event.datetime_start }}</p>
+          <p class="half-margin-bottom">
+            {{ event.datetime_end|subtract_time:event.datetime_start }}
+          </p>
         </div>
       </div>
     </div>

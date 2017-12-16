@@ -20,9 +20,11 @@
 
         {% block status %}
           <div class="success row one-margin-top">
-            {% autoescape off %}
-              {{ status_msg }}
-            {% endautoescape %}
+            <div class="columns">
+              {% autoescape off %}
+                {{ status_msg }}
+              {% endautoescape %}
+            </div>
           </div>
         {% endblock status %}
 

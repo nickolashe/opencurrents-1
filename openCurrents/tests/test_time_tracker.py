@@ -5,7 +5,12 @@ from django.shortcuts import redirect
 
 from openCurrents.models import \
     Org, \
-    Event
+    Event, \
+    Ledger, \
+    AdminActionUserTime, \
+    UserEntity, \
+    UserTimeLog, \
+    Project
 
 from openCurrents.interfaces.ocuser import OcUser
 from openCurrents.interfaces.orgs import \
@@ -56,7 +61,7 @@ class TestTimeTracker(TestCase):
 
         # posting form
         response = self.client.post("/time-tracker/", {
-            'description':'test manual tracker description',
+            'description':'test manual tracker existing NPF org and admin',
             'date_start':'2017-12-07',
             'admin':self.npf_admin_1.id,
             'org':self.org.id,
@@ -72,26 +77,35 @@ class TestTimeTracker(TestCase):
         self.assertEqual(len(Event.objects.all()), 1)
 
         # created user_time_log instance
-        user_time_log = Event.objects.all()[0].usertimelog_set.filter(id=1)[0]
+        user_time_log = Event.objects.all()[0].usertimelog_set.filter(user=self.volunteer1)
 
         # assert a proper user time log has been created
         self.assertEqual(len(Event.objects.all()[0].usertimelog_set.filter(id=1)), 1)
-        self.assertIn('test_user_1 contributed 1.0 hr', unicode(user_time_log))
+        self.assertIn('test_user_1 contributed 1.0 hr', unicode(user_time_log[0]))
 
-        # assert creator's id == volunteer1.id
-        self.assertEqual(user_time_log.user.id, self.volunteer1.id)
+        # assert UserTimeLog is created for volunteer1 and isn't verified
+        self.assertEqual(len(user_time_log.filter(is_verified = False)), 1)
+
+        # assert there is a requested action
+        self.assertEqual(len(AdminActionUserTime.objects.filter(action_type='req')), 1)
+        # assert requested action came from volunteer
+        self.assertEqual(len(AdminActionUserTime.objects.filter(usertimelog__user=self.volunteer1).filter(action_type='req')), 1)
+        # assert there are no approved actions
+        self.assertEqual(len(AdminActionUserTime.objects.filter(action_type='app')), 0)
 
 
     def test_vol_hours_existing_org_new_adm(self):
 
         self.client.login(username=self.volunteer1.username, password='password')
+        session = self.client.session
+
         self.response = self.client.get('/time-tracker/')
 
         self.assertEqual(self.response.status_code, 200)
 
         # posting form
         response = self.client.post("/time-tracker/", {
-            'description':'test manual tracker description',
+            'description':'test manual tracker existing NPF org, non-existing NPF admin',
             'date_start':'2017-12-07',
             'admin':'other-admin',
             'org':self.org.id,
@@ -99,13 +113,45 @@ class TestTimeTracker(TestCase):
             'new_admin_email':'new_npf_admin@e.co',
             'time_start':'7:00am',
             'time_end':'8:00am',
+            'test_time_tracker_mode':'1' # letting know the app that we're testing, so it shouldnt send emails via Mandrill
             })
+
+        # asserting that transactional email function has been launched
+        self.assertEqual(self.client.session['transactional'], '1')
 
         # assert if we've been redirected
         self.assertRedirects(response, '/time-tracked/', status_code=302)
 
+        # assert a MT project was created
+        self.assertEqual(len(Project.objects.all()), 1)
+        self.assertEqual(Project.objects.all()[0].org, self.org)
+        self.assertIn('ManualTracking', Project.objects.all()[0].__unicode__())
+        self.assertIn('NPF_org_1', Project.objects.all()[0].__unicode__())
+
         # assert a MT event was created
-        self.assertEqual(len(Event.objects.all()), 0)
+        self.assertEqual(len(Event.objects.all()), 1)
+        self.assertEqual(Event.objects.all()[0].project, Project.objects.all()[0])
+        self.assertEqual(Event.objects.all()[0].description, 'test manual tracker existing NPF org, non-existing NPF admin')
+        self.assertEqual(Event.objects.all()[0].event_type, 'MN')
+
+        # assert createdion of a proper MT user_time_log instance
+        user_time_log = UserTimeLog.objects.all().filter(user=self.volunteer1)[0]
+        self.assertEqual(len(UserTimeLog.objects.all()), 1)
+        self.assertIn('test_user_1 contributed 1.0 hr. to NPF_org_1', unicode(user_time_log))
+        self.assertEqual(user_time_log.is_verified, False)
+
+
+        # assert Admin action user time has been created 'req'
+        self.assertEqual(len(AdminActionUserTime.objects.filter(action_type='req')), 1)
+        self.assertEqual(len(AdminActionUserTime.objects.filter(usertimelog__user=self.volunteer1).filter(action_type='req')), 1)
+        self.assertEqual(len(AdminActionUserTime.objects.filter(action_type='app')), 0)
+
+        # assert creation of a new NPF user with new name, email, no password
+        self.assertEqual(len(User.objects.all()),3)
+        self.assertEqual(len(User.objects.filter(username='new_npf_admin@e.co')),1)
+
+        new_npf_admin_response = self.client.login(username='new_npf_admin@e.co', password='')
+        self.assertEqual(new_npf_admin_response, True)
 
 
     def test_vol_hours_new_org_new_adm(self):
@@ -119,13 +165,13 @@ class TestTimeTracker(TestCase):
 
         # posting form
         response = self.client.post("/time-tracker/", {
-            'description':'test manual tracker description',
-            'date_start':'2017-12-07',
+            'description':'test manual tracker non-existing NPF org and admin',
             'admin':'other-admin',
             'org':self.org.id,
+            'new_org':'new_npf_org',
             'new_admin_name':'new_npf_admin',
             'new_admin_email':'new_npf_admin@e.co',
-            'new_org': 'new_npf_org',
+            'date_start':'2017-12-07',
             'time_start':'7:00am',
             'time_end':'8:00am',
             'test_time_tracker_mode':'1' # letting know the app that we're testing, so it shouldnt send emails via Mandrill
@@ -137,5 +183,14 @@ class TestTimeTracker(TestCase):
         # assert if we've been redirected
         self.assertRedirects(response, '/time-tracked/', status_code=302)
 
-        # assert a MT event was created
+        # assert a MT event wasn't created
         self.assertEqual(len(Event.objects.all()), 0)
+
+        # assert new org wasn't created (one org is created during setup)
+        self.assertEqual(len(Org.objects.all()), 1)
+
+        # assert new project wasn't created
+        self.assertEqual(len(Project.objects.all()), 0)
+
+        # assert new usertimelog wasn't created
+        self.assertEqual(len(UserTimeLog.objects.all()), 0)
