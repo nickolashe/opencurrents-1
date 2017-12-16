@@ -21,8 +21,7 @@
         class="half-margin-top button round tiny">
           Post an offer
         </a>
-      {% elif is_admin_org %}
-      {% else %}
+      {% elif not is_admin_org %}
         <a href="{% url 'openCurrents:create-org' %}"
         class="half-margin-top button round tiny">
           Post an offer
