@@ -3,6 +3,10 @@
 {% load staticfiles %}
 {% load tags %}
 
+{% block head %}
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAGfdpv-Vg_rskfib8jzp-a6VI92QuC2I0&v=3.exp&types=address&libraries=places"></script>
+{% endblock head %}
+
 {% block status %}
   {% if status_msg %}
 
@@ -287,6 +291,8 @@
 
 
 {% block js %}
+  <script type="text/javascript" src="{% static 'js/auto-complete.min.js' %}"></script>
+
   <script type="text/javascript">
     $(document).ready(function(){
       $('#view-receipt-popup, #delete-offer-popup, #biz-details-popup').popup({
@@ -310,5 +316,24 @@
         }
       });
     });
+
+    // Google Places autocomplete
+    function initAutoComplete() {
+
+      var input = document.getElementById("id_address");
+
+      var autocomplete = new google.maps.places.Autocomplete(input);
+      // autocomplete.inputId = inputs[i].id;
+
+      google.maps.event.addListener(autocomplete);
+
+      google.maps.event.addDomListener(input, 'keydown', function(e) {
+        if (e.keyCode == 13 && $('.pac-container:visible').length) {
+            e.preventDefault();
+        }
+      });
+    }
+
+    initAutoComplete();
   </script>
 {% endblock js %}
