@@ -218,7 +218,10 @@ class CreateOrgForm(forms.Form):
         choices=[
             ('biz', 'business'),
             ('npf', 'nonprofit'),
-        ]
+        ],
+        widget=forms.Select(attrs={
+            'class': 'large-text center',
+        })
     )
 
     def clean_user_affiliation(self):

@@ -4,9 +4,12 @@
 {% block heading %}
 <div class="row">
   <div class="medium-8 small-centered columns">
-    <h3 class="title-sub">Register an organization</h3>
-    <p>To post an offer, add a business on openCurrents. To record hours and
-      reward volunteers, add a nonprofit.</p>
+    <h3 class="title-sub">Register a...</h3>
+    <div class="row">
+      <div class="small-8 medium-4 small-centered columns">
+        {{ form.status }}
+      </div>
+    </div>
   </div>
 </div>
 {% endblock heading %}
@@ -14,17 +17,23 @@
 {% block content %}
   <form class="" method="post">
     <div class="row">
-      <div class="medium-6 small-centered columns">
-        <div class="row left">
-          <div class="medium-8 small-centered columns">
-            <label for="id_status">Org type</label>
-            {{ form.status }}
+      <div class="medium-8 small-centered columns">
+        <div class="row">
+          <div class="medium-10 small-centered columns">
+            <p id="biz-info">
+              To post an offer and accept Currents, create a business profile.
+              It doesn't need to be an official business.
+            </p>
+            <p id="npf-info" class="hidden">
+              To record hours and reward volunteers, apply as a nonprofit.
+            </p>
           </div>
         </div>
 
         {{ form.name }}
         {{ form.website }}
-        <input type="submit" class="half-margin-top button round small" value="Register" />
+        <input type="submit" class="half-margin-top button round small"
+        value="Register" />
       </div>
     </div>
   </form>
@@ -35,9 +44,13 @@
     $('#id_status').change(function(){
       if ($(this).val() == 'npf') {
         $('#id_name').attr('placeholder','Nonprofit name');
+        $('#biz-info').slideUp();
+        $('#npf-info').slideDown();
       }
       else {
         $('#id_name').attr('placeholder','Business name');
+        $('#npf-info').slideUp();
+        $('#biz-info').slideDown();
       }
     });
   </script>
