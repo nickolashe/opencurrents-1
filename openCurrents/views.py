@@ -994,6 +994,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
 
                         except UserExistsException:
                             logger.debug('user %s already exists', admin_email)
+                            new_npf_user = User.objects.get(username=admin_email)
 
 
                         try:
