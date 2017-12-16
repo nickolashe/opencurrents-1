@@ -96,8 +96,8 @@
       <div class="row center one-margin-top">
         <input type='submit' value="Submit for approval" class="button round"></input>
         <p>
-          <!-- <a id="request-new-org"> -->
-          <a class="nominate-popup_open">
+          <a id="request-new-org">
+          <!-- <a class="nominate-popup_open"> -->
             Request Currents from another nonprofit
           </a>
           <a id="request-existing-org" class="hidden">
@@ -111,54 +111,6 @@
 {% endblock content %}
 
 
-{% block popups %}
-  <div id="nominate-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-    <div class="row center">
-      <h3 class="popup-title">Nominate an organization</h3>
-      <div class="medium-10 medium-offset-1 columns end">
-        <p>As a member of this community, you can help us grow by inviting an organization for which you volunteer. Fill out this form and we'll reach out to your volunteer coordinator, but feel free to contact them personally as well.</p>
-      </div>
-    </div>
-
-    <form method="post" action="{% url "openCurrents:process_OrgNomination" %}">
-      {% csrf_token %}
-      <div class="row three-halves-margin-bottom half-margin-top">
-        <div class="center small-12 medium-9 small-centered columns">
-
-          <div id="org-signup-name" class="small-12 columns">
-            <input type="text" name="org_name" placeholder="Organization name" class="center" tabindex="0" required />
-          </div>
-
-          <div class="input-left small-12 columns">
-            <input type="text" name="contact_name" placeholder="Coordinator name" class="center" tabindex="0" />
-          </div>
-
-          <div class="small-12 columns">
-            <input type="email" name="contact_email" placeholder="Coordinator email address" class="center" tabindex="0" />
-          </div>
-        </div>
-      </div>
-
-      <div class="row center half-margin-top">
-        <input type="submit" class="button round" value="Nominate"/>
-        <a class="nominate-popup_close button round secondary">Cancel</a>
-      </div>
-    </form>
-  </div>
-
-  <div id="no-admin-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-    <div class="row center">
-      <h3 class="popup-title">Please contact organization</h3>
-      <div class="medium-10 medium-offset-1 columns end">
-        <p>You'll need to know who will approve your hours before tracking your time. Please contact the organization to ask for the name of your openCurrents admin.</p>
-        <a href="{% url 'openCurrents:profile' %}" class="button round">Back to profile</a>
-        <a class="no-admin-popup_close button round secondary">Cancel</a>
-      </div>
-    </div>
-  </div>
-{% endblock popups %}
-
-
 {% block js %}
   <script type="text/javascript">
     $(document).ready(function(){
@@ -168,7 +120,7 @@
 
       $('#volunteer-date').datepicker({
         dateFormat: 'yy-mm-dd',
-        minDate: -6,
+        minDate: -13,
         maxDate: 0,
       }).datepicker("setDate", new Date());
 
@@ -177,17 +129,13 @@
         minTime: '7:00am',
       });
 
-      $('#nominate-popup, #no-admin-popup').popup({
+      $('#no-admin-popup').popup({
         vertical: 'top',
         transition: 'all 0.75s',
         scrolllock: false,
       });
 
       $('#id_admin_choice').on('change', function(){
-        if($(this).val() == "not-sure") {
-          $('#no-admin-popup').popup('show');
-        }
-
         if ($(this).val() == "other-admin") {
           $('#new-admin').slideDown();
           $('#admin-email').prop('required', true);

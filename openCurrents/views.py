@@ -28,6 +28,7 @@ from interfaces.orgs import OcOrg, \
     InvalidOrgUserException
 
 from openCurrents.interfaces.common import diffInHours, diffInMinutes
+from openCurrents.interfaces.community import OcCommunity
 
 import math
 import re
@@ -62,6 +63,7 @@ from openCurrents.forms import \
     EventCheckinForm, \
     OrgNominationForm, \
     TimeTrackerForm, \
+    BizDetailsForm, \
     OfferCreateForm, \
     OfferEditForm, \
     RedeemCurrentsForm, \
@@ -277,8 +279,9 @@ class AssignAdminsView(TemplateView):
     template_name = 'assign-admins.html'
 
 
-class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, TemplateView):
+class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, FormView):
     template_name = 'biz-admin.html'
+    form_class = BizDetailsForm
 
     def get_context_data(self, **kwargs):
         context = super(BizAdminView, self).get_context_data(**kwargs)
@@ -287,13 +290,11 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, TemplateView)
         offers = self.bizadmin.get_offers_all()
         context['offers'] = offers
 
-        # list biz's pending offer redemption requests
-        redeemed_pending = self.bizadmin.get_redemptions(status='pending')
-        context['redeemed_pending'] = redeemed_pending
-
-        # list biz's accepted offer redemption requests
-        redeemed_approved = self.bizadmin.get_redemptions(status='approved')
-        context['redeemed_approved'] = redeemed_approved
+        # list biz's redemptions
+        for status in ['pending', 'approved', 'redeemed']:
+            context['redeemed_%s' % status] = self.bizadmin.get_redemptions(
+                status=status
+            )
 
         # current balance
         currents_balance = self.bizadmin.get_balance_available()
@@ -303,8 +304,31 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, TemplateView)
         currents_pending = self.bizadmin.get_balance_pending()
         context['currents_pending'] = currents_pending
 
+        for field in context['form'].declared_fields.keys():
+            val = getattr(self.org, field)
+            if val:
+                context['form'].fields[field].widget.attrs['value'] = val
+
+        # workaround with status message for anything but TemplateView
+        if 'status_msg' in self.kwargs and not context['form'].errors:
+            context['status_msg'] = self.kwargs.get('status_msg', '')
+
         return context
 
+    def form_valid(self, form):
+        data = form.cleaned_data
+        Org.objects.filter(id=self.org.id).update(
+            website=data['website'],
+            phone=data['phone'],
+            email=data['email'],
+            address=data['address'],
+            intro=data['intro']
+        )
+
+        return redirect(
+            'openCurrents:biz-admin',
+            status_msg='Thank you for adding %s\'s details' % self.org.name
+        )
 
 class BusinessView(TemplateView):
     template_name = 'business.html'
@@ -640,6 +664,13 @@ class HoursDetailView(LoginRequiredMixin, SessionContextView, ListView):
 
         return queryset
 
+    def get_context_data(self, **kwargs):
+        context = super(HoursDetailView, self).get_context_data(**kwargs)
+
+        if self.request.GET.get('is_admin') == '1':
+            context['hours_admin'] = True
+
+        return context
 
 class InviteAdminsView(TemplateView):
     template_name = 'invite-admins.html'
@@ -652,7 +683,7 @@ class InventoryView(TemplateView):
 class PublicRecordView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'public-record.html'
 
-    def get_top_list(self, entity_type='top-vol', period='month'):
+    def get_top_list(self, entity_type='top-org', period='month'):
         if entity_type == 'top-org':
             return OcOrg().get_top_issued_npfs(period)
         elif entity_type == 'top-vol':
@@ -690,6 +721,7 @@ class MarketplaceView(LoginRequiredMixin, SessionContextView, ListView):
 
         # workaround with status message for ListView
         context['status_msg'] = self.kwargs.get('status_msg', '')
+
         return context
 
 
@@ -745,11 +777,12 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
 
         if user_balance_available <= 0:
             # TODO: replace with a page explaining no sufficient funds
+
             reqForbidden = True
             status_msg = ' '.join([
-                'You need Currents to redeem an offer. <br>',
-                # '<a href="{% url "openCurrents:upcoming-events" %}">',
-                # 'Find a volunteer opportunity!</a>'
+                'You need Currents to redeem an offer. <br/>',
+                '<a href="{% url "openCurrents:upcoming-events" %}">',
+                'Find a volunteer opportunity!</a>'
             ])
 
         offer_num_redeemed = self.ocuser.get_offer_num_redeemed(self.offer)
@@ -766,6 +799,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
 
         if reqForbidden:
             return redirect('openCurrents:marketplace', status_msg)
+
 
         return super(RedeemCurrentsView, self).dispatch(request, *args, **kwargs)
 
@@ -921,50 +955,103 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                 #return redirect('openCurrents:time-tracker', status_time)
                 return False, status_time
 
+
         if form_data['admin'].isdigit():
             # create admin-specific approval request
-            project = None
-            try:
-                project = Project.objects.get(
-                        org__id=org.id,
-                        name='ManualTracking'
-                    )
-            except Project.DoesNotExist:
-                project = Project(
-                    org=org,
-                    name='ManualTracking'
+            self.create_proj_event_utimelog(
+                    user,
+                    form_data['admin'],
+                    org,
+                    form_data['description'],
+                    form_data['datetime_start'],
+                    form_data['datetime_end']
                 )
-                project.save()
-
-            event = Event(
-                project=project,
-                description=form_data['description'],
-                event_type="MN",
-                datetime_start=form_data['datetime_start'],
-                datetime_end=form_data['datetime_end']
-            )
-            event.save()
-
-            usertimelog = UserTimeLog(
-                user=user,
-                event=event,
-                datetime_start=form_data['datetime_start'],
-                datetime_end=form_data['datetime_end']
-                )
-            usertimelog.save()
-            self.create_approval_request(org.id, usertimelog, form_data['admin'])
-
             return True, None
 
-        elif form_data['admin'] == 'other-admin':
+
+        if form_data['admin'] == 'other-admin' and not form_data['new_org']:
             # TODO (@karbmk): switch to using forms
-            admin_name = self.request.POST['admin_fname']
-            admin_email = self.request.POST['admin_email']
+
+            admin_name = form_data['new_admin_name']
+            admin_email = form_data['new_admin_email']
+
+            if not admin_email:
+                return False, 'Please enter admin\'s email'
+
+            else:
+                if form_data['org'].isdigit():
+                    org = int(form_data['org'])
+
+                    # creating a new npf-admin user
+                    existing_org = None
+                    try:
+                        existing_org = Org.objects.get(id=org)
+                    except:
+                        logger.debug('Cannot find org with ID %s', org)
+
+                    if existing_org:
+                        try:
+                            new_npf_user = OcUser().setup_user(
+                                username=admin_email,
+                                email=admin_email,
+                                first_name=admin_name,
+                            )
+                            new_npf_user.set_password('')
+                            new_npf_user.save()
+
+                        except UserExistsException:
+                            logger.debug('user %s already exists', user_email)
+
+
+                        try:
+                            OrgUserInfo(new_npf_user.id).setup_orguser(existing_org)
+                        except InvalidOrgUserException:
+                            logger.debug('Cannot setup NPF user: %s', new_npf_user)
+
+
+                        # creating DB records for logged time
+                        self.create_proj_event_utimelog(
+                            user,
+                            new_npf_user.id,
+                            existing_org,
+                            form_data['description'],
+                            form_data['datetime_start'],
+                            form_data['datetime_end']
+                        )
+
+                        new_npf_admin_user = self.invite_new_admin(
+                            existing_org,
+                            admin_email,
+                            admin_name,
+                            description=form_data['description'],
+                            datetime_start=form_data['datetime_start'].strftime("%Y-%m-%d %H:%M:%S"),
+                            datetime_end=form_data['datetime_end'].strftime("%Y-%m-%d %H:%M:%S")
+                        )
+                    return True, None
+
+                else:
+                    return False, "Couldn't find the organization."
+
+
+        if form_data['new_org'] and form_data['new_admin_name']:
+
+            org = form_data['new_org']
+            admin_name = form_data['new_admin_name']
+            admin_email = form_data['new_admin_email']
+
             if admin_email:
-                user = self.invite_new_admin(org, admin_email, admin_name)
+                new_npf_admin_user = self.invite_new_admin(
+                    org,
+                    admin_email,
+                    admin_name,
+                    description=form_data['description'],
+                    datetime_start=form_data['datetime_start'].strftime("%Y-%m-%d %H:%M:%S"),
+                    datetime_end=form_data['datetime_end'].strftime("%Y-%m-%d %H:%M:%S")
+                )
 
                 # as of now, do not submit hours prior to admin registering
-                #self.create_approval_request(org.id,usertimelog,user)
+                #self.create_approval_request(org.id,usertimelog,new_npf_admin_user)
+
                 return True, None
             else:
                 return False, 'Please enter admin\'s email'
@@ -975,6 +1062,67 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                 'You can also invite new admins to the platform.'
             ])
             return False, status_msg
+
+
+    def create_proj_event_utimelog(
+        self,
+        user,
+        new_npf_user_id,
+        org,
+        event_descr,
+        datetime_start,
+        datetime_end):
+        """
+        user = user object
+        new_npf_user_id = new NPF admin ID
+        org = org object
+        event_descr = string, eg form_data['description']
+        datetime_start, datetime_start = datetime.datetime obj
+        """
+        project = None
+        try:
+            project = Project.objects.get(
+                    org__id=org.id,
+                    name='ManualTracking'
+                )
+        except Project.DoesNotExist:
+            project = Project(
+                org=org,
+                name='ManualTracking'
+            )
+            project.save()
+
+        event = Event(
+            project=project,
+            description=event_descr,
+            event_type="MN",
+            datetime_start=datetime_start,
+            datetime_end=datetime_end
+        )
+        event.save()
+
+        usertimelog = UserTimeLog(
+            user=user,
+            event=event,
+            datetime_start=datetime_start,
+            datetime_end=datetime_end
+            )
+        usertimelog.save()
+        self.create_approval_request(org.id, usertimelog, new_npf_user_id)
+
+    def add_to_email_vars(self, email_var_list, new_var_name, new_var_value):
+        """
+        adds kwargs passed to the email vars
+        email_var_list - list of dictionaries
+        new_var_name - string
+        new_var_value - form_data['xxxx_xxxx']
+        """
+        email_var_list.append(
+                {
+                    'name': str(new_var_name.upper()),
+                    'content': new_var_value
+                }
+            )
 
     def create_approval_request(self, orgid, usertimelog, admin_id):
         # save admin-specific request for approval of hours
@@ -987,53 +1135,80 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
 
         return True
 
-    def invite_new_admin(self, org, admin_email, admin_name):
+    def invite_new_admin(self, org, admin_email, admin_name, **kwargs):
         user_new = None
-        doInvite = False
-        try:
-            user_new = User.objects.get(username = admin_email)
-            doInvite = not user_new.has_usable_password()
-        except User.DoesNotExist:
-            # user_new = User(
-            #     username=admin_email,
-            #     email=admin_email,
-            #     first_name=admin_name
-            # )
-            # user_new.save()
-            doInvite = True
+        doInvite = True
+
+        # adding flag to not call Mandrill during unittests
+        if 'test_time_tracker_mode' in  self.request.POST and self.request.POST['test_time_tracker_mode']=='1':
+            test_time_tracker_mode = True
+        else:
+            test_time_tracker_mode = False
+
+        # looks like we don't need this piece anymore
+        # try:
+        #     user_new = User.objects.get(username = admin_email)
+        #     doInvite = not user_new.has_usable_password()
+        # except User.DoesNotExist:
+        #     # user_new = User(
+        #     #     username=admin_email,
+        #     #     email=admin_email,
+        #     #     first_name=admin_name
+        #     # )
+        #     # user_new.save()
+        #     doInvite = True
+
+
+
+        # adapting function for sending org.name or form_data['new_org'] to new admin
+        if isinstance(org, Org):
+            org = org.name  # the Org instance was passed, using name
+        else:
+            org = org  # the sting was passed, using it as an org name
+
+        email_vars = [
+                    {
+                        'name': 'ADMIN_NAME',
+                        'content': admin_name
+                    },
+                    {
+                        'name': 'FNAME',
+                        'content': self.request.user.first_name
+                    },
+                    {
+                        'name': 'LNAME',
+                        'content': self.request.user.last_name
+                    },
+                    {
+                        'name': 'EVENT',
+                        'content': False
+                    },
+                    {
+                        'name': 'ORG_NAME',
+                        'content': org
+                    },
+                    {
+                        'name': 'EMAIL',
+                        'content': admin_email
+                    },
+                ]
+
+        # adding kwargs to email vars
+        if kwargs:
+            for kw_key, kw_value in kwargs.iteritems():
+                self.add_to_email_vars(email_vars, kw_key, kw_value)
 
         if doInvite:
             try:
                 sendTransactionalEmail(
                     'volunteer-invites-admin',
                     None,
-                    [
-                        {
-                            'name': 'ADMIN_NAME',
-                            'content': admin_name
-                        },
-                        {
-                            'name': 'FNAME',
-                            'content': self.request.user.first_name
-                        },
-                        {
-                            'name': 'LNAME',
-                            'content': self.request.user.last_name
-                        },
-                        {
-                            'name': 'EVENT',
-                            'content': False
-                        },
-                        {
-                            'name': 'ORG_NAME',
-                            'content': org.name
-                        },
-                        {
-                            'name': 'EMAIL',
-                            'content': admin_email
-                        }
-                    ],
-                    admin_email
+                    email_vars,
+                    admin_email,
+                    # marker for testing purpose
+                    session=self.request.session,
+                    marker='1',
+                    test_time_tracker_mode=test_time_tracker_mode
                 )
             except Exception as e:
                 logger.error(
@@ -1055,13 +1230,10 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         #     )
 
         try:
-            sendTransactionalEmail(
-                'new-admin-invited',
-                None,
-                [
+            email_vars_transactional = [
                     {
                         'name': 'ORG_NAME',
-                        'content': org.name
+                        'content': org
                     },
                     {
                         'name': 'ADMIN_NAME',
@@ -1079,8 +1251,22 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                         'name': 'LNAME',
                         'content': self.request.user.last_name
                     }
-                ],
-                'bizdev@opencurrents.com'
+                ]
+
+            # adding kwargs to email vars
+            if kwargs:
+                for kw_key, kw_value in kwargs.iteritems():
+                    self.add_to_email_vars(email_vars_transactional, kw_key, kw_value)
+
+            sendTransactionalEmail(
+                'new-admin-invited',
+                None,
+                email_vars_transactional,
+                'bizdev@opencurrents.com',
+                # marker for testing purpose
+                session=self.request.session,
+                marker='1',
+                test_time_tracker_mode=test_time_tracker_mode
             )
         except Exception as e:
                 logger.error(
@@ -1095,6 +1281,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         #Get the status msg from URL
         context = super(TimeTrackerView, self).get_context_data(**kwargs)
         userid = self.request.user.id
+
         try:
             usertimelog = UserTimeLog.objects.filter(user__id=userid).order_by('datetime_start').reverse()[0]
             actiontimelog = AdminActionUserTime.objects.filter(usertimelog = usertimelog)
@@ -1171,83 +1358,43 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
             context['app_hr'] = 0
 
         # verified currents balance
-        balance_available = self.ocuser.get_balance_available()
-        context['balance_available'] = format(round(balance_available, 2), '.2f')
+        context['balance_available'] = self.ocuser.get_balance_available()
 
         # pending currents balance
-        balance_pending = self.ocuser.get_balance_pending()
-        context['balance_pending'] = format(round(balance_pending, 2), '.2f')
+        context['balance_pending'] = self.ocuser.get_balance_pending()
 
         # available usd balance
-        balance_available_usd = self.ocuser.get_balance_available_usd()
-        context['balance_available_usd'] = format(
-            round(balance_available_usd, 2),
-            '.2f'
-        )
+        context['balance_available_usd'] = self.ocuser.get_balance_available_usd()
 
         # pending usd balance
-        balance_pending_usd = self.ocuser.get_balance_pending_usd()
-        context['balance_pending_usd'] = format(
-            round(balance_pending_usd, 2),
-            '.2f'
-        )
+        context['balance_pending_usd'] = self.ocuser.get_balance_pending_usd()
 
         # upcoming events user is registered for
-        events_upcoming = self.ocuser.get_events_registered()
-        context['events_upcoming'] = events_upcoming
+        context['events_upcoming'] = self.ocuser.get_events_registered()
 
-        offers_redeemed = self.ocuser.get_offers_redeemed()
-        context['offers_redeemed'] = offers_redeemed
+        # offers redeemed
+        context['offers_redeemed'] = self.ocuser.get_offers_redeemed()
 
         # hour requests
-        hours_requested = self.ocuser.get_hours_requested()
-        context['hours_requested'] = hours_requested
-
-        # hour approved
-        hours_approved = self.ocuser.get_hours_approved()
-        context['hours_approved'] = hours_approved
+        context['hours_requested'] = self.ocuser.get_hours_requested()
 
         # hour approved by organization
-        context['hours_by_org']=[]
-        hours_by_org = {}
-        temp_orgs_set = set()
-
-        for hr in hours_approved:
-            event = hr.usertimelog.event
-            org = event.project.org
-            approved_hours = diffInHours(event.datetime_start, event.datetime_end)
-            if approved_hours > 0:
-                if not org in temp_orgs_set:
-                    temp_orgs_set.add(org)
-                    hours_by_org[org] = approved_hours
-                else:
-                    hours_by_org[org] += approved_hours
-
-        context['hours_by_org'].append(hours_by_org)
-
+        context['hours_by_org']= self.ocuser.get_hours_approved(
+            **{'by_org': True}
+        )
 
         # user timezone
         #context['timezone'] = self.request.user.account.timezone
         context['timezone'] = 'America/Chicago'
 
-
         # getting issued currents
-        try:
-            context['currents_amount_total'] = reduce(lambda x,y : x + y, [x['total'] for x in OcOrg().get_top_issued_npfs(period='all-time') if x['total']>0])
-        except:
-            context['currents_amount_total'] = []
+        context['currents_amount_total'] = OcCommunity().get_amount_currents_total()
 
         # getting active volunteers
-        try:
-            context['active_volunteers_total'] = len([x for x in OcUser().get_top_received_users(period='all-time')])
-        except:
-            context['active_volunteers_total'] = []
+        context['active_volunteers_total'] = OcCommunity().get_active_volunteers_total()
 
         # getting currents accepted
-        try:
-            context['currents_accepted'] = reduce(lambda x,y : x + y, [x['total'] for x in OcOrg().get_top_accepted_bizs(period='all-time') if x['total']>0])
-        except:
-            context['currents_accepted'] = []
+        context['currents_accepted'] = OcCommunity().get_currents_accepted_total()
 
         return context
 
@@ -1314,17 +1461,18 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
         context['admin_forms_by_admin'] = []
 
         for admin in context['org_admins']:
+            admin_id = admin.user.id
             pending_by_admin = 0
             form = None
-            hours_pending = {admin.user.id : pending_by_admin }
-            admin_forms = {admin.user.id : form }
+            hours_pending = {admin_id : pending_by_admin }
+            admin_forms = {admin_id : form }
 
             try:
-                hours_pending[admin.user.id] = reduce(lambda x,y : x + y, [diffInHours(x.usertimelog.datetime_start, x.usertimelog.datetime_end) for x in OrgAdmin(admin.user.id).get_hours_requested()])
+                hours_pending[admin_id] = OrgAdmin(admin_id).get_total_hours_pending()
             except TypeError:
                 logger.debug("No hours approved for admin %s", admin.user.username)
 
-            if hours_pending[admin.user.id] > 0:
+            if hours_pending[admin_id] > 0:
                 context['hours_pending_by_admin'].append(hours_pending)
 
                 # creting the form per admin
@@ -1341,11 +1489,12 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
         context['issued_by_logged_admin'] = context['issued_by_all'] = time_issued_by_logged_admin = 0
 
         for admin in context['org_admins']:
+            admin_id = admin.user.id
             issued_by_admin = 0
-            amount_issued_by_admin = {admin.user.id : issued_by_admin }
+            amount_issued_by_admin = {admin_id : issued_by_admin }
 
             try:
-                amount_issued_by_admin[admin.user.id] = reduce(lambda x,y : x + y, [diffInHours(x.usertimelog.datetime_start, x.usertimelog.datetime_end) for x in OrgAdmin(admin.user.id).get_hours_approved()])
+                amount_issued_by_admin[admin_id] = OrgAdmin(admin_id).get_total_hours_issued()
             except TypeError:
                 logger.debug("No hours approved for admin %s", admin.user.username)
 
@@ -1353,13 +1502,13 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             context['issued_by_all']  += amount_issued_by_admin[admin.user.id]
 
             # adding to current admin's approved hours
-            if admin.user.id == self.user.id:
-                time_issued_by_logged_admin += amount_issued_by_admin[admin.user.id]
+            if admin_id == self.user.id:
+                time_issued_by_logged_admin += amount_issued_by_admin[admin_id]
 
-            if amount_issued_by_admin[admin.user.id] > 0:
+            if amount_issued_by_admin[admin_id] > 0:
                 context['issued_by_admin'].append(amount_issued_by_admin)
 
-            context['issued_by_logged_admin'] = round(time_issued_by_logged_admin,2)
+            context['issued_by_logged_admin'] = round(time_issued_by_logged_admin, 2)
 
         # sorting the list of admins by # of approved hours descending and putting current admin at the beginning of the list
         context['issued_by_admin'] = self._sorting_hours(context['issued_by_admin'], self.user.id)
@@ -1406,14 +1555,14 @@ class EditProfileView(LoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
-        userid = self.request.user
+        userid = self.request.user.id
         profile_settings_instance = UserSettings.objects.get(user=userid)
 
         if form.is_valid():
-            if 'yes' in request.POST:
+            if 'yes' in form.data:
                 profile_settings_instance.popup_reaction = True
                 profile_settings_instance.save()
-            if 'no' in request.POST:
+            if 'no' in form.data:
                 profile_settings_instance.popup_reaction = False
                 profile_settings_instance.save()
 
@@ -1793,6 +1942,10 @@ class UpcomingEventsView(LoginRequiredMixin, SessionContextView, ListView):
         )
 
 
+class VolunteerOpportunitiesView(TemplateView):
+    template_name = 'volunteer-opportunities.html'
+
+
 class ProjectDetailsView(TemplateView):
     template_name = 'project-details.html'
 
@@ -1832,6 +1985,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         user = User.objects.get(id=userid)
         post_data = self.request.POST
         event_create_id = None
+
         try:
             event_create_id = kwargs.pop('event_ids')
             if type(json.loads(event_create_id)) == list:
@@ -1851,11 +2005,15 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         OrgUsers = OrgUserInfo(self.request.user.id)
         if OrgUsers:
             Organisation = OrgUsers.get_org_name()
+
         if post_data['bulk-vol'].encode('ascii','ignore') == '':
             num_vols = int(post_data['count-vol'])
         else:
-            bulk_list = re.split(',| |\n',post_data['bulk-vol'])
+            bulk_list = re.split(',|\s|\n',post_data['bulk-vol'])
+            # removing extra splits from bulk_list preventing from creating users with empty name.
+            bulk_list = [x for x in bulk_list if x != '']
             num_vols = len(bulk_list)
+
         for i in range(num_vols):
             if post_data['bulk-vol'].encode('ascii','ignore') == '':
                 email_list = post_data['vol-email-'+str(i+1)]
@@ -1916,12 +2074,22 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                             user_event_registration.save()
                     except Exception as e:
                         logger.error('unable to register user for event')
+
+        email_template_merge_vars = []
+
+        if post_data['personal_message'] != '':
+            email_template_merge_vars.append(
+                {
+                    'name':'PERSONAL_MESSAGE',
+                    'content': str(post_data['personal_message'])
+                })
+
         try:
             event=Event.objects.get(id=event_create_id[0])
             events = Event.objects.filter(id__in=event_create_id)
             loc = [str(i.location).split(',')[0] for i in events]
             tz = event.project.org.timezone
-            email_template_merge_vars = [
+            email_template_merge_vars.extend([
                 {
                     'name': 'ADMIN_FIRSTNAME',
                     'content': user.first_name
@@ -1954,7 +2122,8 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                     'name':'EVENT_END_TIME',
                     'content': str(event.datetime_end.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p'))
                 },
-            ]
+            ])
+
             try:
                 if k:
                     sendBulkEmail(
@@ -1983,7 +2152,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                 sendBulkEmail(
                     'invite-volunteer',
                     None,
-                    [
+                    email_template_merge_vars.extend([
                         {
                             'name': 'ADMIN_FIRSTNAME',
                             'content': user.first_name
@@ -1995,8 +2164,8 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                         {
                             'name': 'ORG_NAME',
                             'content': Organisation
-                        }
-                    ],
+                        },
+                    ]),
                     k,
                     user.email
                 )
@@ -3397,23 +3566,34 @@ def sendContactEmail(template_name, template_content, merge_vars, admin_email, u
 
 
 
-def sendTransactionalEmail(template_name, template_content, merge_vars, recipient_email):
-    mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)
-    message = {
-        'from_email': 'info@opencurrents.com',
-        'from_name': 'openCurrents',
-        'to': [{
-            'email': recipient_email,
-            'type': 'to'
-        }],
-        'global_merge_vars': merge_vars
-    }
+def sendTransactionalEmail(template_name, template_content, merge_vars, recipient_email, **kwargs):
 
-    mandrill_client.messages.send_template(
-        template_name=template_name,
-        template_content=template_content,
-        message=message
-    )
+    # adding launch function marker to session for testing purpose
+    if kwargs:
+        sess = kwargs['session']
+        marker = kwargs['marker']
+        sess['transactional'] = kwargs['marker']
+        test_time_tracker_mode = kwargs['test_time_tracker_mode']
+
+    if not test_time_tracker_mode:
+        mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)
+        message = {
+            'from_email': 'info@opencurrents.com',
+            'from_name': 'openCurrents',
+            'to': [{
+                'email': recipient_email,
+                'type': 'to'
+            }],
+            'global_merge_vars': merge_vars
+        }
+
+        mandrill_client.messages.send_template(
+            template_name=template_name,
+            template_content=template_content,
+            message=message
+        )
+    else:
+        print "We don't send emails during tests."
 
 def sendBulkEmail(template_name, template_content, merge_vars, recipient_email, sender_email):
     mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)

@@ -103,7 +103,7 @@
         {% endfor %}
       {% else %}
         <p>You are not registered for any upcoming events.
-          <a href="{% url 'openCurrents:upcoming-events' %}">
+          <a href="{% url 'openCurrents:volunteer-opportunities' %}">
             Find one!
           </a>
         </p>
@@ -114,13 +114,13 @@
   <div class="row collapse one-margin-top left">
     <div class="small-11 medium-10 small-centered columns">
       <h6 class="half-margin-bottom">Community activity</h6>
-      <a href="{% url 'openCurrents:public-record' %}?record_type=top-org&period=month" class="tag button tiny round secondary">
+      <a href="{% url 'openCurrents:public-record' %}?record_type=top-org&period=month" class="button tiny round secondary">
         Currents issued: {% if currents_amount_total %}{{ currents_amount_total }}{% else %}No currents issued{% endif %}
       </a>
-      <a href="{% url 'openCurrents:public-record' %}?record_type=top-vol&period=month" class="tag button tiny round secondary">
+      <a href="{% url 'openCurrents:public-record' %}?record_type=top-vol&period=month" class="button tiny round secondary">
         Active volunteers: {% if active_volunteers_total %}{{ active_volunteers_total }}{% else %}No active volunteers{% endif %}
       </a>
-      <a href="{% url 'openCurrents:public-record' %}?record_type=top-biz&period=month" class="tag button tiny round secondary">
+      <a href="{% url 'openCurrents:public-record' %}?record_type=top-biz&period=month" class="button tiny round secondary">
         Currents accepted: {% if currents_accepted %}{{ currents_accepted }}{% else %}No currents accepted{% endif %}
       </a>
     </div>
@@ -129,9 +129,11 @@
   <div class="row collapse one-margin-top left">
     <div class="small-11 medium-10 small-centered columns">
       <h6 class="half-margin-bottom">My volunteer hours</h6>
-      {% for org, hours in hours_by_org.0.items %}
-        <a href="{% url 'openCurrents:hours-detail' %}?user_id={{user.id}}&org_id={{org.id}}&type=approved"
-        class="button round tiny secondary">{{org.name}}: {{hours}}</a>
+      {% for org, hours in hours_by_org.items %}
+        <a href="{% url 'openCurrents:hours-detail' %}?user_id={{user.id}}&amp;org_id={{org.id}}&amp;type=approved"
+        class="button round tiny secondary">
+          {{org.name}}: {{hours}}
+        </a>
       {% empty %}
         <h5>No records available</h5>
       {% endfor %}
@@ -178,30 +180,31 @@
             <div class="row half-margin-bottom">
               <div class="left small-9 columns">
                 {{ offer_redeemed.date_updated|day:timezone }} -
-                <strong>
-                  {{ transaction.offer.org.name }}
-                </strong>
+                You
                 {% with amount_cur=transaction.currents_amount %}
-                  {% with amount_usd=amount_cur|current_to_usd %}
+                  {% with amount_usd=amount_cur|current_to_usd:'with_fee' %}
                     {% if status == 'pending' %}
-                      offers ${{ amount_usd|floatformat:2 }} for
-                      <span class="no-wrap">
-                        <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ amount_cur|floatformat:3 }}
-                      </span>
-
+                      requested
                     {% elif status == 'approved' %}
-                      accepted
-                      <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ amount_cur|floatformat:3 }}
-                      for ${{ amount_usd|floatformat:2 }}
-
+                      will receive
                     {% elif status == 'redeemed' %}
                       received
-                      <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/>{{ amount_cur|floatformat:3 }}
-                      for ${{ amount_usd|floatformat:2 }}
-
-                    {# add declined #}
+                    {% elif status == 'declined' %}
+                      request of
                     {% endif %}
 
+                    ${{ amount_usd|floatformat:2 }} for
+                    <span class="no-wrap">
+                      <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
+                      {{ amount_cur|floatformat:3 }}
+                    </span>
+                    from
+                    <strong>
+                      {{ transaction.offer.org.name }}
+                    </strong>
+                    {% if status == 'declined' %}
+                      has been declined
+                    {% endif %}
                   {% endwith %}
                 {% endwith %}
               </div>
@@ -255,7 +258,7 @@
       <div class="half-margin-bottom small-12 medium-6 columns">
         <h6>I want to volunteer</h6>
         <p>Check out upcoming opportunities with participating organizations:</p>
-        <a href="{% url 'openCurrents:upcoming-events' %}" class="button round small">
+        <a href="{% url 'openCurrents:volunteer-opportunities' %}" class="button round small">
           View opportunities
         </a>
       </div>

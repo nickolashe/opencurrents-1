@@ -51,8 +51,11 @@ def usd_to_current(arg1):
 	return float(arg1) * 0.1
 
 @register.filter
-def current_to_usd(arg1):
-	return float(arg1) * 10
+def current_to_usd(arg1, arg2):
+    if arg2 == 'with_fee':
+        return float(arg1) * 9
+    else:
+		return float(arg1) * 10
 
 @register.filter
 def mult(arg1, arg2):

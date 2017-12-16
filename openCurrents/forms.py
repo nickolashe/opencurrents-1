@@ -518,18 +518,21 @@ class TimeTrackerForm(forms.Form):
     new_org = forms.CharField(
         required=False,
         widget=widgets.TextWidget(attrs={
+            'class': 'center',
             'placeholder': 'Organization name',
         })
     )
     new_admin_name = forms.CharField(
         required=False,
         widget=widgets.TextWidget(attrs={
+            'class': 'center',
             'placeholder':'Coordinator name',
         })
     )
     new_admin_email = forms.CharField(
         required=False,
         widget=widgets.TextWidget(attrs={
+            'class': 'center',
             'placeholder': 'Coordinator email'
         })
     )
@@ -584,6 +587,72 @@ class TimeTrackerForm(forms.Form):
 class EventCheckinForm(forms.Form):
     userid = forms.IntegerField()
     checkin = VolunteerCheckinField()
+
+
+class BizDetailsForm(forms.Form):
+    website = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Website',
+            'class': 'center',
+        }),
+        required=False
+    )
+
+    phone = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Phone',
+            'class': 'center',
+        }),
+        required=False
+    )
+
+    email = forms.EmailField(
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Email',
+            'class': 'center',
+        }),
+        required=False
+    )
+
+    address = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Address',
+            'class': 'center',
+        }),
+        required=False
+    )
+
+    intro = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'placeholder': ' '.join([
+                'Introduce your business - What\'s your mission?',
+                'What sets you apart?'
+            ]),
+            'rows': '3'
+        }),
+        required=False
+    )
+
+    def clean_phone(self):
+        phone = self.cleaned_data['phone']
+
+        phone = unicode.translate(
+            phone,
+            dict(
+                zip(
+                    map(ord, string.punctuation),
+                    [None for x in xrange(len(string.punctuation))]
+                )
+            )
+        )
+
+        if not phone.isdigit():
+            raise ValidationError(_('Invalid phone number'))
+
+        if len(phone) < 10:
+            raise ValidationError(_('Please enter phone area code'))
+
+        return phone
 
 
 class OfferCreateForm(forms.Form):
@@ -802,5 +871,3 @@ class PopUpAnswer(forms.Form):
 #         max_length=10,
 #         required=False
 #         )
-
-

@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta
-from django.db.models import Sum
+from itertools import chain
+
+from django.db.models import Q, Sum
 from openCurrents.models import \
     Entity, \
     UserEntity, \
@@ -118,7 +120,9 @@ class OcLedger(object):
 
         credit_total = credit['total'] if credit['total'] else 0
 
-        return credit_total - debit_total
+        total = credit_total - debit_total
+
+        return total
 
     def get_issued_cur_amount(self, org_id, period):
         entity_id = OrgEntity.objects.get(org__id=org_id).id
@@ -127,9 +131,7 @@ class OcLedger(object):
             currency='cur',
             is_issued=True
         )
-        if period == 'month':
-            last_month = datetime.now(tz=pytz.utc) - timedelta(days=30)
-            queryset = queryset.filter(date_created__gte=last_month)
+        queryset = self._filter_queryset_by_period(queryset, period)
 
         return queryset.aggregate(total=Sum('amount'))
 
@@ -140,9 +142,7 @@ class OcLedger(object):
             currency='cur',
             is_issued=False
         )
-        if period == 'month':
-            last_month = datetime.now(tz=pytz.utc) - timedelta(days=30)
-            queryset = queryset.filter(date_created__gte=last_month)
+        queryset = self._filter_queryset_by_period(queryset, period)
 
         return queryset.aggregate(total=Sum('amount'))
 
@@ -153,11 +153,35 @@ class OcLedger(object):
             currency='cur',
             is_issued=True
         )
-        if period == 'month':
-            last_month = datetime.now(tz=pytz.utc) - timedelta(days=30)
-            queryset = queryset.filter(date_created__gte=last_month)
+        queryset = self._filter_queryset_by_period(queryset, period)
 
         return queryset.aggregate(total=Sum('amount'))
+
+    def _filter_queryset_by_period(self, queryset, period):
+        if period == 'month':
+            last_month = datetime.now(tz=pytz.utc) - timedelta(days=30)
+            query_date_filter_hours = Q(action__isnull=False)
+            queryset_hours = queryset.filter(
+                query_date_filter_hours
+            ).filter(
+                action__usertimelog__event__date_created__gte=last_month
+            )
+
+            query_date_filter_transactions = Q(transaction__isnull=False)
+            queryset_transactions = queryset.filter(
+                query_date_filter_transactions
+            ).filter(
+                transaction__date_created__gte=last_month
+            )
+
+            if queryset and not (queryset_hours or queryset_transactions):
+                logger.warning('Legacy ledger: %s', queryset)
+
+            return queryset_hours | queryset_transactions
+        elif period == 'all-time':
+            return queryset
+        else:
+            raise UnsupportedAggregate()
 
 
 class InvalidEntityException(Exception):
@@ -165,4 +189,7 @@ class InvalidEntityException(Exception):
 
 
 class InsufficientFundsException(Exception):
+    pass
+
+class UnsupportedAggregate(Exception):
     pass

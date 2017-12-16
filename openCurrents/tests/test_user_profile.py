@@ -29,7 +29,7 @@ from openCurrents.interfaces.orgs import \
     OrgUserInfo
 
 from openCurrents.interfaces.orgadmin import OrgAdmin
-
+from openCurrents.interfaces.ledger import OcLedger
 from openCurrents.interfaces.common import diffInHours
 
 from openCurrents.tests.interfaces.common import \
@@ -72,7 +72,7 @@ class TestUserPopup(TestCase):
         user_name = 'volunteer_yes'
         _create_test_user(user_name)
 
-        # changing setting emulating NO answer to the tooltip
+        # changing setting emulating YES answer to the tooltip
         oc_user = User.objects.get(username=user_name)
         oc_user_settings = UserSettings.objects.get(user=oc_user)
         oc_user_settings.popup_reaction = True
@@ -106,7 +106,7 @@ class TestUserPopup(TestCase):
         processed_content = re.sub(r'\s+', ' ', response.content )
         self.assertEqual(response.status_code, 200)
 
-        # popup code is in the page
+        # popup code is not on the page
         self.assertNotIn("$('#welcome-popup').popup({", processed_content)
 
 
@@ -123,6 +123,68 @@ class TestUserPopup(TestCase):
         # popup code is in the page
         self.assertNotIn("$('#welcome-popup').popup({", processed_content)
 
+    def test_user_answers_yes(self):
+        #logging in user
+        oc_user = User.objects.get(username="volunteer_default")
+        self.client.login(username=oc_user.username, password='password')
+
+        # did user accessed the page?
+        response = self.client.get('/profile/')
+        processed_content = re.sub(r'\s+', ' ', response.content )
+        self.assertEqual(response.status_code, 200)
+
+        # popup code is in the page
+        self.assertIn("$('#welcome-popup').popup({", processed_content)
+
+        # posting "YES"
+        response = self.client.post('/edit-profile/',
+            {
+                'yes':'',
+            })
+        # user is redirected back to profile page
+        self.assertRedirects(response, '/profile/', status_code=302)
+
+        # getting user settings
+        self.assertEqual(True, UserSettings.objects.filter(user=oc_user)[0].popup_reaction)
+
+        response = self.client.get('/profile/')
+        processed_content = re.sub(r'\s+', ' ', response.content )
+        self.assertEqual(response.status_code, 200)
+
+        # popup code is not on the page anymore
+        self.assertNotIn("$('#welcome-popup').popup({", processed_content)
+
+
+    def test_user_answers_no(self):
+        #logging in user
+        oc_user = User.objects.get(username="volunteer_default")
+        self.client.login(username=oc_user.username, password='password')
+
+        # did user accessed the page?
+        response = self.client.get('/profile/')
+        processed_content = re.sub(r'\s+', ' ', response.content )
+        self.assertEqual(response.status_code, 200)
+
+        # popup code is in the page
+        self.assertIn("$('#welcome-popup').popup({", processed_content)
+
+        # posting "YES"
+        response = self.client.post('/edit-profile/',
+            {
+                'no':'',
+            })
+        # user is redirected back to profile page
+        self.assertRedirects(response, '/profile/', status_code=302)
+
+        # getting user settings
+        self.assertEqual(False, UserSettings.objects.filter(user=oc_user)[0].popup_reaction)
+
+        response = self.client.get('/profile/')
+        processed_content = re.sub(r'\s+', ' ', response.content )
+        self.assertEqual(response.status_code, 200)
+
+        # popup code is not on the page anymore
+        self.assertNotIn("$('#welcome-popup').popup({", processed_content)
 
 
 class TestUserProfileHoursApprovedButtons(TestCase):
@@ -215,6 +277,8 @@ class TestUserProfileCommunityActivity(TestCase):
         # creating org
         org1 = OcOrg().setup_org(name="NPF_org_1", status="npf")
         org2 = OcOrg().setup_org(name="NPF_org_2", status="npf")
+        biz_org = OcOrg().setup_org(name="BIZ_org_1", status='biz')
+
 
         # creating a volunteer
         volunteer_1 = _create_test_user('volunteer_1')
@@ -228,11 +292,10 @@ class TestUserProfileCommunityActivity(TestCase):
         npf_adm_1_entity = UserEntity.objects.get(user=npf_admin_1)
 
         npf_admin_2 = _create_test_user('npf_admin_2', org = org2, is_org_admin=True)
-        npf_adm_1_entity = UserEntity.objects.get(user=npf_admin_2)
+        npf_adm_2_entity = UserEntity.objects.get(user=npf_admin_2)
 
-        # creating 2 projects for 2 npf orgs
-        # project_1 = _create_project(org1, 'org1_project')
-        # project_2 = _create_project(org2, 'org2_project')
+        biz_admin_1 = _create_test_user('biz_admin_1', org = biz_org, is_org_admin=True)
+        biz_adm_1_entity = UserEntity.objects.get(user=biz_admin_1)
 
         # 1st event time = 3 hours
         datetime_start_1 = past_date
@@ -242,31 +305,23 @@ class TestUserProfileCommunityActivity(TestCase):
         datetime_start_2 = past_date + timedelta(hours=3)
         datetime_end_2 = past_date + timedelta(hours=5)
 
-        # setting 2 approved events for different NPF orgs in the past
-        # _setup_volunteer_hours(volunteer_1, npf_admin_1, org1, project_1, datetime_start_1, datetime_end_1, is_verified = True, action_type = 'app')
-
-        # _setup_volunteer_hours(volunteer_1, npf_admin_2, org2, project_2, datetime_start_2, datetime_end_2, is_verified = True, action_type = 'app')
-
-        # creating ledger entries for CURRENTS
-        ledger_currents_approved_1 = Ledger(
-                entity_from = npf_adm_1_entity,
-                entity_to = vol_1_entity,
-                amount = 20,
-                is_issued = True,
-                date_created = past_date,
-                date_updated = past_date,
+        # issuing currents
+        OcLedger().issue_currents(
+            entity_id_from = org1.orgentity.id,
+            entity_id_to = vol_1_entity.id,
+            action =  None,
+            amount = 20,
             )
-        ledger_currents_approved_1.save()
 
-        ledger_currents_pending_1 = Ledger(
-                entity_from = npf_adm_1_entity,
-                entity_to = vol_1_entity,
-                amount = 40,
-                is_issued = False,
-                date_created = past_date,
-                date_updated = past_date,
-            )
-        ledger_currents_pending_1.save()
+        # transacting currents
+        OcLedger().transact_currents(
+            entity_type_from = vol_1_entity.entity_type,
+            entity_id_from = vol_1_entity.id,
+            entity_type_to = biz_org.orgentity.entity_type,
+            entity_id_to = biz_org.orgentity.id,
+            action = None,
+            amount = 4
+        )
 
         # setting up client
         self.client = Client()
@@ -277,24 +332,16 @@ class TestUserProfileCommunityActivity(TestCase):
         self.client.login(username=oc_user.username, password='password')
 
         response = self.client.get('/profile/')
-
-        print "\nHERE"
-        print response.context
-        print "HERE\n"
+        processed_content = re.sub(r'\s+', ' ', response.content)
 
         self.assertEqual(response.status_code, 200)
+        self.assertIn('Currents issued: 20.00', response.content)
+        self.assertEqual(response.context['currents_amount_total'], 20.00)
 
-        # @@ TODO @@
-        # THIS TEST IS CRUSHING
-        # self.assertIn('Currents issued: 20.00', response.content)
-        # self.assertEqual(response.context['currents_amount_total'], 20)
+        self.assertIn('Active volunteers: 1', response.content)
+        self.assertEqual(response.context['active_volunteers_total'], 1)
 
-        self.assertIn('Active volunteers: 4', response.content)
-        self.assertEqual(response.context['active_volunteers_total'], 4)
-
-        # @@ TODO @@
-        # NEED MORE INFO ON OBJECTS THAT NEED TO BE SET UP TO TEST THIS PART
-        # self.assertIn('Currents accepted: No currents accepted', response.content)
-        # self.assertEqual(response.context['currents_accepted'], 'xx')
+        self.assertIn('Currents accepted: 4', response.content)
+        self.assertEqual(response.context['currents_accepted'], 4.00)
 
 

@@ -1,0 +1,27 @@
+{% extends "layouts/popup.html" %}
+{% load staticfiles %}
+
+{% block title %} Other opportunities {% endblock title %}
+
+{% block content %}
+  <p>
+    Check out these websites to volunteer with other organizations in Austin. Then
+    record your hours on openCurrents to request approval. Remember to mention
+    openCurrents to your volunteer coordinator.
+  </p>
+  <p>
+    <a href="https://www.givepulse.com/search?SearchForm%5Blocation%5D=austin"
+    target="_blank">
+      <img src="{% static 'img/givepulse.png' %}" class="other-volunteering"/>
+    </a>
+
+    <a href="https://www.volunteermatch.org/search/?l=Austin,%20TX,%20USA"
+    target="_blank">
+      <img src="{% static 'img/volunteermatch.png' %}" class="other-volunteering"/>
+    </a>
+  </p>
+{% endblock content %}
+
+{% block buttons %}
+  <a class="other-opportunities-popup_close button round">Back</a>
+{% endblock buttons %}
