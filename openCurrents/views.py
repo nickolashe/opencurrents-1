@@ -87,16 +87,6 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-# Create and save a new group for admins of a new org
-def new_org_admins_group(orgid):
-    org_admins_name = 'admin_' + str(orgid)
-    logger.info('Creating new org_admins group: %s', org_admins_name)
-    org_admins = Group(name=org_admins_name)
-    try:
-        org_admins.save()
-    except IntegrityError:
-        logger.info('org %s already exists', orgid)
-
 class DatetimeEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, datetime):
@@ -2907,10 +2897,8 @@ def process_signup(
                     status=org_status
                 )
 
-                # Create and save a new group for admins of new org
-                new_org_admins_group(org.id)
-
-                org_user = OrgUserInfo(user.id).setup_orguser(org=org)
+                org_user = OrgUserInfo(user.id)
+                org_user.setup_orguser(org=org, is_admin=org_status=='biz')
 
             except OrgExistsException:
                 logger.warning('org %s already exists', org_name)
@@ -3452,56 +3440,16 @@ def process_org_signup(request):
     # valid form data received
     if form.is_valid():
         form_data = form.cleaned_data
-        org = Org(
+        org = OcOrg().setup_org(
             name=form_data['org_name'],
-            status=form_data['org_status'],
-            website=form_data['org_website']
+            status=form_data['org_status']
         )
 
-        # if website was not left blank, check it's not already in use
-        if form_data['org_website'] != '' and Org.objects.filter(website=form_data['org_website']).exists():
-            return redirect('openCurrents:org-signup', status_msg='The website provided is already in use by another organization.')
-
-        try:
-            org.save()
-
-            # Create and save a new group for admins of new org
-            new_org_admins_group(org.id)
-
-        except IntegrityError:
-            logger.info('org at %s already exists', form_data['org_name'])
-            existing = Org.objects.get(name=form_data['org_name'])
-            existing.website = form_data['org_website']
-            existing.status = form_data['org_status']
-            if not existing.mission:
-                existing.mission = form_data['org_mission']
-            if not existing.reason:
-                existing.reason = form_data['org_reason']
-            existing.save()
-
-        org = Org.objects.get(name=form_data['org_name'])
-        org_user = OrgUser(
-            org=org,
-            user=request.user,
-            affiliation=form_data['user_affiliation']
-        )
-        try:
-            org_user.save()
-        except IntegrityError:
-            logger.info(
-                'user %s is already affiliated with org %s',
-                request.user.email,
-                org.name
-            )
-            org_user = OrgUser.objects.get(
-                org=org,
-                user=request.user
-            )
-            org_user.affiliation = form_data['user_affiliation']
-            org_user.save()
+        org_user = OrgUserInfo(request.user.id)
+        org_user.setup_orguser(org=org, is_admin=form_data['org_status'] == 'biz')
 
         logger.info(
-            'Successfully created / updated org %s nominated by %s',
+            'Successfully created org %s nominated by %s',
             org.name,
             request.user.email
         )
