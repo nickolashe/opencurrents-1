@@ -14,7 +14,7 @@ from openCurrents.models import Org, \
 from openCurrents.interfaces.ocuser import OcUser
 from openCurrents.interfaces.ledger import OcLedger
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import logging
 import re
@@ -551,6 +551,7 @@ class TimeTrackerForm(forms.Form):
             raise ValidationError(_('Select the organization you volunteered for'))
 
         # parse start time
+        datetime_start = None
         try:
             datetime_start = datetime.strptime(
                 ' '.join([date_start, time_start]),
@@ -563,6 +564,7 @@ class TimeTrackerForm(forms.Form):
         cleaned_data['datetime_start'] = pytz.timezone(tz).localize(datetime_start)
 
         # parse end time
+        datetime_end = None
         try:
             datetime_end = datetime.strptime(
                 ' '.join([date_start, time_end]),
@@ -574,12 +576,24 @@ class TimeTrackerForm(forms.Form):
         # localize end time to org's timezone
         cleaned_data['datetime_end'] = pytz.timezone(tz).localize(datetime_end)
 
-        # check: start time before end time
+        # start time before end time
         if cleaned_data['datetime_end'] <= cleaned_data['datetime_start']:
-            raise ValidationError(_('Start time must be before end time'))
+            raise ValidationError(_(
+                'Start time must be before end time'
+            ))
 
+        # end time in future
         if cleaned_data['datetime_end'] > datetime.now(tz=pytz.utc):
-            raise ValidationError(_('Hours can only be submitted once work is completed'))
+            raise ValidationError(_(
+                'Submitted end time is in the future'
+            ))
+
+        # start time too far in past
+        two_weeks_ago = datetime.now(tz=pytz.utc) - timedelta(days=2)
+        if cleaned_data['datetime_start'] < two_weeks_ago:
+            raise ValidationError(_(
+                'You can submit hours for up to 2 weeks in the past'
+            ))
 
         return cleaned_data
 
