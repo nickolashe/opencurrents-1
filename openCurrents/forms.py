@@ -545,11 +545,14 @@ class TimeTrackerForm(forms.Form):
         time_end = cleaned_data['time_end']
 
         # assert org
-        try:
-            self.org = Org.objects.get(id=cleaned_data['org'])
-            tz = self.org.timezone
-        except KeyError:
-            raise ValidationError(_('Select the organization you volunteered for'))
+        if cleaned_data['org']:
+            try:
+                self.org = Org.objects.get(id=cleaned_data['org'])
+                tz = self.org.timezone
+            except KeyError:
+                raise ValidationError(_('Select the organization you volunteered for'))
+        else:
+            tz = 'America/Chicago'
 
         # parse start time
         try:

@@ -883,8 +883,12 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
     def track_hours(self, form_data):
         userid = self.request.user.id
         user = User.objects.get(id=userid)
-        org = Org.objects.get(id=form_data['org'])
-        tz = org.timezone
+
+        if form_data['org']:
+            org = Org.objects.get(id=form_data['org'])
+            tz = org.timezone
+        else:
+            tz = 'America/Chicago'
 
         #If the time is same or within the range of already existing tracking
         track_exists_1 = UserTimeLog.objects.filter(
@@ -951,6 +955,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
 
         # if existing org
         if form_data['org'].isdigit():
+
 
             # logging hours for existing admin
             if form_data['admin'].isdigit():
@@ -1031,7 +1036,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
 
                         return True, None
 
-            elif form_data['admin'] == 'not-sure':
+            else:
                 status_msg = ' '.join([
                     'You can submit hours for review by organization admin\'s registered on openCurrents.',
                     'You can also invite new admins to the platform.'
@@ -1042,7 +1047,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         # if logging for a new org
         elif form_data['new_org']:
 
-            if form_data['new_admin_name']:
+            if form_data['new_admin_email']:
                 org = form_data['new_org']
                 admin_name = form_data['new_admin_name']
                 admin_email = form_data['new_admin_email']
@@ -1050,7 +1055,11 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
 
                 if admin_email:
 
-                    if not User.objects.filter(username=admin_email).exists():
+                    if User.objects.filter(email=admin_email).exists():
+                        user_org = Org.objects.all().filter(orguser__user__email=admin_email)[0]
+                        return False, 'User {user} is already related to {org}'.format(org=user_org, user=admin_email)
+
+                    else:
                         new_npf_admin_user = self.invite_new_admin(
                             org,
                             admin_email,
@@ -1064,10 +1073,15 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                         #self.create_approval_request(org.id,usertimelog,new_npf_admin_user)
 
                         return True, None
-                    else:
-                        return False, 'User {org} is already related to {user}'.format(org=org, user=admin_email)
-                else:
-                    return False, 'Please enter admin\'s email'
+
+            else:
+                return False, 'Please enter admin\'s email'
+
+        else:
+            status_msg = ' '.join([
+                    'You need to enter organization name.'
+                ])
+            return False, status_msg
 
 
     def create_proj_event_utimelog(
@@ -1308,10 +1322,13 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         # This method is called when valid form data has been POSTed.
         # It should return an HttpResponse.
         data = form.cleaned_data
-        org = Org.objects.get(id=data['org'])
-        tz = org.timezone
+        # org = Org.objects.get(id=data['org'])
+        # tz = org.timezone
 
         status = self.track_hours(data)
+        print "\nHERE"
+        print status
+        print "HERE\n"
         isValid = status[0]
         if isValid:
             # tracked time is valid

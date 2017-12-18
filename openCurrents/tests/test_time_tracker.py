@@ -156,12 +156,6 @@ class TestTimeTracker(TestCase):
 
 
 
-    # TODO
-    # this test should be updated after fixing the time tracking form logic.
-    # The 'org' field shouldn't be submitted in the case when a volunteer loggs time for non-registered org.
-
-    # see the screencast: https://www.dropbox.com/s/h3tjtnzalkd1ep0/recording_hours_new_npf_org.mov?dl=0
-    @skip('Fix time tracker form logic first')
     def test_vol_hours_new_org_new_adm(self):
 
         self.client.login(username=self.volunteer1.username, password='password')
@@ -174,8 +168,6 @@ class TestTimeTracker(TestCase):
         # posting form
         response = self.client.post("/time-tracker/", {
             'description':'test manual tracker non-existing NPF org and admin',
-            'admin':'other-admin',
-            'org':self.org.id,
             'new_org':'new_npf_org',
             'new_admin_name':'new_npf_admin',
             'new_admin_email':'new_npf_admin@e.co',
@@ -205,7 +197,7 @@ class TestTimeTracker(TestCase):
 
 
 
-    def test_vol_hours_existing_org_approved_adm_someone_else(self):
+    def test_vol_hours_existing_org_existing_adm_as_someone_else(self):
 
         self.client.login(username=self.volunteer1.username, password='password')
         self.response = self.client.get('/time-tracker/')
@@ -229,6 +221,8 @@ class TestTimeTracker(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertIn(self.npf_admin_1.email, response.url)
         self.assertIn(self.org.name, response.url)
+        self.assertIn('/time-tracker/', response.url)
+
 
         # assert a MT event wasn't created
         self.assertEqual(len(Event.objects.all()), 0)
@@ -240,13 +234,8 @@ class TestTimeTracker(TestCase):
         self.assertEqual(len(AdminActionUserTime.objects.filter(action_type='app')), 0)
 
 
-    # TODO
-    # this test should be updated after fixing the time tracking form logic.
-    # The 'org' field shouldn't be submitted in the case when a volunteer loggs time for non-registered org.
 
-    # see the screencast: https://www.dropbox.com/s/h3tjtnzalkd1ep0/recording_hours_new_npf_org.mov?dl=0
-    @skip('Fix time tracker form logic first')
-    def test_vol_hours_new_org_approved_adm_someone_else(self):
+    def test_vol_hours_new_org_existing_adm(self):
 
         self.client.login(username=self.volunteer1.username, password='password')
         self.response = self.client.get('/time-tracker/')
@@ -256,8 +245,6 @@ class TestTimeTracker(TestCase):
         # posting form
         response = self.client.post("/time-tracker/", {
             'description':'test manual tracker non-existing NPF org and admin',
-            'admin':'other-admin',
-            # 'org':self.org.id,
             'new_org':'new_npf_org',
             'new_admin_name':self.npf_admin_1.username,
             'new_admin_email':self.npf_admin_1.email,
@@ -270,7 +257,8 @@ class TestTimeTracker(TestCase):
         # assert if we've been redirected
         self.assertEqual(response.status_code, 302)
         self.assertIn(self.npf_admin_1.email, response.url)
-        self.assertIn(self.org.name, response.url)
+        self.assertIn('/time-tracker/', response.url)
+
 
         # assert a MT event wasn't created
         self.assertEqual(len(Event.objects.all()), 0)
