@@ -590,7 +590,7 @@ class EventCheckinForm(forms.Form):
 
 
 class BizDetailsForm(forms.Form):
-    website = forms.CharField(
+    website = forms.URLField(
         widget=forms.TextInput(attrs={
             'placeholder': 'Website',
             'class': 'center',
