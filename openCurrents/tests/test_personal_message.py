@@ -46,11 +46,13 @@ class TestIvniteVolunteersNoEvent(TestCase):
 
         # setting up client
         self.client = Client()
-        self.client.login(username=self.npf_admin_1.username, password='password')
-        self.response = self.client.get('/invite-volunteers/')
 
 
     def test_personal_message_post_single_no_message(self):
+
+        self.client.login(username=self.npf_admin_1.username, password='password')
+        self.response = self.client.get('/invite-volunteers/')
+        session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
 
@@ -61,10 +63,14 @@ class TestIvniteVolunteersNoEvent(TestCase):
             'bulk-vol':'',
             'count-vol':'1',
             'personal_message':'',
+            'test_mode':'1' # letting know the app that we're testing, so it shouldnt send emails via Mandrill
             })
 
         # assert if we've been redirected
         self.assertRedirects(response, '/org-admin/1/', status_code=302)
+
+        # asserting that bulk email function has been launched
+        self.assertEqual(self.client.session['bulk'], '1')
 
         # assert a user was created
         self.assertTrue(User.objects.get(username='single_test_guest_1@mail.cc'), 'single_test_guest_1@mail.cc')
@@ -72,22 +78,34 @@ class TestIvniteVolunteersNoEvent(TestCase):
 
     def test_personal_message_post_bulk_no_message(self):
 
+        self.client.login(username=self.npf_admin_1.username, password='password')
+        self.response = self.client.get('/invite-volunteers/')
+        session = self.client.session
+
         self.assertEqual(self.response.status_code, 200)
 
         # posting form
         self.response = self.client.post("/invite-volunteers/", {
             'bulk-vol':'bulk_test_guest_1@e.cc, bulk_test_guest_2@e.cc, bulk_test_guest_3@e.cc, bulk_test_guest_4@e.cc',
             'personal_message':'',
+            'test_mode':'1' # letting know the app that we're testing, so it shouldnt send emails via Mandrill
             })
 
         # assert if we've been redirected
         self.assertRedirects(self.response, '/org-admin/4/', status_code=302)
+
+        # asserting that bulk email function has been launched
+        self.assertEqual(self.client.session['bulk'], '1')
 
         # assert new users were created
         self.assertEqual(len(User.objects.filter(username__contains='bulk_test_guest_')), 4)
 
 
     def test_personal_message_post_single_with_personal_message(self):
+
+        self.client.login(username=self.npf_admin_1.username, password='password')
+        self.response = self.client.get('/invite-volunteers/')
+        session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
 
@@ -98,13 +116,21 @@ class TestIvniteVolunteersNoEvent(TestCase):
             'bulk-vol':'',
             'count-vol':'1',
             'personal_message':'Test msg',
+            'test_mode':'1' # letting know the app that we're testing, so it shouldnt send emails via Mandrill
             })
 
         # assert if we've been redirected
         self.assertRedirects(response, '/org-admin/1/', status_code=302)
 
+        # asserting that bulk email function has been launched
+        self.assertEqual(self.client.session['bulk'], '1')
+
 
     def test_personal_message_post_bulk_with_personal_message(self):
+
+        self.client.login(username=self.npf_admin_1.username, password='password')
+        self.response = self.client.get('/invite-volunteers/')
+        session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
 
@@ -112,10 +138,14 @@ class TestIvniteVolunteersNoEvent(TestCase):
         response = self.client.post("/invite-volunteers/", {
             'bulk-vol':'bulk_test_guest_1@e.cc, bulk_test_guest_2@e.cc, bulk_test_guest_3@e.cc, bulk_test_guest_4@e.cc',
             'personal_message':'Test msg 2',
+            'test_mode':'1' # letting know the app that we're testing, so it shouldnt send emails via Mandrill
             })
 
         # assert if we've been redirected
         self.assertRedirects(response, '/org-admin/4/', status_code=302)
+
+        # asserting that bulk email function has been launched
+        self.assertEqual(self.client.session['bulk'], '1')
 
 
 
@@ -169,11 +199,13 @@ class TestIvniteVolunteersToEvent(TestCase):
 
         # setting up client
         self.client = Client()
-        self.client.login(username=self.npf_admin_1.username, password='password')
-        self.response = self.client.get('/invite-volunteers/1/')
 
 
     def test_personal_message_post_single_no_message(self):
+
+        self.client.login(username=self.npf_admin_1.username, password='password')
+        self.response = self.client.get('/invite-volunteers/1/')
+        session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
 
@@ -186,10 +218,14 @@ class TestIvniteVolunteersToEvent(TestCase):
             'bulk-vol':'',
             'count-vol':'1',
             'personal_message':'',
+            'test_mode':'1' # letting know the app that we're testing, so it shouldnt send emails via Mandrill
             })
 
         # assert if we've been redirected
         self.assertRedirects(response, '/org-admin/1/', status_code=302)
+
+        # asserting that bulk email function has been launched
+        self.assertEqual(self.client.session['bulk'], '1')
 
         # assert a user was created
         self.assertTrue(User.objects.get(username='single_test_guest_1@mail.cc'), 'single_test_guest_1@mail.cc')
@@ -197,22 +233,34 @@ class TestIvniteVolunteersToEvent(TestCase):
 
     def test_personal_message_post_bulk_no_message(self):
 
+        self.client.login(username=self.npf_admin_1.username, password='password')
+        self.response = self.client.get('/invite-volunteers/1/')
+        session = self.client.session
+
         self.assertEqual(self.response.status_code, 200)
 
         # posting form
         self.response = self.client.post("/invite-volunteers/1/", {
             'bulk-vol':'bulk_test_guest_1@e.cc, bulk_test_guest_2@e.cc, bulk_test_guest_3@e.cc, bulk_test_guest_4@e.cc',
             'personal_message':'',
+            'test_mode':'1' # letting know the app that we're testing, so it shouldnt send emails via Mandrill
             })
 
         # assert if we've been redirected
         self.assertRedirects(self.response, '/org-admin/4/', status_code=302)
+
+        # asserting that bulk email function has been launched
+        self.assertEqual(self.client.session['bulk'], '1')
 
         # assert new users were created
         self.assertEqual(len(User.objects.filter(username__contains='bulk_test_guest_')), 4)
 
 
     def test_personal_message_post_single_with_personal_message(self):
+
+        self.client.login(username=self.npf_admin_1.username, password='password')
+        self.response = self.client.get('/invite-volunteers/1/')
+        session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
 
@@ -223,13 +271,21 @@ class TestIvniteVolunteersToEvent(TestCase):
             'bulk-vol':'',
             'count-vol':'1',
             'personal_message':'Test msg',
+            'test_mode':'1' # letting know the app that we're testing, so it shouldnt send emails via Mandrill
             })
 
         # assert if we've been redirected
         self.assertRedirects(response, '/org-admin/1/', status_code=302)
 
+        # asserting that bulk email function has been launched
+        self.assertEqual(self.client.session['bulk'], '1')
+
 
     def test_personal_message_post_bulk_with_personal_message(self):
+
+        self.client.login(username=self.npf_admin_1.username, password='password')
+        self.response = self.client.get('/invite-volunteers/1/')
+        session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
 
@@ -237,8 +293,12 @@ class TestIvniteVolunteersToEvent(TestCase):
         response = self.client.post("/invite-volunteers/1/", {
             'bulk-vol':'bulk_test_guest_1@e.cc, bulk_test_guest_2@e.cc, bulk_test_guest_3@e.cc, bulk_test_guest_4@e.cc',
             'personal_message':'Test msg 2',
+            'test_mode':'1' # letting know the app that we're testing, so it shouldnt send emails via Mandrill
             })
 
         # assert if we've been redirected
         self.assertRedirects(response, '/org-admin/4/', status_code=302)
+
+        # asserting that bulk email function has been launched
+        self.assertEqual(self.client.session['bulk'], '1')
 

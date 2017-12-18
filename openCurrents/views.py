@@ -1978,6 +1978,12 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         event_create_id = None
 
         try:
+            test_mode = post_data['test_mode']
+        except:
+            test_mode = False
+
+
+        try:
             event_create_id = kwargs.pop('event_ids')
             if type(json.loads(event_create_id)) == list:
                 pass
@@ -2122,7 +2128,10 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                         None,
                         email_template_merge_vars,
                         k,
-                        user.email
+                        user.email,
+                        session=self.request.session,
+                        marker='1',
+                        test_mode = test_mode
                     )
                 if k_old:
                     sendBulkEmail(
@@ -2130,7 +2139,10 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                         None,
                         email_template_merge_vars,
                         k_old,
-                        user.email
+                        user.email,
+                        session=self.request.session,
+                        marker='1',
+                        test_mode = test_mode
                     )
             except Exception as e:
                 logger.error(
@@ -2158,7 +2170,10 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                         },
                     ]),
                     k,
-                    user.email
+                    user.email,
+                    session=self.request.session,
+                    marker='1',
+                    test_mode = test_mode
                 )
             except Exception as e:
                 logger.error(
@@ -3524,6 +3539,7 @@ def sendTransactionalEmail(template_name, template_content, merge_vars, recipien
         sess['transactional'] = kwargs['marker']
         test_time_tracker_mode = kwargs['test_time_tracker_mode']
 
+    # mocking email function for testing purpose
     if not test_time_tracker_mode:
         mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)
         message = {
@@ -3542,22 +3558,35 @@ def sendTransactionalEmail(template_name, template_content, merge_vars, recipien
             message=message
         )
     else:
-        print "We don't send emails during tests."
+        print "We don't send Transactional emails during tests."
 
-def sendBulkEmail(template_name, template_content, merge_vars, recipient_email, sender_email):
-    mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)
-    message = {
-        'from_email': 'info@opencurrents.com',
-        'from_name': 'openCurrents',
-        'to': recipient_email,
-        "headers": {
-            "Reply-To": sender_email.encode('ascii','ignore')
-        },
-        'global_merge_vars': merge_vars
-    }
+def sendBulkEmail(template_name, template_content, merge_vars, recipient_email, sender_email, **kwargs):
 
-    mandrill_client.messages.send_template(
-        template_name=template_name,
-        template_content=template_content,
-        message=message
-    )
+    # adding launch function marker to session for testing purpose
+    if kwargs:
+        sess = kwargs['session']
+        marker = kwargs['marker']
+        sess['bulk'] = kwargs['marker']
+        test_mode = kwargs['test_mode']
+
+    # mocking email function for testing purpose
+    if not test_mode:
+        mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)
+        message = {
+            'from_email': 'info@opencurrents.com',
+            'from_name': 'openCurrents',
+            'to': recipient_email,
+            "headers": {
+                "Reply-To": sender_email.encode('ascii','ignore')
+            },
+            'global_merge_vars': merge_vars
+        }
+
+        mandrill_client.messages.send_template(
+            template_name=template_name,
+            template_content=template_content,
+            message=message
+        )
+
+    else:
+        print "We don't send Bulk emails during tests."
