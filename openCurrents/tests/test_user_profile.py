@@ -235,9 +235,9 @@ class TestUserProfileHoursApprovedButtons(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn('NPF_org_1: 3.0', processed_content)
-        self.assertIn('<a href="/hours-detail/?user_id=1&org_id=1&type=approved"',processed_content)
+        self.assertIn('<a href="/hours-detail/?user_id=1&amp;org_id=1&amp;type=approved"',processed_content)
         self.assertIn('NPF_org_2: 2.0', processed_content)
-        self.assertIn('<a href="/hours-detail/?user_id=1&org_id=2&type=approved"', processed_content)
+        self.assertIn('<a href="/hours-detail/?user_id=1&amp;org_id=2&amp;type=approved"', processed_content)
 
 
     def test_user_approved_buttons_click(self):
@@ -245,7 +245,7 @@ class TestUserProfileHoursApprovedButtons(TestCase):
         oc_user = User.objects.get(username="volunteer_1")
         self.client.login(username=oc_user.username, password='password')
 
-        response = self.client.get('/hours-detail/?user_id=1&org_id=1&type=approved')
+        response = self.client.get('/hours-detail/?user_id=1&amp;org_id=1&amp;type=approved')
 
         self.assertEqual(response.status_code, 200)
         self.assertIn('hours_detail', response.context)
@@ -258,7 +258,7 @@ class TestUserProfileHoursApprovedButtons(TestCase):
         self.assertEqual(diffInHours(response.context['hours_detail'][0].usertimelog.datetime_start, response.context['hours_detail'][0].usertimelog.datetime_end), 3.0)
 
 
-        response = self.client.get('/hours-detail/?user_id=1&org_id=2&type=approved')
+        response = self.client.get('/hours-detail/?user_id=1&amp;org_id=2&amp;type=approved')
         expected_list_of_hours_len = 1
         self.assertEqual(len(response.context['hours_detail']),expected_list_of_hours_len)
 
