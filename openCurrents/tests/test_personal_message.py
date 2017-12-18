@@ -25,10 +25,16 @@ class TestIvniteVolunteersNoEvent(TestCase):
         # creating org
         self.org = OcOrg().setup_org(name="NPF_org_1", status="npf")
 
-        # volunteer user
+        # volunteer user 1
         self.volunteer1 = OcUser().setup_user(
             username='test_user_1',
             email='test_user_1@e.com',
+        )
+
+        # volunteer user 2
+        self.volunteer2 = OcUser().setup_user(
+            username='test_user_2',
+            email='test_user_2@e.com',
         )
 
         # npf admin
@@ -49,6 +55,10 @@ class TestIvniteVolunteersNoEvent(TestCase):
 
 
     def test_personal_message_post_single_no_message(self):
+
+        """
+        test invitation of a single new volunteer without a personal message (no event)
+        """
 
         self.client.login(username=self.npf_admin_1.username, password='password')
         self.response = self.client.get('/invite-volunteers/')
@@ -78,6 +88,10 @@ class TestIvniteVolunteersNoEvent(TestCase):
 
     def test_personal_message_post_bulk_no_message(self):
 
+        """
+        test invitation of a bunch of new volunteers without a personal message (no event)
+        """
+
         self.client.login(username=self.npf_admin_1.username, password='password')
         self.response = self.client.get('/invite-volunteers/')
         session = self.client.session
@@ -102,6 +116,10 @@ class TestIvniteVolunteersNoEvent(TestCase):
 
 
     def test_personal_message_post_single_with_personal_message(self):
+
+        """
+        test invitation of a single new volunteer with personal message (no event)
+        """
 
         self.client.login(username=self.npf_admin_1.username, password='password')
         self.response = self.client.get('/invite-volunteers/')
@@ -128,6 +146,10 @@ class TestIvniteVolunteersNoEvent(TestCase):
 
     def test_personal_message_post_bulk_with_personal_message(self):
 
+        """
+        test invitation of a bunch of new volunteers with personal message (no event)
+        """
+
         self.client.login(username=self.npf_admin_1.username, password='password')
         self.response = self.client.get('/invite-volunteers/')
         session = self.client.session
@@ -148,6 +170,146 @@ class TestIvniteVolunteersNoEvent(TestCase):
         self.assertEqual(self.client.session['bulk'], '1')
 
 
+    def test_personal_message_post_single_existing_no_message(self):
+
+        """
+        test invitation of a registered single volunteer without a personal message (no event)
+        """
+
+        self.client.login(username=self.npf_admin_1.username, password='password')
+        self.response = self.client.get('/invite-volunteers/')
+        session = self.client.session
+
+        self.assertEqual(self.response.status_code, 200)
+
+        # assert a user exists
+        self.assertTrue(User.objects.get(username=self.volunteer1.username), self.volunteer1.username)
+
+        # posting form
+        response = self.client.post("/invite-volunteers/", {
+            'vol-name-1': self.volunteer1.username,
+            'vol-email-1': self.volunteer1.email,
+            'bulk-vol':'',
+            'count-vol':'1',
+            'personal_message':'',
+            'test_mode':'1' # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+            })
+
+        # assert if we've been redirected
+        self.assertRedirects(response, '/org-admin/1/', status_code=302)
+
+        # asserting that bulk email function has been launched
+        self.assertEqual(self.client.session['bulk'], '1')
+
+        #asserting user is in recepients
+        self.assertTrue(self.client.session['recepient'][0]['email'], self.volunteer1.email)
+        self.assertTrue(self.client.session['recepient'][0]['name'], self.volunteer1.username)
+
+
+    def test_personal_message_post_single_existing_with_message(self):
+
+        """
+        test invitation of a registered single volunteer with a personal message (no event)
+        """
+
+        self.client.login(username=self.npf_admin_1.username, password='password')
+        self.response = self.client.get('/invite-volunteers/')
+        session = self.client.session
+
+        self.assertEqual(self.response.status_code, 200)
+
+        # assert a user exists
+        self.assertTrue(User.objects.get(username=self.volunteer1.username), self.volunteer1.username)
+
+        # posting form
+        response = self.client.post("/invite-volunteers/", {
+            'vol-name-1': self.volunteer1.username,
+            'vol-email-1': self.volunteer1.email,
+            'bulk-vol':'',
+            'count-vol':'1',
+            'personal_message':'Test msg single existing',
+            'test_mode':'1' # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+            })
+
+        # assert if we've been redirected
+        self.assertRedirects(response, '/org-admin/1/', status_code=302)
+
+        # asserting that bulk email function has been launched
+        self.assertEqual(self.client.session['bulk'], '1')
+
+        #asserting user is in recepients
+        self.assertTrue(self.client.session['recepient'][0]['email'], self.volunteer1.email)
+        self.assertTrue(self.client.session['recepient'][0]['name'], self.volunteer1.username)
+
+
+    def test_personal_message_post_bulk_existing_users_with_personal_message(self):
+
+        """
+        test invitation of a bunch of existing volunteers with personal message (no event)
+        """
+
+        self.client.login(username=self.npf_admin_1.username, password='password')
+        self.response = self.client.get('/invite-volunteers/')
+        session = self.client.session
+
+        self.assertEqual(self.response.status_code, 200)
+
+        # asserting the users exist
+        self.assertTrue(User.objects.get(username=self.volunteer1.username), self.volunteer1.username)
+        self.assertTrue(User.objects.get(username=self.volunteer2.username), self.volunteer2.username)
+
+        # posting form
+        response = self.client.post("/invite-volunteers/", {
+            'bulk-vol': "'" + self.volunteer1.email + ", " + self.volunteer2.email + "'",
+            'personal_message':'Test msg bulk existing users',
+            'test_mode':'1' # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+            })
+
+        # assert if we've been redirected
+        self.assertRedirects(response, '/org-admin/2/', status_code=302)
+
+        # asserting that bulk email function has been launched
+        self.assertEqual(self.client.session['bulk'], '1')
+
+        #asserting both users are in recepients
+        self.assertTrue(self.client.session['recepient'][0]['email'], self.volunteer1.email)
+        self.assertTrue(self.client.session['recepient'][1]['email'], self.volunteer2.email)
+
+
+    def test_personal_message_post_bulk_existing_users_without_personal_message(self):
+
+        """
+        test invitation of a bunch of existing volunteers with personal message (no event)
+        """
+
+        self.client.login(username=self.npf_admin_1.username, password='password')
+        self.response = self.client.get('/invite-volunteers/')
+        session = self.client.session
+
+        self.assertEqual(self.response.status_code, 200)
+
+        # asserting the users exist
+        self.assertTrue(User.objects.get(username=self.volunteer1.username), self.volunteer1.username)
+        self.assertTrue(User.objects.get(username=self.volunteer2.username), self.volunteer2.username)
+
+        # posting form
+        response = self.client.post("/invite-volunteers/", {
+            'bulk-vol': "'" + self.volunteer1.email + ", " + self.volunteer2.email + "'",
+            'personal_message':'',
+            'test_mode':'1' # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+            })
+
+        # assert if we've been redirected
+        self.assertRedirects(response, '/org-admin/2/', status_code=302)
+
+        # asserting that bulk email function has been launched
+        self.assertEqual(self.client.session['bulk'], '1')
+
+        #asserting both users are in recepients
+        self.assertTrue(self.client.session['recepient'][0]['email'], self.volunteer1.email)
+        self.assertTrue(self.client.session['recepient'][1]['email'], self.volunteer2.email)
+
+
 
 
 class TestIvniteVolunteersToEvent(TestCase):
@@ -157,10 +319,16 @@ class TestIvniteVolunteersToEvent(TestCase):
         # creating org
         self.org = OcOrg().setup_org(name="NPF_org_1", status="npf")
 
-        # volunteer user
+        # volunteer user 1
         self.volunteer1 = OcUser().setup_user(
             username='test_user_1',
             email='test_user_1@e.com',
+        )
+
+        # volunteer user 2
+        self.volunteer2 = OcUser().setup_user(
+            username='test_user_2',
+            email='test_user_2@e.com',
         )
 
         # npf admin
@@ -203,6 +371,10 @@ class TestIvniteVolunteersToEvent(TestCase):
 
     def test_personal_message_post_single_no_message(self):
 
+        """
+        test invitation of a new volunteer without a personal message to future event
+        """
+
         self.client.login(username=self.npf_admin_1.username, password='password')
         self.response = self.client.get('/invite-volunteers/1/')
         session = self.client.session
@@ -233,6 +405,10 @@ class TestIvniteVolunteersToEvent(TestCase):
 
     def test_personal_message_post_bulk_no_message(self):
 
+        """
+        test invitation of a bunch of new volunteers without a personal message to future event
+        """
+
         self.client.login(username=self.npf_admin_1.username, password='password')
         self.response = self.client.get('/invite-volunteers/1/')
         session = self.client.session
@@ -257,6 +433,10 @@ class TestIvniteVolunteersToEvent(TestCase):
 
 
     def test_personal_message_post_single_with_personal_message(self):
+
+        """
+        test invitation of a volunteer with personal message to future event
+        """
 
         self.client.login(username=self.npf_admin_1.username, password='password')
         self.response = self.client.get('/invite-volunteers/1/')
@@ -283,6 +463,10 @@ class TestIvniteVolunteersToEvent(TestCase):
 
     def test_personal_message_post_bulk_with_personal_message(self):
 
+        """
+        test invitation of a bunch of volunteers without a personal message to future event
+        """
+
         self.client.login(username=self.npf_admin_1.username, password='password')
         self.response = self.client.get('/invite-volunteers/1/')
         session = self.client.session
@@ -302,3 +486,142 @@ class TestIvniteVolunteersToEvent(TestCase):
         # asserting that bulk email function has been launched
         self.assertEqual(self.client.session['bulk'], '1')
 
+
+    def test_personal_message_post_single_existing_no_message(self):
+
+        """
+        test invitation of a registered single volunteer without a personal message to future event
+        """
+
+        self.client.login(username=self.npf_admin_1.username, password='password')
+        self.response = self.client.get('/invite-volunteers/1/')
+        session = self.client.session
+
+        self.assertEqual(self.response.status_code, 200)
+
+        # assert a user exists
+        self.assertTrue(User.objects.get(username=self.volunteer1.username), self.volunteer1.username)
+
+        # posting form
+        response = self.client.post("/invite-volunteers/", {
+            'vol-name-1': self.volunteer1.username,
+            'vol-email-1': self.volunteer1.email,
+            'bulk-vol':'',
+            'count-vol':'1',
+            'personal_message':'',
+            'test_mode':'1' # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+            })
+
+        # assert if we've been redirected
+        self.assertRedirects(response, '/org-admin/1/', status_code=302)
+
+        # asserting that bulk email function has been launched
+        self.assertEqual(self.client.session['bulk'], '1')
+
+        #asserting user is in recepients
+        self.assertTrue(self.client.session['recepient'][0]['email'], self.volunteer1.email)
+        self.assertTrue(self.client.session['recepient'][0]['name'], self.volunteer1.username)
+
+
+    def test_personal_message_post_single_existing_with_message(self):
+
+        """
+        test invitation of a registered single volunteer with a personal message to future event
+        """
+
+        self.client.login(username=self.npf_admin_1.username, password='password')
+        self.response = self.client.get('/invite-volunteers/1/')
+        session = self.client.session
+
+        self.assertEqual(self.response.status_code, 200)
+
+        # assert a user exists
+        self.assertTrue(User.objects.get(username=self.volunteer1.username), self.volunteer1.username)
+
+        # posting form
+        response = self.client.post("/invite-volunteers/", {
+            'vol-name-1': self.volunteer1.username,
+            'vol-email-1': self.volunteer1.email,
+            'bulk-vol':'',
+            'count-vol':'1',
+            'personal_message':'Test msg single existing',
+            'test_mode':'1' # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+            })
+
+        # assert if we've been redirected
+        self.assertRedirects(response, '/org-admin/1/', status_code=302)
+
+        # asserting that bulk email function has been launched
+        self.assertEqual(self.client.session['bulk'], '1')
+
+        #asserting user is in recepients
+        self.assertTrue(self.client.session['recepient'][0]['email'], self.volunteer1.email)
+        self.assertTrue(self.client.session['recepient'][0]['name'], self.volunteer1.username)
+
+
+    def test_personal_message_post_bulk_existing_users_with_personal_message(self):
+
+        """
+        test invitation of a bunch of existing volunteers with personal message to future event
+        """
+
+        self.client.login(username=self.npf_admin_1.username, password='password')
+        self.response = self.client.get('/invite-volunteers/1/')
+        session = self.client.session
+
+        self.assertEqual(self.response.status_code, 200)
+
+        # asserting the users exist
+        self.assertTrue(User.objects.get(username=self.volunteer1.username), self.volunteer1.username)
+        self.assertTrue(User.objects.get(username=self.volunteer2.username), self.volunteer2.username)
+
+        # posting form
+        response = self.client.post("/invite-volunteers/", {
+            'bulk-vol': "'" + self.volunteer1.email + ", " + self.volunteer2.email + "'",
+            'personal_message':'Test msg bulk existing users',
+            'test_mode':'1' # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+            })
+
+        # assert if we've been redirected
+        self.assertRedirects(response, '/org-admin/2/', status_code=302)
+
+        # asserting that bulk email function has been launched
+        self.assertEqual(self.client.session['bulk'], '1')
+
+        #asserting both users are in recepients
+        self.assertTrue(self.client.session['recepient'][0]['email'], self.volunteer1.email)
+        self.assertTrue(self.client.session['recepient'][1]['email'], self.volunteer2.email)
+
+
+    def test_personal_message_post_bulk_existing_users_with_personal_message(self):
+
+        """
+        test invitation of a bunch of existing volunteers with personal message to future event
+        """
+
+        self.client.login(username=self.npf_admin_1.username, password='password')
+        self.response = self.client.get('/invite-volunteers/1/')
+        session = self.client.session
+
+        self.assertEqual(self.response.status_code, 200)
+
+        # asserting the users exist
+        self.assertTrue(User.objects.get(username=self.volunteer1.username), self.volunteer1.username)
+        self.assertTrue(User.objects.get(username=self.volunteer2.username), self.volunteer2.username)
+
+        # posting form
+        response = self.client.post("/invite-volunteers/", {
+            'bulk-vol': "'" + self.volunteer1.email + ", " + self.volunteer2.email + "'",
+            'personal_message':'',
+            'test_mode':'1' # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+            })
+
+        # assert if we've been redirected
+        self.assertRedirects(response, '/org-admin/2/', status_code=302)
+
+        # asserting that bulk email function has been launched
+        self.assertEqual(self.client.session['bulk'], '1')
+
+        #asserting both users are in recepients
+        self.assertTrue(self.client.session['recepient'][0]['email'], self.volunteer1.email)
+        self.assertTrue(self.client.session['recepient'][1]['email'], self.volunteer2.email)

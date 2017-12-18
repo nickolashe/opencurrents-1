@@ -3590,3 +3590,4 @@ def sendBulkEmail(template_name, template_content, merge_vars, recipient_email, 
 
     else:
         print "We don't send Bulk emails during tests."
+        sess['recepient'] = recipient_email
