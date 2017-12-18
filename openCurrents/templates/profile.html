@@ -115,13 +115,13 @@
     <div class="small-11 medium-10 small-centered columns">
       <h6 class="half-margin-bottom">Community activity</h6>
       <a href="{% url 'openCurrents:public-record' %}?record_type=top-org&period=month" class="button tiny round secondary">
-        Currents issued: {% if currents_amount_total %}{{ currents_amount_total }}{% else %}No currents issued{% endif %}
+        Currents issued: {% if currents_amount_total %}{{ currents_amount_total }}{% else %}0{% endif %}
       </a>
       <a href="{% url 'openCurrents:public-record' %}?record_type=top-vol&period=month" class="button tiny round secondary">
-        Active volunteers: {% if active_volunteers_total %}{{ active_volunteers_total }}{% else %}No active volunteers{% endif %}
+        Active volunteers: {% if active_volunteers_total %}{{ active_volunteers_total }}{% else %}0{% endif %}
       </a>
       <a href="{% url 'openCurrents:public-record' %}?record_type=top-biz&period=month" class="button tiny round secondary">
-        Currents accepted: {% if currents_accepted %}{{ currents_accepted }}{% else %}No currents accepted{% endif %}
+        Currents accepted: {% if currents_accepted %}{{ currents_accepted }}{% else %}0{% endif %}
       </a>
     </div>
   </div>
@@ -135,7 +135,11 @@
           {{org.name}}: {{hours}}
         </a>
       {% empty %}
-        <h5>No records available</h5>
+        <p>No hours have been approved.
+          <a href="{% url 'openCurrents:time-tracker' %}">
+            Record hours to create Currents!
+          </a>
+        </p>
       {% endfor %}
     </div>
   </div>
@@ -216,9 +220,9 @@
           {% endwith %}
         {% endfor %}
       {% else %}
-        <p>You have not yet redeemed any offers. Check out the
+        <p>You have not yet redeemed any offers.
           <a href="{% url 'openCurrents:marketplace' %}">
-            marketplace!
+            Check out the marketplace!
           </a>
         </p>
       {% endif %}
