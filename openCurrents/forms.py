@@ -465,6 +465,7 @@ class TimeTrackerForm(forms.Form):
 
 
     org = forms.ChoiceField(
+        required=False,
         choices=[("select_org", "Select organization")],
         widget=forms.Select(attrs={
             'id': 'id_org_choice'
@@ -474,7 +475,7 @@ class TimeTrackerForm(forms.Form):
     choices_admin = [("select_admin","Select coordinator")]
     admin = forms.CharField(
         #choices=choices_admin,
-        required=True,
+        required=False,
         widget=forms.Select(attrs={
             'id': 'id_admin_choice',
             'disabled': True
