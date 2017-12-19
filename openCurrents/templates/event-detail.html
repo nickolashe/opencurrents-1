@@ -90,13 +90,22 @@
           <p class="half-margin-bottom"><strong>Name or email</strong></p>
           <ul>
             {% for name in registrants_names %}
-              <li class="no-bullet">{{ name }}</li>
+              <li class="no-bullet">
+                {% if name != '' %}
+                  {{ name }}
+                {% else %}
+                  hi
+                {% endif %}
+              </li>
             {% endfor %}
           </ul>
           <a id="copy-emails" class="button round small">Copy email list</a>
         {% else %}
           <p>No volunteers have registered or been invited yet.</p>
-          <a href="{% url 'openCurrents:invite-volunteers' event.id %}" class="button round small">Invite volunteers</a>
+          <a href="{% url 'openCurrents:invite-volunteers' event.id %}"
+          class="button round small">
+            Invite volunteers
+          </a>
         {% endif %}
 
         <a class="registrants-box_close button round small secondary">Close</a>

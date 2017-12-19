@@ -14,7 +14,7 @@ from openCurrents.models import Org, \
 from openCurrents.interfaces.ocuser import OcUser
 from openCurrents.interfaces.ledger import OcLedger
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import logging
 import re
@@ -465,6 +465,7 @@ class TimeTrackerForm(forms.Form):
 
 
     org = forms.ChoiceField(
+        required=False,
         choices=[("select_org", "Select organization")],
         widget=forms.Select(attrs={
             'id': 'id_org_choice'
@@ -474,7 +475,7 @@ class TimeTrackerForm(forms.Form):
     choices_admin = [("select_admin","Select coordinator")]
     admin = forms.CharField(
         #choices=choices_admin,
-        required=True,
+        required=False,
         widget=forms.Select(attrs={
             'id': 'id_admin_choice',
             'disabled': True
@@ -544,13 +545,17 @@ class TimeTrackerForm(forms.Form):
         time_end = cleaned_data['time_end']
 
         # assert org
-        try:
-            self.org = Org.objects.get(id=cleaned_data['org'])
-            tz = self.org.timezone
-        except KeyError:
-            raise ValidationError(_('Select the organization you volunteered for'))
+        if cleaned_data['org']:
+            try:
+                self.org = Org.objects.get(id=cleaned_data['org'])
+                tz = self.org.timezone
+            except KeyError:
+                raise ValidationError(_('Select the organization you volunteered for'))
+        else:
+            tz = 'America/Chicago'
 
         # parse start time
+        datetime_start = None
         try:
             datetime_start = datetime.strptime(
                 ' '.join([date_start, time_start]),
@@ -563,6 +568,7 @@ class TimeTrackerForm(forms.Form):
         cleaned_data['datetime_start'] = pytz.timezone(tz).localize(datetime_start)
 
         # parse end time
+        datetime_end = None
         try:
             datetime_end = datetime.strptime(
                 ' '.join([date_start, time_end]),
@@ -574,12 +580,24 @@ class TimeTrackerForm(forms.Form):
         # localize end time to org's timezone
         cleaned_data['datetime_end'] = pytz.timezone(tz).localize(datetime_end)
 
-        # check: start time before end time
+        # start time before end time
         if cleaned_data['datetime_end'] <= cleaned_data['datetime_start']:
-            raise ValidationError(_('Start time must be before end time'))
+            raise ValidationError(_(
+                'Start time must be before end time'
+            ))
 
+        # end time in future
         if cleaned_data['datetime_end'] > datetime.now(tz=pytz.utc):
-            raise ValidationError(_('Hours can only be submitted once work is completed'))
+            raise ValidationError(_(
+                'Submitted end time is in the future'
+            ))
+
+        # start time too far in past
+        two_weeks_ago = datetime.now(tz=pytz.utc) - timedelta(days=2)
+        if cleaned_data['datetime_start'] < two_weeks_ago:
+            raise ValidationError(_(
+                'You can submit hours for up to 2 weeks in the past'
+            ))
 
         return cleaned_data
 

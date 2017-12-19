@@ -1,0 +1,20 @@
+{% extends "layouts/popup.html" %}
+
+{% block title %}
+  Volunteers request approval
+{% endblock title %}
+
+{% block content %}
+  <p class="three-halves-margin-bottom">
+    Volunteers have tracked hours and need your signoff before Currents are
+    issued to them. It is recommended that you approve volunteer hours once a
+    week.
+  </p>
+
+  <a href="{% url 'openCurrents:approve-hours' %}" class="button round">
+    View requests
+  </a>
+  <a class="approve-hours-popup_close button round secondary">
+    Close
+  </a>
+{% endblock content %}

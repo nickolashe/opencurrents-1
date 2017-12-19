@@ -108,7 +108,7 @@
 }
 
 .ui-datepicker-prev:hover span, .ui-datepicker-next:hover span {
-	color: #1f4975;
+	color: #1f4795;
 }
 /*.ui-datepicker .ui-datepicker-prev-hover,
 .ui-datepicker .ui-datepicker-next-hover {
@@ -342,7 +342,7 @@ a:visited.ui-button,
 .ui-button:hover,
 .ui-button:focus {
 	font-weight: normal;
-	color: #1f4975;
+	color: #1f4795;
 }
 .ui-state-hover a,
 .ui-state-hover a:hover,
@@ -367,8 +367,8 @@ a.ui-button:focus {
 a.ui-button:active,
 .ui-button:active,
 .ui-button.ui-state-active:hover {
-	border: 1px solid #1f4975;
-	background: #1f4975;
+	border: 1px solid #1f4795;
+	background: #1f4795;
 	font-weight: normal;
 	color: #ffffff;
 }
