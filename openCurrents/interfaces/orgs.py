@@ -72,6 +72,10 @@ class OrgUserInfo(object):
         else:
             raise InvalidOrgException()
 
+    def is_user_in_org_group(self):
+        in_group = Group.objects.filter(user=self.user)
+        return True if in_group else False
+
 
 class OcOrg(object):
     def __init__(self, orgid=None):
