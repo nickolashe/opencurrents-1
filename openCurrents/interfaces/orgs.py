@@ -55,27 +55,37 @@ class OrgUserInfo(object):
 
     def get_admin_group(self, orgid):
         admin_org_group_name = '_'.join(['admin', str(orgid)])
-        admin_org_group = Group.objects.filter(
-            name=admin_org_group_name
-        )
+
+        admin_org_group = None
+        try:
+            admin_org_group = Group.objects.get(
+                name=admin_org_group_name
+            )
+        except Exception as e:
+            logger.warning('org %d without admin group', orgid)
+
         return admin_org_group
 
     def is_org_admin(self, orgid):
         admin_group = self.get_admin_group(orgid)
-        return True if admin_group.exists() else False
+        if admin_group and admin_group.user_set.filter(id=self.userid):
+            return True
+        else:
+            return False
 
     def make_org_admin(self, orgid):
         admin_group = self.get_admin_group(orgid)
         if admin_group:
             try:
-                admin_group[0].user_set.add(self.user)
+                admin_group.user_set.add(self.user)
             except Exception:
                 logger.warning(
-                    'user %s is already admin of org %s',
+                    'user %s is already admin of org %d',
                     self.user.username,
                     orgid
                 )
         else:
+            logger.warning('org %d without admin group', orgid)
             raise InvalidOrgException()
 
 
