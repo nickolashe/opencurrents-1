@@ -9,7 +9,9 @@ from django.utils import timezone
 from openCurrents.models import \
     Org, \
     Project, \
-    Event
+    Event, \
+    UserSettings, \
+    UserEntity
 
 # INTERFACES
 from openCurrents.interfaces.ocuser import OcUser
@@ -55,7 +57,6 @@ class TestIvniteVolunteersNoEvent(TestCase):
 
 
     def test_personal_message_post_single_no_message(self):
-
         """
         test invitation of a single new volunteer without a personal message (no event)
         """
@@ -85,9 +86,14 @@ class TestIvniteVolunteersNoEvent(TestCase):
         # assert a user was created
         self.assertTrue(User.objects.get(username='single_test_guest_1@mail.cc'), 'single_test_guest_1@mail.cc')
 
+        # assert user profile was created
+        self.assertTrue(UserSettings.objects.get(user__username='single_test_guest_1@mail.cc'), 'single_test_guest_1@mail.cc')
+
+        # assert userentity was created
+        self.assertTrue(UserEntity.objects.get(user__username='single_test_guest_1@mail.cc'), 'single_test_guest_1@mail.cc')
+
 
     def test_personal_message_post_bulk_no_message(self):
-
         """
         test invitation of a bunch of new volunteers without a personal message (no event)
         """
@@ -114,9 +120,14 @@ class TestIvniteVolunteersNoEvent(TestCase):
         # assert new users were created
         self.assertEqual(len(User.objects.filter(username__contains='bulk_test_guest_')), 4)
 
+        # assert user profiles were created
+        self.assertEqual(len(UserSettings.objects.filter(user__username__contains='bulk_test_guest_')), 4)
+
+        # assert userentities were created
+        self.assertEqual(len(UserEntity.objects.filter(user__username__contains='bulk_test_guest_')), 4)
+
 
     def test_personal_message_post_single_with_personal_message(self):
-
         """
         test invitation of a single new volunteer with personal message (no event)
         """
@@ -142,6 +153,17 @@ class TestIvniteVolunteersNoEvent(TestCase):
 
         # asserting that bulk email function has been launched
         self.assertEqual(self.client.session['bulk'], '1')
+
+        # assert a user was created
+        self.assertTrue(User.objects.get(username='single_test_guest_1@mail.cc'), 'single_test_guest_1@mail.cc')
+
+        # assert user profile was created
+        self.assertTrue(UserSettings.objects.get(user__username='single_test_guest_1@mail.cc'), 'single_test_guest_1@mail.cc')
+
+        # assert userentity was created
+        self.assertTrue(UserEntity.objects.get(user__username='single_test_guest_1@mail.cc'), 'single_test_guest_1@mail.cc')
+
+
 
 
     def test_personal_message_post_bulk_with_personal_message(self):
@@ -169,9 +191,17 @@ class TestIvniteVolunteersNoEvent(TestCase):
         # asserting that bulk email function has been launched
         self.assertEqual(self.client.session['bulk'], '1')
 
+        # assert new users were created
+        self.assertEqual(len(User.objects.filter(username__contains='bulk_test_guest_')), 4)
+
+        # assert user profiles were created
+        self.assertEqual(len(UserSettings.objects.filter(user__username__contains='bulk_test_guest_')), 4)
+
+        # assert userentities were created
+        self.assertEqual(len(UserEntity.objects.filter(user__username__contains='bulk_test_guest_')), 4)
+
 
     def test_personal_message_post_single_existing_no_message(self):
-
         """
         test invitation of a registered single volunteer without a personal message (no event)
         """
@@ -207,7 +237,6 @@ class TestIvniteVolunteersNoEvent(TestCase):
 
 
     def test_personal_message_post_single_existing_with_message(self):
-
         """
         test invitation of a registered single volunteer with a personal message (no event)
         """
@@ -243,7 +272,6 @@ class TestIvniteVolunteersNoEvent(TestCase):
 
 
     def test_personal_message_post_bulk_existing_users_with_personal_message(self):
-
         """
         test invitation of a bunch of existing volunteers with personal message (no event)
         """
@@ -277,7 +305,6 @@ class TestIvniteVolunteersNoEvent(TestCase):
 
 
     def test_personal_message_post_bulk_existing_users_without_personal_message(self):
-
         """
         test invitation of a bunch of existing volunteers with personal message (no event)
         """
@@ -369,8 +396,7 @@ class TestIvniteVolunteersToEvent(TestCase):
         self.client = Client()
 
 
-    def test_personal_message_post_single_no_message(self):
-
+    def test_invite_new_single_no_message(self):
         """
         test invitation of a new volunteer without a personal message to future event
         """
@@ -402,9 +428,16 @@ class TestIvniteVolunteersToEvent(TestCase):
         # assert a user was created
         self.assertTrue(User.objects.get(username='single_test_guest_1@mail.cc'), 'single_test_guest_1@mail.cc')
 
+        # assert user profile was created
+        self.assertTrue(UserSettings.objects.get(user__username='single_test_guest_1@mail.cc'), 'single_test_guest_1@mail.cc')
 
-    def test_personal_message_post_bulk_no_message(self):
+        # assert userentity was created
+        self.assertTrue(UserEntity.objects.get(user__username='single_test_guest_1@mail.cc'), 'single_test_guest_1@mail.cc')
 
+
+
+
+    def test_invite_new_bulk_no_message(self):
         """
         test invitation of a bunch of new volunteers without a personal message to future event
         """
@@ -431,9 +464,14 @@ class TestIvniteVolunteersToEvent(TestCase):
         # assert new users were created
         self.assertEqual(len(User.objects.filter(username__contains='bulk_test_guest_')), 4)
 
+        # assert user profiles were created
+        self.assertEqual(len(UserSettings.objects.filter(user__username__contains='bulk_test_guest_')), 4)
 
-    def test_personal_message_post_single_with_personal_message(self):
+        # assert userentities were created
+        self.assertEqual(len(UserEntity.objects.filter(user__username__contains='bulk_test_guest_')), 4)
 
+
+    def test_invite_new_single_with_message(self):
         """
         test invitation of a volunteer with personal message to future event
         """
@@ -460,9 +498,17 @@ class TestIvniteVolunteersToEvent(TestCase):
         # asserting that bulk email function has been launched
         self.assertEqual(self.client.session['bulk'], '1')
 
+        # assert a user was created
+        self.assertTrue(User.objects.get(username='single_test_guest_1@mail.cc'), 'single_test_guest_1@mail.cc')
 
-    def test_personal_message_post_bulk_with_personal_message(self):
+        # assert user profile was created
+        self.assertTrue(UserSettings.objects.get(user__username='single_test_guest_1@mail.cc'), 'single_test_guest_1@mail.cc')
 
+        # assert userentity was created
+        self.assertTrue(UserEntity.objects.get(user__username='single_test_guest_1@mail.cc'), 'single_test_guest_1@mail.cc')
+
+
+    def test_invite_new_bulk_with_message(self):
         """
         test invitation of a bunch of volunteers without a personal message to future event
         """
@@ -486,9 +532,17 @@ class TestIvniteVolunteersToEvent(TestCase):
         # asserting that bulk email function has been launched
         self.assertEqual(self.client.session['bulk'], '1')
 
+        # assert new users were created
+        self.assertEqual(len(User.objects.filter(username__contains='bulk_test_guest_')), 4)
 
-    def test_personal_message_post_single_existing_no_message(self):
+        # assert user profiles were created
+        self.assertEqual(len(UserSettings.objects.filter(user__username__contains='bulk_test_guest_')), 4)
 
+        # assert userentities were created
+        self.assertEqual(len(UserEntity.objects.filter(user__username__contains='bulk_test_guest_')), 4)
+
+
+    def test_invite_single_existing_no_message(self):
         """
         test invitation of a registered single volunteer without a personal message to future event
         """
@@ -523,8 +577,7 @@ class TestIvniteVolunteersToEvent(TestCase):
         self.assertTrue(self.client.session['recepient'][0]['name'], self.volunteer1.username)
 
 
-    def test_personal_message_post_single_existing_with_message(self):
-
+    def test_invite_single_existing_with_message(self):
         """
         test invitation of a registered single volunteer with a personal message to future event
         """
@@ -559,8 +612,7 @@ class TestIvniteVolunteersToEvent(TestCase):
         self.assertTrue(self.client.session['recepient'][0]['name'], self.volunteer1.username)
 
 
-    def test_personal_message_post_bulk_existing_users_with_personal_message(self):
-
+    def test_invite_bulk_existing_with_personal_message(self):
         """
         test invitation of a bunch of existing volunteers with personal message to future event
         """
@@ -593,7 +645,7 @@ class TestIvniteVolunteersToEvent(TestCase):
         self.assertTrue(self.client.session['recepient'][1]['email'], self.volunteer2.email)
 
 
-    def test_personal_message_post_bulk_existing_users_with_personal_message(self):
+    def test_invite_bulk_existing_users_no_message(self):
 
         """
         test invitation of a bunch of existing volunteers with personal message to future event
