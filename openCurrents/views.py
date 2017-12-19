@@ -1165,10 +1165,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         doInvite = True
 
         # adding flag to not call Mandrill during unittests
-        if 'test_time_tracker_mode' in  self.request.POST and self.request.POST['test_time_tracker_mode']=='1':
-            test_time_tracker_mode = True
-        else:
-            test_time_tracker_mode = False
+        test_time_tracker_mode = self.request.POST.get('test_time_tracker_mode')
 
         # looks like we don't need this piece anymore
         # try:
@@ -1183,8 +1180,6 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         #     # user_new.save()
         #     doInvite = True
 
-
-
         # adapting function for sending org.name or form_data['new_org'] to new admin
         if isinstance(org, Org):
             org = org.name  # the Org instance was passed, using name
@@ -1192,31 +1187,31 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             org = org  # the sting was passed, using it as an org name
 
         email_vars = [
-                    {
-                        'name': 'ADMIN_NAME',
-                        'content': admin_name
-                    },
-                    {
-                        'name': 'FNAME',
-                        'content': self.request.user.first_name
-                    },
-                    {
-                        'name': 'LNAME',
-                        'content': self.request.user.last_name
-                    },
-                    {
-                        'name': 'EVENT',
-                        'content': False
-                    },
-                    {
-                        'name': 'ORG_NAME',
-                        'content': org
-                    },
-                    {
-                        'name': 'EMAIL',
-                        'content': admin_email
-                    },
-                ]
+            {
+                'name': 'ADMIN_NAME',
+                'content': admin_name
+            },
+            {
+                'name': 'FNAME',
+                'content': self.request.user.first_name
+            },
+            {
+                'name': 'LNAME',
+                'content': self.request.user.last_name
+            },
+            {
+                'name': 'EVENT',
+                'content': False
+            },
+            {
+                'name': 'ORG_NAME',
+                'content': org
+            },
+            {
+                'name': 'EMAIL',
+                'content': admin_email
+            },
+        ]
 
         # adding kwargs to email vars
         if kwargs:
@@ -2013,12 +2008,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         user = User.objects.get(id=userid)
         post_data = self.request.POST
         event_create_id = None
-
-        try:
-            test_mode = post_data['test_mode']
-        except:
-            test_mode = False
-
+        test_mode = post_data.get('test_mode')
 
         try:
             event_create_id = kwargs.pop('event_ids')
@@ -2996,7 +2986,7 @@ def process_signup(
                             },
                             {
                                 'name': 'ORG_STATUS',
-                                'content': request.POST['org_type']
+                                'content': org_status
                             }
                         ],
                         'bizdev@opencurrents.com'
@@ -3570,6 +3560,7 @@ def sendContactEmail(template_name, template_content, merge_vars, admin_email, u
 def sendTransactionalEmail(template_name, template_content, merge_vars, recipient_email, **kwargs):
 
     # adding launch function marker to session for testing purpose
+    test_time_tracker_mode = None
     if kwargs:
         sess = kwargs['session']
         marker = kwargs['marker']
@@ -3595,7 +3586,7 @@ def sendTransactionalEmail(template_name, template_content, merge_vars, recipien
             message=message
         )
     else:
-        print "We don't send Transactional emails during tests."
+        logger.debug('test mode: mocking mandrill call')
 
 def sendBulkEmail(template_name, template_content, merge_vars, recipient_email, sender_email, **kwargs):
 
@@ -3626,5 +3617,5 @@ def sendBulkEmail(template_name, template_content, merge_vars, recipient_email, 
         )
 
     else:
-        print "We don't send Bulk emails during tests."
+        logger.info('test mode: mocking mandrill call')
         sess['recepient'] = recipient_email
