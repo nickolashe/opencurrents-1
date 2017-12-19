@@ -2800,7 +2800,7 @@ def process_login(request):
             today = date.today()
 
             # do a weekly check for unapproved requests (popup)
-            if user.last_login.date() < today - timedelta(days=today.weekday()):
+            if not user.last_login or user.last_login.date() < today - timedelta(days=today.weekday()):
                 try:
                     orgadmin = OrgAdmin(userid)
                     admin_requested_hours = orgadmin.get_hours_requested()
