@@ -984,52 +984,66 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                 admin_email = form_data['new_admin_email']
 
                 if not admin_email:
+                    # admin field should be populated
                     return False, 'Please enter admin\'s email'
 
                 else:
-                    # check if user exists
-                    if User.objects.filter(email=admin_email).exists():
+                    # check if ORG user exists and he is an active admin
+                    try:
+                        user_to_check = User.objects.get(email=admin_email)
+                        is_admin = OrgUserInfo(user_to_check.id).is_user_in_org_group()
+                    except:
+                        is_admin = False
+
+                    if OrgUser.objects.filter(user__email=admin_email).exists() and is_admin:
                         return False, 'User {user} is already related to {org}'.format(org=org, user=admin_email)
 
-                    else:
 
-                        # creating a new npf-admin user
+                    # if ORG user exists
+                    elif OrgUser.objects.filter(user__email=admin_email).exists():
+
+                        # checkig if he's not a biz admin
+                        npf_user = OrgUser.objects.get(user__email=admin_email)
+
+                        if npf_user.org.status== 'npf':
+                            is_biz_admin = False
+
+                        else:
+                            is_biz_admin = True
+
+
+                    # if ORG user doesn't exist
+                    elif OrgUser.objects.filter(user__email=admin_email).exists() != True:
+                        # creating a new user
                         try:
-                            new_npf_user = OcUser().setup_user(
+                            npf_user = OcUser().setup_user(
                                 username=admin_email,
                                 email=admin_email,
                                 first_name=admin_name,
                             )
-                            new_npf_user.set_password('')
-                            new_npf_user.save()
+                            npf_user.set_password('')
+                            npf_user.save()
 
                         except UserExistsException:
-                            logger.debug('NPF admin %s already exists', admin_email)
-                            # new_npf_user = User.objects.get(username=admin_email)
-
-
-                        # checking if NPF admin is approved
-                        # TODO
-                        # distinguish approved and not-approved NPF admins
-
+                            logger.debug('Org user %s already exists', admin_email)
+                            # npf_user = User.objects.get(username=admin_email)
 
                         # setting up new NPF user
                         try:
-                            OrgUserInfo(new_npf_user.id).setup_orguser(org)
+                            OrgUserInfo(npf_user.id).setup_orguser(org)
                         except InvalidOrgUserException:
-                            logger.debug('Cannot setup NPF user: %s', new_npf_user)
+                            logger.debug('Cannot setup NPF user: %s', npf_user)
                             return False, 'Couldn\'t setup NPF admin'
 
-                        # creating DB records for logged time
-                        self.create_proj_event_utimelog(
-                            user,
-                            new_npf_user.id,
-                            org,
-                            form_data['description'],
-                            form_data['datetime_start'],
-                            form_data['datetime_end']
-                        )
+                        is_biz_admin=False
 
+
+
+                    if is_biz_admin:
+                        return False, 'The user with provided email is an organization admin. You can also invite new admins to the platform.'
+
+                    else:
+                        # sending invitations
                         new_npf_admin_user = self.invite_new_admin(
                             org,
                             admin_email,
@@ -1039,6 +1053,15 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                             datetime_end=form_data['datetime_end'].strftime("%Y-%m-%d %H:%M:%S")
                         )
 
+                        # eventually creating DB records for logged time
+                        self.create_proj_event_utimelog(
+                            user,
+                            npf_user.id,
+                            org,
+                            form_data['description'],
+                            form_data['datetime_start'],
+                            form_data['datetime_end']
+                        )
                         return True, None
 
             else:
@@ -1331,9 +1354,6 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         # tz = org.timezone
 
         status = self.track_hours(data)
-        print "\nHERE"
-        print status
-        print "HERE\n"
         isValid = status[0]
         if isValid:
             # tracked time is valid
