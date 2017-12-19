@@ -229,7 +229,15 @@ class BizAdminPermissionMixin(AdminPermissionMixin):
         )
 
 
-class HomeView(TemplateView):
+class SitemapView(TemplateView):
+    template_name = 'sitemap.xml'
+
+
+class RobotsView(TemplateView):
+    template_name = 'robots.txt'
+
+
+class HomeView(SessionContextView, TemplateView):
     template_name = 'home.html'
 
     def dispatch(self, *args, **kwargs):
