@@ -880,8 +880,12 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
     def track_hours(self, form_data):
         userid = self.request.user.id
         user = User.objects.get(id=userid)
-        org = Org.objects.get(id=form_data['org'])
-        tz = org.timezone
+
+        if form_data['org']:
+            org = Org.objects.get(id=form_data['org'])
+            tz = org.timezone
+        else:
+            tz = 'America/Chicago'
 
         #If the time is same or within the range of already existing tracking
         track_exists_1 = UserTimeLog.objects.filter(
@@ -946,40 +950,42 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                 return False, status_time
 
 
-        if form_data['admin'].isdigit():
-            # create admin-specific approval request
-            self.create_proj_event_utimelog(
-                    user,
-                    form_data['admin'],
-                    org,
-                    form_data['description'],
-                    form_data['datetime_start'],
-                    form_data['datetime_end']
-                )
-            return True, None
+        # if existing org
+        if form_data['org'].isdigit():
 
 
-        if form_data['admin'] == 'other-admin' and not form_data['new_org']:
-            # TODO (@karbmk): switch to using forms
+            # logging hours for existing admin
+            if form_data['admin'].isdigit():
+                # create admin-specific approval request
+                self.create_proj_event_utimelog(
+                        user,
+                        form_data['admin'],
+                        org,
+                        form_data['description'],
+                        form_data['datetime_start'],
+                        form_data['datetime_end']
+                    )
+                return True, None
 
-            admin_name = form_data['new_admin_name']
-            admin_email = form_data['new_admin_email']
 
-            if not admin_email:
-                return False, 'Please enter admin\'s email'
+            # logging hours for a new admin
+            elif form_data['admin'] == 'other-admin':
+                # TODO (@karbmk): switch to using forms
 
-            else:
-                if form_data['org'].isdigit():
-                    org = int(form_data['org'])
+                admin_name = form_data['new_admin_name']
+                admin_email = form_data['new_admin_email']
 
-                    # creating a new npf-admin user
-                    existing_org = None
-                    try:
-                        existing_org = Org.objects.get(id=org)
-                    except:
-                        logger.debug('Cannot find org with ID %s', org)
+                if not admin_email:
+                    return False, 'Please enter admin\'s email'
 
-                    if existing_org:
+                else:
+                    # check if user exists
+                    if User.objects.filter(email=admin_email).exists():
+                        return False, 'User {user} is already related to {org}'.format(org=org, user=admin_email)
+
+                    else:
+
+                        # creating a new npf-admin user
                         try:
                             new_npf_user = OcUser().setup_user(
                                 username=admin_email,
@@ -990,68 +996,88 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                             new_npf_user.save()
 
                         except UserExistsException:
-                            logger.debug('user %s already exists', admin_email)
-                            new_npf_user = User.objects.get(username=admin_email)
+                            logger.debug('NPF admin %s already exists', admin_email)
+                            # new_npf_user = User.objects.get(username=admin_email)
 
 
+                        # checking if NPF admin is approved
+                        # TODO
+                        # distinguish approved and not-approved NPF admins
+
+
+                        # setting up new NPF user
                         try:
-                            OrgUserInfo(new_npf_user.id).setup_orguser(existing_org)
+                            OrgUserInfo(new_npf_user.id).setup_orguser(org)
                         except InvalidOrgUserException:
                             logger.debug('Cannot setup NPF user: %s', new_npf_user)
-
+                            return False, 'Couldn\'t setup NPF admin'
 
                         # creating DB records for logged time
                         self.create_proj_event_utimelog(
                             user,
                             new_npf_user.id,
-                            existing_org,
+                            org,
                             form_data['description'],
                             form_data['datetime_start'],
                             form_data['datetime_end']
                         )
 
                         new_npf_admin_user = self.invite_new_admin(
-                            existing_org,
+                            org,
                             admin_email,
                             admin_name,
                             description=form_data['description'],
                             datetime_start=form_data['datetime_start'].strftime("%Y-%m-%d %H:%M:%S"),
                             datetime_end=form_data['datetime_end'].strftime("%Y-%m-%d %H:%M:%S")
                         )
-                    return True, None
 
-                else:
-                    return False, "Couldn't find the organization."
+                        return True, None
+
+            else:
+                status_msg = ' '.join([
+                    'You can submit hours for review by organization admin\'s registered on openCurrents.',
+                    'You can also invite new admins to the platform.'
+                ])
+                return False, status_msg
 
 
-        if form_data['new_org'] and form_data['new_admin_name']:
+        # if logging for a new org
+        elif form_data['new_org']:
 
-            org = form_data['new_org']
-            admin_name = form_data['new_admin_name']
-            admin_email = form_data['new_admin_email']
+            if form_data['new_admin_email']:
+                org = form_data['new_org']
+                admin_name = form_data['new_admin_name']
+                admin_email = form_data['new_admin_email']
 
-            if admin_email:
-                new_npf_admin_user = self.invite_new_admin(
-                    org,
-                    admin_email,
-                    admin_name,
-                    description=form_data['description'],
-                    datetime_start=form_data['datetime_start'].strftime("%Y-%m-%d %H:%M:%S"),
-                    datetime_end=form_data['datetime_end'].strftime("%Y-%m-%d %H:%M:%S")
-                )
 
-                # as of now, do not submit hours prior to admin registering
-                #self.create_approval_request(org.id,usertimelog,new_npf_admin_user)
+                if admin_email:
 
-                return True, None
+                    if User.objects.filter(email=admin_email).exists():
+                        user_org = Org.objects.all().filter(orguser__user__email=admin_email)[0]
+                        return False, 'User {user} is already related to {org}'.format(org=user_org, user=admin_email)
+
+                    else:
+                        new_npf_admin_user = self.invite_new_admin(
+                            org,
+                            admin_email,
+                            admin_name,
+                            description=form_data['description'],
+                            datetime_start=form_data['datetime_start'].strftime("%Y-%m-%d %H:%M:%S"),
+                            datetime_end=form_data['datetime_end'].strftime("%Y-%m-%d %H:%M:%S")
+                        )
+
+                        # as of now, do not submit hours prior to admin registering
+                        #self.create_approval_request(org.id,usertimelog,new_npf_admin_user)
+
+                        return True, None
+
             else:
                 return False, 'Please enter admin\'s email'
 
-        elif form_data['admin'] == 'not-sure':
+        else:
             status_msg = ' '.join([
-                'You can submit hours for review by organization admin\'s registered on openCurrents.',
-                'You can also invite new admins to the platform.'
-            ])
+                    'You need to enter organization name.'
+                ])
             return False, status_msg
 
 
@@ -1293,10 +1319,13 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         # This method is called when valid form data has been POSTed.
         # It should return an HttpResponse.
         data = form.cleaned_data
-        org = Org.objects.get(id=data['org'])
-        tz = org.timezone
+        # org = Org.objects.get(id=data['org'])
+        # tz = org.timezone
 
         status = self.track_hours(data)
+        print "\nHERE"
+        print status
+        print "HERE\n"
         isValid = status[0]
         if isValid:
             # tracked time is valid

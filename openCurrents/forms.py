@@ -465,6 +465,7 @@ class TimeTrackerForm(forms.Form):
 
 
     org = forms.ChoiceField(
+        required=False,
         choices=[("select_org", "Select organization")],
         widget=forms.Select(attrs={
             'id': 'id_org_choice'
@@ -474,7 +475,7 @@ class TimeTrackerForm(forms.Form):
     choices_admin = [("select_admin","Select coordinator")]
     admin = forms.CharField(
         #choices=choices_admin,
-        required=True,
+        required=False,
         widget=forms.Select(attrs={
             'id': 'id_admin_choice',
             'disabled': True
@@ -544,11 +545,14 @@ class TimeTrackerForm(forms.Form):
         time_end = cleaned_data['time_end']
 
         # assert org
-        try:
-            self.org = Org.objects.get(id=cleaned_data['org'])
-            tz = self.org.timezone
-        except KeyError:
-            raise ValidationError(_('Select the organization you volunteered for'))
+        if cleaned_data['org']:
+            try:
+                self.org = Org.objects.get(id=cleaned_data['org'])
+                tz = self.org.timezone
+            except KeyError:
+                raise ValidationError(_('Select the organization you volunteered for'))
+        else:
+            tz = 'America/Chicago'
 
         # parse start time
         datetime_start = None
