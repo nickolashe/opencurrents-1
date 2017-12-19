@@ -2058,12 +2058,11 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                         k_old.append({"email":email_list, "name":post_data['vol-name-'+str(i+1)],"type":"to"})
                     user_new = None
                     try:
-                        user_new = User(
+                        user_new = OcUser().setup_user(
                             username=email_list,
-                            email=email_list
+                            email=email_list,
                         )
-                        user_new.save()
-                    except Exception as e:
+                    except UserExistsException:
                         user_new = User.objects.get(username=email_list)
 
                     if user_new and event_create_id:
@@ -2088,12 +2087,11 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                     k_old.append({"email":user_email, "type":"to"})
                 user_new = None
                 try:
-                    user_new = User(
+                    user_new = OcUser().setup_user(
                         username=user_email,
-                        email=user_email
+                        email=user_email,
                     )
-                    user_new.save()
-                except Exception as e:
+                except UserExistsException:
                     user_new = User.objects.get(username=user_email)
 
                 if user_new and event_create_id:
