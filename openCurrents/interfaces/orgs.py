@@ -62,7 +62,7 @@ class OrgUserInfo(object):
 
     def is_org_admin(self, orgid):
         admin_group = self.get_admin_group(orgid)
-        return True if admin_org_group.exists() else False
+        return True if admin_group.exists() else False
 
     def make_org_admin(self, orgid):
         admin_group = self.get_admin_group(orgid)
