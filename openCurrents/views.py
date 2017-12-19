@@ -237,7 +237,7 @@ class RobotsView(TemplateView):
     template_name = 'robots.txt'
 
 
-class HomeView(SessionContextView, TemplateView):
+class HomeView(TemplateView):
     template_name = 'home.html'
 
     def dispatch(self, *args, **kwargs):
