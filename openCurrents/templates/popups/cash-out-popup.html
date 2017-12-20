@@ -1,0 +1,23 @@
+{% extends "layouts/popup.html" %}
+
+{% block title %}
+  Confirm cash out
+{% endblock title %}
+
+{% block content %}
+  <form method="post">
+  {% csrf_token %}
+    <p class="three-halves-margin-bottom">
+      openCurrents uses Dwolla to send cash directly to your bank
+      account. You will receive an email in the next 48 hours inviting
+      you to transfer your full balance of ${{ balance_available_usd }}.
+      If you have any questions, don't hesitate to reach out.</p>
+
+    <a class="button round">
+      Send dollars
+    </a>
+    <a href="javascript:void(Tawk_API.toggle())" class="button round secondary">
+      Contact us
+    </a>
+  </form>
+{% endblock content %}
