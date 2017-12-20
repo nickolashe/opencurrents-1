@@ -654,21 +654,22 @@ class BizDetailsForm(forms.Form):
     def clean_phone(self):
         phone = self.cleaned_data['phone']
 
-        phone = unicode.translate(
-            phone,
-            dict(
-                zip(
-                    map(ord, string.punctuation),
-                    [None for x in xrange(len(string.punctuation))]
+        if phone:
+            phone = unicode.translate(
+                phone,
+                dict(
+                    zip(
+                        map(ord, string.punctuation),
+                        [None for x in xrange(len(string.punctuation))]
+                    )
                 )
             )
-        )
 
-        if not phone.isdigit():
-            raise ValidationError(_('Invalid phone number'))
+            if not phone.isdigit():
+                raise ValidationError(_('Invalid phone number'))
 
-        if len(phone) < 10:
-            raise ValidationError(_('Please enter phone area code'))
+            if len(phone) < 10:
+                raise ValidationError(_('Please enter phone area code'))
 
         return phone
 
