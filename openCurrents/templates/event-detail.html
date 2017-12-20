@@ -91,10 +91,10 @@
           <ul>
             {% for name in registrants_names %}
               <li class="no-bullet">
-                {% if name != '' %}
+                {% if name %}
                   {{ name }}
                 {% else %}
-                  hi
+                  check
                 {% endif %}
               </li>
             {% endfor %}
