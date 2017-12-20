@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render, redirect
 from django.views.generic import View, ListView, TemplateView, DetailView, CreateView
-from django.views.generic.edit import FormView
+from django.views.generic.edit import FormView, DeleteView
 from django.contrib.auth.models import User, Group
 from django.db import transaction, IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
