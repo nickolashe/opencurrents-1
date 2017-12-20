@@ -121,7 +121,7 @@
         Active volunteers: {% if active_volunteers_total %}{{ active_volunteers_total }}{% else %}0{% endif %}
       </a>
       <a href="{% url 'openCurrents:public-record' %}?record_type=top-biz&period=month" class="button tiny round secondary">
-        Currents accepted: {% if currents_accepted %}{{ currents_accepted }}{% else %}0{% endif %}
+        Currents redeemed: {% if currents_accepted %}{{ currents_accepted }}{% else %}0{% endif %}
       </a>
     </div>
   </div>
