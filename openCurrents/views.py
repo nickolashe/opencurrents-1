@@ -3651,3 +3651,4 @@ def sendBulkEmail(template_name, template_content, merge_vars, recipient_email, 
     else:
         logger.info('test mode: mocking mandrill call')
         sess['recepient'] = recipient_email
+        sess['merge_vars'] = merge_vars
