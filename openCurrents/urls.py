@@ -34,7 +34,7 @@ urlpatterns = [
     url(r'^confirm-account/(?P<email>[\w\.@\+\-]+)/(?P<status_msg>.*)/$',
         views.ConfirmAccountView.as_view(), name='confirm-account'),
     url(r'^community/$', views.CommunityView.as_view(), name='community'),
-    url(r'^delete-offer/$', views.DeleteOfferView.as_view(), name='delete-offer'),
+    url(r'^delete-offer/(?P<offer_id>\d+)/$', views.DeleteOfferView.as_view(), name='delete-offer'),
     url(r'^login/$', views.LoginView.as_view(), name='login'),
     url(r'^login/(?P<status_msg>.*)/$', views.LoginView.as_view(), name='login'),
     url(r'^invite-friends/(?P<referrer>[\w\.@\+\-]*)/$',
