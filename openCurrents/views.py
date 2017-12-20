@@ -952,7 +952,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                     'on',
                     track_existing_datetime_start.strftime('%-m/%-d')
                 ])
-                logger.info(status_time)
+                logger.debug(status_time)
 
                 #return redirect('openCurrents:time-tracker', status_time)
                 return False, status_time
@@ -960,7 +960,6 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
 
         # if existing org
         if form_data['org'].isdigit():
-
 
             # logging hours for existing admin
             if form_data['admin'].isdigit():
@@ -974,7 +973,6 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                         form_data['datetime_end']
                     )
                 return True, None
-
 
             # logging hours for a new admin
             elif form_data['admin'] == 'other-admin':
@@ -998,7 +996,6 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                     if OrgUser.objects.filter(user__email=admin_email).exists() and is_admin:
                         return False, 'User {user} is already related to {org}'.format(org=org, user=admin_email)
 
-
                     # if ORG user exists
                     elif OrgUser.objects.filter(user__email=admin_email).exists():
 
@@ -1010,7 +1007,6 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
 
                         else:
                             is_biz_admin = True
-
 
                     # if ORG user doesn't exist
                     elif OrgUser.objects.filter(user__email=admin_email).exists() != True:
@@ -1036,8 +1032,6 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                             return False, 'Couldn\'t setup NPF admin'
 
                         is_biz_admin=False
-
-
 
                     if is_biz_admin:
                         return False, 'The user with provided email is an organization admin. You can also invite new admins to the platform.'
@@ -1079,7 +1073,6 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                 org = form_data['new_org']
                 admin_name = form_data['new_admin_name']
                 admin_email = form_data['new_admin_email']
-
 
                 if admin_email:
 
@@ -1188,10 +1181,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         doInvite = True
 
         # adding flag to not call Mandrill during unittests
-        if 'test_time_tracker_mode' in  self.request.POST and self.request.POST['test_time_tracker_mode']=='1':
-            test_time_tracker_mode = True
-        else:
-            test_time_tracker_mode = False
+        test_time_tracker_mode = self.request.POST.get('test_time_tracker_mode')
 
         # looks like we don't need this piece anymore
         # try:
@@ -1206,8 +1196,6 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         #     # user_new.save()
         #     doInvite = True
 
-
-
         # adapting function for sending org.name or form_data['new_org'] to new admin
         if isinstance(org, Org):
             org = org.name  # the Org instance was passed, using name
@@ -1215,31 +1203,31 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             org = org  # the sting was passed, using it as an org name
 
         email_vars = [
-                    {
-                        'name': 'ADMIN_NAME',
-                        'content': admin_name
-                    },
-                    {
-                        'name': 'FNAME',
-                        'content': self.request.user.first_name
-                    },
-                    {
-                        'name': 'LNAME',
-                        'content': self.request.user.last_name
-                    },
-                    {
-                        'name': 'EVENT',
-                        'content': False
-                    },
-                    {
-                        'name': 'ORG_NAME',
-                        'content': org
-                    },
-                    {
-                        'name': 'EMAIL',
-                        'content': admin_email
-                    },
-                ]
+            {
+                'name': 'ADMIN_NAME',
+                'content': admin_name
+            },
+            {
+                'name': 'FNAME',
+                'content': self.request.user.first_name
+            },
+            {
+                'name': 'LNAME',
+                'content': self.request.user.last_name
+            },
+            {
+                'name': 'EVENT',
+                'content': False
+            },
+            {
+                'name': 'ORG_NAME',
+                'content': org
+            },
+            {
+                'name': 'EMAIL',
+                'content': admin_email
+            },
+        ]
 
         # adding kwargs to email vars
         if kwargs:
@@ -1328,7 +1316,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
     def get_context_data(self, **kwargs):
         #Get the status msg from URL
         context = super(TimeTrackerView, self).get_context_data(**kwargs)
-        userid = self.request.user.id
+        userid = self.userid
 
         try:
             usertimelog = UserTimeLog.objects.filter(user__id=userid).order_by('datetime_start').reverse()[0]
@@ -1344,7 +1332,6 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         except:
             context['org_stat_id'] = ''
         return context
-
 
     def form_valid(self, form):
         # This method is called when valid form data has been POSTed.
@@ -2033,12 +2020,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         user = User.objects.get(id=userid)
         post_data = self.request.POST
         event_create_id = None
-
-        try:
-            test_mode = post_data['test_mode']
-        except:
-            test_mode = False
-
+        test_mode = post_data.get('test_mode')
 
         try:
             event_create_id = kwargs.pop('event_ids')
@@ -3014,7 +2996,7 @@ def process_signup(
                             },
                             {
                                 'name': 'ORG_STATUS',
-                                'content': request.POST['org_type']
+                                'content': org_status
                             }
                         ],
                         'bizdev@opencurrents.com'
@@ -3588,6 +3570,7 @@ def sendContactEmail(template_name, template_content, merge_vars, admin_email, u
 def sendTransactionalEmail(template_name, template_content, merge_vars, recipient_email, **kwargs):
 
     # adding launch function marker to session for testing purpose
+    test_time_tracker_mode = None
     if kwargs:
         sess = kwargs['session']
         marker = kwargs['marker']
@@ -3613,11 +3596,12 @@ def sendTransactionalEmail(template_name, template_content, merge_vars, recipien
             message=message
         )
     else:
-        print "We don't send Transactional emails during tests."
+        logger.debug('test mode: mocking mandrill call')
 
 def sendBulkEmail(template_name, template_content, merge_vars, recipient_email, sender_email, **kwargs):
 
     # adding launch function marker to session for testing purpose
+    test_mode = None
     if kwargs:
         sess = kwargs['session']
         marker = kwargs['marker']
@@ -3644,5 +3628,5 @@ def sendBulkEmail(template_name, template_content, merge_vars, recipient_email, 
         )
 
     else:
-        print "We don't send Bulk emails during tests."
+        logger.info('test mode: mocking mandrill call')
         sess['recepient'] = recipient_email

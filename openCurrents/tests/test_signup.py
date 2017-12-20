@@ -200,11 +200,11 @@ class TestSignup(TransactionTestCase):
         if is_true:
             self.assertTrue(groups.exists())
             self.assertEqual(len(groups), 1)
-            if org.status == "npf":
-                self.assertFalse(groups[0].user_set.all())
-            else:
-                self.assertTrue(groups[0].user_set.all())
 
+            if org.status == 'biz':
+                self.assertEqual(len(groups[0].user_set.all()), 1)
+            else:
+                self.assertFalse(groups[0].user_set.all())
             return groups[0]
         else:
             self.assertFalse(groups.exists())
