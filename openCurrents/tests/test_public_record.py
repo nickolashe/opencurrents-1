@@ -87,6 +87,11 @@ class PublicRecordViewTestSuite(TestCase):
             t = Ledger.objects.last()
             t.date_created -= timedelta(days=33)
             t.save()
+
+            event_prev_month = Event.objects.last()
+            event_prev_month.datetime_start -= timedelta(days=33)
+            event_prev_month.save()
+
             if user:
                 self.old_top_with_names.append({'name': regular_user.username, 'total': amount})
             else:
@@ -121,9 +126,7 @@ class PublicRecordViewTestSuite(TestCase):
 
         # There were no transactions for last month
         top_npf_last_month = OcOrg().get_top_issued_npfs('month')
-
-        # TODO: figure out a proper way to test for past records
-        # self.assertEqual(top_npf_last_month[0]['total'], 0)
+        self.assertEqual(top_npf_last_month[0]['total'], 0)
 
         # Random transaction amounts are recorded to the list
         # And compared to interface output
@@ -156,9 +159,8 @@ class PublicRecordViewTestSuite(TestCase):
         [self.set_up_org(status='biz', old=True) for _ in range(5)]
 
         # There were no transactions for last month
-        # TODO: figure out a proper way to test for past records
         top_npf_last_month = OcOrg().get_top_accepted_bizs('month')
-        # self.assertEqual(top_npf_last_month[0]['total'], 0)
+        self.assertEqual(top_npf_last_month[0]['total'], 0)
 
         # Random transaction amounts are recorded to the list
         # And compared to interface output

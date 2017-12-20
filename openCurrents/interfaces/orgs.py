@@ -21,18 +21,20 @@ class OrgUserInfo(object):
         self.user=OcUser(self.userid).get_user()
         self.orgusers = OrgUser.objects.filter(user__id=userid)
 
-    def setup_orguser(self, org, affiliation=None):
+    def setup_orguser(self, org, is_admin=False):
         org_user = None
 
         try:
             org_user = OrgUser(
                 org=org,
-                user=self.user,
-                affiliation=affiliation
+                user=self.user
             )
             org_user.save()
         except Exception as e:
             raise InvalidOrgUserException()
+
+        if is_admin:
+            self.make_org_admin(org.id)
 
         return org_user
 
@@ -51,26 +53,44 @@ class OrgUserInfo(object):
     def get_org_timezone(self):
         return self.orgusers[0].org.timezone if self.orgusers else 'America/Chicago'
 
-    def is_org_admin(self, orgid):
+    def get_admin_group(self, orgid):
         admin_org_group_name = '_'.join(['admin', str(orgid)])
-        admin_org_group = Group.objects.filter(
-            name=admin_org_group_name,
-            user__id=self.userid
-        ).exists()
-        return True if admin_org_group else False
+
+        admin_org_group = None
+        try:
+            admin_org_group = Group.objects.get(
+                name=admin_org_group_name
+            )
+        except Exception as e:
+            logger.warning('org %d without admin group', orgid)
+
+        return admin_org_group
+
+    def is_org_admin(self, orgid):
+        admin_group = self.get_admin_group(orgid)
+        if admin_group and admin_group.user_set.filter(id=self.userid):
+            return True
+        else:
+            return False
 
     def make_org_admin(self, orgid):
-        admin_org_group_name = '_'.join(['admin', str(orgid)])
-        admin_org_group = Group.objects.filter(
-            name=admin_org_group_name
-        )
-        if admin_org_group:
+        admin_group = self.get_admin_group(orgid)
+        if admin_group:
             try:
-                admin_org_group[0].user_set.add(self.user)
+                admin_group.user_set.add(self.user)
             except Exception:
-                raise ExistingAdminException()
+                logger.warning(
+                    'user %s is already admin of org %d',
+                    self.user.username,
+                    orgid
+                )
         else:
+            logger.warning('org %d without admin group', orgid)
             raise InvalidOrgException()
+
+    def is_user_in_org_group(self):
+        in_group = Group.objects.filter(user=self.user)
+        return True if in_group else False
 
 
 class OcOrg(object):
@@ -92,6 +112,7 @@ class OcOrg(object):
                 website=website
             )
             org.save()
+            self.orgid = org.id
         except Exception as e:
             raise OrgExistsException
 
