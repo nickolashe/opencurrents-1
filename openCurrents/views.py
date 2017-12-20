@@ -2030,11 +2030,12 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                 event_create_id = [int(event_create_id)]
                 event_create_id = unicode(event_create_id)
             event_create_id = json.loads(event_create_id)
-        except:
-            pass
+        except Exception as e:
+            logger.error('unable to process events IDs')
 
         k = []
         k_old = []
+
         users = User.objects.values_list('username')
         user_list = [str(''.join(j)) for j in users]
 
@@ -2051,14 +2052,19 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
             num_vols = len(bulk_list)
 
         for i in range(num_vols):
+
             if post_data['bulk-vol'].encode('ascii','ignore') == '':
                 email_list = post_data['vol-email-'+str(i+1)]
+
                 if email_list != '':
                     if email_list not in user_list:
                         k.append({"email":email_list, "name":post_data['vol-name-'+str(i+1)],"type":"to"})
+
                     elif email_list in user_list:
                         k_old.append({"email":email_list, "name":post_data['vol-name-'+str(i+1)],"type":"to"})
+
                     user_new = None
+
                     try:
                         user_new = OcUser().setup_user(
                             username=email_list,
@@ -2081,6 +2087,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                             logger.error('unable to register user for event')
                 else:
                     num_vols -= 1
+
             elif post_data['bulk-vol'] != '':
                 user_email = str(bulk_list[i].strip())
                 if str(bulk_list[i].strip()) != '' and bulk_list[i].strip() not in user_list:
@@ -2189,10 +2196,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                 )
         except Exception as e:
             try:
-                sendBulkEmail(
-                    'invite-volunteer',
-                    None,
-                    email_template_merge_vars.extend([
+                email_template_merge_vars.extend([
                         {
                             'name': 'ADMIN_FIRSTNAME',
                             'content': user.first_name
@@ -2205,13 +2209,30 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                             'name': 'ORG_NAME',
                             'content': Organisation
                         },
-                    ]),
-                    k,
-                    user.email,
-                    session=self.request.session,
-                    marker='1',
-                    test_mode = test_mode
-                )
+                    ])
+
+                if k:
+                    sendBulkEmail(
+                        'invite-volunteer',
+                        None,
+                        email_template_merge_vars,
+                        k,
+                        user.email,
+                        session=self.request.session,
+                        marker='1',
+                        test_mode = test_mode
+                    )
+                if k_old:
+                    sendBulkEmail(
+                        'invite-volunteer',
+                        None,
+                        email_template_merge_vars,
+                        k_old,
+                        user.email,
+                        session=self.request.session,
+                        marker='1',
+                        test_mode = test_mode
+                    )
             except Exception as e:
                 logger.error(
                     'unable to send email: %s (%s)',
