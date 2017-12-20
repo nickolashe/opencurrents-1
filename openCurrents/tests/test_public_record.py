@@ -89,7 +89,7 @@ class PublicRecordViewTestSuite(TestCase):
             t.save()
 
             event_prev_month = Event.objects.last()
-            event_prev_month.date_created -= timedelta(days=33)
+            event_prev_month.datetime_start -= timedelta(days=33)
             event_prev_month.save()
 
             if user:
