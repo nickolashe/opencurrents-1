@@ -22,6 +22,20 @@ from openCurrents.interfaces.orgs import \
 
 class TestIvniteVolunteersNoEvent(TestCase):
 
+    def _get_merge_vars_keys_values(self, merge_vars):
+
+        values=[]
+        for i in merge_vars:
+            values.extend(i.values())
+        return values
+
+
+    def _assert_merge_vars(self, merge_vars, values_list):
+        mergedvars_values=self._get_merge_vars_keys_values(merge_vars)
+        for value in values_list:
+            self.assertIn(value, mergedvars_values)
+
+
     def setUp(self):
 
         # creating org
@@ -43,6 +57,8 @@ class TestIvniteVolunteersNoEvent(TestCase):
         self.npf_admin_1 = OcUser().setup_user(
             username='npf_admin_1',
             email='npf_admin_1@g.com',
+            first_name='first_npf_admin_1',
+            last_name='last_npf_admin_1'
         )
         oui = OrgUserInfo(self.npf_admin_1.id)
         oui.setup_orguser(self.org)
@@ -56,7 +72,7 @@ class TestIvniteVolunteersNoEvent(TestCase):
         self.client = Client()
 
 
-    def test_personal_message_post_single_no_message(self):
+    def test_invite_new_single_no_message(self):
         """
         test invitation of a single new volunteer without a personal message (no event)
         """
@@ -92,8 +108,14 @@ class TestIvniteVolunteersNoEvent(TestCase):
         # assert userentity was created
         self.assertTrue(UserEntity.objects.get(user__username='single_test_guest_1@mail.cc'), 'single_test_guest_1@mail.cc')
 
+        # asserting email vars values
+        expected_list = ['first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'NPF_org_1', 'ORG_NAME']
+        self._assert_merge_vars(session['merge_vars'],expected_list)
 
-    def test_personal_message_post_bulk_no_message(self):
+
+
+
+    def test_invite_new_bulk_no_message(self):
         """
         test invitation of a bunch of new volunteers without a personal message (no event)
         """
@@ -126,8 +148,12 @@ class TestIvniteVolunteersNoEvent(TestCase):
         # assert userentities were created
         self.assertEqual(len(UserEntity.objects.filter(user__username__contains='bulk_test_guest_')), 4)
 
+        # asserting email vars values
+        expected_list = ['first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'NPF_org_1', 'ORG_NAME']
+        self._assert_merge_vars(session['merge_vars'],expected_list)
 
-    def test_personal_message_post_single_with_personal_message(self):
+
+    def test_invite_new_single_with_personal_message(self):
         """
         test invitation of a single new volunteer with personal message (no event)
         """
@@ -163,10 +189,12 @@ class TestIvniteVolunteersNoEvent(TestCase):
         # assert userentity was created
         self.assertTrue(UserEntity.objects.get(user__username='single_test_guest_1@mail.cc'), 'single_test_guest_1@mail.cc')
 
+        # asserting email vars values
+        expected_list = ['Test msg', 'PERSONAL_MESSAGE', 'first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'NPF_org_1', 'ORG_NAME']
+        self._assert_merge_vars(session['merge_vars'],expected_list)
 
 
-
-    def test_personal_message_post_bulk_with_personal_message(self):
+    def test_invite_new_bulk_with_personal_message(self):
 
         """
         test invitation of a bunch of new volunteers with personal message (no event)
@@ -200,8 +228,13 @@ class TestIvniteVolunteersNoEvent(TestCase):
         # assert userentities were created
         self.assertEqual(len(UserEntity.objects.filter(user__username__contains='bulk_test_guest_')), 4)
 
+        # asserting email vars values
+        expected_list = ['Test msg 2', 'PERSONAL_MESSAGE', 'first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'NPF_org_1', 'ORG_NAME']
+        self._assert_merge_vars(session['merge_vars'],expected_list)
 
-    def test_personal_message_post_single_existing_no_message(self):
+
+
+    def test_invite_single_existing_no_message(self):
         """
         test invitation of a registered single volunteer without a personal message (no event)
         """
@@ -235,8 +268,12 @@ class TestIvniteVolunteersNoEvent(TestCase):
         self.assertTrue(self.client.session['recepient'][0]['email'], self.volunteer1.email)
         self.assertTrue(self.client.session['recepient'][0]['name'], self.volunteer1.username)
 
+        # asserting email vars values
+        expected_list = ['first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'NPF_org_1', 'ORG_NAME']
+        self._assert_merge_vars(session['merge_vars'],expected_list)
 
-    def test_personal_message_post_single_existing_with_message(self):
+
+    def test_invite_single_existing_with_message(self):
         """
         test invitation of a registered single volunteer with a personal message (no event)
         """
@@ -270,8 +307,12 @@ class TestIvniteVolunteersNoEvent(TestCase):
         self.assertTrue(self.client.session['recepient'][0]['email'], self.volunteer1.email)
         self.assertTrue(self.client.session['recepient'][0]['name'], self.volunteer1.username)
 
+        # asserting email vars values
+        expected_list = ['Test msg single existing', 'PERSONAL_MESSAGE', 'first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'NPF_org_1', 'ORG_NAME']
+        self._assert_merge_vars(session['merge_vars'],expected_list)
 
-    def test_personal_message_post_bulk_existing_users_with_personal_message(self):
+
+    def test_invite_bulk_existing_with_personal_message(self):
         """
         test invitation of a bunch of existing volunteers with personal message (no event)
         """
@@ -303,8 +344,12 @@ class TestIvniteVolunteersNoEvent(TestCase):
         self.assertTrue(self.client.session['recepient'][0]['email'], self.volunteer1.email)
         self.assertTrue(self.client.session['recepient'][1]['email'], self.volunteer2.email)
 
+        # asserting email vars values
+        expected_list = ['Test msg bulk existing users', 'PERSONAL_MESSAGE', 'first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'NPF_org_1', 'ORG_NAME']
+        self._assert_merge_vars(session['merge_vars'],expected_list)
 
-    def test_personal_message_post_bulk_existing_users_without_personal_message(self):
+
+    def test_invite_bulk_existing_without_personal_message(self):
         """
         test invitation of a bunch of existing volunteers with personal message (no event)
         """
@@ -336,10 +381,29 @@ class TestIvniteVolunteersNoEvent(TestCase):
         self.assertTrue(self.client.session['recepient'][0]['email'], self.volunteer1.email)
         self.assertTrue(self.client.session['recepient'][1]['email'], self.volunteer2.email)
 
+        # asserting email vars values
+        expected_list = ['first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'NPF_org_1', 'ORG_NAME']
+        self._assert_merge_vars(session['merge_vars'],expected_list)
+
 
 
 
 class TestIvniteVolunteersToEvent(TestCase):
+
+
+    def _get_merge_vars_keys_values(self, merge_vars):
+
+        values=[]
+        for i in merge_vars:
+            values.extend(i.values())
+        return values
+
+
+    def _assert_merge_vars(self, merge_vars, values_list):
+        mergedvars_values=self._get_merge_vars_keys_values(merge_vars)
+        for value in values_list:
+            self.assertIn(value, mergedvars_values)
+
 
     def setUp(self):
 
@@ -362,6 +426,8 @@ class TestIvniteVolunteersToEvent(TestCase):
         self.npf_admin_1 = OcUser().setup_user(
             username='npf_admin_1',
             email='npf_admin_1@g.com',
+            first_name='first_npf_admin_1',
+            last_name='last_npf_admin_1'
         )
         oui = OrgUserInfo(self.npf_admin_1.id)
         oui.setup_orguser(self.org)
@@ -394,6 +460,7 @@ class TestIvniteVolunteersToEvent(TestCase):
 
         # setting up client
         self.client = Client()
+
 
 
     def test_invite_new_single_no_message(self):
@@ -434,7 +501,9 @@ class TestIvniteVolunteersToEvent(TestCase):
         # assert userentity was created
         self.assertTrue(UserEntity.objects.get(user__username='single_test_guest_1@mail.cc'), 'single_test_guest_1@mail.cc')
 
-
+        # asserting email vars values
+        expected_list = ['first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'test_project_1', 'EVENT_TITLE', 'NPF_org_1', 'ORG_NAME', 'test_location_1', 'EVENT_LOCATION']
+        self._assert_merge_vars(session['merge_vars'],expected_list)
 
 
     def test_invite_new_bulk_no_message(self):
@@ -469,6 +538,10 @@ class TestIvniteVolunteersToEvent(TestCase):
 
         # assert userentities were created
         self.assertEqual(len(UserEntity.objects.filter(user__username__contains='bulk_test_guest_')), 4)
+
+        # asserting email vars values
+        expected_list = ['first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'test_project_1', 'EVENT_TITLE', 'NPF_org_1', 'ORG_NAME', 'test_location_1', 'EVENT_LOCATION']
+        self._assert_merge_vars(session['merge_vars'],expected_list)
 
 
     def test_invite_new_single_with_message(self):
@@ -507,6 +580,10 @@ class TestIvniteVolunteersToEvent(TestCase):
         # assert userentity was created
         self.assertTrue(UserEntity.objects.get(user__username='single_test_guest_1@mail.cc'), 'single_test_guest_1@mail.cc')
 
+        # asserting email vars values
+        expected_list = ['Test msg', 'PERSONAL_MESSAGE', 'first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'test_project_1', 'EVENT_TITLE', 'NPF_org_1', 'ORG_NAME', 'test_location_1', 'EVENT_LOCATION']
+        self._assert_merge_vars(session['merge_vars'],expected_list)
+
 
     def test_invite_new_bulk_with_message(self):
         """
@@ -541,8 +618,12 @@ class TestIvniteVolunteersToEvent(TestCase):
         # assert userentities were created
         self.assertEqual(len(UserEntity.objects.filter(user__username__contains='bulk_test_guest_')), 4)
 
+        # asserting email vars values
+        expected_list = ['Test msg 2', 'PERSONAL_MESSAGE', 'first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'test_project_1', 'EVENT_TITLE', 'NPF_org_1', 'ORG_NAME', 'test_location_1', 'EVENT_LOCATION']
+        self._assert_merge_vars(session['merge_vars'],expected_list)
 
-    def test_invite_single_existing_no_message(self):
+
+    def test_invite_to_event_single_existing_no_message(self):
         """
         test invitation of a registered single volunteer without a personal message to future event
         """
@@ -557,7 +638,7 @@ class TestIvniteVolunteersToEvent(TestCase):
         self.assertTrue(User.objects.get(username=self.volunteer1.username), self.volunteer1.username)
 
         # posting form
-        response = self.client.post("/invite-volunteers/", {
+        response = self.client.post("/invite-volunteers/1/", {
             'vol-name-1': self.volunteer1.username,
             'vol-email-1': self.volunteer1.email,
             'bulk-vol':'',
@@ -576,8 +657,16 @@ class TestIvniteVolunteersToEvent(TestCase):
         self.assertTrue(self.client.session['recepient'][0]['email'], self.volunteer1.email)
         self.assertTrue(self.client.session['recepient'][0]['name'], self.volunteer1.username)
 
+        # asserting email vars values
+        expected_list = ['first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'test_project_1', 'EVENT_TITLE', 'NPF_org_1', 'ORG_NAME', 'test_location_1', 'EVENT_LOCATION']
+        self._assert_merge_vars(session['merge_vars'],expected_list)
 
-    def test_invite_single_existing_with_message(self):
+        # asserting email vars values
+        expected_list = ['first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'test_project_1', 'EVENT_TITLE', 'NPF_org_1', 'ORG_NAME', 'test_location_1', 'EVENT_LOCATION']
+        self._assert_merge_vars(session['merge_vars'],expected_list)
+
+
+    def test_invite_to_event_single_existing_with_message(self):
         """
         test invitation of a registered single volunteer with a personal message to future event
         """
@@ -592,7 +681,7 @@ class TestIvniteVolunteersToEvent(TestCase):
         self.assertTrue(User.objects.get(username=self.volunteer1.username), self.volunteer1.username)
 
         # posting form
-        response = self.client.post("/invite-volunteers/", {
+        response = self.client.post("/invite-volunteers/1/", {
             'vol-name-1': self.volunteer1.username,
             'vol-email-1': self.volunteer1.email,
             'bulk-vol':'',
@@ -611,6 +700,10 @@ class TestIvniteVolunteersToEvent(TestCase):
         self.assertTrue(self.client.session['recepient'][0]['email'], self.volunteer1.email)
         self.assertTrue(self.client.session['recepient'][0]['name'], self.volunteer1.username)
 
+        # asserting email vars values
+        expected_list = ['Test msg single existing', 'PERSONAL_MESSAGE', 'first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'test_project_1', 'EVENT_TITLE', 'NPF_org_1', 'ORG_NAME', 'test_location_1', 'EVENT_LOCATION']
+        self._assert_merge_vars(session['merge_vars'],expected_list)
+
 
     def test_invite_bulk_existing_with_personal_message(self):
         """
@@ -628,7 +721,7 @@ class TestIvniteVolunteersToEvent(TestCase):
         self.assertTrue(User.objects.get(username=self.volunteer2.username), self.volunteer2.username)
 
         # posting form
-        response = self.client.post("/invite-volunteers/", {
+        response = self.client.post("/invite-volunteers/1/", {
             'bulk-vol': "'" + self.volunteer1.email + ", " + self.volunteer2.email + "'",
             'personal_message':'Test msg bulk existing users',
             'test_mode':'1' # letting know the app that we're testing, so it shouldnt send emails via Mandrill
@@ -643,6 +736,10 @@ class TestIvniteVolunteersToEvent(TestCase):
         #asserting both users are in recepients
         self.assertTrue(self.client.session['recepient'][0]['email'], self.volunteer1.email)
         self.assertTrue(self.client.session['recepient'][1]['email'], self.volunteer2.email)
+
+        # asserting email vars values
+        expected_list = ['Test msg bulk existing users', 'PERSONAL_MESSAGE', 'first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'test_project_1', 'EVENT_TITLE', 'NPF_org_1', 'ORG_NAME', 'test_location_1', 'EVENT_LOCATION']
+        self._assert_merge_vars(session['merge_vars'],expected_list)
 
 
     def test_invite_bulk_existing_users_no_message(self):
@@ -662,7 +759,7 @@ class TestIvniteVolunteersToEvent(TestCase):
         self.assertTrue(User.objects.get(username=self.volunteer2.username), self.volunteer2.username)
 
         # posting form
-        response = self.client.post("/invite-volunteers/", {
+        response = self.client.post("/invite-volunteers/1/", {
             'bulk-vol': "'" + self.volunteer1.email + ", " + self.volunteer2.email + "'",
             'personal_message':'',
             'test_mode':'1' # letting know the app that we're testing, so it shouldnt send emails via Mandrill
@@ -677,3 +774,7 @@ class TestIvniteVolunteersToEvent(TestCase):
         #asserting both users are in recepients
         self.assertTrue(self.client.session['recepient'][0]['email'], self.volunteer1.email)
         self.assertTrue(self.client.session['recepient'][1]['email'], self.volunteer2.email)
+
+        # asserting email vars values
+        expected_list = ['first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'test_project_1', 'EVENT_TITLE', 'NPF_org_1', 'ORG_NAME', 'test_location_1', 'EVENT_LOCATION']
+        self._assert_merge_vars(session['merge_vars'],expected_list)
