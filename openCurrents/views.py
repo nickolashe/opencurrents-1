@@ -348,6 +348,10 @@ class CommunityView(TemplateView):
     template_name = 'community.html'
 
 
+class DeleteOfferView(DeleteView):
+    template_name = 'delete-offer.html'
+
+
 class LoginView(TemplateView):
     template_name = 'login.html'
 
