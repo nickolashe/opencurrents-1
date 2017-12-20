@@ -209,11 +209,11 @@
               {{i|keyvalue:admin.user.id}}
             </a>
           {% endif %}
+        {% empty %}
+          <p>
+            No hours are currently pending approval.
+          </p>
         {% endfor %}
-      {% empty %}
-        <p>
-          No hours are currently pending approval.
-        </p>
       {% endfor %}
     </div>
   </div>
