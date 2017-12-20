@@ -477,10 +477,7 @@ class Offer(models.Model):
 class Transaction(models.Model):
     user = models.ForeignKey(User)
 
-    offer = models.ForeignKey(
-        Offer,
-        on_delete=models.CASCADE
-    )
+    offer = models.ForeignKey(Offer)
 
     pop_image = models.ImageField(
         upload_to='images/redeem/%Y/%m/%d',

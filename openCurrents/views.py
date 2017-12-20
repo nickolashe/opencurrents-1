@@ -8,6 +8,7 @@ from django.views.generic.edit import FormView, DeleteView
 from django.contrib.auth.models import User, Group
 from django.db import transaction, IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
+from django.urls import reverse, reverse_lazy
 from django.utils.safestring import mark_safe
 from django.utils import timezone
 from django.db.models import F, Q, Max
@@ -350,6 +351,11 @@ class CommunityView(TemplateView):
 
 class DeleteOfferView(DeleteView):
     template_name = 'delete-offer.html'
+    model = Offer
+    success_url = reverse_lazy(
+        'openCurrents:biz-admin',
+        kwargs={'status_msg': 'Selected offer has been deleted'}
+    )
 
 
 class LoginView(TemplateView):
