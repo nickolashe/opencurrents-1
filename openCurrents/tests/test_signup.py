@@ -196,6 +196,7 @@ class TestSignup(TransactionTestCase):
             self.assertFalse(org)
 
         groups = Group.objects.filter(name='admin_%s' % org.id)
+
         if is_true:
             self.assertTrue(groups.exists())
             self.assertEqual(len(groups), 1)
@@ -207,6 +208,8 @@ class TestSignup(TransactionTestCase):
             return groups[0]
         else:
             self.assertFalse(groups.exists())
+
+
 
     def test_signup_user_new(self):
         '''
