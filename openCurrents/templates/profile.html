@@ -80,7 +80,7 @@
           {% if event.project.name != "ManualTracking" %}
           <div class="row half-margin-bottom">
             <div class="left small-9 columns">
-              <strong>Let's {{event.project.name}}!</strong>
+              <strong>{{event.project.name}}</strong>
               with {{event.project.org.name}}
               on {{event.datetime_start|day:timezone}}
               from {{event.datetime_start|time:timezone}}

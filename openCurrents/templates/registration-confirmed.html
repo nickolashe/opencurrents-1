@@ -3,20 +3,41 @@
 {% load tags %}
 
 
-{% block title %} You're all set! {% endblock title %}
+{% block title %}
+  {% if coordinator %}
+    Emails sent to volunteers
+  {% else %}
+    You're all set!
+  {% endif %}
+{% endblock title %}
 
 
 {% block content %}
-  <p>
-    Thank you for helping {{ event.project.org.name }} {{ event.project.name }}
-    on {{ event.datetime_start|day }}. Enjoy the event!
-  </p>
+  {% if coordinator %}
+    <p>
+      Thank you for organizing {{ event.project.name }}
+      on {{ event.datetime_start|day }}. Enjoy the event!
+    </p>
 
-  <div class="row three-halves-margin-top center">
-    <div class="small-12 medium-8 small-centered columns">
-      <a href="{% url 'openCurrents:profile' %}" class="button round">
-        Return to profile
-      </a>
+    <div class="row three-halves-margin-top center">
+      <div class="small-12 medium-8 small-centered columns">
+        <a href="{% url 'openCurrents:org-admin' %}" class="button round">
+          Back to org profile
+        </a>
+      </div>
     </div>
-  </div>
+  {% else %}
+    <p>
+      Thank you for helping {{ event.project.org.name }} at {{ event.project.name }}
+      on {{ event.datetime_start|day }}. Enjoy the event!
+    </p>
+
+    <div class="row three-halves-margin-top center">
+      <div class="small-12 medium-8 small-centered columns">
+        <a href="{% url 'openCurrents:profile' %}" class="button round">
+          Back to profile
+        </a>
+      </div>
+    </div>
+  {% endif %}
 {% endblock content %}
