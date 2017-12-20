@@ -113,7 +113,7 @@
             </div>
 
             <div class="right small-3 columns">
-              <input {% if checkin_disabled %}disabled{% endif %} type="checkbox" id="vol-checkin-{{ user.id }}" name="vol-checkin-{{ user.id }}" value="{{ user.id }}" class=" hidden checkin-checkbox"
+              <input {% if checkin_disabled %}disabled{% endif %} type="checkbox" id="vol-checkin-{{ user.id }}" name="vol-checkin-{{ user.id }}" value="{{ user.id }}" class="hidden checkin-checkbox"
                 {% if user.id in checkedin_users %}
                   checked
                 {% endif %}
