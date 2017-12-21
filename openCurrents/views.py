@@ -1504,7 +1504,7 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
 
         for admin in context['org_admins']:
             admin_total_hours_issued = OrgAdmin(admin.id).get_total_hours_issued()
-            amount_issued_by_admin = {admin.id: total_hours_issued}
+            amount_issued_by_admin = {admin.id: admin_total_hours_issued}
 
             # adding to total approved hours
             context['issued_by_all'] += admin_total_hours_issued
