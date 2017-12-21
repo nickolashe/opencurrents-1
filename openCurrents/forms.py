@@ -73,25 +73,33 @@ class VolunteerCheckinField(forms.Field):
 #        })
 #    )
 
-class UserSignupForm(forms.Form):
-    user_firstname = forms.CharField(
-        widget=forms.TextInput(attrs={
-            'id': 'new-firstname',
-            'placeholder': 'Firstname'
-        })
-    )
-    user_lastname = forms.CharField(
-        widget=forms.TextInput(attrs={
-            'id': 'new-lastname',
-            'placeholder': 'Lastname'
-        })
-    )
+class UserEmailForm(forms.Form):
     user_email = forms.EmailField(
         widget=forms.EmailInput(attrs={
             'id': 'new-email',
             'placeholder': 'Email'
         })
     )
+
+    def clean_user_email(self):
+        return self.cleaned_data['user_email'].lower()
+
+
+class UserSignupForm(UserEmailForm):
+    user_firstname = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'id': 'new-firstname',
+            'placeholder': 'Firstname'
+        })
+    )
+
+    user_lastname = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'id': 'new-lastname',
+            'placeholder': 'Lastname'
+        })
+    )
+
     org_name = forms.CharField(required=False, min_length=2)
 
     org_status = forms.ChoiceField(
@@ -105,11 +113,10 @@ class UserSignupForm(forms.Form):
     org_admin_id = forms.IntegerField(required=False)
 
 
-class PasswordResetRequestForm(forms.Form):
-    user_email = forms.CharField(min_length=1)
+class PasswordResetRequestForm(UserEmailForm):
+    pass
 
-class UserLoginForm(forms.Form):
-    user_email = forms.CharField(min_length=1)
+class UserLoginForm(UserEmailForm):
     user_password = forms.CharField(min_length=1)
 
 
@@ -186,6 +193,7 @@ class PasswordResetForm(forms.Form):
         # else:
         #     raise ValidationError(_('Password does\'nt meet the required criterion.'))
 
+
 class OrgNominationForm(forms.Form):
     org_name = forms.CharField(min_length=1,required=True)
     contact_name = forms.CharField(min_length=1,required=False)
@@ -217,12 +225,6 @@ class OrgSignupForm(forms.Form):
     )
     org_mission = forms.CharField(required=False)
     org_reason = forms.CharField(required=False)
-
-    def clean_user_affiliation(self):
-        return str(self.cleaned_data['user_affiliation'])
-
-    def clean_org_status(self):
-        return str(self.cleaned_data['org_status'])
 
 
 class CreateEventForm(forms.Form):
