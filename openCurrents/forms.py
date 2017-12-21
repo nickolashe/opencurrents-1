@@ -595,7 +595,7 @@ class TimeTrackerForm(forms.Form):
             ))
 
         # start time too far in past
-        two_weeks_ago = datetime.now(tz=pytz.utc) - timedelta(days=2)
+        two_weeks_ago = datetime.now(tz=pytz.utc) - timedelta(weeks=2)
         if cleaned_data['datetime_start'] < two_weeks_ago:
             raise ValidationError(_(
                 'You can submit hours for up to 2 weeks in the past'
