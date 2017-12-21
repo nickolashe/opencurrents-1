@@ -58,7 +58,7 @@
             <div class="small-6 columns">
               <p class="half-margin-bottom">
                 {% if is_admin %}
-                  {{ fullname|user.first_name:user.last_name }} recorded hours for
+                  {{ user.first_name|fullname:user.last_name }} recorded hours for
                 {% endif %}
 
                 {% if event.event_type == 'MN' %}
