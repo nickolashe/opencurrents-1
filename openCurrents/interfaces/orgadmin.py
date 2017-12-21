@@ -91,6 +91,9 @@ class OrgAdmin(object):
         return usertimelogs
 
     def _get_adminactions_for_usertimelogs(self, usertimelogs, action_type='req'):
+        if not usertimelogs:
+            return []
+
         # admin-specific requests
         admin_actions = AdminActionUserTime.objects.filter(
             user_id=self.userid
