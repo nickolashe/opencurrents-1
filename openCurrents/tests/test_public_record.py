@@ -84,6 +84,9 @@ class PublicRecordViewTestSuite(TestCase):
                 amount
             )
         if old:
+
+            # @@ TODO
+            # delete 3 lines below and test
             t = Ledger.objects.last()
             t.date_created -= timedelta(days=33)
             t.save()
