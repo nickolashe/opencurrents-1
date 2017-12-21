@@ -955,7 +955,8 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                 logger.debug(status_time)
 
                 #return redirect('openCurrents:time-tracker', status_time)
-                return False, status_time
+                msg_type='alert'
+                return False, status_time, msg_type
 
 
         # if existing org
@@ -983,7 +984,8 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
 
                 if not admin_email:
                     # admin field should be populated
-                    return False, 'Please enter admin\'s email'
+                    msg_type='alert'
+                    return False, 'Please enter admin\'s email', msg_type
 
                 else:
                     # check if ORG user exists and he is an active admin
@@ -994,7 +996,8 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                         is_admin = False
 
                     if OrgUser.objects.filter(user__email=admin_email).exists() and is_admin:
-                        return False, 'User {user} is already related to {org}'.format(org=org, user=admin_email)
+                        msg_type = 'alert'
+                        return False, '{user} is already associated with another organization and cannot approve hours for {org}'.format(org=org.name, user=admin_email), msg_type
 
                     # if ORG user exists
                     elif OrgUser.objects.filter(user__email=admin_email).exists():
@@ -1029,7 +1032,8 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                             OrgUserInfo(npf_user.id).setup_orguser(org)
                         except InvalidOrgUserException:
                             logger.debug('Cannot setup NPF user: %s', npf_user)
-                            return False, 'Couldn\'t setup NPF admin'
+                            msg_type='alert'
+                            return False, 'Couldn\'t setup NPF admin', msg_type
 
                         is_biz_admin=False
 
@@ -1063,7 +1067,8 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                     'You can submit hours for review by organization admin\'s registered on openCurrents.',
                     'You can also invite new admins to the platform.'
                 ])
-                return False, status_msg
+                msg_type='alert'
+                return False, status_msg, msg_type
 
 
         # if logging for a new org
@@ -1078,7 +1083,8 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
 
                     if User.objects.filter(email=admin_email).exists():
                         user_org = Org.objects.all().filter(orguser__user__email=admin_email)[0]
-                        return False, 'User {user} is already related to {org}'.format(org=user_org, user=admin_email)
+                        msg_type = 'alert'
+                        return False, '{user} is already associated with another organization and cannot approve hours for {org}'.format(org=user_org.name, user=admin_email), msg_type
 
                     else:
                         new_npf_admin_user = self.invite_new_admin(
@@ -1102,7 +1108,8 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             status_msg = ' '.join([
                     'You need to enter organization name.'
                 ])
-            return False, status_msg
+            msg_type='alert'
+            return False, status_msg, msg_type
 
 
     def create_proj_event_utimelog(
@@ -1323,6 +1330,10 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             actiontimelog = AdminActionUserTime.objects.filter(usertimelog = usertimelog)
             context['org_stat_id'] = actiontimelog[0].usertimelog.event.project.org.id
             context['status_msg'] = self.kwargs.pop('status_msg')
+
+            if self.kwargs['msg_type']:
+                context['msg_type'] = self.kwargs.pop('msg_type')
+
             if context['org_stat_id']==userid:
                 context['org_stat_id'] = ''
             else:
@@ -1352,9 +1363,15 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             except Exception:
                 pass
 
+            try:
+                msg_type = status[2]
+            except:
+                msg_type='success'
+
             return redirect(
                 'openCurrents:time-tracker',
-                status_msg=status_msg
+                status_msg=status_msg,
+                msg_type=msg_type
             )
 
 

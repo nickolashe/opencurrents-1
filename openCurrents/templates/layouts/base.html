@@ -19,7 +19,7 @@
       <div id="wrapper">
 
         {% block status %}
-          <div class="success row one-margin-top">
+          <div class="{{msg_type}} row one-margin-top">
             <div class="columns">
               {% autoescape off %}
                 {{ status_msg }}
