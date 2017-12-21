@@ -1446,11 +1446,13 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         context['active_volunteers_total'] = OcCommunity().get_active_volunteers_total()
 
         # getting currents accepted
-        currents_pending = OcCommunity().get_currents_pending_total()
-        currents_approved = OcCommunity().get_currents_approved_total()
-        currents_pending = OcCommunity().get_currents_pending_total()
+        currents_pending = OcCommunity().get_biz_currents_pending_total()
+        currents_accepted = OcCommunity().get_biz_currents_accepted_total()
 
-        context['currents_accepted'] = OcCommunity().get_currents_pending_total()
+        context['biz_currents_total'] = round(
+            sum(map(float, [currents_pending, currents_accepted])),
+            3
+        )
 
         return context
 
