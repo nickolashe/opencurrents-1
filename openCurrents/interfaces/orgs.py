@@ -101,6 +101,17 @@ class OcOrg(object):
         if self.orgid:
             try:
                 self.org = Org.objects.get(id=self.orgid)
+
+                org_admin_group_name = '_'.join(['admin', str(orgid)])
+                self.org_admin_group = None
+                try:
+                    self.org_admin_group = Group.objects.get(
+                        name=org_admin_group_name
+                    )
+                except Exception as e:
+                    logger.warning('org %d without admin group', orgid)
+                    raise
+
             except Exception as e:
                 raise InvalidOrgException
 
@@ -147,6 +158,12 @@ class OcOrg(object):
 
         result.sort(key=lambda biz_dict: biz_dict['total'], reverse=True)
         return result[:quantity]
+
+    def get_admins(self):
+        if self.org_admin_group:
+            return self.org_admin_group.user_set.all()
+        else:
+            return None
 
 
     def get_top_bizs_by_pending(self, period, quantity=None):
