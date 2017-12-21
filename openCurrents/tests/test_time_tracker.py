@@ -275,7 +275,7 @@ class TestTimeTracker(TestCase):
         self.assertRedirects(response, '/time-tracked/', status_code=302)
 
         # asserting that transactional email function has been launched
-        # self.assertEqual(session['transactional'], '1')
+        self.assertEqual(session['transactional'], '1')
 
         # assert a MT event was created
         self.assertEqual(len(Event.objects.all()), 1)

@@ -955,7 +955,8 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                 logger.debug(status_time)
 
                 #return redirect('openCurrents:time-tracker', status_time)
-                return False, status_time
+                msg_type='alert'
+                return False, status_time, msg_type
 
 
         # if existing org
@@ -983,7 +984,8 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
 
                 if not admin_email:
                     # admin field should be populated
-                    return False, 'Please enter admin\'s email'
+                    msg_type='alert'
+                    return False, 'Please enter admin\'s email', msg_type
 
                 else:
                     # check if ORG user exists and he is an active admin
@@ -994,7 +996,8 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                         is_admin = False
 
                     if OrgUser.objects.filter(user__email=admin_email).exists() and is_admin:
-                        return False, 'User {user} is already related to {org}'.format(org=org, user=admin_email)
+                        msg_type = 'alert'
+                        return False, '{user} is already associated with another organization and cannot approve hours for {org}'.format(org=org.name, user=admin_email), msg_type
 
                     # if ORG user exists
                     elif OrgUser.objects.filter(user__email=admin_email).exists():
@@ -1029,7 +1032,8 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                             OrgUserInfo(npf_user.id).setup_orguser(org)
                         except InvalidOrgUserException:
                             logger.debug('Cannot setup NPF user: %s', npf_user)
-                            return False, 'Couldn\'t setup NPF admin'
+                            msg_type='alert'
+                            return False, 'Couldn\'t setup NPF admin', msg_type
 
                         is_biz_admin=False
 
@@ -1063,7 +1067,8 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                     'You can submit hours for review by organization admin\'s registered on openCurrents.',
                     'You can also invite new admins to the platform.'
                 ])
-                return False, status_msg
+                msg_type='alert'
+                return False, status_msg, msg_type
 
 
         # if logging for a new org
@@ -1078,7 +1083,8 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
 
                     if User.objects.filter(email=admin_email).exists():
                         user_org = Org.objects.all().filter(orguser__user__email=admin_email)[0]
-                        return False, 'User {user} is already related to {org}'.format(org=user_org, user=admin_email)
+                        msg_type = 'alert'
+                        return False, '{user} is already associated with another organization and cannot approve hours for {org}'.format(org=user_org.name, user=admin_email), msg_type
 
                     else:
                         new_npf_admin_user = self.invite_new_admin(
@@ -1102,7 +1108,8 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             status_msg = ' '.join([
                     'You need to enter organization name.'
                 ])
-            return False, status_msg
+            msg_type='alert'
+            return False, status_msg, msg_type
 
 
     def create_proj_event_utimelog(
@@ -1323,6 +1330,10 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             actiontimelog = AdminActionUserTime.objects.filter(usertimelog = usertimelog)
             context['org_stat_id'] = actiontimelog[0].usertimelog.event.project.org.id
             context['status_msg'] = self.kwargs.pop('status_msg')
+
+            if self.kwargs['msg_type']:
+                context['msg_type'] = self.kwargs.pop('msg_type')
+
             if context['org_stat_id']==userid:
                 context['org_stat_id'] = ''
             else:
@@ -1352,9 +1363,15 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             except Exception:
                 pass
 
+            try:
+                msg_type = status[2]
+            except:
+                msg_type='success'
+
             return redirect(
                 'openCurrents:time-tracker',
-                status_msg=status_msg
+                status_msg=status_msg,
+                msg_type=msg_type
             )
 
 
@@ -2030,11 +2047,12 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                 event_create_id = [int(event_create_id)]
                 event_create_id = unicode(event_create_id)
             event_create_id = json.loads(event_create_id)
-        except:
-            pass
+        except Exception as e:
+            logger.error('unable to process events IDs')
 
         k = []
         k_old = []
+
         users = User.objects.values_list('username')
         user_list = [str(''.join(j)) for j in users]
 
@@ -2051,14 +2069,19 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
             num_vols = len(bulk_list)
 
         for i in range(num_vols):
+
             if post_data['bulk-vol'].encode('ascii','ignore') == '':
                 email_list = post_data['vol-email-'+str(i+1)]
+
                 if email_list != '':
                     if email_list not in user_list:
                         k.append({"email":email_list, "name":post_data['vol-name-'+str(i+1)],"type":"to"})
+
                     elif email_list in user_list:
                         k_old.append({"email":email_list, "name":post_data['vol-name-'+str(i+1)],"type":"to"})
+
                     user_new = None
+
                     try:
                         user_new = OcUser().setup_user(
                             username=email_list,
@@ -2081,6 +2104,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                             logger.error('unable to register user for event')
                 else:
                     num_vols -= 1
+
             elif post_data['bulk-vol'] != '':
                 user_email = str(bulk_list[i].strip())
                 if str(bulk_list[i].strip()) != '' and bulk_list[i].strip() not in user_list:
@@ -2189,10 +2213,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                 )
         except Exception as e:
             try:
-                sendBulkEmail(
-                    'invite-volunteer',
-                    None,
-                    email_template_merge_vars.extend([
+                email_template_merge_vars.extend([
                         {
                             'name': 'ADMIN_FIRSTNAME',
                             'content': user.first_name
@@ -2205,13 +2226,30 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                             'name': 'ORG_NAME',
                             'content': Organisation
                         },
-                    ]),
-                    k,
-                    user.email,
-                    session=self.request.session,
-                    marker='1',
-                    test_mode = test_mode
-                )
+                    ])
+
+                if k:
+                    sendBulkEmail(
+                        'invite-volunteer',
+                        None,
+                        email_template_merge_vars,
+                        k,
+                        user.email,
+                        session=self.request.session,
+                        marker='1',
+                        test_mode = test_mode
+                    )
+                if k_old:
+                    sendBulkEmail(
+                        'invite-volunteer',
+                        None,
+                        email_template_merge_vars,
+                        k_old,
+                        user.email,
+                        session=self.request.session,
+                        marker='1',
+                        test_mode = test_mode
+                    )
             except Exception as e:
                 logger.error(
                     'unable to send email: %s (%s)',
@@ -2258,27 +2296,19 @@ class EventDetailView(LoginRequiredMixin, SessionContextView, DetailView):
         context['coordinator'] = is_coord
 
         # list of confirmed registered users
-        context['registrants'] = []
         if is_coord or is_org_admin:
-            reg_list = []
-            reg_list_names = []
-            reg_objects = UserEventRegistration.objects.filter(
+            regs = UserEventRegistration.objects.filter(
                 event__id=context['event'].id,
                 is_confirmed=True
             )
 
-            for reg in reg_objects:
-                reg_list.append(reg.user.email)
-
-            context['registrants'] = reg_list
-
-            for email in reg_list:
-                reg_user = User.objects.get(email=email)
-                reg_list_names.append(
-                    ' '.join([reg_user.first_name, reg_user.last_name])
-                )
-
-            context['registrants_names'] = reg_list_names
+            context['registrants'] = dict([
+                (reg.user.email, {
+                    'first_name': reg.user.first_name,
+                    'last_name': reg.user.last_name
+                })
+                for reg in regs
+            ])
 
         return context
 
@@ -3630,3 +3660,4 @@ def sendBulkEmail(template_name, template_content, merge_vars, recipient_email, 
     else:
         logger.info('test mode: mocking mandrill call')
         sess['recepient'] = recipient_email
+        sess['merge_vars'] = merge_vars
