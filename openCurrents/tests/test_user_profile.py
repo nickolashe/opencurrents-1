@@ -251,6 +251,8 @@ class TestUserProfileView(TestCase):
         response = self.client.get('/profile/')
         self.assertEqual(response.status_code, 200)
 
+        # @@ TODO @@
+        # create upcoming events
         self.assertEqual(len(response.context['events_upcoming']), 0)
 
 
@@ -261,6 +263,8 @@ class TestUserProfileView(TestCase):
         response = self.client.get('/profile/')
         self.assertEqual(response.status_code, 200)
 
+        # @@ TODO @@
+        # add amount of currents available to user
         self.assertEqual(response.context['balance_available'], 0.0)
 
 
@@ -281,6 +285,8 @@ class TestUserProfileView(TestCase):
         response = self.client.get('/profile/')
         self.assertEqual(response.status_code, 200)
 
+        # @@ TODO @@
+        # add amount of dollars available to user
         self.assertEqual(response.context['balance_available_usd'], 0.0)
 
 
@@ -291,6 +297,8 @@ class TestUserProfileView(TestCase):
         response = self.client.get('/profile/')
         self.assertEqual(response.status_code, 200)
 
+        # @@ TODO @@
+        # add amount of dollars pending to user
         self.assertEqual(response.context['balance_pending_usd'], 0.0)
 
 
@@ -301,6 +309,8 @@ class TestUserProfileView(TestCase):
         response = self.client.get('/profile/')
         self.assertEqual(response.status_code, 200)
 
+        # @@ TODO @@
+        # add amount of offers_redeemed to user
         self.assertEqual(len(response.context['offers_redeemed']), 0)
 
 
@@ -463,17 +473,8 @@ class TestUserProfileCommunityActivity(TestCase):
 
         response = self.client.get('/public-record/?record_type=top-org&period=month')
         self.assertIn('entries', response.context)
+
+        # @@ TODO @@
+        # add currents amount issued by the companies to this test
         expected_entries = [{'total': 0, 'name': 'NPF_org_1'}, {'total': 0, 'name': 'NPF_org_2'}]
         self.assertEqual(expected_entries, response.context['entries'])
-
-        print response.context['entries']
-        print Ledger.objects.all()
-        print Event.objects.all()
-        print AdminActionUserTime.objects.all()
-        print UserTimeLog.objects.all()
-
-
-
-
-
-
