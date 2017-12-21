@@ -22,7 +22,10 @@ class OcCommunity(object):
         """
         total_currents_amount = sum([
             x['total']
-            for x in OcOrg().get_top_issued_npfs(period='all-time')
+            for x in OcOrg().get_top_issued_npfs(
+                period='all-time',
+                quantity=1e6
+            )
             if x['total'] > 0
         ])
 
@@ -34,7 +37,10 @@ class OcCommunity(object):
         returns total volunteers number in the system
         """
         active_volunteers_total = len([
-            x for x in OcUser().get_top_received_users(period='all-time')
+            x for x in OcUser().get_top_received_users(
+                period='all-time',
+                quantity=1e6
+            )
         ])
 
         return active_volunteers_total
@@ -46,7 +52,10 @@ class OcCommunity(object):
         """
         currents_accepted_total = sum([
             x['total']
-            for x in OcOrg().get_top_accepted_bizs(period='all-time')
+            for x in OcOrg().get_top_accepted_bizs(
+                period='all-time',
+                quantity=1e6
+            )
             if x['total'] > 0
         ])
 

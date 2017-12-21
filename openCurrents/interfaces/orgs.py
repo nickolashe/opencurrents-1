@@ -5,6 +5,7 @@ from openCurrents.models import \
     OrgUser, \
     OrgEntity
 
+from openCurrents.interfaces.bizadmin import BizAdmin
 from openCurrents.interfaces.ocuser import OcUser
 from openCurrents.interfaces.ledger import OcLedger
 
@@ -148,6 +149,14 @@ class OcOrg(object):
         return result[:quantity]
 
 
+    def get_top_bizs_by_pending(self, period, quantity=None):
+        for biz in Org.objects.filter(status='biz'):
+            OcOrg(biz.id).
+        [
+        biz.get_balance_pending()
+
+
+        ]
 class InvalidOrgException(Exception):
     pass
 

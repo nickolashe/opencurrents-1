@@ -1446,7 +1446,11 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         context['active_volunteers_total'] = OcCommunity().get_active_volunteers_total()
 
         # getting currents accepted
-        context['currents_accepted'] = OcCommunity().get_currents_accepted_total()
+        currents_pending = OcCommunity().get_currents_pending_total()
+        currents_approved = OcCommunity().get_currents_approved_total()
+        currents_pending = OcCommunity().get_currents_pending_total()
+
+        context['currents_accepted'] = OcCommunity().get_currents_pending_total()
 
         return context
 
