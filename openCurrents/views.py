@@ -1994,7 +1994,7 @@ class UpcomingEventsView(LoginRequiredMixin, SessionContextView, ListView):
         )
 
 
-class VolunteerOpportunitiesView(TemplateView):
+class VolunteerOpportunitiesView(LoginRequiredMixin, SessionContextView, ListView):
     template_name = 'volunteer-opportunities.html'
     context_object_name = 'events'
 
