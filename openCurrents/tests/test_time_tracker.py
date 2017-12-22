@@ -289,6 +289,9 @@ class TestTimeTracker(TestCase):
         # assert new usertimelog was created
         self.assertEqual(len(UserTimeLog.objects.all()), 1)
 
+        # asserting adminaction
+        self.assertEqual(len(AdminActionUserTime.objects.filter(usertimelog__user=self.volunteer1)), 1)
+
 
 
     def test_vol_hours_new_org_existing_adm(self):
