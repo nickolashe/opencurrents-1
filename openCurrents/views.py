@@ -2802,10 +2802,10 @@ def event_register_live(request, eventid):
             is_confirmed=True
         )
         user_event_registration.save()
-        logger.info('User %s registered for event %s', user.username, event.id)
+        logger.debug('User %s registered for event %s', user.username, event.id)
     else:
-        logger.info('User %s already registered for event %s', user.username, event.id)
-        return HttpResponse(status=400)
+        logger.debug('User %s already registered for event %s', user.username, event.id)
+        return HttpResponse(status=200)
 
     tz = event.project.org.timezone
     event_ds = event.datetime_start.time()
@@ -2815,7 +2815,14 @@ def event_register_live(request, eventid):
         event_status = '1'
     else:
         event_status = '0'
-    return HttpResponse(content = json.dumps({'userid': userid, 'eventid': eventid, 'event_status': event_status}), status=201)
+    return HttpResponse(
+        content = json.dumps({
+            'userid': userid,
+            'eventid': eventid,
+            'event_status': event_status
+        }),
+        status=201
+    )
 
 
 # resend the verification email to a user who hits the Resend button on their check-email page
