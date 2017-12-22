@@ -1060,14 +1060,6 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                         )
                         return True, None
 
-            else:
-                status_msg = ' '.join([
-                    'You can submit hours for review by organization admin\'s registered on openCurrents.',
-                    'You can also invite new admins to the platform.'
-                ])
-                msg_type='alert'
-                return False, status_msg, msg_type
-
 
         # if logging for a new org
         elif form_data['new_org']:
