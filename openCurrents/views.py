@@ -1996,6 +1996,30 @@ class UpcomingEventsView(LoginRequiredMixin, SessionContextView, ListView):
 
 class VolunteerOpportunitiesView(TemplateView):
     template_name = 'volunteer-opportunities.html'
+    context_object_name = 'events'
+
+    def get_context_data(self, **kwargs):
+        # skip context param determines whether we show skip button or not
+        context = super(VolunteerOpportunitiesView, self).get_context_data(**kwargs)
+        #context['timezone'] = self.request.user.account.timezone
+        context['timezone'] = 'America/Chicago'
+
+        return context
+
+
+    def get_queryset(self):
+        # show all public events plus private event for orgs the user is admin for
+        userid = self.request.user.id
+
+        event_query_filter = Q(is_public=True)
+        if self.ocauth.is_admin_org():
+            event_query_filter |= Q(is_public=False, project__org__id=self.org.id)
+
+        return Event.objects.filter(
+            datetime_end__gte=datetime.now(tz=pytz.utc)
+        ).filter(
+            event_query_filter
+        )
 
 
 class ProjectDetailsView(TemplateView):
