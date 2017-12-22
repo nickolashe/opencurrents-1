@@ -9,6 +9,9 @@ def one_week_from_now():
 def diffInHours(t1, t2):
     return round((t2 - t1).total_seconds() / 3600, 2)
 
+def diffInMinutes(t1, t2):
+    return round((t2 - t1).total_seconds() / 60, 1)
+
 def _get_redemption_total(records, currency='cur'):
     balance = 0
 

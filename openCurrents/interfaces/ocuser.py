@@ -1,4 +1,5 @@
 from datetime import date, datetime, timedelta
+from decimal import Decimal
 
 from django.contrib.auth.models import User
 from django.db.models import Max
@@ -114,7 +115,6 @@ class OcUser(object):
             entity_id=self.user.userentity.id,
             entity_type='user'
         )
-        logger.info('current balance: %s', current_balance)
 
         # offer redemption requests
         redemption_reqs = Transaction.objects.filter(
@@ -134,11 +134,8 @@ class OcUser(object):
         total_req_redemptions = common._get_redemption_total(
             active_redemption_reqs
         )
-        logger.info(
-            'total requested redemptions: %s',
-            total_req_redemptions
-        )
-        return current_balance - total_req_redemptions
+
+        return round(current_balance - total_req_redemptions, 3)
 
     def get_balance_pending(self):
         '''
@@ -183,7 +180,7 @@ class OcUser(object):
             currency='usd'
         )
 
-        return balance_usd
+        return round(balance_usd, 2)
 
     def get_balance_pending_usd(self):
         '''
@@ -210,7 +207,7 @@ class OcUser(object):
             'usd'
         )
 
-        return total_redemptions
+        return round(total_redemptions, 2)
 
     def _get_unique_hour_total(self, records, from_admin_actions=False):
         event_user = set()
@@ -228,7 +225,7 @@ class OcUser(object):
 
         return balance
 
-    def get_offers_redeemed(self):
+    def get_offers_redeemed(self, fees=True):
         if not self.userid:
             raise InvalidUserException
 
@@ -278,20 +275,47 @@ class OcUser(object):
 
         return num_redeemed
 
-    def get_hours_requested(self):
+    def get_hours_requested(self, **kwargs):
         usertimelogs = self._get_usertimelogs()
         admin_actions = self._get_adminactions_for_usertimelogs(usertimelogs)
 
+        if 'by_org' in kwargs:
+            admin_actions = self._split_by_org(admin_actions)
+
         return admin_actions
 
-    def get_hours_approved(self):
-        usertimelogs = self._get_usertimelogs(verified=True)
+    def get_hours_approved(self, **kwargs):
+        usertimelogs = self._get_usertimelogs(verified=True, **kwargs)
         admin_actions = self._get_adminactions_for_usertimelogs(
             usertimelogs,
             'app'
         )
 
+        if 'by_org' in kwargs:
+            admin_actions = self._split_by_org(admin_actions)
+
         return admin_actions
+
+    def _split_by_org(self, actions):
+        hours_by_org = {}
+        temp_orgs_set = set()
+
+        for action in actions:
+            event = action.usertimelog.event
+            org = event.project.org
+            approved_hours = common.diffInHours(
+                event.datetime_start,
+                event.datetime_end
+            )
+
+            if approved_hours > 0:
+                if not org in temp_orgs_set:
+                    temp_orgs_set.add(org)
+                    hours_by_org[org] = approved_hours
+                else:
+                    hours_by_org[org] += approved_hours
+
+        return hours_by_org
 
     def get_top_received_users(self, period, quantity=10):
         result = list()
@@ -299,24 +323,34 @@ class OcUser(object):
 
         for user in users:
             earned_cur_amount = OcLedger().get_earned_cur_amount(user.id, period)['total']
-            if not earned_cur_amount:
-                earned_cur_amount = 0
-            result.append({'name': user.username, 'total': earned_cur_amount})
+
+            # only include active volunteers
+            if earned_cur_amount > 0:
+                if user.first_name and user.last_name:
+                    name = ' '.join([user.first_name, user.last_name])
+                else:
+                    name = user.username
+
+                result.append({'name': name, 'total': earned_cur_amount})
 
         result.sort(key=lambda user_dict: user_dict['total'], reverse=True)
         return result[:quantity]
 
-    def _get_usertimelogs(self, verified=False):
+    def _get_usertimelogs(self, verified=False, **kwargs):
         # determine whether there are any unverified timelogs for admin
+
         usertimelogs = UserTimeLog.objects.filter(
             user__id=self.userid
-        ).filter(
-            event__event_type='MN'
         ).filter(
             is_verified=verified
         ).annotate(
             last_action_created=Max('adminactionusertime__date_created')
         )
+
+        if 'org_id' in kwargs:
+            usertimelogs = usertimelogs.filter(
+                event__project__org_id = kwargs['org_id']
+            )
 
         return usertimelogs
 

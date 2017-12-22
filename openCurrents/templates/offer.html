@@ -22,7 +22,7 @@
           <div id="progress-2" class="progress-counter">
             <h6>2</h6>
           </div>
-          <label class="small-text">Set offers</label>
+          <label class="small-text">Set offer</label>
         </div>
 
         <div class="small-3 columns">
@@ -102,7 +102,7 @@
           <div class="row collapse">
             <div class="input-left small-3 columns">
               <p><strong>
-                <img class="" src="{% static 'img/symbol-navy.svg' %}"/> share
+                <img class="h6-symbol" src="{% static 'img/symbol-navy.svg' %}"/> share
               </strong></p>
             </div>
 
@@ -310,7 +310,7 @@
       });
 
       $('#offer-spacer').height($('#offer-4').height());
-      
+
       // Disable submit on Enter
       $("form input").on("keypress", function(e) {
         return e.keyCode != 13;

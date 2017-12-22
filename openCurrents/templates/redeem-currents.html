@@ -251,6 +251,11 @@
       // Set height of spacer = to height of content
       $('#redeem-spacer').height($('#offer-3').height());
 
+      // Disable submit on Enter
+      $("form input").on("keypress", function(e) {
+        return e.keyCode != 13;
+      });
+
       // Slide left on 'Next'
       var page = 1;
 
@@ -339,8 +344,7 @@
         }
       }
 
-      // Display current and dollar totals based on price input
-      $('#offer-2').on('input', function(){
+      function setConfirmationVariables() {
         let priceOfferSubjectToShareCurrents = shareToCurrents(
           $('#id_redeem_price').val()
         );
@@ -371,6 +375,15 @@
             priceSubjectToShare.currents
           );
         });
+      }
+
+      $( window ).on( "load", function(){
+        setConfirmationVariables();
+      });
+
+      // Display current and dollar totals based on price input
+      $('#offer-2').on('input', function(){
+        setConfirmationVariables();
       });
     });
   </script>

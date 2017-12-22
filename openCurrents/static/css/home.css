@@ -60,7 +60,7 @@
     content:"";
     position:fixed;
     top:0;
-    height:100vh; 
+    height:100vh;
     left:0;
     right:0;
     z-index:-1;
@@ -75,7 +75,7 @@
     content:"";
     position:fixed;
     top:0;
-    height:100vh; 
+    height:100vh;
     left:0;
     right:0;
     z-index:-1;
@@ -90,7 +90,7 @@
     content:"";
     position:fixed;
     top:0;
-    height:100vh; 
+    height:100vh;
     left:0;
     right:0;
     z-index:-1;
@@ -105,7 +105,7 @@
     content:"";
     position:fixed;
     top:0;
-    height:100vh; 
+    height:100vh;
     left:0;
     right:0;
     z-index:-1;
@@ -120,7 +120,7 @@
     content:"";
     position:fixed;
     top:0;
-    height:100vh; 
+    height:100vh;
     left:0;
     right:0;
     z-index:-1;
@@ -129,7 +129,7 @@
     -moz-background-size: cover;
     -o-background-size: cover;
     background-size: cover;
-  }  
+  }
 }
 
 #intro-1, #intro-2, #intro-3, #intro-4, #intro-5, #intro-6, #intro-7 {
@@ -138,7 +138,7 @@
 
 #intro-2, #intro-4, #intro-6 {
   background-color: #ffffff;
-  color: #1f4975;
+  color: #1f4795;
 }
 
 .home-input {
@@ -189,7 +189,7 @@ input.home-input::placeholder {
 }
 
 .benefit-icon #home-symbol {
-  stroke: #1f4975;
+  stroke: #1f4795;
 }
 
 .benefit-icon:hover #home-symbol g, .styled-radio:checked + label #home-symbol g {
@@ -246,8 +246,8 @@ input.home-input::placeholder {
   height: 77px;
   padding: 21px 0;
   border-radius: 99px;
-  border: 1px solid #1f4975;
-  color: #1f4975;
+  border: 1px solid #1f4795;
+  color: #1f4795;
   background-color: #ffffff;
   cursor: default;
   display: inline-block;
@@ -328,8 +328,8 @@ input.home-input::placeholder {
   height: 77px;
   padding: 21px 0;
   border-radius: 99px;
-  border: 1px solid #1f4975;
-  color: #1f4975;
+  border: 1px solid #1f4795;
+  color: #1f4795;
   background-color: #ffffff;
 }
 
@@ -351,13 +351,13 @@ input.home-input::placeholder {
   }
 
   #signup-box .button:hover {
-    background-color: #1f4975;
-    border-color: #1f4975;
+    background-color: #077ec0;
+    border-color: #077ec0;
   }
 
   #signup-box .button:focus {
-    background-color: #1f4975;
-    border-color: #1f4975;
+    background-color: #077ec0;
+    border-color: #077ec0;
   }
 
   .icon-box {
