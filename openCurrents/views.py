@@ -1454,24 +1454,27 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
 class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView):
     template_name = 'org-admin.html'
 
-    def _sorting_hours(self, list_of_dicts, user_id):
+    def _sorting_hours(self, admins_dict, user_id):
         """
-        Takes the list of dictionaries eg '{admin.user.id : time_pending_per_admin }' and currently logged in NPF admin user id,
+        Takes the list of dictionaries eg '{admin.user : time_pending_per_admin }' and currently logged in NPF admin user id,
         then finds and add currently logged NPF admin user to the beginning of the sorted by values list of
         dictionaries.
         Returns sorted by values list of dictionaries with hours for currently logged NPF admin as the first element.
         """
-        temp_current_admin_dic=[]
-        for item in list_of_dicts:
-            if item.has_key(user_id):
-                temp_current_admin_dic = list_of_dicts.pop(list_of_dicts.index(item))
+        # getting user instance
+        user =  User.objects.get(id = user_id)
 
-        list_of_dicts2 = sorted(list_of_dicts, key=lambda d: d.values()[0], reverse=True)
+        final_dict = OrderedDict()
+        final_dict[user] = admins_dict.pop(user)
+        temp_dict = OrderedDict()
 
-        if len(temp_current_admin_dic) > 0:
-            list_of_dicts2.insert(0, temp_current_admin_dic)
+        # sorting dict
+        temp_dict = OrderedDict(sorted(admins_dict.items(), key=lambda d: d[1] , reverse=True))
 
-        return list_of_dicts2
+        for i,v in temp_dict.iteritems():
+            final_dict[i] = v
+
+        return final_dict
 
 
     def get_context_data(self, **kwargs):
@@ -1512,8 +1515,13 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
                 context['hours_pending_by_admin'][admin] = total_hours_pending
 
         logger.debug(context['hours_pending_by_admin'])
+
         # sorting the list of admins by # of pending hours descending and putting current admin at the beginning of the list
-        # context['hours_pending_by_admin'] = self._sorting_hours(context['hours_pending_by_admin'], self.user.id)
+        if context['hours_pending_by_admin']:
+            context['hours_pending_by_admin'] = self._sorting_hours(context['hours_pending_by_admin'], self.user.id)
+        else:
+            context['hours_pending_by_admin']
+
 
         # calculating approved hours for every NPF admin and total NPF Org hours tracked
         context['issued_by_admin'] = {}
@@ -1536,7 +1544,11 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             context['issued_by_logged_admin'] = round(time_issued_by_logged_admin, 2)
 
         # sorting the list of admins by # of approved hours descending and putting current admin at the beginning of the list
-        # context['issued_by_admin'] = self._sorting_hours(context['issued_by_admin'], self.user.id)
+        if context['issued_by_admin']:
+            context['issued_by_admin'] = self._sorting_hours(context['issued_by_admin'], self.user.id)
+        else:
+            context['issued_by_admin']
+
 
         # past org events
         context['events_group_past'] = Event.objects.filter(
