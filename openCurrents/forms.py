@@ -532,13 +532,17 @@ class TimeTrackerForm(forms.Form):
             'placeholder':'Coordinator name',
         })
     )
-    new_admin_email = forms.CharField(
+    new_admin_email = forms.EmailField(
         required=False,
         widget=widgets.TextWidget(attrs={
             'class': 'center',
             'placeholder': 'Coordinator email'
         })
     )
+
+    def clean_new_admin_email(self):
+        new_admin_email = self.cleaned_data.get('new_admin_email', '')
+        return new_admin_email.lower()
 
     def clean(self):
         cleaned_data = super(TimeTrackerForm, self).clean()
