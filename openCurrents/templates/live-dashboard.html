@@ -76,6 +76,9 @@
           User was checked in to the event, but not everything went smoothly.
           Please contact us at team@opencurrents.com
         </p>
+        <p id="live-dashboard-not-in-progress" class="small-text hidden alert">
+          Event not in progress, volunteer was not checked in
+        </p>
       </div>
     </div>
   </form>
@@ -182,6 +185,8 @@
         dataType : "json",
         context: document.body
       }).done(function( data ){
+        // console.log('checkin request:');
+        // console.log(data);
         if (isChecked) {
           let dt = new Date();
           $(`#vol-status-${userid}`).text(`${dt.toLocaleTimeString()}`);
@@ -190,7 +195,10 @@
         else {
           $(`#vol-status-${userid}`).text(`${data.responseText} min.`);
         }
-      }).fail(function () {
+      }).fail(function (data) {
+        // console.log('checkin error:')
+        // console.log(data);
+        elem.prop('checked', false);
         $('#live-dashboard-error').slideDown();
       });;
     };
@@ -233,6 +241,8 @@
             },
             dataType : "json",
           }).done(function( data ) {
+            // console.log('signup response:')
+            // console.log(data);
             let userid = data;
 
             let form_data = {
@@ -246,15 +256,17 @@
               data: form_data,
               dataType : "json",
             }).done(function( data ) {
-              
+              // console.log('register_live response:')
+              // console.log(data);
               // hide any error messages present
               $('#vol-exist').slideUp();
               $('#live-dashboard-error-register').slideUp();
               $('#live-dashboard-error').slideUp();
               $('#vol-error').slideUp();
               $('#email-error').slideUp();
+              $('#live-dashboard-not-in-progress').slideUp();
 
-              if (data) {
+              if (data.event_status) {
                 $('#registered-volunteers').prepend(`
                   <div class="row"> \
                     <div class="left small-9 columns"> \
@@ -282,8 +294,10 @@
 
                 // bind new checkbox to checkin
                 $(`input[name='vol-checkin-${userid}']`).click(onCheckClick);
-                if (data.event_status == '1') {
+                if (data.event_status == 1) {
                   $(`input[name='vol-checkin-${userid}']`).trigger('click')
+                } else {
+                  $('#live-dashboard-not-in-progress').slideDown();
                 }
               }
               else {
@@ -294,9 +308,13 @@
                 $('#vol-exist').slideDown();
               }
             }).fail( function (data) {
-              $('#live-dashboard-error-register').slideDown();
+              // console.log('register_live error:')
+              // console.log(data);
+              $('#live-dashboard-error').slideDown();
             });
-          }).fail(function () {
+          }).fail(function (data) {
+            // console.log('signup error:')
+            // console.log(data);
             $('#live-dashboard-error').slideDown();
           });
 

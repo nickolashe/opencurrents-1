@@ -2544,31 +2544,30 @@ def event_checkin(request, pk):
 
         event_duration = diffInHours(event.datetime_start, event.datetime_end)
 
+        status = 200
         if checkin:
             # volunteer checkin
             vol_user = User.objects.get(id=userid)
             try:
                 with transaction.atomic():
-                    usertimelog = UserTimeLog(
+                    usertimelog = UserTimeLog.objects.create(
                         user=vol_user,
                         event=event,
                         is_verified=True,
                         datetime_start=datetime.now(tz=pytz.UTC)
                     )
-                    usertimelog.save()
 
                     # admin action record
-                    actiontimelog = AdminActionUserTime(
+                    adminaction = AdminActionUserTime.objects.create(
                         user_id=admin_id,
                         usertimelog=usertimelog,
                         action_type='app'
                     )
-                    actiontimelog.save()
 
                     OcLedger().issue_currents(
                         admin_org.orgentity.id,
                         vol_user.userentity.id,
-                        actiontimelog,
+                        adminaction,
                         event_duration
                     )
                     clogger.info(
@@ -2576,28 +2575,27 @@ def event_checkin(request, pk):
                         str(usertimelog.datetime_start),
                         userid
                     )
+                    status = 201
             except Exception as e:
-                clogger.info(e.message)
+                clogger.debug(e.message)
                 clogger.info('user %s already checked in', userid)
 
             # check in admin/coordinator
             try:
                 with transaction.atomic():
-                    usertimelog = UserTimeLog(
+                    UserTimeLog.objects.create(
                         user=User.objects.get(id=request.user.id),
                         event=event,
                         is_verified=True,
                         datetime_start=datetime.now(tz=pytz.UTC)
                     )
-                    usertimelog.save()
 
                     # admin action record
-                    actiontimelog = AdminActionUserTime(
+                    AdminActionUserTime.objects.create(
                         user_id=admin_id,
                         usertimelog=usertimelog,
                         action_type='app'
                     )
-                    actiontimelog.save()
 
                     OcLedger().issue_currents(
                         admin_org.orgentity.id,
@@ -2605,30 +2603,38 @@ def event_checkin(request, pk):
                         actiontimelog,
                         event_duration
                     )
+                    status = 201
             except Exception as e:
-                return HttpResponse(status=409)
+                return HttpResponse(content=json.dumps({}), status=status)
 
-            return HttpResponse(status=201)
+            return HttpResponse(content=json.dumps({}), status=status)
 
         else:
             # volunteer checkout
             usertimelog = UserTimeLog.objects.filter(
-                event__id=pk
-            ).filter(
+                event__id=pk,
                 user__id=userid
-            ).latest()
+            )
 
-            if usertimelog and not usertimelog.datetime_end:
-                usertimelog.datetime_end = datetime.now(tz=pytz.utc)
-                usertimelog.save()
-                clogger.info(
-                    'at %s: checkout',
-                    str(usertimelog.datetime_end)
-                )
-                return HttpResponse(
-                    diffInMinutes(usertimelog.datetime_start, usertimelog.datetime_end),
-                    status=201
-                )
+            if usertimelog:
+                usertimelog = usertimelog.latest()
+                if not usertimelog.datetime_end:
+                    usertimelog.datetime_end = datetime.now(tz=pytz.utc)
+                    usertimelog.save()
+                    clogger.info(
+                        'at %s: checkout',
+                        str(usertimelog.datetime_end)
+                    )
+                    return HttpResponse(
+                        diffInMinutes(usertimelog.datetime_start, usertimelog.datetime_end),
+                        status=201
+                    )
+                else:
+                    clogger.debug('user has already been checked out before')
+                    return HttpResponse(
+                        content=json.dumps({}),
+                        status=200
+                    )
             else:
                 clogger.error('invalid checkout (not checked in)')
                 return HttpResponse(status=400)
@@ -2794,32 +2800,31 @@ def event_register_live(request, eventid):
     userid = request.POST['userid']
     user = User.objects.get(id=userid)
     event = Event.objects.get(id=eventid)
-    user_events = UserEventRegistration.objects.values('user__id','event__id').filter(user__id = userid).filter(event__id = eventid)
-    if not user_events:
-        user_event_registration = UserEventRegistration(
-            user=user,
-            event=event,
-            is_confirmed=True
-        )
-        user_event_registration.save()
-        logger.debug('User %s registered for event %s', user.username, event.id)
-    else:
-        logger.debug('User %s already registered for event %s', user.username, event.id)
-        return HttpResponse(status=200)
+    user_event, was_created = UserEventRegistration.objects.get_or_create(
+        user=user, event=event
+    )
 
-    tz = event.project.org.timezone
-    event_ds = event.datetime_start.time()
-    event_de = event.datetime_end.time()
-    d_now = datetime.utcnow()
-    if d_now.time() < event_de and d_now.time() > event_ds and d_now.date() == event.datetime_start.date():
-        event_status = '1'
-    else:
-        event_status = '0'
+    if not was_created:
+        logger.debug(
+            'User %s is already registered for event %s',
+            user.username,
+            event.id
+        )
+        return HttpResponse(content=json.dumps({}), status=200)
+
+    logger.debug(
+        'User %s registered for event %s', user.username, event.id
+    )
+
+    now = datetime.now(tz=pytz.utc)
+    event_status = now > event.datetime_start - timedelta(minutes=15)
+    event_status &= now < event.datetime_end + timedelta(minutes=15)
+
     return HttpResponse(
         content = json.dumps({
             'userid': userid,
             'eventid': eventid,
-            'event_status': event_status
+            'event_status': int(event_status)
         }),
         status=201
     )
