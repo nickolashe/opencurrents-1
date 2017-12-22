@@ -1461,18 +1461,22 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
         dictionaries.
         Returns sorted by values list of dictionaries with hours for currently logged NPF admin as the first element.
         """
-        # getting user instance
-        user =  User.objects.get(id = user_id)
 
         final_dict = OrderedDict()
-        final_dict[user] = admins_dict.pop(user)
         temp_dict = OrderedDict()
 
-        # sorting dict
-        temp_dict = OrderedDict(sorted(admins_dict.items(), key=lambda d: d[1] , reverse=True))
+        if admins_dict:
+            # getting user instance
+            user =  User.objects.get(id = user_id)
+            final_dict[user] = admins_dict.pop(user)
 
-        for i,v in temp_dict.iteritems():
-            final_dict[i] = v
+            # sorting dict
+            temp_dict = OrderedDict(sorted(admins_dict.items(), key=lambda d: d[1] , reverse=True))
+
+            for i,v in temp_dict.iteritems():
+                final_dict[i] = v
+        else:
+            final_dict
 
         return final_dict
 
@@ -1517,10 +1521,7 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
         logger.debug(context['hours_pending_by_admin'])
 
         # sorting the list of admins by # of pending hours descending and putting current admin at the beginning of the list
-        if context['hours_pending_by_admin']:
-            context['hours_pending_by_admin'] = self._sorting_hours(context['hours_pending_by_admin'], self.user.id)
-        else:
-            context['hours_pending_by_admin']
+        context['hours_pending_by_admin'] = self._sorting_hours(context['hours_pending_by_admin'], self.user.id)
 
 
         # calculating approved hours for every NPF admin and total NPF Org hours tracked
@@ -1544,10 +1545,7 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             context['issued_by_logged_admin'] = round(time_issued_by_logged_admin, 2)
 
         # sorting the list of admins by # of approved hours descending and putting current admin at the beginning of the list
-        if context['issued_by_admin']:
-            context['issued_by_admin'] = self._sorting_hours(context['issued_by_admin'], self.user.id)
-        else:
-            context['issued_by_admin']
+        context['issued_by_admin'] = self._sorting_hours(context['issued_by_admin'], self.user.id)
 
 
         # past org events
@@ -1578,9 +1576,6 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
         hours_approved = self.orgadmin.get_hours_approved()
         context['hours_approved'] = hours_approved
 
-        # Not sure what happens here
-        # context['has_hours_requested'] = hours_requested.exists()
-
         return context
 
 
@@ -1599,7 +1594,7 @@ class EditProfileView(LoginRequiredMixin, View):
             logger.error('Cannot find UserSettings instance for {} user ID and save welcome popup answer.'.format(userid))
             return redirect(
                 'openCurrents:profile',
-                status_msg='Can\'t save your answer! Please contact administrator.'
+                status_msg='There was a problem processing your response.<br/>Please contact us at <a href="mailto:team@opencurrents.com">team@opencurrents.com</a>'
                 )
 
 
