@@ -2583,7 +2583,7 @@ def event_checkin(request, pk):
             # check in admin/coordinator
             try:
                 with transaction.atomic():
-                    UserTimeLog.objects.create(
+                    usertimelog = UserTimeLog.objects.create(
                         user=admin_user,
                         event=event,
                         is_verified=True,
@@ -2605,6 +2605,7 @@ def event_checkin(request, pk):
                     )
                     status = 201
             except Exception as e:
+                clogger.info('admin has already been checked in')
                 return HttpResponse(content=json.dumps({}), status=status)
 
             return HttpResponse(content=json.dumps({}), status=status)
