@@ -2584,14 +2584,14 @@ def event_checkin(request, pk):
             try:
                 with transaction.atomic():
                     UserTimeLog.objects.create(
-                        user=User.objects.get(id=request.user.id),
+                        user=admin_user,
                         event=event,
                         is_verified=True,
                         datetime_start=datetime.now(tz=pytz.UTC)
                     )
 
                     # admin action record
-                    AdminActionUserTime.objects.create(
+                    adminaction = AdminActionUserTime.objects.create(
                         user_id=admin_id,
                         usertimelog=usertimelog,
                         action_type='app'
@@ -2600,7 +2600,7 @@ def event_checkin(request, pk):
                     OcLedger().issue_currents(
                         admin_org.orgentity.id,
                         admin_user.userentity.id,
-                        actiontimelog,
+                        adminaction,
                         event_duration
                     )
                     status = 201
