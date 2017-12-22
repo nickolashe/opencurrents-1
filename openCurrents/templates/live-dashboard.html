@@ -246,6 +246,14 @@
               data: form_data,
               dataType : "json",
             }).done(function( data ) {
+              
+              // hide any error messages present
+              $('#vol-exist').slideUp();
+              $('#live-dashboard-error-register').slideUp();
+              $('#live-dashboard-error').slideUp();
+              $('#vol-error').slideUp();
+              $('#email-error').slideUp();
+
               if (data) {
                 $('#registered-volunteers').prepend(`
                   <div class="row"> \
