@@ -958,9 +958,8 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                 msg_type='alert'
                 return False, status_time, msg_type
 
-
         # if existing org
-        if form_data['org'].isdigit():
+        if form_data['org'].isdigit() and not form_data['new_org']:
 
             # logging hours for existing admin
             if form_data['admin'].isdigit():
@@ -1036,7 +1035,8 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                         is_biz_admin=False
 
                     if is_biz_admin:
-                        return False, 'The user with provided email is an organization admin. You can also invite new admins to the platform.'
+                        msg_type='alert'
+                        return False, 'The user with provided email is an organization admin. You can also invite new admins to the platform.', msg_type
 
                     else:
                         # sending invitations
@@ -1069,12 +1069,23 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                 admin_name = form_data['new_admin_name']
                 admin_email = form_data['new_admin_email']
 
-                if admin_email:
+                if not admin_email:
+                    # admin field should be populated
+                    msg_type='alert'
+                    return False, 'Please enter admin\'s email', msg_type
 
-                    if User.objects.filter(email=admin_email).exists():
+                else:
+                    # check if ORG user exists and he is an active admin
+                    try:
+                        user_to_check = User.objects.get(email=admin_email)
+                        is_admin = OrgUserInfo(user_to_check.id).is_user_in_org_group()
+                    except:
+                        is_admin = False
+
+                    if User.objects.filter(email=admin_email).exists() and is_admin:
                         user_org = Org.objects.all().filter(orguser__user__email=admin_email)[0]
                         msg_type = 'alert'
-                        return False, '{user} is already associated with another organization and cannot approve hours for {org}'.format(org=user_org.name, user=admin_email), msg_type
+                        return False, 'The coordinator is already affiliated with an existing organization.', msg_type
 
                     else:
                         new_npf_admin_user = self.invite_new_admin(

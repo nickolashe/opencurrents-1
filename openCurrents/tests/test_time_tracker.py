@@ -22,7 +22,9 @@ from openCurrents.interfaces.orgs import \
 from datetime import date, datetime, timedelta
 from django.utils import timezone
 import pytz
+import urllib
 from unittest import skip
+
 
 
 class TestTimeTracker(TestCase):
@@ -165,9 +167,6 @@ class TestTimeTracker(TestCase):
         # assert creation of a new NPF user with new name, email, no password
         self.assertEqual(len(User.objects.all()),4)
         self.assertEqual(len(User.objects.filter(username='new_npf_admin@e.co')),1)
-
-        new_npf_admin_response = self.client.login(username='new_npf_admin@e.co', password='')
-        self.assertEqual(new_npf_admin_response, True)
 
 
 
@@ -315,8 +314,9 @@ class TestTimeTracker(TestCase):
 
         # assert if we've been redirected
         self.assertEqual(response.status_code, 302)
-        self.assertIn(self.npf_admin_1.email, response.url)
-        self.assertIn('/time-tracker/', response.url)
+
+        self.assertIn(u'The coordinator is already affiliated with an existing organization', urllib.url2pathname(response.url))
+        self.assertIn('/time-tracker/', urllib.url2pathname(response.url))
 
 
         # assert a MT event wasn't created
