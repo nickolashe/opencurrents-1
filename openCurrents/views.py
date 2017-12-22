@@ -1020,8 +1020,6 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                                 email=admin_email,
                                 first_name=admin_name,
                             )
-                            npf_user.set_password('')
-                            npf_user.save()
 
                         except UserExistsException:
                             logger.debug('Org user %s already exists', admin_email)
