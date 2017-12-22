@@ -231,11 +231,11 @@
   <script type="text/javascript">
     $(document).ready(function(){
 
-      {% static "js/mini-menu.js" %}
-
       function status(){
         $('#status_msg').html("There are no hours that need your approval.");
       }
     });
   </script>
+
+  {% include "partials/mini-menu.html" %}
 {% endblock js %}
