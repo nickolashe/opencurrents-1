@@ -89,12 +89,12 @@
         {% if registrants %}
           <p class="half-margin-bottom"><strong>Name or email</strong></p>
           <ul>
-            {% for name in registrants_names %}
+            {% for email, rec in registrants.iteritems %}
               <li class="no-bullet">
-                {% if name != '' %}
-                  {{ name }}
+                {% if rec.first_name and rec.last_name %}
+                  {{ rec.first_name|fullname:rec.last_name }}
                 {% else %}
-                  hi
+                  {{ email }}
                 {% endif %}
               </li>
             {% endfor %}
