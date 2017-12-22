@@ -1593,7 +1593,15 @@ class EditProfileView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
         userid = self.request.user.id
-        profile_settings_instance = UserSettings.objects.get(user=userid)
+        try:
+            profile_settings_instance = UserSettings.objects.get(user=userid)
+        except:
+            logger.error('Cannot find UserSettings instance for {} user ID and save welcome popup answer.'.format(userid))
+            return redirect(
+                'openCurrents:profile',
+                status_msg='Can\'t save your answer! Please contact administrator.'
+                )
+
 
         if form.is_valid():
             if 'yes' in form.data:
