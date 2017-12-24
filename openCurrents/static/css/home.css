@@ -351,13 +351,13 @@ input.home-input::placeholder {
   }
 
   #signup-box .button:hover {
-    background-color: #1f4795;
-    border-color: #1f4795;
+    background-color: #077ec0;
+    border-color: #077ec0;
   }
 
   #signup-box .button:focus {
-    background-color: #1f4795;
-    border-color: #1f4795;
+    background-color: #077ec0;
+    border-color: #077ec0;
   }
 
   .icon-box {
