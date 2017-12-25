@@ -638,35 +638,39 @@ class HoursDetailView(LoginRequiredMixin, SessionContextView, ListView):
 
     def get_queryset(self):
         queryset = []
+        self.userid = self.request.GET.get('user_id')
+        self.hours_type = self.request.GET.get('type')
+        self.is_admin = self.request.GET.get('is_admin')
 
-        if self.request.GET.get('is_admin')=='1':
-            if self.request.GET.get('user_id'):
-                user_instance = OrgAdmin(self.request.GET.get('user_id'))
+        if not self.userid or (self.hours_type not in ['pending', 'approved']):
+            return redirect('openCurrents:404')
+
+        if self.is_admin == '1':
+            user_instance = OrgAdmin(self.userid)
         else:
-            if self.request.GET.get('user_id'):
-                user_instance = OcUser(self.request.GET.get('user_id'))
+            user_instance = OcUser(self.userid)
 
-        if self.request.GET.get('type') == 'pending':
-            queryset = user_instance.get_hours_requested().order_by('-usertimelog__datetime_start')
-
-        if self.request.GET.get('type') == 'approved':
-            try:
-                org_id = self.request.GET.get('org_id')
-            except:
-                org_id = None
-
+        if self.hours_type == 'pending':
+            queryset = user_instance.get_hours_requested()
+        else:
+            org_id = self.request.GET.get('org_id')
             if org_id:
-                queryset = user_instance.get_hours_approved(org_id=org_id).order_by('-usertimelog__datetime_start')
+                queryset = user_instance.get_hours_approved(org_id=org_id)
             else:
-                queryset = user_instance.get_hours_approved().order_by('-usertimelog__datetime_start')
+                queryset = user_instance.get_hours_approved()
+
+        if queryset:
+            queryset = queryset.order_by('-usertimelog__datetime_start')
 
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super(HoursDetailView, self).get_context_data(**kwargs)
 
-        if self.request.GET.get('is_admin') == '1':
+        if self.is_admin == '1':
             context['hours_admin'] = True
+
+        context['hours_type'] = self.hours_type
 
         return context
 
