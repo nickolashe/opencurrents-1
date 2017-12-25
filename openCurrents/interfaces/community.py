@@ -29,16 +29,13 @@ class OcCommunity(object):
         return total_currents_amount
 
 
-    def get_active_volunteers_total(self):
+    def get_active_volunteers_total(self, quantity=10 ):
         """
         returns total volunteers number in the system
         """
-        for v in OcUser().get_top_received_users(period='all-time', quantity=None) :
-            print v
 
         active_volunteers_total = len([
-            volunteer for volunteer in OcUser().get_top_received_users(period='all-time', quantity=None)
-
+            volunteer for volunteer in OcUser().get_top_received_users(period='all-time', quantity=quantity)
         ])
 
         return active_volunteers_total

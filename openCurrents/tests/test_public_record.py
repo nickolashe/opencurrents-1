@@ -5,6 +5,7 @@ import pytz
 import random
 import string
 
+from django.contrib.auth.models import User
 from django.test import TestCase
 
 from openCurrents.interfaces.orgs import OcOrg, OcLedger, OcUser
@@ -107,6 +108,16 @@ class PublicRecordViewTestSuite(TestCase):
                 self.top_with_names.append({'name': org.name, 'total': amount})
             self.top_with_names.sort(key=lambda x: x['total'], reverse=True)
 
+
+    def set_usable_pass_all(self):
+        """
+        sets usable passwords to all users
+        """
+        for user in User.objects.all():
+            user.set_password('HtJk23_7@P4')
+            user.save()
+
+
     def test_view_displays_up_to_10_active_npf_last_month(self):
         # Create 5 npfs
         # Each of them has admin, project, event, user with timelog accepted by admin and issued transaction
@@ -183,12 +194,25 @@ class PublicRecordViewTestSuite(TestCase):
         # Random transaction amounts are recorded to the list
         # And compared to interface output
         top_users_last_month = OcUser().get_top_received_users('month')
+
+        # asserting users without usable password
+        self.assertEqual(len(top_users_last_month), 0)
+
+        #setting usable passwords to all users
+        self.set_usable_pass_all()
+
+        top_users_last_month = OcUser().get_top_received_users('all-time')
+
         # 10 users for 5 orgs is because each org contains admin
         self.assertEqual(len(top_users_last_month), 5)
         self.assertEqual(top_users_last_month[0], self.top_with_names[0])
 
         # Create 10 more organisations to check that interface method outputs 10 items
         [self.set_up_org(status='npf') for _ in range(10)]
+
+        #setting usable passwords to all users
+        self.set_usable_pass_all()
+
         top_users_last_month = OcUser().get_top_received_users('month')
         self.assertEqual(len(top_users_last_month), 10)
 
@@ -201,10 +225,22 @@ class PublicRecordViewTestSuite(TestCase):
         # And compared to interface output
         top_users_last_month = OcUser().get_top_received_users('all-time')
 
+        # asserting users without usable password
+        self.assertEqual(len(top_users_last_month), 0)
+
+        #setting usable passwords to all users
+        self.set_usable_pass_all()
+
+        top_users_last_month = OcUser().get_top_received_users('all-time')
+
         self.assertEqual(len(top_users_last_month), 5)
         self.assertEqual(top_users_last_month[0], self.old_top_with_names[0])
 
         # Create 10 more organisations to check that interface method outputs 10 items
         [self.set_up_org(status='npf') for _ in range(10)]
+
+        #setting usable passwords to all users
+        self.set_usable_pass_all()
+
         top_users_last_month = OcUser().get_top_received_users('all-time')
         self.assertEqual(len(top_users_last_month), 10)
