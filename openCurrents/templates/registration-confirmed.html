@@ -4,7 +4,7 @@
 
 
 {% block title %}
-  {% if coordinator %}
+  {% if is_coordinator %}
     Emails sent to volunteers
   {% else %}
     You're all set!
@@ -13,7 +13,7 @@
 
 
 {% block content %}
-  {% if coordinator %}
+  {% if is_coordinator %}
     <p>
       Thank you for organizing {{ event.project.name }}
       on {{ event.datetime_start|day }}. Enjoy the event!
