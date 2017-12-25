@@ -271,6 +271,16 @@
     <div id="signup-box" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
         <h2 class="one-margin-top">Apply as a nonprofit</h2>
+        <div class="one-margin-top">
+          <a href="{% url 'openCurrents:volunteer' %}#5"
+          class="tag button round tiny secondary">
+            Register as individual
+          </a>
+          <a href="{% url 'openCurrents:business' %}#5"
+          class="tag button round tiny secondary">
+            Register a business
+          </a>
+        </div>
       </div>
 
       {% if status_msg %}

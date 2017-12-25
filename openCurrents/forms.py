@@ -532,13 +532,17 @@ class TimeTrackerForm(forms.Form):
             'placeholder':'Coordinator name',
         })
     )
-    new_admin_email = forms.CharField(
+    new_admin_email = forms.EmailField(
         required=False,
         widget=widgets.TextWidget(attrs={
             'class': 'center',
             'placeholder': 'Coordinator email'
         })
     )
+
+    def clean_new_admin_email(self):
+        new_admin_email = self.cleaned_data.get('new_admin_email', '')
+        return new_admin_email.lower()
 
     def clean(self):
         cleaned_data = super(TimeTrackerForm, self).clean()
@@ -595,7 +599,7 @@ class TimeTrackerForm(forms.Form):
             ))
 
         # start time too far in past
-        two_weeks_ago = datetime.now(tz=pytz.utc) - timedelta(days=2)
+        two_weeks_ago = datetime.now(tz=pytz.utc) - timedelta(weeks=2)
         if cleaned_data['datetime_start'] < two_weeks_ago:
             raise ValidationError(_(
                 'You can submit hours for up to 2 weeks in the past'

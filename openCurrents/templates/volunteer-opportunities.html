@@ -12,9 +12,12 @@
   </div>
 
   <div class="row half-margin-top half-margin-bottom">
-    <a href="{% url 'openCurrents:upcoming-events' %}" class="button round tiny">
-      See upcoming events
-    </a>
+    {% if events %}
+      <a href="{% url 'openCurrents:upcoming-events' %}" class="button round tiny">
+        See upcoming events
+      </a>
+    {% endif %}
+    
     <a class="other-opportunities-popup_open button round tiny secondary">
       Other opportunities
     </a>
