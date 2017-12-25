@@ -1347,6 +1347,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                 pass
         except:
             context['org_stat_id'] = ''
+
         return context
 
     def form_valid(self, form):
@@ -2911,7 +2912,7 @@ def org_user_list(request, org_id):
             'firstname': orguser.user.first_name,
             'lastname': orguser.user.last_name
         })
-        for orguser in org_user
+        for orguser in org_user if OrgUserInfo(orguser.user.id).is_user_in_org_group()
         # include current userid, instead disable it in select GUI
         #if orguser.user.id != request.user.id
     ])
