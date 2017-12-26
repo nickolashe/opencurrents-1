@@ -66,6 +66,17 @@
                 {% else %}
                   {{ event.project.name }}
                 {% endif %}
+
+                {% with admin=hr.user %}
+                  <span class='small-text no-wrap'>
+                    by
+                    {% if admin.first_name and admin.last_name %}
+                      {{ admin.first_name|fullname:admin.last_name }}
+                    {% else %}
+                      {{ admin.username }}
+                    {% endif %}
+                  </span>
+                {% endwith %}
               </p>
             </div>
 
