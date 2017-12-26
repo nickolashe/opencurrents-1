@@ -6,7 +6,7 @@
     <div class="small-12 columns">
       <h4 class="title">
         {% block title %}
-          {% if is_admin %}
+          {% if hours_admin %}
             Hours
           {% else %}
             My hours for {{ orgname }}
@@ -57,7 +57,7 @@
 
             <div class="small-6 columns">
               <p class="half-margin-bottom">
-                {% if is_admin %}
+                {% if hours_admin %}
                   {{ user.first_name|fullname:user.last_name }} recorded hours for
                 {% endif %}
 
