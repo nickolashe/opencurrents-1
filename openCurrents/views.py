@@ -2828,22 +2828,33 @@ def event_register(request, pk):
 @login_required
 def event_register_live(request, eventid):
     userid = request.POST['userid']
-    user = User.objects.get(id=userid)
-    event = Event.objects.get(id=eventid)
+
+    try:
+        user = User.objects.get(id=userid)
+    except User.ObjectDoesNotExist:
+        logger.debug('user %s does not exist', userid)
+        return HttpResponse(content=json.dumps({}), status=400)
+
+    try:
+        event = Event.objects.get(id=eventid)
+    except Event.ObjectDoesNotExist:
+        logger.debug('event %s does not exist', eventid)
+        return HttpResponse(content=json.dumps({}), status=400)
+
     user_event, was_created = UserEventRegistration.objects.get_or_create(
         user=user, event=event
     )
 
     if not was_created:
         logger.debug(
-            'User %s is already registered for event %s',
+            'user %s is already registered for event %s',
             user.username,
             event.id
         )
         return HttpResponse(content=json.dumps({}), status=200)
 
     logger.debug(
-        'User %s registered for event %s', user.username, event.id
+        'user %s registered for event %s', user.username, event.id
     )
 
     now = datetime.now(tz=pytz.utc)
