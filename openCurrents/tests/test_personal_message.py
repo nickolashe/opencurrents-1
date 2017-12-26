@@ -236,7 +236,7 @@ class TestIvniteVolunteersNoEvent(TestCase):
 
     def test_invite_single_existing_no_message(self):
         """
-        test invitation of a registered single volunteer without a personal message (no event)
+        test invitation of a registered single volunteer without a personal message (no event) - No emails sent
         """
 
         self.client.login(username=self.npf_admin_1.username, password='password')
@@ -261,19 +261,19 @@ class TestIvniteVolunteersNoEvent(TestCase):
         # assert if we've been redirected
         self.assertRedirects(response, '/org-admin/1/', status_code=302)
 
-        # asserting that bulk email function has been launched
+        # asserting that bulk email function didn't launch
         self.assertNotIn('bulk', self.client.session)
 
-        #asserting user is in recepients
+        #asserting user not is in recepients
         self.assertNotIn('recepient', self.client.session)
 
-        # asserting email vars values
+        # asserting email vars didn't get to session
         self.assertNotIn('merge_vars', self.client.session)
 
 
     def test_invite_single_existing_with_message(self):
         """
-        test invitation of a registered single volunteer with a personal message (no event)
+        test invitation of a registered single volunteer with a personal message (no event) - No emails sent
         """
 
         self.client.login(username=self.npf_admin_1.username, password='password')
@@ -298,19 +298,19 @@ class TestIvniteVolunteersNoEvent(TestCase):
         # assert if we've been redirected
         self.assertRedirects(response, '/org-admin/1/', status_code=302)
 
-        # asserting that bulk email function has been launched
+        # asserting that bulk email function didn't launch
         self.assertNotIn('bulk', self.client.session)
 
-        #asserting user is in recepients
+        #asserting user is not in recepients
         self.assertNotIn('recepient', self.client.session)
 
-        # asserting email vars values
+        # asserting email vars didn't get to session
         self.assertNotIn('merge_vars', self.client.session)
 
 
     def test_invite_bulk_existing_with_personal_message(self):
         """
-        test invitation of a bunch of existing volunteers with personal message (no event)
+        test invitation of a bunch of existing volunteers with personal message (no event) - No emails sent
         """
 
         self.client.login(username=self.npf_admin_1.username, password='password')
@@ -333,19 +333,19 @@ class TestIvniteVolunteersNoEvent(TestCase):
         # assert if we've been redirected
         self.assertRedirects(response, '/org-admin/2/', status_code=302)
 
-        # asserting that bulk email function has been launched
+        # asserting that bulk email function didn't launch
         self.assertNotIn('bulk', self.client.session)
 
-        #asserting user is in recepients
+        #asserting user is not in recepients
         self.assertNotIn('recepient', self.client.session)
 
-        # asserting email vars values
+        # asserting email vars didn't get to session
         self.assertNotIn('merge_vars', self.client.session)
 
 
     def test_invite_bulk_existing_without_personal_message(self):
         """
-        test invitation of a bunch of existing volunteers with personal message (no event)
+        test invitation of a bunch of existing volunteers with personal message (no event) - No emails sent
         """
 
         self.client.login(username=self.npf_admin_1.username, password='password')
@@ -368,13 +368,13 @@ class TestIvniteVolunteersNoEvent(TestCase):
         # assert if we've been redirected
         self.assertRedirects(response, '/org-admin/2/', status_code=302)
 
-        # asserting that bulk email function has been launched
+        # asserting that bulk email function didn't launch
         self.assertNotIn('bulk', self.client.session)
 
-        #asserting user is in recepients
+        #asserting user not is in recepients
         self.assertNotIn('recepient', self.client.session)
 
-        # asserting email vars values
+        # asserting email vars didn't get to session
         self.assertNotIn('merge_vars', self.client.session)
 
 
