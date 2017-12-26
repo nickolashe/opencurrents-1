@@ -96,9 +96,15 @@
 
 
   <div class="row three-halves-margin-top">
-    <a href="{% url 'openCurrents:profile' %}" class="button round">
-      Back to profile
-    </a>
+    {% if hours_admin %}
+      <a href="{% url 'openCurrents:org-admin' %}" class="button round">
+        Back to org profile
+      </a>
+    {% else %}
+      <a href="{% url 'openCurrents:profile' %}" class="button round">
+        Back to profile
+      </a>
+    {% endif %}
   </div>
 
 {% endblock content %}

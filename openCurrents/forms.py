@@ -252,10 +252,9 @@ class CreateEventForm(forms.Form):
 
     # form field definitions follow
     project_name = forms.CharField(
-        label='Let\'s...',
         widget=forms.TextInput(attrs={
             'class': ' center',
-            'placeholder': 'do some good'
+            'placeholder': 'Event name'
         })
     )
 
