@@ -103,6 +103,12 @@ class OcOrg(object):
             except Exception as e:
                 raise InvalidOrgException
 
+    def get_org_name(self):
+        if self.org:
+            return self.org.name
+        else:
+            return None
+
     def setup_org(self, name, status, website=None):
         org = None
         try:
