@@ -11,7 +11,7 @@ def _retro_issue(app_rec):
     if (event.event_type == 'MN'):
         amount = ut.datetime_end - ut.datetime_start
     else:
-        amount = event.datetime_start - event.datetime_end
+        amount = event.datetime_end - event.datetime_start
 
     amount = amount.total_seconds() / 3600
     print "issuing %.2f from %s to %s" % (amount, org.name, vol_user.username)

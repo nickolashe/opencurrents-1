@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from django.contrib.auth.models import Group
 from openCurrents.models import \
     Org, \
@@ -17,22 +18,23 @@ logger.setLevel(logging.DEBUG)
 class OrgUserInfo(object):
     def __init__(self, userid):
         self.userid = userid
+        self.user=OcUser(self.userid).get_user()
         self.orgusers = OrgUser.objects.filter(user__id=userid)
 
-    def setup_orguser(self, org, affiliation=None):
+    def setup_orguser(self, org, is_admin=False):
         org_user = None
-        user=OcUser(self.userid).get_user()
 
         try:
             org_user = OrgUser(
                 org=org,
-                user=user,
-                affiliation=affiliation
+                user=self.user
             )
             org_user.save()
         except Exception as e:
-            logger.error(e)
             raise InvalidOrgUserException()
+
+        if is_admin:
+            self.make_org_admin(org.id)
 
         return org_user
 
@@ -51,13 +53,44 @@ class OrgUserInfo(object):
     def get_org_timezone(self):
         return self.orgusers[0].org.timezone if self.orgusers else 'America/Chicago'
 
+    def get_admin_group(self, orgid):
+        admin_org_group_name = '_'.join(['admin', str(orgid)])
+
+        admin_org_group = None
+        try:
+            admin_org_group = Group.objects.get(
+                name=admin_org_group_name
+            )
+        except Exception as e:
+            logger.warning('org %d without admin group', orgid)
+
+        return admin_org_group
+
     def is_org_admin(self, orgid):
-        admin_org_group_name = ['_'.join(['admin', str(orgid)])]
-        admin_org_group = Group.objects.filter(
-            name__in=admin_org_group_name,
-            user__id=self.userid
-        ).exists()
-        return True if admin_org_group else False
+        admin_group = self.get_admin_group(orgid)
+        if admin_group and admin_group.user_set.filter(id=self.userid):
+            return True
+        else:
+            return False
+
+    def make_org_admin(self, orgid):
+        admin_group = self.get_admin_group(orgid)
+        if admin_group:
+            try:
+                admin_group.user_set.add(self.user)
+            except Exception:
+                logger.warning(
+                    'user %s is already admin of org %d',
+                    self.user.username,
+                    orgid
+                )
+        else:
+            logger.warning('org %d without admin group', orgid)
+            raise InvalidOrgException()
+
+    def is_user_in_org_group(self):
+        in_group = Group.objects.filter(user=self.user)
+        return True if in_group else False
 
 
 class OcOrg(object):
@@ -75,26 +108,57 @@ class OcOrg(object):
         try:
             org = Org(
                 name=name,
-                website=website,
-                status=status
+                status=status,
+                website=website
             )
             org.save()
+            self.orgid = org.id
         except Exception as e:
-            logger.error(e)
             raise OrgExistsException
 
         OrgEntity.objects.create(org=org)
 
+        Group.objects.create(name='admin_%s' % org.id)
         return org
+
+    def get_top_issued_npfs(self, period, quantity=10):
+        result = list()
+        orgs = Org.objects.filter(status='npf')
+
+        for org in orgs:
+            issued_cur_amount = OcLedger().get_issued_cur_amount(org.id, period)['total']
+            if not issued_cur_amount:
+                issued_cur_amount = 0
+            result.append({'name': org.name, 'total': issued_cur_amount})
+
+        result.sort(key=lambda org_dict: org_dict['total'], reverse=True)
+        return result[:quantity]
+
+    def get_top_accepted_bizs(self, period, quantity=10):
+        result = list()
+        bizs = Org.objects.filter(status='biz')
+
+        for biz in bizs:
+            accepted_cur_amount = OcLedger().get_accepted_cur_amount(biz.id, period)['total']
+            if not accepted_cur_amount:
+                accepted_cur_amount = 0
+            result.append({'name': biz.name, 'total': accepted_cur_amount})
+
+        result.sort(key=lambda biz_dict: biz_dict['total'], reverse=True)
+        return result[:quantity]
 
 
 class InvalidOrgException(Exception):
-	pass
+    pass
 
 
 class OrgExistsException(Exception):
+    pass
+
+
+class ExistingAdminException(Exception):
 	pass
 
 
 class InvalidOrgUserException(Exception):
-	pass
+    pass

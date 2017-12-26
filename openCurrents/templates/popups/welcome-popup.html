@@ -1,0 +1,28 @@
+{% extends "layouts/popup.html" %}
+
+{% block heading %}
+  <div class="row center">
+    <h4 class="popup-title">
+      {% block title %}
+        Would you like to be a community connector?
+      {% endblock title %}
+    </h4>
+  </div>
+{% endblock heading %}
+
+
+{% block content %}
+  <form method='post' action="{% url 'openCurrents:edit-profile' %}">
+  {% csrf_token %}
+    <p>Community connectors actively seek to grow this movement and get special
+      benefits for doing so. You could bring massive value to the community by
+      simply asking your favorite business, "Do you accept Currents?"</p>
+
+    <p>What do you say, do you want to help us create Currents in the world?</p>
+
+    <p class="three-halves-margin-top">
+      <button type="submit" name='yes' class="button round">Yes, count me in</button>
+      <button type="submit" name='no' class="button round secondary">Not now</button>
+    </p>
+  </form>
+{% endblock content %}

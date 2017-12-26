@@ -1,0 +1,32 @@
+{% extends "layouts/popup.html" %}
+
+{% block heading %}
+  <div class="row center">
+    <h3 class="one-margin-top">
+      {% block title %}
+        2 ways to earn Currents
+      {% endblock title %}
+    </h3>
+  </div>
+{% endblock heading %}
+
+{% block body %}
+  <div class="row center half-margin-top">
+    <div class="half-margin-bottom small-12 medium-6 columns">
+      <h6>I want to volunteer</h6>
+      <p>Check out upcoming opportunities with participating organizations:</p>
+      <a href="{% url 'openCurrents:volunteer-opportunities' %}"
+      class="button round small">
+        View opportunities
+      </a>
+    </div>
+
+    <div class="small-12 medium-6 columns">
+      <h6>I already volunteer</h6>
+      <p>If you already give time with a nonprofit, track your hours here:</p>
+      <a href="{% url 'openCurrents:time-tracker' %}" class="button round small">
+        Record hours
+      </a>
+    </div>
+  </div>
+{% endblock body %}
