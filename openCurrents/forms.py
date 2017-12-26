@@ -73,25 +73,33 @@ class VolunteerCheckinField(forms.Field):
 #        })
 #    )
 
-class UserSignupForm(forms.Form):
-    user_firstname = forms.CharField(
-        widget=forms.TextInput(attrs={
-            'id': 'new-firstname',
-            'placeholder': 'Firstname'
-        })
-    )
-    user_lastname = forms.CharField(
-        widget=forms.TextInput(attrs={
-            'id': 'new-lastname',
-            'placeholder': 'Lastname'
-        })
-    )
+class UserEmailForm(forms.Form):
     user_email = forms.EmailField(
         widget=forms.EmailInput(attrs={
             'id': 'new-email',
             'placeholder': 'Email'
         })
     )
+
+    def clean_user_email(self):
+        return self.cleaned_data['user_email'].lower()
+
+
+class UserSignupForm(UserEmailForm):
+    user_firstname = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'id': 'new-firstname',
+            'placeholder': 'Firstname'
+        })
+    )
+
+    user_lastname = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'id': 'new-lastname',
+            'placeholder': 'Lastname'
+        })
+    )
+
     org_name = forms.CharField(required=False, min_length=2)
 
     org_status = forms.ChoiceField(
@@ -105,11 +113,10 @@ class UserSignupForm(forms.Form):
     org_admin_id = forms.IntegerField(required=False)
 
 
-class PasswordResetRequestForm(forms.Form):
-    user_email = forms.CharField(min_length=1)
+class PasswordResetRequestForm(UserEmailForm):
+    pass
 
-class UserLoginForm(forms.Form):
-    user_email = forms.CharField(min_length=1)
+class UserLoginForm(UserEmailForm):
     user_password = forms.CharField(min_length=1)
 
 
@@ -186,6 +193,7 @@ class PasswordResetForm(forms.Form):
         # else:
         #     raise ValidationError(_('Password does\'nt meet the required criterion.'))
 
+
 class OrgNominationForm(forms.Form):
     org_name = forms.CharField(min_length=1,required=True)
     contact_name = forms.CharField(min_length=1,required=False)
@@ -217,12 +225,6 @@ class OrgSignupForm(forms.Form):
     )
     org_mission = forms.CharField(required=False)
     org_reason = forms.CharField(required=False)
-
-    def clean_user_affiliation(self):
-        return str(self.cleaned_data['user_affiliation'])
-
-    def clean_org_status(self):
-        return str(self.cleaned_data['org_status'])
 
 
 class CreateEventForm(forms.Form):
@@ -530,13 +532,17 @@ class TimeTrackerForm(forms.Form):
             'placeholder':'Coordinator name',
         })
     )
-    new_admin_email = forms.CharField(
+    new_admin_email = forms.EmailField(
         required=False,
         widget=widgets.TextWidget(attrs={
             'class': 'center',
             'placeholder': 'Coordinator email'
         })
     )
+
+    def clean_new_admin_email(self):
+        new_admin_email = self.cleaned_data.get('new_admin_email', '')
+        return new_admin_email.lower()
 
     def clean(self):
         cleaned_data = super(TimeTrackerForm, self).clean()
@@ -593,7 +599,7 @@ class TimeTrackerForm(forms.Form):
             ))
 
         # start time too far in past
-        two_weeks_ago = datetime.now(tz=pytz.utc) - timedelta(days=2)
+        two_weeks_ago = datetime.now(tz=pytz.utc) - timedelta(weeks=2)
         if cleaned_data['datetime_start'] < two_weeks_ago:
             raise ValidationError(_(
                 'You can submit hours for up to 2 weeks in the past'
@@ -608,7 +614,7 @@ class EventCheckinForm(forms.Form):
 
 
 class BizDetailsForm(forms.Form):
-    website = forms.CharField(
+    website = forms.URLField(
         widget=forms.TextInput(attrs={
             'placeholder': 'Website',
             'class': 'center',
@@ -654,21 +660,22 @@ class BizDetailsForm(forms.Form):
     def clean_phone(self):
         phone = self.cleaned_data['phone']
 
-        phone = unicode.translate(
-            phone,
-            dict(
-                zip(
-                    map(ord, string.punctuation),
-                    [None for x in xrange(len(string.punctuation))]
+        if phone:
+            phone = unicode.translate(
+                phone,
+                dict(
+                    zip(
+                        map(ord, string.punctuation),
+                        [None for x in xrange(len(string.punctuation))]
+                    )
                 )
             )
-        )
 
-        if not phone.isdigit():
-            raise ValidationError(_('Invalid phone number'))
+            if not phone.isdigit():
+                raise ValidationError(_('Invalid phone number'))
 
-        if len(phone) < 10:
-            raise ValidationError(_('Please enter phone area code'))
+            if len(phone) < 10:
+                raise ValidationError(_('Please enter phone area code'))
 
         return phone
 

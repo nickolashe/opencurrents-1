@@ -378,15 +378,14 @@
         <div class="row collapse center">
           <div class="small-11 medium-6 small-centered columns">
             <h2 class="title-sub white">Join openCurrents</h2>
-          </div>
-
-          <div class="one-margin-top">
-            <a href="{% url 'openCurrents:nonprofit' %}#4" class="tag button round tiny clear">
-              Register a nonprofit
-            </a>
-            <a href="{% url 'openCurrents:business' %}#5" class="tag button round tiny clear">
-              Register a business
-            </a>
+            <div class="one-margin-top">
+              <a href="{% url 'openCurrents:nonprofit' %}#4" class="tag button round tiny clear">
+                Register a nonprofit
+              </a>
+              <a href="{% url 'openCurrents:business' %}#5" class="tag button round tiny clear">
+                Register a business
+              </a>
+            </div>
           </div>
         </div>
 
@@ -443,6 +442,14 @@
     <div id="signup-box" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
         <h2 class="one-margin-top">Join openCurrents</h2>
+        <div class="one-margin-top">
+          <a href="{% url 'openCurrents:nonprofit' %}#4" class="tag button round tiny secondary">
+            Register a nonprofit
+          </a>
+          <a href="{% url 'openCurrents:business' %}#5" class="tag button round tiny secondary">
+            Register a business
+          </a>
+        </div>
       </div>
 
       <form method="post" action="{% url 'openCurrents:process_signup' %}">
