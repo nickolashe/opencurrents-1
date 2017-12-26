@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 
 from openCurrents.interfaces.orgs import OcOrg, OcLedger, OcUser
+from openCurrents.interfaces.community import OcCommunity
 from openCurrents.models import Event, Project, UserTimeLog, AdminActionUserTime, Ledger
 
 
@@ -85,13 +86,6 @@ class PublicRecordViewTestSuite(TestCase):
                 amount
             )
         if old:
-
-            # @@ TODO
-            # delete 3 lines below and test
-            t = Ledger.objects.last()
-            t.date_created -= timedelta(days=33)
-            t.save()
-
             event_prev_month = Event.objects.last()
             event_prev_month.datetime_start -= timedelta(days=33)
             event_prev_month.save()
@@ -116,6 +110,11 @@ class PublicRecordViewTestSuite(TestCase):
         for user in User.objects.all():
             user.set_password('HtJk23_7@P4')
             user.save()
+
+
+    def calculate_total(self, lst):
+        total = sum(item['total'] for item in lst)
+        return total
 
 
     def test_view_displays_up_to_10_active_npf_last_month(self):
@@ -197,21 +196,31 @@ class PublicRecordViewTestSuite(TestCase):
 
         # asserting users without usable password
         self.assertEqual(len(top_users_last_month), 0)
+        # asserting currents issued in the system
+        self.assertEqual(OcCommunity().get_amount_currents_total(), self.calculate_total(self.top_with_names))
 
         #setting usable passwords to all users
         self.set_usable_pass_all()
-
-        top_users_last_month = OcUser().get_top_received_users('all-time')
+        top_users_last_month = OcUser().get_top_received_users('month')
 
         # 10 users for 5 orgs is because each org contains admin
         self.assertEqual(len(top_users_last_month), 5)
         self.assertEqual(top_users_last_month[0], self.top_with_names[0])
 
+        # asserting currents issued in the system
+        self.assertEqual(OcCommunity().get_amount_currents_total(), self.calculate_total(self.top_with_names))
+
         # Create 10 more organisations to check that interface method outputs 10 items
         [self.set_up_org(status='npf') for _ in range(10)]
 
+        # asserting currents issued in the system
+        self.assertEqual(OcCommunity().get_amount_currents_total(), self.calculate_total(self.top_with_names))
+
         #setting usable passwords to all users
         self.set_usable_pass_all()
+
+        # asserting currents issued in the system
+        self.assertEqual(OcCommunity().get_amount_currents_total(), self.calculate_total(self.top_with_names))
 
         top_users_last_month = OcUser().get_top_received_users('month')
         self.assertEqual(len(top_users_last_month), 10)
@@ -227,20 +236,27 @@ class PublicRecordViewTestSuite(TestCase):
 
         # asserting users without usable password
         self.assertEqual(len(top_users_last_month), 0)
+        # asserting currents issued in the system
+        self.assertEqual(OcCommunity().get_amount_currents_total(), self.calculate_total(self.old_top_with_names))
 
         #setting usable passwords to all users
         self.set_usable_pass_all()
-
         top_users_last_month = OcUser().get_top_received_users('all-time')
 
         self.assertEqual(len(top_users_last_month), 5)
         self.assertEqual(top_users_last_month[0], self.old_top_with_names[0])
 
+        # asserting currents issued in the system
+        self.assertEqual(OcCommunity().get_amount_currents_total(), self.calculate_total(self.old_top_with_names))
+
         # Create 10 more organisations to check that interface method outputs 10 items
-        [self.set_up_org(status='npf') for _ in range(10)]
+        [self.set_up_org(status='npf', old=True) for _ in range(10)]
 
         #setting usable passwords to all users
         self.set_usable_pass_all()
+
+        # asserting currents issued in the system
+        self.assertEqual(OcCommunity().get_amount_currents_total(), self.calculate_total(self.old_top_with_names))
 
         top_users_last_month = OcUser().get_top_received_users('all-time')
         self.assertEqual(len(top_users_last_month), 10)

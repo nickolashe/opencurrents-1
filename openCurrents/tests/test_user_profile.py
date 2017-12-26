@@ -457,8 +457,8 @@ class TestUserProfileCommunityActivity(TestCase):
         self.assertIn('Active volunteers: 1', response.content)
         self.assertEqual(response.context['active_volunteers_total'], 1)
 
-        self.assertIn('Currents accepted: 4', response.content)
-        self.assertEqual(response.context['currents_accepted'], 4.00)
+        self.assertIn('Currents redeemed: 4', response.content)
+        self.assertEqual(response.context['biz_currents_total'], 4.00)
 
 
     def test_community_activity_click_curr_issued(self):
