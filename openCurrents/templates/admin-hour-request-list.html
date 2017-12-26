@@ -12,7 +12,7 @@
             <div class="row half-margin-bottom">
               <div class="left input-left small-12 columns">
                 {% with tl=record.usertimelog %}
-                  {{ record.date_created|day_only:timezone }} -
+                  {{ tl.event.datetime_start|day_only:timezone }} -
 
                   {% if hours_status == 'requested' %}
                     <strong> {{ tl.user.first_name }} {{ tl.user.last_name }} </strong>
@@ -21,7 +21,7 @@
                     <strong> {{ tl.user.first_name }} {{ tl.user.last_name }}</strong>'s
                   {% endif %}
 
-                  {{ tl.datetime_start|get_hours_total:tl.datetime_end|floatformat:2 }}
+                  {{ tl.event.datetime_start|get_hours_total:tl.event.datetime_end|floatformat:2 }}
                   hours for {{ tl.event.description }}
 
                   {% if hours_status == 'approved' %}
