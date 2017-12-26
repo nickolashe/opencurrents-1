@@ -7,7 +7,12 @@
       <h4 class="title">
         {% block title %}
           {% if hours_admin %}
-            Hours
+            Hours {{ hours_type }}
+            {% if hours_type == 'pending' %}
+              for {{ admin_name }}
+            {% else %}
+              by {{ admin_name }}
+            {% endif %}
           {% else %}
             My hours for {{ hours_orgname }}
           {% endif %}
