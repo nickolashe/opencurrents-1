@@ -2,14 +2,30 @@
 {% load staticfiles %}
 {% load tags %}
 
+<<<<<<< HEAD
 {% block title %} You're all set! {% endblock title %}
+=======
+
+{% block title %}
+  {% if is_coordinator %}
+    Emails sent to volunteers
+  {% else %}
+    You're all set!
+  {% endif %}
+{% endblock title %}
+>>>>>>> 076426def94be41def544473a4876bcbb13a8ea4
 
 {% block content %}
-  <p>
-    Thank you for helping {{ event.project.org.name }} {{ event.project.name }}
-    on {{ event.datetime_start|day }}. Enjoy the event!
-  </p>
+  {% if is_coordinator %}
+    <p>
+      Thank you for organizing
+      <strong>
+        {{ event.project.name }}
+      </strong>
+      on {{ event.datetime_start|day }}. Enjoy the event!
+    </p>
 
+<<<<<<< HEAD
   <span class="addtocalendar one-margin-bottom">
     <var class="atc_event">
       <var class="atc_date_start">{{ event.datetime_start|time:event.project.org.timezone }}</var>
@@ -28,8 +44,32 @@
       <a href="{% url 'openCurrents:profile' %}" class="button round">
         Return to profile
       </a>
+=======
+    <div class="row three-halves-margin-top center">
+      <div class="small-12 medium-8 small-centered columns">
+        <a href="{% url 'openCurrents:org-admin' %}" class="button round">
+          Back to org profile
+        </a>
+      </div>
+>>>>>>> 076426def94be41def544473a4876bcbb13a8ea4
     </div>
-  </div>
+  {% else %}
+    <p>
+      Thank you for helping {{ event.project.org.name }} at
+      <strong>
+        {{ event.project.name }}
+      </strong>
+      on {{ event.datetime_start|day }}. Enjoy the event!
+    </p>
+
+    <div class="row three-halves-margin-top center">
+      <div class="small-12 medium-8 small-centered columns">
+        <a href="{% url 'openCurrents:profile' %}" class="button round">
+          Back to profile
+        </a>
+      </div>
+    </div>
+  {% endif %}
 {% endblock content %}
 
 {% block js %}

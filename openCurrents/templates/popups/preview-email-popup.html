@@ -1,0 +1,50 @@
+{% extends "layouts/popup.html" %}
+
+{% block title %}
+  Email preview
+{% endblock title %}
+
+{% block content %}
+  <label>Subject</label>
+  <p><strong>An invitation from {{ user.first_name }} {{ user.last_name }}
+    of {{ orgname }}</strong></p>
+
+  <label>Body</label>
+  <p>{{ user.first_name }} {{ user.last_name }} has invited you to
+    {% if event_project_name %}
+      a volunteer event
+    {% else %}
+      openCurrents
+    {% endif %}
+
+    <span id="personal-message-detail" class="hidden">
+      and sent a message:
+    </span>
+  </p>
+
+  <p id="personal-message-preview" class="hidden"></p>
+
+  {% if event_project_name %}
+    <p><strong>{{ event_project_name }}</strong><br/>
+      Event date, time, and location
+    </p>
+  {% endif %}
+
+  <p>openCurrents rewards you for giving time to {{ orgname }}
+    and other social organizations. Click the link below to learn more 
+    and create your account:</p>
+
+  <p><a href="http://www.opencurrents.com" target="_blank">
+    openCurrents.com
+  </a></p>
+
+  <p>
+    You can also reach out to {{ user.first_name }} by replying to this email.
+  </p>
+
+  <div class="center">
+    <a class="preview-email-popup_close button round small">
+      Got it
+    </a>
+  </div>
+{% endblock content %}

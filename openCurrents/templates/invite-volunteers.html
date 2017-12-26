@@ -110,72 +110,8 @@
 
 {% block popups %}
   <div id="preview-email-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-    <div class="row center">
-      <h4 class="popup-title">Email preview</h4>
-    </div>
-
-    <div class="row left">
-      <div class="medium-10 small-centered column">
-        <label>Subject</label>
-        <p><strong>An invitation from {{ orgname }}</strong></p>
-
-        <label>Body</label>
-        <p>{{ user.first_name }} {{ user.last_name }} has invited you to
-          {% if event_project_name %}
-            a volunteer event
-          {% else %}
-            openCurrents
-          {% endif %}
-
-          <span id="personal-message-detail" class="hidden">
-            and sent a message:
-          </span>
-        </p>
-
-        <p id="personal-message-preview" class="hidden"></p>
-
-        {% if event_project_name %}
-          <p>Let's {{ event_project_name }} with {{ orgname }}<br/>
-            (Event date, time, and location)
-          </p>
-        {% endif %}
-
-        <p>openCurrents rewards you for giving time to {{ orgname }}
-          and other social organizations. Click the link below to learn more 
-          and create your account:</p>
-
-        <p><a href="http://www.opencurrents.com" target="_blank">
-          openCurrents.com
-        </a></p>
-
-        <p>You can also reach out to {{ user.first_name }} by replying to this email.</p>
-      </div>
-    </div>
-
-    <div class="center">
-      <a class="preview-email-popup_close button round small">
-        Got it
-      </a>
-    </div>
+    {% include "popups/preview-email-popup.html" %}
   </div>
-
-  <!-- <div id="invite-list-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-    <h3 class="popup-title center">Invited volunteers</h3>
-    <div class="row center">
-      <div class="small-10 medium-6 small-centered columns">
-        <ul class="left">
-          {% if registrants %}
-            {% for name in registrants_names %}
-              <li class="no-bullet">{{ email }}</li>
-            {% endfor %}
-          {% else %}
-            <li class="no-bullet">No volunteers have registered or been invited yet.</li>
-          {% endif %}
-        </ul>
-        <a class="registrants-box_close button round small secondary">Close</a>
-      </div>
-    </div>
-  </div> -->
 {% endblock popups %}
 
 {% block js %}

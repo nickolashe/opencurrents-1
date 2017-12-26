@@ -641,6 +641,7 @@ class HoursDetailView(LoginRequiredMixin, SessionContextView, ListView):
         self.userid = self.request.GET.get('user_id')
         self.hours_type = self.request.GET.get('type')
         self.is_admin = self.request.GET.get('is_admin')
+        self.org_id = self.request.GET.get('org_id')
 
         if not self.userid or (self.hours_type not in ['pending', 'approved']):
             return redirect('openCurrents:404')
@@ -653,9 +654,8 @@ class HoursDetailView(LoginRequiredMixin, SessionContextView, ListView):
         if self.hours_type == 'pending':
             queryset = user_instance.get_hours_requested()
         else:
-            org_id = self.request.GET.get('org_id')
-            if org_id:
-                queryset = user_instance.get_hours_approved(org_id=org_id)
+            if self.org_id:
+                queryset = user_instance.get_hours_approved(org_id=self.org_id)
             else:
                 queryset = user_instance.get_hours_approved()
 
@@ -671,6 +671,10 @@ class HoursDetailView(LoginRequiredMixin, SessionContextView, ListView):
             context['hours_admin'] = True
 
         context['hours_type'] = self.hours_type
+
+        if self.org_id:
+            org = OcOrg(self.org_id)
+            context['hours_orgname'] = org.get_org_name()
 
         return context
 
@@ -2410,10 +2414,16 @@ class LiveDashboardView(OrgAdminPermissionMixin, SessionContextView, TemplateVie
         return context
 
 
-class RegistrationConfirmedView(DetailView, LoginRequiredMixin):
+class RegistrationConfirmedView(LoginRequiredMixin, SessionContextView, DetailView):
     model = Event
     context_object_name = 'event'
     template_name = 'registration-confirmed.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(RegistrationConfirmedView, self).get_context_data(**kwargs)
+        context['is_coordinator'] = self.object.coordinator == self.user
+
+        return context
 
 
 class AddVolunteersView(TemplateView):
