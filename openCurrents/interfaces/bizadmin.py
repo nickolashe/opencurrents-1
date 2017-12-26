@@ -1,4 +1,5 @@
 from datetime import datetime
+from decimal import Decimal
 
 from django.db.models import Max
 
@@ -40,7 +41,7 @@ class BizAdmin(object):
             currency=currency
         )
 
-        return balance
+        return round(balance, 3)
 
     def get_balance_pending(self):
         '''
@@ -52,15 +53,17 @@ class BizAdmin(object):
             active_redemption_reqs
         )
 
-        return total_redemptions
+        return round(total_redemptions, 3)
 
     def get_offers_all(self):
         offers = Offer.objects.filter(
             org__id=self.org.id
+        ).order_by(
+            '-date_updated'
         )
         return offers
 
-    def get_redemptions(self, status=None):
+    def get_redemptions(self, status=None, fees=True):
         transactions = Transaction.objects.filter(
             offer__org__id=self.org.id
         ).annotate(
@@ -82,6 +85,10 @@ class BizAdmin(object):
         elif status == 'approved':
             org_offers_redeemed = org_offers_redeemed.filter(
                 action_type='app'
+            )
+        elif status == 'redeemed':
+            org_offers_redeemed = org_offers_redeemed.filter(
+                action_type='red'
             )
 
         return org_offers_redeemed

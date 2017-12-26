@@ -6,12 +6,19 @@
     {% include "partials/head.html" %}
 
     <link href="{% static "css/home.css" %}" rel="stylesheet" type="text/css">
-    <link href="https://fonts.googleapis.com/css?family=Alegreya+Sans+SC:300" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Alegreya+Sans+SC:300"
+    rel="stylesheet">
 
+    <meta name="description" content="openCurrents lets anyone create currency
+    by volunteering. Create 1 Current for each hour you work, and use Currents
+    for purchases with businesses. It's like getting paid for doing good.">
     <meta property="og:url" content="http://www.opencurrents.com" />
-    <meta property="og:title" content="Give time, create Currents" />
-    <meta property="og:description" content="So that we all may live on the good we give." />
+    <meta property="og:title" content="It's like getting paid for doing good."/>
+    <meta property="og:description" content="openCurrents lets anyone create
+    currency by volunteering. Give time, create Currents." />
     <meta property="og:image" content="{% static "img/fb-share-img.png" %}" />
+
+    <title>Create currency by volunteering for the greater good &bull; openCurrents</title>
   </head>
 
   <body id="home" class="splash" onunload=''>
@@ -183,7 +190,15 @@
         <div id="5" class="header-spacer"></div>
 
         <div class="row center">
-          <h2 class="title white">Join openCurrents</h2>
+          <h2 class="title-sub white">Join openCurrents</h2>
+          <div class="one-margin-top">
+            <a href="{% url 'openCurrents:nonprofit' %}#4" class="tag button round tiny clear">
+              Register a nonprofit
+            </a>
+            <a href="{% url 'openCurrents:business' %}#5" class="tag button round tiny clear">
+              Register a business
+            </a>
+          </div>
         </div>
 
         <form method="post" action="{% url 'openCurrents:process_signup' %}">
@@ -206,7 +221,12 @@
 
           <div class="row center one-margin-top">
             <input type="submit" class="button large round clear" value="I'm in!"/>
-            <a href="javascript:void(Tawk_API.toggle())" class="large-text white home-link"><p class="no-margin-bottom">I have a question<i class="half-margin-left fa fa-angle-right"></i></p></a>
+            <a href="javascript:void(Tawk_API.toggle())" class="large-text white home-link">
+              <p>
+                I have a question
+                <i class="half-margin-left fa fa-angle-right"></i>
+              </p>
+            </a>
           </div>
         </form>
       </div>
@@ -226,6 +246,14 @@
     <div id="signup-box" class="modal center small-12 medium-9 large-8 small-centered columns">
       <div class="row center">
         <h2 class="one-margin-top">Join openCurrents</h2>
+        <div class="one-margin-top">
+          <a href="{% url 'openCurrents:nonprofit' %}#4" class="tag button round tiny secondary">
+            Register a nonprofit
+          </a>
+          <a href="{% url 'openCurrents:business' %}#5" class="tag button round tiny secondary">
+            Register a business
+          </a>
+        </div>
       </div>
 
       <form method="post" action="{% url 'openCurrents:process_signup' %}">

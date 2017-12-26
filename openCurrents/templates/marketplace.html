@@ -1,136 +1,174 @@
+{% extends "layouts/base.html" %}
+
 {% load staticfiles %}
+{% load tags %}
 
-<!DOCTYPE html>
-<html>
-  <head>
-    {% include "partials/head.html" %}
-  </head>
+{% block status %}
+  <div class="success row one-margin-top">
+    {{ status_msg|safe }}
+  </div>
+{% endblock status %}
 
-  <body>
-    {% include "partials/header.html" %}
+{% block heading %}
+  <div class="row">
+    <div class="small-12 medium-9 small-centered columns">
+      <h3 class="title-sub">
+        {% block title %} Marketplace {% endblock title %}
+      </h3>
+      <h6 class="half-margin-bottom">
+        Check out these offers from openCurrents businesses:
+      </h6>
+    </div>
+  </div>
+{% endblock heading %}
 
-    <div id="container" class="js-close-any" canvas="container">
-      <div id="wrapper">
-        {% if status_msg %}
-        <div class="alert row half-margin-top">
-          {{status_msg|safe}}
-        </div>
-        {% endif %}
+{% block content %}
+  <div class="row one-margin-bottom center">
+    <div class="small-12 medium-10 small-centered columns">
+      {% for offer in offers %}
+        {% with num_remaining=offer.limit|less:offer.num_redeemed %}
+          <div class="row one-margin-top">
+            <div class="left input-left small-9 columns">
+              <p class="no-margin-bottom">
+                <a class="show-biz-deets">
+                  <strong> {{ offer.org.name }} </strong>
+                </a>
+                accepts Currents for
+                <a href="{% url 'openCurrents:redeem-currents' offer.id %}">
+                  {{ offer.currents_share }}% of {{ offer.item.name }}
+                </a>
 
-        <div class="row">
-          <h3 class="title-sub">Marketplace</h3>
-        </div>
+                <span class="grey small-text">
+                  {% if offer.limit != -1 %}
+                    {% if num_remaining > 0 %}
+                      ({{ num_remaining }}
+                    {% else %}
+                      (0
+                    {% endif %}
+                    remaining this month)
+                  {% endif %}
+                </span>
+              </p>
+            </div>
 
-        {% if offers %}
-
-          <div class="row">
-            <div class="small-12 medium-9 small-centered columns">
-              <h6 class="three-halves-margin-bottom">
-                Check out these offers from openCurrents businesses:
-              </h6>
+            <div class="relative right input-right small-3 columns">
+              <a class="mini-open">
+                <i class="blue half-margin-right fa-chevron-circle-down fa fa-lg"></i>
+              </a>
+              <ul class="mini-menu">
+                <a
+                  href="{% url 'openCurrents:redeem-currents' offer.id %}"
+                  {% if offer.limit != -1 and num_remaining <= 0 %} disabled {% endif %}>
+                  <li>Redeem offer</li>
+                </a>
+                <a class="show-biz-deets">
+                  <li><span>Show</span> business details</li>
+                </a>
+              </ul>
             </div>
           </div>
 
-          {% for offer in offers %}
-
-            <div class="row one-margin-bottom center">
-              <div class="small-12 medium-10 small-centered columns">
-                <div class="left input-left small-9 columns">
-                  <p class="">
-                    <strong> {{ offer.org.name }} </strong>
-                    accepts Currents for
-                    <a href="{% url 'openCurrents:redeem-currents' offer.id %}">
-                      {{ offer.currents_share }}% of {{ offer.item.name }}
+          {% with org=offer.org %}
+            <div class="biz-deets half-margin-top left row hidden">
+              <div class="small-12 columns">
+                {% if org.website %}
+                  <p class="biz-deets-item">
+                    <i class="half-margin-right fa-fw fa fa-link"></i>
+                    <a href="{{ org.website }}" target="_blank">
+                      {{ org.website }}
                     </a>
-
-                    {% if offer.limit != -1 %}
-                      ({{ offer.limit }} remaining this month)
-                    {% endif %}
                   </p>
-                </div>
+                {% endif %}
 
-                <div class="right input-right small-3 columns">
-                  <a
-                    href="{% url 'openCurrents:redeem-currents' offer.id %}"
-                    class="button round tiny secondary">
-                    Redeem
-                  </a>
-                </div>
+                {% if org.address %}
+                  <p class="biz-deets-item">
+                    <i class="half-margin-right fa-fw fa fa-home"></i>
+                    {{ org.address }}
+                  </p>
+                {% endif %}
+
+                {% if org.phone %}
+                  <p class="biz-deets-item">
+                    <i class="half-margin-right fa-fw fa fa-phone"></i>
+                    {{ org.phone }}
+                  </p>
+                {% endif %}
+
+                {% if org.email %}
+                  <p class="biz-deets-item">
+                    <i class="half-margin-right fa-fw fa fa-envelope-open-o"></i>
+                    {{ org.email }}
+                  </p>
+                {% endif %}
+
+                {% if org.intro %}
+                  <p class="biz-deets-item">
+                    <i class="half-margin-right fa-fw fa fa-comment"></i>
+                    {{ org.intro }}
+                  </p>
+                {% endif %}
               </div>
             </div>
-          {% endfor %}
-        {% else %}
-          <div class="row">
-            <div class="small-12 medium-8 small-centered columns">
-              <p class="three-halves-margin-bottom half-margin-top">
-                We are talking with businesses in Austin and around the country
-                about exciting opportunities to use Currents for all kinds of
-                products and services. We aim to have this marketplace connecting
-                you with businesses accepting Currents in November!</p>
-              <a href="{% url 'openCurrents:profile' %}" class="button round">
-                Back to profile
-              </a>
-              <a href="javascript:void(Tawk_API.toggle())" class="button round secondary">
-                Get in touch
-              </a>
-            </div>
-          </div>
-        {% endif %}
+          {% endwith %}
+        {% endwith %}
+      {% empty %}
+        <p>We are talking with businesses in Austin and around the country about
+          exciting opportunities to use Currents for all kinds of products and
+          services. We aim to have this marketplace connecting you with
+          businesses accepting Currents in January 2018!</p>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock content %}
 
 
-        <div id="push"></div>
-
-      <!-- wrapper div-->
-      </div>
-
-      {% include 'partials/footer.html' %}
-
-    <!--container div -->
+{% block popups %}
+  <div id="transactions-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+    <div class="row center">
+      <h3 class="popup-title">How transactions work</h3>
     </div>
 
-    <div id="bottom-stripe" class="full-width"></div>
+    <div class="row center">
+      <div class="small-centered medium-10 columns">
 
-    <div off-canvas="menu right shift" id="menu">
-      {% include 'partials/menu.html' %}
-    </div>
+        <p>To make it as easy as possible for businesses to accept Currents,
+          nothing changes at point of sale - simply pay full price and ask for
+          your receipt.</p>
 
-    <div id="transactions-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <div class="row center">
-        <h3 class="popup-title">How transactions work</h3>
-      </div>
+        <p>Upload a picture of your receipt, and we will exchange your Currents
+          for the business' dollars once they verify transactions at the end of
+          the month.</p>
 
-      <div class="row center">
-        <div class="small-centered medium-10 columns">
-
-          <p>To make it as easy as possible for businesses to accept Currents,
-            nothing changes at point of sale - simply pay full price and ask
-            for your receipt.</p>
-
-          <p>Upload a picture of your receipt, and we will exchange your Currents
-             for the business' dollars once they verify transactions at the end
-             of the month.</p>
-
-          <div class="one-margin-bottom">
-            <input type="checkbox" name="no-more-popup" id="no-more-popup" class="custom-checkbox">
-              <!-- <label for="no-more-popup">Don't show this again</label> -->
-          </div>
-          <button class="transactions-popup_close button round">Got it</button>
+        <div class="one-margin-bottom">
+          <input type="checkbox" name="no-more-popup" id="no-more-popup" class="custom-checkbox">
+            <!-- <label for="no-more-popup">Don't show this again</label> -->
         </div>
+        <button class="transactions-popup_close button round">Got it</button>
       </div>
     </div>
+  </div>
+{% endblock popups %}
 
 
-    <script type="text/javascript">
-      $(document).ready(function(){
-        $('#transactions-popup').popup({
-          vertical: 'top',
-          transition: 'all 0.75s',
-          scrolllock: true,
-          //autoopen: true,
-        });
+{% block js %}
+  <script type="text/javascript">
+    $(document).ready(function(){
+      $('#transactions-popup').popup({
+        vertical: 'top',
+        transition: 'all 0.75s',
+        scrolllock: true,
+        autoopen: true,
       });
-    </script>
 
-    <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
-  </body>
-</html>
+      $('.show-biz-deets').click(function(){
+        $(this).parents('.row').next('.biz-deets').slideToggle();
+        $(this).find('span').text(function(i, text){
+          return text === "Show" ? "Hide" : "Show";
+        })
+      });
+    });
+  </script>
+
+  {% include "scripts/mini-menu.html" %}
+
+{% endblock js %}

@@ -11,7 +11,7 @@
   font-size: 1rem;
   top: 15px;
   left: 93px;
-  color: #1f4975;
+  color: #1f4795;
   -webkit-transition: color 300ms ease-out;
   transition: color 300ms ease-out; }
 
@@ -43,13 +43,13 @@
   z-index: 1; }
 
 #play-button polygon {
-  fill: #1f4975;
+  fill: #1f4795;
   -webkit-transition: fill 300ms ease-out;
   -moz-transition: fill 300ms ease-out;
   transition: fill 300ms ease-out; }
 
 #play-button circle {
-  stroke: #1f4975;
+  stroke: #1f4795;
   -webkit-transition: stroke 300ms ease-out;
   -moz-transition: stroke 300ms ease-out;
   transition: stroke 300ms ease-out; }
@@ -58,7 +58,7 @@
   fill: #0f7190; }
 
 #play-button circle {
-  stroke: #1f4975; }
+  stroke: #1f4795; }
 
 #play-button:hover circle {
   stroke: #0f7190; }

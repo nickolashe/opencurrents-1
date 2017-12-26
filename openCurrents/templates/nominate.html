@@ -1,95 +1,60 @@
+{% extends "layouts/base.html" %}
 {% load staticfiles %}
 
-<!DOCTYPE html>
-<html>
-  <head>
-    {% include "partials/head.html" %}
-  </head>
-  
-  <body>
-    {% include "partials/header.html" %}
-    
-    <div id="container" class="js-close-any" canvas="container">
-      <div id="wrapper">
-        <div class="row center">
-          <div class="small-12 medium-8 small-centered columns">
-            <h3 class="title-sub">Nominate an organization</h3>
-            <p>As a member of this community, you can help us grow by inviting an organization. Fill out this form and we'll reach out, but feel free to contact them personally as well.</p>
+{% block heading %}
+  <div class="row center">
+    <div class="small-12 medium-8 small-centered columns">
+      <h3 class="title-sub">
+        {% block title %} Nominate an organization {% endblock title %}
+      </h3>
+      <p>
+        As a member of this community, you can help us grow by inviting an
+        organization. Fill out this form and we'll reach out, but feel free to
+        contact them personally as well.
+      </p>
+    </div>
+  </div>
+{% endblock heading %}
 
-            <form method="post" action="{% url "openCurrents:process_OrgNomination" %}">
-              {% csrf_token %}
-              <div class="row three-halves-margin-bottom three-halves-margin-top">
-                <div class="center small-12 medium-9 small-centered columns">
+{% block content %}
+  <form method="post" action="{% url "openCurrents:process_OrgNomination" %}">
+  {% csrf_token %}
+    <div class="row three-halves-margin-bottom three-halves-margin-top">
+      <div class="center small-12 medium-9 small-centered columns">
 
-                  <div id="org-signup-name" class="small-12 columns">
-                    <input type="text" name="org_name" placeholder="Organization name" class="center" tabindex="0" required />
-                  </div>
-
-                  <div class="small-12 columns">
-                    <input type="text" name="contact_name" placeholder="Contact name" class="center" tabindex="0" />
-                  </div>
-
-                  <div class="small-12 columns">
-                    <input type="email" name="contact_email" placeholder="Contact email address" class="center" tabindex="0" />
-                  </div>
-                </div>
-              </div>
-
-              <div class="row center half-margin-top">
-                <input type="submit" class="button round" value="Nominate"/>
-                <p><a href="{% url 'openCurrents:profile' %}">Back to profile</a></p>
-              </div>
-            </form>
-          </div>
+        <div id="org-signup-name" class="small-12 columns">
+          <input type="text" name="org_name" placeholder="Organization name" class="center" tabindex="0" required />
         </div>
 
-        
-        
-        <div id="push"></div>
-    
-      <!-- wrapper div-->
-      </div>
-      
-      {% include 'partials/footer.html' %}
-            
-    <!--container div -->
-    </div>
-    
-    <div id="bottom-stripe" class="full-width"></div>
-    
-    <div off-canvas="menu right shift" id="menu">
-      {% include 'partials/menu.html' %}
-    </div>
-  
-    <div id="-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <div class="row center">
-        <h3 class="popup-title"></h3>
-      </div>
-      
-      <div class="row">
-        <div class="small-centered medium-10 columns">
-          
-          <p></p>
-          
-          <button class="tax-id-popup_close button round">Okay</button>
-          <a><button class="button round secondary"></button></a>
+        <div class="small-12 columns">
+          <input type="text" name="contact_name" placeholder="Contact name" class="center" tabindex="0" />
+        </div>
+
+        <div class="small-12 columns">
+          <input type="email" name="contact_email" placeholder="Contact email address" class="center" tabindex="0" />
         </div>
       </div>
     </div>
-    
-    <script src="js/ZeroClipboard.min.js" type="text/javascript"></script>
-    <script src="js/copy.js" type="text/javascript"></script>
-    
-    <script type="text/javascript">
-      $(document).ready(function(){
-        $('#').popup({
-          vertical: 'top',
-          transition: 'all 0.75s',
-          scrolllock: true,
-        });
+
+    <div class="row center half-margin-top">
+      <input type="submit" class="button round" value="Nominate"/>
+      <p><a href="{% url 'openCurrents:profile' %}">Back to profile</a></p>
+    </div>
+  </form>
+{% endblock content %}
+
+
+{% block js %}
+  <script src="js/ZeroClipboard.min.js" type="text/javascript"></script>
+  <script src="js/copy.js" type="text/javascript"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function(){
+      $('#').popup({
+        vertical: 'top',
+        transition: 'all 0.75s',
+        scrolllock: true,
       });
-    </script>
-    
-    <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
-  </body>
-</html>
+    });
+  </script>
+{% endblock js %}

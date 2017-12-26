@@ -14,7 +14,7 @@ from openCurrents.models import Org, \
 from openCurrents.interfaces.ocuser import OcUser
 from openCurrents.interfaces.ledger import OcLedger
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import logging
 import re
@@ -73,25 +73,33 @@ class VolunteerCheckinField(forms.Field):
 #        })
 #    )
 
-class UserSignupForm(forms.Form):
-    user_firstname = forms.CharField(
-        widget=forms.TextInput(attrs={
-            'id': 'new-firstname',
-            'placeholder': 'Firstname'
-        })
-    )
-    user_lastname = forms.CharField(
-        widget=forms.TextInput(attrs={
-            'id': 'new-lastname',
-            'placeholder': 'Lastname'
-        })
-    )
+class UserEmailForm(forms.Form):
     user_email = forms.EmailField(
         widget=forms.EmailInput(attrs={
             'id': 'new-email',
             'placeholder': 'Email'
         })
     )
+
+    def clean_user_email(self):
+        return self.cleaned_data['user_email'].lower()
+
+
+class UserSignupForm(UserEmailForm):
+    user_firstname = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'id': 'new-firstname',
+            'placeholder': 'Firstname'
+        })
+    )
+
+    user_lastname = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'id': 'new-lastname',
+            'placeholder': 'Lastname'
+        })
+    )
+
     org_name = forms.CharField(required=False, min_length=2)
 
     org_status = forms.ChoiceField(
@@ -105,11 +113,10 @@ class UserSignupForm(forms.Form):
     org_admin_id = forms.IntegerField(required=False)
 
 
-class PasswordResetRequestForm(forms.Form):
-    user_email = forms.CharField(min_length=1)
+class PasswordResetRequestForm(UserEmailForm):
+    pass
 
-class UserLoginForm(forms.Form):
-    user_email = forms.CharField(min_length=1)
+class UserLoginForm(UserEmailForm):
     user_password = forms.CharField(min_length=1)
 
 
@@ -186,6 +193,7 @@ class PasswordResetForm(forms.Form):
         # else:
         #     raise ValidationError(_('Password does\'nt meet the required criterion.'))
 
+
 class OrgNominationForm(forms.Form):
     org_name = forms.CharField(min_length=1,required=True)
     contact_name = forms.CharField(min_length=1,required=False)
@@ -217,12 +225,6 @@ class OrgSignupForm(forms.Form):
     )
     org_mission = forms.CharField(required=False)
     org_reason = forms.CharField(required=False)
-
-    def clean_user_affiliation(self):
-        return str(self.cleaned_data['user_affiliation'])
-
-    def clean_org_status(self):
-        return str(self.cleaned_data['org_status'])
 
 
 class CreateEventForm(forms.Form):
@@ -261,6 +263,7 @@ class CreateEventForm(forms.Form):
         label='on',
         widget=widgets.TextWidget(attrs={
             'id': 'event-date',
+            'class': ' center',
             'placeholder': 'yyyy-mm-dd',
         })
     )
@@ -269,6 +272,7 @@ class CreateEventForm(forms.Form):
         label='from',
         widget=widgets.TextWidget(attrs={
             'id': 'event-starttime',
+            'class': ' center',
             'placeholder': '12:00 pm'
         })
     )
@@ -277,12 +281,13 @@ class CreateEventForm(forms.Form):
         label='to',
         widget=widgets.TextWidget(attrs={
             'id': 'event-endtime',
+            'class': ' center',
             'placeholder': '1:00 pm',
         })
     )
 
     event_privacy = forms.ChoiceField(
-        widget=forms.RadioSelect(
+        widget=widgets.RadioWidget(
             attrs={
                 'class': 'custom-radio',
                 'id': 'id-event-privacy'
@@ -462,16 +467,17 @@ class TimeTrackerForm(forms.Form):
 
 
     org = forms.ChoiceField(
+        required=False,
         choices=[("select_org", "Select organization")],
         widget=forms.Select(attrs={
             'id': 'id_org_choice'
         })
     )
 
-    choices_admin = [("select_admin","Select admin")]
+    choices_admin = [("select_admin","Select coordinator")]
     admin = forms.CharField(
         #choices=choices_admin,
-        required=True,
+        required=False,
         widget=forms.Select(attrs={
             'id': 'id_admin_choice',
             'disabled': True
@@ -512,6 +518,31 @@ class TimeTrackerForm(forms.Form):
             'value': '12:00:00'
         })
     )
+    new_org = forms.CharField(
+        required=False,
+        widget=widgets.TextWidget(attrs={
+            'class': 'center',
+            'placeholder': 'Organization name',
+        })
+    )
+    new_admin_name = forms.CharField(
+        required=False,
+        widget=widgets.TextWidget(attrs={
+            'class': 'center',
+            'placeholder':'Coordinator name',
+        })
+    )
+    new_admin_email = forms.EmailField(
+        required=False,
+        widget=widgets.TextWidget(attrs={
+            'class': 'center',
+            'placeholder': 'Coordinator email'
+        })
+    )
+
+    def clean_new_admin_email(self):
+        new_admin_email = self.cleaned_data.get('new_admin_email', '')
+        return new_admin_email.lower()
 
     def clean(self):
         cleaned_data = super(TimeTrackerForm, self).clean()
@@ -520,13 +551,17 @@ class TimeTrackerForm(forms.Form):
         time_end = cleaned_data['time_end']
 
         # assert org
-        try:
-            self.org = Org.objects.get(id=cleaned_data['org'])
-            tz = self.org.timezone
-        except KeyError:
-            raise ValidationError(_('Select the organization you volunteered for'))
+        if cleaned_data['org']:
+            try:
+                self.org = Org.objects.get(id=cleaned_data['org'])
+                tz = self.org.timezone
+            except KeyError:
+                raise ValidationError(_('Select the organization you volunteered for'))
+        else:
+            tz = 'America/Chicago'
 
         # parse start time
+        datetime_start = None
         try:
             datetime_start = datetime.strptime(
                 ' '.join([date_start, time_start]),
@@ -539,6 +574,7 @@ class TimeTrackerForm(forms.Form):
         cleaned_data['datetime_start'] = pytz.timezone(tz).localize(datetime_start)
 
         # parse end time
+        datetime_end = None
         try:
             datetime_end = datetime.strptime(
                 ' '.join([date_start, time_end]),
@@ -550,12 +586,24 @@ class TimeTrackerForm(forms.Form):
         # localize end time to org's timezone
         cleaned_data['datetime_end'] = pytz.timezone(tz).localize(datetime_end)
 
-        # check: start time before end time
+        # start time before end time
         if cleaned_data['datetime_end'] <= cleaned_data['datetime_start']:
-            raise ValidationError(_('Start time must be before end time'))
+            raise ValidationError(_(
+                'Start time must be before end time'
+            ))
 
+        # end time in future
         if cleaned_data['datetime_end'] > datetime.now(tz=pytz.utc):
-            raise ValidationError(_('Hours can only be submitted once work is completed'))
+            raise ValidationError(_(
+                'Submitted end time is in the future'
+            ))
+
+        # start time too far in past
+        two_weeks_ago = datetime.now(tz=pytz.utc) - timedelta(weeks=2)
+        if cleaned_data['datetime_start'] < two_weeks_ago:
+            raise ValidationError(_(
+                'You can submit hours for up to 2 weeks in the past'
+            ))
 
         return cleaned_data
 
@@ -563,6 +611,73 @@ class TimeTrackerForm(forms.Form):
 class EventCheckinForm(forms.Form):
     userid = forms.IntegerField()
     checkin = VolunteerCheckinField()
+
+
+class BizDetailsForm(forms.Form):
+    website = forms.URLField(
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Website',
+            'class': 'center',
+        }),
+        required=False
+    )
+
+    phone = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Phone',
+            'class': 'center',
+        }),
+        required=False
+    )
+
+    email = forms.EmailField(
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Email',
+            'class': 'center',
+        }),
+        required=False
+    )
+
+    address = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Address',
+            'class': 'center',
+        }),
+        required=False
+    )
+
+    intro = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'placeholder': ' '.join([
+                'Introduce your business - What\'s your mission?',
+                'What sets you apart?'
+            ]),
+            'rows': '3'
+        }),
+        required=False
+    )
+
+    def clean_phone(self):
+        phone = self.cleaned_data['phone']
+
+        if phone:
+            phone = unicode.translate(
+                phone,
+                dict(
+                    zip(
+                        map(ord, string.punctuation),
+                        [None for x in xrange(len(string.punctuation))]
+                    )
+                )
+            )
+
+            if not phone.isdigit():
+                raise ValidationError(_('Invalid phone number'))
+
+            if len(phone) < 10:
+                raise ValidationError(_('Please enter phone area code'))
+
+        return phone
 
 
 class OfferCreateForm(forms.Form):
@@ -592,7 +707,7 @@ class OfferCreateForm(forms.Form):
     )
 
     offer_limit_choice = forms.ChoiceField(
-        widget=forms.RadioSelect(attrs={
+        widget=widgets.RadioWidget(attrs={
             'class': 'custom-radio'
         }),
         choices=[(0, 0), (1, 1)],
@@ -740,3 +855,44 @@ class RedeemCurrentsForm(forms.Form):
             )
 
         return cleaned_data
+
+
+class PublicRecordsForm(forms.Form):
+    periods = (
+        ('month', 'Last 30 days'),
+        ('all-time', 'All-time'),
+    )
+
+    record_types = (
+        ('top-org', 'Top organizations'),
+        ('top-vol', 'Top volunteers'),
+        ('top-biz', 'Top businesses'),
+    )
+
+    record_type = forms.ChoiceField(choices=record_types)
+    period = forms.ChoiceField(choices=periods)
+
+class PopUpAnswer(forms.Form):
+    answer = forms.CharField(max_length=3,required=False)
+
+
+
+# class HoursDetailsForm(forms.Form):
+
+#     is_admin = forms.IntegerField(
+#         widget=forms.HiddenInput(),
+#         initial=0,
+#         required=False
+#         )
+
+#     user_id = forms.IntegerField(
+#         widget=forms.HiddenInput(),
+#         initial=0,
+#         required=False
+#         )
+
+#     hours_type = forms.CharField(
+#         widget=forms.HiddenInput(),
+#         max_length=10,
+#         required=False
+#         )

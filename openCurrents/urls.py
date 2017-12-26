@@ -2,6 +2,11 @@ from django.conf.urls import url, include
 from openCurrents import views
 
 urlpatterns = [
+
+    # sitemap and robots.txt
+    url(r'^sitemap/$', views.SitemapView.as_view(), name='sitemap'),
+    url(r'^robots\.txt/$', views.RobotsView.as_view(), name='robots'),
+
     # template views
     url(r'^$', views.HomeView.as_view(), name='root'),
     url(r'^home/$', views.HomeView.as_view(), name='home'),
@@ -47,6 +52,7 @@ urlpatterns = [
     url(r'^faq/$', views.FaqView.as_view(), name='faq'),
     url(r'^find-orgs/$', views.FindOrgsView.as_view(), name='find-orgs'),
     url(r'^hours-approved/$', views.HoursApprovedView.as_view(), name='hours-approved'),
+    url(r'^hours-detail/$', views.HoursDetailView.as_view(), name='hours-detail'),
     url(r'^inventory/$', views.InventoryView.as_view(), name='inventory'),
     url(r'^mission/$', views.MissionView.as_view(), name='mission'),
     url(r'^nominate/$', views.NominateView.as_view(), name='nominate'),
@@ -73,6 +79,7 @@ urlpatterns = [
     url(r'^verify-identity/$', views.VerifyIdentityView.as_view(), name='verify-identity'),
     url(r'^time-tracker/$', views.TimeTrackerView.as_view(), name='time-tracker'),
     url(r'^time-tracker/(?P<status_msg>.*)/$', views.TimeTrackerView.as_view(), name='time-tracker'),
+    url(r'^time-tracker/(?P<status_msg>.*)/(?P<msg_type>.*)$', views.TimeTrackerView.as_view(), name='time-tracker'),
     url(r'^time-tracked/$', views.TimeTrackedView.as_view(), name='time-tracked'),
     url(r'^volunteer/$', views.VolunteerView.as_view(), name='volunteer'),
     url(r'^volunteer-requests/$', views.VolunteerRequestsView.as_view(), name='volunteer-requests'),
@@ -80,9 +87,9 @@ urlpatterns = [
     url(r'^profile/(?P<app_hr>(1|0))/$', views.ProfileView.as_view(), name='profile'),
     url(r'^profile/(?P<status_msg>.*)/$', views.ProfileView.as_view(), name='profile'),
     url(r'^org-admin/$', views.OrgAdminView.as_view(), name='org-admin'),
-    url(r'^org-admin/(?P<status_msg>[\w\s]+)/$', views.OrgAdminView.as_view(), name='org-admin'),
-    url(r'^org-admin/(?P<vols_approved>\d+)/(?P<vols_declined>\d+)/$', views.OrgAdminView.as_view(), name='org-admin'),
     url(r'^org-admin/(?P<num_vols>\d+)/$', views.OrgAdminView.as_view(), name='org-admin'),
+    url(r'^org-admin/(?P<vols_approved>\d+)/(?P<vols_declined>\d+)/$', views.OrgAdminView.as_view(), name='org-admin'),
+    url(r'^org-admin/(?P<status_msg>[\w\s]+)/$', views.OrgAdminView.as_view(), name='org-admin'),
     url(r'^edit-profile/$', views.EditProfileView.as_view(), name='edit-profile'),
     url(r'^blog/$', views.BlogView.as_view(), name='blog'),
     url(r'^marketplace/$', views.MarketplaceView.as_view(), name='marketplace'),
@@ -97,6 +104,7 @@ urlpatterns = [
     url(r'^live-dashboard/(?P<event_id>\d+)/$',
         views.LiveDashboardView.as_view(), name='live-dashboard'),
     url(r'^upcoming-events/$', views.UpcomingEventsView.as_view(), name='upcoming-events'),
+    url(r'^volunteer-opportunities/$', views.VolunteerOpportunitiesView.as_view(), name='volunteer-opportunities'),
     url(r'^event-detail/(?P<pk>\d+)/$', views.EventDetailView.as_view(), name='event-detail'),
     url(r'^event-detail/(?P<pk>\d+)/(?P<status_msg>.*)/$', views.EventDetailView.as_view(), name='event-detail'),
     url(r'^registration-confirmed/(?P<pk>\d+)/$',

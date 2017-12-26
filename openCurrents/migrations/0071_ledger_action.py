@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='ledger',
             name='action',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='openCurrents.AdminActionUserTime'),
+            field=models.ForeignKey(default=62, on_delete=django.db.models.deletion.CASCADE, to='openCurrents.AdminActionUserTime'),
             preserve_default=False,
         ),
     ]
