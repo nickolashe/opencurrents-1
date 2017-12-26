@@ -116,7 +116,7 @@
         {% for event in events_group_current %}
             <div class="row one-margin-bottom">
               <div class="left half-margin-top small-8 columns">
-                Let's {{event.project.name}}!
+                {{event.project.name}}
                 on {{event.datetime_start|day:timezone}}
                 at {{event.datetime_start|time:timezone}}
                 to {{event.datetime_end|time:timezone}}
@@ -141,7 +141,7 @@
       {% for event in events_group_upcoming %}
         <div class="row one-margin-bottom">
           <div class="left small-9 columns">
-            Let's {{event.project.name}}!
+            {{event.project.name}}
             on {{event.datetime_start|day:timezone}}
             at {{event.datetime_start|time:timezone}}
             to {{event.datetime_end|time:timezone}}
@@ -228,7 +228,7 @@
         {% for event in events_group_past %}
           <div class="row one-margin-bottom">
             <div class="left input-left small-9 columns">
-              Let's {{event.project.name}}!
+              {{event.project.name}}
               on {{event.datetime_start|day:timezone}}
               at {{event.datetime_start|time:timezone}}
               to {{event.datetime_end|time:timezone}}
