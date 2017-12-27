@@ -2,6 +2,7 @@ from collections import OrderedDict
 from django.contrib.auth.models import Group
 
 from openCurrents.models import Org, OrgUser, OrgEntity
+from openCurrents.interfaces.bizadmin import BizAdmin
 from openCurrents.interfaces.ocuser import OcUser
 from openCurrents.interfaces.ledger import OcLedger
 
@@ -153,14 +154,35 @@ class OcOrg(object):
 
         return result
 
-    def get_top_accepted_bizs(self, period, quantity=10):
+    def get_top_bizs(self, period, quantity=10, accepted_only=False):
         result = list()
         bizs = Org.objects.filter(status='biz')
 
         for biz in bizs:
+            total_cur_amount = 0
+
+            if not accepted_only:
+                # pending currents
+                try:
+                    biz_org = OcOrg(biz.id)
+                except InvalidOrgException:
+                    logger.warning(
+                        'can\'t instantiate org interface for biz org %s',
+                        biz.name
+                    )
+                    continue
+
+                biz_admins = biz_org.get_admins()
+                if biz_admins:
+                    biz_admin = biz_admins.first()
+                    total_cur_amount = BizAdmin(biz_admin.id).get_balance_pending()
+
+            # accepted currents
             accepted_cur_amount = OcLedger().get_accepted_cur_amount(biz.id, period)['total']
             if not accepted_cur_amount:
                 accepted_cur_amount = 0
+
+            total_cur_amount += float(accepted_cur_amount)
             result.append({'name': biz.name, 'total': accepted_cur_amount})
 
         result.sort(key=lambda biz_dict: biz_dict['total'], reverse=True)

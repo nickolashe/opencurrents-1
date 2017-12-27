@@ -158,12 +158,12 @@ class PublicRecordViewTestSuite(TestCase):
 
         # Random transaction amounts are recorded to the list
         # And compared to interface output
-        top_biz_last_month = OcOrg().get_top_accepted_bizs('month')
+        top_biz_last_month = OcOrg().get_top_bizs('month')
         self.assertEqual(top_biz_last_month[0], self.top_with_names[0])
 
         # Create 10 more organisations to check that interface method outputs 10 items
         [self.set_up_org(status='biz') for _ in range(10)]
-        top_biz_last_month = OcOrg().get_top_accepted_bizs('month')
+        top_biz_last_month = OcOrg().get_top_bizs('month')
         self.assertEqual(len(top_biz_last_month), 10)
 
     def test_view_displays_up_to_10_active_biz_all_time(self):
@@ -172,17 +172,17 @@ class PublicRecordViewTestSuite(TestCase):
         [self.set_up_org(status='biz', old=True) for _ in range(5)]
 
         # There were no transactions for last month
-        top_npf_last_month = OcOrg().get_top_accepted_bizs('month')
+        top_npf_last_month = OcOrg().get_top_bizs('month')
         self.assertEqual(top_npf_last_month[0]['total'], 0)
 
         # Random transaction amounts are recorded to the list
         # And compared to interface output
-        top_npf_all_time = OcOrg().get_top_accepted_bizs('all-time')
+        top_npf_all_time = OcOrg().get_top_bizs('all-time')
         self.assertEqual(top_npf_all_time[0], self.old_top_with_names[0])
 
         # Create 10 more organisations to check that interface method outputs 10 items
         [self.set_up_org(status='biz', old=True) for _ in range(10)]
-        top_npf_all_time = OcOrg().get_top_accepted_bizs('all-time')
+        top_npf_all_time = OcOrg().get_top_bizs('all-time')
         self.assertEqual(len(top_npf_all_time), 10)
 
     def test_view_displays_up_to_10_active_users_last_month(self):
