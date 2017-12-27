@@ -418,7 +418,7 @@ class NpfAdminView(TestCase):
         self.assertIn( '<a href="/create-event/1/"', processed_content)
 
         # assert that events' titles are displayed correctly
-        self.assertIn( "Let's test_project_1!", processed_content)
+        self.assertIn( "test_project_1", processed_content)
 
         # assert that correct LOCATIONS are there
         self.assertContains(response, 'test_location_1', count=1)
