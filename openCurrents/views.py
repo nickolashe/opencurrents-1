@@ -1364,6 +1364,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                 pass
         except:
             context['org_stat_id'] = ''
+
         return context
 
     def form_valid(self, form):
@@ -2964,11 +2965,11 @@ def process_resend_verification(request, user_email):
 @login_required
 def org_user_list(request, org_id):
     # return the list of admins for an org
-    org_user = OrgUser.objects.filter(org__id=org_id)
+    org_user = OcOrg(org_id).get_admins()
     org_user_list = dict([
-        (orguser.user.id, {
-            'firstname': orguser.user.first_name,
-            'lastname': orguser.user.last_name
+        (orguser.id, {
+            'firstname': orguser.first_name,
+            'lastname': orguser.last_name
         })
         for orguser in org_user
         # include current userid, instead disable it in select GUI
