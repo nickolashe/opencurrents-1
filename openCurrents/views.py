@@ -646,6 +646,12 @@ class HoursDetailView(LoginRequiredMixin, SessionContextView, ListView):
         if not self.userid or (self.hours_type not in ['pending', 'approved']):
             return redirect('openCurrents:404')
 
+        try:
+            self.user = User.objects.get(id=self.userid)
+        except User.ObjectDoesNotExist:
+            logger.warning('invalid user requested')
+            return redirect('openCurrents:404')
+
         if self.is_admin == '1':
             user_instance = OrgAdmin(self.userid)
         else:
@@ -669,6 +675,10 @@ class HoursDetailView(LoginRequiredMixin, SessionContextView, ListView):
 
         if self.is_admin == '1':
             context['hours_admin'] = True
+            context['admin_name'] = ' '.join([
+                self.user.first_name,
+                self.user.last_name
+            ])
 
         context['hours_type'] = self.hours_type
 
