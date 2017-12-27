@@ -705,7 +705,7 @@ class PublicRecordView(LoginRequiredMixin, SessionContextView, TemplateView):
         elif entity_type == 'top-vol':
             return OcUser().get_top_received_users(period)
         elif entity_type == 'top-biz':
-            return OcOrg().get_top_accepted_bizs(period)
+            return OcOrg().get_top_bizs(period)
 
     def get(self, request, *args, **kwargs):
         context = dict()
@@ -713,7 +713,10 @@ class PublicRecordView(LoginRequiredMixin, SessionContextView, TemplateView):
         form = PublicRecordsForm(request.GET or None)
         context['form'] = form
         if form.is_valid():
-            context['entries'] = self.get_top_list(form.cleaned_data['record_type'], form.cleaned_data['period'])
+            context['entries'] = self.get_top_list(
+                form.cleaned_data['record_type'],
+                form.cleaned_data['period']
+            )
         else:
             context['entries'] = self.get_top_list()
 
@@ -1416,7 +1419,7 @@ class VolunteersInvitedView(LoginRequiredMixin, SessionContextView, TemplateView
 
 class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'profile.html'
-    login_url = "/home/"
+    login_url = '/home'
     redirect_unauthenticated_users = True
 
     def get_context_data(self, **kwargs):
@@ -1461,17 +1464,12 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         # getting issued currents
         context['currents_amount_total'] = OcCommunity().get_amount_currents_total()
 
-        # getting active volunteers, set quantity to None to get all active volunteers, otherwise set to desired displayed number of volunteers
-        context['active_volunteers_total'] = OcCommunity().get_active_volunteers_total(quantity=None)
+        # getting active volunteers, do not set quantity to None to get all active volunteers;
+        # otherwise set to desired number of volunteers to be displayed
+        context['active_volunteers_total'] = OcCommunity().get_active_volunteers_total()
 
-        # getting currents accepted
-        currents_pending = OcCommunity().get_biz_currents_pending_total()
-        currents_accepted = OcCommunity().get_biz_currents_accepted_total()
-
-        context['biz_currents_total'] = round(
-            sum(map(float, [currents_pending, currents_accepted])),
-            3
-        )
+        # getting currents total (accepted + pending)
+        context['biz_currents_total'] = OcCommunity().get_biz_currents_total()
 
         return context
 

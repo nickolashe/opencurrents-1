@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.db.models import Max
 
 from openCurrents.models import \
+    OrgUser, \
     UserEntity, \
     UserEventRegistration, \
     UserSettings, \
@@ -61,6 +62,13 @@ class OcUser(object):
     def get_user(self):
         if self.user:
             return self.user
+        else:
+            raise InvalidUserException
+
+    def get_org(self):
+        if self.user:
+            orgusers = OrgUser.objects.filter(user__id=self.userid)
+            return orgusers[0].org if orgusers else None
         else:
             raise InvalidUserException
 
