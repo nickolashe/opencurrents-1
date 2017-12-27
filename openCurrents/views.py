@@ -2207,15 +2207,15 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                 },
                 {
                     'name': 'EVENT_DATE',
-                    'content': str(event.datetime_start.astimezone(pytz.timezone(tz)).date().strftime('%b %d, %Y'))
+                    'content': event.datetime_start.astimezone(pytz.timezone(tz)).date().strftime('%b %d, %Y')
                 },
                 {
                     'name':'EVENT_START_TIME',
-                    'content': str(event.datetime_start.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p'))
+                    'content': event.datetime_start.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p')
                 },
                 {
                     'name':'EVENT_END_TIME',
-                    'content': str(event.datetime_end.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p'))
+                    'content': event.datetime_end.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p')
                 },
             ])
 
@@ -2755,11 +2755,11 @@ def event_register(request, pk):
             },
             {
                 'name': 'START_TIME',
-                'content': event.datetime_start
+                'content': event.datetime_start.strftime('%-I:%M %p')
             },
             {
                 'name': 'END_TIME',
-                'content': event.datetime_end
+                'content': event.datetime_end.strftime('%-I:%M %p')
             },
             {
                 'name': 'LOCATION',
@@ -2771,7 +2771,7 @@ def event_register(request, pk):
             },
             {
                 'name': 'DATE',
-                'content': json.dumps(event.datetime_start,cls=DatetimeEncoder).replace('"','')
+                'content': json.dumps(event.datetime_start).strftime('%b %d, %Y')
             },
             {
                 'name': 'EVENT_NAME',
