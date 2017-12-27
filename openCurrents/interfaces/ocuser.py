@@ -325,7 +325,7 @@ class OcUser(object):
             earned_cur_amount = OcLedger().get_earned_cur_amount(user.id, period)['total']
 
             # only include active volunteers
-            if earned_cur_amount > 0:
+            if earned_cur_amount > 0 and user.has_usable_password():
                 if user.first_name and user.last_name:
                     name = ' '.join([user.first_name, user.last_name])
                 else:

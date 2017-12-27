@@ -46,6 +46,7 @@ import uuid
 import random
 import string
 import re
+from collections import OrderedDict
 
 from unittest import skip
 
@@ -92,6 +93,10 @@ class NpfAdminView(TestCase):
         self.create_user('org_user_1', org, is_org_user=True, is_org_admin=True)
         self.create_user('org_user_2', org, is_org_user=True, is_org_admin=True, password = 'password2')
         self.create_user('org_user_3', org, is_org_user=True, is_org_admin=True, password = 'password3')
+
+        self.org_user_1 = User.objects.get(username='org_user_1')
+        self.org_user_2 =  User.objects.get(username='org_user_2')
+        self.org_user_3 = User.objects.get(username='org_user_3')
 
         # volunteer user
         self.create_user('volunteer_1', org, is_org_user=False, is_org_admin=False)
@@ -424,23 +429,24 @@ class NpfAdminView(TestCase):
     def test_npf_admin_approved_hours(self):
         response = self.client.get('/org-admin/')
         # checking if pending hours are correctly sorted (logged in admin first then all other admins by amount of pending hours in descending order)
-        expected_list_of_approved_hours_by_each_admin = [{1: 4.0}, {3: 6.0}, {2: 2.0}]
-        self.assertListEqual(response.context['issued_by_admin'],expected_list_of_approved_hours_by_each_admin)
+        # expected_list_of_approved_hours_by_each_admin = OrderedDict([{1: 4.0}, {3: 6.0}, {2: 2.0}])
+        expected_list_of_approved_hours_by_each_admin = OrderedDict([(self.org_user_1, 4.0), (self.org_user_3, 6.0), (self.org_user_2, 2.0)])
+        self.assertDictEqual(response.context['issued_by_admin'], expected_list_of_approved_hours_by_each_admin)
 
 
     def test_npf_admin_pending_hours(self):
         response = self.client.get('/org-admin/')
         # checking if pending hours are correctly sorted (logged in admin first then all other admins by amount of pending hours in descending order)
-        expected_list_of_pending_hours_by_each_admin = [{1: 1.0}, {3: 3.0}, {2: 2.0}]
-        self.assertListEqual(response.context['hours_pending_by_admin'],expected_list_of_pending_hours_by_each_admin)
+        expected_list_of_pending_hours_by_each_admin = OrderedDict([(self.org_user_1, 1.0), (self.org_user_3, 3.0), (self.org_user_2, 2.0)])
+        self.assertDictEqual(response.context['hours_pending_by_admin'], expected_list_of_pending_hours_by_each_admin)
 
 
     def test_npf_admins_displayed_in_pending_approved_hours_section(self):
         response = self.client.get('/org-admin/')
         processed_content = re.sub(r'\s+', ' ', response.content )
 
-        self.assertIn('<a href="/hours-detail/?is_admin=1&amp;user_id=1&amp;type=approved"', processed_content)
-        self.assertIn('<a href="/hours-detail/?is_admin=1&amp;user_id=2&amp;type=pending"', processed_content)
+        self.assertIn('<a href="/hours-detail/?is_admin=1&user_id=1&type=approved"', processed_content)
+        self.assertIn('<a href="/hours-detail/?is_admin=1&user_id=2&type=pending"', processed_content)
         self.assertIn('org_user_1_first_name org_user_1_last_name: 4.0 </a>', processed_content)
         self.assertIn('org_user_2_first_name org_user_2_last_name: 2.0 </a>',processed_content)
 

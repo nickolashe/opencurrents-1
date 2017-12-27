@@ -1461,11 +1461,17 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         # getting issued currents
         context['currents_amount_total'] = OcCommunity().get_amount_currents_total()
 
-        # getting active volunteers
-        context['active_volunteers_total'] = OcCommunity().get_active_volunteers_total()
+        # getting active volunteers, set quantity to None to get all active volunteers, otherwise set to desired displayed number of volunteers
+        context['active_volunteers_total'] = OcCommunity().get_active_volunteers_total(quantity=None)
 
         # getting currents accepted
-        context['currents_accepted'] = OcCommunity().get_currents_accepted_total()
+        currents_pending = OcCommunity().get_biz_currents_pending_total()
+        currents_accepted = OcCommunity().get_biz_currents_accepted_total()
+
+        context['biz_currents_total'] = round(
+            sum(map(float, [currents_pending, currents_accepted])),
+            3
+        )
 
         return context
 
@@ -1473,24 +1479,31 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
 class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView):
     template_name = 'org-admin.html'
 
-    def _sorting_hours(self, list_of_dicts, user_id):
+    def _sorting_hours(self, admins_dict, user_id):
         """
-        Takes the list of dictionaries eg '{admin.user.id : time_pending_per_admin }' and currently logged in NPF admin user id,
+        Takes the list of dictionaries eg '{admin.user : time_pending_per_admin }' and currently logged in NPF admin user id,
         then finds and add currently logged NPF admin user to the beginning of the sorted by values list of
         dictionaries.
         Returns sorted by values list of dictionaries with hours for currently logged NPF admin as the first element.
         """
-        temp_current_admin_dic=[]
-        for item in list_of_dicts:
-            if item.has_key(user_id):
-                temp_current_admin_dic = list_of_dicts.pop(list_of_dicts.index(item))
 
-        list_of_dicts2 = sorted(list_of_dicts, key=lambda d: d.values()[0], reverse=True)
+        final_dict = OrderedDict()
+        temp_dict = OrderedDict()
 
-        if len(temp_current_admin_dic) > 0:
-            list_of_dicts2.insert(0, temp_current_admin_dic)
+        if admins_dict:
+            # getting user instance
+            user =  User.objects.get(id = user_id)
+            final_dict[user] = admins_dict.pop(user)
 
-        return list_of_dicts2
+            # sorting dict
+            temp_dict = OrderedDict(sorted(admins_dict.items(), key=lambda d: d[1] , reverse=True))
+
+            for i,v in temp_dict.iteritems():
+                final_dict[i] = v
+        else:
+            final_dict
+
+        return final_dict
 
 
     def get_context_data(self, **kwargs):
@@ -1504,12 +1517,7 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             pass
 
         # getting all admins for organization
-        context['org_admins'] = []
-        try:
-            context['org_admins'] = [u for u in OrgUser.objects.filter(org = self.org.id) if OcAuth(u.user.id).is_admin_org()]
-        except (UnboundLocalError, InvalidUserException) as e:
-            logger.debug("Error %s happened when tried to get the list of admins for NPF org %s", str(e), str(self.org.id))
-
+        context['org_admins'] = OcOrg(self.org.id).get_admins()
 
         # find events created by admin that they have not been notified of
         new_events = Event.objects.filter(
@@ -1526,58 +1534,38 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             event.notified=True
             event.save()
 
-
         # calculating pending hours for every NPF admin
-        context['hours_pending_by_admin'] = []
-        context['admin_forms_by_admin'] = []
+        context['hours_pending_by_admin'] = {}
 
         for admin in context['org_admins']:
-            admin_id = admin.user.id
-            pending_by_admin = 0
-            form = None
-            hours_pending = {admin_id : pending_by_admin }
-            admin_forms = {admin_id : form }
+            total_hours_pending = OrgAdmin(admin.id).get_total_hours_pending()
 
-            try:
-                hours_pending[admin_id] = OrgAdmin(admin_id).get_total_hours_pending()
-            except TypeError:
-                logger.debug("No hours approved for admin %s", admin.user.username)
+            if total_hours_pending > 0:
+                context['hours_pending_by_admin'][admin] = total_hours_pending
 
-            if hours_pending[admin_id] > 0:
-                context['hours_pending_by_admin'].append(hours_pending)
-
-                # creting the form per admin
-                # admin_forms[admin.user.id] = HoursDetailsForm(initial={'is_admin': 1, 'user_id': admin.user.id, 'hours_type': 'pending'})
-                # context['admin_forms_by_admin'].append(admin_forms)
-
+        logger.debug(context['hours_pending_by_admin'])
 
         # sorting the list of admins by # of pending hours descending and putting current admin at the beginning of the list
         context['hours_pending_by_admin'] = self._sorting_hours(context['hours_pending_by_admin'], self.user.id)
 
 
         # calculating approved hours for every NPF admin and total NPF Org hours tracked
-        context['issued_by_admin'] = []
+        context['issued_by_admin'] = {}
         context['issued_by_logged_admin'] = context['issued_by_all'] = time_issued_by_logged_admin = 0
 
         for admin in context['org_admins']:
-            admin_id = admin.user.id
-            issued_by_admin = 0
-            amount_issued_by_admin = {admin_id : issued_by_admin }
-
-            try:
-                amount_issued_by_admin[admin_id] = OrgAdmin(admin_id).get_total_hours_issued()
-            except TypeError:
-                logger.debug("No hours approved for admin %s", admin.user.username)
+            admin_total_hours_issued = OrgAdmin(admin.id).get_total_hours_issued()
+            #amount_issued_by_admin = {admin.id: admin_total_hours_issued}
 
             # adding to total approved hours
-            context['issued_by_all']  += amount_issued_by_admin[admin.user.id]
+            context['issued_by_all'] += admin_total_hours_issued
 
             # adding to current admin's approved hours
-            if admin_id == self.user.id:
-                time_issued_by_logged_admin += amount_issued_by_admin[admin_id]
+            if admin.id == self.user.id:
+                time_issued_by_logged_admin = admin_total_hours_issued
 
-            if amount_issued_by_admin[admin_id] > 0:
-                context['issued_by_admin'].append(amount_issued_by_admin)
+            if admin_total_hours_issued > 0:
+                context['issued_by_admin'][admin] = admin_total_hours_issued
 
             context['issued_by_logged_admin'] = round(time_issued_by_logged_admin, 2)
 
@@ -1613,8 +1601,6 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
         hours_approved = self.orgadmin.get_hours_approved()
         context['hours_approved'] = hours_approved
 
-        context['has_hours_requested'] = hours_requested.exists()
-
         return context
 
 
@@ -1627,7 +1613,15 @@ class EditProfileView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
         userid = self.request.user.id
-        profile_settings_instance = UserSettings.objects.get(user=userid)
+        try:
+            profile_settings_instance = UserSettings.objects.get(user=userid)
+        except:
+            logger.error('Cannot find UserSettings instance for {} user ID and save welcome popup answer.'.format(userid))
+            return redirect(
+                'openCurrents:profile',
+                status_msg='There was a problem processing your response.<br/>Please contact us at <a href="mailto:team@opencurrents.com">team@opencurrents.com</a>'
+                )
+
 
         if form.is_valid():
             if 'yes' in form.data:

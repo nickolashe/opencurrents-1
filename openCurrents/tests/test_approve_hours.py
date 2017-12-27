@@ -113,7 +113,7 @@ class TestApproveHoursOneWeek(TestCase):
         self.assertEqual(org_admin_response.status_code, 200)
 
         # checking pending hours before approving
-        self.assertListEqual(org_admin_response.context['hours_pending_by_admin'], [{self.npf_admin_1.id: 5.0}])
+        self.assertDictEqual(org_admin_response.context['hours_pending_by_admin'], {self.npf_admin_1: 5.0})
         self.assertEqual(0, len(AdminActionUserTime.objects.filter(action_type='app')))
         self.assertEqual(2, len(AdminActionUserTime.objects.filter(action_type='req')))
 
@@ -172,7 +172,7 @@ class TestApproveHoursOneWeek(TestCase):
         self.assertEqual(org_admin_response.status_code, 200)
 
         # checking pending hours before declining
-        self.assertListEqual(org_admin_response.context['hours_pending_by_admin'], [{self.npf_admin_1.id: 5.0}])
+        self.assertDictEqual(org_admin_response.context['hours_pending_by_admin'], {self.npf_admin_1: 5.0})
 
         # checking total approved hours
         self.assertEqual(org_admin_response.context['issued_by_all'], 0)
@@ -295,7 +295,7 @@ class TestApproveHoursTwoWeeks(TestCase):
         self.assertEqual(org_admin_response.status_code, 200)
 
         # checking pending hours before approving
-        self.assertListEqual(org_admin_response.context['hours_pending_by_admin'], [{self.npf_admin_1.id: 5.0}])
+        self.assertDictEqual(org_admin_response.context['hours_pending_by_admin'], {self.npf_admin_1: 5.0})
 
         # checking total approved hours
         self.assertEqual(org_admin_response.context['issued_by_all'], 0)
@@ -378,7 +378,7 @@ class TestApproveHoursTwoWeeks(TestCase):
         self.assertEqual(org_admin_response.status_code, 200)
 
         # checking pending hours before declining
-        self.assertListEqual(org_admin_response.context['hours_pending_by_admin'], [{self.npf_admin_1.id: 5.0}])
+        self.assertDictEqual(org_admin_response.context['hours_pending_by_admin'], {self.npf_admin_1: 5.0})
 
         # checking total approved hours
         self.assertEqual(org_admin_response.context['issued_by_all'], 0)
