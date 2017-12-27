@@ -2722,6 +2722,7 @@ def event_register(request, pk):
                 user_event_registration.save()
 
         org_name = event.project.org.name
+        tz = event.project.org.timezone
 
         # if an optional contact message was entered, send to project coordinator or registrants if user is_coord
         merge_var_list = [
@@ -2755,11 +2756,11 @@ def event_register(request, pk):
             },
             {
                 'name': 'START_TIME',
-                'content': event.datetime_start.strftime('%-I:%M %p')
+                'content': event.datetime_start.astimezone(pytz.timezone(tz)).strftime('%-I:%M %p')
             },
             {
                 'name': 'END_TIME',
-                'content': event.datetime_end.strftime('%-I:%M %p')
+                'content': event.datetime_end.astimezone(pytz.timezone(tz)).strftime('%-I:%M %p')
             },
             {
                 'name': 'LOCATION',
@@ -2771,7 +2772,7 @@ def event_register(request, pk):
             },
             {
                 'name': 'DATE',
-                'content': event.datetime_start.strftime('%b %d, %Y')
+                'content': event.datetime_start.astimezone(pytz.timezone(tz)).strftime('%b %d, %Y')
             },
             {
                 'name': 'EVENT_NAME',
@@ -2819,6 +2820,7 @@ def event_register(request, pk):
             elif not is_registered:
                 #message the coordinator as a new volunteer
                 email_template = 'volunteer-messaged'
+                email_confirmation = 'volunteer-confirmation'
                 merge_var_list.append({'name': 'MESSAGE','content': message})
                 merge_var_list.append({'name': 'REGISTER','content': True})
         #if no message was entered and a new UserEventRegistration was created
@@ -2854,7 +2856,7 @@ def event_register(request, pk):
         if email_confirmation:
             try:
                 sendContactEmail(
-                    email_template,
+                    email_confirmation,
                     None,
                     merge_var_list,
                     user.email,
