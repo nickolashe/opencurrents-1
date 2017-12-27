@@ -2754,6 +2754,22 @@ def event_register(request, pk):
                 'content': event.coordinator.email
             },
             {
+                'name': 'START_TIME',
+                'content': event.datetime_start
+            },
+            {
+                'name': 'END_TIME',
+                'content': event.datetime_end
+            },
+            {
+                'name': 'LOCATION',
+                'content': event.location
+            },
+            {
+                'name': 'DESCRIPTION',
+                'content': event.description
+            },
+            {
                 'name': 'DATE',
                 'content': json.dumps(event.datetime_start,cls=DatetimeEncoder).replace('"','')
             },
@@ -2808,7 +2824,9 @@ def event_register(request, pk):
         #if no message was entered and a new UserEventRegistration was created
         elif not is_registered and not is_coord:
             email_template = 'volunteer-registered'
+            email_confirmation = 'volunteer-confirmation'
             merge_var_list.append({'name': 'REGISTER','content': True})
+
             logger.info('User %s registered for event %s with no optional msg %s ', user.username, event.id, message)
         else:
             return redirect(
@@ -2825,6 +2843,22 @@ def event_register(request, pk):
                     merge_var_list,
                     event.coordinator.email,
                     user.email
+                )
+            except Exception as e:
+                logger.error(
+                    'unable to send email: %s (%s)',
+                    e.message,
+                    type(e)
+                )
+
+        if email_confirmation:
+            try:
+                sendContactEmail(
+                    email_template,
+                    None,
+                    merge_var_list,
+                    user.email,
+                    event.coordinator.email
                 )
             except Exception as e:
                 logger.error(
