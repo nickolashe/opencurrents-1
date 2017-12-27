@@ -4,6 +4,11 @@
     Profile
   </a>
 
+  <a class="list-group-item" href="{% url 'openCurrents:time-tracker' %}">
+    <i class="half-margin-right fa-fw fa fa-clock-o"></i>
+    Record hours
+  </a>
+
   {% if is_admin_org %}
     <a class="list-group-item" href="{% url 'openCurrents:create-event' orgid %}">
       <i class="half-margin-right fa-fw fa fa-calendar"></i>
@@ -33,10 +38,10 @@
     Nominate an org
   </a>
 
-<!--   <a class="list-group-item" href="{% url 'openCurrents:public-record' %}">
+  <a class="list-group-item" href="{% url 'openCurrents:public-record' %}">
     <i class="half-margin-right fa-fw fa fa-list-ol"></i>
     Public record
-  </a> -->
+  </a>
 
   <a class="list-group-item" href="{% url 'openCurrents:process_logout' %}">
     <i class="half-margin-right fa-fw fa fa-sign-out"></i>

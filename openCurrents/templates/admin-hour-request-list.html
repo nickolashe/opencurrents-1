@@ -4,20 +4,15 @@
 {% block main %}
   {% block admin_hour_request_list %}
 
-    <div id="reviewed-hours-list" class="left row one-margin-top full-width collapse">
+    <div id="reviewed-hours-list" class="left row full-width collapse">
       <div class="small-11 medium-10 small-centered columns">
-        <div class="row">
-          <div class="small-9 columns">
-            <h6 class="half-margin-bottom">Hours {{ hours_status }}</h6>
-          </div>
-        </div>
 
         {% if hours_list %}
           {% for record in hours_list %}
             <div class="row half-margin-bottom">
-              <div class="left input-left small-9 columns">
+              <div class="left input-left small-12 columns">
                 {% with tl=record.usertimelog %}
-                  {{ record.date_created|day_only:timezone }} -
+                  {{ tl.event.datetime_start|day_only:timezone }} -
 
                   {% if hours_status == 'requested' %}
                     <strong> {{ tl.user.first_name }} {{ tl.user.last_name }} </strong>
@@ -26,7 +21,7 @@
                     <strong> {{ tl.user.first_name }} {{ tl.user.last_name }}</strong>'s
                   {% endif %}
 
-                  {{ tl.datetime_start|get_hours_total:tl.datetime_end|floatformat:2 }}
+                  {{ tl.event.datetime_start|get_hours_total:tl.event.datetime_end|floatformat:2 }}
                   hours for {{ tl.event.description }}
 
                   {% if hours_status == 'approved' %}
@@ -38,11 +33,8 @@
           {% endfor %}
         {% else %}
           <div class="row half-margin-bottom">
-            <div class="left input-left small-9 columns">
+            <div class="center input-left small-12 columns">
               No hours have been {{ hours_status }}.
-              <a href="{% url 'openCurrents:invite-volunteers' %}">
-                Invite volunteers!
-              </a>
             </div>
           </div>
         {% endif %}

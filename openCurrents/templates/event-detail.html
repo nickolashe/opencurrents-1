@@ -1,186 +1,153 @@
+{% extends "layouts/base.html" %}
+
 {% load staticfiles %}
 {% load tags %}
 
-<!DOCTYPE html>
-<html>
-  <head>
-    {% include "partials/head.html" %}
-  </head>
+{% block heading %}
+  <div class="row">
+    <h4 class="title-sub">
+      {% block title %}{{ event.project.name }}{% endblock title %}
+    </h4>
+    <p>with <strong>{{ event.project.org.name }}</strong> </p>
+  </div>
+{% endblock heading %}
 
-  <body>
-    {% include "partials/header.html" %}
+{% block content %}
+  <form method="post" action="{% url 'openCurrents:event_register' event.id %}">
+    {% csrf_token %}
 
-    <div id="container" class="js-close-any" canvas="container">
-      <div id="wrapper">
-
-        <form method="post" action="{% url 'openCurrents:event_register' event.id %}">
-          {% csrf_token %}
-
-          {% if status_msg %}
-          <div class="alert row half-margin-top">
-            {{status_msg}}
-          </div>
-          {% endif %}
-
-          <div class="row">
-            <h4 class="title-sub">Let's {{ event.project.name }}!</h4>
-            <p>with <strong>{{ event.project.org.name }}</strong> </p>
-          </div>
-
-          <div class="row center">
-            <div class="small-12 medium-8 small-centered columns">
-              <h6 class="no-margin-bottom">
-                on {{ event.datetime_start|day:event.project.org.timezone }}
-              </h6>
-              <h6 class="no-margin-bottom">
-                from {{ event.datetime_start|time:event.project.org.timezone }} to {{ event.datetime_end|time:event.project.org.timezone }}
-              </h6>
-              <h6 class="half-margin-bottom">at {{ event.location }}</h6>
-              <p>
-                {% if event.is_public %}
-                  Public
-                {% else %}
-                  Private
-                {% endif %}
-
-                event
-              </p>
-            </div>
-          </div>
-
-          <div class="row left">
-            <div class="small-10 medium-6 small-centered columns">
-              <h6 class="navy">Event description</h6>
-              <p class="grey"> {{ event.description }}</p>
-            </div>
-          </div>
-
-          <div class="three-halves-margin-top row left">
-            <div class="small-10 medium-6 small-centered columns">
-                {% if coordinator %}
-                  <h6 class="navy inline">Contact invited volunteers</h6>
-                  <a class="registrants-box_open no-wrap">See invitees</a>
-                {% elif is_registered %}
-                  <h6 class="navy inline">Get in touch</h6>
-                {% else %}
-                  <h6 class="navy inline">{{ form.contact_message.label }}</h6>
-                {% endif %}
-
-                <p class="small-text grey no-margin-bottom">
-                  {% if not coordinator %}
-                    Event coordinator: {{ event.coordinator.first_name }} {{ event.coordinator.last_name }}
-                  {% endif %}
-                </p>
-
-              {{ form.contact_message }}
-
-            </div>
-          </div>
-
-          <div class="one-margin-top center">
-            <button type='submit' class="button round">
-              {% if not is_registered and not coordinator %}
-                Register
-              {% else %}
-                Send message
-              {% endif %}
-            </button>
-          </div>
-          <a href="{% url 'openCurrents:profile' %}">
-            Back to profile
-          </a>
-
-          <div id="push"></div>
-        </form>
-      <!-- wrapper div-->
-      </div>
-
-      {% include 'partials/footer.html' %}
-
-    <!--container div -->
-    </div>
-
-    <div id="bottom-stripe" class="full-width"></div>
-
-    <div id="registrants-box" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <h3 class="popup-title center">Invited volunteers</h3>
-      <div class="row left">
-        <div class="small-10 medium-6 small-centered columns">
-          {% if registrants %}
-            <p class="half-margin-bottom"><strong>Name or email</strong></p>
-            <ul>
-              {% for name in registrants_names %}
-                <li class="no-bullet">{{ name }}</li>
-              {% endfor %}
-            </ul>
-            <a id="copy-emails" class="button round small">Copy email list</a>
+    <div class="row center">
+      <div class="small-12 medium-8 small-centered columns">
+        <h6 class="no-margin-bottom">
+          on {{ event.datetime_start|day:event.project.org.timezone }}
+        </h6>
+        <h6 class="no-margin-bottom">
+          from {{ event.datetime_start|time:event.project.org.timezone }} to {{ event.datetime_end|time:event.project.org.timezone }}
+        </h6>
+        <h6 class="half-margin-bottom">at {{ event.location }}</h6>
+        <p>
+          {% if event.is_public %}
+            Public
           {% else %}
-            <p>No volunteers have registered or been invited yet.</p>
-            <a href="{% url 'openCurrents:invite-volunteers' event.id %}" class="button round small">Invite volunteers</a>
+            Private
           {% endif %}
 
-          <a class="registrants-box_close button round small secondary">Close</a>
-
-          <textarea id="email-list" class="hidden">
-            {{ registrants|join:', ' }}
-          </textarea>
-        </div>
+          event
+        </p>
       </div>
     </div>
 
-
-    <div off-canvas="menu right shift" id="menu">
-      {% include 'partials/menu.html' %}
-    </div>
-
-    <div id="-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <div class="row center">
-        <h3 class="popup-title"></h3>
-      </div>
-
-      <div class="row">
-        <div class="small-centered medium-10 columns">
-
-          <p></p>
-
-          <button class="tax-id-popup_close button round">Okay</button>
-          <a><button class="button round secondary"></button></a>
-        </div>
+    <div class="row left">
+      <div class="small-10 medium-6 small-centered columns">
+        <h6 class="navy">Event description</h6>
+        <p class="grey"> {{ event.description }}</p>
       </div>
     </div>
 
-    <script src="{% static 'js/clipboard.min.js' %}"></script>
+    <div class="three-halves-margin-top row left">
+      <div class="small-10 medium-6 small-centered columns">
+          {% if coordinator %}
+            <h6 class="navy inline">Contact invited volunteers</h6>
+            <a class="registrants-box_open no-wrap">See invitees</a>
+          {% elif is_registered %}
+            <h6 class="navy inline">Contact event coordinator</h6>
+          {% else %}
+            <h6 class="navy inline">{{ form.contact_message.label }}</h6>
+          {% endif %}
 
-    <script type="text/javascript">
-      $(document).ready(function(){
-        $('#').popup({
-          vertical: 'top',
-          transition: 'all 0.75s',
-          scrolllock: true,
-        });
+        {% if form.contact_message.help_text %}
+          <p class="small-text grey no-margin-bottom">
+            {% if not coordinator %}
+              {{ form.contact_message.help_text|safe }}
+            {% endif %}
+          </p>
+        {% endif %}
+        {{ form.contact_message }}
 
-        $('#registrants-box').popup({
-          vertical: 'top',
-          transition: 'all 0.75s',
-          scrolllock: false,
-        });
+      </div>
+    </div>
 
-        new Clipboard('#copy-emails', {
-          text: function (trigger) {
-            return $('#email-list').val();
-          }
-        });
+    <div class="one-margin-top center">
+      <button type='submit' class="button round">
+        {% if not is_registered and not coordinator %}
+          Register
+        {% else %}
+          Send message
+        {% endif %}
+      </button>
+    </div>
+    <a href="{% url 'openCurrents:profile' %}">
+      Back to profile
+    </a>
+{% endblock content %}
 
-        $('#copy-emails').click(function(){
-          $(this).text('Copied!');
-          setTimeout(function(){
-            $('#copy-emails').text('Copy email list');
-          }, 2000);
-        });
+{% block popups %}
+  <div id="registrants-box" class="modal center small-12 medium-9 large-7 small-centered columns">
+    <h3 class="popup-title center">Invited volunteers</h3>
+    <div class="row left">
+      <div class="small-10 medium-6 small-centered columns">
+        {% if registrants %}
+          <p class="half-margin-bottom"><strong>Name or email</strong></p>
+          <ul>
+            {% for email, rec in registrants.iteritems %}
+              <li class="no-bullet">
+                {% if rec.first_name and rec.last_name %}
+                  {{ rec.first_name|fullname:rec.last_name }}
+                {% else %}
+                  {{ email }}
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+          <a id="copy-emails" class="button round small">Copy email list</a>
+        {% else %}
+          <p>No volunteers have registered or been invited yet.</p>
+          <a href="{% url 'openCurrents:invite-volunteers' event.id %}"
+          class="button round small">
+            Invite volunteers
+          </a>
+        {% endif %}
 
+        <a class="registrants-box_close button round small secondary">Close</a>
+
+        <textarea id="email-list" class="hidden">
+          {{ registrants|join:', ' }}
+        </textarea>
+      </div>
+    </div>
+  </div>
+{% endblock popups %}
+
+{% block js %}
+  <script src="{% static 'js/clipboard.min.js' %}"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function(){
+      $('#').popup({
+        vertical: 'top',
+        transition: 'all 0.75s',
+        scrolllock: true,
       });
-    </script>
 
-    <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
-  </body>
-</html>
+      $('#registrants-box').popup({
+        vertical: 'top',
+        transition: 'all 0.75s',
+        scrolllock: false,
+      });
+
+      new Clipboard('#copy-emails', {
+        text: function (trigger) {
+          return $('#email-list').val();
+        }
+      });
+
+      $('#copy-emails').click(function(){
+        $(this).text('Copied!');
+        setTimeout(function(){
+          $('#copy-emails').text('Copy email list');
+        }, 2000);
+      });
+
+    });
+  </script>
+{% endblock js %}

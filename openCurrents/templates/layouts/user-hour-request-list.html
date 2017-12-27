@@ -1,23 +1,16 @@
+{% extends "layouts/base.html" %}
 {% load staticfiles %}
 {% load tags %}
 
 {% block main %}
   {% block user_hour_request_list %}
 
-    <div id="reviewed-hours-list" class="left row one-margin-top collapse">
-      <div class="small-11 medium-10 small-centered columns">
-        <div class="row">
-          <div class="small-9 columns">
-            <h6 class="half-margin-bottom">Hours {{ hours_status }}</h6>
-          </div>
-        </div>
-
         {% if hours_list %}
           {% for record in hours_list %}
             <div class="row half-margin-bottom">
               <div class="left input-left small-9 columns">
                 {% with tl=record.usertimelog %}
-                  {{ record.date_created|day_only:timezone }} -
+                  {{ tl.event.datetime_start|day_only:timezone }} -
 
                   {% if hours_status == 'requested' %}
                     You volunteered
@@ -25,17 +18,13 @@
                     Your
                   {% endif %}
 
-                  <strong>
-                    {{ tl.datetime_start|get_hours_total:tl.datetime_end|floatformat:2 }}
-                  </strong>
+                  {{ tl.event.datetime_start|get_hours_total:tl.event.datetime_end|floatformat:2 }}
                   hours for {{ tl.event.description }}
 
                   {% if hours_status == 'requested' %}
                     at <strong> {{ tl.event.project.org.name }} </strong>
-                  {% endif %}
-
-                  {% if hours_status == 'approved' %}
-                    have been approved by
+                  {% else %}
+                    have been {{ hours_status }} by
                     <strong>
                       {{ tl.event.project.org.name }}
                     </strong>
@@ -49,14 +38,12 @@
           <div class="row half-margin-bottom">
             <div class="left input-left small-9 columns">
               No hours have been {{ hours_status }}.
-              <a href="{% url 'openCurrents:upcoming-events' %}">
+              <a href="{% url 'openCurrents:volunteer-opportunities' %}">
                 Find a volunteering opportunity!
               </a>
             </div>
           </div>
         {% endif %}
-      </div>
-    </div>
 
   {% endblock %}
 {% endblock %}

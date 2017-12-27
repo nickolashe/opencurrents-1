@@ -43,12 +43,40 @@ class OrgAdmin(object):
 
         return admin_actions
 
+    def get_total_hours_pending (self):
+        """
+        returns admin's pending hour total
+        """
+        hours_pending_admin = sum([
+            common.diffInHours(
+                x.usertimelog.event.datetime_start,
+                x.usertimelog.event.datetime_end
+            )
+            for x in self.get_hours_requested()
+        ])
+
+        return round(hours_pending_admin, 2)
+
+
+    def get_total_hours_issued (self):
+        """
+        returns admin's issued hour total
+        """
+        hours_issued_admin = sum([
+            common.diffInHours(
+                x.usertimelog.event.datetime_start,
+                x.usertimelog.event.datetime_end
+            )
+            for x in self.get_hours_approved()
+        ])
+
+        return round(hours_issued_admin, 2)
+
+
     def _get_usertimelogs(self, verified=False):
         projects = Project.objects.filter(org__id=self.org.id)
         events = Event.objects.filter(
             project__in=projects
-        ).filter(
-            event_type='MN'
         )
 
         # determine whether there are any unverified timelogs for admin
@@ -63,6 +91,9 @@ class OrgAdmin(object):
         return usertimelogs
 
     def _get_adminactions_for_usertimelogs(self, usertimelogs, action_type='req'):
+        if not usertimelogs:
+            return []
+
         # admin-specific requests
         admin_actions = AdminActionUserTime.objects.filter(
             user_id=self.userid
