@@ -641,8 +641,15 @@ class HoursDetailView(LoginRequiredMixin, SessionContextView, ListView):
         self.userid = self.request.GET.get('user_id')
         self.hours_type = self.request.GET.get('type')
         self.is_admin = self.request.GET.get('is_admin')
+        self.org_id = self.request.GET.get('org_id')
 
         if not self.userid or (self.hours_type not in ['pending', 'approved']):
+            return redirect('openCurrents:404')
+
+        try:
+            self.user = User.objects.get(id=self.userid)
+        except User.ObjectDoesNotExist:
+            logger.warning('invalid user requested')
             return redirect('openCurrents:404')
 
         if self.is_admin == '1':
@@ -653,9 +660,8 @@ class HoursDetailView(LoginRequiredMixin, SessionContextView, ListView):
         if self.hours_type == 'pending':
             queryset = user_instance.get_hours_requested()
         else:
-            org_id = self.request.GET.get('org_id')
-            if org_id:
-                queryset = user_instance.get_hours_approved(org_id=org_id)
+            if self.org_id:
+                queryset = user_instance.get_hours_approved(org_id=self.org_id)
             else:
                 queryset = user_instance.get_hours_approved()
 
@@ -669,8 +675,16 @@ class HoursDetailView(LoginRequiredMixin, SessionContextView, ListView):
 
         if self.is_admin == '1':
             context['hours_admin'] = True
+            context['admin_name'] = ' '.join([
+                self.user.first_name,
+                self.user.last_name
+            ])
 
         context['hours_type'] = self.hours_type
+
+        if self.org_id:
+            org = OcOrg(self.org_id)
+            context['hours_orgname'] = org.get_org_name()
 
         return context
 
@@ -691,7 +705,7 @@ class PublicRecordView(LoginRequiredMixin, SessionContextView, TemplateView):
         elif entity_type == 'top-vol':
             return OcUser().get_top_received_users(period)
         elif entity_type == 'top-biz':
-            return OcOrg().get_top_accepted_bizs(period)
+            return OcOrg().get_top_bizs(period)
 
     def get(self, request, *args, **kwargs):
         context = dict()
@@ -699,7 +713,10 @@ class PublicRecordView(LoginRequiredMixin, SessionContextView, TemplateView):
         form = PublicRecordsForm(request.GET or None)
         context['form'] = form
         if form.is_valid():
-            context['entries'] = self.get_top_list(form.cleaned_data['record_type'], form.cleaned_data['period'])
+            context['entries'] = self.get_top_list(
+                form.cleaned_data['record_type'],
+                form.cleaned_data['period']
+            )
         else:
             context['entries'] = self.get_top_list()
 
@@ -1403,7 +1420,7 @@ class VolunteersInvitedView(LoginRequiredMixin, SessionContextView, TemplateView
 
 class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'profile.html'
-    login_url = "/home/"
+    login_url = '/home'
     redirect_unauthenticated_users = True
 
     def get_context_data(self, **kwargs):
@@ -1448,11 +1465,12 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         # getting issued currents
         context['currents_amount_total'] = OcCommunity().get_amount_currents_total()
 
-        # getting active volunteers
+        # getting active volunteers, do not set quantity to None to get all active volunteers;
+        # otherwise set to desired number of volunteers to be displayed
         context['active_volunteers_total'] = OcCommunity().get_active_volunteers_total()
 
-        # getting currents accepted
-        context['currents_accepted'] = OcCommunity().get_currents_accepted_total()
+        # getting currents total (accepted + pending)
+        context['biz_currents_total'] = OcCommunity().get_biz_currents_total()
 
         return context
 
@@ -1460,24 +1478,31 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
 class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView):
     template_name = 'org-admin.html'
 
-    def _sorting_hours(self, list_of_dicts, user_id):
+    def _sorting_hours(self, admins_dict, user_id):
         """
-        Takes the list of dictionaries eg '{admin.user.id : time_pending_per_admin }' and currently logged in NPF admin user id,
+        Takes the list of dictionaries eg '{admin.user : time_pending_per_admin }' and currently logged in NPF admin user id,
         then finds and add currently logged NPF admin user to the beginning of the sorted by values list of
         dictionaries.
         Returns sorted by values list of dictionaries with hours for currently logged NPF admin as the first element.
         """
-        temp_current_admin_dic=[]
-        for item in list_of_dicts:
-            if item.has_key(user_id):
-                temp_current_admin_dic = list_of_dicts.pop(list_of_dicts.index(item))
 
-        list_of_dicts2 = sorted(list_of_dicts, key=lambda d: d.values()[0], reverse=True)
+        final_dict = OrderedDict()
+        temp_dict = OrderedDict()
 
-        if len(temp_current_admin_dic) > 0:
-            list_of_dicts2.insert(0, temp_current_admin_dic)
+        if admins_dict:
+            # getting user instance
+            user =  User.objects.get(id = user_id)
+            final_dict[user] = admins_dict.pop(user)
 
-        return list_of_dicts2
+            # sorting dict
+            temp_dict = OrderedDict(sorted(admins_dict.items(), key=lambda d: d[1] , reverse=True))
+
+            for i,v in temp_dict.iteritems():
+                final_dict[i] = v
+        else:
+            final_dict
+
+        return final_dict
 
 
     def get_context_data(self, **kwargs):
@@ -1491,12 +1516,7 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             pass
 
         # getting all admins for organization
-        context['org_admins'] = []
-        try:
-            context['org_admins'] = [u for u in OrgUser.objects.filter(org = self.org.id) if OcAuth(u.user.id).is_admin_org()]
-        except (UnboundLocalError, InvalidUserException) as e:
-            logger.debug("Error %s happened when tried to get the list of admins for NPF org %s", str(e), str(self.org.id))
-
+        context['org_admins'] = OcOrg(self.org.id).get_admins()
 
         # find events created by admin that they have not been notified of
         new_events = Event.objects.filter(
@@ -1513,58 +1533,38 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             event.notified=True
             event.save()
 
-
         # calculating pending hours for every NPF admin
-        context['hours_pending_by_admin'] = []
-        context['admin_forms_by_admin'] = []
+        context['hours_pending_by_admin'] = {}
 
         for admin in context['org_admins']:
-            admin_id = admin.user.id
-            pending_by_admin = 0
-            form = None
-            hours_pending = {admin_id : pending_by_admin }
-            admin_forms = {admin_id : form }
+            total_hours_pending = OrgAdmin(admin.id).get_total_hours_pending()
 
-            try:
-                hours_pending[admin_id] = OrgAdmin(admin_id).get_total_hours_pending()
-            except TypeError:
-                logger.debug("No hours approved for admin %s", admin.user.username)
+            if total_hours_pending > 0:
+                context['hours_pending_by_admin'][admin] = total_hours_pending
 
-            if hours_pending[admin_id] > 0:
-                context['hours_pending_by_admin'].append(hours_pending)
-
-                # creting the form per admin
-                # admin_forms[admin.user.id] = HoursDetailsForm(initial={'is_admin': 1, 'user_id': admin.user.id, 'hours_type': 'pending'})
-                # context['admin_forms_by_admin'].append(admin_forms)
-
+        logger.debug(context['hours_pending_by_admin'])
 
         # sorting the list of admins by # of pending hours descending and putting current admin at the beginning of the list
         context['hours_pending_by_admin'] = self._sorting_hours(context['hours_pending_by_admin'], self.user.id)
 
 
         # calculating approved hours for every NPF admin and total NPF Org hours tracked
-        context['issued_by_admin'] = []
+        context['issued_by_admin'] = {}
         context['issued_by_logged_admin'] = context['issued_by_all'] = time_issued_by_logged_admin = 0
 
         for admin in context['org_admins']:
-            admin_id = admin.user.id
-            issued_by_admin = 0
-            amount_issued_by_admin = {admin_id : issued_by_admin }
-
-            try:
-                amount_issued_by_admin[admin_id] = OrgAdmin(admin_id).get_total_hours_issued()
-            except TypeError:
-                logger.debug("No hours approved for admin %s", admin.user.username)
+            admin_total_hours_issued = OrgAdmin(admin.id).get_total_hours_issued()
+            #amount_issued_by_admin = {admin.id: admin_total_hours_issued}
 
             # adding to total approved hours
-            context['issued_by_all']  += amount_issued_by_admin[admin.user.id]
+            context['issued_by_all'] += admin_total_hours_issued
 
             # adding to current admin's approved hours
-            if admin_id == self.user.id:
-                time_issued_by_logged_admin += amount_issued_by_admin[admin_id]
+            if admin.id == self.user.id:
+                time_issued_by_logged_admin = admin_total_hours_issued
 
-            if amount_issued_by_admin[admin_id] > 0:
-                context['issued_by_admin'].append(amount_issued_by_admin)
+            if admin_total_hours_issued > 0:
+                context['issued_by_admin'][admin] = admin_total_hours_issued
 
             context['issued_by_logged_admin'] = round(time_issued_by_logged_admin, 2)
 
@@ -1600,8 +1600,6 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
         hours_approved = self.orgadmin.get_hours_approved()
         context['hours_approved'] = hours_approved
 
-        context['has_hours_requested'] = hours_requested.exists()
-
         return context
 
 
@@ -1614,7 +1612,15 @@ class EditProfileView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
         userid = self.request.user.id
-        profile_settings_instance = UserSettings.objects.get(user=userid)
+        try:
+            profile_settings_instance = UserSettings.objects.get(user=userid)
+        except:
+            logger.error('Cannot find UserSettings instance for {} user ID and save welcome popup answer.'.format(userid))
+            return redirect(
+                'openCurrents:profile',
+                status_msg='There was a problem processing your response.<br/>Please contact us at <a href="mailto:team@opencurrents.com">team@opencurrents.com</a>'
+                )
+
 
         if form.is_valid():
             if 'yes' in form.data:
@@ -2200,15 +2206,15 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                 },
                 {
                     'name': 'EVENT_DATE',
-                    'content': str(event.datetime_start.astimezone(pytz.timezone(tz)).date().strftime('%b %d, %Y'))
+                    'content': event.datetime_start.astimezone(pytz.timezone(tz)).date().strftime('%b %d, %Y')
                 },
                 {
                     'name':'EVENT_START_TIME',
-                    'content': str(event.datetime_start.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p'))
+                    'content': event.datetime_start.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p')
                 },
                 {
                     'name':'EVENT_END_TIME',
-                    'content': str(event.datetime_end.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p'))
+                    'content': event.datetime_end.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p')
                 },
             ])
 
@@ -2411,10 +2417,16 @@ class LiveDashboardView(OrgAdminPermissionMixin, SessionContextView, TemplateVie
         return context
 
 
-class RegistrationConfirmedView(DetailView, LoginRequiredMixin):
+class RegistrationConfirmedView(LoginRequiredMixin, SessionContextView, DetailView):
     model = Event
     context_object_name = 'event'
     template_name = 'registration-confirmed.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(RegistrationConfirmedView, self).get_context_data(**kwargs)
+        context['is_coordinator'] = self.object.coordinator == self.user
+
+        return context
 
 
 class AddVolunteersView(TemplateView):
@@ -2709,6 +2721,7 @@ def event_register(request, pk):
                 user_event_registration.save()
 
         org_name = event.project.org.name
+        tz = event.project.org.timezone
 
         # if an optional contact message was entered, send to project coordinator or registrants if user is_coord
         merge_var_list = [
@@ -2741,8 +2754,24 @@ def event_register(request, pk):
                 'content': event.coordinator.email
             },
             {
+                'name': 'START_TIME',
+                'content': event.datetime_start.astimezone(pytz.timezone(tz)).strftime('%-I:%M %p')
+            },
+            {
+                'name': 'END_TIME',
+                'content': event.datetime_end.astimezone(pytz.timezone(tz)).strftime('%-I:%M %p')
+            },
+            {
+                'name': 'LOCATION',
+                'content': event.location
+            },
+            {
+                'name': 'DESCRIPTION',
+                'content': event.description
+            },
+            {
                 'name': 'DATE',
-                'content': json.dumps(event.datetime_start,cls=DatetimeEncoder).replace('"','')
+                'content': event.datetime_start.astimezone(pytz.timezone(tz)).strftime('%b %d, %Y')
             },
             {
                 'name': 'EVENT_NAME',
@@ -2790,12 +2819,15 @@ def event_register(request, pk):
             elif not is_registered:
                 #message the coordinator as a new volunteer
                 email_template = 'volunteer-messaged'
+                email_confirmation = 'volunteer-confirmation'
                 merge_var_list.append({'name': 'MESSAGE','content': message})
                 merge_var_list.append({'name': 'REGISTER','content': True})
         #if no message was entered and a new UserEventRegistration was created
         elif not is_registered and not is_coord:
             email_template = 'volunteer-registered'
+            email_confirmation = 'volunteer-confirmation'
             merge_var_list.append({'name': 'REGISTER','content': True})
+
             logger.info('User %s registered for event %s with no optional msg %s ', user.username, event.id, message)
         else:
             return redirect(
@@ -2820,6 +2852,22 @@ def event_register(request, pk):
                     type(e)
                 )
 
+        if email_confirmation:
+            try:
+                sendContactEmail(
+                    email_confirmation,
+                    None,
+                    merge_var_list,
+                    user.email,
+                    event.coordinator.email
+                )
+            except Exception as e:
+                logger.error(
+                    'unable to send email: %s (%s)',
+                    e.message,
+                    type(e)
+                )
+
         return redirect('openCurrents:registration-confirmed', event.id) #TODO add a redirect for coordinator who doesn't register
     else:
         logger.error('Invalid form: %s', form.errors.as_data())
@@ -2829,22 +2877,33 @@ def event_register(request, pk):
 @login_required
 def event_register_live(request, eventid):
     userid = request.POST['userid']
-    user = User.objects.get(id=userid)
-    event = Event.objects.get(id=eventid)
+
+    try:
+        user = User.objects.get(id=userid)
+    except User.ObjectDoesNotExist:
+        logger.debug('user %s does not exist', userid)
+        return HttpResponse(content=json.dumps({}), status=400)
+
+    try:
+        event = Event.objects.get(id=eventid)
+    except Event.ObjectDoesNotExist:
+        logger.debug('event %s does not exist', eventid)
+        return HttpResponse(content=json.dumps({}), status=400)
+
     user_event, was_created = UserEventRegistration.objects.get_or_create(
         user=user, event=event
     )
 
     if not was_created:
         logger.debug(
-            'User %s is already registered for event %s',
+            'user %s is already registered for event %s',
             user.username,
             event.id
         )
         return HttpResponse(content=json.dumps({}), status=200)
 
     logger.debug(
-        'User %s registered for event %s', user.username, event.id
+        'user %s registered for event %s', user.username, event.id
     )
 
     now = datetime.now(tz=pytz.utc)

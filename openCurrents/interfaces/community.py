@@ -1,11 +1,10 @@
 from datetime import datetime, timedelta
 
-from .orgs import \
-    OcOrg, \
-    OcUser
-
+from openCurrents.models import Org
+from openCurrents.interfaces.orgs import OcOrg, OcUser, InvalidOrgException
 
 import logging
+
 logging.basicConfig(level=logging.DEBUG, filename="log/views.log")
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -22,32 +21,45 @@ class OcCommunity(object):
         """
         total_currents_amount = sum([
             x['total']
-            for x in OcOrg().get_top_issued_npfs(period='all-time')
+            for x in OcOrg().get_top_issued_npfs(
+                period='all-time',
+                quantity=int(1e6)
+            )
             if x['total'] > 0
         ])
 
-        return total_currents_amount
+        return round(float(total_currents_amount), 3)
 
 
-    def get_active_volunteers_total(self):
+    def get_active_volunteers_total(self, quantity=None):
         """
-        returns total volunteers number in the system
+        returns total number of active volunteers in the system
         """
+        if not quantity:
+            quantity=int(1e6)
+
         active_volunteers_total = len([
-            x for x in OcUser().get_top_received_users(period='all-time')
+            volunteer for volunteer in OcUser().get_top_received_users(
+                period='all-time',
+                quantity=quantity
+            )
         ])
 
         return active_volunteers_total
 
 
-    def get_currents_accepted_total(self):
+    def get_biz_currents_total(self):
         """
         returns total currents accepted in the system
+        note: accepted = approved + redeemed
         """
-        currents_accepted_total = sum([
+        currents_total = sum([
             x['total']
-            for x in OcOrg().get_top_accepted_bizs(period='all-time')
+            for x in OcOrg().get_top_bizs(
+                period='all-time',
+                quantity=int(1e6)
+            )
             if x['total'] > 0
         ])
 
-        return currents_accepted_total
+        return round(float(currents_total), 3)

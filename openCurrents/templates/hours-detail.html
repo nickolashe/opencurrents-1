@@ -6,10 +6,12 @@
     <div class="small-12 columns">
       <h4 class="title">
         {% block title %}
-          {% if is_admin %}
-            Hours
+          {% if hours_admin %}
+            Hours {{ hours_type }}
+            {% if hours_type == 'pending' %} for {% else %} by {% endif %}
+            {{ admin_name }}
           {% else %}
-            My hours for {{ orgname }}
+            My hours for {{ hours_orgname }}
           {% endif %}
         {% endblock title %}
       </h4>
@@ -57,7 +59,7 @@
 
             <div class="small-6 columns">
               <p class="half-margin-bottom">
-                {% if is_admin %}
+                {% if hours_admin %}
                   {{ user.first_name|fullname:user.last_name }} recorded hours for
                 {% endif %}
 
@@ -66,6 +68,17 @@
                 {% else %}
                   {{ event.project.name }}
                 {% endif %}
+
+                {% with admin=hr.user %}
+                  <span class='small-text no-wrap grey'>
+                    by
+                    {% if admin.first_name and admin.last_name %}
+                      {{ admin.first_name|fullname:admin.last_name }}
+                    {% else %}
+                      {{ admin.username }}
+                    {% endif %}
+                  </span>
+                {% endwith %}
               </p>
             </div>
 
@@ -85,9 +98,15 @@
 
 
   <div class="row three-halves-margin-top">
-    <a href="{% url 'openCurrents:profile' %}" class="button round">
-      Back to profile
-    </a>
+    {% if hours_admin %}
+      <a href="{% url 'openCurrents:org-admin' %}" class="button round">
+        Back to org profile
+      </a>
+    {% else %}
+      <a href="{% url 'openCurrents:profile' %}" class="button round">
+        Back to profile
+      </a>
+    {% endif %}
   </div>
 
 {% endblock content %}

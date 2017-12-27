@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.db.models import Max
 
 from openCurrents.models import \
+    OrgUser, \
     UserEntity, \
     UserEventRegistration, \
     UserSettings, \
@@ -61,6 +62,13 @@ class OcUser(object):
     def get_user(self):
         if self.user:
             return self.user
+        else:
+            raise InvalidUserException
+
+    def get_org(self):
+        if self.user:
+            orgusers = OrgUser.objects.filter(user__id=self.userid)
+            return orgusers[0].org if orgusers else None
         else:
             raise InvalidUserException
 
@@ -325,7 +333,7 @@ class OcUser(object):
             earned_cur_amount = OcLedger().get_earned_cur_amount(user.id, period)['total']
 
             # only include active volunteers
-            if earned_cur_amount > 0:
+            if earned_cur_amount > 0 and user.has_usable_password():
                 if user.first_name and user.last_name:
                     name = ' '.join([user.first_name, user.last_name])
                 else:

@@ -10,7 +10,7 @@
   <div class="row">
     <div class="small-12 medium-8 small-centered columns">
       <h4 class="three-halves-margin-top">
-        {% block title %}Let's {{ event.project.name }}!{% endblock title %}
+        {% block title %}{{ event.project.name }}{% endblock title %}
       </h4>
       <p>with {{ event.project.org.name }} at {{ event.location }}</p>
     </div>
@@ -256,8 +256,8 @@
               data: form_data,
               dataType : "json",
             }).done(function( data ) {
-              // console.log('register_live response:')
-              // console.log(data);
+              //console.log('register_live response:')
+              //console.log(data);
               // hide any error messages present
               $('#vol-exist').slideUp();
               $('#live-dashboard-error-register').slideUp();
@@ -266,7 +266,7 @@
               $('#email-error').slideUp();
               $('#live-dashboard-not-in-progress').slideUp();
 
-              if (data.event_status) {
+              if (data.event_status >= 0) {
                 $('#registered-volunteers').prepend(`
                   <div class="row"> \
                     <div class="left small-9 columns"> \
