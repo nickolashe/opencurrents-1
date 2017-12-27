@@ -311,7 +311,7 @@
       });
 
     {# Turning on/off welcome popup #}
-    {% if user.usersettings_set.all.0.popup_reaction  == None %}
+    {% if user.usersettings.popup_reaction  == None %}
 
       $('#welcome-popup').popup({
         vertical: 'top',
