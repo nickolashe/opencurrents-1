@@ -8,11 +8,8 @@
         {% block title %}
           {% if hours_admin %}
             Hours {{ hours_type }}
-            {% if hours_type == 'pending' %}
-              for {{ admin_name }}
-            {% else %}
-              by {{ admin_name }}
-            {% endif %}
+            {% if hours_type == 'pending' %} for {% else %} by {% endif %}
+            {{ admin_name }}
           {% else %}
             My hours for {{ hours_orgname }}
           {% endif %}
