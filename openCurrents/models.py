@@ -102,7 +102,7 @@ class UserSettings(models.Model):
     '''
     user settings
     '''
-    user = models.ForeignKey(
+    user = models.OneToOneField(
         User,
         on_delete=models.CASCADE
     )
