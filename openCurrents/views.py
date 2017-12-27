@@ -2771,7 +2771,7 @@ def event_register(request, pk):
             },
             {
                 'name': 'DATE',
-                'content': json.dumps(event.datetime_start).strftime('%b %d, %Y')
+                'content': event.datetime_start.strftime('%b %d, %Y')
             },
             {
                 'name': 'EVENT_NAME',
