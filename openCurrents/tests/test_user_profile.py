@@ -451,8 +451,8 @@ class TestUserProfileCommunityActivity(TestCase):
         response = self.client.get('/profile/')
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn('Currents issued: 20.00', response.content)
-        self.assertEqual(response.context['currents_amount_total'], 20.00)
+        self.assertIn('Currents issued: 20.0', response.content)
+        self.assertEqual(response.context['currents_amount_total'], 20.0)
 
         self.assertIn('Active volunteers: 1', response.content)
         self.assertEqual(response.context['active_volunteers_total'], 1)
