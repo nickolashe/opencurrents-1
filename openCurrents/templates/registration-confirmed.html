@@ -2,6 +2,9 @@
 {% load staticfiles %}
 {% load tags %}
 
+{% block head %}
+  <link href="{% static 'css/add-to-calendar.css' %}" rel="stylesheet" type="text/css">
+{% endblock head %}
 
 {% block title %}
   {% if is_coordinator %}
@@ -42,7 +45,7 @@
         <var class="atc_date_start">{{ event.datetime_start|time:event.project.org.timezone }}</var>
         <var class="atc_date_end">{{ event.datetime_end|time:event.project.org.timezone }}</var>
         <var class="atc_timezone">America/Chicago</var>
-        <var class="atc_title">Let's {{ event.project.name }}!</var>
+        <var class="atc_title">{{ event.project.name }}</var>
         <var class="atc_description">{{ event.description }}</var>
         <var class="atc_location">{{ event.location }}</var>
         <var class="atc_organizer">{{ event.coordinator_firstname }}</var>
