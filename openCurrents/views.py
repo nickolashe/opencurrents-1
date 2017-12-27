@@ -2207,15 +2207,15 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                 },
                 {
                     'name': 'EVENT_DATE',
-                    'content': str(event.datetime_start.astimezone(pytz.timezone(tz)).date().strftime('%b %d, %Y'))
+                    'content': event.datetime_start.astimezone(pytz.timezone(tz)).date().strftime('%b %d, %Y')
                 },
                 {
                     'name':'EVENT_START_TIME',
-                    'content': str(event.datetime_start.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p'))
+                    'content': event.datetime_start.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p')
                 },
                 {
                     'name':'EVENT_END_TIME',
-                    'content': str(event.datetime_end.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p'))
+                    'content': event.datetime_end.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p')
                 },
             ])
 
@@ -2722,6 +2722,7 @@ def event_register(request, pk):
                 user_event_registration.save()
 
         org_name = event.project.org.name
+        tz = event.project.org.timezone
 
         # if an optional contact message was entered, send to project coordinator or registrants if user is_coord
         merge_var_list = [
@@ -2754,8 +2755,24 @@ def event_register(request, pk):
                 'content': event.coordinator.email
             },
             {
+                'name': 'START_TIME',
+                'content': event.datetime_start.astimezone(pytz.timezone(tz)).strftime('%-I:%M %p')
+            },
+            {
+                'name': 'END_TIME',
+                'content': event.datetime_end.astimezone(pytz.timezone(tz)).strftime('%-I:%M %p')
+            },
+            {
+                'name': 'LOCATION',
+                'content': event.location
+            },
+            {
+                'name': 'DESCRIPTION',
+                'content': event.description
+            },
+            {
                 'name': 'DATE',
-                'content': json.dumps(event.datetime_start,cls=DatetimeEncoder).replace('"','')
+                'content': event.datetime_start.astimezone(pytz.timezone(tz)).strftime('%b %d, %Y')
             },
             {
                 'name': 'EVENT_NAME',
@@ -2803,12 +2820,15 @@ def event_register(request, pk):
             elif not is_registered:
                 #message the coordinator as a new volunteer
                 email_template = 'volunteer-messaged'
+                email_confirmation = 'volunteer-confirmation'
                 merge_var_list.append({'name': 'MESSAGE','content': message})
                 merge_var_list.append({'name': 'REGISTER','content': True})
         #if no message was entered and a new UserEventRegistration was created
         elif not is_registered and not is_coord:
             email_template = 'volunteer-registered'
+            email_confirmation = 'volunteer-confirmation'
             merge_var_list.append({'name': 'REGISTER','content': True})
+
             logger.info('User %s registered for event %s with no optional msg %s ', user.username, event.id, message)
         else:
             return redirect(
@@ -2825,6 +2845,22 @@ def event_register(request, pk):
                     merge_var_list,
                     event.coordinator.email,
                     user.email
+                )
+            except Exception as e:
+                logger.error(
+                    'unable to send email: %s (%s)',
+                    e.message,
+                    type(e)
+                )
+
+        if email_confirmation:
+            try:
+                sendContactEmail(
+                    email_confirmation,
+                    None,
+                    merge_var_list,
+                    user.email,
+                    event.coordinator.email
                 )
             except Exception as e:
                 logger.error(
