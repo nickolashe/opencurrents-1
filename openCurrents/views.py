@@ -2067,6 +2067,38 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         return context
 
 
+    def email_parser(self, a_string):
+        """
+        analyzes the a_string if it matches the
+        'Firstname Lastname <email@email.com>'
+        or <'email@email.com'>
+        or 'email@email.com'
+        """
+
+        # setting up pattern
+        pattern = r"(?:([^<>\s]+)(?: )([^<>\s]+)\s<([^<>]+@[^<>]+)>)|([^<>]+@[^<>]+)"
+
+        # setting up variables
+        firstname = lastname = email1 = email2 = None
+
+        from string import strip
+
+        if re.search(pattern, a_string):
+            matches = re.findall(pattern, a_string)
+            for match in matches:
+                if match[0] != '':
+                    firstname = strip(match[0])
+                if match[1] != '':
+                    lastname = strip(match[1])
+                if match[2] != '':
+                    email1 = strip(match[2])
+                if match[3] != '':
+                    email2 = strip(match[3])
+
+        return firstname, lastname, email1, email2
+
+
+
     def post(self, request, *args, **kwargs):
         userid = self.request.user.id
         user = User.objects.get(id=userid)
@@ -2097,10 +2129,12 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
 
         if post_data['bulk-vol'].encode('ascii','ignore') == '':
             num_vols = int(post_data['count-vol'])
+
         else:
-            bulk_list = re.split(',|\s|\n',post_data['bulk-vol'])
-            # removing extra splits from bulk_list preventing from creating users with empty name.
-            bulk_list = [x for x in bulk_list if x != '']
+            bulk_list_raw = re.split(',',post_data['bulk-vol'])
+            bulk_list = []
+            for email_string in bulk_list_raw:
+                bulk_list.append(self.email_parser(email_string))
             num_vols = len(bulk_list)
 
         for i in range(num_vols):
@@ -2141,19 +2175,37 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                     num_vols -= 1
 
             elif post_data['bulk-vol'] != '':
-                user_email = str(bulk_list[i].strip())
-                if str(bulk_list[i].strip()) != '' and bulk_list[i].strip() not in user_list:
+                # setting vars' default values in case we couldn't get all needed data from parsed email
+                first_name = last_name = user_email = None
+                try:
+                    if bulk_list[i][0]:
+                        first_name = bulk_list[i][0]
+                    if bulk_list[i][1]:
+                        last_name = bulk_list[i][1]
+                    if bulk_list[i][2]:
+                        user_email = bulk_list[i][2]
+                    if bulk_list[i][3]:
+                        user_email = bulk_list[i][3]
+                except:
+                    logger.error('Unable to read from parsed email')
+
+                # user_email = str(bulk_list[i].strip())
+                if user_email and user_email not in user_list:
                     k.append({"email":user_email, "type":"to"})
-                elif bulk_list[i].strip() in user_list:
+                elif user_email in user_list:
                     k_old.append({"email":user_email, "type":"to"})
                 user_new = None
-                try:
-                    user_new = OcUser().setup_user(
-                        username=user_email,
-                        email=user_email,
-                    )
-                except UserExistsException:
-                    user_new = User.objects.get(username=user_email)
+
+                if user_email:
+                    try:
+                        user_new = OcUser().setup_user(
+                            username=user_email,
+                            email=user_email,
+                            first_name=first_name,
+                            last_name=last_name
+                        )
+                    except UserExistsException:
+                        user_new = User.objects.get(username=user_email)
 
                 if user_new and event_create_id:
                     try:

@@ -128,7 +128,7 @@ class TestIvniteVolunteersNoEvent(TestCase):
 
         # posting form
         self.response = self.client.post("/invite-volunteers/", {
-            'bulk-vol':'bulk_test_guest_1@e.cc, bulk_test_guest_2@e.cc, bulk_test_guest_3@e.cc, bulk_test_guest_4@e.cc',
+            'bulk-vol':'<bulk_test_guest_1@e.cc>, test_guest_firstname test_guest_lastname <bulk_test_guest_2@e.cc>, bulk_test_guest_3@e.cc, bulk_test_guest_4@e.cc',
             'personal_message':'',
             'test_mode':'1' # letting know the app that we're testing, so it shouldnt send emails via Mandrill
             })
@@ -147,6 +147,10 @@ class TestIvniteVolunteersNoEvent(TestCase):
 
         # assert userentities were created
         self.assertEqual(len(UserEntity.objects.filter(user__username__contains='bulk_test_guest_')), 4)
+
+        # assert new user was created with firstname and lastname
+        self.assertEqual(len(User.objects.filter(first_name__contains='test_guest_firstname')), 1)
+        self.assertEqual(len(User.objects.filter(last_name__contains='test_guest_lastname')), 1)
 
         # asserting email vars values
         expected_list = ['first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'NPF_org_1', 'ORG_NAME']
@@ -208,7 +212,7 @@ class TestIvniteVolunteersNoEvent(TestCase):
 
         # posting form
         response = self.client.post("/invite-volunteers/", {
-            'bulk-vol':'bulk_test_guest_1@e.cc, bulk_test_guest_2@e.cc, bulk_test_guest_3@e.cc, bulk_test_guest_4@e.cc',
+            'bulk-vol':'<bulk_test_guest_1@e.cc>, test_guest_firstname test_guest_lastname <bulk_test_guest_2@e.cc>, bulk_test_guest_3@e.cc, bulk_test_guest_4@e.cc',
             'personal_message':'Test msg 2',
             'test_mode':'1' # letting know the app that we're testing, so it shouldnt send emails via Mandrill
             })
@@ -227,6 +231,10 @@ class TestIvniteVolunteersNoEvent(TestCase):
 
         # assert userentities were created
         self.assertEqual(len(UserEntity.objects.filter(user__username__contains='bulk_test_guest_')), 4)
+
+        # assert new user was created with firstname and lastname
+        self.assertEqual(len(User.objects.filter(first_name__contains='test_guest_firstname')), 1)
+        self.assertEqual(len(User.objects.filter(last_name__contains='test_guest_lastname')), 1)
 
         # asserting email vars values
         expected_list = ['Test msg 2', 'PERSONAL_MESSAGE', 'first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'NPF_org_1', 'ORG_NAME']
