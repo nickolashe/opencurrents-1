@@ -183,7 +183,7 @@ class OcOrg(object):
                 accepted_cur_amount = 0
 
             total_cur_amount += accepted_cur_amount
-            result.append({'name': biz.name, 'total': accepted_cur_amount})
+            result.append({'name': biz.name, 'total': total_cur_amount})
 
         result.sort(key=lambda biz_dict: biz_dict['total'], reverse=True)
 
@@ -191,6 +191,12 @@ class OcOrg(object):
             result = result[:quantity]
 
         return result
+
+    def get_admins(self):
+        if self.org_admin_group:
+            return self.org_admin_group.user_set.all()
+        else:
+            return None
 
     def get_admins(self):
         if self.org_admin_group:
