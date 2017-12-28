@@ -17,7 +17,11 @@ from openCurrents.models import \
     UserTimeLog, \
     AdminActionUserTime, \
     Ledger, \
-    UserSettings
+    UserSettings, \
+    Item, \
+    Transaction, \
+    Offer, \
+    TransactionAction
 
 from openCurrents.interfaces.ocuser import \
     OcUser, \
@@ -29,8 +33,10 @@ from openCurrents.interfaces.orgs import \
     OrgUserInfo
 
 from openCurrents.interfaces.orgadmin import OrgAdmin
+from openCurrents.interfaces.bizadmin import BizAdmin
 from openCurrents.interfaces.ledger import OcLedger
 from openCurrents.interfaces.common import diffInHours
+from openCurrents.interfaces.community import OcCommunity
 
 from openCurrents.tests.interfaces.common import \
      _create_test_user, \
@@ -440,6 +446,45 @@ class TestUserProfileCommunityActivity(TestCase):
             amount = 4
         )
 
+        # setting up pending transaction
+        self.offer_item = Item(name="Test Item")
+        self.offer_item.save()
+
+        self.offer = Offer(
+            org=self.biz_org,
+            item=self.offer_item,
+            currents_share=40
+        )
+        self.offer.save()
+
+        self.transaction = Transaction(
+            user=self.biz_admin_1,
+            offer=self.offer,
+            # pop_image=data['redeem_receipt'],
+            # pop_no_proof=data['redeem_no_proof'],
+            price_reported=10.91,
+            currents_amount=0.436
+        )
+        self.transaction.save()
+
+        self.action = TransactionAction(
+            transaction=self.transaction,
+            action_type='req'
+        )
+        self.action.save()
+
+
+
+        # @ TODO remove after discussion with Nicko @
+        # get_biz_currents_total != get_balance_pending + get_balance_available
+        print '\n Checking get_biz_currents_total'
+        print BizAdmin(self.biz_admin_1.id).get_balance_pending()
+        print BizAdmin(self.biz_admin_1.id).get_balance_available()
+        print OcCommunity().get_biz_currents_total()
+        # @ TODO remove after discussion with Nicko @
+
+
+
         # setting up client
         self.client = Client()
 
@@ -451,8 +496,8 @@ class TestUserProfileCommunityActivity(TestCase):
         response = self.client.get('/profile/')
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn('Currents issued: 20.0', response.content)
-        self.assertEqual(response.context['currents_amount_total'], 20.0)
+        self.assertIn('Currents issued: 20.00', response.content)
+        self.assertEqual(response.context['currents_amount_total'], 20.000)
 
         self.assertIn('Active volunteers: 1', response.content)
         self.assertEqual(response.context['active_volunteers_total'], 1)

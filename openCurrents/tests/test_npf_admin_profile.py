@@ -447,8 +447,8 @@ class NpfAdminView(TestCase):
 
         self.assertIn('<a href="/hours-detail/?is_admin=1&user_id=1&type=approved"', processed_content)
         self.assertIn('<a href="/hours-detail/?is_admin=1&user_id=2&type=pending"', processed_content)
-        self.assertIn('org_user_1_first_name org_user_1_last_name: 4.0 </a>', processed_content)
-        self.assertIn('org_user_2_first_name org_user_2_last_name: 2.0 </a>',processed_content)
+        self.assertIn('org_user_1_first_name org_user_1_last_name: 4.000 </a>', processed_content)
+        self.assertIn('org_user_2_first_name org_user_2_last_name: 2.000 </a>',processed_content)
 
 
     def test_npf_page_upcoming_events_list(self):

@@ -1565,7 +1565,7 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             if admin_total_hours_issued > 0:
                 context['issued_by_admin'][admin] = admin_total_hours_issued
 
-            context['issued_by_logged_admin'] = round(time_issued_by_logged_admin, 2)
+            context['issued_by_logged_admin'] = time_issued_by_logged_admin
 
         # sorting the list of admins by # of approved hours descending and putting current admin at the beginning of the list
         context['issued_by_admin'] = self._sorting_hours(context['issued_by_admin'], self.user.id)

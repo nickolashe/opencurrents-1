@@ -28,7 +28,7 @@ class OcCommunity(object):
             if x['total'] > 0
         ])
 
-        return round(float(total_currents_amount), 3)
+        return total_currents_amount
 
 
     def get_active_volunteers_total(self, quantity=None):
@@ -62,4 +62,4 @@ class OcCommunity(object):
             if x['total'] > 0
         ])
 
-        return round(float(currents_total), 3)
+        return currents_total

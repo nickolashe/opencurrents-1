@@ -80,3 +80,8 @@ def less(arg1, arg2):
 @register.filter
 def fullname(firstname, lastname):
     return ' '.join([firstname, lastname])
+
+@register.filter('round_number')
+def round_number(value, decimals):
+    s = "%."+ str(decimals) +"f"
+    return s % round(value, decimals)
