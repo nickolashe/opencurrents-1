@@ -473,18 +473,6 @@ class TestUserProfileCommunityActivity(TestCase):
         )
         self.action.save()
 
-
-
-        # @ TODO remove after discussion with Nicko @
-        # get_biz_currents_total != get_balance_pending + get_balance_available
-        print '\n Checking get_biz_currents_total'
-        print BizAdmin(self.biz_admin_1.id).get_balance_pending()
-        print BizAdmin(self.biz_admin_1.id).get_balance_available()
-        print OcCommunity().get_biz_currents_total()
-        # @ TODO remove after discussion with Nicko @
-
-
-
         # setting up client
         self.client = Client()
 
@@ -503,7 +491,7 @@ class TestUserProfileCommunityActivity(TestCase):
         self.assertEqual(response.context['active_volunteers_total'], 1)
 
         self.assertIn('Currents redeemed: 4', response.content)
-        self.assertEqual(response.context['biz_currents_total'], 4.00)
+        self.assertEqual(float(response.context['biz_currents_total']), 4.436)
 
 
     def test_community_activity_click_curr_issued(self):
