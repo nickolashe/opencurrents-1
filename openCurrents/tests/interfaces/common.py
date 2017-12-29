@@ -85,15 +85,18 @@ def _create_project(org, project_name):
 
 def _create_event(
         project,
+        creator_id,
         datetime_start,
         datetime_end,
         description="Test Event",
         location="test_location",
         is_public=False,
         event_type="MN",
-        coordinator=None,
-        creator_id = None
+        coordinator=None
     ):
+    """
+    creates an event with given parameters
+    """
 
     event = Event(
         project=project,
@@ -114,7 +117,9 @@ def _setup_user_event_registration(
         event,
         is_confirmed=True
     ):
-
+    """
+    creates a user event registration with given parameters
+    """
     user_event_registration = UserEventRegistration(
         user=user,
         event=event,

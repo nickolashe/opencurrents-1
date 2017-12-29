@@ -522,11 +522,11 @@ class NpfAdminCheckIn(TestCase):
         self.volunteer_2 = _create_test_user('volunteer_2')
 
         # creating an event that happening now (72 hrs)
-        self.event_now = _create_event(self.project_1, past_date, future_date, is_public=True, event_type="GR", coordinator=self.npf_admin, creator_id=self.npf_admin.id)
+        self.event_now = _create_event(self.project_1, self.npf_admin.id, past_date, future_date, is_public=True, event_type="GR", coordinator=self.npf_admin)
 
         # creating a past event (48 hrs)
         past_date_2 = timezone.now() - timedelta(days=1)
-        self.event_past = _create_event(self.project_2, past_date_2, future_date, is_public=True, event_type="GR", coordinator=self.npf_admin, creator_id=self.npf_admin.id)
+        self.event_past = _create_event(self.project_2, self.npf_admin.id, past_date_2, future_date, is_public=True, event_type="GR", coordinator=self.npf_admin)
 
 
         #creating UserEventRegistration for npf admin and a volunteer

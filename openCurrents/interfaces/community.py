@@ -51,7 +51,7 @@ class OcCommunity(object):
     def get_biz_currents_total(self):
         """
         returns total currents accepted in the system
-        note: accepted = approved + redeemed
+        note: accepted = approved + pending
         """
         currents_total = sum([
             x['total']

@@ -41,7 +41,9 @@ from openCurrents.interfaces.community import OcCommunity
 from openCurrents.tests.interfaces.common import \
      _create_test_user, \
      _create_project, \
-    _setup_volunteer_hours
+    _setup_volunteer_hours, \
+    _create_event, \
+    _setup_user_event_registration
 
 
 import pytz
@@ -49,6 +51,7 @@ import uuid
 import random
 import string
 import re
+from decimal import Decimal
 
 from unittest import skip
 
@@ -206,6 +209,8 @@ class TestUserProfileView(TestCase):
 
         # creating a volunteer
         volunteer_1 = _create_test_user('volunteer_1')
+        vol_1_entity = UserEntity.objects.get(user=volunteer_1)
+
         volunteer_2 = _create_test_user('volunteer_2')
 
         # creating an admins for NPF_orgs
@@ -233,6 +238,21 @@ class TestUserProfileView(TestCase):
         # setting a pending events 3 hrs
         _setup_volunteer_hours(volunteer_1, npf_admin_1, org1, project_1, datetime_start_1, datetime_end_1)
 
+        # setting up future events
+        self.event1 = _create_event(project_1, npf_admin_1.id, future_date, future_date + timedelta(hours=5), is_public=True)
+        self.event2 = _create_event(project_1, npf_admin_1.id, future_date, future_date + timedelta(hours=5), description="Test Event 2", is_public=True)
+
+        #issuing currents to volunteer1
+        OcLedger().issue_currents(
+            entity_id_from = org1.orgentity.id,
+            entity_id_to = vol_1_entity.id,
+            action =  None,
+            amount = 20,
+            )
+
+        # registering user for an event
+        _setup_user_event_registration(volunteer_1, self.event2)
+
         # setting up client
         self.client = Client()
 
@@ -250,16 +270,18 @@ class TestUserProfileView(TestCase):
         self.assertIn('NPF_org_2: 2.0', processed_content)
         self.assertIn('<a href="/hours-detail/?user_id=1&amp;org_id=2&amp;type=approved"', processed_content)
 
+
     def test_user_events_upcoming(self):
         oc_user = User.objects.get(username="volunteer_1")
         self.client.login(username=oc_user.username, password='password')
 
         response = self.client.get('/profile/')
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context['events_upcoming']), 1)
 
-        # @@ TODO @@
-        # create upcoming events
-        self.assertEqual(len(response.context['events_upcoming']), 0)
+        response = self.client.get('/upcoming-events/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context['events']), 2)
 
 
     def test_user_currents_available(self):
@@ -269,10 +291,7 @@ class TestUserProfileView(TestCase):
         response = self.client.get('/profile/')
         self.assertEqual(response.status_code, 200)
 
-        # @@ TODO @@
-        # add amount of currents available to user
-        self.assertEqual(response.context['balance_available'], 0.0)
-
+        self.assertEqual(response.context['balance_available'], 20.0)
 
     def test_user_currents_pending(self):
         oc_user = User.objects.get(username="volunteer_1")
@@ -457,13 +476,13 @@ class TestUserProfileCommunityActivity(TestCase):
         )
         self.offer.save()
 
+        self.transaction_currents_amount = 0.436
+        self.transaction_price_reported = 10.91
         self.transaction = Transaction(
             user=self.biz_admin_1,
             offer=self.offer,
-            # pop_image=data['redeem_receipt'],
-            # pop_no_proof=data['redeem_no_proof'],
-            price_reported=10.91,
-            currents_amount=0.436
+            price_reported=self.transaction_price_reported,
+            currents_amount=self.transaction_currents_amount
         )
         self.transaction.save()
 
@@ -504,10 +523,15 @@ class TestUserProfileCommunityActivity(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
+        # asserting npf orgs
         response = self.client.get('/public-record/?record_type=top-org&period=month')
         self.assertIn('entries', response.context)
-
-        # @@ TODO @@
-        # add currents amount issued by the companies to this test
         expected_entries = [{'total': 0, 'name': 'NPF_org_1'}, {'total': 0, 'name': 'NPF_org_2'}]
         self.assertEqual(expected_entries, response.context['entries'])
+
+        # asserting biz org
+        response = self.client.get('/public-record/?record_type=top-biz&period=month')
+        self.assertIn('entries', response.context)
+        self.assertEqual(response.context['entries'][0]['name'], self.biz_org.name)
+        self.assertEqual(round(response.context['entries'][0]['total'], 3), self.transaction_currents_amount)
+
