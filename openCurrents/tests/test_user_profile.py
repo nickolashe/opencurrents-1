@@ -262,8 +262,9 @@ class TestUserProfileView(TestCase):
         _setup_ledger_entry(org1.orgentity, vol_1_entity, currency = 'usd', amount = 30.30, is_issued = True)
 
         # setting approved and pending dollars
-        _setup_transactions(biz_org, biz_admin_1, 12, 20)
-        _setup_transactions(biz_org, biz_admin_1, 12, 20, action_type='app')
+        _setup_transactions(biz_org, volunteer_1, 12, 20)
+        _setup_transactions(biz_org, volunteer_1, 12, 20, action_type='app')
+        _setup_transactions(biz_org, volunteer_1, 12, 20, action_type='red')
 
         # setting up client
         self.client = Client()
@@ -303,7 +304,7 @@ class TestUserProfileView(TestCase):
         response = self.client.get('/profile/')
         self.assertEqual(response.status_code, 200)
 
-        self.assertEqual(response.context['balance_available'], 20.0)
+        self.assertEqual(response.context['balance_available'], 8.0)
 
     def test_user_currents_pending(self):
         oc_user = User.objects.get(username="volunteer_1")
@@ -332,9 +333,7 @@ class TestUserProfileView(TestCase):
         response = self.client.get('/profile/')
         self.assertEqual(response.status_code, 200)
 
-        # @@ TODO @@
-        # add amount of dollars pending to user
-        self.assertEqual(response.context['balance_pending_usd'], 0.0)
+        self.assertEqual(response.context['balance_pending_usd'], 216.0)
 
 
     def test_user_offers_redemed(self):
@@ -344,9 +343,9 @@ class TestUserProfileView(TestCase):
         response = self.client.get('/profile/')
         self.assertEqual(response.status_code, 200)
 
-        # @@ TODO @@
-        # add amount of offers_redeemed to user
-        self.assertEqual(len(response.context['offers_redeemed']), 0)
+        self.assertEqual(len(response.context['offers_redeemed']), 3)
+        self.assertEqual(response.context['offers_redeemed'][0].transaction.currents_amount, 12)
+        self.assertEqual(response.context['offers_redeemed'][0].transaction.price_reported, 20)
 
 
     def test_user_pending_hours_list(self):
