@@ -185,6 +185,8 @@ def _setup_transactions(
         biz_admin,
         transaction_currents_amount,
         transaction_price_reported,
+        price_actual = None,
+        pop_type = 'rec',
         offer_item_name="Test Item",
         currents_share=40,
         action_type='req'
@@ -210,13 +212,19 @@ def _setup_transactions(
     )
     offer.save()
 
+
+    if price_actual is None:
+        price_actual = transaction_price_reported
+
     transaction = Transaction(
         user=biz_admin,
         offer=offer,
         price_reported=transaction_price_reported,
-        currents_amount=transaction_currents_amount
+        currents_amount=transaction_currents_amount,
+        price_actual=price_actual
     )
     transaction.save()
+
 
     action = TransactionAction(
         transaction=transaction,

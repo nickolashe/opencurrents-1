@@ -260,7 +260,10 @@ class TestUserProfileView(TestCase):
 
         # setting up user dollars
         _setup_ledger_entry(org1.orgentity, vol_1_entity, currency = 'usd', amount = 30.30, is_issued = True)
-        _setup_ledger_entry(org1.orgentity, vol_1_entity, currency = 'usd', amount = 20.20, is_issued = False)
+
+        # setting approved and pending dollars
+        _setup_transactions(biz_org, biz_admin_1, 12, 20)
+        _setup_transactions(biz_org, biz_admin_1, 12, 20, action_type='app')
 
         # setting up client
         self.client = Client()
@@ -516,5 +519,5 @@ class TestUserProfileCommunityActivity(TestCase):
         response = self.client.get('/public-record/?record_type=top-biz&period=month')
         self.assertIn('entries', response.context)
         self.assertEqual(response.context['entries'][0]['name'], self.biz_org.name)
-        self.assertEqual(round(response.context['entries'][0]['total'], 3), self.transaction_currents_amount)
+        self.assertEqual(round(response.context['entries'][0]['total'], 3), 0.436)
 
