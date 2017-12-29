@@ -2121,7 +2121,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         k = []
         k_old = []
 
-        users = User.objects.values_list('username')
+        users = User.objects.values_list('email')
         user_list = [str(''.join(j)) for j in users]
 
         OrgUsers = OrgUserInfo(self.request.user.id)
@@ -2315,24 +2315,13 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                             'content': Organisation
                         },
                     ])
-
+                # sending emails only to new users
                 if k:
                     sendBulkEmail(
                         'invite-volunteer',
                         None,
                         email_template_merge_vars,
                         k,
-                        user.email,
-                        session=self.request.session,
-                        marker='1',
-                        test_mode = test_mode
-                    )
-                if k_old:
-                    sendBulkEmail(
-                        'invite-volunteer',
-                        None,
-                        email_template_merge_vars,
-                        k_old,
                         user.email,
                         session=self.request.session,
                         marker='1',
