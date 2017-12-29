@@ -4,17 +4,21 @@ from datetime import datetime, timedelta
 from django.utils import timezone
 
 from openCurrents.models import \
-    Org, \
+    AdminActionUserTime, \
     Entity, \
-    UserEntity, \
+    Item, \
+    Ledger, \
+    Offer, \
+    Org, \
     OrgEntity, \
     OrgUser, \
     Project, \
     Event, \
-    UserTimeLog, \
-    AdminActionUserTime, \
-    Ledger, \
-    UserEventRegistration
+    Transaction, \
+    TransactionAction, \
+    UserEntity, \
+    UserEventRegistration, \
+    UserTimeLog
 
 from openCurrents.interfaces.ocuser import \
     OcUser, \
@@ -34,6 +38,14 @@ import random
 import string
 import re
 
+# ====== CONTENT =======
+# _create_test_user
+# _create_project
+# _create_event
+# _setup_user_event_registration
+# _setup_volunteer_hours
+# _setup_transactions
+# _setup_ledger_entry
 
 def _create_test_user(user_name, password = 'password', org = None,  is_org_admin=False):
     """
@@ -168,3 +180,83 @@ def _setup_volunteer_hours(volunteer, npf_admin, org, project, datetime_start, d
         action_type=action_type
     )
 
+def _setup_transactions(
+        biz_org,
+        biz_admin,
+        transaction_currents_amount,
+        transaction_price_reported,
+        offer_item_name="Test Item",
+        currents_share=40,
+        action_type='req'
+    ):
+    """
+    creates pending or approved transactions
+    biz_org - biz org instance;
+    biz_admin - biz admin user instance;
+    transaction_currents_amount - int or float;
+    transaction_price_reported - int or float;
+    offer_item_name - string;
+    currents_share - int or float;
+    action_type - string. Possible values: 'req', 'app', 'red', 'dec'
+    """
+
+    offer_item = Item(name=offer_item_name)
+    offer_item.save()
+
+    offer = Offer(
+        org=biz_org,
+        item=offer_item,
+        currents_share=currents_share
+    )
+    offer.save()
+
+    transaction = Transaction(
+        user=biz_admin,
+        offer=offer,
+        price_reported=transaction_price_reported,
+        currents_amount=transaction_currents_amount
+    )
+    transaction.save()
+
+    action = TransactionAction(
+        transaction=transaction,
+        action_type=action_type
+    )
+    action.save()
+
+
+def _setup_ledger_entry(
+        entity_from,
+        entity_to,
+        currency = 'cur',
+        amount = 100.30,
+        is_issued = False,
+        action = None,
+        transaction = None
+    ):
+
+    """
+    USE IT UNTILL WE HAVE ledger.OcLedger.add_fiat implemented
+
+    entity_from -   Entity objects (eg User and Org)
+    entity_to -     Entity objects (eg User and Org)
+    currency -      string 'cur' or 'usd'
+    amount -        Int of Float
+    is_issued -     boolean
+    action -        AdminActionUserTime instance
+    transaction -   TransactionAction instance
+    """
+
+    ledger_rec = Ledger(
+        entity_from = entity_from,
+        entity_to = entity_to,
+        currency = currency,
+        amount = amount,
+        is_issued = is_issued,
+        action = action,
+        transaction = transaction
+    )
+
+    ledger_rec.save()
+
+    return

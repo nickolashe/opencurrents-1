@@ -43,7 +43,9 @@ from openCurrents.tests.interfaces.common import \
      _create_project, \
     _setup_volunteer_hours, \
     _create_event, \
-    _setup_user_event_registration
+    _setup_user_event_registration, \
+    _setup_transactions, \
+    _setup_ledger_entry
 
 
 import pytz
@@ -203,15 +205,18 @@ class TestUserProfileView(TestCase):
         future_date = timezone.now() + timedelta(days=1)
         past_date = timezone.now() - timedelta(days=2)
 
-        # creating org
+        # creating orgs
         org1 = OcOrg().setup_org(name="NPF_org_1", status="npf")
         org2 = OcOrg().setup_org(name="NPF_org_2", status="npf")
 
         # creating a volunteer
         volunteer_1 = _create_test_user('volunteer_1')
         vol_1_entity = UserEntity.objects.get(user=volunteer_1)
-
         volunteer_2 = _create_test_user('volunteer_2')
+
+        # creting bizorg and its admin
+        biz_org = OcOrg().setup_org(name="BIZ_org_1", status='biz')
+        biz_admin_1 = _create_test_user('biz_admin_1', org = biz_org, is_org_admin=True)
 
         # creating an admins for NPF_orgs
         npf_admin_1 = _create_test_user('npf_admin_1', org = org1, is_org_admin=True)
@@ -252,6 +257,10 @@ class TestUserProfileView(TestCase):
 
         # registering user for an event
         _setup_user_event_registration(volunteer_1, self.event2)
+
+        # setting up user dollars
+        _setup_ledger_entry(org1.orgentity, vol_1_entity, currency = 'usd', amount = 30.30, is_issued = True)
+        _setup_ledger_entry(org1.orgentity, vol_1_entity, currency = 'usd', amount = 20.20, is_issued = False)
 
         # setting up client
         self.client = Client()
@@ -310,9 +319,7 @@ class TestUserProfileView(TestCase):
         response = self.client.get('/profile/')
         self.assertEqual(response.status_code, 200)
 
-        # @@ TODO @@
-        # add amount of dollars available to user
-        self.assertEqual(response.context['balance_available_usd'], 0.0)
+        self.assertEqual(response.context['balance_available_usd'], 30.30)
 
 
     def test_user_dollars_pending(self):
@@ -435,7 +442,7 @@ class TestUserProfileCommunityActivity(TestCase):
         self.npf_adm_2_entity = UserEntity.objects.get(user=self.npf_admin_2)
 
         self.biz_admin_1 = _create_test_user('biz_admin_1', org = self.biz_org, is_org_admin=True)
-        self.biz_adm_1_entity = UserEntity.objects.get(user=self.biz_admin_1)
+        # self.biz_adm_1_entity = UserEntity.objects.get(user=self.biz_admin_1)
 
         # 1st event time = 3 hours
         self.datetime_start_1 = past_date
@@ -466,31 +473,7 @@ class TestUserProfileCommunityActivity(TestCase):
         )
 
         # setting up pending transaction
-        self.offer_item = Item(name="Test Item")
-        self.offer_item.save()
-
-        self.offer = Offer(
-            org=self.biz_org,
-            item=self.offer_item,
-            currents_share=40
-        )
-        self.offer.save()
-
-        self.transaction_currents_amount = 0.436
-        self.transaction_price_reported = 10.91
-        self.transaction = Transaction(
-            user=self.biz_admin_1,
-            offer=self.offer,
-            price_reported=self.transaction_price_reported,
-            currents_amount=self.transaction_currents_amount
-        )
-        self.transaction.save()
-
-        self.action = TransactionAction(
-            transaction=self.transaction,
-            action_type='req'
-        )
-        self.action.save()
+        _setup_transactions(self.biz_org, self.biz_admin_1, 0.436, 10.91)
 
         # setting up client
         self.client = Client()
