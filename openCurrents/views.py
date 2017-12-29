@@ -1489,10 +1489,16 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
         final_dict = OrderedDict()
         temp_dict = OrderedDict()
 
+        print "\nHERE"
+        print admins_dict
+        print "HERE\n"
+
         if admins_dict:
             # getting user instance
             user =  User.objects.get(id = user_id)
-            final_dict[user] = admins_dict.pop(user)
+            if user in admins_dict.keys():
+                final_dict[user] = admins_dict.pop(user)
+
 
             # sorting dict
             temp_dict = OrderedDict(sorted(admins_dict.items(), key=lambda d: d[1] , reverse=True))
