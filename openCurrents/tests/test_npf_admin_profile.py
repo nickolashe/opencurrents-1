@@ -447,8 +447,8 @@ class NpfAdminView(TestCase):
 
         self.assertIn('<a href="/hours-detail/?is_admin=1&user_id=1&type=approved"', processed_content)
         self.assertIn('<a href="/hours-detail/?is_admin=1&user_id=2&type=pending"', processed_content)
-        self.assertIn('org_user_1_first_name org_user_1_last_name: 4.0 </a>', processed_content)
-        self.assertIn('org_user_2_first_name org_user_2_last_name: 2.0 </a>',processed_content)
+        self.assertIn('org_user_1_first_name org_user_1_last_name: 4.000 </a>', processed_content)
+        self.assertIn('org_user_2_first_name org_user_2_last_name: 2.000 </a>',processed_content)
 
 
     def test_npf_page_upcoming_events_list(self):
@@ -522,11 +522,11 @@ class NpfAdminCheckIn(TestCase):
         self.volunteer_2 = _create_test_user('volunteer_2')
 
         # creating an event that happening now (72 hrs)
-        self.event_now = _create_event(self.project_1, past_date, future_date, is_public=True, event_type="GR", coordinator=self.npf_admin, creator_id=self.npf_admin.id)
+        self.event_now = _create_event(self.project_1, self.npf_admin.id, past_date, future_date, is_public=True, event_type="GR", coordinator=self.npf_admin)
 
         # creating a past event (48 hrs)
         past_date_2 = timezone.now() - timedelta(days=1)
-        self.event_past = _create_event(self.project_2, past_date_2, future_date, is_public=True, event_type="GR", coordinator=self.npf_admin, creator_id=self.npf_admin.id)
+        self.event_past = _create_event(self.project_2, self.npf_admin.id, past_date_2, future_date, is_public=True, event_type="GR", coordinator=self.npf_admin)
 
 
         #creating UserEventRegistration for npf admin and a volunteer
