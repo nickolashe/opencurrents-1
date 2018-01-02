@@ -84,7 +84,7 @@
 
             <div class="right small-2 columns">
               <p class="half-margin-bottom">
-                {{ event.datetime_end|subtract_time:event.datetime_start }}
+                {{ event.datetime_end|subtract_time:event.datetime_start|round_number:3 }}
               </p>
             </div>
           </div>

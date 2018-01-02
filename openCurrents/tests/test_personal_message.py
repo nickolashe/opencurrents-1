@@ -128,7 +128,7 @@ class TestIvniteVolunteersNoEvent(TestCase):
 
         # posting form
         self.response = self.client.post("/invite-volunteers/", {
-            'bulk-vol':'bulk_test_guest_1@e.cc, bulk_test_guest_2@e.cc, bulk_test_guest_3@e.cc, bulk_test_guest_4@e.cc',
+            'bulk-vol':'<bulk_test_guest_1@e.cc>, test_guest_firstname test_guest_lastname <bulk_test_guest_2@e.cc>, bulk_test_guest_3@e.cc, bulk_test_guest_4@e.cc',
             'personal_message':'',
             'test_mode':'1' # letting know the app that we're testing, so it shouldnt send emails via Mandrill
             })
@@ -147,6 +147,10 @@ class TestIvniteVolunteersNoEvent(TestCase):
 
         # assert userentities were created
         self.assertEqual(len(UserEntity.objects.filter(user__username__contains='bulk_test_guest_')), 4)
+
+        # assert new user was created with firstname and lastname
+        self.assertEqual(len(User.objects.filter(first_name__contains='test_guest_firstname')), 1)
+        self.assertEqual(len(User.objects.filter(last_name__contains='test_guest_lastname')), 1)
 
         # asserting email vars values
         expected_list = ['first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'NPF_org_1', 'ORG_NAME']
@@ -208,7 +212,7 @@ class TestIvniteVolunteersNoEvent(TestCase):
 
         # posting form
         response = self.client.post("/invite-volunteers/", {
-            'bulk-vol':'bulk_test_guest_1@e.cc, bulk_test_guest_2@e.cc, bulk_test_guest_3@e.cc, bulk_test_guest_4@e.cc',
+            'bulk-vol':'<bulk_test_guest_1@e.cc>, test_guest_firstname test_guest_lastname <bulk_test_guest_2@e.cc>, bulk_test_guest_3@e.cc, bulk_test_guest_4@e.cc',
             'personal_message':'Test msg 2',
             'test_mode':'1' # letting know the app that we're testing, so it shouldnt send emails via Mandrill
             })
@@ -228,6 +232,10 @@ class TestIvniteVolunteersNoEvent(TestCase):
         # assert userentities were created
         self.assertEqual(len(UserEntity.objects.filter(user__username__contains='bulk_test_guest_')), 4)
 
+        # assert new user was created with firstname and lastname
+        self.assertEqual(len(User.objects.filter(first_name__contains='test_guest_firstname')), 1)
+        self.assertEqual(len(User.objects.filter(last_name__contains='test_guest_lastname')), 1)
+
         # asserting email vars values
         expected_list = ['Test msg 2', 'PERSONAL_MESSAGE', 'first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'NPF_org_1', 'ORG_NAME']
         self._assert_merge_vars(session['merge_vars'],expected_list)
@@ -236,7 +244,7 @@ class TestIvniteVolunteersNoEvent(TestCase):
 
     def test_invite_single_existing_no_message(self):
         """
-        test invitation of a registered single volunteer without a personal message (no event)
+        test invitation of a registered single volunteer without a personal message (no event) - No emails sent
         """
 
         self.client.login(username=self.npf_admin_1.username, password='password')
@@ -261,21 +269,19 @@ class TestIvniteVolunteersNoEvent(TestCase):
         # assert if we've been redirected
         self.assertRedirects(response, '/org-admin/1/', status_code=302)
 
-        # asserting that bulk email function has been launched
-        self.assertEqual(self.client.session['bulk'], '1')
+        # asserting that bulk email function didn't launch
+        self.assertNotIn('bulk', self.client.session)
 
-        #asserting user is in recepients
-        self.assertTrue(self.client.session['recepient'][0]['email'], self.volunteer1.email)
-        self.assertTrue(self.client.session['recepient'][0]['name'], self.volunteer1.username)
+        #asserting user not is in recepients
+        self.assertNotIn('recepient', self.client.session)
 
-        # asserting email vars values
-        expected_list = ['first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'NPF_org_1', 'ORG_NAME']
-        self._assert_merge_vars(session['merge_vars'],expected_list)
+        # asserting email vars didn't get to session
+        self.assertNotIn('merge_vars', self.client.session)
 
 
     def test_invite_single_existing_with_message(self):
         """
-        test invitation of a registered single volunteer with a personal message (no event)
+        test invitation of a registered single volunteer with a personal message (no event) - No emails sent
         """
 
         self.client.login(username=self.npf_admin_1.username, password='password')
@@ -300,21 +306,19 @@ class TestIvniteVolunteersNoEvent(TestCase):
         # assert if we've been redirected
         self.assertRedirects(response, '/org-admin/1/', status_code=302)
 
-        # asserting that bulk email function has been launched
-        self.assertEqual(self.client.session['bulk'], '1')
+        # asserting that bulk email function didn't launch
+        self.assertNotIn('bulk', self.client.session)
 
-        #asserting user is in recepients
-        self.assertTrue(self.client.session['recepient'][0]['email'], self.volunteer1.email)
-        self.assertTrue(self.client.session['recepient'][0]['name'], self.volunteer1.username)
+        #asserting user is not in recepients
+        self.assertNotIn('recepient', self.client.session)
 
-        # asserting email vars values
-        expected_list = ['Test msg single existing', 'PERSONAL_MESSAGE', 'first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'NPF_org_1', 'ORG_NAME']
-        self._assert_merge_vars(session['merge_vars'],expected_list)
+        # asserting email vars didn't get to session
+        self.assertNotIn('merge_vars', self.client.session)
 
 
     def test_invite_bulk_existing_with_personal_message(self):
         """
-        test invitation of a bunch of existing volunteers with personal message (no event)
+        test invitation of a bunch of existing volunteers with personal message (no event) - No emails sent
         """
 
         self.client.login(username=self.npf_admin_1.username, password='password')
@@ -329,7 +333,7 @@ class TestIvniteVolunteersNoEvent(TestCase):
 
         # posting form
         response = self.client.post("/invite-volunteers/", {
-            'bulk-vol': "'" + self.volunteer1.email + ", " + self.volunteer2.email + "'",
+            'bulk-vol': self.volunteer1.email + ", " + self.volunteer2.email,
             'personal_message':'Test msg bulk existing users',
             'test_mode':'1' # letting know the app that we're testing, so it shouldnt send emails via Mandrill
             })
@@ -337,21 +341,19 @@ class TestIvniteVolunteersNoEvent(TestCase):
         # assert if we've been redirected
         self.assertRedirects(response, '/org-admin/2/', status_code=302)
 
-        # asserting that bulk email function has been launched
-        self.assertEqual(self.client.session['bulk'], '1')
+        # asserting that bulk email function didn't launch
+        self.assertNotIn('bulk', self.client.session)
 
-        #asserting both users are in recepients
-        self.assertTrue(self.client.session['recepient'][0]['email'], self.volunteer1.email)
-        self.assertTrue(self.client.session['recepient'][1]['email'], self.volunteer2.email)
+        #asserting user is not in recepients
+        self.assertNotIn('recepient', self.client.session)
 
-        # asserting email vars values
-        expected_list = ['Test msg bulk existing users', 'PERSONAL_MESSAGE', 'first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'NPF_org_1', 'ORG_NAME']
-        self._assert_merge_vars(session['merge_vars'],expected_list)
+        # asserting email vars didn't get to session
+        self.assertNotIn('merge_vars', self.client.session)
 
 
     def test_invite_bulk_existing_without_personal_message(self):
         """
-        test invitation of a bunch of existing volunteers with personal message (no event)
+        test invitation of a bunch of existing volunteers with personal message (no event) - No emails sent
         """
 
         self.client.login(username=self.npf_admin_1.username, password='password')
@@ -366,7 +368,7 @@ class TestIvniteVolunteersNoEvent(TestCase):
 
         # posting form
         response = self.client.post("/invite-volunteers/", {
-            'bulk-vol': "'" + self.volunteer1.email + ", " + self.volunteer2.email + "'",
+            'bulk-vol': self.volunteer1.email + ", " + self.volunteer2.email,
             'personal_message':'',
             'test_mode':'1' # letting know the app that we're testing, so it shouldnt send emails via Mandrill
             })
@@ -374,17 +376,14 @@ class TestIvniteVolunteersNoEvent(TestCase):
         # assert if we've been redirected
         self.assertRedirects(response, '/org-admin/2/', status_code=302)
 
-        # asserting that bulk email function has been launched
-        self.assertEqual(self.client.session['bulk'], '1')
+        # asserting that bulk email function didn't launch
+        self.assertNotIn('bulk', self.client.session)
 
-        #asserting both users are in recepients
-        self.assertTrue(self.client.session['recepient'][0]['email'], self.volunteer1.email)
-        self.assertTrue(self.client.session['recepient'][1]['email'], self.volunteer2.email)
+        #asserting user not is in recepients
+        self.assertNotIn('recepient', self.client.session)
 
-        # asserting email vars values
-        expected_list = ['first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'NPF_org_1', 'ORG_NAME']
-        self._assert_merge_vars(session['merge_vars'],expected_list)
-
+        # asserting email vars didn't get to session
+        self.assertNotIn('merge_vars', self.client.session)
 
 
 
@@ -722,7 +721,7 @@ class TestIvniteVolunteersToEvent(TestCase):
 
         # posting form
         response = self.client.post("/invite-volunteers/1/", {
-            'bulk-vol': "'" + self.volunteer1.email + ", " + self.volunteer2.email + "'",
+            'bulk-vol': self.volunteer1.email + ", " + self.volunteer2.email,
             'personal_message':'Test msg bulk existing users',
             'test_mode':'1' # letting know the app that we're testing, so it shouldnt send emails via Mandrill
             })
@@ -760,7 +759,7 @@ class TestIvniteVolunteersToEvent(TestCase):
 
         # posting form
         response = self.client.post("/invite-volunteers/1/", {
-            'bulk-vol': "'" + self.volunteer1.email + ", " + self.volunteer2.email + "'",
+            'bulk-vol': self.volunteer1.email + ", " + self.volunteer2.email,
             'personal_message':'',
             'test_mode':'1' # letting know the app that we're testing, so it shouldnt send emails via Mandrill
             })

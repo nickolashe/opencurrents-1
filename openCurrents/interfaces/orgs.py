@@ -182,8 +182,8 @@ class OcOrg(object):
             if not accepted_cur_amount:
                 accepted_cur_amount = 0
 
-            total_cur_amount += float(accepted_cur_amount)
-            result.append({'name': biz.name, 'total': accepted_cur_amount})
+            total_cur_amount += accepted_cur_amount
+            result.append({'name': biz.name, 'total': total_cur_amount})
 
         result.sort(key=lambda biz_dict: biz_dict['total'], reverse=True)
 
