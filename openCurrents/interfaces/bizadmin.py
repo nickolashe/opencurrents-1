@@ -39,7 +39,7 @@ class BizAdmin(object):
             currency=currency
         )
 
-        return round(balance, 3)
+        return balance
 
     def get_balance_pending(self):
         '''
@@ -51,7 +51,7 @@ class BizAdmin(object):
             active_redemption_reqs
         )
 
-        return round(total_redemptions, 3)
+        return total_redemptions
 
     def get_offers_all(self):
         offers = Offer.objects.filter(
