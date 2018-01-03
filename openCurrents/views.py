@@ -2127,7 +2127,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         k_old = []
 
         users = User.objects.values_list('email')
-        user_list = [str(''.join(j)) for j in users]
+        user_list = [str(''.join(j)).lower() for j in users]
 
         OrgUsers = OrgUserInfo(self.request.user.id)
         if OrgUsers:
@@ -2137,7 +2137,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
             num_vols = int(post_data['count-vol'])
 
         else:
-            bulk_list_raw = re.split(',',post_data['bulk-vol'])
+            bulk_list_raw = re.split(',', post_data['bulk-vol'].lower())
             bulk_list = []
             for email_string in bulk_list_raw:
                 bulk_list.append(self.email_parser(email_string))
@@ -2146,7 +2146,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         for i in range(num_vols):
 
             if post_data['bulk-vol'].encode('ascii','ignore') == '':
-                email_list = post_data['vol-email-'+str(i+1)]
+                email_list = post_data['vol-email-'+str(i+1)].lower()
 
                 if email_list != '':
                     if email_list not in user_list:
