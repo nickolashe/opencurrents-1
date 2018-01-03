@@ -1489,15 +1489,13 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
         final_dict = OrderedDict()
         temp_dict = OrderedDict()
 
-        print "\nHERE"
-        print admins_dict
-        print "HERE\n"
-
         if admins_dict:
             # getting user instance
             user =  User.objects.get(id = user_id)
             if user in admins_dict.keys():
                 final_dict[user] = admins_dict.pop(user)
+            else:
+                return redirect('openCurrents:403')
 
 
             # sorting dict
