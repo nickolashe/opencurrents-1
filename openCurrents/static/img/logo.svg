@@ -14,7 +14,7 @@
    inkscape:version="0.91 r13725"
    sodipodi:docname="logo.svg"
    width="800"
-   inkscape:export-filename="/Users/danny/Projects/openCurrents/oc-header-blue.png"
+   inkscape:export-filename="/Users/danny/Projects/openCurrents/logo.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <metadata
@@ -49,12 +49,12 @@
      fit-margin-right="0"
      fit-margin-bottom="0"
      inkscape:zoom="1"
-     inkscape:cx="355.40357"
+     inkscape:cx="433.40357"
      inkscape:cy="110.9673"
-     inkscape:window-x="9"
-     inkscape:window-y="0"
+     inkscape:window-x="47"
+     inkscape:window-y="72"
      inkscape:window-maximized="0"
-     inkscape:current-layer="g4153"
+     inkscape:current-layer="g5336"
      showguides="true" />
   <g
      transform="translate(815.20549,173.15641)"
@@ -85,30 +85,58 @@
               <g
                  id="g5336"
                  transform="translate(-9.1603583e-5,8.7085256)">
-                <text
-                   sodipodi:linespacing="125%"
-                   id="text4769"
-                   y="599.93512"
-                   x="-848.6449"
+                <g
                    style="font-style:normal;font-weight:normal;font-size:347.85113525px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-                   xml:space="preserve"><tspan
+                   id="text4769">
+                  <path
+                     d="m -652.45686,246.51837 q 77.91866,0 126.61782,52.17767 45.91635,50.09056 45.91635,127.31351 0,77.22295 -45.91635,127.31352 -48.69916,52.17767 -126.61782,52.17767 -77.91865,0 -126.61781,-52.17767 -45.91635,-50.09057 -45.91635,-127.31352 0,-77.22295 45.91635,-127.31351 48.69916,-52.17767 126.61781,-52.17767 z m 0,311.67461 q 56.35189,0 89.04989,-38.95932 31.30661,-36.87222 31.30661,-93.22411 0,-56.35188 -31.30661,-93.2241 -32.698,-38.95933 -89.04989,-38.95933 -56.35188,0 -89.04989,38.95933 -31.3066,36.87222 -31.3066,93.2241 0,56.35189 31.3066,93.22411 32.69801,38.95932 89.04989,38.95932 z"
                      style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:695.70227051px;font-family:Questrial;-inkscape-font-specification:Questrial;letter-spacing:0px;fill:#24b2e7;fill-opacity:1"
-                     y="599.93512"
-                     x="-848.6449"
-                     id="tspan4771"
-                     sodipodi:role="line">open</tspan></text>
-                <text
-                   xml:space="preserve"
+                     id="path5470" />
+                  <path
+                     d="m -359.91406,307.74017 q 41.74214,-61.2218 124.53071,-61.2218 75.13584,0 121.74789,52.17767 46.612056,51.48196 46.612056,127.31351 0,75.83155 -46.612056,127.31352 -46.61205,52.17767 -125.2264,52.17767 -78.61436,0 -121.0522,-61.9175 l 0,194.10093 -52.17767,0 0,-485.60019 52.17767,0 0,55.65619 z m 117.57368,-13.91405 q -56.35188,0 -89.04989,38.95933 -31.3066,36.87222 -31.3066,93.2241 0,56.35189 31.3066,93.22411 32.69801,38.95932 89.04989,38.95932 55.65619,0 90.4413,-38.95932 32.69801,-36.87222 32.69801,-93.22411 0,-56.35188 -32.69801,-93.2241 -34.78511,-38.95933 -90.4413,-38.95933 z"
+                     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:695.70227051px;font-family:Questrial;-inkscape-font-specification:Questrial;letter-spacing:0px;fill:#24b2e7;fill-opacity:1"
+                     id="path5472" />
+                  <path
+                     d="m 156.12312,558.19298 q 70.26593,0 100.87683,-58.43899 l 57.04758,0 q -18.08826,47.30776 -57.74328,76.52725 -38.95933,29.2195 -100.87683,29.2195 -78.614361,0 -128.009222,-52.17767 -48.003457,-50.78627 -48.003457,-127.31352 0,-77.22295 45.91635,-127.31351 48.699159,-52.17767 126.617809,-52.17767 77.91866,0 126.61782,52.17767 45.91635,50.09056 45.91635,127.31351 l 0,20.87107 -291.499254,0 q 5.565618,48.00346 38.263625,79.31006 33.393709,32.0023 84.875679,32.0023 z M 151.9489,293.82612 q -48.00345,0 -80.701459,29.9152 -30.6109,28.52379 -37.567922,74.44014 l 236.538771,0 q -6.95702,-45.91635 -37.56792,-74.44014 -32.69801,-29.9152 -80.70147,-29.9152 z"
+                     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:695.70227051px;font-family:Questrial;-inkscape-font-specification:Questrial;letter-spacing:0px;fill:#24b2e7;fill-opacity:1"
+                     id="path5474" />
+                  <path
+                     d="m 440.41529,252.08398 0,54.26478 q 18.78396,-25.04528 45.91635,-42.43784 27.13238,-17.39255 61.9175,-17.39255 34.78511,0 59.83039,9.73983 25.04528,9.73983 43.82925,29.21949 43.13354,42.43784 43.13354,112.00807 l 0,202.44936 -52.17767,0 0,-201.05796 q 0,-48.00345 -27.13239,-76.52725 -27.13239,-28.52379 -70.26593,-28.52379 -43.82924,0 -74.44014,29.2195 -30.6109,29.91519 -30.6109,76.52725 l 0,200.36225 -52.17767,0 0,-347.85114 52.17767,0 z"
+                     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:695.70227051px;font-family:Questrial;-inkscape-font-specification:Questrial;letter-spacing:0px;fill:#24b2e7;fill-opacity:1"
+                     id="path5476" />
+                </g>
+                <g
                    style="font-style:normal;font-weight:normal;font-size:347.85113525px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-                   x="1361.8275"
-                   y="599.93512"
-                   id="text4773"
-                   sodipodi:linespacing="125%"><tspan
-                     sodipodi:role="line"
-                     id="tspan4775"
-                     x="1361.8275"
-                     y="599.93512"
-                     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:695.70227051px;font-family:Questrial;-inkscape-font-specification:Questrial;letter-spacing:0px;fill:#24b2e7;fill-opacity:1">urrents</tspan></text>
+                   id="text4773">
+                  <path
+                     d="m 1658.1967,599.93512 0,-54.26478 q -18.784,25.04528 -45.9164,42.43784 -27.1324,17.39256 -61.9175,17.39256 -34.7851,0 -59.8304,-9.73983 -25.0452,-9.73984 -43.8292,-29.2195 -43.1335,-42.43784 -43.1335,-112.00806 l 0,-202.44937 52.1776,0 0,201.05796 q 0,48.00346 27.1324,76.52725 27.1324,28.52379 70.2659,28.52379 43.8293,0 74.4402,-29.21949 30.6109,-29.9152 30.6109,-76.52725 l 0,-200.36226 52.1777,0 0,347.85114 -52.1777,0 z"
+                     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:695.70227051px;font-family:Questrial;-inkscape-font-specification:Questrial;letter-spacing:0px;fill:#24b2e7;fill-opacity:1"
+                     id="path5455" />
+                  <path
+                     d="m 1984.7637,246.51837 0,52.17767 -6.2613,0 q -56.3519,0 -91.8327,45.22064 -33.3938,43.13354 -33.3938,102.96394 l 0,153.0545 -52.1776,0 0,-347.85114 52.1776,0 0,85.57138 q 16.6969,-54.26477 72.3531,-80.00576 22.9582,-11.13123 55.6562,-11.13123 l 3.4785,0 z"
+                     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:695.70227051px;font-family:Questrial;-inkscape-font-specification:Questrial;letter-spacing:0px;fill:#24b2e7;fill-opacity:1"
+                     id="path5457" />
+                  <path
+                     d="m 2223.9113,246.51837 0,52.17767 -6.2613,0 q -56.3519,0 -91.8327,45.22064 -33.3937,43.13354 -33.3937,102.96394 l 0,153.0545 -52.1777,0 0,-347.85114 52.1777,0 0,85.57138 q 16.6968,-54.26477 72.353,-80.00576 22.9582,-11.13123 55.6562,-11.13123 l 3.4785,0 z"
+                     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:695.70227051px;font-family:Questrial;-inkscape-font-specification:Questrial;letter-spacing:0px;fill:#24b2e7;fill-opacity:1"
+                     id="path5459" />
+                  <path
+                     d="m 2425.703,558.19298 q 70.2659,0 100.8768,-58.43899 l 57.0476,0 q -18.0882,47.30776 -57.7433,76.52725 -38.9593,29.2195 -100.8768,29.2195 -78.6143,0 -128.0092,-52.17767 -48.0035,-50.78627 -48.0035,-127.31352 0,-77.22295 45.9164,-127.31351 48.6991,-52.17767 126.6178,-52.17767 77.9187,0 126.6178,52.17767 45.9164,50.09056 45.9164,127.31351 l 0,20.87107 -291.4993,0 q 5.5656,48.00346 38.2636,79.31006 33.3937,32.0023 84.8757,32.0023 z m -4.1742,-264.36686 q -48.0035,0 -80.7015,29.9152 -30.6109,28.52379 -37.5679,74.44014 l 236.5388,0 q -6.957,-45.91635 -37.5679,-74.44014 -32.698,-29.9152 -80.7015,-29.9152 z"
+                     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:695.70227051px;font-family:Questrial;-inkscape-font-specification:Questrial;letter-spacing:0px;fill:#24b2e7;fill-opacity:1"
+                     id="path5461" />
+                  <path
+                     d="m 2710.6747,252.08398 0,54.26478 q 18.7839,-25.04528 45.9163,-42.43784 27.1324,-17.39255 61.9175,-17.39255 34.7852,0 59.8304,9.73983 25.0453,9.73983 43.8293,29.21949 43.1335,42.43784 43.1335,112.00807 l 0,202.44936 -52.1777,0 0,-201.05796 q 0,-48.00345 -27.1323,-76.52725 -27.1324,-28.52379 -70.266,-28.52379 -43.8292,0 -74.4401,29.2195 -30.6109,29.91519 -30.6109,76.52725 l 0,200.36225 -52.1777,0 0,-347.85114 52.1777,0 z"
+                     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:695.70227051px;font-family:Questrial;-inkscape-font-specification:Questrial;letter-spacing:0px;fill:#24b2e7;fill-opacity:1"
+                     id="path5463" />
+                  <path
+                     d="m 3081.9623,599.93512 0,-301.93479 -70.9617,0 0,-45.91635 70.9617,0 0,-124.5307 52.1776,0 0,124.5307 80.0058,0 0,45.91635 -80.0058,0 0,301.93479 -52.1776,0 z"
+                     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:695.70227051px;font-family:Questrial;-inkscape-font-specification:Questrial;letter-spacing:0px;fill:#24b2e7;fill-opacity:1"
+                     id="path5465" />
+                  <path
+                     d="m 3477.2082,345.30809 q -6.9571,-54.26478 -87.6585,-54.26478 -80.0058,0 -80.0058,50.09056 0,20.87107 16.6969,32.00231 17.3925,10.43553 43.1335,17.39256 25.741,6.95702 55.6562,13.21834 30.6109,5.56562 56.3519,16.69685 25.741,10.43554 42.4378,29.2195 17.3926,18.78396 17.3926,51.48197 0,50.78626 -38.2637,77.91865 -38.2636,26.43669 -103.6596,26.43669 -69.5702,0 -110.6167,-34.78512 -37.5679,-30.6109 -40.3507,-80.00576 l 54.2648,0 q 4.8699,48.00346 54.2648,64.70031 18.0882,5.56562 35.4808,5.56562 18.0882,0 33.3937,-2.0871 15.3054,-2.08711 29.9152,-7.65273 33.3937,-13.21834 33.3937,-45.22065 0,-21.56677 -17.3926,-32.698 -16.6968,-11.82694 -42.4378,-18.78396 -25.741,-7.65273 -56.3519,-13.21835 -29.9152,-6.26132 -55.6562,-16.69685 -25.7409,-10.43554 -43.1335,-28.5238 -16.6969,-18.08825 -16.6969,-50.09056 0,-47.30775 34.0895,-73.04874 34.7851,-26.43668 102.2682,-26.43668 64.0046,0 100.8768,30.6109 30.6109,25.74098 35.4808,68.17882 l -52.8733,0 z"
+                     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:695.70227051px;font-family:Questrial;-inkscape-font-specification:Questrial;letter-spacing:0px;fill:#24b2e7;fill-opacity:1"
+                     id="path5467" />
+                </g>
                 <g
                    transform="matrix(1.1396703,0,0,1.1396703,-215.51181,-69.957759)"
                    id="g4179">
@@ -116,13 +144,13 @@
                      d="M 1333.0437,596.82774 A 249.13771,241.39835 0 0 1 1165.9863,659.14235 249.13771,241.39835 0 0 1 916.84844,417.74396 249.13771,241.39835 0 0 1 1165.9863,176.34557 249.13771,241.39835 0 0 1 1333.0515,238.66392"
                      id="path4243"
                      inkscape:connector-curvature="0"
-                     style="fill:none;stroke:#24b2e7;stroke-width:58.0568428;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+                     style="fill:none;stroke:#24b2e7;stroke-width:50.94178931;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
                   <circle
                      r="97.685234"
                      cy="417.74393"
                      cx="1163.5216"
                      id="path5065"
-                     style="fill:none;fill-opacity:1;stroke:#24b2e7;stroke-width:58.0568428;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+                     style="fill:none;fill-opacity:1;stroke:#24b2e7;stroke-width:50.94178931;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
                 </g>
               </g>
             </g>

@@ -7,13 +7,13 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   height="75"
+   height="105.77422"
    version="1.1"
-   viewBox="0 0 64.392273 500.46918"
+   viewBox="0 0 90.825446 705.82314"
    id="svg4235"
    inkscape:version="0.91 r13725"
    sodipodi:docname="symbol-navy.svg"
-   width="64.392273"
+   width="90.825447"
    inkscape:export-filename="/Users/danny/Projects/openCurrents/logo.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
@@ -25,7 +25,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -40,8 +40,8 @@
      guidetolerance="10"
      inkscape:pageopacity="1"
      inkscape:pageshadow="2"
-     inkscape:window-width="1440"
-     inkscape:window-height="804"
+     inkscape:window-width="1297"
+     inkscape:window-height="656"
      id="namedview4247"
      showgrid="false"
      fit-margin-top="0"
@@ -49,15 +49,15 @@
      fit-margin-right="0"
      fit-margin-bottom="0"
      inkscape:zoom="1"
-     inkscape:cx="19.42514"
-     inkscape:cy="21.827358"
-     inkscape:window-x="9"
-     inkscape:window-y="0"
+     inkscape:cx="9.97254"
+     inkscape:cy="61.843083"
+     inkscape:window-x="85"
+     inkscape:window-y="80"
      inkscape:window-maximized="0"
      inkscape:current-layer="g4179"
      showguides="true" />
   <g
-     transform="translate(708.58265,-599.96883)"
+     transform="translate(-1209.5663,-127.80295)"
      id="g4237"
      style="fill:none;stroke:#999999">
     <circle
@@ -86,23 +86,19 @@
                  id="g5336"
                  transform="translate(-9.1603583e-5,8.7085256)">
                 <g
-                   transform="matrix(1.3452385,0,0,1.3452385,-468.03011,-144.15551)"
+                   transform="matrix(1.1396703,0,0,1.1396703,1534.6063,-69.957761)"
                    id="g4179">
-                  <g
-                     id="g5898"
-                     transform="matrix(0.87494048,0,0,0.87494048,208.63316,282.53037)">
-                    <path
-                       style="fill:none;stroke:#1f4795;stroke-width:39.70995331;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-                       inkscape:connector-curvature="0"
-                       id="path4243"
-                       d="M 1265.7223,540.23792 A 170.4111,165.11735 0 0 1 1151.4544,582.86134 170.4111,165.11735 0 0 1 981.04321,417.74396 170.4111,165.11735 0 0 1 1151.4544,252.62658 170.4111,165.11735 0 0 1 1265.7276,295.25256" />
-                    <circle
-                       style="fill:none;fill-opacity:1;stroke:#1f4795;stroke-width:39.7110939;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-                       id="path5065"
-                       cx="1149.7686"
-                       cy="417.74393"
-                       r="66.817055" />
-                  </g>
+                  <path
+                     d="M 1333.0437,596.82774 A 249.13771,241.39835 0 0 1 1165.9863,659.14235 249.13771,241.39835 0 0 1 916.84844,417.74396 249.13771,241.39835 0 0 1 1165.9863,176.34557 249.13771,241.39835 0 0 1 1333.0515,238.66392"
+                     id="path4243"
+                     inkscape:connector-curvature="0"
+                     style="fill:none;stroke:#1f4795;stroke-width:50.94178424;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+                  <circle
+                     r="97.685234"
+                     cy="417.74393"
+                     cx="1163.5216"
+                     id="path5065"
+                     style="fill:none;fill-opacity:1;stroke:#1f4795;stroke-width:50.94178424;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
                 </g>
               </g>
             </g>

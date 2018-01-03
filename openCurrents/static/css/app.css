@@ -71,10 +71,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .h6-symbol {
-  vertical-align: top;
+  vertical-align: -3px;
   margin-top: 0.25rem;
   margin-right: -0.125rem;
-  height: 1.25rem;
+  height: 1.125rem;
 }
 
 .large-text-symbol {
