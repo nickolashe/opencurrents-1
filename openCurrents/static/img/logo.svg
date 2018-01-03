@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   height="200.00002"
+   version="1.1"
+   viewBox="0 0 799.99999 1334.5846"
+   id="svg4235"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="logo.svg"
+   width="800"
+   inkscape:export-filename="/Users/danny/Projects/openCurrents/oc-header-blue.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
+  <metadata
+     id="metadata4251">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs4249" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="1"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1440"
+     inkscape:window-height="804"
+     id="namedview4247"
+     showgrid="false"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:zoom="1"
+     inkscape:cx="355.17858"
+     inkscape:cy="110.9673"
+     inkscape:window-x="9"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="g4796"
+     showguides="true" />
+  <g
+     transform="translate(815.20549,173.15641)"
+     id="g4237"
+     style="fill:none;stroke:#999999">
+    <circle
+       cx="466.69"
+       transform="scale(1,-1)"
+       cy="-954.78003"
+       r="0"
+       id="circle4239"
+       style="stroke-width:11" />
+    <g
+       transform="translate(11.475,0)"
+       id="g4241">
+      <g
+         id="g4796"
+         transform="matrix(1.1493774,0,0,1.1493774,-2147.8122,0.64466616)">
+        <g
+           id="g4164"
+           transform="translate(75.473812,-3.2635012)">
+          <text
+             xml:space="preserve"
+             style="font-style:normal;font-weight:normal;font-size:347.85113525px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+             x="-732.53119"
+             y="599.93512"
+             id="text4769"
+             sodipodi:linespacing="125%"><tspan
+               sodipodi:role="line"
+               id="tspan4771"
+               x="-732.53119"
+               y="599.93512"
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:695.70227051px;font-family:Questrial;-inkscape-font-specification:Questrial;fill:#24b2e7;fill-opacity:1">open</tspan></text>
+          <text
+             sodipodi:linespacing="125%"
+             id="text4773"
+             y="599.93512"
+             x="1373.4385"
+             style="font-style:normal;font-weight:normal;font-size:347.85113525px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+             xml:space="preserve"><tspan
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:695.70227051px;font-family:Questrial;-inkscape-font-specification:Questrial;fill:#24b2e7;fill-opacity:1"
+               y="599.93512"
+               x="1373.4385"
+               id="tspan4775"
+               sodipodi:role="line">urrents</tspan></text>
+          <path
+             d="m 1319.4006,585.37766 a 233.20859,225.96406 0 0 1 -156.3762,58.3304 233.20859,225.96406 0 0 1 -233.20877,-225.9641 233.20859,225.96406 0 0 1 233.20877,-225.9641 233.20859,225.96406 0 0 1 156.3835,58.3339"
+             id="path4243"
+             inkscape:connector-curvature="0"
+             style="fill:none;stroke:#24b2e7;stroke-width:53.16640472;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+          <circle
+             r="91.439529"
+             cy="417.74393"
+             cx="1160.7173"
+             id="path5065"
+             style="fill:none;fill-opacity:1;stroke:#24b2e7;stroke-width:52.25115967;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>
