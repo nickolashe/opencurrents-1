@@ -2830,6 +2830,7 @@ def event_register(request, pk):
         ]
 
         email_template = None
+        email_confirmation = None
 
         if message:
             logger.info('User %s registered for event %s wants to send msg %s ', user.username, event.id, message)
