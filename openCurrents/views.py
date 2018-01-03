@@ -1862,7 +1862,7 @@ class EditEventView(CreateEventView):
             self.event.save()
 
         # event detail changes
-        if self.event.is_public != bool(data['event_privacy']) or \
+        if int(self.event.is_public) != data['event_privacy'] or \
             self.event.location != data['event_location'] or \
             self.event.description != data['event_description'] or \
             self.event.coordinator.id != int(data['event_coordinator']) or \
