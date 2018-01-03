@@ -45,7 +45,7 @@
         {{ form.project_name.errors }}
 
         {{ form.project_name }}
-        
+
         {% if form.project_name.help_text %}
           <p class="small">
             ({{ form.project_name.help_text|safe }})
@@ -109,10 +109,10 @@
 
     <div class="row three-halves-margin-top">
       {{form.event_privacy.0.tag}}
-      <label for="id-event-privacy_0">Public event</label>
+      <label for="id_event_privacy_0">Public event</label>
 
       {{form.event_privacy.1.tag}}
-      <label for="id-event-privacy_1" class="two-margin-left">Invite only</label>
+      <label for="id_event_privacy_1" class="two-margin-left">Invite only</label>
 
       <a class="privacy-info-popup_open"><i class="half-margin-left fa fa-lg fa-question-circle grey"></i></a>
     </div>

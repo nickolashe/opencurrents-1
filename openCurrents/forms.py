@@ -289,7 +289,6 @@ class CreateEventForm(forms.Form):
         widget=widgets.RadioWidget(
             attrs={
                 'class': 'custom-radio',
-                'id': 'id-event-privacy'
             }
         ),
         choices=[(1, 'public'), (0, 'private')],
