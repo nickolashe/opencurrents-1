@@ -666,7 +666,7 @@ class HoursDetailView(LoginRequiredMixin, SessionContextView, ListView):
                 queryset = user_instance.get_hours_approved()
 
         if queryset:
-            queryset = queryset.order_by('-usertimelog__datetime_start')
+            queryset = queryset.order_by('-usertimelog__event__datetime_start')
 
         return queryset
 
