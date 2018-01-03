@@ -1495,6 +1495,7 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             if user in admins_dict.keys():
                 final_dict[user] = admins_dict.pop(user)
             else:
+                logger.error('User with user ID {} doesn\'t belong to any group.'.format(user_id))
                 return redirect('openCurrents:403')
 
 
