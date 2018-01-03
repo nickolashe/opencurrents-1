@@ -49,12 +49,12 @@
      fit-margin-right="0"
      fit-margin-bottom="0"
      inkscape:zoom="1"
-     inkscape:cx="355.17858"
+     inkscape:cx="355.40357"
      inkscape:cy="110.9673"
      inkscape:window-x="9"
      inkscape:window-y="0"
      inkscape:window-maximized="0"
-     inkscape:current-layer="g4796"
+     inkscape:current-layer="g4153"
      showguides="true" />
   <g
      transform="translate(815.20549,173.15641)"
@@ -76,41 +76,57 @@
         <g
            id="g4164"
            transform="translate(75.473812,-3.2635012)">
-          <text
-             xml:space="preserve"
-             style="font-style:normal;font-weight:normal;font-size:347.85113525px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-             x="-732.53119"
-             y="599.93512"
-             id="text4769"
-             sodipodi:linespacing="125%"><tspan
-               sodipodi:role="line"
-               id="tspan4771"
-               x="-732.53119"
-               y="599.93512"
-               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:695.70227051px;font-family:Questrial;-inkscape-font-specification:Questrial;fill:#24b2e7;fill-opacity:1">open</tspan></text>
-          <text
-             sodipodi:linespacing="125%"
-             id="text4773"
-             y="599.93512"
-             x="1373.4385"
-             style="font-style:normal;font-weight:normal;font-size:347.85113525px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-             xml:space="preserve"><tspan
-               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:695.70227051px;font-family:Questrial;-inkscape-font-specification:Questrial;fill:#24b2e7;fill-opacity:1"
-               y="599.93512"
-               x="1373.4385"
-               id="tspan4775"
-               sodipodi:role="line">urrents</tspan></text>
-          <path
-             d="m 1319.4006,585.37766 a 233.20859,225.96406 0 0 1 -156.3762,58.3304 233.20859,225.96406 0 0 1 -233.20877,-225.9641 233.20859,225.96406 0 0 1 233.20877,-225.9641 233.20859,225.96406 0 0 1 156.3835,58.3339"
-             id="path4243"
-             inkscape:connector-curvature="0"
-             style="fill:none;stroke:#24b2e7;stroke-width:53.16640472;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-          <circle
-             r="91.439529"
-             cy="417.74393"
-             cx="1160.7173"
-             id="path5065"
-             style="fill:none;fill-opacity:1;stroke:#24b2e7;stroke-width:52.25115967;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+          <g
+             id="g4190"
+             transform="translate(52.251099,11.906187)">
+            <g
+               id="g4153"
+               transform="translate(11.611328,-5.8056836)">
+              <g
+                 id="g5336"
+                 transform="translate(-9.1603583e-5,8.7085256)">
+                <text
+                   sodipodi:linespacing="125%"
+                   id="text4769"
+                   y="599.93512"
+                   x="-848.6449"
+                   style="font-style:normal;font-weight:normal;font-size:347.85113525px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+                   xml:space="preserve"><tspan
+                     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:695.70227051px;font-family:Questrial;-inkscape-font-specification:Questrial;letter-spacing:0px;fill:#24b2e7;fill-opacity:1"
+                     y="599.93512"
+                     x="-848.6449"
+                     id="tspan4771"
+                     sodipodi:role="line">open</tspan></text>
+                <text
+                   xml:space="preserve"
+                   style="font-style:normal;font-weight:normal;font-size:347.85113525px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+                   x="1361.8275"
+                   y="599.93512"
+                   id="text4773"
+                   sodipodi:linespacing="125%"><tspan
+                     sodipodi:role="line"
+                     id="tspan4775"
+                     x="1361.8275"
+                     y="599.93512"
+                     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:695.70227051px;font-family:Questrial;-inkscape-font-specification:Questrial;letter-spacing:0px;fill:#24b2e7;fill-opacity:1">urrents</tspan></text>
+                <g
+                   transform="matrix(1.1396703,0,0,1.1396703,-215.51181,-69.957759)"
+                   id="g4179">
+                  <path
+                     d="M 1333.0437,596.82774 A 249.13771,241.39835 0 0 1 1165.9863,659.14235 249.13771,241.39835 0 0 1 916.84844,417.74396 249.13771,241.39835 0 0 1 1165.9863,176.34557 249.13771,241.39835 0 0 1 1333.0515,238.66392"
+                     id="path4243"
+                     inkscape:connector-curvature="0"
+                     style="fill:none;stroke:#24b2e7;stroke-width:58.0568428;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+                  <circle
+                     r="97.685234"
+                     cy="417.74393"
+                     cx="1163.5216"
+                     id="path5065"
+                     style="fill:none;fill-opacity:1;stroke:#24b2e7;stroke-width:58.0568428;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+                </g>
+              </g>
+            </g>
+          </g>
         </g>
       </g>
     </g>
