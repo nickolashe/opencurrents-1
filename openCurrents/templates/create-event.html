@@ -43,10 +43,9 @@
     <div class="row one-margin-bottom">
       <div class="small-12 medium-6 small-centered columns">
         {{ form.project_name.errors }}
-        <h6 class="fit-left navy half-margin-top">
-          {{ form.project_name.label }}
-        </h6>
-        <span class="input-sizer"> {{ form.project_name }} </span>
+
+        {{ form.project_name }}
+        
         {% if form.project_name.help_text %}
           <p class="small">
             ({{ form.project_name.help_text|safe }})
