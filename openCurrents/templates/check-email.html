@@ -1,6 +1,13 @@
 {% extends "layouts/base.html" %}
 {% load staticfiles %}
 
+{% block head %}
+  <!-- Facebook Pixel -->
+  <script>
+    fbq('track', 'CompleteRegistration');
+  </script>
+{% endblock head %}
+
 {% block status %}
   {% if status == "success" %}
     <div class="success row one-margin-top">
@@ -14,7 +21,7 @@
     </div>
   {% endif %}
 {% endblock status %}
-        
+
 {% block heading %}
   <div class="row">
     <div class="medium-8 small-centered columns">
@@ -26,7 +33,7 @@
     </div>
   </div>
 {% endblock heading %}
-        
+
 {% block content %}
   <form method="post" action="{% url 'openCurrents:process_resend_verification' user_email %}">
     {% csrf_token %}
@@ -35,7 +42,7 @@
     </div>
   </form>
 {% endblock content %}
-        
+
 
 {% block popups %}
   <div id="change-email-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
@@ -59,7 +66,7 @@
     </div>
   </div>
 {% endblock popups %}
-  
+
 {% block js %}
   <script type="text/javascript">
     $(document).ready(function(){
