@@ -1,13 +1,6 @@
 {% extends "layouts/base.html" %}
 {% load staticfiles %}
 
-{% block head %}
-  <!-- Facebook Pixel -->
-  <script>
-    fbq('track', 'CompleteRegistration');
-  </script>
-{% endblock head %}
-
 {% block status %}
   {% if status == "success" %}
     <div class="success row one-margin-top">
@@ -23,6 +16,11 @@
 {% endblock status %}
 
 {% block heading %}
+  <!-- Facebook Pixel -->
+  <script>
+    fbq('track', 'CompleteRegistration');
+  </script>
+
   <div class="row">
     <div class="medium-8 small-centered columns">
       <h3 class="title">
