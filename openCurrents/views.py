@@ -666,7 +666,7 @@ class HoursDetailView(LoginRequiredMixin, SessionContextView, ListView):
                 queryset = user_instance.get_hours_approved()
 
         if queryset:
-            queryset = queryset.order_by('-usertimelog__datetime_start')
+            queryset = queryset.order_by('-usertimelog__event__datetime_start')
 
         return queryset
 
@@ -1489,15 +1489,14 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
         final_dict = OrderedDict()
         temp_dict = OrderedDict()
 
-        print "\nHERE"
-        print admins_dict
-        print "HERE\n"
-
         if admins_dict:
             # getting user instance
             user =  User.objects.get(id = user_id)
             if user in admins_dict.keys():
                 final_dict[user] = admins_dict.pop(user)
+            else:
+                logger.error('User with user ID {} doesn\'t belong to any group.'.format(user_id))
+                return redirect('openCurrents:403')
 
 
             # sorting dict
@@ -2128,7 +2127,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         k_old = []
 
         users = User.objects.values_list('email')
-        user_list = [str(''.join(j)) for j in users]
+        user_list = [str(''.join(j)).lower() for j in users]
 
         OrgUsers = OrgUserInfo(self.request.user.id)
         if OrgUsers:
@@ -2138,7 +2137,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
             num_vols = int(post_data['count-vol'])
 
         else:
-            bulk_list_raw = re.split(',',post_data['bulk-vol'])
+            bulk_list_raw = re.split(',', post_data['bulk-vol'].lower())
             bulk_list = []
             for email_string in bulk_list_raw:
                 bulk_list.append(self.email_parser(email_string))
@@ -2147,7 +2146,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         for i in range(num_vols):
 
             if post_data['bulk-vol'].encode('ascii','ignore') == '':
-                email_list = post_data['vol-email-'+str(i+1)]
+                email_list = post_data['vol-email-'+str(i+1)].lower()
 
                 if email_list != '':
                     if email_list not in user_list:
@@ -2831,6 +2830,7 @@ def event_register(request, pk):
         ]
 
         email_template = None
+        email_confirmation = None
 
         if message:
             logger.info('User %s registered for event %s wants to send msg %s ', user.username, event.id, message)
