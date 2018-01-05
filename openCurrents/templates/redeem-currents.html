@@ -166,48 +166,11 @@
 
 {% block popups %}
   <div id="redeem-info-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-    <div class="row center">
-      <h3 class="popup-title">Why do I pay full price?</h3>
-    </div>
-
-    <div class="row center">
-      <div class="small-centered medium-10 columns">
-
-        <p>In order to make it as easy as possible for businesses to accept
-          Currents, we have designed the exchange process in such a way that
-          nothing changes at point of sale.</p>
-
-        <p class="three-halves-margin-bottom">As a result, more businesses are
-          now accepting Currents, which means you can use Currents to get more
-          of what you want.</p>
-
-        <a class="redeem-info-popup_close button round">Got it</a>
-        <a href="javascript:void(Tawk_API.toggle())" class="button round secondary">
-          Contact us
-        </a>
-      </div>
-    </div>
+    {% include "popups/redeem-info-popup.html" %}
   </div>
 
   <div id="no-receipt-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-    <div class="row center">
-      <h3 class="popup-title">No proof of purchase</h3>
-    </div>
-
-    <div class="row center">
-      <div class="small-centered medium-10 columns">
-        <p>{{ offer.org.name }} may not accept Currents without a receipt, but
-          provide any details below that may help the business verify that you
-          made a purchase:</p>
-
-        <textarea id="no-proof-typed" rows="3" placeholder="What did you buy?
-        When did you buy it? Who did you buy from?"></textarea>
-
-        <p><a class="no-receipt-popup_close half-margin-top button round">
-          Continue
-        </a></p>
-      </div>
-    </div>
+    {% include "popups/no-receipt-popup.html" %}
   </div>
 {% endblock popups %}
 
