@@ -290,9 +290,9 @@
       </div>
 
       {% if status_msg %}
-      <div class="alert row one-margin-bottom">
-        {{ status_msg }}
-      </div>
+        <div class="alert center row one-margin-bottom">
+          {{ status_msg }}
+        </div>
       {% endif %}
 
       <form method="post" action="{% url 'openCurrents:process_signup' %}">
