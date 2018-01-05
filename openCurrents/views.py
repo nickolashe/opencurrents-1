@@ -852,9 +852,12 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
             self.request.user.id
         )
 
+        msg_type='success'
+        status_msg = 'We\'ve received your request for redeeming %s\'s offer' % self.offer.org.name
         return redirect(
             'openCurrents:profile',
-            'We\'ve received your request for redeeming %s\'s offer' % self.offer.org.name
+            status_msg = status_msg,
+            msg_type = msg_type
         )
 
     def get_context_data(self, **kwargs):
