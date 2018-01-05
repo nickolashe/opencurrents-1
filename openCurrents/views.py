@@ -311,6 +311,10 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, FormView):
         if 'status_msg' in self.kwargs and not context['form'].errors:
             context['status_msg'] = self.kwargs.get('status_msg', '')
 
+        if 'msg_type' in self.kwargs:
+            context['msg_type'] = self.kwargs.get('msg_type', '')
+
+
         return context
 
     def form_valid(self, form):
@@ -746,7 +750,8 @@ class MarketplaceView(LoginRequiredMixin, SessionContextView, ListView):
         context['user_balance_available'] = user_balance_available
 
         # workaround with status message for ListView
-        context['status_msg'] = self.kwargs.get('status_msg', '')
+        context['status_msg'] = self.kwargs.get('status_msg')
+        context['msg_type'] = self.kwargs.get('msg_type')
 
         return context
 
@@ -810,6 +815,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
                 '<a href="{% url "openCurrents:upcoming-events" %}">',
                 'Find a volunteer opportunity!</a>'
             ])
+            msg_type = 'alert'
 
         offer_num_redeemed = self.ocuser.get_offer_num_redeemed(self.offer)
         # logger.debug(offer_num_redeemed)
@@ -822,10 +828,14 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
                 'Vendor %s chose to set a limit',
                 'on the number of redemptions for %s this month'
             ]) % (self.offer.org.name, self.offer.item.name)
+            msg_type = 'alert'
 
         if reqForbidden:
-            return redirect('openCurrents:marketplace', status_msg)
-
+            return redirect(
+                'openCurrents:marketplace',
+                status_msg,
+                msg_type
+            )
 
         return super(RedeemCurrentsView, self).dispatch(request, *args, **kwargs)
 
@@ -859,12 +869,10 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
             self.request.user.id
         )
 
-        msg_type='success'
         status_msg = 'We\'ve received your request for redeeming %s\'s offer' % self.offer.org.name
         return redirect(
             'openCurrents:profile',
             status_msg = status_msg,
-            msg_type = msg_type
         )
 
     def get_context_data(self, **kwargs):
@@ -1633,7 +1641,8 @@ class EditProfileView(LoginRequiredMixin, View):
             logger.error('Cannot find UserSettings instance for {} user ID and save welcome popup answer.'.format(userid))
             return redirect(
                 'openCurrents:profile',
-                status_msg='There was a problem processing your response.<br/>Please contact us at <a href="mailto:team@opencurrents.com">team@opencurrents.com</a>'
+                status_msg='There was a problem processing your response.<br/>Please contact us at <a href="mailto:team@opencurrents.com">team@opencurrents.com</a>',
+                msg_type = 'alert'
                 )
 
 
@@ -3399,7 +3408,7 @@ def process_login(request):
                 pass
             return redirect('openCurrents:profile', app_hr)
         else:
-            return redirect('openCurrents:login', status_msg='Invalid login/password.')
+            return redirect('openCurrents:login', status_msg='Invalid login/password.', msg_type = 'alert')
     else:
         logger.error(
             'Invalid login: %s',
@@ -3412,7 +3421,7 @@ def process_login(request):
             for field, le in form.errors.as_data().iteritems()
             for error in le
         ]
-        return redirect('openCurrents:login', status_msg=errors[0])
+        return redirect('openCurrents:login', status_msg=errors[0], msg_type = 'alert')
 
 
 def process_email_confirmation(request, user_email):

@@ -17,9 +17,8 @@
 
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
-
         {% block status %}
-          <div class="{% if msg_type %}{{msg_type}}{% else %} alert {% endif %} row one-margin-top">
+          <div class="{% if msg_type %}{{msg_type}}{% else %} success {% endif %} row one-margin-top">
             <div class="columns">
               {% autoescape off %}
                 {{ status_msg }}
