@@ -3330,39 +3330,65 @@ def process_OrgNomination(request):
         contact_name = form.cleaned_data['contact_name']
         contact_email = form.cleaned_data['contact_email']
 
-        sendTransactionalEmail(
-            'new-org-nominated',
-            None,
-            [
-                {
-                    'name': 'FNAME',
-                    'content': request.user.first_name
-                },
-                {
-                    'name': 'LNAME',
-                    'content': request.user.last_name
-                },
-                {
-                    'name': 'EMAIL',
-                    'content': request.user.email
-                },
-                {
-                    'name': 'COORD_NAME',
-                    'content': contact_name
-                },
-                {
-                    'name': 'COORD_EMAIL',
-                    'content': contact_email
-                },
-                {
-                    'name': 'ORG_NAME',
-                    'content': org_name
-                }
-            ],
-            'bizdev@opencurrents.com'
-        )
+        try:
+            user_to_check = User.objects.get(email=contact_email)
+            is_admin = OrgUserInfo(user_to_check.id).is_user_in_org_group()
+        except:
+            is_admin = False
 
-        return redirect('openCurrents:profile', status_msg='Thank you for nominating %s! We will reach out soon.' % org_name)
+        try:
+            org_exists = Org.objects.filter(name=org_name).exists()
+        except:
+            org_exists = False
+
+        if is_admin and org_exists:
+            sendTransactionalEmail(
+                'new-org-nominated',
+                None,
+                [
+                    {
+                        'name': 'FNAME',
+                        'content': request.user.first_name
+                    },
+                    {
+                        'name': 'LNAME',
+                        'content': request.user.last_name
+                    },
+                    {
+                        'name': 'EMAIL',
+                        'content': request.user.email
+                    },
+                    {
+                        'name': 'COORD_NAME',
+                        'content': contact_name
+                    },
+                    {
+                        'name': 'COORD_EMAIL',
+                        'content': contact_email
+                    },
+                    {
+                        'name': 'ORG_NAME',
+                        'content': org_name
+                    }
+                ],
+                'bizdev@opencurrents.com'
+            )
+
+            return redirect('openCurrents:profile', status_msg='Thank you for nominating %s! We will reach out soon.' % org_name)
+
+        elif not is_admin:
+            return redirect(
+                'openCurrents:profile',
+                status_msg='Thanks for nominating {}, it seems that {} is already affiliated with an organization on openCurrents.'.format(org_name, contact_email),
+                msg_type = 'alert'
+            )
+
+        else:
+            return redirect(
+                'openCurrents:profile',
+                status_msg='Thanks for nominating {0}, it seems that {0} is already active openCurrents.'.format(org_name),
+                msg_type = 'alert'
+            )
 
     return redirect(
         'openCurrents:time-tracker',
