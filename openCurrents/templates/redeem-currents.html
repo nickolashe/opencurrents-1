@@ -111,11 +111,14 @@
 
           <div class="relative inline-block">
             <span class="input-icon-left grey">$</span>
-
             {{ form.redeem_price }}
             {{ form.redeem_currents_amount }}
-
           </div>
+
+          <p class="no-margin-bottom grey">
+            {{ offer.org.name }} accepts Currents for {{ offer.currents_share }}%
+            of this purchase.
+          </p>
         </div>
       </div>
 
@@ -135,7 +138,7 @@
             <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
             <span class="currents-total">0.00</span> to {{ offer.org.name }}
             in exchange for $<span class="dollars-total">0.00</span> minus a
-            10% transaction fee of $<span class="dollars-fee">0.00</span>.
+            15% transaction fee of $<span class="dollars-fee">0.00</span>.
           </p>
 
           <p>
@@ -299,7 +302,7 @@
         var dollars = (priceSubjectToShare * share).toFixed(2);
 
         // TODO: switch to an API call to get the converstion rate
-        var currents = dollars/10.;
+        var currents = dollars/20.;
 
         return {
           'currents': currents,
@@ -319,14 +322,14 @@
           if (userBalanceCurrents < priceOfferSubjectToShareCurrents.currents) {
             priceSubjectToShare = {
               currents: userBalanceCurrents,
-              dollars: userBalanceCurrents * 10
+              dollars: userBalanceCurrents * 20
             };
           } else {
             priceSubjectToShare = priceOfferSubjectToShareCurrents;
           }
 
           console.log('priceUsed:' + priceSubjectToShare.currents);
-          const fee = (0.1 * priceSubjectToShare.dollars).toFixed(2);
+          const fee = (0.15 * priceSubjectToShare.dollars).toFixed(2);
           let dollarsReceived = (priceSubjectToShare.dollars - fee).toFixed(2);
 
           $('.currents-total').text(priceSubjectToShare.currents);
