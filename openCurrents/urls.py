@@ -36,6 +36,7 @@ urlpatterns = [
     url(r'^community/$', views.CommunityView.as_view(), name='community'),
     url(r'^login/$', views.LoginView.as_view(), name='login'),
     url(r'^login/(?P<status_msg>.*)/(?P<msg_type>.*)$', views.LoginView.as_view(), name='login'),
+    url(r'^login/(?P<status_msg>.*)/$', views.LoginView.as_view(), name='login'),
     url(r'^invite-friends/(?P<referrer>[\w\.@\+\-]*)/$',
         views.InviteFriendsView.as_view(), name='invite-friends'),
     url(r'^approve-hours/$', views.ApproveHoursView.as_view(), name='approve-hours'),
