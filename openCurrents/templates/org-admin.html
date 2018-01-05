@@ -173,7 +173,7 @@
         <h6 class="half-margin-bottom">Hours approved</h6>
         {% for admin, total in issued_by_admin.iteritems %}
           <a
-            href="{% url 'openCurrents:hours-detail' %}?is_admin=1&user_id={{admin.id}}&type=approved"
+            href="{% url 'openCurrents:hours-detail' %}?is_admin=1&user_id={{admin.id}}&amp;type=approved"
             class="button round tiny secondary"
           >
             {{ admin.first_name|fullname:admin.last_name }}: {{total|round_number:3}}
@@ -197,7 +197,7 @@
 -->
   <div class="left row one-margin-top full-width collapse">
     <div class="small-11 medium-10 small-centered columns">
-      <h6 class="half-margin-bottom">Hours pending</h6>
+      <h6 class="half-margin-bottom">Hours pending approval</h6>
 
       {% for admin, total in hours_pending_by_admin.iteritems %}
           <a
