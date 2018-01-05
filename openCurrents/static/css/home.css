@@ -246,6 +246,11 @@ input.home-input::placeholder {
   filter: drop-shadow(0 0 30px black);
 }
 
+.splash .alert {
+  background-color: #ffffff;
+  border-radius: 4px;
+}
+
 #back-button {
   position: fixed;
   left: 55px;
