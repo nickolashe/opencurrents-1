@@ -681,6 +681,7 @@ class HoursDetailView(LoginRequiredMixin, SessionContextView, ListView):
             ])
 
         context['hours_type'] = self.hours_type
+        context['timezone'] = 'America/Chicago'
 
         if self.org_id:
             org = OcOrg(self.org_id)

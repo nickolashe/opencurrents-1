@@ -1,5 +1,6 @@
 {% extends "layouts/base.html" %}
 {% load staticfiles %}
+{% load tags %}
 
 {% block status %}
   {% for date in week %}
@@ -47,7 +48,7 @@
                   <li class="accordion-item {% if forloop.first %}is-active{% endif %}" data-accordion-item>
                     <a href="#" class="accordion-title">{% for k, v in value.items %} {% if k == "name" %} {{v}} {% endif %}{% endfor %}
                       <span class="float-right">
-                        {% for k, v in value.items %} {% if k == "Total" %} {{v}} {% endif %}{% endfor %} hrs
+                        {% for k, v in value.items %} {% if k == "Total" %} {{ v|round_number:2 }} {% endif %}{% endfor %} hrs
                       </span>
                     </a>
                     <div class="accordion-content" data-tab-content>
@@ -60,7 +61,7 @@
                               <p class="half-margin-left">{{v|slice:"1:"|join:"<br> "}}</p>
                             </div>
                             <div class="right small-3 columns">
-                              <p>{{v.0}}  hrs</p>
+                              <p>{{v.0|round_number:2}}  hrs</p>
                             </div>
                           </div>
                         {% endif %}
