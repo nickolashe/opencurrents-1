@@ -1,5 +1,7 @@
 from django import template
 
+from datetime import date, datetime
+
 import logging
 import pytz
 
@@ -20,6 +22,13 @@ def day_only(val, tz='UTC'):
 @register.filter
 def time(val, tz='UTC'):
     return val.astimezone(pytz.timezone(tz)).strftime('%-I:%M %p')
+
+@register.filter
+def approve_date(val, tz='UTC'):
+    strp_time = datetime.strptime(val, '%A, %m/%d')
+    local_tz = pytz.timezone(tz)
+    # return strp_time.astimezone(pytz.timezone(tz)).strftime('%A, %d/%m')
+    return pytz.timezone(tz).localize(strp_time, is_dst=None).strftime('%A, %m/%d')
 
 @register.filter
 def keyvalue(d, key):

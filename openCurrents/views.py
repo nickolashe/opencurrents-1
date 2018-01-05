@@ -360,6 +360,12 @@ class ApproveHoursView(OrgAdminPermissionMixin, OrgSessionContextView, ListView)
     template_name = 'approve-hours.html'
     context_object_name = 'week'
 
+    def get_context_data(self, **kwargs):
+        context = super(ApproveHoursView, self).get_context_data(**kwargs)
+        context['timezone'] = 'America/Chicago'
+
+        return context
+
     def get_queryset(self,**kwargs):
         userid = self.request.user.id
         orguserinfo = OrgUserInfo(userid)

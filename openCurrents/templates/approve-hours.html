@@ -57,7 +57,7 @@
                         {% if k != "Total" and v != 0 and k != "name" %}
                           <div class="row">
                             <div class="small-9 columns">
-                              <p class="no-margin-bottom">{{k}}</p>
+                              <p class="no-margin-bottom">{{k|approve_date:timezone}}</p>
                               <p class="half-margin-left">{{v|slice:"1:"|join:"<br> "}}</p>
                             </div>
                             <div class="right small-3 columns">
