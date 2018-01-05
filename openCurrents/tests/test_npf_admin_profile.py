@@ -37,6 +37,7 @@ from openCurrents.tests.interfaces.common import \
 
 
 from openCurrents.interfaces.orgadmin import OrgAdmin
+from openCurrents.interfaces.ledger import OcLedger
 
 from openCurrents.interfaces.common import diffInHours
 
@@ -45,6 +46,7 @@ import uuid
 import random
 import string
 import re
+from collections import OrderedDict
 
 from unittest import skip
 
@@ -91,6 +93,10 @@ class NpfAdminView(TestCase):
         self.create_user('org_user_1', org, is_org_user=True, is_org_admin=True)
         self.create_user('org_user_2', org, is_org_user=True, is_org_admin=True, password = 'password2')
         self.create_user('org_user_3', org, is_org_user=True, is_org_admin=True, password = 'password3')
+
+        self.org_user_1 = User.objects.get(username='org_user_1')
+        self.org_user_2 =  User.objects.get(username='org_user_2')
+        self.org_user_3 = User.objects.get(username='org_user_3')
 
         # volunteer user
         self.create_user('volunteer_1', org, is_org_user=False, is_org_admin=False)
@@ -412,7 +418,7 @@ class NpfAdminView(TestCase):
         self.assertIn( '<a href="/create-event/1/"', processed_content)
 
         # assert that events' titles are displayed correctly
-        self.assertIn( "Let's test_project_1!", processed_content)
+        self.assertIn( "test_project_1", processed_content)
 
         # assert that correct LOCATIONS are there
         self.assertContains(response, 'test_location_1', count=1)
@@ -423,15 +429,16 @@ class NpfAdminView(TestCase):
     def test_npf_admin_approved_hours(self):
         response = self.client.get('/org-admin/')
         # checking if pending hours are correctly sorted (logged in admin first then all other admins by amount of pending hours in descending order)
-        expected_list_of_approved_hours_by_each_admin = [{1: 4.0}, {3: 6.0}, {2: 2.0}]
-        self.assertListEqual(response.context['issued_by_admin'],expected_list_of_approved_hours_by_each_admin)
+        # expected_list_of_approved_hours_by_each_admin = OrderedDict([{1: 4.0}, {3: 6.0}, {2: 2.0}])
+        expected_list_of_approved_hours_by_each_admin = OrderedDict([(self.org_user_1, 4.0), (self.org_user_3, 6.0), (self.org_user_2, 2.0)])
+        self.assertDictEqual(response.context['issued_by_admin'], expected_list_of_approved_hours_by_each_admin)
 
 
     def test_npf_admin_pending_hours(self):
         response = self.client.get('/org-admin/')
         # checking if pending hours are correctly sorted (logged in admin first then all other admins by amount of pending hours in descending order)
-        expected_list_of_pending_hours_by_each_admin = [{1: 1.0}, {3: 3.0}, {2: 2.0}]
-        self.assertListEqual(response.context['hours_pending_by_admin'],expected_list_of_pending_hours_by_each_admin)
+        expected_list_of_pending_hours_by_each_admin = OrderedDict([(self.org_user_1, 1.0), (self.org_user_3, 3.0), (self.org_user_2, 2.0)])
+        self.assertDictEqual(response.context['hours_pending_by_admin'], expected_list_of_pending_hours_by_each_admin)
 
 
     def test_npf_admins_displayed_in_pending_approved_hours_section(self):
@@ -440,8 +447,8 @@ class NpfAdminView(TestCase):
 
         self.assertIn('<a href="/hours-detail/?is_admin=1&user_id=1&type=approved"', processed_content)
         self.assertIn('<a href="/hours-detail/?is_admin=1&user_id=2&type=pending"', processed_content)
-        self.assertIn('org_user_1_first_name org_user_1_last_name: 4.0</a>', processed_content)
-        self.assertIn('org_user_2_first_name org_user_2_last_name: 2.0</a>',processed_content)
+        self.assertIn('org_user_1_first_name org_user_1_last_name: 4.000 </a>', processed_content)
+        self.assertIn('org_user_2_first_name org_user_2_last_name: 2.000 </a>',processed_content)
 
 
     def test_npf_page_upcoming_events_list(self):
@@ -515,11 +522,11 @@ class NpfAdminCheckIn(TestCase):
         self.volunteer_2 = _create_test_user('volunteer_2')
 
         # creating an event that happening now (72 hrs)
-        self.event_now = _create_event(self.project_1, past_date, future_date, is_public=True, event_type="GR", coordinator=self.npf_admin, creator_id=self.npf_admin.id)
+        self.event_now = _create_event(self.project_1, self.npf_admin.id, past_date, future_date, is_public=True, event_type="GR", coordinator=self.npf_admin)
 
         # creating a past event (48 hrs)
         past_date_2 = timezone.now() - timedelta(days=1)
-        self.event_past = _create_event(self.project_2, past_date_2, future_date, is_public=True, event_type="GR", coordinator=self.npf_admin, creator_id=self.npf_admin.id)
+        self.event_past = _create_event(self.project_2, self.npf_admin.id, past_date_2, future_date, is_public=True, event_type="GR", coordinator=self.npf_admin)
 
 
         #creating UserEventRegistration for npf admin and a volunteer
@@ -530,17 +537,22 @@ class NpfAdminCheckIn(TestCase):
         volunteer_event2_registration = _setup_user_event_registration(self.volunteer_1, self.event_past)
         volunteer_event2_registration = _setup_user_event_registration(self.volunteer_2, self.event_past)
 
+        # oc instances
+        self.oc_npf_adm = OcUser(self.npf_admin.id)
+        self.org_npf_adm = OrgAdmin(self.npf_admin.id)
+        self.oc_vol_1 = OcUser(self.volunteer_1.id)
+        self.oc_vol_2 = OcUser(self.volunteer_2.id)
+
+        # user entities
+        self.user_enitity_id_npf_adm = UserEntity.objects.get(user = self.npf_admin).id
+        self.user_enitity_id_vol_1 = UserEntity.objects.get(user = self.volunteer_1).id
+        self.user_enitity_id_vol_2 = UserEntity.objects.get(user = self.volunteer_2).id
 
         # setting up client
         self.client = Client()
 
 
     def test_current_event_check_in(self):
-
-        oc_npf_adm = OcUser(self.npf_admin.id)
-        org_npf_adm = OrgAdmin(self.npf_admin.id)
-        oc_vol_1 = OcUser(self.volunteer_1.id)
-        oc_vol_2 = OcUser(self.volunteer_2.id)
 
         # assertion of zero state
         self.assertEqual(6, len(UserEventRegistration.objects.all()))
@@ -551,11 +563,24 @@ class NpfAdminCheckIn(TestCase):
         self.assertEqual(0, len(UserTimeLog.objects.all()))
         self.assertEqual(0, len(AdminActionUserTime.objects.all()))
 
-        self.assertEqual(0, len(oc_npf_adm.get_hours_approved()))
-        self.assertEqual(0, len(oc_vol_1.get_hours_approved()))
-        self.assertEqual(0, len(oc_vol_2.get_hours_approved()))
+        self.assertEqual(0, len(self.oc_npf_adm.get_hours_approved()))
+        self.assertEqual(0, len(self.oc_vol_1.get_hours_approved()))
+        self.assertEqual(0, len(self.oc_vol_2.get_hours_approved()))
 
+        # checking ledger records
+        ledger_query = Ledger.objects.all()
+        self.assertEqual(0, len(ledger_query))
+        # asserting npf_admin user
+        self.assertEqual(0, len(ledger_query.filter(action__usertimelog__user=self.npf_admin)))
+        # asserting the first user
+        self.assertEqual(0, len(ledger_query.filter(action__usertimelog__user=self.volunteer_1)))
+        # asserting the 2nd user
+        self.assertEqual(0, len(ledger_query.filter(action__usertimelog__user=self.volunteer_2)))
 
+        # assert get_balance()
+        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_npf_adm))
+        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_1))
+        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_2))
 
         # logging in
         self.client.login(username=self.npf_admin.username, password='password')
@@ -580,12 +605,36 @@ class NpfAdminCheckIn(TestCase):
         self.assertEqual(2, len(AdminActionUserTime.objects.all()))
 
         # assert approved hours from users perspective
-        self.assertEqual(1, len(oc_npf_adm.get_hours_approved()))
-        self.assertEqual(1, len(oc_vol_1.get_hours_approved()))
-        self.assertEqual(0, len(oc_vol_2.get_hours_approved()))
+        self.assertEqual(1, len(self.oc_npf_adm.get_hours_approved()))
+        self.assertEqual(1, len(self.oc_vol_1.get_hours_approved()))
+        self.assertEqual(0, len(self.oc_vol_2.get_hours_approved()))
 
         # assert approved hours from npf admin perspective
-        self.assertEqual(144.0 , org_npf_adm.get_total_hours_issued())
+        self.assertEqual(144.0 , self.org_npf_adm.get_total_hours_issued())
+
+        # checking ledger records
+        ledger_query = Ledger.objects.all()
+        self.assertEqual(2, len(ledger_query))
+
+        # asserting npf_admin user
+        self.assertEqual(1, len(ledger_query.filter(action__usertimelog__user=self.npf_admin)))
+        self.assertEqual(1, len(ledger_query.filter(action__usertimelog__user=self.npf_admin)))
+        self.assertEqual('cur', ledger_query.get(action__usertimelog__user=self.npf_admin).currency)
+        self.assertEqual(72, ledger_query.get(action__usertimelog__user=self.npf_admin).amount)
+
+        # asserting the first user
+        self.assertEqual(1, len(ledger_query.filter(action__usertimelog__user=self.volunteer_1)))
+        self.assertEqual(1, len(ledger_query.filter(action__usertimelog__user=self.volunteer_1)))
+        self.assertEqual('cur', ledger_query.get(action__usertimelog__user=self.volunteer_1).currency)
+        self.assertEqual(72, ledger_query.get(action__usertimelog__user=self.volunteer_1).amount)
+
+        # asserting the 2nd user
+        self.assertEqual(0, len(ledger_query.filter(action__usertimelog__user=self.volunteer_2)))
+
+        # assert get_balance()
+        self.assertEqual(72, OcLedger().get_balance(self.user_enitity_id_npf_adm))
+        self.assertEqual(72, OcLedger().get_balance(self.user_enitity_id_vol_1))
+        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_2))
 
 
         # checking the second volunteer
@@ -603,20 +652,44 @@ class NpfAdminCheckIn(TestCase):
         self.assertEqual(3, len(AdminActionUserTime.objects.all()))
 
         # assert approved hours from users perspective
-        self.assertEqual(1, len(oc_npf_adm.get_hours_approved()))
-        self.assertEqual(1, len(oc_vol_1.get_hours_approved()))
-        self.assertEqual(1, len(oc_vol_2.get_hours_approved()))
+        self.assertEqual(1, len(self.oc_npf_adm.get_hours_approved()))
+        self.assertEqual(1, len(self.oc_vol_1.get_hours_approved()))
+        self.assertEqual(1, len(self.oc_vol_2.get_hours_approved()))
 
         # assert approved hours from npf admin perspective
-        self.assertEqual(216.0 , org_npf_adm.get_total_hours_issued())
+        self.assertEqual(216.0 , self.org_npf_adm.get_total_hours_issued())
+
+
+        # checking ledger records
+        ledger_query = Ledger.objects.all()
+        self.assertEqual(3, len(ledger_query))
+
+        # asserting npf_admin user
+        self.assertEqual(1, len(ledger_query.filter(action__usertimelog__user=self.npf_admin)))
+        self.assertEqual(1, len(ledger_query.filter(action__usertimelog__user=self.npf_admin)))
+        self.assertEqual('cur', ledger_query.get(action__usertimelog__user=self.npf_admin).currency)
+        self.assertEqual(72, ledger_query.get(action__usertimelog__user=self.npf_admin).amount)
+
+        # asserting the first user
+        self.assertEqual(1, len(ledger_query.filter(action__usertimelog__user=self.volunteer_1)))
+        self.assertEqual(1, len(ledger_query.filter(action__usertimelog__user=self.volunteer_1)))
+        self.assertEqual('cur', ledger_query.get(action__usertimelog__user=self.volunteer_1).currency)
+        self.assertEqual(72, ledger_query.get(action__usertimelog__user=self.volunteer_1).amount)
+
+        # asserting the 2nd user
+        self.assertEqual(1, len(ledger_query.filter(action__usertimelog__user=self.volunteer_2)))
+        self.assertEqual(1, len(ledger_query.filter(action__usertimelog__user=self.volunteer_1)))
+        self.assertEqual('cur', ledger_query.get(action__usertimelog__user=self.volunteer_1).currency)
+        self.assertEqual(72, ledger_query.get(action__usertimelog__user=self.volunteer_1).amount)
+
+        # assert get_balance()
+        self.assertEqual(72, OcLedger().get_balance(self.user_enitity_id_npf_adm))
+        self.assertEqual(72, OcLedger().get_balance(self.user_enitity_id_vol_1))
+        self.assertEqual(72, OcLedger().get_balance(self.user_enitity_id_vol_2))
+
 
 
     def test_past_event_check_in(self):
-
-        oc_npf_adm = OcUser(self.npf_admin.id)
-        org_npf_adm = OrgAdmin(self.npf_admin.id)
-        oc_vol_1 = OcUser(self.volunteer_1.id)
-        oc_vol_2 = OcUser(self.volunteer_2.id)
 
         # assertion of zero state
         self.assertEqual(6, len(UserEventRegistration.objects.all()))
@@ -627,11 +700,24 @@ class NpfAdminCheckIn(TestCase):
         self.assertEqual(0, len(UserTimeLog.objects.all()))
         self.assertEqual(0, len(AdminActionUserTime.objects.all()))
 
-        self.assertEqual(0, len(oc_npf_adm.get_hours_approved()))
-        self.assertEqual(0, len(oc_vol_1.get_hours_approved()))
-        self.assertEqual(0, len(oc_vol_2.get_hours_approved()))
+        self.assertEqual(0, len(self.oc_npf_adm.get_hours_approved()))
+        self.assertEqual(0, len(self.oc_vol_1.get_hours_approved()))
+        self.assertEqual(0, len(self.oc_vol_2.get_hours_approved()))
 
+        # checking ledger records
+        ledger_query = Ledger.objects.all()
+        self.assertEqual(0, len(ledger_query))
+        # asserting npf_admin user
+        self.assertEqual(0, len(ledger_query.filter(action__usertimelog__user=self.npf_admin)))
+        # asserting the first user
+        self.assertEqual(0, len(ledger_query.filter(action__usertimelog__user=self.volunteer_1)))
+        # asserting the 2nd user
+        self.assertEqual(0, len(ledger_query.filter(action__usertimelog__user=self.volunteer_2)))
 
+        # assert get_balance()
+        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_npf_adm))
+        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_1))
+        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_2))
 
         # logging in
         self.client.login(username=self.npf_admin.username, password='password')
@@ -656,12 +742,38 @@ class NpfAdminCheckIn(TestCase):
         self.assertEqual(2, len(AdminActionUserTime.objects.all()))
 
         # assert approved hours from users perspective
-        self.assertEqual(1, len(oc_npf_adm.get_hours_approved()))
-        self.assertEqual(1, len(oc_vol_1.get_hours_approved()))
-        self.assertEqual(0, len(oc_vol_2.get_hours_approved()))
+        self.assertEqual(1, len(self.oc_npf_adm.get_hours_approved()))
+        self.assertEqual(1, len(self.oc_vol_1.get_hours_approved()))
+        self.assertEqual(0, len(self.oc_vol_2.get_hours_approved()))
 
         # assert approved hours from npf admin perspective
-        self.assertEqual(96.0 , org_npf_adm.get_total_hours_issued())
+        self.assertEqual(96.0 , self.org_npf_adm.get_total_hours_issued())
+
+
+        # checking ledger records
+        ledger_query = Ledger.objects.all()
+        self.assertEqual(2, len(ledger_query))
+
+        # asserting npf_admin user
+        self.assertEqual(1, len(ledger_query.filter(action__usertimelog__user=self.npf_admin)))
+        self.assertEqual(1, len(ledger_query.filter(action__usertimelog__user=self.npf_admin)))
+        self.assertEqual('cur', ledger_query.get(action__usertimelog__user=self.npf_admin).currency)
+        self.assertEqual(48, ledger_query.get(action__usertimelog__user=self.npf_admin).amount)
+
+        # asserting the first user
+        self.assertEqual(1, len(ledger_query.filter(action__usertimelog__user=self.volunteer_1)))
+        self.assertEqual(1, len(ledger_query.filter(action__usertimelog__user=self.volunteer_1)))
+        self.assertEqual('cur', ledger_query.get(action__usertimelog__user=self.volunteer_1).currency)
+        self.assertEqual(48, ledger_query.get(action__usertimelog__user=self.volunteer_1).amount)
+
+        # asserting the 2nd user
+        self.assertEqual(0, len(ledger_query.filter(action__usertimelog__user=self.volunteer_2)))
+
+        # assert get_balance()
+        self.assertEqual(48, OcLedger().get_balance(self.user_enitity_id_npf_adm))
+        self.assertEqual(48, OcLedger().get_balance(self.user_enitity_id_vol_1))
+        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_2))
+
 
         # checking the second volunteer
         post_response = self.client.post('/event_checkin/2/',
@@ -678,9 +790,38 @@ class NpfAdminCheckIn(TestCase):
         self.assertEqual(3, len(AdminActionUserTime.objects.all()))
 
         # assert approved hours from users perspective
-        self.assertEqual(1, len(oc_npf_adm.get_hours_approved()))
-        self.assertEqual(1, len(oc_vol_1.get_hours_approved()))
-        self.assertEqual(1, len(oc_vol_2.get_hours_approved()))
+        self.assertEqual(1, len(self.oc_npf_adm.get_hours_approved()))
+        self.assertEqual(1, len(self.oc_vol_1.get_hours_approved()))
+        self.assertEqual(1, len(self.oc_vol_2.get_hours_approved()))
 
         # assert approved hours from npf admin perspective
-        self.assertEqual(144.0 , org_npf_adm.get_total_hours_issued())
+        self.assertEqual(144.0 , self.org_npf_adm.get_total_hours_issued())
+
+
+        # checking ledger records
+        ledger_query = Ledger.objects.all()
+        self.assertEqual(3, len(ledger_query))
+
+        # asserting npf_admin user
+        self.assertEqual(1, len(ledger_query.filter(action__usertimelog__user=self.npf_admin)))
+        self.assertEqual(1, len(ledger_query.filter(action__usertimelog__user=self.npf_admin)))
+        self.assertEqual('cur', ledger_query.get(action__usertimelog__user=self.npf_admin).currency)
+        self.assertEqual(48, ledger_query.get(action__usertimelog__user=self.npf_admin).amount)
+
+        # asserting the first user
+        self.assertEqual(1, len(ledger_query.filter(action__usertimelog__user=self.volunteer_1)))
+        self.assertEqual(1, len(ledger_query.filter(action__usertimelog__user=self.volunteer_1)))
+        self.assertEqual('cur', ledger_query.get(action__usertimelog__user=self.volunteer_1).currency)
+        self.assertEqual(48, ledger_query.get(action__usertimelog__user=self.volunteer_1).amount)
+
+        # asserting the 2nd user
+        self.assertEqual(1, len(ledger_query.filter(action__usertimelog__user=self.volunteer_2)))
+        self.assertEqual(1, len(ledger_query.filter(action__usertimelog__user=self.volunteer_1)))
+        self.assertEqual('cur', ledger_query.get(action__usertimelog__user=self.volunteer_1).currency)
+        self.assertEqual(48, ledger_query.get(action__usertimelog__user=self.volunteer_1).amount)
+
+        # assert get_balance()
+        self.assertEqual(48, OcLedger().get_balance(self.user_enitity_id_npf_adm))
+        self.assertEqual(48, OcLedger().get_balance(self.user_enitity_id_vol_1))
+        self.assertEqual(48, OcLedger().get_balance(self.user_enitity_id_vol_2))
+

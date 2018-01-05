@@ -6,10 +6,12 @@
     <div class="small-12 columns">
       <h4 class="title">
         {% block title %}
-          {% if is_admin %}
-            Hours
+          {% if hours_admin %}
+            Hours {{ hours_type }}
+            {% if hours_type == 'pending' %} for {% else %} by {% endif %}
+            {{ admin_name }}
           {% else %}
-            My hours for {{ orgname }}
+            My hours for {{ hours_orgname }}
           {% endif %}
         {% endblock title %}
       </h4>
@@ -45,41 +47,66 @@
 
 {% for hr in hours_detail  %}
   {% with event=hr.usertimelog.event %}
-  <div class="row">
-    <div class="medium-10 small-centered columns">
-      <div class="left row">
-        <div class="small-3 columns">
-          <p class="half-margin-bottom">
-            {{ event.datetime_start|date:"M d" }}
-          </p>
-        </div>
+    {% with user=hr.usertimelog.user %}
+      <div class="row">
+        <div class="medium-10 small-centered columns">
+          <div class="left row">
+            <div class="small-3 columns">
+              <p class="half-margin-bottom">
+                {{ event.datetime_start|date:"M d" }}
+              </p>
+            </div>
 
-        <div class="small-6 columns">
-        {% if event.event_type == 'MN' %}
-          <p class="half-margin-bottom">{{ event.description }}</p>
-        {% else %}
-          <p class="half-margin-bottom">{{ event.project.name }} </p>
-        {% endif %}
-        </div>
+            <div class="small-6 columns">
+              <p class="half-margin-bottom">
+                {% if hours_admin %}
+                  {{ user.first_name|fullname:user.last_name }} recorded hours for
+                {% endif %}
 
-        <div class="right small-2 columns">
-          <p class="half-margin-bottom">
-            {{ event.datetime_end|subtract_time:event.datetime_start }}
-          </p>
+                {% if event.event_type == 'MN' %}
+                  {{ event.description }}
+                {% else %}
+                  {{ event.project.name }}
+                {% endif %}
+
+                {% with admin=hr.user %}
+                  <span class='small-text no-wrap grey'>
+                    Approved by
+                    {% if admin.first_name and admin.last_name %}
+                      {{ admin.first_name|fullname:admin.last_name }}
+                    {% else %}
+                      {{ admin.username }}
+                    {% endif %}
+                  </span>
+                {% endwith %}
+              </p>
+            </div>
+
+            <div class="right small-2 columns">
+              <p class="half-margin-bottom">
+                {{ event.datetime_end|subtract_time:event.datetime_start|round_number:3 }}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
+    {% endwith %}
   {% endwith %}
 {% empty %}
-    <h5>No records available</h5>
+    <h6>No records available</h6>
 {% endfor %}
 
 
   <div class="row three-halves-margin-top">
-    <a href="{% url 'openCurrents:profile' %}" class="button round">
-      Back to profile
-    </a>
+    {% if hours_admin %}
+      <a href="{% url 'openCurrents:org-admin' %}" class="button round">
+        Back to org profile
+      </a>
+    {% else %}
+      <a href="{% url 'openCurrents:profile' %}" class="button round">
+        Back to profile
+      </a>
+    {% endif %}
   </div>
 
 {% endblock content %}

@@ -5,9 +5,11 @@ import pytz
 import random
 import string
 
+from django.contrib.auth.models import User
 from django.test import TestCase
 
 from openCurrents.interfaces.orgs import OcOrg, OcLedger, OcUser
+from openCurrents.interfaces.community import OcCommunity
 from openCurrents.models import Event, Project, UserTimeLog, AdminActionUserTime, Ledger
 
 
@@ -84,9 +86,10 @@ class PublicRecordViewTestSuite(TestCase):
                 amount
             )
         if old:
-            t = Ledger.objects.last()
-            t.date_created -= timedelta(days=33)
-            t.save()
+            event_prev_month = Event.objects.last()
+            event_prev_month.datetime_start -= timedelta(days=33)
+            event_prev_month.save()
+
             if user:
                 self.old_top_with_names.append({'name': regular_user.username, 'total': amount})
             else:
@@ -98,6 +101,21 @@ class PublicRecordViewTestSuite(TestCase):
             else:
                 self.top_with_names.append({'name': org.name, 'total': amount})
             self.top_with_names.sort(key=lambda x: x['total'], reverse=True)
+
+
+    def set_usable_pass_all(self):
+        """
+        sets usable passwords to all users
+        """
+        for user in User.objects.all():
+            user.set_password('HtJk23_7@P4')
+            user.save()
+
+
+    def calculate_total(self, lst):
+        total = sum(item['total'] for item in lst)
+        return total
+
 
     def test_view_displays_up_to_10_active_npf_last_month(self):
         # Create 5 npfs
@@ -121,9 +139,7 @@ class PublicRecordViewTestSuite(TestCase):
 
         # There were no transactions for last month
         top_npf_last_month = OcOrg().get_top_issued_npfs('month')
-
-        # TODO: figure out a proper way to test for past records
-        # self.assertEqual(top_npf_last_month[0]['total'], 0)
+        self.assertEqual(top_npf_last_month[0]['total'], 0)
 
         # Random transaction amounts are recorded to the list
         # And compared to interface output
@@ -142,12 +158,12 @@ class PublicRecordViewTestSuite(TestCase):
 
         # Random transaction amounts are recorded to the list
         # And compared to interface output
-        top_biz_last_month = OcOrg().get_top_accepted_bizs('month')
+        top_biz_last_month = OcOrg().get_top_bizs('month')
         self.assertEqual(top_biz_last_month[0], self.top_with_names[0])
 
         # Create 10 more organisations to check that interface method outputs 10 items
         [self.set_up_org(status='biz') for _ in range(10)]
-        top_biz_last_month = OcOrg().get_top_accepted_bizs('month')
+        top_biz_last_month = OcOrg().get_top_bizs('month')
         self.assertEqual(len(top_biz_last_month), 10)
 
     def test_view_displays_up_to_10_active_biz_all_time(self):
@@ -156,18 +172,17 @@ class PublicRecordViewTestSuite(TestCase):
         [self.set_up_org(status='biz', old=True) for _ in range(5)]
 
         # There were no transactions for last month
-        # TODO: figure out a proper way to test for past records
-        top_npf_last_month = OcOrg().get_top_accepted_bizs('month')
-        # self.assertEqual(top_npf_last_month[0]['total'], 0)
+        top_npf_last_month = OcOrg().get_top_bizs('month')
+        self.assertEqual(top_npf_last_month[0]['total'], 0)
 
         # Random transaction amounts are recorded to the list
         # And compared to interface output
-        top_npf_all_time = OcOrg().get_top_accepted_bizs('all-time')
+        top_npf_all_time = OcOrg().get_top_bizs('all-time')
         self.assertEqual(top_npf_all_time[0], self.old_top_with_names[0])
 
         # Create 10 more organisations to check that interface method outputs 10 items
         [self.set_up_org(status='biz', old=True) for _ in range(10)]
-        top_npf_all_time = OcOrg().get_top_accepted_bizs('all-time')
+        top_npf_all_time = OcOrg().get_top_bizs('all-time')
         self.assertEqual(len(top_npf_all_time), 10)
 
     def test_view_displays_up_to_10_active_users_last_month(self):
@@ -178,12 +193,35 @@ class PublicRecordViewTestSuite(TestCase):
         # Random transaction amounts are recorded to the list
         # And compared to interface output
         top_users_last_month = OcUser().get_top_received_users('month')
+
+        # asserting users without usable password
+        self.assertEqual(len(top_users_last_month), 0)
+        # asserting currents issued in the system
+        self.assertEqual(OcCommunity().get_amount_currents_total(), self.calculate_total(self.top_with_names))
+
+        #setting usable passwords to all users
+        self.set_usable_pass_all()
+        top_users_last_month = OcUser().get_top_received_users('month')
+
         # 10 users for 5 orgs is because each org contains admin
         self.assertEqual(len(top_users_last_month), 5)
         self.assertEqual(top_users_last_month[0], self.top_with_names[0])
 
+        # asserting currents issued in the system
+        self.assertEqual(OcCommunity().get_amount_currents_total(), self.calculate_total(self.top_with_names))
+
         # Create 10 more organisations to check that interface method outputs 10 items
         [self.set_up_org(status='npf') for _ in range(10)]
+
+        # asserting currents issued in the system
+        self.assertEqual(OcCommunity().get_amount_currents_total(), self.calculate_total(self.top_with_names))
+
+        #setting usable passwords to all users
+        self.set_usable_pass_all()
+
+        # asserting currents issued in the system
+        self.assertEqual(OcCommunity().get_amount_currents_total(), self.calculate_total(self.top_with_names))
+
         top_users_last_month = OcUser().get_top_received_users('month')
         self.assertEqual(len(top_users_last_month), 10)
 
@@ -196,10 +234,29 @@ class PublicRecordViewTestSuite(TestCase):
         # And compared to interface output
         top_users_last_month = OcUser().get_top_received_users('all-time')
 
+        # asserting users without usable password
+        self.assertEqual(len(top_users_last_month), 0)
+        # asserting currents issued in the system
+        self.assertEqual(OcCommunity().get_amount_currents_total(), self.calculate_total(self.old_top_with_names))
+
+        #setting usable passwords to all users
+        self.set_usable_pass_all()
+        top_users_last_month = OcUser().get_top_received_users('all-time')
+
         self.assertEqual(len(top_users_last_month), 5)
         self.assertEqual(top_users_last_month[0], self.old_top_with_names[0])
 
+        # asserting currents issued in the system
+        self.assertEqual(OcCommunity().get_amount_currents_total(), self.calculate_total(self.old_top_with_names))
+
         # Create 10 more organisations to check that interface method outputs 10 items
-        [self.set_up_org(status='npf') for _ in range(10)]
+        [self.set_up_org(status='npf', old=True) for _ in range(10)]
+
+        #setting usable passwords to all users
+        self.set_usable_pass_all()
+
+        # asserting currents issued in the system
+        self.assertEqual(OcCommunity().get_amount_currents_total(), self.calculate_total(self.old_top_with_names))
+
         top_users_last_month = OcUser().get_top_received_users('all-time')
         self.assertEqual(len(top_users_last_month), 10)

@@ -19,7 +19,7 @@
       <div id="wrapper">
 
         {% block status %}
-          <div class="success row one-margin-top">
+          <div class="{% if msg_type %}{{msg_type}}{% else %} alert {% endif %} row one-margin-top">
             <div class="columns">
               {% autoescape off %}
                 {{ status_msg }}
@@ -65,6 +65,8 @@
 
     {% block js %}{% endblock js %}
 
+    <!-- Hubspot tracking -->
+    <script type="text/javascript" id="hs-script-loader" async defer src="//js.hs-scripts.com/3045177.js"></script>
     <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
   </body>
 </html>

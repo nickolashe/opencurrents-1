@@ -69,12 +69,14 @@
           </div>
 
           {% with org=offer.org %}
-            <div class="biz-deets left row hidden">
+            <div class="biz-deets half-margin-top left row hidden">
               <div class="small-12 columns">
                 {% if org.website %}
                   <p class="biz-deets-item">
                     <i class="half-margin-right fa-fw fa fa-link"></i>
-                    {{ org.website }}
+                    <a href="{{ org.website }}" target="_blank">
+                      {{ org.website }}
+                    </a>
                   </p>
                 {% endif %}
 

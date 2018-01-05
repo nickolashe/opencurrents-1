@@ -9,14 +9,17 @@
     <link href="https://fonts.googleapis.com/css?family=Alegreya+Sans+SC:300"
     rel="stylesheet">
 
-    <title>openCurrents | Volunteers</title>
+    <meta name="description" content="With openCurrents, volunteers get to
+    create currency by giving time. Volunteer 1 hour to earn 1 Current, and use
+    Currents for purchases with businesses in the community. Join the movement!">
+    <title>Get paid for doing good &bull; openCurrents</title>
   </head>
 
   <body id="volunteer" class="splash" onunload=''>
     <header id="header" class="full-width row collapse js-close-any" canvas>
       <div class="relative small-8 large-3 small-offset-1 columns">
         <a href="{% url 'openCurrents:root' %}">
-          <img id="header-logo" src="{% static 'img/oc-header.svg' %}" />
+          <img id="header-logo" src="{% static 'img/logo.svg' %}" />
         </a>
 
         <div class="inline-block relative">
@@ -148,7 +151,7 @@
                       xmlns:dc="http://purl.org/dc/elements/1.1/"
                       viewBox="0 0 140 140.13137">
                         <g transform="translate(-396.62 -884.72)"
-                        stroke="#1f4975" fill="none">
+                        stroke="#1f4795" fill="none">
                           <circle cx="466.69" transform="scale(1,-1)"
                           cy="-954.78" r="0" stroke-width="11" />
                           <g transform="translate(11.475)">
@@ -306,7 +309,7 @@
                   xmlns:cc="http://creativecommons.org/ns#"
                   xmlns:dc="http://purl.org/dc/elements/1.1/"
                   viewBox="0 0 140 140.13137">
-                    <g transform="translate(-396.62 -884.72)" stroke="#1f4975"
+                    <g transform="translate(-396.62 -884.72)" stroke="#1f4795"
                     fill="none">
                       <circle cx="466.69" transform="scale(1,-1)" cy="-954.78"
                       r="0" stroke-width="11" />
@@ -375,15 +378,14 @@
         <div class="row collapse center">
           <div class="small-11 medium-6 small-centered columns">
             <h2 class="title-sub white">Join openCurrents</h2>
-          </div>
-
-          <div class="one-margin-top">
-            <a href="{% url 'openCurrents:nonprofit' %}#4" class="tag button round tiny clear">
-              Register a nonprofit
-            </a>
-            <a href="{% url 'openCurrents:business' %}#5" class="tag button round tiny clear">
-              Register a business
-            </a>
+            <div class="one-margin-top">
+              <a href="{% url 'openCurrents:nonprofit' %}#4" class="tag button round tiny clear">
+                Register a nonprofit
+              </a>
+              <a href="{% url 'openCurrents:business' %}#5" class="tag button round tiny clear">
+                Register a business
+              </a>
+            </div>
           </div>
         </div>
 
@@ -440,6 +442,14 @@
     <div id="signup-box" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
         <h2 class="one-margin-top">Join openCurrents</h2>
+        <div class="one-margin-top">
+          <a href="{% url 'openCurrents:nonprofit' %}#4" class="tag button round tiny secondary">
+            Register a nonprofit
+          </a>
+          <a href="{% url 'openCurrents:business' %}#5" class="tag button round tiny secondary">
+            Register a business
+          </a>
+        </div>
       </div>
 
       <form method="post" action="{% url 'openCurrents:process_signup' %}">

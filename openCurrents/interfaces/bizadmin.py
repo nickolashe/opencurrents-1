@@ -13,7 +13,7 @@ from openCurrents.models import \
 
 from openCurrents.interfaces import common
 from openCurrents.interfaces import convert
-from openCurrents.interfaces.orgs import OrgUserInfo
+from openCurrents.interfaces.ocuser import OcUser
 from openCurrents.interfaces.ledger import OcLedger
 
 import pytz
@@ -21,12 +21,10 @@ import pytz
 
 class BizAdmin(object):
     def __init__(self, userid):
-    	# userid
         self.userid = userid
 
-        # orgid
-        org_user_info = OrgUserInfo(self.userid)
-        self.org = org_user_info.get_org()
+        # org
+        self.org = OcUser(self.userid).get_org()
 
         if not self.org or self.org.status != 'biz':
         	raise InvalidAffiliation
@@ -41,7 +39,7 @@ class BizAdmin(object):
             currency=currency
         )
 
-        return round(balance, 3)
+        return balance
 
     def get_balance_pending(self):
         '''
@@ -53,7 +51,7 @@ class BizAdmin(object):
             active_redemption_reqs
         )
 
-        return round(total_redemptions, 3)
+        return total_redemptions
 
     def get_offers_all(self):
         offers = Offer.objects.filter(

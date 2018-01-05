@@ -8,14 +8,18 @@
     <link href="{% static "css/home.css" %}" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Alegreya+Sans+SC:300" rel="stylesheet">
 
-    <title>openCurrents | Nonprofits</title>
+    <meta name="description" content="Nonprofits can now pay volunteers at no
+    cost with a new currency - the Current. Give 1 hour to create 1 Current.
+    Plus, nonprofits get the easiest hour tracking platform in existence.
+    For free.">
+    <title>Reward volunteers like never before &bull; openCurrents</title>
   </head>
 
   <body id="nonprofit" class="splash" onunload=''>
     <header id="header" class="full-width row collapse js-close-any" canvas>
       <div class="relative small-8 large-3 small-offset-1 columns">
         <a href="{% url 'openCurrents:root' %}">
-          <img id="header-logo" src="{% static 'img/oc-header.svg' %}" />
+          <img id="header-logo" src="{% static 'img/logo.svg' %}" />
         </a>
 
         <div class="inline-block relative">
@@ -240,7 +244,7 @@
               <div class="small-12 columns">
                 <input class="lead center" type="text" name="org_name" placeholder="Organization name" />
               </div>
-              <input class="lead center" type="hidden" name="org_type" value="nonprofit"/>
+              <input class="lead center" type="hidden" name="org_status" value="npf"/>
             </div>
           </div>
 
@@ -273,6 +277,16 @@
     <div id="signup-box" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
         <h2 class="one-margin-top">Apply as a nonprofit</h2>
+        <div class="one-margin-top">
+          <a href="{% url 'openCurrents:volunteer' %}#5"
+          class="tag button round tiny secondary">
+            Register as individual
+          </a>
+          <a href="{% url 'openCurrents:business' %}#5"
+          class="tag button round tiny secondary">
+            Register a business
+          </a>
+        </div>
       </div>
 
       {% if status_msg %}

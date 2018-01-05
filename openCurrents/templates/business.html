@@ -8,14 +8,18 @@
     <link href="{% static "css/home.css" %}" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Alegreya+Sans+SC:300" rel="stylesheet">
 
-    <title>openCurrents | Businesses</title>
+    <meta name="description" content="openCurrents is a community that rewards
+    social action with a new currency - the Current. By accepting Currents,
+    businesses can connect meaningfully with new customers, increase loyalty,
+    and even earn tax deductions.">
+    <title>Value good work like never before &bull; openCurrents</title>
   </head>
 
   <body id="business" class="splash" onunload=''>
     <header id="header" class="full-width row collapse js-close-any" canvas>
       <div class="relative small-8 large-3 small-offset-1 columns">
         <a href="{% url 'openCurrents:root' %}">
-          <img id="header-logo" src="{% static 'img/oc-header.svg' %}" />
+          <img id="header-logo" src="{% static 'img/logo.svg' %}" />
         </a>
 
         <div class="inline-block relative">
@@ -302,6 +306,14 @@
     <div id="signup-box" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
         <h2 class="one-margin-top">Join openCurrents</h2>
+        <div class="one-margin-top">
+          <a href="{% url 'openCurrents:volunteer' %}#5" class="tag button round tiny secondary">
+            Register as individual
+          </a>
+          <a href="{% url 'openCurrents:nonprofit' %}#4" class="tag button round tiny secondary">
+            Register a nonprofit
+          </a>
+        </div>
       </div>
 
       <form method="post" action="{% url 'openCurrents:process_signup' %}">
@@ -322,7 +334,7 @@
             <div class="small-12 columns">
               <input type="text" name="org_name" placeholder="Business name" class="large-text center" tabindex="0" />
             </div>
-            <input class="lead center" type="hidden" name="org_type" value="business"/>
+            <input class="lead center" type="hidden" name="org_status" value="biz"/>
           </div>
         </div>
 

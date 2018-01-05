@@ -6,7 +6,7 @@
 {% block heading %}
   <div class="row">
     <h4 class="title-sub">
-      {% block title %}Let's {{ event.project.name }}!{% endblock title %}
+      {% block title %}{{ event.project.name }}{% endblock title %}
     </h4>
     <p>with <strong>{{ event.project.org.name }}</strong> </p>
   </div>
@@ -76,8 +76,8 @@
         {% endif %}
       </button>
     </div>
-    <a href="{% url 'openCurrents:profile' %}">
-      Back to profile
+    <a href="{% url 'openCurrents:org-admin' %}">
+      Back to org profile
     </a>
 {% endblock content %}
 
@@ -89,14 +89,23 @@
         {% if registrants %}
           <p class="half-margin-bottom"><strong>Name or email</strong></p>
           <ul>
-            {% for name in registrants_names %}
-              <li class="no-bullet">{{ name }}</li>
+            {% for email, rec in registrants.iteritems %}
+              <li class="no-bullet">
+                {% if rec.first_name and rec.last_name %}
+                  {{ rec.first_name|fullname:rec.last_name }}
+                {% else %}
+                  {{ email }}
+                {% endif %}
+              </li>
             {% endfor %}
           </ul>
           <a id="copy-emails" class="button round small">Copy email list</a>
         {% else %}
           <p>No volunteers have registered or been invited yet.</p>
-          <a href="{% url 'openCurrents:invite-volunteers' event.id %}" class="button round small">Invite volunteers</a>
+          <a href="{% url 'openCurrents:invite-volunteers' event.id %}"
+          class="button round small">
+            Invite volunteers
+          </a>
         {% endif %}
 
         <a class="registrants-box_close button round small secondary">Close</a>
