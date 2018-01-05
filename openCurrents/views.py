@@ -3136,7 +3136,8 @@ def process_signup(
                 logger.info('user %s already verified', user_email)
                 return redirect(
                     'openCurrents:login',
-                    status_msg='User with this email already exists'
+                    status_msg='User with this email already exists',
+                    msg_type='alert'
                 )
 
         # user org
@@ -3434,7 +3435,11 @@ def process_login(request):
                 pass
             return redirect('openCurrents:profile', app_hr)
         else:
-            return redirect('openCurrents:login', status_msg='Invalid login/password.', msg_type = 'alert')
+            return redirect(
+                'openCurrents:login',
+                status_msg='Invalid login/password.',
+                msg_type = 'alert'
+            )
     else:
         logger.error(
             'Invalid login: %s',
@@ -3447,7 +3452,11 @@ def process_login(request):
             for field, le in form.errors.as_data().iteritems()
             for error in le
         ]
-        return redirect('openCurrents:login', status_msg=errors[0], msg_type = 'alert')
+        return redirect(
+            'openCurrents:login',
+            status_msg=errors[0],
+            msg_type = 'alert'
+            )
 
 
 def process_email_confirmation(request, user_email):

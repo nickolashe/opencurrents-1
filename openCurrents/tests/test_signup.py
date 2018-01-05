@@ -312,7 +312,8 @@ class TestSignup(TransactionTestCase):
             'login',
             urlconf=urls,
             kwargs={
-                'status_msg': 'User with this email already exists'
+                'status_msg': 'User with this email already exists',
+                'msg_type': 'alert'
             }
         )
         self.assertRedirects(response, url_login)
