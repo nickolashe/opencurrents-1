@@ -61,6 +61,10 @@
               <p class="half-margin-bottom">
                 {% if hours_admin %}
                   {{ user.first_name|fullname:user.last_name }} recorded hours for
+                {% else %}
+                  {% with admin=hr.user %}
+                    {{ admin.first_name|fullname:admin.last_name }} approved hours for
+                  {% endwith %}
                 {% endif %}
 
                 {% if event.event_type == 'MN' %}
@@ -68,17 +72,6 @@
                 {% else %}
                   {{ event.project.name }}
                 {% endif %}
-
-                {% with admin=hr.user %}
-                  <span class='small-text no-wrap grey'>
-                    Approved by
-                    {% if admin.first_name and admin.last_name %}
-                      {{ admin.first_name|fullname:admin.last_name }}
-                    {% else %}
-                      {{ admin.username }}
-                    {% endif %}
-                  </span>
-                {% endwith %}
               </p>
             </div>
 
