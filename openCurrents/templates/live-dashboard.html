@@ -237,7 +237,7 @@
               csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
               user_firstname: new_firstname,
               user_lastname: new_lastname,
-              user_email: new_email
+              user_email: new_email.toLowerCase()
             },
             dataType : "json",
           }).done(function( data ) {

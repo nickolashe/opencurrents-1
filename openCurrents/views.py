@@ -311,6 +311,10 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, FormView):
         if 'status_msg' in self.kwargs and not context['form'].errors:
             context['status_msg'] = self.kwargs.get('status_msg', '')
 
+        if 'msg_type' in self.kwargs:
+            context['msg_type'] = self.kwargs.get('msg_type', '')
+
+
         return context
 
     def form_valid(self, form):
@@ -359,6 +363,12 @@ class InviteFriendsView(LoginRequiredMixin, SessionContextView, TemplateView):
 class ApproveHoursView(OrgAdminPermissionMixin, OrgSessionContextView, ListView):
     template_name = 'approve-hours.html'
     context_object_name = 'week'
+
+    def get_context_data(self, **kwargs):
+        context = super(ApproveHoursView, self).get_context_data(**kwargs)
+        context['timezone'] = 'America/Chicago'
+
+        return context
 
     def get_queryset(self,**kwargs):
         userid = self.request.user.id
@@ -681,6 +691,7 @@ class HoursDetailView(LoginRequiredMixin, SessionContextView, ListView):
             ])
 
         context['hours_type'] = self.hours_type
+        context['timezone'] = 'America/Chicago'
 
         if self.org_id:
             org = OcOrg(self.org_id)
@@ -739,7 +750,8 @@ class MarketplaceView(LoginRequiredMixin, SessionContextView, ListView):
         context['user_balance_available'] = user_balance_available
 
         # workaround with status message for ListView
-        context['status_msg'] = self.kwargs.get('status_msg', '')
+        context['status_msg'] = self.kwargs.get('status_msg')
+        context['msg_type'] = self.kwargs.get('msg_type')
 
         return context
 
@@ -803,6 +815,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
                 '<a href="{% url "openCurrents:upcoming-events" %}">',
                 'Find a volunteer opportunity!</a>'
             ])
+            msg_type = 'alert'
 
         offer_num_redeemed = self.ocuser.get_offer_num_redeemed(self.offer)
         # logger.debug(offer_num_redeemed)
@@ -815,10 +828,14 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
                 'Vendor %s chose to set a limit',
                 'on the number of redemptions for %s this month'
             ]) % (self.offer.org.name, self.offer.item.name)
+            msg_type = 'alert'
 
         if reqForbidden:
-            return redirect('openCurrents:marketplace', status_msg)
-
+            return redirect(
+                'openCurrents:marketplace',
+                status_msg,
+                msg_type
+            )
 
         return super(RedeemCurrentsView, self).dispatch(request, *args, **kwargs)
 
@@ -852,9 +869,10 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
             self.request.user.id
         )
 
+        status_msg = 'We\'ve received your request for redeeming %s\'s offer' % self.offer.org.name
         return redirect(
             'openCurrents:profile',
-            'We\'ve received your request for redeeming %s\'s offer' % self.offer.org.name
+            status_msg = status_msg,
         )
 
     def get_context_data(self, **kwargs):
@@ -1623,7 +1641,8 @@ class EditProfileView(LoginRequiredMixin, View):
             logger.error('Cannot find UserSettings instance for {} user ID and save welcome popup answer.'.format(userid))
             return redirect(
                 'openCurrents:profile',
-                status_msg='There was a problem processing your response.<br/>Please contact us at <a href="mailto:team@opencurrents.com">team@opencurrents.com</a>'
+                status_msg='There was a problem processing your response.<br/>Please contact us at <a href="mailto:team@opencurrents.com">team@opencurrents.com</a>',
+                msg_type = 'alert'
                 )
 
 
@@ -3117,7 +3136,8 @@ def process_signup(
                 logger.info('user %s already verified', user_email)
                 return redirect(
                     'openCurrents:login',
-                    status_msg='User with this email already exists'
+                    status_msg='User with this email already exists',
+                    msg_type='alert'
                 )
 
         # user org
@@ -3311,39 +3331,65 @@ def process_OrgNomination(request):
         contact_name = form.cleaned_data['contact_name']
         contact_email = form.cleaned_data['contact_email']
 
-        sendTransactionalEmail(
-            'new-org-nominated',
-            None,
-            [
-                {
-                    'name': 'FNAME',
-                    'content': request.user.first_name
-                },
-                {
-                    'name': 'LNAME',
-                    'content': request.user.last_name
-                },
-                {
-                    'name': 'EMAIL',
-                    'content': request.user.email
-                },
-                {
-                    'name': 'COORD_NAME',
-                    'content': contact_name
-                },
-                {
-                    'name': 'COORD_EMAIL',
-                    'content': contact_email
-                },
-                {
-                    'name': 'ORG_NAME',
-                    'content': org_name
-                }
-            ],
-            'bizdev@opencurrents.com'
-        )
+        try:
+            user_to_check = User.objects.get(email=contact_email)
+            is_admin = OrgUserInfo(user_to_check.id).is_user_in_org_group()
+        except:
+            is_admin = False
 
-        return redirect('openCurrents:profile', status_msg='Thank you for nominating %s! We will reach out soon.' % org_name)
+        try:
+            org_exists = Org.objects.filter(name=org_name).exists()
+        except:
+            org_exists = False
+
+        if is_admin and org_exists:
+            sendTransactionalEmail(
+                'new-org-nominated',
+                None,
+                [
+                    {
+                        'name': 'FNAME',
+                        'content': request.user.first_name
+                    },
+                    {
+                        'name': 'LNAME',
+                        'content': request.user.last_name
+                    },
+                    {
+                        'name': 'EMAIL',
+                        'content': request.user.email
+                    },
+                    {
+                        'name': 'COORD_NAME',
+                        'content': contact_name
+                    },
+                    {
+                        'name': 'COORD_EMAIL',
+                        'content': contact_email
+                    },
+                    {
+                        'name': 'ORG_NAME',
+                        'content': org_name
+                    }
+                ],
+                'bizdev@opencurrents.com'
+            )
+
+            return redirect('openCurrents:profile', status_msg='Thank you for nominating %s! We will reach out soon.' % org_name)
+
+        elif not is_admin:
+            return redirect(
+                'openCurrents:profile',
+                status_msg='Thanks for nominating {}, it seems that {} is already affiliated with an organization on openCurrents.'.format(org_name, contact_email),
+                msg_type = 'alert'
+            )
+
+        else:
+            return redirect(
+                'openCurrents:profile',
+                status_msg='Thanks for nominating {0}, it seems that {0} is already active openCurrents.'.format(org_name),
+                msg_type = 'alert'
+            )
 
     return redirect(
         'openCurrents:time-tracker',
@@ -3389,7 +3435,11 @@ def process_login(request):
                 pass
             return redirect('openCurrents:profile', app_hr)
         else:
-            return redirect('openCurrents:login', status_msg='Invalid login/password.')
+            return redirect(
+                'openCurrents:login',
+                status_msg='Invalid login/password.',
+                msg_type = 'alert'
+            )
     else:
         logger.error(
             'Invalid login: %s',
@@ -3402,7 +3452,11 @@ def process_login(request):
             for field, le in form.errors.as_data().iteritems()
             for error in le
         ]
-        return redirect('openCurrents:login', status_msg=errors[0])
+        return redirect(
+            'openCurrents:login',
+            status_msg=errors[0],
+            msg_type = 'alert'
+            )
 
 
 def process_email_confirmation(request, user_email):
