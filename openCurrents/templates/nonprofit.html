@@ -1,418 +1,356 @@
+{% extends "layouts/home-base.html" %}
 {% load staticfiles %}
 
-<!DOCTYPE html>
-<html>
-  <head>
-    {% include "partials/head.html" %}
+{% block head %}
+  {{ block.super }}
 
-    <link href="{% static "css/home.css" %}" rel="stylesheet" type="text/css">
-    <link href="https://fonts.googleapis.com/css?family=Alegreya+Sans+SC:300" rel="stylesheet">
+  <meta name="description" content="Nonprofits can now pay volunteers at no
+  cost with a new currency - the Current. Give 1 hour to create 1 Current.
+  Plus, nonprofits get the easiest hour tracking platform in existence.
+  For free.">
+  <title>Reward volunteers like never before &bull; openCurrents</title>
+{% endblock head %}
 
-    <meta name="description" content="Nonprofits can now pay volunteers at no
-    cost with a new currency - the Current. Give 1 hour to create 1 Current.
-    Plus, nonprofits get the easiest hour tracking platform in existence.
-    For free.">
-    <title>Reward volunteers like never before &bull; openCurrents</title>
-  </head>
 
-  <body id="nonprofit" class="splash" onunload=''>
-    <header id="header" class="full-width row collapse js-close-any" canvas>
-      <div class="relative small-8 large-3 small-offset-1 columns">
-        <a href="{% url 'openCurrents:root' %}">
-          <img id="header-logo" src="{% static 'img/logo.svg' %}" />
-        </a>
+{% block large-links %}
+  <a href="#1" class="three-halves-margin-right navy">For nonprofits</a>
+  <a href="{% url 'openCurrents:business' %}" class="three-halves-margin-right">For businesses</a>
+  <a href="{% url 'openCurrents:volunteer' %}" class="three-halves-margin-right">For volunteers</a>
+  <a href="{% url 'openCurrents:our-story' %}" class="three-halves-margin-right">Our story</a>
+  <a class="two-margin-right" href="{% url 'openCurrents:login' %}">Log in</a>
+{% endblock large-links %}
 
-        <div class="inline-block relative">
-          <a id="beta-home" class="beta-popup_open">Beta</a>
+
+{% block content %}
+  <div id="nonprofit" class="js-close-any" canvas>
+    <div id="intro-1">
+      <div id="1" class="header-spacer"></div>
+
+      {% if status_msg %}
+        <div class="center row one-margin-top">
+          <div class="alert small-10 medium-8 small-centered columns">
+            {{ status_msg }}
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="row collapse center">
+        <div class="medium-12 small-centered columns">
+          <h1 id="home-tagline" class="white three-halves-margin-bottom">Record and reward</h1>
         </div>
       </div>
 
-      {% include "popups/beta-popup.html" %}
-
-      <div class="show-for-large one-margin-top medium-8 right columns end">
-        <a href="#1" class="three-halves-margin-right navy">For nonprofits</a>
-        <a href="{% url 'openCurrents:business' %}" class="three-halves-margin-right">For businesses</a>
-        <a href="{% url 'openCurrents:volunteer' %}" class="three-halves-margin-right">For volunteers</a>
-        <a href="{% url 'openCurrents:our-story' %}" class="three-halves-margin-right">Our story</a>
-        <a class="two-margin-right" href="{% url 'openCurrents:login' %}">Log in</a>
-      </div>
-
-      <div class="hide-for-large small-2 relative columns right end">
-        <a class="toggle-menu">
-          {% include 'partials/tilde-menu.html' %}
-        </a>
-      </div>
-    </header>
-
-    <div class="js-close-any" canvas>
-
-      <div id="intro-1">
-        <div id="1" class="header-spacer"></div>
-
-        {% if status_msg %}
-          <div class="center row one-margin-top">
-            <div class="alert small-10 medium-8 small-centered columns">
-              {{ status_msg }}
-            </div>
-          </div>
-        {% endif %}
-
-        <div class="row collapse center">
-          <div class="medium-12 small-centered columns">
-            <h1 id="home-tagline" class="white three-halves-margin-bottom">Record and reward</h1>
-          </div>
-        </div>
-
-        <div class="row center">
-          <div class="medium-8 small-centered columns">
-            <h5 class="white one-margin-bottom">Track volunteer hours with ease. For each hour worked, volunteers earn 1 Current, which they can use for partial payment with participating businesses.</h5>
-            <h5 class="white">Not only is it free, but it will even help you fundraise.</h5>
-          </div>
-        </div>
-
-        <div class="row center three-halves-margin-top two-margin-bottom">
-          <div class="small-12 medium-6 large-4 small-centered columns">
-            <a class="signup-box_open button round clear large">
-              Join the community
-            </a>
-
-            <a href="#2" class="home-link white">
-              <p class="no-margin-bottom">Benefits</p>
-              <i class="half-margin-left fa fa-lg fa-angle-down"></i>
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <div id="intro-2">
-        <div id="2" class="header-spacer"></div>
-        <div class="row center">
-          <div class="medium-12 small-centered columns">
-            <h3 class="title">Nonprofit benefits</h3>
-          </div>
-        </div>
-
-        <div class="hide-for-small-only">
-          <div id="benefits-div" class="row three-halves-margin-bottom">
-            <div class="center medium-4 columns">
-              <p class="one-margin-bottom grey">Easy hour tracking</p>
-              <input type="radio" id="benefit-btn-1" name="benefit-[]" value="" class="hidden styled-radio" checked />
-                <label for="benefit-btn-1" id="time-button" class="benefit-icon button"><i class="fa fa-2x fa-clock-o"></i></label>
-            </div>
-            <div class="center medium-4 columns">
-              <p class="one-margin-bottom grey">Dedicated volunteers</p>
-              <input type="radio" id="benefit-btn-2" name="benefit-[]" value="" class="hidden styled-radio" />
-                <label for="benefit-btn-2" id="vol-button" class="benefit-icon button"><i class="fa fa-2x fa-users"></i></label>
-            </div>
-
-            <div class="center medium-4 columns">
-              <p class="one-margin-bottom grey">Fundraising opportunities</p>
-              <input type="radio" id="benefit-btn-3" name="benefit-[]" value="" class="hidden styled-radio"/>
-                <label for="benefit-btn-3" id="fund-button" class="benefit-icon button"><i class="fa fa-2x fa-money"></i></label>
-            </div>
-          </div>
-
-          <div id="benefit-box" class="row center">
-            <p id="benefit-1" class="benefit-info one-margin-top center">Record activity seamlessly in one place. Check in volunteers at events with one click or approve hours submitted. Alternatively, import hours from existing sources to generate Currents.</p>
-
-            <p id="benefit-2" class="benefit-info one-margin-top center hidden">openCurrents enables social organizations to offer an incentive that attracts a whole new group of committed, quality volunteers.</p>
-
-            <p id="benefit-3" class="benefit-info one-margin-top center hidden">Volunteers can choose to "give twice" by donating the value of Currents back to organizations.</p>
-          </div>
-        </div>
-
-        <div class="row show-for-small-only">
-          <div class="small-12 small-centered columns">
-            <div class="icon-box center">
-              <input type="radio" id="benefit-sm-2" name="benefit-sm-[]" value="" class="hidden styled-radio" checked />
-                <label for="benefit-sm-2" id="time-button" class="benefit-icon button"><i class="fa fa-2x fa-clock-o"></i></label>
-              <p class="grey half-margin-bottom large-text">Easy hour tracking</p>
-              <p class="benefits-detail hidden">Record volunteer activity seamlessly in one place. Check in volunteers at events with one click or approve hours submitted. Alternatively, import hours from existing sources to generate Currents.</p>
-            </div>
-
-            <div class="icon-box center">
-              <input type="radio" id="benefit-sm-1" name="benefit-sm-[]" value="" class="hidden styled-radio" />
-                <label for="benefit-sm-1" id="vol-button" class="benefit-icon button"><i class="fa fa-2x fa-users"></i></label>
-              <p class="grey half-margin-bottom large-text">Dedicated volunteers</p>
-              <p class="benefits-detail">openCurrents enables social organizations to offer an incentive that attracts a whole new group of committed, quality volunteers.</p>
-            </div>
-
-            <div class="icon-box center">
-              <input type="radio" id="benefit-sm-3" name="benefit-sm-[]" value="" class="hidden styled-radio"/>
-                <label for="benefit-sm-3" id="org-button" class="benefit-icon button"><i class="fa fa-2x fa-money"></i></label>
-              <p class="grey half-margin-bottom large-text">Fundraising opportunities</p>
-              <p class="benefits-detail hidden">Volunteers can choose to "give twice" by donating the value of Currents back to organizations.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="row center two-margin-top two-margin-bottom">
-          <div class="small-10 medium-9 small-centered columns">
-            <div class="medium-5 columns one-margin-bottom">
-              <p class="half-margin-bottom"><strong>Easy event check-in</strong></p>
-              <img src="{% static 'img/live-dashboard.png' %}" />
-            </div>
-
-            <div class="medium-2 columns half-margin-bottom">or</div>
-
-            <div class="medium-5 columns">
-              <p class="half-margin-bottom"><strong>Approve hours</strong></p>
-              <img src="{% static 'img/approve-hours.png' %}" />
-            </div>
-          </div>
-        </div>
-
-        <div class="row center">
-          <div class="medium-6 large-4 small-centered columns">
-            <a href="#3" class="large-text"><p class="no-margin-bottom">Our mission</p><i class="two-margin-bottom fa fa-lg fa-angle-down"></i></a>
-          </div>
-        </div>
-      </div>
-
-      <div id="intro-3">
-        <div id="3" class="header-spacer"></div>
-
-        <div class="row center one-margin-top">
-          <div class="medium-8 small-centered columns">
-            <h3 class="white title">We are on a mission to help nonprofits create a better world.</h3>
-          </div>
-        </div>
-
-        <div class="row center half-margin-top collapse">
-          <div class="medium-9 small-centered columns">
-          <h3 class="home-quote white half-margin-bottom">"I can cast a stone to create a ripple."</h3>
-            <h3 class="home-quote white">- Mother Theresa</h3>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="medium-8 small-centered columns">
-            <h4 class="white"></h4>
-          </div>
-        </div>
-
-        <div class="row center three-halves-margin-top two-margin-bottom">
-          <!-- <a class="signup-box_open clear button round large secondary">Our story</a> -->
-
-          <a href="#4" class="home-link white"><p class="no-margin-bottom">Join the community</p><i class="two-margin-bottom fa fa-lg fa-angle-down"></i></a>
-        </div>
-      </div>
-
-      <!-- <div id="intro-4">
-        <div id="4" class="header-spacer"></div>
-        <div class="row center">
-          <div class="medium-8 small-centered columns">
-            <h3 class="title-sub">Getting started</h3>
-          </div>
-        </div>
-
-        <div class="row two-margin-top">
-          <div class="two-margin-bottom center small-centered medium-8 columns">
-            <a href="#5"><p class="no-margin-bottom">Join the community</p><i class="two-margin-bottom fa fa-lg fa-angle-down"></i></a>
-          </div>
-        </div>
-      </div> -->
-
-      <div id="intro-4">
-        <div id="4" class="header-spacer"></div>
-
-        <div class="row collapse center">
-          <div class="small-11 medium-6 small-centered columns">
-            <h3 class="title-sub">Apply as a nonprofit</h3>
-            <div class="one-margin-top">
-              <a href="{% url 'openCurrents:volunteer' %}#5"
-              class="tag button round tiny secondary">
-                Register as individual
-              </a>
-              <a href="{% url 'openCurrents:business' %}#5"
-              class="tag button round tiny secondary">
-                Register a business
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <form method="post" action="{% url 'openCurrents:process_signup' %}">
-          {% csrf_token %}
-          <div class="row collapse half-margin-bottom">
-            <div class="center small-12 medium-8 small-centered columns">
-
-              <div class="input-left small-6 columns">
-                <input class="lead center" type="text" name="user_firstname" placeholder="First name" required />
-              </div>
-
-              <div class="input-right small-6 columns">
-                <input class="lead center" type="text" name="user_lastname" placeholder="Last name" required />
-              </div>
-
-              <div class="input-left small-12 columns">
-                <input class="lead center" type="email" name="user_email" placeholder="Email address" required />
-              </div>
-
-              <div class="small-12 columns">
-                <input class="lead center" type="text" name="org_name" placeholder="Organization name" />
-              </div>
-              <input class="lead center" type="hidden" name="org_status" value="npf"/>
-            </div>
-          </div>
-
-          <div class="row center one-margin-top">
-            <div class="medium-6 small-centered columns">
-              <input type="submit" class="button large round"
-              value="Register"/>
-              <a href="javascript:void(Tawk_API.toggle())" class="large-text">
-                <p class="two-margin-bottom">
-                  I have a question
-                  <i class="half-margin-left fa fa-angle-right"></i>
-                </p>
-              </a>
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <div off-canvas="menu right shift" id="home-menu">
-      {% include 'partials/home-menu.html' %}
-    </div>
-
-    <div id="play-intro" class="modal small-12 medium-9 large-7 small-centered columns">
-      <div class="videoWrapper">
-        <!--<iframe id="intro-video" width="1280" height="720" src="https://www.youtube.com/embed/U698XPB13-Y?rel=0" allowscriptaccess="always" frameborder="0" allowfullscreen></iframe>-->
-      </div>
-    </div>
-
-    <div id="signup-box" class="modal center small-12 medium-9 large-7 small-centered columns">
       <div class="row center">
-        <h2 class="one-margin-top">Apply as a nonprofit</h2>
-        <div class="one-margin-top">
-          <a href="{% url 'openCurrents:volunteer' %}#5"
-          class="tag button round tiny secondary">
-            Register as individual
+        <div class="medium-8 small-centered columns">
+          <h5 class="white one-margin-bottom">Track volunteer hours with ease. For each hour worked, volunteers earn 1 Current, which they can use for partial payment with participating businesses.</h5>
+          <h5 class="white">Not only is it free, but it will even help you fundraise.</h5>
+        </div>
+      </div>
+
+      <div class="row center three-halves-margin-top two-margin-bottom">
+        <div class="small-12 medium-6 large-4 small-centered columns">
+          <a class="signup-box_open button round clear large">
+            Join the community
           </a>
-          <a href="{% url 'openCurrents:business' %}#5"
-          class="tag button round tiny secondary">
-            Register a business
+
+          <a href="#2" class="home-link white">
+            <p class="no-margin-bottom">Benefits</p>
+            <i class="half-margin-left fa fa-lg fa-angle-down"></i>
           </a>
+        </div>
+      </div>
+    </div>
+
+    <div id="intro-2">
+      <div id="2" class="header-spacer"></div>
+      <div class="row center">
+        <div class="medium-12 small-centered columns">
+          <h3 class="title">Nonprofit benefits</h3>
+        </div>
+      </div>
+
+      <div class="hide-for-small-only">
+        <div id="benefits-div" class="row three-halves-margin-bottom">
+          <div class="center medium-4 columns">
+            <p class="one-margin-bottom grey">Easy hour tracking</p>
+            <input type="radio" id="benefit-btn-1" name="benefit-[]" value="" class="hidden styled-radio" checked />
+              <label for="benefit-btn-1" id="time-button" class="benefit-icon button"><i class="fa fa-2x fa-clock-o"></i></label>
+          </div>
+          <div class="center medium-4 columns">
+            <p class="one-margin-bottom grey">Dedicated volunteers</p>
+            <input type="radio" id="benefit-btn-2" name="benefit-[]" value="" class="hidden styled-radio" />
+              <label for="benefit-btn-2" id="vol-button" class="benefit-icon button"><i class="fa fa-2x fa-users"></i></label>
+          </div>
+
+          <div class="center medium-4 columns">
+            <p class="one-margin-bottom grey">Fundraising opportunities</p>
+            <input type="radio" id="benefit-btn-3" name="benefit-[]" value="" class="hidden styled-radio"/>
+              <label for="benefit-btn-3" id="fund-button" class="benefit-icon button"><i class="fa fa-2x fa-money"></i></label>
+          </div>
+        </div>
+
+        <div id="benefit-box" class="row center">
+          <p id="benefit-1" class="benefit-info one-margin-top center">Record activity seamlessly in one place. Check in volunteers at events with one click or approve hours submitted. Alternatively, import hours from existing sources to generate Currents.</p>
+
+          <p id="benefit-2" class="benefit-info one-margin-top center hidden">openCurrents enables social organizations to offer an incentive that attracts a whole new group of committed, quality volunteers.</p>
+
+          <p id="benefit-3" class="benefit-info one-margin-top center hidden">Volunteers can choose to "give twice" by donating the value of Currents back to organizations.</p>
+        </div>
+      </div>
+
+      <div class="row show-for-small-only">
+        <div class="small-12 small-centered columns">
+          <div class="icon-box center">
+            <input type="radio" id="benefit-sm-2" name="benefit-sm-[]" value="" class="hidden styled-radio" checked />
+              <label for="benefit-sm-2" id="time-button" class="benefit-icon button"><i class="fa fa-2x fa-clock-o"></i></label>
+            <p class="grey half-margin-bottom large-text">Easy hour tracking</p>
+            <p class="benefits-detail hidden">Record volunteer activity seamlessly in one place. Check in volunteers at events with one click or approve hours submitted. Alternatively, import hours from existing sources to generate Currents.</p>
+          </div>
+
+          <div class="icon-box center">
+            <input type="radio" id="benefit-sm-1" name="benefit-sm-[]" value="" class="hidden styled-radio" />
+              <label for="benefit-sm-1" id="vol-button" class="benefit-icon button"><i class="fa fa-2x fa-users"></i></label>
+            <p class="grey half-margin-bottom large-text">Dedicated volunteers</p>
+            <p class="benefits-detail">openCurrents enables social organizations to offer an incentive that attracts a whole new group of committed, quality volunteers.</p>
+          </div>
+
+          <div class="icon-box center">
+            <input type="radio" id="benefit-sm-3" name="benefit-sm-[]" value="" class="hidden styled-radio"/>
+              <label for="benefit-sm-3" id="org-button" class="benefit-icon button"><i class="fa fa-2x fa-money"></i></label>
+            <p class="grey half-margin-bottom large-text">Fundraising opportunities</p>
+            <p class="benefits-detail hidden">Volunteers can choose to "give twice" by donating the value of Currents back to organizations.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="row center two-margin-top two-margin-bottom">
+        <div class="small-10 medium-9 small-centered columns">
+          <div class="medium-5 columns one-margin-bottom">
+            <p class="half-margin-bottom"><strong>Easy event check-in</strong></p>
+            <img src="{% static 'img/live-dashboard.png' %}" />
+          </div>
+
+          <div class="medium-2 columns half-margin-bottom">or</div>
+
+          <div class="medium-5 columns">
+            <p class="half-margin-bottom"><strong>Approve hours</strong></p>
+            <img src="{% static 'img/approve-hours.png' %}" />
+          </div>
+        </div>
+      </div>
+
+      <div class="row center">
+        <div class="medium-6 large-4 small-centered columns">
+          <a href="#3" class="large-text"><p class="no-margin-bottom">Our mission</p><i class="two-margin-bottom fa fa-lg fa-angle-down"></i></a>
+        </div>
+      </div>
+    </div>
+
+    <div id="intro-3">
+      <div id="3" class="header-spacer"></div>
+
+      <div class="row center one-margin-top">
+        <div class="medium-8 small-centered columns">
+          <h3 class="white title">We are on a mission to help nonprofits create a better world.</h3>
+        </div>
+      </div>
+
+      <div class="row center half-margin-top collapse">
+        <div class="medium-9 small-centered columns">
+        <h3 class="home-quote white half-margin-bottom">"I can cast a stone to create a ripple."</h3>
+          <h3 class="home-quote white">- Mother Theresa</h3>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="medium-8 small-centered columns">
+          <h4 class="white"></h4>
+        </div>
+      </div>
+
+      <div class="row center three-halves-margin-top two-margin-bottom">
+        <!-- <a class="signup-box_open clear button round large secondary">Our story</a> -->
+
+        <a href="#4" class="home-link white"><p class="no-margin-bottom">Join the community</p><i class="two-margin-bottom fa fa-lg fa-angle-down"></i></a>
+      </div>
+    </div>
+
+    <div id="intro-4">
+      <div id="4" class="header-spacer"></div>
+
+      <div class="row collapse center">
+        <div class="small-11 medium-6 small-centered columns">
+          <h3 class="title-sub">Apply as a nonprofit</h3>
+          <div class="one-margin-top">
+            <a href="{% url 'openCurrents:volunteer' %}#5"
+            class="tag button round tiny secondary">
+              Register as individual
+            </a>
+            <a href="{% url 'openCurrents:business' %}#5"
+            class="tag button round tiny secondary">
+              Register a business
+            </a>
+          </div>
         </div>
       </div>
 
       <form method="post" action="{% url 'openCurrents:process_signup' %}">
-        {% csrf_token %}
-        <div class="row three-halves-margin-bottom half-margin-top">
-          <div class="center small-12 medium-9 small-centered columns">
+      {% csrf_token %}
+        <div class="row collapse half-margin-bottom">
+          <div class="center small-12 medium-8 small-centered columns">
 
             <div class="input-left small-6 columns">
-              <input type="text" name="user_firstname" placeholder="First name" class="large-text center" tabindex="0" required />
+              <input class="lead center" type="text" name="user_firstname" placeholder="First name" required />
             </div>
 
             <div class="input-right small-6 columns">
-              <input type="text" name="user_lastname" placeholder="Last name" class="large-text center" tabindex="0" required />
+              <input class="lead center" type="text" name="user_lastname" placeholder="Last name" required />
             </div>
-            <div class="small-12 columns">
-              <input type="email" name="user_email" placeholder="Email address" class="large-text center" tabindex="0" required />
+
+            <div class="input-left small-12 columns">
+              <input class="lead center" type="email" name="user_email" placeholder="Email address" required />
             </div>
+
             <div class="small-12 columns">
-              <input type="text" name="org_name" placeholder="Organization name" class="large-text center" tabindex="0" />
+              <input class="lead center" type="text" name="org_name" placeholder="Organization name" />
             </div>
             <input class="lead center" type="hidden" name="org_status" value="npf"/>
           </div>
         </div>
 
-        <div class="row center half-margin-top">
-          <input type="submit" class="button large round" value="Create account"/>
-          <p class="grey">Existing member? <a href="{% url 'openCurrents:login' %}">Log in</a></p>
+        <div class="row center one-margin-top">
+          <div class="medium-6 small-centered columns">
+            <input type="submit" class="button large round"
+            value="Register"/>
+            <a href="javascript:void(Tawk_API.toggle())" class="large-text">
+              <p class="two-margin-bottom">
+                I have a question
+                <i class="half-margin-left fa fa-angle-right"></i>
+              </p>
+            </a>
+          </div>
         </div>
       </form>
     </div>
+  </div>
+{% endblock content %}
 
-    <script type="text/javascript" src="{% static "js/home.js" %}"></script>
 
-    <script type="text/javascript">
-      $('#show-diagram').click(function(){
-        $(this).parent().fadeOut(777, function(){
-          $('.diagram-div').fadeIn(777);
-        });
-        var width = $(window).width();
-            var height = $(window).height();
-            $('#home').resize(width, height);
+{% block popups %}
+  <div id="signup-box" class="modal center small-12 medium-9 large-7 small-centered columns">
+    <div class="row center">
+      <h2 class="one-margin-top">Apply as a nonprofit</h2>
+      <div class="one-margin-top">
+        <a href="{% url 'openCurrents:volunteer' %}#5"
+        class="tag button round tiny secondary">
+          Register as individual
+        </a>
+        <a href="{% url 'openCurrents:business' %}#5"
+        class="tag button round tiny secondary">
+          Register a business
+        </a>
+      </div>
+    </div>
+
+    <form method="post" action="{% url 'openCurrents:process_signup' %}">
+      {% csrf_token %}
+      <div class="row three-halves-margin-bottom half-margin-top">
+        <div class="center small-12 medium-9 small-centered columns">
+
+          <div class="input-left small-6 columns">
+            <input type="text" name="user_firstname" placeholder="First name" class="large-text center" tabindex="0" required />
+          </div>
+
+          <div class="input-right small-6 columns">
+            <input type="text" name="user_lastname" placeholder="Last name" class="large-text center" tabindex="0" required />
+          </div>
+          <div class="small-12 columns">
+            <input type="email" name="user_email" placeholder="Email address" class="large-text center" tabindex="0" required />
+          </div>
+          <div class="small-12 columns">
+            <input type="text" name="org_name" placeholder="Organization name" class="large-text center" tabindex="0" />
+          </div>
+          <input class="lead center" type="hidden" name="org_status" value="npf"/>
+        </div>
+      </div>
+
+      <div class="row center half-margin-top">
+        <input type="submit" class="button large round" value="Create account"/>
+        <p class="grey">Existing member? <a href="{% url 'openCurrents:login' %}">Log in</a></p>
+      </div>
+    </form>
+  </div>
+{% endblock popups %}
+
+
+{% block js %}
+  <script type="text/javascript">
+    $('#show-diagram').click(function(){
+      $(this).parent().fadeOut(777, function(){
+        $('.diagram-div').fadeIn(777);
       });
-    </script>
+      var width = $(window).width();
+          var height = $(window).height();
+          $('#home').resize(width, height);
+    });
+  </script>
 
-    <script type="text/javascript">
-      $(document).ready(function(){
+  <script type="text/javascript">
+    $(document).ready(function(){
 
-        // small benefits box
-        $('.benefit-icon').click(function(){
-          $('.benefits-detail').slideUp();
-          $(this).siblings('.benefits-detail').slideDown();
-        });
-
-        // non-small benefits box
-        var val = 1;
-
-        $('#time-button').click(function(){
-          $('#benefit-'+val+'').fadeOut(444, function(){
-            $('#benefit-1').fadeIn(444);
-          });
-          val = 1;
-        });
-
-        $('#vol-button').click(function(){
-          $('#benefit-'+val+'').fadeOut(444, function(){
-            $('#benefit-2').fadeIn(444);
-          });
-          val = 2;
-        });
-
-        $('#fund-button').click(function(){
-          $('#benefit-'+val+'').fadeOut(444, function(){
-            $('#benefit-3').fadeIn(444);
-          });
-          val = 3;
-        });
+      // small benefits box
+      $('.benefit-icon').click(function(){
+        $('.benefits-detail').slideUp();
+        $(this).siblings('.benefits-detail').slideDown();
       });
-    </script>
 
-    <script type="text/javascript">
+      // non-small benefits box
+      var val = 1;
 
-      $(document).ready(function(){
+      $('#time-button').click(function(){
+        $('#benefit-'+val+'').fadeOut(444, function(){
+          $('#benefit-1').fadeIn(444);
+        });
+        val = 1;
+      });
 
-        $('#play-intro').popup({
-          vertical: 'top',
-          transition: 'all 0.75s',
-          scrolllock: false,
-          onclose: function() {
-            var vid = jQuery('.videoWrapper iframe[src*="youtube"]');
-            if ( vid.length > 0 ){
-              var src = vid.attr('src');
-                vid.attr('src', '');
-                vid.attr('src', src);
-            }
+      $('#vol-button').click(function(){
+        $('#benefit-'+val+'').fadeOut(444, function(){
+          $('#benefit-2').fadeIn(444);
+        });
+        val = 2;
+      });
+
+      $('#fund-button').click(function(){
+        $('#benefit-'+val+'').fadeOut(444, function(){
+          $('#benefit-3').fadeIn(444);
+        });
+        val = 3;
+      });
+    });
+  </script>
+
+  <script type="text/javascript">
+    $(document).ready(function(){
+      $('#play-intro').popup({
+        vertical: 'top',
+        transition: 'all 0.75s',
+        scrolllock: false,
+        onclose: function() {
+          var vid = jQuery('.videoWrapper iframe[src*="youtube"]');
+          if ( vid.length > 0 ){
+            var src = vid.attr('src');
+              vid.attr('src', '');
+              vid.attr('src', src);
           }
-        });
-
-        $('#signup-box, #suggestion-box, #demo-box').popup({
-          vertical: 'top',
-          transition: 'all 0.75s',
-          scrolllock: false,
-        });
+        }
       });
-    </script>
 
-    <!--Start of Tawk.to Script-->
-    <script type="text/javascript">
-    var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
-    (function(){
-    var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-    s1.async=true;
-    s1.src='https://embed.tawk.to/58857be25bcc2b263be87c10/default';
-    s1.charset='UTF-8';
-    s1.setAttribute('crossorigin','*');
-    s0.parentNode.insertBefore(s1,s0);
-    })();
-    </script>
-    <!--End of Tawk.to Script-->
-
-    <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
-  </body>
+      $('#signup-box, #suggestion-box, #demo-box').popup({
+        vertical: 'top',
+        transition: 'all 0.75s',
+        scrolllock: false,
+      });
+    });
+  </script>
+{% endblock js %}
