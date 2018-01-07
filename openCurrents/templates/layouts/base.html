@@ -64,9 +64,6 @@
 
     {% block js %}{% endblock js %}
 
-    <!-- Hubspot tracking -->
-    <script type="text/javascript" id="hs-script-loader" async defer src="//js.hs-scripts.com/3045177.js"></script>
-    <!-- end scripts -->
-    <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
+    {% include "partials/end-scripts.html" %}
   </body>
 </html>
