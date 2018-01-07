@@ -32,7 +32,11 @@
   t.src=v;s=b.getElementsByTagName(e)[0];
   s.parentNode.insertBefore(t,s)}(window, document,'script',
   'https://connect.facebook.net/en_US/fbevents.js');
-  fbq('init', '146875852629962');
+  fbq('init', '146875852629962', {
+    em: user_email,
+    fn: user_firstname,
+    ln: user_lastname,
+  });
   fbq('track', 'PageView');
 </script>
 <noscript><img height="1" width="1" style="display:none"

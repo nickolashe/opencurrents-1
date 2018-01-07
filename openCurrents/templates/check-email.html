@@ -14,8 +14,13 @@
     </div>
   {% endif %}
 {% endblock status %}
-        
+
 {% block heading %}
+  <!-- Facebook Pixel -->
+  <script>
+    fbq('track', 'CompleteRegistration');
+  </script>
+
   <div class="row">
     <div class="medium-8 small-centered columns">
       <h3 class="title">
@@ -26,7 +31,7 @@
     </div>
   </div>
 {% endblock heading %}
-        
+
 {% block content %}
   <form method="post" action="{% url 'openCurrents:process_resend_verification' user_email %}">
     {% csrf_token %}
@@ -35,7 +40,7 @@
     </div>
   </form>
 {% endblock content %}
-        
+
 
 {% block popups %}
   <div id="change-email-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
@@ -59,7 +64,7 @@
     </div>
   </div>
 {% endblock popups %}
-  
+
 {% block js %}
   <script type="text/javascript">
     $(document).ready(function(){
