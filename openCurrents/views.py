@@ -376,7 +376,6 @@ class ApproveHoursView(OrgAdminPermissionMixin, OrgSessionContextView, ListView)
         orgid = orguserinfo.get_org_id()
         requested_actions = self.orgadmin.get_hours_requested()
 
-        logger.info(requested_actions)
         # week list holds dictionary ordered pairs for 7 days of timelogs
         week = []
 
@@ -439,14 +438,14 @@ class ApproveHoursView(OrgAdminPermissionMixin, OrgSessionContextView, ListView)
                 rounded_time = self.get_hours_rounded(user_timelog.datetime_start, user_timelog.datetime_end)
 
                 # use day of week and date as key
-                date_key = user_timelog.datetime_start.strftime('%A, %m/%d')
+                tz = orguserinfo.get_org_timezone()
+                date_key = user_timelog.datetime_start.astimezone(pytz.timezone(tz)).strftime('%A, %m/%d')
                 if date_key not in time_log[user_email]:
                     time_log[user_email][date_key] = [0]
 
                 # add the time to the corresponding date_key and total
-                tz = orguserinfo.get_org_timezone()
-                st_time = user_timelog.datetime_start.astimezone(pytz.timezone(tz)).time().strftime('%-I:%M %p')
-                end_time = user_timelog.datetime_end.astimezone(pytz.timezone(tz)).time().strftime('%-I:%M %p')
+                st_time = user_timelog.datetime_start.astimezone(pytz.timezone(tz)).strftime('%-I:%M %p')
+                end_time = user_timelog.datetime_end.astimezone(pytz.timezone(tz)).strftime('%-I:%M %p')
                 time_log[user_email][date_key][0] += rounded_time
                 time_log[user_email][date_key].append(st_time+" - "+end_time+": "+str(user_timelog.event.description))
                 time_log[user_email]['Total'] += rounded_time
