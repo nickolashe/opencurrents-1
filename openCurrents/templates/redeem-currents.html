@@ -138,7 +138,7 @@
             <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
             <span class="currents-total">0.00</span> to {{ offer.org.name }}
             in exchange for $<span class="dollars-total">0.00</span> minus a
-            15% transaction fee of $<span class="dollars-fee">0.00</span>.
+            {{ tr_fee }}% transaction fee of $<span class="dollars-fee">0.00</span>.
           </p>
 
           <p>
@@ -302,7 +302,7 @@
         var dollars = (priceSubjectToShare * share).toFixed(2);
 
         // TODO: switch to an API call to get the converstion rate
-        var currents = dollars/20.;
+        var currents = dollars / parseFloat({{cur_rate}});
 
         return {
           'currents': currents,
@@ -322,14 +322,14 @@
           if (userBalanceCurrents < priceOfferSubjectToShareCurrents.currents) {
             priceSubjectToShare = {
               currents: userBalanceCurrents,
-              dollars: userBalanceCurrents * 20
+              dollars: userBalanceCurrents * parseFloat({{cur_rate}})
             };
           } else {
             priceSubjectToShare = priceOfferSubjectToShareCurrents;
           }
 
           console.log('priceUsed:' + priceSubjectToShare.currents);
-          const fee = (0.15 * priceSubjectToShare.dollars).toFixed(2);
+          const fee = (parseFloat({{tr_fee}}) * priceSubjectToShare.dollars).toFixed(2);
           let dollarsReceived = (priceSubjectToShare.dollars - fee).toFixed(2);
 
           $('.currents-total').text(priceSubjectToShare.currents);

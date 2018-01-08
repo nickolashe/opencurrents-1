@@ -29,6 +29,7 @@ from interfaces.orgs import OcOrg, \
 
 from openCurrents.interfaces.common import diffInHours, diffInMinutes
 from openCurrents.interfaces.community import OcCommunity
+from openCurrents.interfaces import convert
 
 import math
 import re
@@ -877,7 +878,8 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
     def get_context_data(self, **kwargs):
         context = super(RedeemCurrentsView, self).get_context_data(**kwargs)
         context['offer'] = Offer.objects.get(id=self.kwargs['offer_id'])
-
+        context['cur_rate'] = convert._USDCUR
+        context['tr_fee'] = convert._TR_FEE
         return context
 
     def get_form_kwargs(self):
@@ -2541,6 +2543,8 @@ class OfferCreateView(LoginRequiredMixin, BizSessionContextView, FormView):
 
     def get_context_data(self, **kwargs):
         context = super(OfferCreateView, self).get_context_data(**kwargs)
+        context['cur_rate'] = convert._USDCUR
+        context['tr_fee'] = convert._TR_FEE
 
         return context
 

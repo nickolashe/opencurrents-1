@@ -5,6 +5,8 @@ from datetime import date, datetime
 import logging
 import pytz
 
+from openCurrents.interfaces import convert
+
 logging.basicConfig(level=logging.DEBUG, filename="log/views.log")
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -57,14 +59,14 @@ def percent_to_price(arg1):
 
 @register.filter
 def usd_to_current(arg1):
-	return float(arg1) * 0.1
+	return float(arg1) / float(convert._USDCUR)
 
 @register.filter
 def current_to_usd(arg1, arg2):
+    res = float(arg1) * float(convert._USDCUR)
+
     if arg2 == 'with_fee':
-        return float(arg1) * 9
-    else:
-		return float(arg1) * 10
+        return res * convert._TR_FEE
 
 @register.filter
 def mult(arg1, arg2):
