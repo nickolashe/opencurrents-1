@@ -47,7 +47,7 @@
           <div class="left row">
             <div class="small-3 columns">
               <p class="half-margin-bottom">
-                {{ event.datetime_start|date:"M d" }}
+                {{ event.datetime_start|day_only:timezone }}
               </p>
             </div>
 
@@ -71,7 +71,7 @@
 
             <div class="right small-2 columns">
               <p class="half-margin-bottom">
-                {{ event.datetime_end|subtract_time:event.datetime_start|round_number:3 }}
+                {{ event.datetime_end|subtract_time:event.datetime_start|round_number:2 }}
               </p>
             </div>
           </div>

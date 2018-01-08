@@ -1,0 +1,81 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    {% include "partials/head.html" %}
+
+    {% block head %}
+      <link href="{% static "css/home.css" %}" rel="stylesheet" type="text/css">
+      <link href="https://fonts.googleapis.com/css?family=Alegreya+Sans+SC:300"
+      rel="stylesheet">
+    {% endblock head %}
+
+  </head>
+
+  <body class="splash" onunload=''>
+
+    {% block header %}
+      <header id="header" class="full-width row collapse js-close-any" canvas>
+        <div class="relative small-8 large-3 small-offset-1 columns">
+
+          {% block logo %}
+            <a href="{% url 'openCurrents:root' %}">
+              <img id="header-logo" src="{% static 'img/logo.svg' %}" />
+            </a>
+          {% endblock logo %}
+
+          <div class="inline-block relative">
+            <a id="beta-home" class="beta-popup_open">Beta</a>
+          </div>
+        </div>
+
+        {% include "popups/beta-popup.html" %}
+
+        <div class="show-for-large one-margin-top medium-8 right columns end">
+          {% block large-links %}
+            <a href="{% url 'openCurrents:nonprofit' %}" class="three-halves-margin-right">For nonprofits</a>
+            <a href="{% url 'openCurrents:business' %}" class="three-halves-margin-right">For businesses</a>
+            <a href="{% url 'openCurrents:volunteer' %}" class="three-halves-margin-right">For volunteers</a>
+            <a href="{% url 'openCurrents:our-story' %}" class="three-halves-margin-right">Our story</a>
+            <a class="two-margin-right" href="{% url 'openCurrents:login' %}">Log in</a>
+          {% endblock large-links %}
+        </div>
+
+        <div class="hide-for-large small-2 relative columns right end">
+          <a class="toggle-menu">
+            {% include 'partials/tilde-menu.html' %}
+          </a>
+        </div>
+      </header>
+    {% endblock header %}
+
+    {% block content %}{% endblock content %}
+
+    <div off-canvas="menu right shift" id="home-menu">
+      {% include 'partials/home-menu.html' %}
+    </div>
+
+    {% block popups %}{% endblock popups %}
+
+    <script type="text/javascript" src="{% static "js/home.js" %}"></script>
+
+    {% block js %}{% endblock js %}
+
+    <!--Start of Tawk.to Script-->
+    <script type="text/javascript">
+    var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+    (function(){
+    var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+    s1.async=true;
+    s1.src='https://embed.tawk.to/58857be25bcc2b263be87c10/default';
+    s1.charset='UTF-8';
+    s1.setAttribute('crossorigin','*');
+    s0.parentNode.insertBefore(s1,s0);
+    })();
+    </script>
+    <!--End of Tawk.to Script-->
+
+    <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
+  </body>
+</html>
