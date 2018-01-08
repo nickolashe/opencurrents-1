@@ -258,13 +258,13 @@ class TestUserProfileView(TestCase):
         # registering user for an event
         _setup_user_event_registration(volunteer_1, self.event2)
 
-        # setting up user dollars
+        # setting up user dollars "Dollars available"
         _setup_ledger_entry(org1.orgentity, vol_1_entity, currency = 'usd', amount = 30.30, is_issued = True)
 
         # setting approved and pending dollars
-        _setup_transactions(biz_org, volunteer_1, 12, 20)
-        _setup_transactions(biz_org, volunteer_1, 12, 20, action_type='app')
-        _setup_transactions(biz_org, volunteer_1, 12, 20, action_type='red')
+        _setup_transactions(biz_org, volunteer_1, 12, 20) # Pending: $72.0
+        _setup_transactions(biz_org, volunteer_1, 12, 20, action_type='app') #72.0 +
+        _setup_transactions(biz_org, volunteer_1, 12, 20, action_type='red') # + 72.0 = 204
 
         # setting up client
         self.client = Client()
@@ -333,7 +333,7 @@ class TestUserProfileView(TestCase):
         response = self.client.get('/profile/')
         self.assertEqual(response.status_code, 200)
 
-        self.assertEqual(response.context['balance_pending_usd'], 216.0)
+        self.assertEqual(response.context['balance_pending_usd'], 72.0)
 
 
     def test_user_offers_redemed(self):
