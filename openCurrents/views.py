@@ -132,6 +132,13 @@ class SessionContextView(View):
         context['is_admin_org'] = self.ocauth.is_admin_org()
         context['is_admin_biz'] = self.ocauth.is_admin_biz()
 
+        # workaround with status message for anything but TemplateView
+        if 'status_msg' in self.kwargs and ('form' not in context or not context['form'].errors):
+            context['status_msg'] = self.kwargs.get('status_msg', '')
+
+        if 'msg_type' in self.kwargs:
+            context['msg_type'] = self.kwargs.get('msg_type', '')
+
         return context
 
 
@@ -307,13 +314,6 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, FormView):
             val = getattr(self.org, field)
             if val:
                 context['form'].fields[field].widget.attrs['value'] = val
-
-        # workaround with status message for anything but TemplateView
-        if 'status_msg' in self.kwargs and not context['form'].errors:
-            context['status_msg'] = self.kwargs.get('status_msg', '')
-
-        if 'msg_type' in self.kwargs:
-            context['msg_type'] = self.kwargs.get('msg_type', '')
 
         return context
 
@@ -751,10 +751,6 @@ class MarketplaceView(LoginRequiredMixin, SessionContextView, ListView):
         # workaround with status message for ListView
         if self.kwargs.get('status_msg') is None:
             context['status_msg'] = ''
-        else:
-            context['status_msg'] = self.kwargs.get('status_msg')
-
-        context['msg_type'] = self.kwargs.get('msg_type')
 
         return context
 
@@ -1381,10 +1377,6 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             usertimelog = UserTimeLog.objects.filter(user__id=userid).order_by('datetime_start').reverse()[0]
             actiontimelog = AdminActionUserTime.objects.filter(usertimelog = usertimelog)
             context['org_stat_id'] = actiontimelog[0].usertimelog.event.project.org.id
-            context['status_msg'] = self.kwargs.pop('status_msg')
-
-            if self.kwargs['msg_type']:
-                context['msg_type'] = self.kwargs.pop('msg_type')
 
             if context['org_stat_id']==userid:
                 context['org_stat_id'] = ''
