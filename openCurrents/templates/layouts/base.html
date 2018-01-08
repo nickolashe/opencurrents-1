@@ -5,6 +5,14 @@
   <head>
 
     {% include "partials/head.html" %}
+
+    <link rel="stylesheet" type="text/css" href="{% static 'css/addtohomescreen.css' %}">
+    <script src="{% static 'js/addtohomescreen.js' %}"></script>
+
+    <script>
+        addToHomescreen();
+    </script>
+
     {% block head %}{% endblock head %}
 
     <title>openCurrents</title>
