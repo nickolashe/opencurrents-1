@@ -3,7 +3,10 @@
 
 
 {% block head %}
+
   {{ block.super }}
+  <link href="{% static "css/video-button.css" %}" rel="stylesheet" type="text/css">
+
   <meta name="description" content="openCurrents lets anyone create currency
   by volunteering. Create 1 Current for each hour you work, and use Currents
   for purchases with businesses. It's like getting paid for doing good.">
@@ -14,6 +17,7 @@
   <meta property="og:image" content="{% static "img/fb-share-img.png" %}" />
 
   <title>Create currency by volunteering for the greater good &bull; openCurrents</title>
+
 {% endblock head %}
 
 
@@ -41,6 +45,27 @@
           <h4 class="white half-margin-bottom">The digital currency that anyone
             can earn by volunteering.</h4>
           <h4 class="white">Give time, create Currents.</h4>
+        </div>
+      </div>
+
+      <div class="row center one-margin-top one-margin-bottom">
+        <div class="thumb-wrapper">
+          <a class="play-intro_open">
+            <div class="thumb-box">
+              <img id="video-thumb" src="{% static 'img/video-thumb2.png' %}" alt="" />
+              <svg id="play-button" version="1.1" id="Layer_1"
+              xmlns="http://www.w3.org/2000/svg"
+              xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+              width="77px" height="77px" viewBox="0 0 70 70"
+              enable-background="new 0 0 70 70" xml:space="preserve">
+                <polygon id="play-poly" points="30,27.119 42.579,35 30,42.881"
+                stroke-width="2"/>
+                <circle id="play-circle" fill="none" stroke-width="1.9429"
+                stroke-miterlimit="10" cx="35" cy="35" r="34"/>
+              </svg>
+            </div>
+            <span id="video-title">Play video</span>
+          </a>
         </div>
       </div>
 
@@ -239,9 +264,9 @@
 
 
 {% block popups %}
-  <div id="play-intro" class="modal small-12 medium-9 large-7 small-centered columns">
+  <div id="play-intro" class="modal small-12 medium-10 large-9 small-centered columns">
     <div class="videoWrapper">
-      <!--<iframe id="intro-video" width="1280" height="720" src="https://www.youtube.com/embed/U698XPB13-Y?rel=0" allowscriptaccess="always" frameborder="0" allowfullscreen></iframe>-->
+      <iframe id="intro-video" width="1280" height="720" src="" allowscriptaccess="always" frameborder="0" allowfullscreen></iframe>
     </div>
   </div>
 
