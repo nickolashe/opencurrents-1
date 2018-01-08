@@ -878,7 +878,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         context = super(RedeemCurrentsView, self).get_context_data(**kwargs)
         context['offer'] = Offer.objects.get(id=self.kwargs['offer_id'])
         context['cur_rate'] = convert._USDCUR
-        context['tr_fee'] = convert._TR_FEE
+        context['tr_fee'] = convert._TR_FEE * 100
         return context
 
     def get_form_kwargs(self):
