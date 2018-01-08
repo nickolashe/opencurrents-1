@@ -315,7 +315,6 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, FormView):
         if 'msg_type' in self.kwargs:
             context['msg_type'] = self.kwargs.get('msg_type', '')
 
-
         return context
 
     def form_valid(self, form):

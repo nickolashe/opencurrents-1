@@ -66,7 +66,7 @@ def current_to_usd(arg1, arg2):
     res = float(arg1) * float(convert._USDCUR)
 
     if arg2 == 'with_fee':
-        return res * convert._TR_FEE
+        return res * (1 - convert._TR_FEE)
 
 @register.filter
 def mult(arg1, arg2):
