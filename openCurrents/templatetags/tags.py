@@ -2,6 +2,7 @@ from django import template
 
 from datetime import date, datetime
 
+import json
 import logging
 import pytz
 
@@ -96,3 +97,7 @@ def fullname(firstname, lastname):
 def round_number(value, decimals):
     s = "%."+ str(decimals) +"f"
     return s % round(value, decimals)
+
+@register.filter
+def jsonify_list_id(value):
+    return json.dumps([value])
