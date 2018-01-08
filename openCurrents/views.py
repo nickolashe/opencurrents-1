@@ -749,11 +749,7 @@ class MarketplaceView(LoginRequiredMixin, SessionContextView, ListView):
         context['user_balance_available'] = user_balance_available
 
         # workaround with status message for ListView
-        if self.kwargs.get('status_msg') is None:
-            context['status_msg'] = ''
-        else:
-            context['status_msg'] = self.kwargs.get('status_msg')
-
+        context['status_msg'] = self.kwargs.get('status_msg')
         context['msg_type'] = self.kwargs.get('msg_type')
 
         return context
@@ -882,7 +878,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         context = super(RedeemCurrentsView, self).get_context_data(**kwargs)
         context['offer'] = Offer.objects.get(id=self.kwargs['offer_id'])
         context['cur_rate'] = convert._USDCUR
-        context['tr_fee'] = convert._TR_FEE * 100
+        context['tr_fee'] = int(convert._TR_FEE * 100)
         return context
 
     def get_form_kwargs(self):
@@ -1137,8 +1133,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                             admin_name,
                             description=form_data['description'],
                             datetime_start=form_data['datetime_start'].strftime("%Y-%m-%d %H:%M:%S"),
-                            datetime_end=form_data['datetime_end'].strftime("%Y-%m-%d %H:%M:%S"),
-                            template='volunteer-invites-org'
+                            datetime_end=form_data['datetime_end'].strftime("%Y-%m-%d %H:%M:%S")
                         )
 
                         # as of now, do not submit hours prior to admin registering
@@ -1286,17 +1281,10 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             for kw_key, kw_value in kwargs.iteritems():
                 self.add_to_email_vars(email_vars, kw_key, kw_value)
 
-        # selecting template for emails
-        if 'template' in kwargs.keys():
-            template = 'volunteer-invites-org'
-        else:
-            template = 'volunteer-invites-admin'
-
         if doInvite:
-
             try:
                 sendTransactionalEmail(
-                    template,
+                    'volunteer-invites-admin',
                     None,
                     email_vars,
                     admin_email,
@@ -1524,6 +1512,10 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             user =  User.objects.get(id = user_id)
             if user in admins_dict.keys():
                 final_dict[user] = admins_dict.pop(user)
+            else:
+                logger.error('User with user ID {} doesn\'t belong to any group.'.format(user_id))
+                return redirect('openCurrents:403')
+
 
             # sorting dict
             temp_dict = OrderedDict(sorted(admins_dict.items(), key=lambda d: d[1] , reverse=True))
@@ -3343,25 +3335,16 @@ def process_OrgNomination(request):
 
         try:
             user_to_check = User.objects.get(email=contact_email)
+            is_admin = OrgUserInfo(user_to_check.id).is_user_in_org_group()
         except:
-            user_to_check = None
-
-        if not user_to_check:
             is_admin = False
-        else:
-            try:
-                user_to_check = User.objects.get(email=contact_email)
-                is_admin = OrgUserInfo(user_to_check.id).is_user_in_org_group()
-            except:
-                is_admin = False
 
         try:
             org_exists = Org.objects.filter(name=org_name).exists()
         except:
             org_exists = False
 
-        # if org doesn't exist and user is new and user is new OR user exists, but not affiliated
-        if (not org_exists and not user_to_check) or (not org_exists and not is_admin):
+        if is_admin and org_exists:
             sendTransactionalEmail(
                 'new-org-nominated',
                 None,
@@ -3396,8 +3379,7 @@ def process_OrgNomination(request):
 
             return redirect('openCurrents:profile', status_msg='Thank you for nominating %s! We will reach out soon.' % org_name)
 
-        # if org is new, but user is affiliated admin
-        elif not org_exists and is_admin:
+        elif not is_admin:
             return redirect(
                 'openCurrents:profile',
                 status_msg='Thanks for nominating {}, it seems that {} is already affiliated with an organization on openCurrents.'.format(org_name, contact_email),
