@@ -749,7 +749,11 @@ class MarketplaceView(LoginRequiredMixin, SessionContextView, ListView):
         context['user_balance_available'] = user_balance_available
 
         # workaround with status message for ListView
-        context['status_msg'] = self.kwargs.get('status_msg')
+        if self.kwargs.get('status_msg') is None:
+            context['status_msg'] = ''
+        else:
+            context['status_msg'] = self.kwargs.get('status_msg')
+
         context['msg_type'] = self.kwargs.get('msg_type')
 
         return context
