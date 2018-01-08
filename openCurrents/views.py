@@ -1524,10 +1524,9 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             user =  User.objects.get(id = user_id)
             if user in admins_dict.keys():
                 final_dict[user] = admins_dict.pop(user)
-            else:
-                logger.error('User with user ID {} doesn\'t belong to any group.'.format(user_id))
-                return redirect('openCurrents:403')
-
+            # else:
+            #     logger.error('User with user ID {} doesn\'t belong to any group.'.format(user_id))
+            #     return redirect('openCurrents:403')
 
             # sorting dict
             temp_dict = OrderedDict(sorted(admins_dict.items(), key=lambda d: d[1] , reverse=True))
