@@ -508,6 +508,8 @@ ath.Class.prototype = {
 			message = ath.intl[ath.language][ath.OS];
 		}
 
+		ath.OSVersion = (ath.OS.toLowerCase()=="ios") && (parseInt(ath.OSVersion)>7) ? 7 : ath.OSVersion;
+		
 		// add the action icon
 		message = '<p>' + message.replace(/%icon(?:\[([^\]]+)\])?/gi, function(matches, group1) {
 			return '<span class="ath-action-icon">' + (!!group1 ? group1 : 'icon') + '</span>';
