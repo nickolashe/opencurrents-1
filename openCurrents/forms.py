@@ -813,8 +813,9 @@ class RedeemCurrentsForm(forms.Form):
         widget= forms.Textarea(attrs={
             'class': 'hidden',
             'rows': '2',
-            })
-        )
+            'placeholder': 'Details to help business identify your purchase'
+        })
+    )
 
     redeem_price = forms.IntegerField(
         widget=forms.NumberInput(),
