@@ -1133,7 +1133,8 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                             admin_name,
                             description=form_data['description'],
                             datetime_start=form_data['datetime_start'].strftime("%Y-%m-%d %H:%M:%S"),
-                            datetime_end=form_data['datetime_end'].strftime("%Y-%m-%d %H:%M:%S")
+                            datetime_end=form_data['datetime_end'].strftime("%Y-%m-%d %H:%M:%S"),
+                            template='volunteer-invites-org'
                         )
 
                         # as of now, do not submit hours prior to admin registering
@@ -1281,10 +1282,17 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             for kw_key, kw_value in kwargs.iteritems():
                 self.add_to_email_vars(email_vars, kw_key, kw_value)
 
+        # selecting template for emails
+        if 'template' in kwargs.keys():
+            template = 'volunteer-invites-org'
+        else:
+            template = 'volunteer-invites-admin'
+
         if doInvite:
+
             try:
                 sendTransactionalEmail(
-                    'volunteer-invites-admin',
+                    template,
                     None,
                     email_vars,
                     admin_email,
