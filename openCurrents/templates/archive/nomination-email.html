@@ -1,0 +1,90 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    {% include "partials/head.html" %}
+  </head>
+  
+  <body>
+    {% include "partials/header.html" %}
+    
+    <div id="container" class="js-close-any" canvas="container">
+      <div id="wrapper">
+        <div class="row">
+          <h2 class="title">Nominate an organization</h2>
+        </div>
+        
+        <!-- <form> -->
+          <div class="row one-margin-bottom center">
+            <div class="small-12 medium-8 small-centered columns">
+              <p>Introduce openCurrents to someone you know who works for a nonprofit or social business. Check out the draft email below, and make any changes you wish. Consider adding a personal touch, such as the person's first name and a friendly introduction.</p>
+            </div>
+          </div>
+
+          <div class="row center">
+            <div class="medium-6 small-centered columns">
+              <input id="recipient-email" class="center" type="email" placeholder="Recipient email"/>
+            </div>
+          </div>
+
+          <div class="row half-margin-bottom">
+            <div class="medium-8 small-centered columns">
+
+              <textarea id="nominate-text" rows="7">Hi, I thought you might like to know about openCurrents, which gives nonprofits and social businesses a new way to reward volunteers for their time. It's an alternative currency that gives 1 Current to volunteers for every hour donated. Employees making under $10/hour can also earn Currents for their time.&#013;&#010;&#013;&#010;If you'd like to learn more about the opportunity, please click the link below. Just so you know, I will receive 2 Currents if your organization joins.&#013;&#010;&#013;&#010;www.opencurrents.com/invite/{{referrer}}&#013;&#010;&#013;&#010;Best,&#013;&#010;[FIRST_NAME]</textarea>
+            </div>
+          </div>
+
+          <div class="row">
+            <!--<input type="submit" value="Send email" class="button round"/>-->
+            <a href="{% url 'openCurrents:nomination-confirmed' %}"><button class="button round">Send email</button></a>
+            <button id="copy-text" data-text-swap="Copied" data-clipboard-target="nominate-text" class="half-margin-left button round small secondary">Copy text</button>
+          </div>
+        <!--</form>-->
+        
+      <div id="push"></div>
+    
+      <!-- wrapper div-->
+      </div>
+      
+      {% include 'partials/footer.html' %}
+            
+    <!--container div -->
+    </div>
+    
+    <div id="bottom-stripe" class="full-width"></div>
+    
+    <div off-canvas="menu right shift" id="menu">
+      {% include 'partials/menu.html' %}
+    </div>
+  
+    <div id="-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h3 class="popup-title"></h3>
+      </div>
+      
+      <div class="row">
+        <div class="small-centered medium-10 columns">
+          
+          <p></p>
+          
+          <button class="tax-id-popup_close button round">Okay</button>
+          <a><button class="button round secondary"></button></a>
+        </div>
+      </div>
+    </div>
+    
+    
+    <script type="text/javascript">
+      $(document).ready(function(){
+        $('#').popup({
+          vertical: 'top',
+          transition: 'all 0.75s',
+          scrolllock: true,
+        });
+      });
+    </script>
+    
+    <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
+  </body>
+</html>

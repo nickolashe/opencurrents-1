@@ -1,0 +1,24 @@
+{% extends "layouts/base.html" %}
+
+{% load staticfiles %}
+
+{% block heading %}
+  <div class="row">
+    <div class="small-12 columns">
+      <h3 class="title">
+        {% block title %} Permission denied {% endblock title %}
+      </h3>
+    </div>
+  </div> 
+{% endblock heading %}
+
+{% block content %}
+  <div class="row one-margin-bottom center">
+    <div class="small-12 medium-8 small-centered columns">
+      <p class="three-halves-margin-bottom">You tried to access a resource that you don't have access to. If you're not sure why you're seeing this page, please let us know how you arrived here.</p>
+
+      <a href="javascript:void(Tawk_API.toggle())" class="button round">Share feedback</a>
+      <a href="{% url 'openCurrents:profile' %}" class="button round secondary">Back to profile</a>
+    </div>
+  </div>
+{% endblock content %}

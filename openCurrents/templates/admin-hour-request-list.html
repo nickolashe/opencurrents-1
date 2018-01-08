@@ -1,0 +1,45 @@
+{% load staticfiles %}
+{% load tags %}
+
+{% block main %}
+  {% block admin_hour_request_list %}
+
+    <div id="reviewed-hours-list" class="left row full-width collapse">
+      <div class="small-11 medium-10 small-centered columns">
+
+        {% if hours_list %}
+          {% for record in hours_list %}
+            <div class="row half-margin-bottom">
+              <div class="left input-left small-12 columns">
+                {% with tl=record.usertimelog %}
+                  {{ tl.event.datetime_start|day_only:timezone }} -
+
+                  {% if hours_status == 'requested' %}
+                    <strong> {{ tl.user.first_name }} {{ tl.user.last_name }} </strong>
+                    requested
+                  {% else %}
+                    <strong> {{ tl.user.first_name }} {{ tl.user.last_name }}</strong>'s
+                  {% endif %}
+
+                  {{ tl.event.datetime_start|get_hours_total:tl.event.datetime_end|floatformat:2 }}
+                  hours for {{ tl.event.description }}
+
+                  {% if hours_status == 'approved' %}
+                    have been approved
+                  {% endif %}
+                {% endwith %}
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="row half-margin-bottom">
+            <div class="center input-left small-12 columns">
+              No hours have been {{ hours_status }}.
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+  {% endblock %}
+{% endblock %}

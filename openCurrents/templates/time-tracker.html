@@ -1,271 +1,238 @@
+{% extends "layouts/base.html" %}
 {% load staticfiles %}
+{% load tags %}
 
-<!DOCTYPE html>
-<html>
-  <head>
-    {% include "head.html" %}
-
-    <script type="text/javascript" src="{% static 'js/jquery.timepicker.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/jquery-ui-datepicker.js' %}"></script>
-    <link href="{% static 'css/jquery.timepicker.css' %}" rel="stylesheet" type="text/css">
-    <link href="{% static 'css/jquery-ui-datepicker.css' %}" rel="stylesheet" type="text/css">
-  </head>
-
-  <body>
-    {% include "header.html" %}
-
-    <div id="container" class="js-close-any" canvas="container">
-      <div id="wrapper">
-        <div class="row">
-          <h3 class="title-sub">Track volunteer time</h3>
-        </div>
-        <form action ="" method="post">
-          {% csrf_token %}
-          <div id="choose-org" class="half-margin-top row center">
-            <div class="center medium-6 small-centered columns">
-
-                <h6 class="subtitle">for</h6>
-
-                <!--<select id="user-orgs" class="two-margin-bottom">
-                  <option disabled selected hidden>Select organization</option>
-                   all requested orgs should appear here unless org declines a volunteer
+{% block head %}
+  <script type="text/javascript" src="{% static 'js/jquery.timepicker.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/jquery-ui-datepicker.js' %}"></script>
+  <link href="{% static 'css/jquery.timepicker.css' %}" rel="stylesheet" type="text/css">
+  <link href="{% static 'css/jquery-ui-datepicker.css' %}" rel="stylesheet" type="text/css">
+{% endblock head %}
 
 
-                </select>-->
-                {{form.org}}
+{% block heading %}
+  <div class="row">
+    <div class="columns">
+      <h3 class="title-sub">
+        {% block title %} Record volunteer hours {% endblock title %}
+      </h3>
+    </div>
+  </div>
+{% endblock heading %}
 
-                <a href="{% url 'openCurrents:org-signup' %}" class="add-org-popup_open button round secondary" tabindex=0>Nominate an organization</a>
-            </div>
+
+{% block content %}
+  <form action ="" method="post">
+  {% csrf_token %}
+
+    {% if form.errors %}
+      <div class="row">
+        {% for field, error in form.errors.iteritems %}
+          <div class="center alert">
+            {% if field != '__all__' %}
+              {{ field|addstr:': '}} {{ error }}
+            {% else %}
+              {{ error }}
+            {% endif %}
           </div>
-
-          <!--<div class="row center one-margin-top">
-            <button type="submit" class="button round">Clock in</button>
-          </div>-->
-
-
-
-            <!-- catch and display any top-level form errors -->
-            <!-- (as opposed to field-specific errors which are displayed next to each field) -->
-
-
-          <div id="track-time" class="row hidden">
-            <div class="left medium-8 small-centered columns">
-
-              <h6 class="subtitle">for <span id="org-name"></span><a id="undo-org" class="small-text half-margin-left">Undo</a></h6>
-
-              <div id="manual-tracking">
-                <div class="row">
-                  <div class="three-halves-margin-top two-margin-bottom small-12 columns">
-                    <!--<input type="text" name="" class="center large-text" placeholder="Description of work"/>-->
-                    {{ form.description }}
-                  </div>
-
-                  <div class="small-12 medium-4 columns">
-                    {{form.date_start.label}}
-                    <!--<input type="text" id="volunteer-date" name="volunteer-date" placeholder="yyyy-mm-dd"/>-->
-                    {{ form.date_start }}
-                  </div>
-
-                  <div class="small-6 medium-4 columns">
-                    {{ form.time_start.label }}
-                    <!--<input type="text" id="start-time" name="" value="12:00:00"/>-->
-                    {{ form.time_start }}
-                  </div>
-
-                  <div class="small-6 medium-4 columns">
-                    {{ form.time_end.label }}
-                    <!--<input type="text" id="end-time" name="" value="12:00:00"/>-->
-                    {{ form.time_end }}
-                  </div>
-                </div>
-              </div>
-
-              <div class="row center one-margin-top">
-                <!--<a href="{% url 'openCurrents:time-tracked' %}" class="button round">Save</a>-->
-                <button type='submit' class="one-margin-top button round">Save</button>
-              </div>
-            </div>
-          </div>
-
-        </form>
-
-        <div id="push"></div>
-
-      <!-- wrapper div-->
+        {% endfor %}
       </div>
+    {% endif %}
 
-      {% include "footer.html" %}
+    <div class="row">
+      <div class="left medium-8 small-centered columns">
+        <div class="row">
+          <div class="three-halves-margin-top two-margin-bottom small-12 columns">
+            <!--<input type="text" name="" class="center large-text" placeholder="Description of work"/>-->
+            {{ form.description }}
+          </div>
 
-    <!--container div -->
-    </div>
+          <div class="small-12 medium-4 columns">
+            <label>{{form.date_start.label}}</label>
+            <!--<input type="text" id="volunteer-date" name="volunteer-date" placeholder="yyyy-mm-dd"/>-->
+            {{ form.date_start }}
+          </div>
 
-    <div id="bottom-stripe" class="full-width"></div>
+          <div class="small-6 medium-4 columns">
+            <label>{{ form.time_start.label }}</label>
+            <!--<input type="text" id="start-time" name="" value="12:00:00"/>-->
+            {{ form.time_start }}
+          </div>
 
-    <div off-canvas="menu right shift" id="menu">
-      {% include "menu.html" %}
-    </div>
+          <div class="small-6 medium-4 columns">
+            <label>{{ form.time_end.label }}</label>
+            <!--<input type="text" id="end-time" name="" value="12:00:00"/>-->
+            {{ form.time_end }}
+          </div>
+        </div>
 
-    <div id="add-org-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <div class="row center">
-        <h3 class="popup-title">Volunteer request</h3>
-        <div class="medium-10 medium-offset-1 columns end">
-          <p>Select the participating organization that you are volunteering with. You can record hours today, but the organizer will need to confirm your participation before you receive Currents. If your organization is not listed, you can nominate it.</p>
+        <div id="existing-org-admin" class="row one-margin-top">
+          <div class="small-6 columns">
+            {{form.org}}
+          </div>
+
+          <div class="small-6 columns">
+            {{form.admin}}
+          </div>
+        </div>
+
+        <div id="new-org" class="row hidden">
+          <div class="columns">
+            {{ form.new_org }}
+          </div>
+        </div>
+
+        <div id="new-admin" class="row hidden">
+          <div class="medium-6 columns">
+            {{ form.new_admin_name }}
+          </div>
+
+          <div class="medium-6 columns">
+            {{ form.new_admin_email }}
+          </div>
         </div>
       </div>
 
-      <!--<form>-->
-        <div class="row">
-          <div class="small-12 medium-8 medium-offset-2 columns end">
-            <label for="all-orgs" class="inline">Organization name</label>
+      <div class="row center one-margin-top">
+        <input type='submit' value="Submit for approval" class="button round"></input>
+        <p>
+          <a id="request-new-org">
+          <!-- <a class="nominate-popup_open"> -->
+            Request Currents from another nonprofit
+          </a>
+          <a id="request-existing-org" class="hidden">
+            Return to existing nonprofits
+          </a>
+        </p>
 
-            <select id="all-orgs">
-              <option disabled selected hidden>Select organization</option>
-              <option>Bike Austin</option>
-              <option>Keep Austin Beautiful</option>
-              <option>Keep Austin Fed</option>
-              <option>Urban Patchwork</option>
-              <option>Casa Marianella</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="row center one-margin-top">
-          <a id="add-org" type="submit" class="save-org add-org-popup_close button round">Request approval</a>
-          <a href="{% url 'openCurrents:org-signup' %}" class="button round secondary">Nominate new org</a>
-        </div>
-      <!--</form>-->
+      </div>
     </div>
+  </form>
+{% endblock content %}
 
-    <script type="text/javascript">
-      $(document).ready(function(){
+{% block js %}
+  <script type="text/javascript">
+    $(document).ready(function(){
+      $('#id_admin_choice').append(`<option disabled selected hidden>Select coordinator</option>`)
 
-        $("#volunteer-date").mask("9999-99-99");
+      $("#volunteer-date").mask("9999-99-99");
 
-        $('#volunteer-date').datepicker({
-          dateFormat: 'yy-mm-dd',
-          minDate: -6,
-          maxDate: 0,
-        }).datepicker("setDate", new Date());
+      $('#volunteer-date').datepicker({
+        dateFormat: 'yy-mm-dd',
+        minDate: -13,
+        maxDate: 0,
+      }).datepicker("setDate", new Date());
 
-        $('#start-time, #end-time').timepicker({
-          step: 15,
-        });
-
-        $('#add-org-popup').popup({
-          vertical: 'top',
-          transition: 'all 0.75s',
-          scrolllock: true,
-        });
-
-        document.getElementById('id_org_choice').options[0].disabled = true;
-        document.getElementById('id_org_choice').options[0].selected = true;
-        document.getElementById('id_org_choice').options[0].setAttribute("hidden", true);
-
-        // $.ajax
-        // (
-        //   {
-        //     type:"GET",
-        //     url:"../../orgs_list/",
-        //     async:false,
-        //     success:function(response){
-        //     //var obj = $.parseJSON(response);
-        //     //alert(typeof(response.split(",")[0]));
-        //     option_list = response.split(",")
-        //     //alert(option_list.length)
-        //     //var sel = document.getElementById("user-orgs");
-        //     var sel = document.getElementById("user-orgs");
-        //     for(var i=0;i<option_list.length;i++)
-        //     {
-        //       var option = document.createElement("option");
-        //       option.text = option_list[i];
-        //       sel.appendChild(option);
-        //     }
-        //
-        //     },
-        //     error:function(response){
-        //       alert("error")
-        //     }
-        //   }
-        // );
-
-        //$( "#id_userorgs option[value='sel_org']" ).selected=true;
-
-      });
-    </script>
-
-    <script type="text/javascript">
-
-      $('select').on('change', function(){
-        var selected = $(this).find('option:selected').text();
-        document.getElementById('org-name').innerHTML = selected;
-
-        $('#choose-org').fadeOut(777, function(){
-          $('#track-time').fadeIn(777);
-        });
-        var sel = document.getElementById("id_org_choice");
-        var input = sel.options[sel.selectedIndex].text;
-
-
+      $('#start-time, #end-time').timepicker({
+        step: 15,
+        minTime: '7:00am',
       });
 
-      $('#undo-org').click(function(){
-        $('#track-time').fadeOut(777, function(){
-          $('#choose-org').fadeIn(777);
-        });
-
-        $('option').prop('selected', function() {
-            return this.defaultSelected;
-        });
-      });
-    </script>
-
-    <script type="text/javascript">
-      $('#clock-in').on('click', function(){
-        var minutesLabel = document.getElementById("minutes");
-        var secondsLabel = document.getElementById("seconds");
-        var totalSeconds = 0;
-        setInterval(setTime, 1000);
-
-        $("#ticker").css('color', '#24b2e7');
-
-        $(this).text('Clock out').attr('id', 'clock-out').css({
-          'background-color' : '#999999',
-          'border-color' : '#999999',
-        });
-
-
-        function setTime()
-        {
-            ++totalSeconds;
-            secondsLabel.innerHTML = pad(totalSeconds%60);
-            minutesLabel.innerHTML = pad(parseInt(totalSeconds/60));
+      $('#id_admin_choice').on('change', function(){
+        if ($(this).val() == "other-admin") {
+          $('#new-admin').slideDown();
+          $('#admin-email').prop('required', true);
         }
 
-        function pad(val)
-        {
-            var valString = val + "";
-            if(valString.length < 2)
-            {
-                return "0" + valString;
-            }
-            else
-            {
-                return valString;
-            }
+        else {
+          $('#new-admin').slideUp();
+          $('#admin-email').prop('required', false);
         }
       });
 
-    </script>
+      $('#request-new-org').click(function(){
+        $(this).hide();
+        $('#request-existing-org').show();
+        $('#existing-org-admin').slideUp();
+        $('#new-org').slideDown();
+        $('#new-admin').slideDown();
+      });
 
-    <script type="text/javascript">
-      var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-      var n = new Date();
-      var y = n.getFullYear();
-      var m = n.getMonth();
-      var d = n.getDate();
-      document.getElementById("volunteer-date").innerHTML = d + " " + months[m] + " " + y;
-    </script>
+      $("#request-existing-org").click(function(){
+        $(this).hide();
+        $('#request-new-org').show();
+        $('#new-org').slideUp();
+        $('#new-admin').slideUp();
+        $('#existing-org-admin').slideDown();
+      });
 
-    <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
-  </body>
-</html>
+      document.getElementById('id_org_choice').options[0].disabled = true;
+      document.getElementById('id_org_choice').options[0].selected = true;
+
+      {% if org_stat_id %}
+        $("#id_org_choice").val({{org_stat_id}});
+        $("#id_admin_choice").prop('disabled', false);
+      {% endif %}
+
+      //$( "#id_userorgs option[value='sel_org']" ).selected=true;
+      let orgSelect = $('#id_org_choice');
+      orgSelect.change(function(){
+        $('#id_admin_choice')
+          .find('option')
+          .remove()
+          .end()
+          .append('<option value="sel-admin" disabled selected >Select coordinator</option>');
+
+        let orgId = orgSelect.val();
+        let csrf_token = document.getElementsByName(
+          'csrfmiddlewaretoken'
+        )[0].value;
+        let orgUserListUrl = `/org_user_list/${orgId}`;
+
+        $.ajax
+        (
+          {
+            url: orgUserListUrl,
+            type: 'GET',
+            async: false,
+            data : {csrfmiddlewaretoken: csrf_token},
+            dataType : 'json'
+          }
+        ).complete(function( res ) {
+            let data = res.responseJSON;
+
+            // populate select with org admin names
+            Object.keys(data).forEach(function (adminId) {
+                let adminFirstName = data[adminId].firstname;
+                let adminLastName = data[adminId].lastname;
+
+                $('#id_admin_choice').append(
+                  `<option value=${adminId}>
+                    ${adminFirstName} ${adminLastName}
+                  </option>`
+                );
+
+                // disable the option if admin is the user
+                if (adminId == {{user.id}}) {
+                  $('#id_admin_choice option[value="'+adminId+'"]').attr("disabled", true);
+                }
+            });
+
+            // add non-admin specific option
+            $('#id_admin_choice').append(`<option value="other-admin">Someone else</option>`),
+            $("#id_admin_choice").prop('disabled', false);
+          });
+        }
+      )
+    {% if org_stat_id %}
+      $("#id_org_choice").trigger('change');
+      if ("{{admin_name}}"){
+        $('#id_admin_choice').val("{{admin_name}}")//.val("karthikbm01@gmail.com")
+      }
+      else{
+
+      }
+    {% endif %}
+
+    });
+  </script>
+
+  <script type="text/javascript">
+    var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    var n = new Date();
+    var y = n.getFullYear();
+    var m = n.getMonth();
+    var d = n.getDate();
+    document.getElementById("volunteer-date").innerHTML = d + " " + months[m] + " " + y;
+  </script>
+{% endblock js %}

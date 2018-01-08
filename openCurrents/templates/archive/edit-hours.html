@@ -1,0 +1,195 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    {% include "partials/head.html" %}
+
+    <script type="text/javascript" src="{% static 'js/jquery.timepicker.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jquery-ui-datepicker.js' %}"></script>
+    <link href="{% static 'css/jquery.timepicker.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/jquery-ui-datepicker.css' %}" rel="stylesheet" type="text/css">
+
+  </head>
+  
+  <body>
+    {% include "partials/header.html" %}
+    
+    <div id="container" class="js-close-any" canvas="container">
+      <div id="wrapper">
+        <div class="row half-margin-bottom">
+          <div class="small-11 medium-8 small-centered columns">
+            <h3 class="title-sub">Edit hours</h3>
+            <h6 class="subtitle">for Firstname Lastname</h6>
+          </div>
+        </div>
+        
+        <div class="row three-halves-margin-bottom">
+          <div class="left medium-9 small-centered columns">
+            <div class="row">
+              <div class="small-12 columns">
+                <h5>Monday, Jan 2</h5>
+              </div>
+            </div>
+            
+            <div class="row time-entry">
+              <div class="small-5 medium-4 columns">
+                <label>Start time</label>
+                <input type="text" class="timepicker" name="start-time-1" value="12:00:00"/>
+              </div>
+              
+              <div class="small-5 medium-4 columns end">
+                <label>End time</label>
+                <input type="text" class="timepicker" name="end-time-1" value="12:00:00"/>
+              </div>
+
+              <div class="two-margin-top right small-2 medium-4 columns">
+                <input type="radio" id="decline-1" name="decline-1" class="vol-radio hidden"/>
+                  <label for="decline-1"><i class="decline-hours large-icon fa grey fa-times-circle"></i></label>
+              </div>
+              
+              <div class="small-12 columns">
+                <input type="text" name="" placeholder="Description of work"/>
+              </div>
+            </div>
+
+            <p class="declined hidden half-margin-bottom">Hours declined. <a class="undo-decline">Undo</a></p>
+
+          </div>
+        </div>
+
+        <div class="row three-halves-margin-bottom">
+          <div class="left medium-9 small-centered columns">
+            <div class="row">
+              <div class="small-12 columns">
+                <h5>Tuesday, Jan 3</h5>
+              </div>
+            </div>
+            
+            <div class="row time-entry">
+              <div class="small-5 medium-4 columns">
+                <label>Start time</label>
+                <input type="text" class="timepicker" name="start-time-1" value="12:00:00"/>
+              </div>
+              
+              <div class="small-5 medium-4 columns end">
+                <label>End time</label>
+                <input type="text" class="timepicker" name="end-time-1" value="12:00:00"/>
+              </div>
+
+              <div class="two-margin-top right small-2 medium-4 columns">
+                <input type="radio" id="decline-2" name="decline-2" class="vol-radio hidden"/>
+                  <label for="decline-2"><i class="decline-hours large-icon fa grey fa-times-circle"></i></label>
+              </div>
+              
+              <div class="small-12 columns">
+                <input type="text" name="" placeholder="Description of work"/>
+              </div>
+            </div>
+
+            <p class="declined hidden half-margin-bottom">Hours declined. <a class="undo-decline">Undo</a></p>
+
+          </div>
+        </div>
+
+        <div class="row three-halves-margin-bottom">
+          <div class="left medium-9 small-centered columns">
+            <div class="row">
+              <div class="small-12 columns">
+                <h5>Thursday, Jan 5</h5>
+              </div>
+            </div>
+            
+            <div class="row time-entry">
+              <div class="small-5 medium-4 columns">
+                <label>Start time</label>
+                <input type="text" class="timepicker" name="start-time-1" value="12:00:00"/>
+              </div>
+              
+              <div class="small-5 medium-4 columns end">
+                <label>End time</label>
+                <input type="text" class="timepicker" name="end-time-1" value="12:00:00"/>
+              </div>
+
+              <div class="two-margin-top right small-2 medium-4 columns">
+                <input type="radio" id="decline-3" name="decline-3" class="vol-radio hidden"/>
+                  <label for="decline-3"><i class="decline-hours large-icon fa grey fa-times-circle"></i></label>
+              </div>
+              
+              <div class="small-12 columns">
+                <input type="text" name="" placeholder="Description of work"/>
+              </div>
+            </div>
+
+            <p class="declined hidden half-margin-bottom">Hours declined. <a class="undo-decline">Undo</a></p>
+
+          </div>
+        </div>
+
+        <div class="row">
+          <a href="{% url 'openCurrents:approve-hours' %}"><button type="submit" class="button round">Save changes</button></a>
+          <a href="{% url 'openCurrents:approve-hours' %}"><button class="button round secondary">Cancel</button></a>
+        </div>
+        
+        <div id="push"></div>
+    
+      <!-- wrapper div-->
+      </div>
+      
+      {% include 'partials/footer.html' %}
+            
+    <!--container div -->
+    </div>
+    
+    <div id="bottom-stripe" class="full-width"></div>
+    
+    <div off-canvas="menu right shift" id="menu">
+      {% include 'partials/menu.html' %}
+    </div>
+  
+    <div id="decline-hours-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h3 class="popup-title"></h3>
+      </div>
+      
+      <div class="row">
+        <div class="small-centered medium-10 columns">
+          
+          <p></p>
+          
+          <button class="tax-id-popup_close button round">Okay</button>
+          <a><button class="button round secondary"></button></a>
+        </div>
+      </div>
+    </div>
+    
+    
+    <script type="text/javascript">
+      $(document).ready(function(){
+        
+        $('.timepicker').timepicker({
+          step: 15,
+        });
+
+        $('#').popup({
+          vertical: 'top',
+          transition: 'all 0.75s',
+          scrolllock: true,
+        });
+
+        $('.decline-hours').click(function(){
+          $(this).parents('.time-entry').slideUp(555);
+          $(this).parents('.time-entry').siblings('.declined').fadeIn(333);
+        });
+
+        $('.undo-decline').click(function(){
+          $(this).parent().fadeOut(333);
+          $(this).parent().siblings('.time-entry').slideDown(555);
+          $(this).parent().siblings('.time-entry').find('input[type="radio"]').attr('checked',false);
+        });
+      });
+    </script>
+    
+    <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
+  </body>
+</html>

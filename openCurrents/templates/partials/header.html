@@ -1,0 +1,38 @@
+{% load staticfiles %}
+
+<header id="header" class="full-width row collapse js-close-any" canvas>
+  <div class="relative small-7 medium-6 small-offset-1 columns">
+    {% if is_admin_org %}
+      <a href="{% url 'openCurrents:org-admin' %}">
+    {% elif is_admin_biz %}
+      <a href="{% url 'openCurrents:biz-admin' %}">
+    {% elif request.user.is_authenticated %}
+      <a href="{% url 'openCurrents:profile' %}">
+    {% else %}
+      <a href="{% url 'openCurrents:root' %}">
+    {% endif %}
+
+    	<img id="header-logo" src="{% static 'img/logo.svg' %}" />
+    </a>
+
+    <div class="inline-block relative">
+      <a id="beta-home" class="beta-popup_open">Beta</a>
+    </div>
+  </div>
+
+  <div class="small-3 medium-4 columns relative right end">
+    <div id="header-profile" class="hide-for-small-only trim-text">
+      <a href="{% url 'openCurrents:profile' %}">
+        {{ user.first_name }} {{ user.last_name }}
+      </a>
+    </div>
+
+    <div>
+      <a class="toggle-menu">
+      {% include 'partials/tilde-menu.html' %}
+      </a>
+    </div>
+  </div>
+</header>
+
+{% include "popups/beta-popup.html" %}

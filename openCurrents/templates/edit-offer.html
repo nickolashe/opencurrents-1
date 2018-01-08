@@ -1,0 +1,132 @@
+{% extends "layouts/base.html" %}
+{% load staticfiles %}
+{% load tags %}
+
+{% block head %}
+  {{ form.media }}
+{% endblock head %}
+
+{% block title %} Edit offer {% endblock title %}
+
+{% block status %}
+  {% if form.errors %}
+    <div class="row">
+      {% for field, error in form.errors.iteritems %}
+        <div class="center alert">
+          {% if field != '__all__' %}
+            {{ field|addstr:': '}} {{ error }}
+          {% else %}
+            {{ error }}
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endblock status %}
+
+
+{% block content %}
+  <form method='post'>
+  {% csrf_token %}
+    <div class="row left">
+      <div class="small-12 medium-6 small-centered columns">
+        <div class="row collapse">
+          <div class="input-left small-3 columns">
+            <p><strong><img class="h6-symbol qtr-margin-right" src="{% static 'img/symbol-navy.svg' %}"/>share</strong></p>
+          </div>
+
+          <div class="input-right small-9 columns">
+            <p id="item-title"><strong>Item or category</strong></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div id="goods-div" class="small-12 medium-6 small-centered columns">
+        <div id="item-1" class="row collapse">
+          <div class="input-left small-3 columns">
+            <div class="relative">
+
+              {{ form.offer_current_share }}
+              <span class="input-icon-right">%</span>
+
+            </div>
+            <!-- <span class="input-sizer"><select name="discount-type-1">
+              <option selected>% of</option>
+              <option>$ of</option>
+            </select></span> -->
+          </div>
+
+          <div class="input-right small-9 columns">
+            <div class="fit-left half-margin-top one-margin-right one-margin-left">of</div>
+            <div class="relative input-sizer">
+
+                {{ form.offer_item }}
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row one-margin-top">
+      <div class="small-12 medium-8 small-centered columns">
+        <p><strong>Do you want to accept all transactions?</strong></p>
+
+        <p class="half-margin-bottom">
+
+          {{ form.offer_limit_choice.0.tag }}
+          <label for="id_offer_limit_choice_0">Yes</label>
+
+          {{ form.offer_limit_choice.1.tag }}
+          <label for="id_offer_limit_choice_1" class="two-margin-left">
+            No - Set monthly limit
+          </label>
+
+        </p>
+
+        <div id="monthly-limit-div" class="row center hidden">
+          <span> {{ orgname }} will accept up to </span>
+          <span class="no-wrap">
+            <div id="monthly-limit-input" class="relative inline-block">
+              <!-- <img class="current-placeholder" src="{% static 'img/symbol.svg' %}"/> -->
+
+                 {{ form.offer_limit_value }}
+            </div>
+          transactions</span><span> per month</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="row one-margin-top center">
+      <div class="small-12 medium-8 small-centered columns">
+        <!--a class="button round">Save</a-->
+        <input type='submit' value="Save" class="one-margin-top button round"></input>
+      </div>
+    </div>
+
+  </form>
+{% endblock content %}
+
+
+{% block js %}
+  <script type="text/javascript">
+    $(document).ready(function(){
+      if ($('input[name=offer_limit_choice]:checked').val() == 1) {
+        $('#monthly-limit-div').show();
+      }
+
+      // Show/hide monthly limit input
+      $('#id_offer_limit_choice_1').click(function(){
+        $('#monthly-limit-div').slideDown();
+      });
+
+      $('#id_offer_limit_choice_0').click(function(){
+        $('#monthly-limit-div').slideUp(function(){
+          //$('#id_offer_limit_value').val('');
+        });
+      });
+    });
+  </script>
+{% endblock js %}

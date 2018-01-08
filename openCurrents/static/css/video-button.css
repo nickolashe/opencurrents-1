@@ -1,0 +1,95 @@
+/* video button */
+
+.thumb-wrapper {
+  position: relative;
+  margin: auto;
+  width: 255px;
+}
+
+#video-title {
+  position: absolute;
+  font-size: 1rem;
+  top: 15px;
+  left: 93px;
+  color: #1f4795;
+  -webkit-transition: color 300ms ease-out;
+  transition: color 300ms ease-out; }
+
+.thumb-wrapper:hover #video-title {
+  color: #0f7190;
+  -webkit-transition: color 300ms ease-in-out;
+  transition: color 300ms ease-in-out;
+}
+
+.thumb-wrapper:hover #play-poly {
+  fill: #0f7190;
+}
+
+.thumb-wrapper:hover #play-circle {
+  stroke: #0f7190;
+}
+
+.play-intro_open {
+  text-decoration: none;
+}
+
+#video-thumb {
+  border-radius: 100px;
+}
+
+#play-button {
+  width: 100%;
+  height: 100%;
+  z-index: 1; }
+
+#play-button polygon {
+  fill: #1f4795;
+  -webkit-transition: fill 300ms ease-out;
+  -moz-transition: fill 300ms ease-out;
+  transition: fill 300ms ease-out; }
+
+#play-button circle {
+  stroke: #1f4795;
+  -webkit-transition: stroke 300ms ease-out;
+  -moz-transition: stroke 300ms ease-out;
+  transition: stroke 300ms ease-out; }
+
+#play-button:hover polygon {
+  fill: #0f7190; }
+
+#play-button circle {
+  stroke: #1f4795; }
+
+#play-button:hover circle {
+  stroke: #0f7190; }
+
+#play-intro {
+  margin: 5rem 0 0; }
+
+#play-intro,
+#play-intro_wrapper,
+#play-intro_background {
+  transition: all 0.3s; }
+
+.videoWrapper {
+  position: relative;
+  padding-bottom: 56.25%;
+  /* 16:9 */
+  height: 0; }
+
+.videoWrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%; }
+
+.thumb-wrapper {
+  position: relative;
+  margin: auto;
+  width: 255px;
+ }
+
+.thumb-box {
+  position: relative;
+  width: 70px; }

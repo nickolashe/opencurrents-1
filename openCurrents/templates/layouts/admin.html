@@ -1,0 +1,339 @@
+{% extends "layouts/base.html" %}
+
+{% load staticfiles %}
+{% load tags %}
+
+{% block head %}
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAGfdpv-Vg_rskfib8jzp-a6VI92QuC2I0&v=3.exp&types=address&libraries=places"></script>
+{% endblock head %}
+
+{% block status %}
+  {% if status_msg %}
+
+    {{ block.super }}
+
+  {% else %}
+    <div class="alert row one-margin-top">
+      {% if form.errors %}
+        <div class="row">
+          {% for field, error in form.errors.iteritems %}
+            <div class="center alert">
+              {% if field != '__all__' %}
+                <!--{{ field|addstr:': '}} {{ error }}-->
+                {{ error }}
+              {% else %}
+                {{ error }}
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  {% endif %}
+{% endblock status %}
+
+
+{% block heading %}
+  <div class="hide-for-small-only row full-width collapse one-margin-top one-margin-bottom">
+    <div class="left medium-5 medium-offset-1 columns">
+      {% block heading-left %}
+        <h5 class="one-margin-top no-margin-bottom trim-text">
+          {% block title %} {{ orgname }} {% endblock title %}
+        </h5>
+        <h6 class="half-margin-bottom">
+          {{ user.first_name }} {{ user.last_name }}
+        </h6>
+        {% block button-left %}
+          <a class="biz-details-popup_open button round tiny secondary">
+            Edit business details
+          </a>
+        {% endblock button-left %}
+      {% endblock heading-left %}
+    </div>
+
+    <div class="right one-margin-top medium-5 columns end">
+      {% block heading-right %}
+        <div class="no-wrap qtr-margin-top">
+          <h6 class="no-margin-bottom inline-block">
+            Currents available:
+          </h6>
+          <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
+          <h6 class="inline">
+            {{ currents_balance }}
+          </h6>
+        </div>
+
+        <div class="no-margin-bottom">
+          <span class="no-wrap">
+            <h6 class="half-margin-bottom inline-block">
+              Pending:
+            </h6>
+            <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
+            <h6 class="inline-block">
+              {{ currents_pending }}
+            </h6>
+          </span>
+        </div>
+        {% block button-right %}
+          <a href="{% url 'openCurrents:offer' %}" class="button round tiny">
+            Post an offer
+          </a>
+        {% endblock button-right %}
+      {% endblock heading-right %}
+    </div>
+  </div>
+
+  <div class="show-for-small-only row one-margin-top half-margin-bottom">
+    <div class="columns">
+      {% block heading-small %}
+        <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="round" /> -->
+        <h4 class="half-margin-top no-margin-bottom"> {{ orgname }} </h4>
+        <h5>{{ user.first_name }} {{ user.last_name }}</h5>
+
+        <div class="one-margin-top">
+          <!-- <h6 class="no-margin-bottom">My hours tracked: 10.0</h6> -->
+          <h6 class="inline">
+            Currents available:
+          </h6>
+          <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
+          <h6 class="inline">
+            {{ currents_balance }}
+          </h6>
+        </div>
+        <div class="half-margin-bottom">
+          <span class="no-wrap">
+            <h6 class="inline-block">
+              Pending:
+            </h6>
+            <img class="med-text-symbol" src="{% static 'img/symbol.svg' %}"/>
+            <h6 class="inline-block">
+              {{ currents_pending }}
+            </h6>
+          </span>
+        </div>
+
+        <div class="row">
+          <div class="small-12 columns">
+            <a href="{% url 'openCurrents:offer' %}" class="button round tiny">
+              Post an offer
+            </a>
+            <a class="biz-details-popup_open button round tiny secondary">
+              Edit business details
+            </a>
+          </div>
+        </div>
+      {% endblock heading-small %}
+    </div>
+  </div>
+{% endblock heading %}
+
+
+{% block content %}
+  {% block lists %}
+    <div class="left row full-width collapse">
+      <div class="small-11 medium-10 small-centered columns">
+        <h6 class="half-margin-bottom">Our offers</h6>
+
+        {% if offers %}
+          {% for offer in offers %}
+            <div class="row">
+              <div class="left small-9 columns">
+                <p class="half-margin-bottom">
+                  {{ orgname }} accepts Currents for
+
+                  <strong>
+                    {{offer.currents_share}}% of {{offer.item.name}}
+                  </strong>
+
+                  {% if offer.limit != -1 %}
+                    <span class="small-text grey">
+                      Limit {{ offer.limit }} transactions per month
+                    </span>
+                  {% endif %}
+                </p>
+              </div>
+
+              <div class="right relative small-3 columns">
+                <a class="mini-open">
+                  <i class="blue half-margin-right fa-chevron-circle-down fa fa-lg"></i>
+                </a>
+                <ul class="mini-menu">
+                  <a href="{% url 'openCurrents:edit-offer' offer.id %}">
+                    <li> Edit offer </li>
+                  </a>
+                  <!-- <a class="delete-offer-popup_open">
+                    <li class="alert"> Delete offer </li>
+                  </a> -->
+                </ul>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="row">
+            <div class="left small-12 columns">
+              <p>
+                {{ orgname }} has not made any offers.
+                <a href="{% url 'openCurrents:offer' %}">
+                  Create one!
+                </a>
+              </p>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  {% endblock lists %}
+
+  {% block redemption_list %}
+    {% if redemptions %}
+      <div class="left row one-margin-top full-width collapse">
+        <div class="small-11 medium-10 small-centered columns">
+
+          <h6 class="half-margin-bottom">
+            {{ redemption_status }} redemptions
+          </h6>
+
+          {% for req in redemptions %}
+            {% with tr=req.transaction status=req.get_action_type_display %}
+              <div class="row">
+                <div class="left small-9 columns">
+                  <p class="half-margin-bottom">
+                    {{ req.date_updated|day:timezone }} -
+                    {{ tr.user.first_name }}
+                    {{ tr.user.last_name }}
+                    purchased
+                    <strong>
+                      {{ tr.offer.item.name }} for
+                      ${{ tr.price_reported }}
+                    </strong>
+                    and
+                    {% if status == 'pending' %}
+                      would receive
+                    {% elif status == 'approved' %}
+                      will receive
+                    {% elif status == 'redeemed' %}
+                      has received
+                    {% elif status == 'declined' %}
+                      will not receive
+                    {% endif %}
+
+                    {% with amount_cur=tr.currents_amount %}
+                      {% with amount_usd=amount_cur|current_to_usd:'with_fee' %}
+                        ${{ amount_usd|floatformat:2 }}
+                        for
+                        <span class="no-wrap">
+                          <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
+                          {{ amount_cur|floatformat:3 }}
+                        </span>
+                      {% endwith %}
+                    {% endwith %}
+                  </p>
+                </div>
+
+                <div class="right relative small-3 columns">
+                  <a class="mini-open">
+                    <i class="blue half-margin-right fa-chevron-circle-down fa fa-lg"></i>
+                  </a>
+                  <ul class="mini-menu">
+                    <a class="view-receipt-popup_open"><li>View receipt</li></a>
+                  </ul>
+                </div>
+              </div>
+            {% endwith %}
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  {% endblock %}
+{% endblock content %}
+
+
+{% block popups %}
+  <div id="biz-details-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+    {% include "popups/biz-details-popup.html" %}
+  </div>
+
+  <div id="delete-offer-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+    <div class="row center">
+      <h3 class="popup-title">Are you sure?</h3>
+      <button type="submit" class="button round alert">
+        Yes - Delete offer
+      </button>
+      <a class="delete-offer-popup_close button round secondary">
+        Cancel
+      </a>
+    </div>
+  </div>
+
+  <div id="view-receipt-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+    <div class="row center">
+      <div class="small-12 medium-8 small-centered columns">
+        <h4 class="popup-title">View proof of purchase</h4>
+      </div>
+    </div>
+
+    <div class="row collapse">
+      <div class="small-12 medium-8 small-centered columns">
+        <img src="{% static 'img/first_receipt.jpeg' %}" />
+      </div>
+    </div>
+
+    <div class="row center three-halves-margin-top">
+      <a class="view-receipt-popup_close button round">
+        Close
+      </a>
+      <a href="javascript:void(Tawk_API.toggle())" class="button round secondary">
+        Contact us
+      </a>
+    </div>
+  </div>
+{% endblock popups %}
+
+
+{% block js %}
+  <script type="text/javascript" src="{% static 'js/auto-complete.min.js' %}"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function(){
+      $('#view-receipt-popup, #delete-offer-popup, #biz-details-popup').popup({
+        vertical: 'top',
+        transition: 'all 0.75s',
+        scrolllock: true,
+      });
+
+      $('#id_phone').mask('000-000-0000')
+
+      $('.mini-open').click(function(){
+        $('.mini-menu').hide();
+        $(this).siblings('.mini-menu').toggle();
+        $(this).attr('visibility', 'visible');
+      });
+
+      $(document).click(function(e) {
+        var target = e.target;
+        if (!$(target).is('.mini-open') && !$(target).parents().is('.mini-open')) {
+          $('.mini-menu').hide();
+        }
+      });
+    });
+
+    // Google Places autocomplete
+    function initAutoComplete() {
+
+      var input = document.getElementById("id_address");
+
+      var autocomplete = new google.maps.places.Autocomplete(input);
+      // autocomplete.inputId = inputs[i].id;
+
+      google.maps.event.addListener(autocomplete);
+
+      google.maps.event.addDomListener(input, 'keydown', function(e) {
+        if (e.keyCode == 13 && $('.pac-container:visible').length) {
+            e.preventDefault();
+        }
+      });
+    }
+
+    initAutoComplete();
+  </script>
+{% endblock js %}

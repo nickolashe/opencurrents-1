@@ -1,0 +1,169 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    {% include "partials/head.html" %}
+  </head>
+  
+  <body>
+    {% include "partials/header.html" %}
+    
+    <div id="container" class="js-close-any" canvas="container">
+      <div id="wrapper">
+        <div class="row one-margin-bottom">
+          <h2 class="title-sub">Volunteer requests</h2>
+          <p class="subtitle">These volunteers want to start tracking hours with Bike Austin:
+        </div>
+        
+        <div class="row one-margin-bottom">
+          <div class="left qtr-margin-top small-7 medium-5 medium-offset-2 columns">
+            <a href="{% url 'openCurrents:edit-hours' %}" title="View hours recorded">Danny Pernik</a>
+          </div>
+
+          <div class="right small-5 medium-3 columns end">
+            <div class="volunteer-confirm">
+              <input type="radio" id="vol-accept-1" name="vol-confirm-1" value="" class="vol-radio hidden"/>
+                <label for="vol-accept-1"><i class="accept fa fa-lg blue fa-check-circle"></i></label>
+              <input type="radio" id="vol-decline-1" name="vol-confirm-1" value="" class="vol-radio hidden"/>
+                <label for="vol-decline-1"><i class="decline fa fa-lg grey fa-times-circle"></i></label>
+              <input type="radio" id="vol-question-1" name="vol-confirm-1" value="" class="vol-radio hidden"/>
+                <label for="vol-question-1"><i class="question fa fa-lg grey fa-question-circle"></i></label>
+            </div>
+
+            <div class="accepted hidden">
+              <label class="vol-status">Accepted. <a class="undo">Undo</a></label>
+            </div>
+
+            <div class="declined hidden">
+              <label class="vol-status">Declined. <a class="undo">Undo</a></label>
+            </div>
+
+            <div class="requested hidden">
+              <label class="vol-status">Deferred. <a class="undo">Undo</a></label>
+            </div>
+          </div>
+        </div>
+
+        <!-- change input names and ids, and label for, for each volunteer -->
+        <div class="row one-margin-bottom">
+          <div class="left qtr-margin-top small-7 medium-5 medium-offset-2 columns">
+            <a href="{% url 'openCurrents:edit-hours' %}" title="View hours recorded">Max Tattenbach</a>
+          </div>
+
+          <div class="right small-5 medium-3 columns end">
+            <div class="volunteer-confirm">
+              <input type="radio" id="vol-accept-2" name="vol-confirm-2" value="" class="vol-radio hidden"/>
+                <label for="vol-accept-2"><i class="accept fa fa-lg blue fa-check-circle"></i></label>
+              <input type="radio" id="vol-decline-2" name="vol-confirm-2" value="" class="vol-radio hidden"/>
+                <label for="vol-decline-2"><i class="decline fa fa-lg grey fa-times-circle"></i></label>
+              <input type="radio" id="vol-question-2" name="vol-confirm-2" value="" class="vol-radio hidden"/>
+                <label for="vol-question-2"><i class="question fa fa-lg grey fa-question-circle"></i></label>
+            </div>
+
+            <div class="accepted hidden">
+              <label class="vol-status">Accepted. <a class="undo">Undo</a></label>
+            </div>
+
+            <div class="declined hidden">
+              <label class="vol-status">Declined. <a class="undo">Undo</a></label>
+            </div>
+
+            <div class="requested hidden">
+              <label class="vol-status">Deferred. <a class="undo">Undo</a></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="row center two-margin-top">
+          <a href="{% url 'openCurrents:approve-hours' %}"><button id="confirm-requests" class="button round">Continue</button></a>
+        </div>
+
+        <div id="push"></div>
+    
+      <!-- wrapper div-->
+      </div>
+      
+      {% include 'partials/footer.html' %}
+            
+    <!--container div -->
+    </div>
+    
+    <div id="bottom-stripe" class="full-width"></div>
+    
+    <div off-canvas="menu right shift" id="menu">
+      {% include 'partials/menu.html' %}
+    </div>
+  
+    <div id="-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h3 class="popup-title"></h3>
+      </div>
+      
+      <div class="row">
+        <div class="small-centered medium-10 columns">
+          
+          <p></p>
+          
+          <button class="tax-id-popup_close button round">Okay</button>
+          <a><button class="button round secondary"></button></a>
+        </div>
+      </div>
+    </div>
+    
+    <script type="text/javascript">
+      $('.accept').click(function(){
+        $(this).parents('.volunteer-confirm').fadeOut(333,function(){
+          $(this).siblings('.accepted').fadeIn(333);
+        }); 
+      });
+
+      $('.decline').click(function(){
+        $(this).parents('.volunteer-confirm').fadeOut(333,function(){
+          $(this).siblings('.declined').fadeIn(333);
+        });
+      });
+
+      $('.question').click(function(){
+        $(this).parents('.volunteer-confirm').fadeOut(333,function(){
+          $(this).siblings('.requested').fadeIn(333);
+        }); 
+      });
+
+      $('.undo').click(function(){
+        $(this).parents('.accepted, .declined, .requested').fadeOut(333,function(){
+          $(this).siblings('.volunteer-confirm').fadeIn(333);
+        });
+        $(this).parents('.right').find('input').attr('checked',false);
+      });
+
+      $(function () {
+          var button = $('#confirm-requests').prop('disabled', true);
+          var radios = $('input[type="radio"]');
+          var arr    = $.map(radios, function(el) { 
+                            return el.name; 
+                       });
+
+          var groups = $.grep(arr, function(v, k){
+                           return $.inArray(v ,arr) === k;
+                       }).length;
+
+          radios.on('change', function () {
+              button.prop('disabled', radios.filter(':checked').length < groups);
+          });
+      });
+    </script>
+    
+    <script type="text/javascript">
+      $(document).ready(function(){
+        $('#').popup({
+          vertical: 'top',
+          transition: 'all 0.75s',
+          scrolllock: true,
+        });
+      });
+    </script>
+    
+    <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
+  </body>
+</html>

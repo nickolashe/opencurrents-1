@@ -1,0 +1,73 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    {% include "partials/head.html" %}
+  </head>
+  
+  <body>
+    {% include "partials/header.html" %}
+    
+    <div id="container" class="js-close-any" canvas="container">
+      <div id="wrapper">
+        <div class="row">
+          <h2 class="title-sub">Our mission:</h2>
+          <h4 class="subtitle">A viable alternative to Old Money.</h4>
+        </div>
+        
+        <div class="row one-margin-bottom center">
+          <div class="small-12 medium-9 small-centered columns">
+            <p class="lead">The day will come when dollars and euros and yuan are no more. Why? Because the possibility for something better exists. When that possibility becomes a reality - when people are given a choice where they had none before - the outcome is inevitable.</p>
+            <p>openCurrents is one such possibility. Maybe it will work, maybe it won't. But without a doubt, it will help move us closer to the day when we are no longer at the mercy of a system in which the common citizen has effectively no voice and no choice.</p>
+            <p>It is a massive objective, but there is only one place and one time to start: right here, right now. Though the challenge may seem insurmountable, the truth is that we have everything we need. Like never before in history, we have the power to share an idea with people in every corner of the world in an instant. Not to mention that adoption of a new currency is </p>
+
+          </div>
+        </div>
+        
+        <div id="push"></div>
+    
+      <!-- wrapper div-->
+      </div>
+      
+      {% include 'partials/footer.html' %}
+            
+    <!--container div -->
+    </div>
+    
+    <div id="bottom-stripe" class="full-width"></div>
+    
+    <div off-canvas="menu right shift" id="menu">
+      {% include 'partials/menu.html' %}
+    </div>
+  
+    <div id="-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+      <div class="row center">
+        <h3 class="popup-title"></h3>
+      </div>
+      
+      <div class="row">
+        <div class="small-centered medium-10 columns">
+          
+          <p></p>
+          
+          <button class="tax-id-popup_close button round">Okay</button>
+          <a><button class="button round secondary"></button></a>
+        </div>
+      </div>
+    </div>
+    
+    
+    <script type="text/javascript">
+      $(document).ready(function(){
+        $('#').popup({
+          vertical: 'top',
+          transition: 'all 0.75s',
+          scrolllock: true,
+        });
+      });
+    </script>
+    
+    <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
+  </body>
+</html>

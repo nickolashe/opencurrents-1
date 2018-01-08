@@ -1,0 +1,289 @@
+{% extends "layouts/admin.html" %}
+
+{% load staticfiles %}
+{% load tags %}
+{% load macros %}
+
+{% block status %}
+  <div id="status_msg" class="success row one-margin-top">
+    <div class="medium-8 columns small-centered">
+      {% if num_events or num_vols %}
+        {% if num_events|add:"0" >= 1 and num_vols|add:"0" >= 1 %}
+            You have created events at {{ num_events }}
+            location{{ num_events|pluralize }} and registered {{ num_vols }}
+            volunteer{{ num_vols|pluralize }} to the event. Nice!
+
+        {% elif num_events|add:"0" >= 1 and num_vols|add:"0" == 0 %}
+            You have created events at {{ num_events }}
+            location{{ num_events|pluralize }}. Nice!
+
+        {% elif num_events|add:"0" == 0 and num_vols|add:"0" >= 1 %}
+            You have invited {{ num_vols  }} volunteer{{ num_vols|pluralize }}
+            to the openCurrents community. Nice!
+        {% endif %}
+
+      {% elif vols_approved or vols_declined %}
+        {% if vols_approved|add:"0" >= 1 and vols_declined|add:"0" >= 1 %}
+          You have approved hours for {{ vols_approved }}
+          volunteer{{ vols_approved|pluralize }} and declined hours for
+          {{ vols_declined }} volunteer{{ vols_declined|pluralize }}. Nice!
+
+        {% elif vols_approved|add:"0" >= 1 and vols_declined|add:"0" == 0 %}
+          You have approved hours for {{ vols_approved }}
+          volunteer{{ vols_approved|pluralize }}. Nice!
+
+        {% elif vols_approved|add:"0" == 0 and vols_declined|add:"0" >= 1 %}
+          You have declined hours for {{ vols_declined }}
+          volunteer{{ vols_declined|pluralize }}.
+        {% endif %}
+      {% else %}
+        {{ status_msg }}
+      {% endif %}
+    </div>
+  </div>
+{% endblock status %}
+
+
+{% block button-left %}
+  <a href="{% url 'openCurrents:create-event' orgid %}"
+    {% if hours_requested %} class="button secondary tiny round"
+    {% else %} class="button tiny round"
+    {% endif %}>
+    Create event
+  </a>
+{% endblock button-left %}
+
+
+{% block heading-right %}
+  <h6 class="qtr-margin-top no-margin-bottom">
+    Org hours tracked: {{ issued_by_all|round_number:3 }}
+  </h6>
+  <h6 class="half-margin-bottom">
+    My hours tracked: {{ issued_by_logged_admin|round_number:3 }}
+  </h6>
+
+  <a
+    {% if hours_requested %}
+      href="{% url 'openCurrents:approve-hours' %}" class="button round tiny"
+    {% else %}
+      href="javascript:status()" class="button round tiny secondary"
+    {% endif %}>
+    Approve hours
+  </a>
+{% endblock heading-right %}
+
+
+{% block heading-small %}
+  <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="round" /> -->
+  <h4>{{orgname}}</h4>
+  <h5>{{ user.first_name }} {{ user.last_name }}</h5>
+
+
+  <div>
+    <!-- <h6 class="no-margin-bottom">My hours tracked: 10.0</h6> -->
+    <h6 class="no-margin-bottom">
+      Org hours tracked: {{ issued_by_all }}
+    </h6>
+    <h6 class="one-margin-bottom">
+      My hours tracked: {{ issued_by_logged_admin|round_number:3 }}
+    </h6>
+
+    <a href="{% url 'openCurrents:create-event' orgid %}"
+      {% if hours_requested %} class="button secondary tiny round"
+      {% else %} class="button tiny round"
+      {% endif %}>
+      Create event
+    </a>
+    <a
+      {% if hours_requested %}
+        href="{% url 'openCurrents:approve-hours' %}" class="button round tiny"
+      {% else %}
+        href="javascript:status()" class="button round tiny secondary"
+      {% endif %}>
+      Approve hours
+    </a>
+  </div>
+{% endblock heading-small %}
+
+
+{% block content %}
+  <!-- current events section -->
+  {% if events_group_current %}
+    <div id="live-event-list" class="left row full-width collapse one-margin-top">
+      <div class="small-11 medium-10 small-centered columns">
+        <h6 class="half-margin-bottom">Events happening now</h6>
+
+        {% for event in events_group_current %}
+            <div class="row one-margin-bottom">
+              <div class="left half-margin-top small-8 columns">
+                {{event.project.name}}
+                on {{event.datetime_start|day:timezone}}
+                at {{event.datetime_start|time:timezone}}
+                to {{event.datetime_end|time:timezone}}
+                at <strong>{{event.location}}</strong>
+              </div>
+
+              <div class="right small-4 columns">
+                <a href="{% url 'openCurrents:live-dashboard' event.id %}"/>
+                  <button class="button round small">Start</button>
+                </a>
+              </div>
+            </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  <div id="upcoming-event-list" class="left row one-margin-top full-width collapse">
+    <div class="small-11 medium-10 small-centered columns">
+      <h6 class="half-margin-bottom">Upcoming events</h6>
+
+      {% for event in events_group_upcoming %}
+        <div class="row one-margin-bottom">
+          <div class="left small-9 columns">
+            {{event.project.name}}
+            on {{event.datetime_start|day:timezone}}
+            at {{event.datetime_start|time:timezone}}
+            to {{event.datetime_end|time:timezone}}
+            at <strong>{{event.location}}</strong>
+          </div>
+
+          <div class="right relative small-3 columns">
+            <a class="mini-open"><i class="blue half-margin-right fa-chevron-circle-down fa fa-lg"></i></a>
+            <ul class="mini-menu">
+              <a href="{% url 'openCurrents:event-detail' event.id %}"><li>View event details</li></a>
+              <a href="{% url 'openCurrents:invite-volunteers' event.id %}"><li>Invite volunteers</li></a>
+              <a href="{% url 'openCurrents:edit-event' event.id %}"><li>Edit event</li></a>
+              <a href="{% url 'openCurrents:live-dashboard' event.id %}"><li>Preview live check-in</li></a>
+            </ul>
+          </div>
+        </div>
+      {% empty %}
+        <div class="row">
+          <div class="left small-12 columns">
+            <p>{{ orgname }} has no upcoming events. <a href="{% url 'openCurrents:create-event' orgid %}">Create one!</a></p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="left row one-margin-top full-width collapse">
+    <div class="small-11 medium-10 small-centered columns">
+        <h6 class="half-margin-bottom">Hours approved</h6>
+        {% for admin, total in issued_by_admin.iteritems %}
+          <a
+            href="{% url 'openCurrents:hours-detail' %}?is_admin=1&user_id={{admin.id}}&type=approved"
+            class="button round tiny secondary"
+          >
+            {{ admin.first_name|fullname:admin.last_name }}: {{total|round_number:3}}
+          </a>
+        {% empty %}
+            <p>
+                No hours have been approved.
+                <a href="{% url 'openCurrents:invite-volunteers' %}">
+                  Invite volunteers
+                </a>
+                to track hours!
+            </p>
+        {% endfor %}
+    </div>
+  </div>
+
+<!--
+    @TODO@
+    Block looks very similar to the following.
+    Use a macros here
+-->
+  <div class="left row one-margin-top full-width collapse">
+    <div class="small-11 medium-10 small-centered columns">
+      <h6 class="half-margin-bottom">Hours pending approval</h6>
+
+      {% for admin, total in hours_pending_by_admin.iteritems %}
+          <a
+            href="{% url 'openCurrents:hours-detail' %}?is_admin=1&user_id={{admin.id}}&type=pending"
+            class="button round tiny secondary"
+          >
+            {{ admin.first_name|fullname:admin.last_name }}: {{total|round_number:3}}
+          </a>
+      {% empty %}
+        <p>
+          No hours are currently pending approval.
+        </p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- TODO: refactor using template inheritance -->
+  {% if events_group_past %}
+    <div id="past-event-list" class="left row one-margin-top full-width collapse">
+      <div class="small-11 medium-10 small-centered columns">
+        <h6 class="half-margin-bottom">Past events</h6>
+
+        {% for event in events_group_past %}
+          <div class="row one-margin-bottom">
+            <div class="left input-left small-9 columns">
+              {{event.project.name}}
+              on {{event.datetime_start|day:timezone}}
+              at {{event.datetime_start|time:timezone}}
+              to {{event.datetime_end|time:timezone}}
+              at <strong>{{event.location}}</strong>
+            </div>
+
+            <div class="right relative small-3 columns">
+              <a class="mini-open"><i class="half-margin-right blue fa-chevron-circle-down fa fa-lg"></i></a>
+              <ul class="mini-menu">
+                <a href="{% url 'openCurrents:live-dashboard' event.id %}"><li>Review attendees</li></a>
+              </ul>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  {% macro admin_hour_request_list_macro arg_list arg_status arg_timezone %}
+    {% block admin_hour_request_list %}
+      {% with hours_list=arg_list hours_status=arg_status timezone=arg_timezone %}
+        {{ block.super }}
+      {% endwith %}
+    {% endblock %}
+  {% endmacro %}
+{% endblock content %}
+
+{% block popups %}
+  <div id="approve-hours-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+    <div class="row center">
+      <h3 class="popup-title">Volunteers request approval</h3>
+    </div>
+
+    <div class="row center">
+      <div class="small-centered medium-10 columns">
+
+        <p class="three-halves-margin-bottom">Volunteers have tracked hours and need your signoff before Currents are issued to them. It is recommended that you approve volunteer hours once a week.</p>
+
+        <a href="{% url 'openCurrents:approve-hours' %}" class="button round">View requests</button>
+        <a><button class="approve-hours-popup_close button round secondary">Close</button></a>
+      </div>
+    </div>
+  </div>
+
+  <div class="delete-event-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+    <div class="row center">
+      <h3 class="popup-title">Are you sure?</h3>
+      <input type='submit' name='del-button' class="button round alert" value="Yes - Delete event">
+      <a class="button round secondary">Cancel</a>
+    </div>
+  </div>
+{% endblock popups %}
+
+{% block js %}
+
+  {% include "scripts/mini-menu.html" %}
+
+  <script>
+    function status(){
+      $('#status_msg').html("There are no hours that need your approval.");
+    }
+  </script>
+{% endblock js %}
