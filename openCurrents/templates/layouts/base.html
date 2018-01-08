@@ -12,13 +12,9 @@
     {% block head %}{% endblock head %}
 
     <title>openCurrents</title>
-
   </head>
 
   <body>
-    <script>
-        addToHomescreen();
-    </script>
 
     {% include "partials/header.html" %}
 
@@ -71,6 +67,11 @@
 
     {% block js %}{% endblock js %}
 
+    <script type="text/javascript">( function(){ window.SIG_EXT = {}; } )()</script>
+
+    <script>
+        addToHomescreen();
+    </script>
     {% include "partials/end-scripts.html" %}
   </body>
 </html>
