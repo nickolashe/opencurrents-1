@@ -333,7 +333,7 @@ class TestUserProfileView(TestCase):
         response = self.client.get('/profile/')
         self.assertEqual(response.status_code, 200)
 
-        self.assertEqual(response.context['balance_pending_usd'], 72.0)
+        self.assertEqual(response.context['balance_pending_usd'], 408.0)
 
 
     def test_user_offers_redemed(self):
@@ -519,4 +519,3 @@ class TestUserProfileCommunityActivity(TestCase):
         self.assertIn('entries', response.context)
         self.assertEqual(response.context['entries'][0]['name'], self.biz_org.name)
         self.assertEqual(round(response.context['entries'][0]['total'], 3), 0.436)
-

@@ -24,7 +24,7 @@ def _get_redemption_total(records, currency='cur'):
             amount = convert.cur_to_usd(amount_cur)
 
             # apply transaction fee
-            amount *= Decimal(convert._TR_FEE)
+            amount *= Decimal(1 - convert._TR_FEE)
         else:
             amount = amount_cur
 
