@@ -2897,7 +2897,8 @@ def event_register(request, pk):
             return redirect(
                 'openCurrents:event-detail',
                 pk=event.id,
-                status_msg='Please enter a message'
+                status_msg='Please enter a message',
+                msg_type='alert'
             )
 
         if email_template:
