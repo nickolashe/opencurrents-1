@@ -4,11 +4,82 @@
 {% block title %}Frequently asked questions{% endblock title %}
 
 {% block content %}
-  <ul class="accordion" data-accordion data-allow-all-closed="true">
-    <li class="accordion-item" data-accordion-item>
-      <a href="#" class="accordion-title"></a>
-      <div class="accordion-content" data-tab-content>
-      </div>
-    </li>
-  </ul>
+  <div class="row left">
+    <div class="medium-8 small-centered columns">
+      <ul id="questions" class="accordion" data-accordion data-allow-all-closed="true">
+        <li class="accordion-item" data-accordion-item>
+          <a href="#" class="accordion-title">
+            <h6 class="no-margin-bottom">How do I earn Currents?</h6>
+          </a>
+          <div class="accordion-content navy" data-tab-content>
+            <p class="half-margin-bottom">
+              You can request Currents for hours volunteered with any nonprofit.
+              Nonprofits must register before issuing Currents and must be serving
+              the greater good.
+            </p>
+          </div>
+        </li>
+
+        <li class="accordion-item" data-accordion-item>
+          <a href="#" class="accordion-title">
+            <h6 class="no-margin-bottom">What’s the value of the Current?</h6>
+          </a>
+          <div class="accordion-content navy" data-tab-content>
+            <p class="half-margin-bottom">
+              For our beta phase, businesses have agreed to value Currents at
+              $20 per Current. As the platform evolves, businesses will be able
+              to decide the value at which they accept Currents. Note that the
+              Corporation for National Community Service values each hour
+              volunteered at $23.5/hr.
+            </p>
+          </div>
+        </li>
+
+        <li class="accordion-item" data-accordion-item>
+          <a href="#" class="accordion-title">
+            <h6 class="no-margin-bottom">
+              Who guarantees that Currents are actually backed by one hour of work?
+            </h6>
+          </a>
+          <div class="accordion-content navy" data-tab-content>
+            <p class="half-margin-bottom">
+              Each hour volunteered must be confirmed by an administrator of the
+              issuing nonprofit.
+            </p>
+          </div>
+        </li>
+
+        <li class="accordion-item" data-accordion-item>
+          <a href="#" class="accordion-title">
+            <h6 class="no-margin-bottom">What can I buy with Currents?</h6>
+          </a>
+          <div class="accordion-content navy" data-tab-content>
+            <p class="half-margin-bottom">
+              You can use Currents to buy products and services with anyone
+              who accepts them. You can find offers from participating businesses
+              in the openCurrents marketplace.
+            </p>
+          </div>
+        </li>
+        <li class="accordion-item" data-accordion-item>
+          <a href="#" class="accordion-title">
+            <h6 class="no-margin-bottom">How do I use my Currents?</h6>
+          </a>
+          <div class="accordion-content navy" data-tab-content>
+            <p class="half-margin-bottom">
+              Visit the openCurrents marketplace to use Currents with
+              participating businesses. Each nonprofit and administrator is
+              first verified by the openCurrents team.
+            </p>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
 {% endblock content %}
+
+{% block js %}
+  <script type="text/javascript">
+    var elem = new Foundation.Accordion($("#questions"));
+  </script>
+{% endblock js %}
