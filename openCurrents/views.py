@@ -748,10 +748,6 @@ class MarketplaceView(LoginRequiredMixin, SessionContextView, ListView):
         )
         context['user_balance_available'] = user_balance_available
 
-        # workaround with status message for ListView
-        if self.kwargs.get('status_msg') is None:
-            context['status_msg'] = ''
-
         return context
 
 
@@ -1281,10 +1277,16 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             for kw_key, kw_value in kwargs.iteritems():
                 self.add_to_email_vars(email_vars, kw_key, kw_value)
 
+        # selecting template for emails
+        if 'template' in kwargs.keys():
+            template = 'volunteer-invites-org'
+        else:
+            template = 'volunteer-invites-admin'
+
         if doInvite:
             try:
                 sendTransactionalEmail(
-                    'volunteer-invites-admin',
+                    template,
                     None,
                     email_vars,
                     admin_email,
@@ -1508,10 +1510,6 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             user =  User.objects.get(id = user_id)
             if user in admins_dict.keys():
                 final_dict[user] = admins_dict.pop(user)
-            else:
-                logger.error('User with user ID {} doesn\'t belong to any group.'.format(user_id))
-                return redirect('openCurrents:403')
-
 
             # sorting dict
             temp_dict = OrderedDict(sorted(admins_dict.items(), key=lambda d: d[1] , reverse=True))
@@ -2090,14 +2088,10 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
 
     def email_parser(self, a_string):
         """
-        analyzes the a_string if it matches the
-        'Firstname Lastname <email@email.com>'
-        or <'email@email.com'>
-        or 'email@email.com'
+        looks for an email addres in a_string and returns email string if valid
         """
-
         # setting up pattern
-        pattern = r"(?:([^<>\s]+)(?: )([^<>\s]+)\s<([^<>]+@[^<>]+)>)|([^<>]+@[^<>]+)"
+        pattern = r"([a-zA-Z0-9_\-\.]+@[a-zA-Z0-9_\-\.]+\.[a-zA-Z]{2,5})"
 
         # setting up variables
         firstname = lastname = email1 = email2 = None
@@ -2107,17 +2101,12 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         if re.search(pattern, a_string):
             matches = re.findall(pattern, a_string)
             for match in matches:
-                if match[0] != '':
-                    firstname = strip(match[0])
-                if match[1] != '':
-                    lastname = strip(match[1])
-                if match[2] != '':
-                    email1 = strip(match[2])
-                if match[3] != '':
-                    email2 = strip(match[3])
+                if match != '':
+                    email = strip(match)
 
-        return firstname, lastname, email1, email2
-
+                    return email
+        else:
+            return False
 
 
     def post(self, request, *args, **kwargs):
@@ -2152,10 +2141,12 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
             num_vols = int(post_data['count-vol'])
 
         else:
-            bulk_list_raw = re.split(',', post_data['bulk-vol'].lower())
+            bulk_list_raw = re.split(',|\n|\s', post_data['bulk-vol'].lower())
             bulk_list = []
             for email_string in bulk_list_raw:
-                bulk_list.append(self.email_parser(email_string))
+                email = self.email_parser(email_string)
+                if email:
+                    bulk_list.append(email)
             num_vols = len(bulk_list)
 
         for i in range(num_vols):
@@ -2175,6 +2166,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                     try:
                         user_new = OcUser().setup_user(
                             username=email_list,
+                            first_name=post_data['vol-name-'+str(i+1)],
                             email=email_list,
                         )
                     except UserExistsException:
@@ -2199,14 +2191,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                 # setting vars' default values in case we couldn't get all needed data from parsed email
                 first_name = last_name = user_email = None
                 try:
-                    if bulk_list[i][0]:
-                        first_name = bulk_list[i][0]
-                    if bulk_list[i][1]:
-                        last_name = bulk_list[i][1]
-                    if bulk_list[i][2]:
-                        user_email = bulk_list[i][2]
-                    if bulk_list[i][3]:
-                        user_email = bulk_list[i][3]
+                    user_email = bulk_list[i]
                 except:
                     logger.error('Unable to read from parsed email')
 
@@ -2221,9 +2206,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                     try:
                         user_new = OcUser().setup_user(
                             username=user_email,
-                            email=user_email,
-                            first_name=first_name,
-                            last_name=last_name
+                            email=user_email
                         )
                     except UserExistsException:
                         user_new = User.objects.get(username=user_email)
@@ -2289,6 +2272,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                     'content': event.datetime_end.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p')
                 },
             ])
+
 
             try:
                 if k:
@@ -3332,16 +3316,25 @@ def process_OrgNomination(request):
 
         try:
             user_to_check = User.objects.get(email=contact_email)
-            is_admin = OrgUserInfo(user_to_check.id).is_user_in_org_group()
         except:
+            user_to_check = None
+
+        if not user_to_check:
             is_admin = False
+        else:
+            try:
+                user_to_check = User.objects.get(email=contact_email)
+                is_admin = OrgUserInfo(user_to_check.id).is_user_in_org_group()
+            except:
+                is_admin = False
 
         try:
             org_exists = Org.objects.filter(name=org_name).exists()
         except:
             org_exists = False
 
-        if is_admin and org_exists:
+        # if org doesn't exist and user is new and user is new OR user exists, but not affiliated
+        if (not org_exists and not user_to_check) or (not org_exists and not is_admin):
             sendTransactionalEmail(
                 'new-org-nominated',
                 None,
@@ -3376,7 +3369,8 @@ def process_OrgNomination(request):
 
             return redirect('openCurrents:profile', status_msg='Thank you for nominating %s! We will reach out soon.' % org_name)
 
-        elif not is_admin:
+        # if org is new, but user is affiliated admin
+        elif not org_exists and is_admin:
             return redirect(
                 'openCurrents:profile',
                 status_msg='Thanks for nominating {}, it seems that {} is already affiliated with an organization on openCurrents.'.format(org_name, contact_email),
