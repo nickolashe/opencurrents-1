@@ -620,6 +620,10 @@ class CausesView(TemplateView):
     template_name = 'causes.html'
 
 
+class FaqView(TemplateView):
+    template_name = 'faq.html'
+
+
 class EditHoursView(TemplateView):
     template_name = 'edit-hours.html'
 
