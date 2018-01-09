@@ -3097,12 +3097,19 @@ def process_signup(
         # try saving the user without password at this point
         user = None
         try:
-            user = OcUser().setup_user(
-                username=user_email,
-                email=user_email,
-                first_name=user_firstname,
-                last_name=user_lastname
-            )
+            if org_name and Org.objects.filter(name=org_name).exists():
+                return redirect(
+                   'openCurrents:login',
+                   status_msg = 'Organization named %s already exists!' % org_name,
+                   msg_type = 'alert'
+                )
+            else:
+                user = OcUser().setup_user(
+                    username=user_email,
+                    email=user_email,
+                    first_name=user_firstname,
+                    last_name=user_lastname
+                )
         except UserExistsException:
             logger.debug('user %s already exists', user_email)
 

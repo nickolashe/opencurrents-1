@@ -422,7 +422,7 @@ class TestSignup(TransactionTestCase):
             }
         )
 
-        self._assert_user(self.test_email, True)
+        self._assert_user(self.test_email, False) # we don't create a user if org exists
         self._assert_user_has_usable_password(self.test_email, False)
         self._assert_token_valid(self.test_email, False)
         self._assert_org_user(self.orgTest.name, self.test_email, False)
