@@ -1129,7 +1129,8 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                             admin_name,
                             description=form_data['description'],
                             datetime_start=form_data['datetime_start'].strftime("%Y-%m-%d %H:%M:%S"),
-                            datetime_end=form_data['datetime_end'].strftime("%Y-%m-%d %H:%M:%S")
+                            datetime_end=form_data['datetime_end'].strftime("%Y-%m-%d %H:%M:%S"),
+                            template='volunteer-invites-org' # using different template when time is logged for a new org
                         )
 
                         # as of now, do not submit hours prior to admin registering
