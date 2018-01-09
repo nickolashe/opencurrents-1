@@ -3335,9 +3335,7 @@ def process_OrgNomination(request):
             org_exists = False
 
         if not org_exists:
-            print "\nHERE"
-            print "sending email"
-            print "HERE\n"
+
             sendTransactionalEmail(
                 'new-org-nominated',
                 None,
