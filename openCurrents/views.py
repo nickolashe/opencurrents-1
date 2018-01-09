@@ -3101,12 +3101,19 @@ def process_signup(
         # try saving the user without password at this point
         user = None
         try:
-            user = OcUser().setup_user(
-                username=user_email,
-                email=user_email,
-                first_name=user_firstname,
-                last_name=user_lastname
-            )
+            if org_name and Org.objects.filter(name=org_name).exists():
+                return redirect(
+                   'openCurrents:login',
+                   status_msg = 'Organization named %s already exists!' % org_name,
+                   msg_type = 'alert'
+                )
+            else:
+                user = OcUser().setup_user(
+                    username=user_email,
+                    email=user_email,
+                    first_name=user_firstname,
+                    last_name=user_lastname
+                )
         except UserExistsException:
             logger.debug('user %s already exists', user_email)
 
@@ -3338,8 +3345,8 @@ def process_OrgNomination(request):
         except:
             org_exists = False
 
-        # if org doesn't exist and user is new and user is new OR user exists, but not affiliated
-        if (not org_exists and not user_to_check) or (not org_exists and not is_admin):
+        # send email to bizdev in case the nominated org doesn't exist
+        if not org_exists:
             sendTransactionalEmail(
                 'new-org-nominated',
                 None,
@@ -3372,6 +3379,8 @@ def process_OrgNomination(request):
                 'bizdev@opencurrents.com'
             )
 
+        # if org doesn't exist and user is new and user is new OR user exists, but not affiliated
+        if (not org_exists and not user_to_check) or (not org_exists and not is_admin):
             return redirect('openCurrents:profile', status_msg='Thank you for nominating %s! We will reach out soon.' % org_name)
 
         # if org is new, but user is affiliated admin
@@ -3379,19 +3388,18 @@ def process_OrgNomination(request):
             return redirect(
                 'openCurrents:profile',
                 status_msg='Thanks for nominating {}, it seems that {} is already affiliated with an organization on openCurrents.'.format(org_name, contact_email),
-                msg_type = 'alert'
             )
 
         else:
             return redirect(
                 'openCurrents:profile',
                 status_msg='Thanks for nominating {0}, it seems that {0} is already active openCurrents.'.format(org_name),
-                msg_type = 'alert'
             )
 
     return redirect(
         'openCurrents:time-tracker',
-        status_msg='Organization name is required'
+        status_msg='Organization name is required',
+        msg_type='alert'
     )
 
 def process_login(request):
