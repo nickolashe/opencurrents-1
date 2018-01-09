@@ -6,9 +6,6 @@
 
     {% include "partials/head.html" %}
 
-    <link rel="stylesheet" type="text/css" href="{% static 'css/addtohomescreen.css' %}">
-    <script src="{% static 'js/addtohomescreen.js' %}"></script>
-
     {% block head %}{% endblock head %}
 
     <title>openCurrents</title>
@@ -67,11 +64,6 @@
 
     {% block js %}{% endblock js %}
 
-    <script type="text/javascript">( function(){ window.SIG_EXT = {}; } )()</script>
-
     {% include "partials/end-scripts.html" %}
-    <script>
-        addToHomescreen();
-    </script>
   </body>
 </html>
