@@ -749,9 +749,11 @@ class MarketplaceView(LoginRequiredMixin, SessionContextView, ListView):
         context['user_balance_available'] = user_balance_available
 
         # workaround with status message for ListView
-        if self.kwargs.get('status_msg') is None:
-            context['status_msg'] = ''
+        if 'status_msg' in self.kwargs:
+            context['status_msg'] = self.kwargs.get('status_msg', '')
 
+        if 'msg_type' in self.kwargs:
+            context['msg_type'] = self.kwargs.get('msg_type', '')
         return context
 
 
@@ -1281,10 +1283,16 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             for kw_key, kw_value in kwargs.iteritems():
                 self.add_to_email_vars(email_vars, kw_key, kw_value)
 
+        # selecting template for emails
+        if 'template' in kwargs.keys():
+            template = 'volunteer-invites-org'
+        else:
+            template = 'volunteer-invites-admin'
+
         if doInvite:
             try:
                 sendTransactionalEmail(
-                    'volunteer-invites-admin',
+                    template,
                     None,
                     email_vars,
                     admin_email,
@@ -1508,10 +1516,6 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             user =  User.objects.get(id = user_id)
             if user in admins_dict.keys():
                 final_dict[user] = admins_dict.pop(user)
-            else:
-                logger.error('User with user ID {} doesn\'t belong to any group.'.format(user_id))
-                return redirect('openCurrents:403')
-
 
             # sorting dict
             temp_dict = OrderedDict(sorted(admins_dict.items(), key=lambda d: d[1] , reverse=True))
@@ -3332,16 +3336,25 @@ def process_OrgNomination(request):
 
         try:
             user_to_check = User.objects.get(email=contact_email)
-            is_admin = OrgUserInfo(user_to_check.id).is_user_in_org_group()
         except:
+            user_to_check = None
+
+        if not user_to_check:
             is_admin = False
+        else:
+            try:
+                user_to_check = User.objects.get(email=contact_email)
+                is_admin = OrgUserInfo(user_to_check.id).is_user_in_org_group()
+            except:
+                is_admin = False
 
         try:
             org_exists = Org.objects.filter(name=org_name).exists()
         except:
             org_exists = False
 
-        if is_admin and org_exists:
+        # if org doesn't exist and user is new and user is new OR user exists, but not affiliated
+        if (not org_exists and not user_to_check) or (not org_exists and not is_admin):
             sendTransactionalEmail(
                 'new-org-nominated',
                 None,
@@ -3376,7 +3389,8 @@ def process_OrgNomination(request):
 
             return redirect('openCurrents:profile', status_msg='Thank you for nominating %s! We will reach out soon.' % org_name)
 
-        elif not is_admin:
+        # if org is new, but user is affiliated admin
+        elif not org_exists and is_admin:
             return redirect(
                 'openCurrents:profile',
                 status_msg='Thanks for nominating {}, it seems that {} is already affiliated with an organization on openCurrents.'.format(org_name, contact_email),
