@@ -3334,8 +3334,8 @@ def process_OrgNomination(request):
         except:
             org_exists = False
 
+        # send email to bizdev in case the nominated org doesn't exist
         if not org_exists:
-
             sendTransactionalEmail(
                 'new-org-nominated',
                 None,
