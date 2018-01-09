@@ -3334,8 +3334,8 @@ def process_OrgNomination(request):
         except:
             org_exists = False
 
-        # if org doesn't exist and user is new and user is new OR user exists, but not affiliated
-        if (not org_exists and not user_to_check) or (not org_exists and not is_admin):
+        # if org doesn't exist
+        if not org_exists:
             sendTransactionalEmail(
                 'new-org-nominated',
                 None,
@@ -3374,8 +3374,7 @@ def process_OrgNomination(request):
         elif not org_exists and is_admin:
             return redirect(
                 'openCurrents:profile',
-                status_msg='Thanks for nominating {}, it seems that {} is already affiliated with an organization on openCurrents.'.format(org_name, contact_email),
-                msg_type = 'alert'
+                status_msg='Thanks for nominating {}, it seems that {} is already affiliated with an organization on openCurrents.'.format(org_name, contact_email)
             )
 
         else:
