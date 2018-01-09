@@ -748,12 +748,6 @@ class MarketplaceView(LoginRequiredMixin, SessionContextView, ListView):
         )
         context['user_balance_available'] = user_balance_available
 
-        # workaround with status message for ListView
-        if 'status_msg' in self.kwargs:
-            context['status_msg'] = self.kwargs.get('status_msg', '')
-
-        if 'msg_type' in self.kwargs:
-            context['msg_type'] = self.kwargs.get('msg_type', '')
         return context
 
 
@@ -2094,14 +2088,10 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
 
     def email_parser(self, a_string):
         """
-        analyzes the a_string if it matches the
-        'Firstname Lastname <email@email.com>'
-        or <'email@email.com'>
-        or 'email@email.com'
+        looks for an email addres in a_string and returns email string if valid
         """
-
         # setting up pattern
-        pattern = r"(?:([^<>\s]+)(?: )([^<>\s]+)\s<([^<>]+@[^<>]+)>)|([^<>]+@[^<>]+)"
+        pattern = r"([a-zA-Z0-9_\-\.]+@[a-zA-Z0-9_\-\.]+\.[a-zA-Z]{2,5})"
 
         # setting up variables
         firstname = lastname = email1 = email2 = None
@@ -2111,17 +2101,12 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         if re.search(pattern, a_string):
             matches = re.findall(pattern, a_string)
             for match in matches:
-                if match[0] != '':
-                    firstname = strip(match[0])
-                if match[1] != '':
-                    lastname = strip(match[1])
-                if match[2] != '':
-                    email1 = strip(match[2])
-                if match[3] != '':
-                    email2 = strip(match[3])
+                if match != '':
+                    email = strip(match)
 
-        return firstname, lastname, email1, email2
-
+                    return email
+        else:
+            return False
 
 
     def post(self, request, *args, **kwargs):
@@ -2156,10 +2141,12 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
             num_vols = int(post_data['count-vol'])
 
         else:
-            bulk_list_raw = re.split(',', post_data['bulk-vol'].lower())
+            bulk_list_raw = re.split(',|\n|\s', post_data['bulk-vol'].lower())
             bulk_list = []
             for email_string in bulk_list_raw:
-                bulk_list.append(self.email_parser(email_string))
+                email = self.email_parser(email_string)
+                if email:
+                    bulk_list.append(email)
             num_vols = len(bulk_list)
 
         for i in range(num_vols):
@@ -2179,6 +2166,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                     try:
                         user_new = OcUser().setup_user(
                             username=email_list,
+                            first_name=post_data['vol-name-'+str(i+1)],
                             email=email_list,
                         )
                     except UserExistsException:
@@ -2203,14 +2191,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                 # setting vars' default values in case we couldn't get all needed data from parsed email
                 first_name = last_name = user_email = None
                 try:
-                    if bulk_list[i][0]:
-                        first_name = bulk_list[i][0]
-                    if bulk_list[i][1]:
-                        last_name = bulk_list[i][1]
-                    if bulk_list[i][2]:
-                        user_email = bulk_list[i][2]
-                    if bulk_list[i][3]:
-                        user_email = bulk_list[i][3]
+                    user_email = bulk_list[i]
                 except:
                     logger.error('Unable to read from parsed email')
 
@@ -2225,9 +2206,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                     try:
                         user_new = OcUser().setup_user(
                             username=user_email,
-                            email=user_email,
-                            first_name=first_name,
-                            last_name=last_name
+                            email=user_email
                         )
                     except UserExistsException:
                         user_new = User.objects.get(username=user_email)
@@ -2293,6 +2272,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                     'content': event.datetime_end.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p')
                 },
             ])
+
 
             try:
                 if k:
