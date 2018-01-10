@@ -227,9 +227,10 @@ class OcUser(object):
             else:
                 timelog = rec
 
-            if not timelog.event.id in event_user:
-                event_user.add(timelog.event.id)
-                balance += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
+            event = timelog.event
+            if not event.id in event_user:
+                event_user.add(event.id)
+                balance += (event.datetime_end - event.datetime_start).total_seconds() / 3600
 
         return balance
 

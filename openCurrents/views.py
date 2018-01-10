@@ -132,6 +132,13 @@ class SessionContextView(View):
         context['is_admin_org'] = self.ocauth.is_admin_org()
         context['is_admin_biz'] = self.ocauth.is_admin_biz()
 
+        # workaround with status message for anything but TemplateView
+        if 'status_msg' in self.kwargs and ('form' not in context or not context['form'].errors):
+            context['status_msg'] = self.kwargs.get('status_msg', '')
+
+        if 'msg_type' in self.kwargs:
+            context['msg_type'] = self.kwargs.get('msg_type', '')
+
         return context
 
 
@@ -307,13 +314,6 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, FormView):
             val = getattr(self.org, field)
             if val:
                 context['form'].fields[field].widget.attrs['value'] = val
-
-        # workaround with status message for anything but TemplateView
-        if 'status_msg' in self.kwargs and not context['form'].errors:
-            context['status_msg'] = self.kwargs.get('status_msg', '')
-
-        if 'msg_type' in self.kwargs:
-            context['msg_type'] = self.kwargs.get('msg_type', '')
 
         return context
 
@@ -620,6 +620,10 @@ class CausesView(TemplateView):
     template_name = 'causes.html'
 
 
+class FaqView(TemplateView):
+    template_name = 'faq.html'
+
+
 class EditHoursView(TemplateView):
     template_name = 'edit-hours.html'
 
@@ -749,8 +753,8 @@ class MarketplaceView(LoginRequiredMixin, SessionContextView, ListView):
         context['user_balance_available'] = user_balance_available
 
         # workaround with status message for ListView
-        context['status_msg'] = self.kwargs.get('status_msg')
-        context['msg_type'] = self.kwargs.get('msg_type')
+        if self.kwargs.get('status_msg') is None:
+            context['status_msg'] = ''
 
         return context
 
@@ -878,7 +882,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         context = super(RedeemCurrentsView, self).get_context_data(**kwargs)
         context['offer'] = Offer.objects.get(id=self.kwargs['offer_id'])
         context['cur_rate'] = convert._USDCUR
-        context['tr_fee'] = convert._TR_FEE * 100
+        context['tr_fee'] = int(convert._TR_FEE * 100)
         return context
 
     def get_form_kwargs(self):
@@ -1369,10 +1373,6 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             usertimelog = UserTimeLog.objects.filter(user__id=userid).order_by('datetime_start').reverse()[0]
             actiontimelog = AdminActionUserTime.objects.filter(usertimelog = usertimelog)
             context['org_stat_id'] = actiontimelog[0].usertimelog.event.project.org.id
-            context['status_msg'] = self.kwargs.pop('status_msg')
-
-            if self.kwargs['msg_type']:
-                context['msg_type'] = self.kwargs.pop('msg_type')
 
             if context['org_stat_id']==userid:
                 context['org_stat_id'] = ''

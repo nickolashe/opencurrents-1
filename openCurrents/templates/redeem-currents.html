@@ -329,7 +329,7 @@
           }
 
           console.log('priceUsed:' + priceSubjectToShare.currents);
-          const fee = (parseFloat({{tr_fee}}) * priceSubjectToShare.dollars).toFixed(2);
+          const fee = (parseFloat({{tr_fee}} / 100) * priceSubjectToShare.dollars).toFixed(2);
           let dollarsReceived = (priceSubjectToShare.dollars - fee).toFixed(2);
 
           $('.currents-total').text(priceSubjectToShare.currents);
