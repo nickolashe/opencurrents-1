@@ -2156,26 +2156,32 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
 
         for i in range(num_vols):
 
+            # processing individual emails
             if post_data['bulk-vol'].encode('ascii','ignore') == '':
                 email_list = post_data['vol-email-'+str(i+1)].lower()
 
                 if email_list != '':
-                    if email_list not in user_list:
-                        k.append({"email":email_list, "name":post_data['vol-name-'+str(i+1)],"type":"to"})
-
-                    elif email_list in user_list:
-                        k_old.append({"email":email_list, "name":post_data['vol-name-'+str(i+1)],"type":"to"})
 
                     user_new = None
 
-                    try:
-                        user_new = OcUser().setup_user(
-                            username=email_list,
-                            first_name=post_data['vol-name-'+str(i+1)],
-                            email=email_list,
-                        )
-                    except UserExistsException:
-                        user_new = User.objects.get(username=email_list)
+                    if email_list not in user_list:
+                        k.append({"email":email_list, "name":post_data['vol-name-'+str(i+1)],"type":"to"})
+
+                        try:
+                            user_new = OcUser().setup_user(
+                                username=email_list,
+                                first_name=post_data['vol-name-'+str(i+1)],
+                                email=email_list,
+                            )
+                        except UserExistsException:
+                            user_new = User.objects.get(username=email_list)
+
+                    elif email_list in user_list:
+                        if (not event_create_id and not User.objects.get(email=email_list).has_usable_password()) \
+                            or \
+                            (event_create_id and User.objects.get(email=email_list).has_usable_password()):
+
+                            k_old.append({"email":email_list, "name":post_data['vol-name-'+str(i+1)],"type":"to"})
 
                     if user_new and event_create_id:
                         try:
@@ -2192,7 +2198,9 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                 else:
                     num_vols -= 1
 
+            # processing emails from bulk field
             elif post_data['bulk-vol'] != '':
+
                 # setting vars' default values in case we couldn't get all needed data from parsed email
                 first_name = last_name = user_email = None
                 try:
@@ -2201,20 +2209,26 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                     logger.error('Unable to read from parsed email')
 
                 # user_email = str(bulk_list[i].strip())
-                if user_email and user_email not in user_list:
-                    k.append({"email":user_email, "type":"to"})
-                elif user_email in user_list:
-                    k_old.append({"email":user_email, "type":"to"})
+
                 user_new = None
 
-                if user_email:
-                    try:
-                        user_new = OcUser().setup_user(
-                            username=user_email,
-                            email=user_email
-                        )
-                    except UserExistsException:
-                        user_new = User.objects.get(username=user_email)
+                if user_email and user_email not in user_list:
+                    k.append({"email":user_email, "type":"to"})
+
+                    if user_email:
+                        try:
+                            user_new = OcUser().setup_user(
+                                username=user_email,
+                                email=user_email
+                            )
+                        except UserExistsException:
+                            user_new = User.objects.get(username=user_email)
+
+                elif user_email in user_list:
+                    if (not event_create_id and not User.objects.get(email=user_email).has_usable_password())\
+                        or \
+                        (event_create_id and User.objects.get(email=user_email).has_usable_password()):
+                        k_old.append({"email":user_email, "type":"to"})
 
                 if user_new and event_create_id:
                     try:
@@ -2239,6 +2253,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                 })
 
         try:
+            # inviting volunteers (event-based)
             event=Event.objects.get(id=event_create_id[0])
             events = Event.objects.filter(id__in=event_create_id)
             loc = [str(i.location).split(',')[0] for i in events]
@@ -2310,6 +2325,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                 )
         except Exception as e:
             try:
+                # inviting volunteers (non-event-based)
                 email_template_merge_vars.extend([
                         {
                             'name': 'ADMIN_FIRSTNAME',
@@ -2324,13 +2340,25 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                             'content': Organisation
                         },
                     ])
-                # sending emails only to new users
+                # sending emails to the new users
                 if k:
                     sendBulkEmail(
                         'invite-volunteer',
                         None,
                         email_template_merge_vars,
                         k,
+                        user.email,
+                        session=self.request.session,
+                        marker='1',
+                        test_mode = test_mode
+                    )
+                # sending emails to existing users with no passw
+                if k_old:
+                    sendBulkEmail(
+                        'invite-volunteer-event-existing',
+                        None,
+                        email_template_merge_vars,
+                        k_old,
                         user.email,
                         session=self.request.session,
                         marker='1',
