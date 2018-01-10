@@ -33,7 +33,7 @@
     background-size: cover;
   }
 
-  #volunteer {
+  #faq {
     background: url(/static/img/tree.jpg) no-repeat center center fixed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
@@ -116,7 +116,7 @@
     background-size: cover;
   }
 
-  #volunteer:after {
+  #faq:after {
     content:"";
     position:fixed;
     top:0;
