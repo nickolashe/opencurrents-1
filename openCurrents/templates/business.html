@@ -11,18 +11,19 @@
   <title>Value good work like never before &bull; openCurrents</title>
 {% endblock head %}
 
+{% block page %}business{% endblock page %}
 
 {% block large-links %}
   <a href="{% url 'openCurrents:nonprofit' %}" class="three-halves-margin-right">For nonprofits</a>
   <a href="#1" class="three-halves-margin-right navy">For businesses</a>
-  <a href="{% url 'openCurrents:volunteer' %}" class="three-halves-margin-right">For volunteers</a>
   <a href="{% url 'openCurrents:our-story' %}" class="three-halves-margin-right">Our story</a>
+  <a href="{% url 'openCurrents:faq' %}" class="three-halves-margin-right">FAQ</a>
   <a class="two-margin-right" href="{% url 'openCurrents:login' %}">Log in</a>
 {% endblock large-links %}
 
 
 {% block content %}
-  <div id="business" class="js-close-any" canvas>
+  <div class="js-close-any" canvas>
     <div id="intro-1">
       <div id="1" class="header-spacer"></div>
 
@@ -228,7 +229,7 @@
         <div class="small-11 medium-6 small-centered columns">
           <h2 class="title-sub white">Join openCurrents</h2>
           <div class="one-margin-top">
-            <a href="{% url 'openCurrents:volunteer' %}#5" class="tag button round tiny clear">
+            <a href="{% url 'openCurrents:root' %}#6" class="tag button round tiny clear">
               Register as individual
             </a>
             <a href="{% url 'openCurrents:nonprofit' %}#4" class="tag button round tiny clear">
@@ -279,7 +280,7 @@
     <div class="row center">
       <h2 class="one-margin-top">Join openCurrents</h2>
       <div class="one-margin-top">
-        <a href="{% url 'openCurrents:volunteer' %}#5" class="tag button round tiny secondary">
+        <a href="{% url 'openCurrents:root' %}#6" class="tag button round tiny secondary">
           Register as individual
         </a>
         <a href="{% url 'openCurrents:nonprofit' %}#4" class="tag button round tiny secondary">

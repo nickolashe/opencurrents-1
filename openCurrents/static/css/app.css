@@ -394,10 +394,27 @@ label {
   color: #ffffff;
 }
 
+.accordion {
+  background: transparent;
+}
+
 .accordion-title {
   font-size: 1rem;
   padding: 1rem;
   border-bottom: none;
+  background-color: #ffffff;
+}
+
+.accordion-title:focus {
+  background-color: #ffffff;
+}
+
+.accordion-title::before {
+  content: '';
+}
+
+.is-active > .accordion-title::before {
+  content: '';
 }
 
 /*#volunteer-list li .accordion-title {
@@ -421,14 +438,6 @@ label {
 .accordion-content .button {
   margin-bottom: 0.25rem;
   margin-top: 0.5rem;
-}
-
-.accordion-title::before {
-  content: '';
-}
-
-.is-active > .accordion-title::before {
-  content: '';
 }
 
 /* Align large checkboxes on non-small screens */

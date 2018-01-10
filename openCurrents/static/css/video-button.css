@@ -2,66 +2,86 @@
 
 .thumb-wrapper {
   position: relative;
-  margin: auto;
-  width: 255px;
-}
-
-#video-title {
-  position: absolute;
-  font-size: 1rem;
-  top: 15px;
-  left: 93px;
-  color: #1f4795;
-  -webkit-transition: color 300ms ease-out;
-  transition: color 300ms ease-out; }
-
-.thumb-wrapper:hover #video-title {
-  color: #0f7190;
   -webkit-transition: color 300ms ease-in-out;
   transition: color 300ms ease-in-out;
+  width: 200px;
+  height: 88px;
+  margin: auto;
 }
 
-.thumb-wrapper:hover #play-poly {
-  fill: #0f7190;
+.thumb-box {
+  position: relative;
+  height: 77px;
+  width: 77px;
 }
 
-.thumb-wrapper:hover #play-circle {
-  stroke: #0f7190;
+.play-intro_open:hover #video-title {
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.play-intro_open:hover #play-circle {
+  stroke: #24b2e7;
+}
+
+.play-intro_open:hover #play-poly {
+  stroke: #24b2e7;
+  fill: #ffffff;
 }
 
 .play-intro_open {
   text-decoration: none;
+  -webkit-transition: color 300ms ease-in-out;
+  transition: color 300ms ease-in-out;
 }
+
+#video-title {
+  position: absolute;
+  font-size: 1.125rem;
+  top: 22px;
+  left: 100px;
+  color: #ffffff;
+  -webkit-transition: color 300ms ease-out;
+  transition: color 300ms ease-out; }
 
 #video-thumb {
   border-radius: 100px;
+  position: absolute;
+  left: 0;
+  z-index: 1;
 }
 
 #play-button {
-  width: 100%;
-  height: 100%;
-  z-index: 1; }
+  z-index: 2;
+  position: absolute;
+  left: 0;
+}
 
-#play-button polygon {
-  fill: #1f4795;
+#play-poly {
+  stroke: #ffffff;
+  fill: #24b2e7;
+  -webkit-transition: stroke 300ms ease-out;
+  -moz-transition: stroke 300ms ease-out;
+  transition: stroke 300ms ease-out;
   -webkit-transition: fill 300ms ease-out;
   -moz-transition: fill 300ms ease-out;
-  transition: fill 300ms ease-out; }
+  transition: fill 300ms ease-out;}
 
-#play-button circle {
-  stroke: #1f4795;
+#play-circle {
+  stroke: #ffffff;
   -webkit-transition: stroke 300ms ease-out;
   -moz-transition: stroke 300ms ease-out;
   transition: stroke 300ms ease-out; }
 
-#play-button:hover polygon {
-  fill: #0f7190; }
+/*#play-button:hover polygon {
+  fill: #ffffff;
+  stroke: #24b2e7; }
 
 #play-button circle {
-  stroke: #1f4795; }
+  stroke: #ffffff; }
 
 #play-button:hover circle {
-  stroke: #0f7190; }
+  stroke: #24b2e7; }*/
 
 #play-intro {
   margin: 5rem 0 0; }
@@ -83,13 +103,3 @@
   left: 0;
   width: 100%;
   height: 100%; }
-
-.thumb-wrapper {
-  position: relative;
-  margin: auto;
-  width: 255px;
- }
-
-.thumb-box {
-  position: relative;
-  width: 70px; }
