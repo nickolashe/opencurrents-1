@@ -312,7 +312,8 @@ class TestSignup(TransactionTestCase):
             'login',
             urlconf=urls,
             kwargs={
-                'status_msg': 'User with this email already exists'
+                'status_msg': 'User with this email already exists',
+                'msg_type': 'alert'
             }
         )
         self.assertRedirects(response, url_login)
@@ -421,16 +422,15 @@ class TestSignup(TransactionTestCase):
             }
         )
 
-        self._assert_user(self.test_email, True)
-        self._assert_user_has_usable_password(self.test_email, False)
+        self._assert_user(self.test_email, False) # we don't create a user if org exists
         self._assert_token_valid(self.test_email, False)
         self._assert_org_user(self.orgTest.name, self.test_email, False)
 
         status_message = 'Organization named %s already exists!' % self.orgTest.name
         url_nonprofit = reverse(
-            'nonprofit',
+            'login',
             urlconf=urls,
-            kwargs={'status_msg': status_message}
+            kwargs={'status_msg': status_message, 'msg_type': 'alert'}
         )
         self.assertRedirects(response, url_nonprofit)
 

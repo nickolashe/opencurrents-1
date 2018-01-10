@@ -71,10 +71,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .h6-symbol {
-  vertical-align: top;
+  vertical-align: -3px;
   margin-top: 0.25rem;
   margin-right: -0.125rem;
-  height: 1.25rem;
+  height: 1.125rem;
 }
 
 .large-text-symbol {
@@ -564,6 +564,10 @@ label {
   color: #24b2e7;
 }
 
+.blue-bg {
+  background-color: #24b2e7;
+}
+
 .blue-icon {
   color: #24b2e7;
 }
@@ -819,7 +823,7 @@ a.list-group-item {
 
 #beta-home {
   position: absolute;
-  top: -12px;
+  top: -13px;
   left: 5px;
   color: #888888;
   transition: color 0.25s ease-in-out;

@@ -2,17 +2,20 @@
 {% load staticfiles %}
 
 {% block status %}
-  {% if status == "success" %}
-    <div class="success row one-margin-top">
-      <div class="medium-8 columns small-centered">
-        <p class="no-margin-bottom">Verification email resent. It may take a few minutes for the email to arrive. If you still don't see it, check your Spam folder.</p>
-      </div>
+  <div class="row one-margin-top">
+    <div class="medium-8 columns small-centered">
+      {% if status == "success" %}
+        <p class="success no-margin-bottom">
+          Verification email resent. It may take a few minutes for the email to
+          arrive. If you still don't see it, check your Spam folder.
+        </p>
+      {% elif status == "fail" %}
+        <p class="alert no-margin-bottom">
+          Unable to resend verification email.
+        </p>
+      {% endif %}
     </div>
-  {% elif status == "fail" %}
-    <div class="alert row one-margin-top">
-      <p>Unable to resend verification email.</p>
-    </div>
-  {% endif %}
+  </div>
 {% endblock status %}
 
 {% block heading %}

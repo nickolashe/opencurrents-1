@@ -289,7 +289,6 @@ class CreateEventForm(forms.Form):
         widget=widgets.RadioWidget(
             attrs={
                 'class': 'custom-radio',
-                'id': 'id-event-privacy'
             }
         ),
         choices=[(1, 'public'), (0, 'private')],
@@ -814,8 +813,9 @@ class RedeemCurrentsForm(forms.Form):
         widget= forms.Textarea(attrs={
             'class': 'hidden',
             'rows': '2',
-            })
-        )
+            'placeholder': 'Details to help business identify your purchase'
+        })
+    )
 
     redeem_price = forms.IntegerField(
         widget=forms.NumberInput(),

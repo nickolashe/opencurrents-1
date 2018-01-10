@@ -153,7 +153,7 @@
             <ul class="mini-menu">
               <a href="{% url 'openCurrents:event-detail' event.id %}"><li>View event details</li></a>
               <a href="{% url 'openCurrents:invite-volunteers' event.id %}"><li>Invite volunteers</li></a>
-              <!-- <a href="{% url 'openCurrents:edit-event' event.id %}"><li>Edit event</li></a> -->
+              <a href="{% url 'openCurrents:edit-event' event.id %}"><li>Edit event</li></a>
               <a href="{% url 'openCurrents:live-dashboard' event.id %}"><li>Preview live check-in</li></a>
             </ul>
           </div>
@@ -197,7 +197,7 @@
 -->
   <div class="left row one-margin-top full-width collapse">
     <div class="small-11 medium-10 small-centered columns">
-      <h6 class="half-margin-bottom">Hours pending</h6>
+      <h6 class="half-margin-bottom">Hours pending approval</h6>
 
       {% for admin, total in hours_pending_by_admin.iteritems %}
           <a
