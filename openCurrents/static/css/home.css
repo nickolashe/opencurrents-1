@@ -275,6 +275,12 @@ input.home-input::placeholder {
   margin: 0 0.25rem 1rem;
 }
 
+.intro-icon.clear {
+  background-color: transparent;
+  color: #ffffff;
+  border-color: #ffffff;
+}
+
 
 .business-table {
   padding: 0 0.75rem;

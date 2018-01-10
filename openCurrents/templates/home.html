@@ -1,12 +1,10 @@
 {% extends "layouts/home-base.html" %}
 {% load staticfiles %}
 
-
 {% block head %}
-
   {{ block.super }}
-  <link href="{% static "css/video-button.css" %}" rel="stylesheet" type="text/css">
 
+  <link href="{% static "css/video-button.css" %}" rel="stylesheet" type="text/css">
   <meta name="description" content="openCurrents lets anyone create currency
   by volunteering. Create 1 Current for each hour you work, and use Currents
   for purchases with businesses. It's like getting paid for doing good.">
@@ -71,9 +69,14 @@
 
       <div class="row center three-halves-margin-top two-margin-bottom">
         <div class="small-12 medium-6 large-4 small-centered columns">
-          <a class="signup-box_open button blue-bg round large">Join openCurrents</a>
+          <a class="signup-box_open button blue-bg round large">
+            Join openCurrents
+          </a>
 
-          <a href="#2" class="home-link white"><p class="no-margin-bottom">What are Currents?</p><i class="half-margin-left fa fa-lg fa-angle-down"></i></a>
+          <a href="#2" class="home-link white">
+            <p class="no-margin-bottom">What are Currents?</p>
+            <i class="half-margin-left fa fa-lg fa-angle-down"></i>
+          </a>
         </div>
       </div>
     </div>
@@ -217,14 +220,97 @@
 
     <div id="intro-5">
       <div id="5" class="header-spacer"></div>
+      <div class="row center">
+        <div class="medium-8 small-centered columns">
+          <h3 class="title-sub white">Start earning Currents</h3>
+        </div>
+      </div>
+
+      <div class="row two-margin-top">
+        <div class="two-margin-bottom center small-centered medium-12 columns">
+          <div class="relative small-12 medium-4 columns">
+            <div class="row">
+              <div for="benefit-sm-1" class="intro-icon clear">
+                <i class="fa fa-2x fa-heartbeat"></i>
+              </div>
+              <p class="no-margin-bottom"><strong>Volunteer</strong></p>
+            </div>
+            <div class="business-table row">
+              <p class="">
+                Join openCurrents and start investing time for the greater
+                good. Give 1 hour to create 1 Current.
+              </p>
+              <img class="show-for-small-only business-arrow-sm"
+              src="{% static "img/arrow-down-white.png" %}"/>
+            </div>
+
+            <img class="hide-for-small-only business-arrow"
+            src="{% static "img/arrow-right-white.png" %}"/>
+          </div>
+
+          <div class="relative small-12 medium-4 columns">
+            <div class="row">
+              <div for="benefit-sm-1" class="intro-icon clear">
+                <img id="home-symbol" src="{% static 'img/symbol-white.svg' %}" alt="">
+              </div>
+              <p class="no-margin-bottom"><strong>
+                Visit the marketplace
+              </strong></p>
+            </div>
+
+            <div class="business-table row">
+              <p class="">
+                Purchase from participating businesses, then upload your receipt
+                to openCurrents.
+              </p>
+              <img class="show-for-small-only business-arrow-sm"
+              src="{% static "img/arrow-down-white.png" %}"/>
+            </div>
+
+            <img class="hide-for-small-only business-arrow"
+            src="{% static "img/arrow-right-white.png" %}"/>
+          </div>
+
+          <div class="small-12 medium-4 columns">
+            <div class="row">
+              <div for="benefit-sm-1" class="intro-icon clear">
+                <i class="fa fa-2x fa-money"></i>
+              </div>
+              <p class="no-margin-bottom"><strong>
+                Get cash back
+              </strong></p>
+            </div>
+
+            <div class="business-table row">
+              <p class="">
+                Receive dollars from businesses to your account at the end of
+                the month.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row center two-margin-top">
+        <div class="medium-6 small-centered columns">
+          <a href="#5" class="home-link white">
+            <p class="no-margin-bottom">Join the community</p>
+            <i class="two-margin-bottom fa fa-lg fa-angle-down"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div id="intro-6">
+      <div id="6" class="header-spacer"></div>
 
       <div class="row center">
-        <h2 class="title-sub white">Join openCurrents</h2>
+        <h2 class="title-sub">Join openCurrents</h2>
         <div class="one-margin-top">
-          <a href="{% url 'openCurrents:nonprofit' %}#4" class="tag button round tiny clear">
+          <a href="{% url 'openCurrents:nonprofit' %}#4" class="tag button round tiny secondary">
             Register a nonprofit
           </a>
-          <a href="{% url 'openCurrents:business' %}#5" class="tag button round tiny clear">
+          <a href="{% url 'openCurrents:business' %}#5" class="tag button round tiny secondary">
             Register a business
           </a>
         </div>
@@ -236,21 +322,21 @@
           <div class="center small-12 medium-8 small-centered columns">
 
             <div class="small-6 columns">
-              <input class="home-input lead center" type="text" name="user_firstname" placeholder="First name" required />
+              <input class="lead center" type="text" name="user_firstname" placeholder="First name" required />
             </div>
 
             <div class="small-6 columns">
-              <input class="home-input lead center" type="text" name="user_lastname" placeholder="Last name" required />
+              <input class="lead center" type="text" name="user_lastname" placeholder="Last name" required />
             </div>
             <div class="small-12 columns">
-              <input class="home-input lead center" type="email" name="user_email" placeholder="Email address" required />
+              <input class="lead center" type="email" name="user_email" placeholder="Email address" required />
             </div>
           </div>
         </div>
 
         <div class="row center one-margin-top">
-          <input type="submit" class="button large round blue-bg" value="I'm in!"/>
-          <a href="javascript:void(Tawk_API.toggle())" class="large-text white home-link">
+          <input type="submit" class="button large round" value="I'm in!"/>
+          <a href="javascript:void(Tawk_API.toggle())" class="large-text">
             <p>
               I have a question
               <i class="half-margin-left fa fa-angle-right"></i>
