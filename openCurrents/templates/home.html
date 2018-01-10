@@ -27,7 +27,7 @@
 
 
 {% block content %}
-  <div id="home" class="js-close-any" canvas>
+  <div class="js-close-any" canvas>
     <div id="intro-1">
       <div id="1" class="header-spacer"></div>
 
@@ -350,9 +350,21 @@
 
 
 {% block popups %}
-  <div id="play-intro" class="modal small-12 medium-10 large-9 small-centered columns">
-    <div class="videoWrapper">
-      <iframe id="intro-video" width="1280" height="720" src="" allowscriptaccess="always" frameborder="0" allowfullscreen></iframe>
+  <div id="play-intro" class="modal small-12 medium-8 small-centered columns">
+    <div class="row">
+      <div class="videoWrapper">
+        <iframe width="1280" height="720" src="https://www.youtube.com/embed/4a9FEjTaswc"
+        frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+      </div>
+    </div>
+
+    <div class="row center one-margin-top">
+      <a class="signup-box_open play-intro_close button round tiny no-margin-bottom">
+        Join openCurrents
+      </a>
+      <a class="play-intro_close button round tiny secondary no-margin-bottom">
+        Close
+      </a>
     </div>
   </div>
 

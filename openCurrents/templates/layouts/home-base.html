@@ -32,7 +32,7 @@
 
         {% include "popups/beta-popup.html" %}
 
-        <div class="hide-for-small-only one-margin-top medium-8 right columns end">
+        <div class="show-for-large one-margin-top medium-8 right columns end">
           {% block large-links %}
             <a href="{% url 'openCurrents:nonprofit' %}" class="three-halves-margin-right">For nonprofits</a>
             <a href="{% url 'openCurrents:business' %}" class="three-halves-margin-right">For businesses</a>
@@ -42,7 +42,7 @@
           {% endblock large-links %}
         </div>
 
-        <div class="show-for-small-only small-2 relative columns right end">
+        <div class="hide-for-large small-2 relative columns right end">
           <a class="toggle-menu">
             {% include 'partials/tilde-menu.html' %}
           </a>
