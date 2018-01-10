@@ -39,6 +39,16 @@ class Org(models.Model):
     date_created = models.DateTimeField('date created', auto_now_add=True)
     date_updated = models.DateTimeField('date updated', auto_now=True)
 
+    @property
+    def no_info(self):
+        no_info = True
+        fields = [self.website, self.phone, self.email, self.address, self.intro ]
+
+        if any (f != '' for f in fields):
+            no_info = False
+
+        return no_info
+
     def __unicode__(self):
         return ' '.join([
             str(self.status),

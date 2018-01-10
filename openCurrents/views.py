@@ -124,6 +124,7 @@ class SessionContextView(View):
         orguser = OrgUserInfo(userid)
         org = orguser.get_org()
         orgid = orguser.get_org_id()
+        context['org'] = org
         context['orgid'] = orgid
         context['org_id'] = orgid
         context['orgname'] = orguser.get_org_name()

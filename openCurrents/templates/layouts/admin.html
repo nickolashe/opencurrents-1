@@ -51,6 +51,8 @@
       {% endblock heading-left %}
     </div>
 
+    aaaa: {{org.no_info}}
+
     <div class="right one-margin-top medium-5 columns end">
       {% block heading-right %}
         <div class="no-wrap qtr-margin-top">
@@ -300,6 +302,15 @@
         transition: 'all 0.75s',
         scrolllock: true,
       });
+
+      {% if org.no_info %}
+          $('#biz-details-popup').popup({
+            vertical: 'top',
+            transition: 'all 0.75s',
+            scrolllock: true,
+            autoopen: true,
+          });
+      {% endif %}
 
       $('#id_phone').mask('000-000-0000')
 
