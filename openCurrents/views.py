@@ -328,6 +328,13 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, FormView):
             intro=data['intro']
         )
 
+        if self.org.no_info:
+            return redirect(
+                'openCurrents:biz-admin',
+                status_msg='%s\'s details are blank, please add details' % self.org.name,
+                msg_type='alert'
+            )
+
         return redirect(
             'openCurrents:biz-admin',
             status_msg='Thank you for adding %s\'s details' % self.org.name
