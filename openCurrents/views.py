@@ -328,17 +328,17 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, FormView):
             intro=data['intro']
         )
 
-        if self.org.no_info:
+        if all (i == '' for i in data.values()):
             return redirect(
                 'openCurrents:biz-admin',
                 status_msg='%s\'s details are blank, please add details' % self.org.name,
                 msg_type='alert'
             )
-
-        return redirect(
-            'openCurrents:biz-admin',
-            status_msg='Thank you for adding %s\'s details' % self.org.name
-        )
+        else:
+            return redirect(
+                'openCurrents:biz-admin',
+                status_msg='Thank you for adding %s\'s details' % self.org.name
+            )
 
 class BusinessView(TemplateView):
     template_name = 'business.html'
@@ -1447,10 +1447,12 @@ class VolunteersInvitedView(LoginRequiredMixin, SessionContextView, TemplateView
         return context
 
 
-class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
+class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
     template_name = 'profile.html'
     login_url = '/home'
     redirect_unauthenticated_users = True
+    form_class = BizDetailsForm
+
 
     def get_context_data(self, **kwargs):
         context = super(ProfileView, self).get_context_data(**kwargs)
@@ -1502,6 +1504,28 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         context['biz_currents_total'] = OcCommunity().get_biz_currents_total()
 
         return context
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        Org.objects.filter(id=self.org.id).update(
+            website=data['website'],
+            phone=data['phone'],
+            email=data['email'],
+            address=data['address'],
+            intro=data['intro']
+        )
+
+        if all (i == '' for i in data.values()):
+            return redirect(
+                'openCurrents:biz-admin',
+                status_msg='%s\'s details are blank, please add details' % self.org.name,
+                msg_type='alert'
+            )
+        else:
+            return redirect(
+                'openCurrents:biz-admin',
+                status_msg='Thank you for adding %s\'s details' % self.org.name
+            )
 
 
 class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView):
@@ -3357,6 +3381,14 @@ def process_signup(
 def process_OrgNomination(request):
     form = OrgNominationForm(request.POST)
 
+    def is_any_org_admin(user_to_check_id):
+        try:
+            is_admin_npf = OcAuth(user_to_check_id).is_admin_org()
+            is_admin_biz = OcAuth(user_to_check_id).is_admin_biz()
+        except:
+            is_admin_npf = is_admin_biz = False
+        return is_admin_npf or is_admin_biz
+
     if form.is_valid():
         org_name = form.cleaned_data['org_name']
         contact_name = form.cleaned_data['contact_name']
@@ -3372,7 +3404,7 @@ def process_OrgNomination(request):
         else:
             try:
                 user_to_check = User.objects.get(email=contact_email)
-                is_admin = OrgUserInfo(user_to_check.id).is_user_in_org_group()
+                is_any_org_admin(user_to_check.id)
             except:
                 is_admin = False
 
