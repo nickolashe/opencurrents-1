@@ -3404,7 +3404,7 @@ def process_OrgNomination(request):
         else:
             try:
                 user_to_check = User.objects.get(email=contact_email)
-                is_any_org_admin(user_to_check.id)
+                is_admin = is_any_org_admin(user_to_check.id)
             except:
                 is_admin = False
 
@@ -3413,9 +3413,8 @@ def process_OrgNomination(request):
         except:
             org_exists = False
 
-        # send email to bizdev in case the nominated org doesn't exist
-        if not org_exists:
-            sendTransactionalEmail(
+        # send email to bizdev in any case
+        sendTransactionalEmail(
                 'new-org-nominated',
                 None,
                 [
@@ -3447,28 +3446,71 @@ def process_OrgNomination(request):
                 'bizdev@opencurrents.com'
             )
 
-        # if org doesn't exist and user is new and user is new OR user exists, but not affiliated
-        if (not org_exists and not user_to_check) or (not org_exists and not is_admin):
-            return redirect('openCurrents:profile', status_msg='Thank you for nominating %s! We will reach out soon.' % org_name)
-
-        # if org is new, but user is affiliated admin
-        elif not org_exists and is_admin:
+        if org_exists:
             return redirect(
                 'openCurrents:profile',
-                status_msg='Thanks for nominating {}, it seems that {} is already affiliated with an organization on openCurrents.'.format(org_name, contact_email),
+                status_msg='It seems that {} is already active on openCurrents. Thanks for the nomination!.'.format(org_name),
+                msg_type='alert'
             )
 
         else:
-            return redirect(
-                'openCurrents:profile',
-                status_msg='Thanks for nominating {0}, it seems that {0} is already active openCurrents.'.format(org_name),
-            )
+            # if it's a new user or existing user but not affiliated
+            if not user_to_check or (user_to_check and not is_admin):
+
+                # emailing admin with volunteer_invite_org
+
+                # TODO uncomment below when volunteer_invite_org is added to mandrill
+                # sendTransactionalEmail(
+                #     'volunteer_invite_org',
+                #     None,
+                #     [
+                #         {
+                #             'name': 'FNAME',
+                #             'content': request.user.first_name
+                #         },
+                #         {
+                #             'name': 'LNAME',
+                #             'content': request.user.last_name
+                #         },
+                #         {
+                #             'name': 'EMAIL',
+                #             'content': request.user.email
+                #         },
+                #         {
+                #             'name': 'COORD_NAME',
+                #             'content': contact_name
+                #         },
+                #         {
+                #             'name': 'COORD_EMAIL',
+                #             'content': contact_email
+                #         },
+                #         {
+                #             'name': 'ORG_NAME',
+                #             'content': org_name
+                #         }
+                #     ],
+                #     contact_email
+                # )
+
+                return redirect(
+                    'openCurrents:profile',
+                    status_msg='Thank you for nominating {} and growing our community! We will reach out soon.'.format(org_name),
+                )
+
+            # else user exists and affiliated
+            else:
+                return redirect(
+                    'openCurrents:profile',
+                    status_msg='It seems that {} is already affiliated with an organization on openCurrents. Thanks for the nomination!'.format(contact_email),
+                    msg_type='alert'
+                )
 
     return redirect(
         'openCurrents:time-tracker',
         status_msg='Organization name is required',
         msg_type='alert'
     )
+
 
 def process_login(request):
     form = UserLoginForm(request.POST)
