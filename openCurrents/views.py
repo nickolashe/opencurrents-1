@@ -3681,7 +3681,8 @@ def process_email_confirmation(request, user_email):
             'openCurrents:confirm-account',
             email=user_email,
             token=token,
-            status_msg=errors[0]
+            status_msg=errors[0],
+            msg_type='alert'
         )
 
 

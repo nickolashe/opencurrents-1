@@ -29,6 +29,8 @@ urlpatterns = [
     url(r'^check-email-password/(?P<user_email>[\w\.@\+\-]+)/(?P<status>.*)/$', views.CheckEmailPasswordView.as_view(), name='check-email-password'),
     url(r'^confirm-account/(?P<email>[\w\.@\+\-]+)/(?P<token>\w{8}-\w{4}-\w{4}-\w{4}-\w{12})/$',
         views.ConfirmAccountView.as_view(), name='confirm-account'),
+    url(r'^confirm-account/(?P<email>[\w\.@\+\-]+)/(?P<token>\w{8}-\w{4}-\w{4}-\w{4}-\w{12})/(?P<status_msg>.*)/(?P<msg_type>.*)$',
+        views.ConfirmAccountView.as_view(), name='confirm-account'),
     url(r'^confirm-account/(?P<email>[\w\.@\+\-]+)/(?P<token>\w{8}-\w{4}-\w{4}-\w{4}-\w{12})/(?P<status_msg>.*)/$',
         views.ConfirmAccountView.as_view(), name='confirm-account'),
     url(r'^confirm-account/(?P<email>[\w\.@\+\-]+)/(?P<status_msg>.*)/$',
