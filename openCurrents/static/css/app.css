@@ -805,8 +805,7 @@ label {
 .list-group-item {
   position: relative;
   display: block;
-  height: 60px;
-  padding: 20px 15px;
+  padding: 18px 15px;
   margin-bottom: -1px;
   border-bottom: 1px solid #ddd;
   transition: background-color 0.25s ease-in-out, color 0.25s ease-in-out;
