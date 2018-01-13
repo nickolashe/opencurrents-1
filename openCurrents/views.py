@@ -3456,41 +3456,42 @@ def process_OrgNomination(request):
         else:
             # if it's a new user or existing user but not affiliated
             if not user_to_check or (user_to_check and not is_admin):
-
-                # emailing admin with volunteer_invite_org
-
-                # TODO uncomment below when volunteer_invite_org is added to mandrill
-                # sendTransactionalEmail(
-                #     'volunteer_invite_org',
-                #     None,
-                #     [
-                #         {
-                #             'name': 'FNAME',
-                #             'content': request.user.first_name
-                #         },
-                #         {
-                #             'name': 'LNAME',
-                #             'content': request.user.last_name
-                #         },
-                #         {
-                #             'name': 'EMAIL',
-                #             'content': request.user.email
-                #         },
-                #         {
-                #             'name': 'COORD_NAME',
-                #             'content': contact_name
-                #         },
-                #         {
-                #             'name': 'COORD_EMAIL',
-                #             'content': contact_email
-                #         },
-                #         {
-                #             'name': 'ORG_NAME',
-                #             'content': org_name
-                #         }
-                #     ],
-                #     contact_email
-                # )
+                # emailing admin with volunteer-invites-org
+                sendTransactionalEmail(
+                    'volunteer-invites-org',
+                    None,
+                    [
+                        {
+                            'name': 'ADMIN_NAME',
+                            'content': contact_name
+                        },
+                        {
+                            'name': 'FNAME',
+                            'content': request.user.first_name
+                        },
+                        {
+                            'name': 'LNAME',
+                            'content': request.user.last_name
+                        },
+                        {
+                            'name': 'EMAIL',
+                            'content': request.user.email
+                        },
+                        {
+                            'name': 'COORD_NAME',
+                            'content': contact_name
+                        },
+                        {
+                            'name': 'COORD_EMAIL',
+                            'content': contact_email
+                        },
+                        {
+                            'name': 'ORG_NAME',
+                            'content': org_name
+                        }
+                    ],
+                    contact_email
+                )
 
                 return redirect(
                     'openCurrents:profile',
