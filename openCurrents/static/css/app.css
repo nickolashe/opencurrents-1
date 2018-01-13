@@ -805,10 +805,9 @@ label {
 .list-group-item {
   position: relative;
   display: block;
-  height: 60px;
-  padding: 20px 15px;
-  margin-bottom: -1px;
-  border-bottom: 1px solid #ddd;
+  padding: 17px 15px;
+  margin-bottom: 0px;
+  border-bottom: 1px solid #fff;
   transition: background-color 0.25s ease-in-out, color 0.25s ease-in-out;
 }
 
