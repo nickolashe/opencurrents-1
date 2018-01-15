@@ -101,6 +101,10 @@
                     {{ org.intro }}
                   </p>
                 {% endif %}
+
+                {% if not (org.intro or org.email or org.phone or org.address or org.website) %}
+                  <p class="biz-deets-item">No details added.</p>
+                {% endif %}
               </div>
             </div>
           {% endwith %}
