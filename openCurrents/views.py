@@ -2412,7 +2412,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                 # sending emails to existing users with no passw
                 if k_old:
                     sendBulkEmail(
-                        'invite-volunteer-event-existing',
+                        'invite-volunteer,
                         None,
                         email_template_merge_vars,
                         k_old,
