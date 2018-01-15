@@ -102,7 +102,7 @@
                   </p>
                 {% endif %}
 
-                {% if not (org.intro or org.email or org.phone or org.address or org.website) %}
+                {% if not org.intro and not org.email and not org.phone and not org.address and not org.website %}
                   <p class="biz-deets-item">No details added.</p>
                 {% endif %}
               </div>
