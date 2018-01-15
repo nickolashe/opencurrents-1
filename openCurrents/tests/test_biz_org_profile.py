@@ -107,6 +107,6 @@ class TestOfferDelete(SetupAll):
 
         response = self.client.get('/biz-admin/')
 
-        self.assertEqual(response.context['currents_pending'], 12 )
+        self.assertEqual(response.context['currents_pending'], 24 )
         self.assertEqual(len(response.context['offers']), 1 )
 
