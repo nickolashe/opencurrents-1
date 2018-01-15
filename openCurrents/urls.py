@@ -36,7 +36,7 @@ urlpatterns = [
     url(r'^confirm-account/(?P<email>[\w\.@\+\-]+)/(?P<status_msg>.*)/$',
         views.ConfirmAccountView.as_view(), name='confirm-account'),
     url(r'^community/$', views.CommunityView.as_view(), name='community'),
-    url(r'^faq/$', views.FaqView.as_view(), name='faq'),
+    url(r'^delete-offer/(?P<pk>\d+)/$', views.DeleteOfferView.as_view(), name='delete-offer'),
     url(r'^login/$', views.LoginView.as_view(), name='login'),
     url(r'^login/(?P<status_msg>.*)/$', views.LoginView.as_view(), name='login'),
     url(r'^login/(?P<status_msg>.*)/(?P<msg_type>.*)$', views.LoginView.as_view(), name='login'),

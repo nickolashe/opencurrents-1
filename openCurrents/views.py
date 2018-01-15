@@ -4,10 +4,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render, redirect
 from django.views.generic import View, ListView, TemplateView, DetailView, CreateView
-from django.views.generic.edit import FormView
+from django.views.generic.edit import FormView, DeleteView
 from django.contrib.auth.models import User, Group
 from django.db import transaction, IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
+from django.urls import reverse, reverse_lazy
 from django.utils.safestring import mark_safe
 from django.utils import timezone
 from django.db.models import F, Q, Max
@@ -358,6 +359,30 @@ class ConfirmAccountView(TemplateView):
 
 class CommunityView(TemplateView):
     template_name = 'community.html'
+
+
+class DeleteOfferView(BizAdminPermissionMixin, TemplateView):
+    template_name = 'delete-offer.html'
+
+    def post(self, request, *args, **kwargs):
+
+        status_msg = "Couldn't process the offer"
+        msg_type = 'alert'
+
+        if request.method == 'POST':
+            try :
+                offer_id = kwargs['pk']
+                # mark the offer as inactive
+                offer = Offer.objects.get(pk=offer_id)
+                offer.is_active = False
+                offer.save()
+
+                status_msg = 'The offer "{}" has been removed'.format(offer)
+                msg_type = ''
+            except:
+                logger.error("Couldn't process the offer {}".format(offer))
+
+        return redirect('openCurrents:biz-admin', status_msg, msg_type)
 
 
 class LoginView(TemplateView):
