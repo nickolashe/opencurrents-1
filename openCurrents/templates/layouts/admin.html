@@ -283,10 +283,18 @@
 
   <script type="text/javascript">
     $(document).ready(function(){
-      $('#view-receipt-popup, #delete-offer-popup, #biz-details-popup').popup({
+      $('#view-receipt-popup, #delete-offer-popup').popup({
         vertical: 'top',
         transition: 'all 0.75s',
         scrolllock: true,
+      });
+
+      $('#biz-details-popup').popup({
+        vertical: 'top',
+        transition: 'all 0.75s',
+        scrolllock: true,
+        escape: false,
+        blur: false
       });
 
       $('#id_phone').mask('000-000-0000')

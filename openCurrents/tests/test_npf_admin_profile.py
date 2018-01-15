@@ -46,6 +46,7 @@ import uuid
 import random
 import string
 import re
+from collections import OrderedDict
 
 from unittest import skip
 
@@ -92,6 +93,10 @@ class NpfAdminView(TestCase):
         self.create_user('org_user_1', org, is_org_user=True, is_org_admin=True)
         self.create_user('org_user_2', org, is_org_user=True, is_org_admin=True, password = 'password2')
         self.create_user('org_user_3', org, is_org_user=True, is_org_admin=True, password = 'password3')
+
+        self.org_user_1 = User.objects.get(username='org_user_1')
+        self.org_user_2 =  User.objects.get(username='org_user_2')
+        self.org_user_3 = User.objects.get(username='org_user_3')
 
         # volunteer user
         self.create_user('volunteer_1', org, is_org_user=False, is_org_admin=False)
@@ -413,7 +418,7 @@ class NpfAdminView(TestCase):
         self.assertIn( '<a href="/create-event/1/"', processed_content)
 
         # assert that events' titles are displayed correctly
-        self.assertIn( "Let's test_project_1!", processed_content)
+        self.assertIn( "test_project_1", processed_content)
 
         # assert that correct LOCATIONS are there
         self.assertContains(response, 'test_location_1', count=1)
@@ -424,25 +429,26 @@ class NpfAdminView(TestCase):
     def test_npf_admin_approved_hours(self):
         response = self.client.get('/org-admin/')
         # checking if pending hours are correctly sorted (logged in admin first then all other admins by amount of pending hours in descending order)
-        expected_list_of_approved_hours_by_each_admin = [{1: 4.0}, {3: 6.0}, {2: 2.0}]
-        self.assertListEqual(response.context['issued_by_admin'],expected_list_of_approved_hours_by_each_admin)
+        # expected_list_of_approved_hours_by_each_admin = OrderedDict([{1: 4.0}, {3: 6.0}, {2: 2.0}])
+        expected_list_of_approved_hours_by_each_admin = OrderedDict([(self.org_user_1, 4.0), (self.org_user_3, 6.0), (self.org_user_2, 2.0)])
+        self.assertDictEqual(response.context['issued_by_admin'], expected_list_of_approved_hours_by_each_admin)
 
 
     def test_npf_admin_pending_hours(self):
         response = self.client.get('/org-admin/')
         # checking if pending hours are correctly sorted (logged in admin first then all other admins by amount of pending hours in descending order)
-        expected_list_of_pending_hours_by_each_admin = [{1: 1.0}, {3: 3.0}, {2: 2.0}]
-        self.assertListEqual(response.context['hours_pending_by_admin'],expected_list_of_pending_hours_by_each_admin)
+        expected_list_of_pending_hours_by_each_admin = OrderedDict([(self.org_user_1, 1.0), (self.org_user_3, 3.0), (self.org_user_2, 2.0)])
+        self.assertDictEqual(response.context['hours_pending_by_admin'], expected_list_of_pending_hours_by_each_admin)
 
 
     def test_npf_admins_displayed_in_pending_approved_hours_section(self):
         response = self.client.get('/org-admin/')
         processed_content = re.sub(r'\s+', ' ', response.content )
 
-        self.assertIn('<a href="/hours-detail/?is_admin=1&amp;user_id=1&amp;type=approved"', processed_content)
-        self.assertIn('<a href="/hours-detail/?is_admin=1&amp;user_id=2&amp;type=pending"', processed_content)
-        self.assertIn('org_user_1_first_name org_user_1_last_name: 4.0 </a>', processed_content)
-        self.assertIn('org_user_2_first_name org_user_2_last_name: 2.0 </a>',processed_content)
+        self.assertIn('<a href="/hours-detail/?is_admin=1&user_id=1&type=approved"', processed_content)
+        self.assertIn('<a href="/hours-detail/?is_admin=1&user_id=2&type=pending"', processed_content)
+        self.assertIn('org_user_1_first_name org_user_1_last_name: 4.000 </a>', processed_content)
+        self.assertIn('org_user_2_first_name org_user_2_last_name: 2.000 </a>',processed_content)
 
 
     def test_npf_page_upcoming_events_list(self):
@@ -516,11 +522,11 @@ class NpfAdminCheckIn(TestCase):
         self.volunteer_2 = _create_test_user('volunteer_2')
 
         # creating an event that happening now (72 hrs)
-        self.event_now = _create_event(self.project_1, past_date, future_date, is_public=True, event_type="GR", coordinator=self.npf_admin, creator_id=self.npf_admin.id)
+        self.event_now = _create_event(self.project_1, self.npf_admin.id, past_date, future_date, is_public=True, event_type="GR", coordinator=self.npf_admin)
 
         # creating a past event (48 hrs)
         past_date_2 = timezone.now() - timedelta(days=1)
-        self.event_past = _create_event(self.project_2, past_date_2, future_date, is_public=True, event_type="GR", coordinator=self.npf_admin, creator_id=self.npf_admin.id)
+        self.event_past = _create_event(self.project_2, self.npf_admin.id, past_date_2, future_date, is_public=True, event_type="GR", coordinator=self.npf_admin)
 
 
         #creating UserEventRegistration for npf admin and a volunteer

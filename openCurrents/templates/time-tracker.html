@@ -110,11 +110,10 @@
   </form>
 {% endblock content %}
 
-
 {% block js %}
   <script type="text/javascript">
     $(document).ready(function(){
-      $('#id_admin_choice').append(`<option disabled selected hidden>Select admin</option>`)
+      $('#id_admin_choice').append(`<option disabled selected hidden>Select coordinator</option>`)
 
       $("#volunteer-date").mask("9999-99-99");
 
@@ -127,12 +126,6 @@
       $('#start-time, #end-time').timepicker({
         step: 15,
         minTime: '7:00am',
-      });
-
-      $('#no-admin-popup').popup({
-        vertical: 'top',
-        transition: 'all 0.75s',
-        scrolllock: false,
       });
 
       $('#id_admin_choice').on('change', function(){
@@ -215,9 +208,8 @@
                 }
             });
 
-            // add two non-admin specific options
+            // add non-admin specific option
             $('#id_admin_choice').append(`<option value="other-admin">Someone else</option>`),
-            $('#id_admin_choice').append(`<option value="not-sure">Not sure</option>`)
             $("#id_admin_choice").prop('disabled', false);
           });
         }

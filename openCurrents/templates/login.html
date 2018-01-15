@@ -29,7 +29,7 @@
       </div>
 
       <div class="row center half-margin-top">
-        <p class="grey">New member?<br/> <a href="{% url 'openCurrents:signup' %}">Join openCurrents</a></p>
+        <p class="grey">New member?<br/> <a href="{% url 'openCurrents:home' %}">Join openCurrents</a></p>
       </div>
   </form>
 {% endblock content %}
@@ -40,7 +40,7 @@
       <h2 class="one-margin-top no-margin-bottom">Request password reset</h2>
     </div>
 
-    <form method="post" action="{% url 'openCurrents:password_reset_request' %}"> 
+    <form method="post" action="{% url 'openCurrents:password_reset_request' %}">
       {% csrf_token %}
       <div class="row three-halves-margin-bottom half-margin-top">
         <div class="center small-12 medium-9 small-centered columns">
@@ -58,7 +58,7 @@
 {% endblock popups %}
 
 {% block js %}
-  <script type="text/javascript"> 
+  <script type="text/javascript">
     $(document).ready(function(){
        $('#forgotpassword-box').popup({
          vertical: 'top',
