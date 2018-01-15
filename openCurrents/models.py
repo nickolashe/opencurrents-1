@@ -469,6 +469,7 @@ class Offer(models.Model):
     item = models.ForeignKey(Item)
     currents_share = models.IntegerField()
     limit = models.IntegerField(default=-1)
+    is_active = models.BooleanField(default=True)
 
     # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)

@@ -361,13 +361,28 @@ class CommunityView(TemplateView):
     template_name = 'community.html'
 
 
-class DeleteOfferView(DeleteView):
+class DeleteOfferView(BizAdminPermissionMixin, TemplateView):
     template_name = 'delete-offer.html'
-    model = Offer
-    success_url = reverse_lazy(
-        'openCurrents:biz-admin',
-        kwargs={'status_msg': 'Selected offer has been deleted'}
-    )
+
+    def post(self, request, *args, **kwargs):
+
+        status_msg = "Couldn't process the offer"
+        msg_type = 'alert'
+
+        if request.method == 'POST':
+            try :
+                offer_id = kwargs['pk']
+                # mark the offer as inactive
+                offer = Offer.objects.get(pk=offer_id)
+                offer.is_active = False
+                offer.save()
+
+                status_msg = 'The offer "{}" has been removed'.format(offer)
+                msg_type = ''
+            except:
+                logger.error("Couldn't process the offer {}".format(offer))
+
+        return redirect('openCurrents:biz-admin', status_msg, msg_type)
 
 
 class LoginView(TemplateView):

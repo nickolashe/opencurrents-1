@@ -54,7 +54,7 @@ class BizAdmin(object):
         return total_redemptions
 
     def get_offers_all(self):
-        offers = Offer.objects.filter(
+        offers = Offer.objects.exclude(is_active=False).filter(
             org__id=self.org.id
         ).order_by(
             '-date_updated'
