@@ -237,9 +237,16 @@
           let new_email = $('#new-email').val();
           let invite_optin = $('#invite-optin').prop('checked');
           let process_signup_url;
+          let form_data = {
+            csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
+            user_firstname: new_firstname,
+            user_lastname: new_lastname,
+            user_email: new_email.toLowerCase()
+          };
 
           if (invite_optin) {
             process_signup_url = "{% url 'openCurrents:process_signup' endpoint=True verify_email=True %}"
+            form_data['org_admin_id'] = {{ user.id }};
           }
           else {
             process_signup_url = "{% url 'openCurrents:process_signup' endpoint=True verify_email=False %}"
@@ -248,12 +255,7 @@
           $.ajax({
             url: process_signup_url,
             type: 'POST',
-            data : {
-              csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
-              user_firstname: new_firstname,
-              user_lastname: new_lastname,
-              user_email: new_email.toLowerCase()
-            },
+            data: form_data,
             dataType : "json",
           }).done(function( data ) {
             // console.log('signup response:')
