@@ -297,6 +297,15 @@
         blur: false
       });
 
+      {% if org.no_info %}
+           $('#biz-details-popup').popup({
+            vertical: 'top',
+            transition: 'all 0.75s',
+            scrolllock: true,
+            autoopen: true,
+           });
+       {% endif %}
+
       $('#id_phone').mask('000-000-0000')
 
       $('.mini-open').click(function(){
