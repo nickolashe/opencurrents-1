@@ -195,7 +195,7 @@ class TestTimeTracker(TestCase):
         self.assertEqual(self.client.session['transactional'], '1')
 
         # assert if we've been redirected
-        self.assertRedirects(response, '/time-tracked/', status_code=302)
+        self.assertRedirects(response, '/time-tracked/1/', status_code=302)
 
         # assert a MT event wasn't created
         self.assertEqual(len(Event.objects.all()), 0)
