@@ -1118,7 +1118,10 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                             admin_name,
                             description=form_data['description'],
                             datetime_start=form_data['datetime_start'].strftime("%Y-%m-%d %H:%M:%S"),
-                            datetime_end=form_data['datetime_end'].strftime("%Y-%m-%d %H:%M:%S")
+                            datetime_end=form_data['datetime_end'].strftime("%Y-%m-%d %H:%M:%S"),
+                            date=form_data['datetime_start'].strftime("%Y-%m-%d"),
+                            start_time=form_data['datetime_start'].strftime("%H:%M:%S"),
+                            end_time=form_data['datetime_end'].strftime("%H:%M:%S")
                         )
 
                         # eventually creating DB records for logged time
@@ -1160,6 +1163,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                         return False, 'The coordinator is already affiliated with an existing organization.', msg_type
 
                     else:
+                        # inviting new admin
                         new_npf_admin_user = self.invite_new_admin(
                             org,
                             admin_email,
@@ -1167,7 +1171,12 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                             description=form_data['description'],
                             datetime_start=form_data['datetime_start'].strftime("%Y-%m-%d %H:%M:%S"),
                             datetime_end=form_data['datetime_end'].strftime("%Y-%m-%d %H:%M:%S"),
-                            template='volunteer-invites-org' # using different template when time is logged for a new org
+                            date=form_data['datetime_start'].strftime("%Y-%m-%d"),
+                            start_time=form_data['datetime_start'].strftime("%H:%M:%S"),
+                            end_time=form_data['datetime_end'].strftime("%H:%M:%S"),
+                            admin_template='volunteer-invites-org', # using different template when time is logged for a new org
+                            biz_template='new-org-invited' # using different template when time is logged for a new org
+
                         )
 
                         # as of now, do not submit hours prior to admin registering
@@ -1264,19 +1273,6 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         # adding flag to not call Mandrill during unittests
         test_time_tracker_mode = self.request.POST.get('test_time_tracker_mode')
 
-        # looks like we don't need this piece anymore
-        # try:
-        #     user_new = User.objects.get(username = admin_email)
-        #     doInvite = not user_new.has_usable_password()
-        # except User.DoesNotExist:
-        #     # user_new = User(
-        #     #     username=admin_email,
-        #     #     email=admin_email,
-        #     #     first_name=admin_name
-        #     # )
-        #     # user_new.save()
-        #     doInvite = True
-
         # adapting function for sending org.name or form_data['new_org'] to new admin
         if isinstance(org, Org):
             org = org.name  # the Org instance was passed, using name
@@ -1316,15 +1312,23 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                 self.add_to_email_vars(email_vars, kw_key, kw_value)
 
         # selecting template for emails
-        if 'template' in kwargs.keys():
-            template = 'volunteer-invites-org'
+        if 'admin_template' in kwargs.keys():
+            admin_template = kwargs['admin_template']
         else:
-            template = 'volunteer-invites-admin'
+            admin_template = 'volunteer-invites-admin'
+
+        if 'biz_template' in kwargs.keys():
+            biz_template = kwargs['biz_template']
+        else:
+            biz_template = 'new-admin-invited'
+
+        self.request.session['admin_template'] = admin_template
+        self.request.session['biz_template'] = biz_template
 
         if doInvite:
             try:
                 sendTransactionalEmail(
-                    template,
+                    admin_template,
                     None,
                     email_vars,
                     admin_email,
@@ -1339,18 +1343,6 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                     e.message,
                     type(e)
                 )
-        # try:
-        #     org_user = OrgUser(
-        #         org=org,
-        #         user=user_new
-        #     )
-        #     org_user.save()
-        # except Exception as e:
-        #     logger.error(
-        #         'Org user already present: %s (%s)',
-        #         e.message,
-        #         type(e)
-        #     )
 
         try:
             email_vars_transactional = [
@@ -1382,7 +1374,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                     self.add_to_email_vars(email_vars_transactional, kw_key, kw_value)
 
             sendTransactionalEmail(
-                'new-admin-invited',
+                biz_template,
                 None,
                 email_vars_transactional,
                 'bizdev@opencurrents.com',
@@ -2239,7 +2231,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                     elif email_list in user_list:
                         if (not event_create_id and not User.objects.get(email=email_list).has_usable_password()) \
                             or \
-                            (event_create_id and User.objects.get(email=email_list).has_usable_password()):
+                            event_create_id:
 
                             k_old.append({"email":email_list, "name":post_data['vol-name-'+str(i+1)],"type":"to"})
 
@@ -2287,7 +2279,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                 elif user_email in user_list:
                     if (not event_create_id and not User.objects.get(email=user_email).has_usable_password())\
                         or \
-                        (event_create_id and User.objects.get(email=user_email).has_usable_password()):
+                        event_create_id:
                         k_old.append({"email":user_email, "type":"to"})
 
                 if user_new and event_create_id:
@@ -2400,30 +2392,21 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                             'content': Organisation
                         },
                     ])
-                # sending emails to the new users
-                if k:
+                # sending emails to the new users and existing users with no passw
+                to_send =  k + k_old
+
+                if to_send:
                     sendBulkEmail(
                         'invite-volunteer',
                         None,
                         email_template_merge_vars,
-                        k,
+                        to_send,
                         user.email,
                         session=self.request.session,
                         marker='1',
                         test_mode = test_mode
                     )
-                # sending emails to existing users with no passw
-                if k_old:
-                    sendBulkEmail(
-                        'invite-volunteer-event-existing',
-                        None,
-                        email_template_merge_vars,
-                        k_old,
-                        user.email,
-                        session=self.request.session,
-                        marker='1',
-                        test_mode = test_mode
-                    )
+
             except Exception as e:
                 logger.error(
                     'unable to send email: %s (%s)',
@@ -3486,7 +3469,7 @@ def process_OrgNomination(request):
             if not user_to_check or (user_to_check and not is_admin):
                 # emailing admin with volunteer-invites-org
                 sendTransactionalEmail(
-                    'volunteer-invites-org',
+                    'volunteer-nominates-org',
                     None,
                     [
                         {

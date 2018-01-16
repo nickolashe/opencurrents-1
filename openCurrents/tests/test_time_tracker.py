@@ -134,8 +134,10 @@ class TestTimeTracker(TestCase):
             'test_time_tracker_mode':'1' # letting know the app that we're testing, so it shouldnt send emails via Mandrill
             })
 
-        # asserting that transactional email function has been launched
+        # asserting that transactional email function has been launched with proper templates
         self.assertEqual(self.client.session['transactional'], '1')
+        self.assertEqual(self.client.session['admin_template'], 'volunteer-invites-admin')
+        self.assertEqual(self.client.session['biz_template'], 'new-admin-invited')
 
         # assert if we've been redirected
         self.assertRedirects(response, '/time-tracked/', status_code=302)
@@ -191,8 +193,10 @@ class TestTimeTracker(TestCase):
             'test_time_tracker_mode':'1' # letting know the app that we're testing, so it shouldnt send emails via Mandrill
             })
 
-        # asserting that transactional email function has been launched
+        # asserting that transactional email function has been launched with proper templates
         self.assertEqual(self.client.session['transactional'], '1')
+        self.assertEqual(self.client.session['admin_template'], 'volunteer-invites-org')
+        self.assertEqual(self.client.session['biz_template'], 'new-org-invited')
 
         # assert if we've been redirected
         self.assertRedirects(response, '/time-tracked/1/', status_code=302)
@@ -275,6 +279,10 @@ class TestTimeTracker(TestCase):
 
         # asserting that transactional email function has been launched
         self.assertEqual(session['transactional'], '1')
+        # asserting that transactional email function has been launched with proper templates
+        self.assertEqual(self.client.session['transactional'], '1')
+        self.assertEqual(self.client.session['admin_template'], 'volunteer-invites-admin')
+        self.assertEqual(self.client.session['biz_template'], 'new-admin-invited')
 
         # assert a MT event was created
         self.assertEqual(len(Event.objects.all()), 1)
