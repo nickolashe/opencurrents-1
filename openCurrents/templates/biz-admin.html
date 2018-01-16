@@ -1,0 +1,22 @@
+{% extends 'layouts/admin.html' %}
+
+{% load staticfiles %}
+{% load macros %}
+
+{% macro redemption_list_macro arg_list arg_status arg_timezone %}
+  {% block redemption_list %}
+    {% with redemptions=arg_list redemption_status=arg_status timezone=arg_timezone %}
+      {{ block.super }}
+    {% endwith %}
+  {% endblock %}
+{% endmacro %}
+
+{% block content %}
+
+  {{ block.super }}
+
+  {% usemacro redemption_list_macro redeemed_pending 'Pending' org_timezone %}
+  {% usemacro redemption_list_macro redeemed_approved 'Approved' org_timezone %}
+  {% usemacro redemption_list_macro redeemed_redeemed 'Redeemed' org_timezone %}
+
+{% endblock %}

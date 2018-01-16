@@ -1,94 +1,81 @@
+{% extends "layouts/base.html" %}
 {% load staticfiles %}
 
-<!DOCTYPE html>
-<html>
-  <head>
-    {% include "partials/head.html" %}
-  </head>
-  
-  <body>
-    {% include "partials/header.html" %}
-    
-    <div id="container" class="js-close-any" canvas="container">
-      <div id="wrapper">
-        <div class="row">
-          <h3 class="title-sub">Check your email</h3>
-          <p class="two-margin-bottom">To confirm your account, click the link in the email that we just sent to <strong>{{ user_email }}</strong>.</p>
-        </div>
-
-          <form method="post" action="{% url 'openCurrents:process_resend_verification' user_email %}">
-                  {% csrf_token %}
-                  <div class="row center half-margin-top">
-                    <input type="submit" class="resend-email_open button round" value="Resend email"/>
-                  </div>
-          </form>
-
-          {% if status == "success" %}
-          <div class="success row one-margin-top">
-            <div class="medium-8 columns small-centered">
-              <p class="no-margin-bottom">Verification email resent. It may take a few minutes for the email to arrive. If you still don't see it, check your Spam folder.</p>
-            </div>
-          </div>
-          {% elif status == "fail" %}
-          <div class="alert row half-margin-top">
-            <p>Unable to resend verification email.</p>
-          </div>
-          {% endif %}
-
-        <div class="row one-margin-bottom center">
-          <div class="small-12 medium-8 small-centered columns">
-            
-          </div>
-        </div>
-        
-        <div id="push"></div>
-    
-      <!-- wrapper div-->
-      </div>
-      
-      {% include 'partials/footer.html' %}
-            
-    <!--container div -->
+{% block status %}
+  <div class="row one-margin-top">
+    <div class="medium-8 columns small-centered">
+      {% if status == "success" %}
+        <p class="success no-margin-bottom">
+          Verification email resent. It may take a few minutes for the email to
+          arrive. If you still don't see it, check your Spam folder.
+        </p>
+      {% elif status == "fail" %}
+        <p class="alert no-margin-bottom">
+          Unable to resend verification email.
+        </p>
+      {% endif %}
     </div>
-    
-    <div id="bottom-stripe" class="full-width"></div>
-    
-    <div off-canvas="menu right shift" id="menu">
-      {% include 'partials/menu.html' %}
+  </div>
+{% endblock status %}
+
+{% block heading %}
+  <!-- Facebook Pixel -->
+  <script>
+    fbq('track', 'CompleteRegistration');
+  </script>
+
+  <div class="row">
+    <div class="medium-8 small-centered columns">
+      <h3 class="title">
+        {% block title %}Check your email{% endblock title %}
+      </h3>
+
+      <p>Great to have you with us! {% if orgid %}We've created your personal account and will be in touch with next steps. {% endif %}To verify your email, click the link that we just sent to <strong>{{ user_email }}</strong>.</p>
     </div>
-  
-    <div id="change-email-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <div class="row">
-        <div class="center small-centered medium-10 columns">
-          <h3 class="popup-title">Change email address</h3>
-          <input type="email" name="email" placeholder="Email address" class="center three-halves-margin-bottom" />
-          <button class="button round">Send verification</button>
-          <button class="change-email-popup_close button secondary round">Cancel</button>
-        </div>
+  </div>
+{% endblock heading %}
+
+{% block content %}
+  <form method="post" action="{% url 'openCurrents:process_resend_verification' user_email %}">
+    {% csrf_token %}
+    <div class="row center one-margin-top">
+      <input type="submit" class="button round" value="Resend email"/>
+    </div>
+  </form>
+{% endblock content %}
+
+
+{% block popups %}
+  <div id="change-email-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+    <div class="row">
+      <div class="center small-centered medium-10 columns">
+        <h3 class="popup-title">Change email address</h3>
+        <input type="email" name="email" placeholder="Email address" class="center three-halves-margin-bottom" />
+        <button class="button round">Send verification</button>
+        <button class="change-email-popup_close button secondary round">Cancel</button>
       </div>
     </div>
+  </div>
 
-    <div id="resend-email-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <div class="row">
-        <div class="center small-centered medium-10 columns">
-          <h3 class="one-margin-bottom">Email verification sent</h3>
-          <p>It may take a few minutes for the email to arrive. If you still don't see it, check your Spam folder.</p>
-          <button class="resend-email-popup_close button round">Okay</button>
-        </div>
+  <div id="resend-email-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+    <div class="row">
+      <div class="center small-centered medium-10 columns">
+        <h3 class="one-margin-bottom">Email verification sent</h3>
+        <p>It may take a few minutes for the email to arrive. If you still don't see it, check your Spam folder.</p>
+        <button class="resend-email-popup_close button round">Okay</button>
       </div>
     </div>
-    
-    
-    <script type="text/javascript">
-      $(document).ready(function(){
-        $('#change-email-popup, #resend-email-popup').popup({
-          vertical: 'top',
-          transition: 'all 0.75s',
-          scrolllock: true,
-        });
+  </div>
+{% endblock popups %}
+
+{% block js %}
+  <script type="text/javascript">
+    $(document).ready(function(){
+      $('#change-email-popup, #resend-email-popup').popup({
+        vertical: 'top',
+        transition: 'all 0.75s',
+        scrolllock: true,
       });
-    </script>
-    
-    <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
-  </body>
-</html>
+    });
+  </script>
+{% endblock js %}

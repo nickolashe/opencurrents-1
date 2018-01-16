@@ -1,0 +1,48 @@
+{% extends "layouts/popup.html" %}
+
+{% load tags %}
+
+{% block heading %}
+  <div class="row center">
+    <h3 class="one-margin-top half-margin-bottom">
+      {% block title %}
+        Business details
+      {% endblock title %}
+    </h3>
+
+    <p>Let customers know how to reach you:</p>
+  </div>
+{% endblock heading %}
+
+{% block content %}
+  <form class="" method="post">
+  {% csrf_token %}
+
+    {{ form.website }}
+
+    <div class="row">
+      <div class="medium-6 columns">
+        {{ form.phone }}
+      </div>
+
+      <div class="medium-6 columns">
+        {{ form.email }}
+      </div>
+
+      <div class="columns">
+        {{ form.address }}
+      </div>
+    </div>
+
+    {{ form.intro }}
+
+    <div class="row three-halves-margin-top">
+      <button type="submit" class="button round small">
+        Save
+      </button>
+      <a class="biz-details-popup_close button round small secondary">
+        Cancel
+      </a>
+    </div>
+  </form>
+{% endblock content %}

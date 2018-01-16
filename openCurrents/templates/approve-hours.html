@@ -1,300 +1,256 @@
+{% extends "layouts/base.html" %}
 {% load staticfiles %}
+{% load tags %}
 
-<!DOCTYPE html>
-<html>
-  <head>
-    {% include "partials/head.html" %}
-  </head>
-  
-  <body>
-    {% include "partials/header.html" %}
-    
-    <div id="container" class="js-close-any" canvas="container">
-      <div id="wrapper">
+{% block status %}
+  {% for date in week %}
+    {% for key,val in date.iteritems %}
+      {% if key == "vols_approved" %}
+         <input type="hidden" id="vols_approved_val" name="" value="{{val}}">
+      {% elif key == "vols_declined" %}
+         <input type="hidden" id="vols_declined_val" name="" value="{{val}}">
+      {% endif %}
+    {% endfor %}
+  {% endfor %}
 
-        {% for date in week %}
-          {% for key,val in date.iteritems %}
-            {% if key == "vols_approved" %}
-               <input type="hidden" id="vols_approved_val" name="" value="{{val}}">
-            {% elif key == "vols_declined" %}
-               <input type="hidden" id="vols_declined_val" name="" value="{{val}}">
-            {% endif %}
-          {% endfor %}
-        {% endfor %}
+  <div class="row">
+    <div class="success row one-margin-top">
+      <span name="vols_status_msg" id="vols_status_msg"></span>
+    </div>
+  </div>
+{% endblock status %}
 
-        <div class ="row">
-          <div class="success row one-margin-top"> <span name="vols_status_msg" id="vols_status_msg"></span></h5> </div>
-        </div>
+{% block heading %}{% endblock heading %}
 
-        <div class="row">
-          <h2 class="title-sub">Approve hours</h2>
-          {% for date in week %}
-            {% if not forloop.last %}
-            <h5 class="subtitle">for the week of <span id="week_display"></span></h5>
-          </div>
-          
-            <form action ="" method="post">
-               {% csrf_token %}
-               <div class="row left one-margin-top one-margin-bottom">
-                 <div class="small-12 medium-8 small-centered columns">
-                   <ul id="volunteer-list" class="accordion" data-accordion data-allow-all-closed="true">
-                     {% for key_m, value_m in date.iteritems %}
+{% block content %}
+  <div class="row">
+    <h3 class="title-sub">
+      {% block title %} Approve hours {% endblock title %}
+    </h3>
+  </div>
+  {% for date in week %}
+    {% if not forloop.last %}
+      <h5 class="subtitle">
+        for the week of <span id="week_display"></span>
+      </h5>
 
-                       <input type="hidden" id="week_display_draft" name="" value="{{key_m}}">
-                       <input type="hidden" id="week_month" name="" value="{{key_m.date.month}}-{{key_m.date.day}}-{{key_m.date.year}}"> 
-                          
-                       {% for key,value in value_m.iteritems %}
-                           <li class="accordion-item {% if forloop.first %}is-active{% endif %}" data-accordion-item>  
-                             <a href="#" class="accordion-title">{% for k, v in value.items %} {% if k == "name" %} {{v}} {% endif %}{% endfor %}
-                               <span class="float-right">
-                                 {% for k, v in value.items %} {% if k == "Total" %} {{v}} {% endif %}{% endfor %} hrs
-                               </span>
-                             </a>
-                             <div class="accordion-content" data-tab-content>
+      <form action ="" method="post">
+      {% csrf_token %}
+        <div class="row left one-margin-top one-margin-bottom">
+          <div class="small-12 medium-8 small-centered columns">
+            <ul id="volunteer-list" class="accordion" data-accordion data-allow-all-closed="true">
+              {% for key_m, value_m in date.iteritems %}
 
-                               {% for k, v in value.iteritems %} 
-                                 {% if k != "Total" and v != 0 and k != "name" %}   
-                                  <div class="row">   
-                                    <div class="small-9 columns">
-                                      <p class="no-margin-bottom">{{k}}</p>
-                                      <p class="half-margin-left">{{v|slice:"1:"|join:"<br> "}}</p>
-                                    </div>
-                                    <div class="right small-3 columns">
-                                      <p>{{v.0}}  hrs</p>
-                                    </div>
-                                  </div>
-                                 {% endif %}
-                               {% endfor %}
+                <input type="hidden" id="week_display_draft" name="" value="{{key_m}}">
+                <input type="hidden" id="week_month" name="" value="{{key_m.date.month}}-{{key_m.date.day}}-{{key_m.date.year}}">
 
-                               <p class="edit-volunteer center">
-                                 <!-- <input type="radio" id="defer-vol-1" name="vol-status-1" class="vol-radio hidden" />
-                                   <label for="defer-vol-1">
-                                      <a onclick="def_vol(this)" class="defer-volunteer button round tiny caution" tabindex="0">Defer hours
-                                      <span style="display:none">{{key}}</span>
-                                   </a>
-                                   </label> -->
-                                 <input type="radio" id="decline-vol-1" name="vol-status-1" class="vol-radio hidden"/>
-                                   <label for="decline-vol-1">
-                                     <a onclick="dec_vol(this)" class="decline-volunteer button round tiny alert">Decline hours
-                                       <span style="display:none">{{key}}</span>
-                                     </a>
-                                   </label>
-                               </p>
+                {% for key,value in value_m.iteritems %}
+                  <li class="accordion-item {% if forloop.first %}is-active{% endif %}" data-accordion-item>
+                    <a href="#" class="accordion-title">{% for k, v in value.items %} {% if k == "name" %} {{v}} {% endif %}{% endfor %}
+                      <span class="float-right">
+                        {% for k, v in value.items %} {% if k == "Total" %} {{ v|round_number:2 }} {% endif %}{% endfor %} hrs
+                      </span>
+                    </a>
+                    <div class="accordion-content" data-tab-content>
 
-                               <p class="volunteer-declined hidden alert">Volunteer declined. <a onclick="acc_vol(this)" class="undo-decline">Undo
-                               <span style="display:none">{{key}}</span>
-                               </a></p>
+                      {% for k, v in value.iteritems %}
+                        {% if k != "Total" and v != 0 and k != "name" %}
+                          <div class="row">
+                            <div class="small-9 columns">
+                              <p class="no-margin-bottom">{{k|approve_date:timezone}}</p>
+                              <p class="half-margin-left">{{v|slice:"1:"|join:"<br> "}}</p>
+                            </div>
+                            <div class="right small-3 columns">
+                              <p>{{v.0|round_number:2}}  hrs</p>
+                            </div>
+                          </div>
+                        {% endif %}
+                      {% endfor %}
 
-                               <!-- <p class="volunteer-deferred hidden caution">Volunteer deferred. <a onclick="def_undo_vol(this)" class="undo-defer">Undo
+                      <p class="edit-volunteer center">
+                         <!-- <input type="radio" id="defer-vol-1" name="vol-status-1" class="vol-radio hidden" />
+                           <label for="defer-vol-1">
+                              <a onclick="def_vol(this)" class="defer-volunteer button round tiny caution" tabindex="0">Defer hours
                               <span style="display:none">{{key}}</span>
-                             </a></p> -->
-                             </div>
-                           </li>
-                         {% endfor %}
-                     {% endfor %}  
+                           </a>
+                           </label> -->
+                        <input type="radio" id="decline-vol-1" name="vol-status-1" class="vol-radio hidden"/>
+                        <label for="decline-vol-1">
+                          <a onclick="dec_vol(this)" class="decline-volunteer button round tiny alert">Decline hours
+                            <span style="display:none">{{key}}</span>
+                          </a>
+                        </label>
+                      </p>
 
-                   </ul>
-                 </div>
-               </div>
-               <input type="hidden" id="result_sel" name="post-data" value="" /><!---->
-               <div class="row center">
-                <div class="small-12 medium-8 small-centered columns">
-                 <!--<a href="{% url 'openCurrents:hours-approved' %}" onclick="test()" class="button round">Approve hours</a>-->
-                 <p class="no-margin-bottom">Hours will be approved unless you decline them. To see hours for additional weeks, please review this week first.</p>
-                 <button type='submit' class="one-margin-top button round">Confirm</button>
-                </div>
-               </div>
-            </form>
-          {% endif %}
-        {% endfor %}  
-        
-        <div id="push"></div>
-    
-      <!-- wrapper div-->
-      </div>
-      
-      {% include 'partials/footer.html' %}
-            
-    <!--container div -->
-    </div>
-    
-    <div id="bottom-stripe" class="full-width"></div>
-    
-    <div off-canvas="menu right shift" id="menu">
-      {% include 'partials/menu.html' %}
-    </div>
-  
-    <div id="-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <div class="row center">
-        <h3 class="popup-title"></h3>
-      </div>
-      
-      <div class="row">
-        <div class="small-centered medium-10 columns">
-          
-          <p></p>
-          
-          <button class="tax-id-popup_close button round">Okay</button>
-          <a><button class="button round secondary"></button></a>
+                      <p class="volunteer-declined hidden alert">Hours declined. <a onclick="acc_vol(this)" class="undo-decline">Undo
+                      <span style="display:none">{{key}}</span>
+                      </a></p>
+                    </div>
+                  </li>
+                {% endfor %}
+              {% endfor %}
+            </ul>
+          </div>
         </div>
-      </div>
-    </div>
-    
-    <script type="text/javascript">
-      var elem = new Foundation.Accordion($("#volunteer-list"));
-    </script>
+        <input type="hidden" id="result_sel" name="post-data" value="" /><!---->
+        <div class="row center">
+          <div class="small-12 medium-8 small-centered columns">
+          <!--<a href="{% url 'openCurrents:hours-approved' %}" onclick="test()" class="button round">Approve hours</a>-->
+            <p class="no-margin-bottom">By clicking "Confirm", all hours above will be approved unless you've declined them. To see hours for additional weeks, please approve or decline hours for this week first.</p>
+            <button type='submit' class="one-margin-top button round">Confirm</button>
+          </div>
+        </div>
+      </form>
+    {% endif %}
+  {% endfor %}
+{% endblock content %}
 
-    <script type="text/javascript">
+{% block js %}
+  <script type="text/javascript">
+    var elem = new Foundation.Accordion($("#volunteer-list"));
+  </script>
+
+  <script type="text/javascript">
+    try{
+      var week_format = document.getElementById("week_month").value;
+    }
+    catch(err){
+      //alert("error")
+      window.location.href = "{% url 'openCurrents:org-admin' %}";
+    }
+
+    function dec_vol(k){//Declining volunteer on clicking decline button
+
+      var decline = k.text.replace("Decline hours","").replaceAll(" ","").replaceAll("\n","");
+      var dec_0 = decline+':0:'+week_format
+      var dec_1 = decline+':1:'+week_format
+      var dec_2 = decline+':2:'+week_format
+      document.getElementById('result_sel').value = document.getElementById('result_sel').value.replace(dec_0,"").replace(dec_1,"").replace(dec_2,"").replace(decline,"");
+      document.getElementById('result_sel').value += decline+":0:"+week_format+",";
+
+    }
+
+    function acc_vol(vol){//Accept Volunteer on clicking Undo
+
+      var accept = vol.text.replace("Undo","").replaceAll(" ","").replaceAll("\n","");
+
+      var acc_0 = accept+':0:'+week_format
+      var acc_1 = accept+':1:'+week_format
+      var acc_2 = accept+':2:'+week_format
+      document.getElementById('result_sel').value = document.getElementById('result_sel').value.replace(acc_0,"").replace(acc_1,"").replace(acc_2,"");
+      document.getElementById('result_sel').value += accept+":1:"+week_format+",";
+
+    }
+
+    function def_vol(vol){//defer a volunteer for this particular admin
+      var defer = vol.text.replace("Defer hours","").replaceAll(" ","").replaceAll("\n","");
+      var def_0 = defer+':0:'+week_format
+      var def_1 = defer+':1:'+week_format
+      var def_2 = defer+':2:'+week_format
+      document.getElementById('result_sel').value = document.getElementById('result_sel').value.replace(def_0,"").replace(def_1,"").replace(def_2,"").replace(defer,"");
+      document.getElementById('result_sel').value += defer+":2:"+week_format+",";
+    }
+
+    function def_undo_vol(vol){//undefer a volunteer for this particular admin
+      var undefer = vol.text.replace("Undo","").replaceAll(" ","").replaceAll("\n","");
+      var undef_0 = undefer+':0:'+week_format
+      var undef_1 = undefer+':1:'+week_format
+      var undef_2 = undefer+':2:'+week_format
+      document.getElementById('result_sel').value = document.getElementById('result_sel').value.replace(undef_0,"").replace(undef_1,"").replace(undef_2,"");
+      document.getElementById('result_sel').value += undefer+":1:"+week_format+",";
+    }
+
+    function getMonday(d) {//display of the weeks monday in the UI
+      d = new Date(d);
+      var day = d.getDay(),
+          diff = d.getDate() - day + (day == 0 ? -6:1); // adjust when day is sunday
+      return new Date(d.setDate(diff));
+    }
+
+    String.prototype.replaceAll = function(search, replacement) {
+      var target = this;
+      return target.replace(new RegExp(search, 'g'), replacement);
+    };
+  </script>
+
+  <script type="text/javascript">
+    $(document).ready(function(){
+      if (document.getElementById("vols_approved_val") === null || document.getElementById("vols_declined_val") === null){
+
+      }
+      else{
+        var vols_approved = document.getElementById("vols_approved_val").value;
+        var vols_declined = document.getElementById("vols_declined_val").value;
+
+
+        if(vols_approved >= 1 && vols_declined >= 1)
+        {
+           vols_status_msg_display = "You have approved " +  vols_approved  + " and declined " +  vols_declined  +  " volunteer{{ vols_declined|pluralize }}. Keep up the good work!"
+        }
+        else if(vols_approved >= 1 && vols_declined == 0)
+        {
+           vols_status_msg_display = "You have approved hours for " +  vols_approved  + " volunteer{{ vols_approved|pluralize }}. Keep up the good work!"
+        }
+        else if(vols_approved == 0 && vols_declined >= 1)
+        {
+           vols_status_msg_display = "You have declined hours for " + vols_declined + " volunteer{{vols_declined|pluralize}}."
+        }
+        document.getElementById("vols_status_msg").innerHTML = vols_status_msg_display;
+      }
+
+      var rep = $('.decline-volunteer').text().replaceAll("Decline hours\n","").replaceAll(" ","");
+      var rep_list = rep.split("\n")
+      var today = new Date();
+      var app_week = String(getMonday(today)).split(" ");
       try{
-        var week_format = document.getElementById("week_month").value;
+        var week_display = document.getElementById("week_display_draft").value.replace(/,[^,]+$/, "")
       }
       catch(err){
         //alert("error")
-        window.location.href = "{% url 'openCurrents:admin-profile' %}";
       }
+      document.getElementById("week_display").innerHTML = week_display;
+      var week_format = document.getElementById("week_month").value;
 
-      function dec_vol(k){//Declining volunteer on clicking decline button
 
-        var decline = k.text.replace("Decline hours","").replaceAll(" ","").replaceAll("\n","");
-        var dec_0 = decline+':0:'+week_format
-        var dec_1 = decline+':1:'+week_format
-        var dec_2 = decline+':2:'+week_format
-        document.getElementById('result_sel').value = document.getElementById('result_sel').value.replace(dec_0,"").replace(dec_1,"").replace(dec_2,"").replace(decline,"");
-        document.getElementById('result_sel').value += decline+":0:"+week_format+",";
 
-      }
-
-      function acc_vol(vol){//Accept Volunteer on clicking Undo
-
-        var accept = vol.text.replace("Undo","").replaceAll(" ","").replaceAll("\n","");
-
-        var acc_0 = accept+':0:'+week_format
-        var acc_1 = accept+':1:'+week_format
-        var acc_2 = accept+':2:'+week_format
-        document.getElementById('result_sel').value = document.getElementById('result_sel').value.replace(acc_0,"").replace(acc_1,"").replace(acc_2,"");
-        document.getElementById('result_sel').value += accept+":1:"+week_format+",";
-
-      }
-
-      function def_vol(vol){//defer a volunteer for this particular admin
-        var defer = vol.text.replace("Defer hours","").replaceAll(" ","").replaceAll("\n","");
-        var def_0 = defer+':0:'+week_format
-        var def_1 = defer+':1:'+week_format
-        var def_2 = defer+':2:'+week_format
-        document.getElementById('result_sel').value = document.getElementById('result_sel').value.replace(def_0,"").replace(def_1,"").replace(def_2,"").replace(defer,"");
-        document.getElementById('result_sel').value += defer+":2:"+week_format+",";
-      }
-
-      function def_undo_vol(vol){//undefer a volunteer for this particular admin
-        var undefer = vol.text.replace("Undo","").replaceAll(" ","").replaceAll("\n","");
-        var undef_0 = undefer+':0:'+week_format
-        var undef_1 = undefer+':1:'+week_format
-        var undef_2 = undefer+':2:'+week_format
-        document.getElementById('result_sel').value = document.getElementById('result_sel').value.replace(undef_0,"").replace(undef_1,"").replace(undef_2,"");
-        document.getElementById('result_sel').value += undefer+":1:"+week_format+",";
-      }
-
-      function getMonday(d) {//display of the weeks monday in the UI
-        d = new Date(d);
-        var day = d.getDay(),
-            diff = d.getDate() - day + (day == 0 ? -6:1); // adjust when day is sunday
-        return new Date(d.setDate(diff));
-      }
-
-      String.prototype.replaceAll = function(search, replacement) {
-        var target = this;
-        return target.replace(new RegExp(search, 'g'), replacement);
-      };
-    </script>
-
-    <script type="text/javascript">
-      $(document).ready(function(){
-        if (document.getElementById("vols_approved_val") === null || document.getElementById("vols_declined_val") === null){
-
-        }
-        else{
-          var vols_approved = document.getElementById("vols_approved_val").value;
-          var vols_declined = document.getElementById("vols_declined_val").value;
-        
-
-          if(vols_approved >= 1 && vols_declined >= 1)
-          {
-             vols_status_msg_display = "You have approved " +  vols_approved  + " and declined " +  vols_declined  +  " volunteer{{ vols_declined|pluralize }}. Keep up the good work!"
-          }
-          else if(vols_approved >= 1 && vols_declined == 0)
-          {
-             vols_status_msg_display = "You have approved hours for " +  vols_approved  + " volunteer{{ vols_approved|pluralize }}. Keep up the good work!"
-          }
-          else if(vols_approved == 0 && vols_declined >= 1)
-          {
-             vols_status_msg_display = "You have declined hours for " + vols_declined + " volunteer{{vols_declined|pluralize}}."
-          }
-          document.getElementById("vols_status_msg").innerHTML = vols_status_msg_display;
-        }
-
-        var rep = $('.decline-volunteer').text().replaceAll("Decline hours\n","").replaceAll(" ","");
-        var rep_list = rep.split("\n")
-        var today = new Date();
-        var app_week = String(getMonday(today)).split(" ");
-        try{
-          var week_display = document.getElementById("week_display_draft").value.replace(/,[^,]+$/, "")
-        }
-        catch(err){
-          //alert("error")
-        }
-        document.getElementById("week_display").innerHTML = week_display;
-        var week_format = document.getElementById("week_month").value;
-        
-        
-
-        for(var i=0;i<rep_list.length;i++)
+      for(var i=0;i<rep_list.length;i++)
+      {
+        if(rep_list[i]!='')
         {
-          if(rep_list[i]!='')
-          {
-            document.getElementById('result_sel').value += rep_list[i]+":1:"+week_format+",";
-          }
+          document.getElementById('result_sel').value += rep_list[i]+":1:"+week_format+",";
         }
-        
+      }
 
-        $('#').popup({
-          vertical: 'top',
-          transition: 'all 0.75s',
-          scrolllock: true,
+      $('.decline-volunteer').click(function(){
+        $(this).parents('.edit-volunteer').fadeOut(333, function(){
+          $(this).siblings('.volunteer-declined').fadeIn(333);
+          $(this).parent().siblings('.accordion-title').css('color', '#890045');
         });
-
-        $('.decline-volunteer').click(function(){
-          $(this).parents('.edit-volunteer').fadeOut(333, function(){
-            $(this).siblings('.volunteer-declined').fadeIn(333);
-            $(this).parent().siblings('.accordion-title').css('color', '#890045');
-          });
-        });
-
-        $('.undo-decline').on('click', function(){
-          $(this).parent().siblings('.edit-volunteer').find('input[type="radio"]').attr('checked',false);
-          $(this).parent().fadeOut(333, function(){
-            $(this).siblings('.edit-volunteer').fadeIn(333);
-            $(this).parent().siblings('.accordion-title').css('color', '#1f4975');
-          });
-        });
-
-        $('.defer-volunteer').click(function(){
-          $(this).parents('.edit-volunteer').fadeOut(333, function(){
-            $(this).siblings('.volunteer-deferred').fadeIn(333);
-            $(this).parent().siblings('.accordion-title').css('color', '#e7b708');
-          });
-        });
-
-        $('.undo-defer').on('click', function(){
-          $(this).parent().siblings('.edit-volunteer').find('input[type="radio"]').attr('checked',false);
-          $(this).parent().fadeOut(333, function(){
-            $(this).siblings('.edit-volunteer').fadeIn(333);
-            $(this).parent().siblings('.accordion-title').css('color', '#1f4975');
-          });
-        });         
       });
 
-    </script>
-    
-    <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
-  </body>
-</html>
+      $('.undo-decline').on('click', function(){
+        $(this).parent().siblings('.edit-volunteer').find('input[type="radio"]').attr('checked',false);
+        $(this).parent().fadeOut(333, function(){
+          $(this).siblings('.edit-volunteer').fadeIn(333);
+          $(this).parent().siblings('.accordion-title').css('color', '#1f4795');
+        });
+      });
+
+      // $('.defer-volunteer').click(function(){
+      //   $(this).parents('.edit-volunteer').fadeOut(333, function(){
+      //     $(this).siblings('.volunteer-deferred').fadeIn(333);
+      //     $(this).parent().siblings('.accordion-title').css('color', '#e7b708');
+      //   });
+      // });
+
+      // $('.undo-defer').on('click', function(){
+      //   $(this).parent().siblings('.edit-volunteer').find('input[type="radio"]').attr('checked',false);
+      //   $(this).parent().fadeOut(333, function(){
+      //     $(this).siblings('.edit-volunteer').fadeIn(333);
+      //     $(this).parent().siblings('.accordion-title').css('color', '#1f4795');
+      //   });
+      // });
+    });
+
+  </script>
+{% endblock js %}

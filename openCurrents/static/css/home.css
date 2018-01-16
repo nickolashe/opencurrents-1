@@ -26,14 +26,14 @@
   }
 
   #our-story {
-    background: url(/static/img/moab.jpg) no-repeat right center fixed;
+    background: url(/static/img/moab.jpg) no-repeat left center fixed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
     background-size: cover;
   }
 
-  #volunteer {
+  #faq {
     background: url(/static/img/tree.jpg) no-repeat center center fixed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
@@ -60,7 +60,7 @@
     content:"";
     position:fixed;
     top:0;
-    height:100vh; 
+    height:100vh;
     left:0;
     right:0;
     z-index:-1;
@@ -75,7 +75,7 @@
     content:"";
     position:fixed;
     top:0;
-    height:100vh; 
+    height:100vh;
     left:0;
     right:0;
     z-index:-1;
@@ -90,7 +90,7 @@
     content:"";
     position:fixed;
     top:0;
-    height:100vh; 
+    height:100vh;
     left:0;
     right:0;
     z-index:-1;
@@ -105,22 +105,22 @@
     content:"";
     position:fixed;
     top:0;
-    height:100vh; 
+    height:100vh;
     left:0;
     right:0;
     z-index:-1;
-    background: url(/static/img/moab.jpg) right center;
+    background: url(/static/img/moab.jpg) -300px center;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
     background-size: cover;
   }
 
-  #volunteer:after {
+  #faq:after {
     content:"";
     position:fixed;
     top:0;
-    height:100vh; 
+    height:100vh;
     left:0;
     right:0;
     z-index:-1;
@@ -129,7 +129,7 @@
     -moz-background-size: cover;
     -o-background-size: cover;
     background-size: cover;
-  }  
+  }
 }
 
 #intro-1, #intro-2, #intro-3, #intro-4, #intro-5, #intro-6, #intro-7 {
@@ -138,7 +138,7 @@
 
 #intro-2, #intro-4, #intro-6 {
   background-color: #ffffff;
-  color: #1f4975;
+  color: #1f4795;
 }
 
 .home-input {
@@ -178,8 +178,9 @@ input.home-input::placeholder {
 }
 
 #home-tagline {
-  line-height: 1.2;
-  margin-top: 2.5rem;
+  font-size: 2.5rem;
+  margin-top: 3.5rem;
+  margin-bottom: 1rem;
 }
 
 #home-symbol {
@@ -188,7 +189,7 @@ input.home-input::placeholder {
 }
 
 .benefit-icon #home-symbol {
-  stroke: #1f4975;
+  stroke: #1f4795;
 }
 
 .benefit-icon:hover #home-symbol g, .styled-radio:checked + label #home-symbol g {
@@ -219,14 +220,44 @@ input.home-input::placeholder {
   font-weight: normal;
 }
 
-.button.clear:hover {
+.splash .button.blue-bg:hover {
+  background-color: #169ccd;
+  border-color: #169ccd;
+  color: #fff;
+}
+
+.splash .button.blue-bg:focus {
+  background-color: #169ccd;
+  border-color: #169ccd;
+  color: #fff;
+}
+
+.splash .button.clear:hover {
   background-color: #24b2e7;
   border-color: #24b2e7;
 }
 
-.button.clear:focus {
+.splash .button.clear:focus {
   background-color: #24b2e7;
   border-color: #24b2e7;
+}
+
+.splash .white {
+  filter: drop-shadow(0 0 30px black);
+}
+
+.splash .alert {
+  background-color: #ffffff;
+  border-radius: 4px;
+}
+
+.accordion-title {
+  background-color: transparent;
+}
+
+.accordion-title:hover,
+.accordion-item.is-active .accordion-title {
+  background-color: #24b2e7;
 }
 
 #back-button {
@@ -245,12 +276,18 @@ input.home-input::placeholder {
   height: 77px;
   padding: 21px 0;
   border-radius: 99px;
-  border: 1px solid #1f4975;
-  color: #1f4975;
+  border: 1px solid #1f4795;
+  color: #1f4795;
   background-color: #ffffff;
   cursor: default;
   display: inline-block;
   margin: 0 0.25rem 1rem;
+}
+
+.intro-icon.clear {
+  background-color: transparent;
+  color: #ffffff;
+  border-color: #ffffff;
 }
 
 
@@ -327,8 +364,8 @@ input.home-input::placeholder {
   height: 77px;
   padding: 21px 0;
   border-radius: 99px;
-  border: 1px solid #1f4975;
-  color: #1f4975;
+  border: 1px solid #1f4795;
+  color: #1f4795;
   background-color: #ffffff;
 }
 
@@ -344,17 +381,19 @@ input.home-input::placeholder {
 @media screen and (min-width: 42em) {
 
   #home-tagline {
-    margin-top: 4.5rem;
+    margin-top: 4rem;
+    margin-bottom: 1rem;
+    font-size: 3rem;
   }
 
   #signup-box .button:hover {
-    background-color: #1f4975;
-    border-color: #1f4975;
+    background-color: #077ec0;
+    border-color: #077ec0;
   }
 
   #signup-box .button:focus {
-    background-color: #1f4975;
-    border-color: #1f4975;
+    background-color: #077ec0;
+    border-color: #077ec0;
   }
 
   .icon-box {
@@ -382,4 +421,8 @@ input.home-input::placeholder {
   #mission-box {
     width: 433px;
   }
+}
+
+#play-video {
+  margin-top: 4rem;
 }

@@ -1,117 +1,172 @@
+{% extends "layouts/base.html" %}
+
 {% load staticfiles %}
+{% load tags %}
 
-<!DOCTYPE html>
-<html>
-  <head>
-    {% include "partials/head.html" %}
-  </head>
-  
-  <body>
-    {% include "partials/header.html" %}
-    
-    <div id="container" class="js-close-any" canvas="container">
-      <div id="wrapper">
-        {% if status_msg %}
-        <div class="alert row half-margin-top">
-          {{status_msg}}
-        </div>
-        {% endif %}
-        
-        <div class="row">
-          <h3 class="title">Marketplace</h3>
-        </div>
-        
-        <div class="row one-margin-bottom center">
-          <div class="small-12 medium-8 small-centered columns">
-            <div class="left input-left small-9 columns">
-              <p class="half-margin-top"><strong>Austin Bouldering Project</strong> offers <a>1 day pass for 1 Current</a></p>
-            </div>
-
-            <div class="right input-right small-3 columns">
-              <a class="button round small secondary">View</a>
-            </div>
-          </div>
-        </div>
-
-        <div class="row one-margin-bottom center">
-          <div class="small-12 medium-8 small-centered columns">
-            <div class="left input-left small-9 columns">
-              <p class="half-margin-top"><strong>Papa Joe's Tex-Mex</strong> offers <a>1 migas taco for 0.25 Currents</a> with purchase of $5 or more</p>
-            </div>
-
-            <div class="right input-right small-3 columns">
-              <a class="button round small secondary">View</a>
-            </div>
-          </div>
-        </div>
-
-        <div class="row one-margin-bottom center">
-          <div class="small-12 medium-8 small-centered columns">
-            <div class="left input-left small-9 columns">
-              <p class="half-margin-top"><strong>Fast Folks Bike Shop</strong> offers <a>$10 off a bike tune-up for 1 Current</a></p>
-            </div>
-
-            <div class="right input-right small-3 columns">
-              <a class="button round small secondary">View</a>
-            </div>
-          </div>
-        </div>
-
-        <div class="row one-margin-bottom center">
-          <div class="small-12 medium-8 small-centered columns">
-            <div class="left input-left small-9 columns">
-              <p class="half-margin-top"><strong>Third Eye Tonics</strong> offers <a>15% off elixers and tonics at $10 per Current</a> with a purchase of $10 or more</p>
-            </div>
-
-            <div class="right input-right small-3 columns">
-              <a class="button round small secondary">View</a>
-            </div>
-          </div>
-        </div>
-        
-        <div id="push"></div>
-    
-      <!-- wrapper div-->
-      </div>
-      
-      {% include 'partials/footer.html' %}
-            
-    <!--container div -->
+{% block heading %}
+  <div class="row">
+    <div class="small-12 medium-9 small-centered columns">
+      <h3 class="title-sub">
+        {% block title %} Marketplace {% endblock title %}
+      </h3>
+      <h6 class="half-margin-bottom">
+        Check out these offers from openCurrents businesses:
+      </h6>
     </div>
-    
-    <div id="bottom-stripe" class="full-width"></div>
-    
-    <div off-canvas="menu right shift" id="menu">
-      {% include 'partials/menu.html' %}
+  </div>
+{% endblock heading %}
+
+{% block content %}
+  <div class="row one-margin-bottom center">
+    <div class="small-12 medium-10 small-centered columns">
+      {% for offer in offers %}
+        {% with num_remaining=offer.limit|less:offer.num_redeemed %}
+          <div class="row one-margin-top">
+            <div class="left input-left small-9 columns">
+              <p class="no-margin-bottom">
+                <a class="show-biz-deets">
+                  <strong> {{ offer.org.name }} </strong>
+                </a>
+                accepts Currents for
+                <a href="{% url 'openCurrents:redeem-currents' offer.id %}">
+                  {{ offer.currents_share }}% of {{ offer.item.name }}
+                </a>
+
+                <span class="grey small-text">
+                  {% if offer.limit != -1 %}
+                    {% if num_remaining > 0 %}
+                      ({{ num_remaining }}
+                    {% else %}
+                      (0
+                    {% endif %}
+                    remaining this month)
+                  {% endif %}
+                </span>
+              </p>
+            </div>
+
+            <div class="relative right input-right small-3 columns">
+              <a class="mini-open">
+                <i class="blue half-margin-right fa-chevron-circle-down fa fa-lg"></i>
+              </a>
+              <ul class="mini-menu">
+                <a
+                  href="{% url 'openCurrents:redeem-currents' offer.id %}"
+                  {% if offer.limit != -1 and num_remaining <= 0 %} disabled {% endif %}>
+                  <li>Redeem offer</li>
+                </a>
+                <a class="show-biz-deets">
+                  <li><span>Show</span> business details</li>
+                </a>
+              </ul>
+            </div>
+          </div>
+
+          {% with org=offer.org %}
+            <div class="biz-deets half-margin-top left row hidden">
+              <div class="small-12 columns">
+                {% if org.website %}
+                  <p class="biz-deets-item">
+                    <i class="half-margin-right fa-fw fa fa-link"></i>
+                    <a href="{{ org.website }}" target="_blank">
+                      {{ org.website }}
+                    </a>
+                  </p>
+                {% endif %}
+
+                {% if org.address %}
+                  <p class="biz-deets-item">
+                    <i class="half-margin-right fa-fw fa fa-home"></i>
+                    {{ org.address }}
+                  </p>
+                {% endif %}
+
+                {% if org.phone %}
+                  <p class="biz-deets-item">
+                    <i class="half-margin-right fa-fw fa fa-phone"></i>
+                    {{ org.phone }}
+                  </p>
+                {% endif %}
+
+                {% if org.email %}
+                  <p class="biz-deets-item">
+                    <i class="half-margin-right fa-fw fa fa-envelope-open-o"></i>
+                    {{ org.email }}
+                  </p>
+                {% endif %}
+
+                {% if org.intro %}
+                  <p class="biz-deets-item">
+                    <i class="half-margin-right fa-fw fa fa-comment"></i>
+                    {{ org.intro }}
+                  </p>
+                {% endif %}
+
+                {% if not org.intro and not org.email and not org.phone and not org.address and not org.website %}
+                  <p class="biz-deets-item">No details added.</p>
+                {% endif %}
+              </div>
+            </div>
+          {% endwith %}
+        {% endwith %}
+      {% empty %}
+        <p>We are talking with businesses in Austin and around the country about
+          exciting opportunities to use Currents for all kinds of products and
+          services. We aim to have this marketplace connecting you with
+          businesses accepting Currents in January 2018!</p>
+      {% endfor %}
     </div>
-  
-    <div id="-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <div class="row center">
-        <h3 class="popup-title"></h3>
-      </div>
-      
-      <div class="row">
-        <div class="small-centered medium-10 columns">
-          
-          <p></p>
-          
-          <button class="tax-id-popup_close button round">Okay</button>
-          <a><button class="button round secondary"></button></a>
+  </div>
+{% endblock content %}
+
+
+{% block popups %}
+  <div id="transactions-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+    <div class="row center">
+      <h3 class="popup-title">How transactions work</h3>
+    </div>
+
+    <div class="row center">
+      <div class="small-centered medium-10 columns">
+
+        <p>To make it as easy as possible for businesses to accept Currents,
+          nothing changes at point of sale - simply pay full price and ask for
+          your receipt.</p>
+
+        <p>Upload a picture of your receipt, and we will exchange your Currents
+          for the business' dollars once they verify transactions at the end of
+          the month.</p>
+
+        <div class="one-margin-bottom">
+          <input type="checkbox" name="no-more-popup" id="no-more-popup" class="custom-checkbox">
+            <!-- <label for="no-more-popup">Don't show this again</label> -->
         </div>
+        <button class="transactions-popup_close button round">Got it</button>
       </div>
     </div>
-    
-    
-    <script type="text/javascript">
-      $(document).ready(function(){
-        $('#').popup({
-          vertical: 'top',
-          transition: 'all 0.75s',
-          scrolllock: true,
-        });
+  </div>
+{% endblock popups %}
+
+
+{% block js %}
+  <script type="text/javascript">
+    $(document).ready(function(){
+      $('#transactions-popup').popup({
+        vertical: 'top',
+        transition: 'all 0.75s',
+        scrolllock: true,
+        autoopen: true,
       });
-    </script>
-    
-    <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
-  </body>
-</html>
+
+      $('.show-biz-deets').click(function(){
+        $(this).parents('.row').next('.biz-deets').slideToggle();
+        $(this).find('span').text(function(i, text){
+          return text === "Show" ? "Hide" : "Show";
+        })
+      });
+    });
+  </script>
+
+  {% include "scripts/mini-menu.html" %}
+
+{% endblock js %}

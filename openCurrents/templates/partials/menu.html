@@ -4,14 +4,19 @@
     Profile
   </a>
 
-  {% if is_admin %}
+  <a class="list-group-item" href="{% url 'openCurrents:time-tracker' %}">
+    <i class="half-margin-right fa-fw fa fa-clock-o"></i>
+    Record hours
+  </a>
+
+  {% if is_admin_org %}
     <a class="list-group-item" href="{% url 'openCurrents:create-event' orgid %}">
       <i class="half-margin-right fa-fw fa fa-calendar"></i>
       Create an event
     </a>
 
     <a class="list-group-item" href="{% url 'openCurrents:invite-volunteers' %}">
-      <i class="half-margin-right fa-fw fa fa-user-plus"></i>
+      <i class="half-margin-right fa-fw fa fa-users"></i>
       Invite volunteers
     </a>
 
@@ -21,10 +26,21 @@
     </a>
   {% endif %}
 
+  {% if is_admin_biz %}
+    <a class="list-group-item" href="{% url 'openCurrents:offer' %}">
+      <i class="half-margin-right fa-fw fa fa-bullhorn"></i>
+      Post an offer
+    </a>
+  {% endif %}
 
-  <a class="list-group-item" href="{% url 'openCurrents:org-signup' %}">
+  <a class="list-group-item" href="{% url 'openCurrents:nominate' %}">
     <i class="half-margin-right fa-fw fa fa-heartbeat"></i>
-    Nominate an org
+    Grow the community
+  </a>
+
+  <a class="list-group-item" href="{% url 'openCurrents:public-record' %}">
+    <i class="half-margin-right fa-fw fa fa-list-ol"></i>
+    Public record
   </a>
 
   <a class="list-group-item" href="{% url 'openCurrents:process_logout' %}">

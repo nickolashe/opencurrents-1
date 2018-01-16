@@ -1,299 +1,364 @@
-{% load staticfiles %}
+{% extends 'layouts/user-hour-request-list.html' %}
+
+{% load macros %}
 {% load tags %}
+{% load staticfiles %}
 
-<!DOCTYPE html>
-<html>
-  <head>
-    {% include "partials/head.html" %}
-  </head>
+{% block heading %}
+  <div class="row">
+    <div class="small-12 small-centered columns">
+      <h5 class="two-margin-top no-margin-bottom">
+        {% block title %} {{ user.first_name }} {{ user.last_name }} {% endblock title %}
+      </h5>
 
-  <body>
-    {% include "partials/header.html" %}
-
-    <div id="container" class="js-close-any" canvas="container">
-      <div id="wrapper">
-
-        {% if status_msg %}
-        <div class="success row half-margin-top">
-          {{status_msg}}
-        </div>
+      {% if is_admin_org or is_admin_biz %}
+        <h6 class="inline half-margin-right">{{ orgname }}</h6>
+        {% if is_admin_org %}
+          <a href="{% url 'openCurrents:org-admin' %}">
+        {% else %}
+          <a href="{% url 'openCurrents:biz-admin' %}">
         {% endif %}
+          <i class="fa fa-lg fa-gear"></i>
+        </a>
+      {% endif %}
 
-        <div class="hide-for-small-only row full-width collapse two-margin-top">
-          <div class="left medium-6 medium-offset-1 large-5 large-offset-2 columns">
-            <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="fit-left round" />
-            <span class="input-sizer"> -->
-              <h5 class="one-margin-top no-margin-bottom">{{ user.first_name }} {{ user.last_name }}</h5>
+      <p class="half-margin-top half-margin-bottom">
+        <a class="earn-currents-popup_open button round small">
+          Volunteer
+        </a>
+      </p>
+    </div>
+  </div>
+{% endblock heading %}
 
-              {% if is_admin %}
-                <h6 class="inline half-margin-right">{{orgname}}</h6>
-                <a href="{% url 'openCurrents:admin-profile' %}"><i class="fa fa-lg fa-gear"></i></a>
-              {% endif %}
-            <!-- </span> -->
-          </div>
+{% block content %}
+  <div class="row">
+    <div class="small-12 medium-6 columns">
+      <h6 class="inline-block qtr-margin-bottom">
+        Currents available:
+      </h6>
+      <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
+      <h6 class="inline-block no-margin-bottom">
+        {{ balance_available|round_number:3 }}
+      </h6>
+      <p class="grey half-margin-bottom">Pending:
+        <img class="med-text-symbol" src="{% static 'img/symbol.svg' %}"/>
+        {{ balance_pending|round_number:3 }}
+      </p>
+      <p class="no-margin-bottom">
+        <a href="{% url 'openCurrents:marketplace' %}" class="button round secondary tiny">
+          Marketplace
+        </a>
+      </p>
+    </div>
 
-          <div class="one-margin-top right medium-4 large-3 columns end">
-            <h6 class="inline">My Currents: </h6>
-            <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
-            <h6 class="inline-block"> {{ user_balance }} </h6>
-            <div class="no-margin-top row">
-              <a class="earn-currents-popup_open button round tiny">Earn Currents</a>
-              <!-- <a href="{% url 'openCurrents:marketplace' %}" class="button round secondary tiny">Redeem</a> -->
-            </div>
-          </div>
-        </div>
+    <div class="small-12 medium-6 columns">
+      <h6 class="qtr-margin-bottom">
+        Dollars available: ${{ balance_available_usd|round_number:2 }}
+      </h6>
+      <p class="grey half-margin-bottom">
+        Pending: ${{ balance_pending_usd|round_number:2 }}
+      </p>
 
-        <div class="show-for-small-only row one-margin-top">
-          <div class="columns">
-            <!-- <img id="profile-img" src="{% static 'img/smiley.jpg' %}" class="round" /> -->
-            <h4 class="half-margin-top no-margin-bottom">{{ user.first_name }} {{ user.last_name }}</h4>
-            {% if is_admin %}
-              <h6 class="inline half-margin-right">{{orgname}}</h6>
-              <a href="{% url 'openCurrents:admin-profile' %}"><i class="fa fa-lg fa-gear"></i></a>
-            {% endif %}
+      <a class="
+        {% if balance_available_usd|str_to_num > 0 %}
+          cash-out-popup_open
+        {% else %}
+          no-cash-popup_open
+        {% endif %}
+         button round secondary tiny">
+        Cash out
+      </a>
+    </div>
+  </div>
 
-            <div class="half-margin-top">
-              <h6 class="inline">My Currents: </h6>
-              <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
-              <h6 class="inline-block"> {{ user_balance }} </h6>
-              <div class="half-margin-top row">
-                <a class="earn-currents-popup_open button round tiny">Earn Currents</a>
-                <!-- <a href="{% url 'openCurrents:marketplace' %}" class="button round secondary tiny">Redeem</a> -->
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="row full-width collapse left one-margin-top">
-          <div class="small-11 medium-10 large-8 small-centered columns">
-            <h6 class="one-margin-bottom">My volunteer events</h6>
-            {% if events_upcoming %}
-              {% for event in events_upcoming %}
-                {% if event.project.name != "ManualTracking" %}
-                <div class="row one-margin-bottom">
-                  <div class="left small-9 columns">
-                    <strong>Let's {{event.project.name}}!</strong>
-                    on {{event.datetime_start|day:timezone}}
-                    at {{event.datetime_start|time:timezone}}
-                    to {{event.datetime_end|time:timezone}}
-                    at {{event.location}}
-                  </div>
-
-                  <div class="right input-right small-3 columns">
-                    <a href="{% url 'openCurrents:event-detail' event.id %}" class="button small round secondary">View</a>
-                  </div>
-                </div>
-                {% endif %}
-              {% endfor %}
-            {% else %}
-              <p>You are not registered for any upcoming events. <a href="{% url 'openCurrents:upcoming-events' %}">Find one!</a></p>
-            {% endif %}
-          </div>
-        </div>
-        
-
-        <!-- community feed code. Hardcoded not dynamic -->
-        <!-- <div class="row full-width collapse one-margin-bottom">
-          <div class="left small-11 medium-10 large-8 small-centered columns">
-            <h6 class="one-margin-top one-margin-bottom">Community activity</h6>
-            <div id="community-feed">
-              <div class="feed-item">
-                <strong>Jacob Jacobs</strong> joined openCurrents!
-              </div>
-
-              <div class="feed-item">
-                <strong>Keep Austin Beautiful</strong> created a project: <strong><a>Let's clean up Lady Bird Lake<span class="no-wrap">!<i class="half-margin-left fa fa-arrow-circle-right"></i></span></a></strong>
-              </div>
-
-              <div class="feed-item">
-                <strong>Jacob Jacobs</strong> will be helping <strong>Keep Austin Beautiful</strong> clean up Lady Bird Lake!
-              </div>
-
-              <div class="feed-item">
-                <strong>Keep Austin Beautiful</strong> issued 2 Currents to <strong>Jacob Jacobs</strong>.
-              </div>
-              <div class="feed-item">
-                <strong>Jacob Jacobs</strong> joined openCurrents!
-              </div>
-
-              <div class="feed-item">
-                <strong>Keep Austin Beautiful</strong> created a project: <strong><a>Let's clean up Lady Bird Lake<span class="no-wrap">!<i class="half-margin-left fa fa-arrow-circle-right"></i></span></a></strong>
-              </div>
-
-              <div class="feed-item">
-                <strong>Jacob Jacobs</strong> will be helping <strong>Keep Austin Beautiful</strong> clean up Lady Bird Lake!
-              </div>
-
-              <div class="feed-item">
-                <strong>Keep Austin Beautiful</strong> issued 2 Currents to <strong>Jacob Jacobs</strong>.
-              </div>
-              <div class="feed-item">
-                <strong>Jacob Jacobs</strong> joined openCurrents!
-              </div>
-
-              <div class="feed-item">
-                <strong>Keep Austin Beautiful</strong> created a project: <strong><a>Let's clean up Lady Bird Lake<span class="no-wrap">!<i class="half-margin-left fa fa-arrow-circle-right"></i></span></a></strong>
-              </div>
-
-              <div class="feed-item">
-                <strong>Jacob Jacobs</strong> will be helping <strong>Keep Austin Beautiful</strong> clean up Lady Bird Lake!
-              </div>
-
-              <div class="feed-item">
-                <strong>Keep Austin Beautiful</strong> issued 2 Currents to <strong>Jacob Jacobs</strong>.
-              </div>
-            </div>
-          </div>
-        </div> -->
-            <!-- <h5 class="fit-left">I care about</h5>
-            <span class="input-sizer"><input name="offer-text" type="text" class="profile-text" value="showing people their power"/></span>
-
-            <div class="tag-block">
-              <button class="button round tiny">Nature</button>
+  <div class="row collapse three-halves-margin-top left">
+    <div class="small-11 medium-10 small-centered columns">
+      <h6 class="half-margin-bottom">My upcoming events</h6>
+      {% if events_upcoming %}
+        {% for event in events_upcoming %}
+          {% if event.project.name != "ManualTracking" %}
+          <div class="row half-margin-bottom">
+            <div class="left small-9 columns">
+              <strong>{{event.project.name}}</strong>
+              with {{event.project.org.name}}
+              on {{event.datetime_start|day:timezone}}
+              from {{event.datetime_start|time:timezone}}
+              to {{event.datetime_end|time:timezone}}
+              at {{event.location}}
             </div>
 
-            <h5 class="fit-left">I offer</h5>
-            <span class="input-sizer"><input name="offer-text" type="text" class="profile-text" /></span>
-
-            <h5 class="fit-left">I am looking for</h5>
-            <span class="input-sizer"><input name="offer-text" type="text" class="profile-text" /></span> -->
-
-            <!--<h5 class="one-margin-top one-margin-bottom">My badges</h5>
-
-            <h5 class="one-margin-top one-margin-bottom">My hours given</h5>
-            -->
-
-
-        <div id="push"></div>
-
-      <!-- wrapper div-->
-      </div>
-
-      {% include 'partials/footer.html' %}
-
-    <!--container div -->
-    </div>
-
-    <div id="bottom-stripe" class="full-width"></div>
-
-    <div off-canvas="menu right shift" id="menu">
-      {% include 'partials/menu.html' %}
-    </div>
-
-    <div id="welcome-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <div class="row center">
-        <div class="small-centered medium-10 columns">
-          <h3 class="one-margin-top">Welcome to openCurrents!</h3>
-          <p class="three-halves-margin-top">We're excited to have you with us in the community. We are just getting started with our testing phase. Soon we will connect you with opportunities to volunteer, see what like minded peers are doing in your community, create and earn Currents through social action, and exchange your Currents through a digital marketplace.</p>
-          <p>If you'd like to learn more about the openCurrents or get involved with the community, let us know!</p>
-
-          <p class="three-halves-margin-top">
-            <a href="javascript:void(Tawk_API.toggle())" class="button round small">Get in touch</a>
-            <a class="welcome-popup_close button round secondary small">Close</a>
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <div id="earn-currents-popup" class="modal center small-12 medium-10 large-8 small-centered columns">
-      <div class="row center">
-        <h3 class="one-margin-top">2 ways to earn Currents</h3>
-        <h6></h6>
-      </div>
-
-      <div class="row center half-margin-top">
-        <div class="half-margin-bottom small-12 medium-6 columns">
-          <h6>Volunteer at an event</h6>
-          <p>Check out these upcoming opportunities with participating organizations:</p>
-          <a href="{% url 'openCurrents:upcoming-events' %}" class="button round small">View upcoming events</a>
-        </div>
-
-        <div class="small-12 medium-6 columns">
-          <h6>Track volunteer time</h6>
-          <p>If you already give time with a participating organization, track your hours here:</p>
-          <a href="{% url 'openCurrents:time-tracker' %}" class="button round small">Record hours</a>
-        </div>
-      </div>
-    </div>
-
-    <div id="rsvp-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <div class="row center">
-        <h3 class="popup-title">Change RSVP</h3>
-      </div>
-
-      <div class="row center one-margin-top">
-        <div class="small-centered medium-10 columns">
-
-          <input type="radio" id="rsvp-1" name="rsvp-[]" value="" class="hidden styled-radio" checked/>
-            <label for="rsvp-1" class="button round secondary small">Going</label>
-
-          <input type="radio" id="rsvp-2" name="rsvp-[]" value="" class="hidden styled-radio"/>
-            <label for="rsvp-2" class="button round secondary small">Maybe</label>
-
-          <input type="radio" id="rsvp-3" name="rsvp-[]" value="" class="hidden styled-radio"/>
-            <label for="rsvp-3" class="button round secondary small">Not going</label>
-
-          <div class="three-halves-margin-top">
-            <button type="submit" class="rsvp-popup_close button round">Update</button>
+            <div class="right relative small-3 columns">
+              <a class="mini-open">
+                <i class="blue half-margin-right fa-chevron-circle-down fa fa-lg"></i>
+              </a>
+              <ul class="mini-menu">
+                <a href="{% url 'openCurrents:event-detail' event.id %}">
+                  <li>View event details</li>
+                </a>
+              </ul>
+            </div>
           </div>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <p>You are not registered for any upcoming events.
+          <a href="{% url 'openCurrents:volunteer-opportunities' %}">
+            Find one!
+          </a>
+        </p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row collapse one-margin-top left">
+    <div class="small-11 medium-10 small-centered columns">
+      <h6 class="half-margin-bottom">Community activity</h6>
+      <a href="{% url 'openCurrents:public-record' %}?record_type=top-org&period=month" class="button tiny round secondary">
+        Currents issued: {% if currents_amount_total %}{{ currents_amount_total|round_number:3 }}{% else %}0{% endif %}
+      </a>
+      <a href="{% url 'openCurrents:public-record' %}?record_type=top-vol&period=month" class="button tiny round secondary">
+        Active volunteers: {% if active_volunteers_total %}{{ active_volunteers_total }}{% else %}0{% endif %}
+      </a>
+      <a href="{% url 'openCurrents:public-record' %}?record_type=top-biz&period=month" class="button tiny round secondary">
+        Currents redeemed: {{ biz_currents_total|round_number:3 }}
+      </a>
+    </div>
+  </div>
+
+  <div class="row collapse one-margin-top left">
+    <div class="small-11 medium-10 small-centered columns">
+      <h6 class="half-margin-bottom">My volunteer hours</h6>
+      {% for org, hours in hours_by_org.items %}
+        <a href="{% url 'openCurrents:hours-detail' %}?user_id={{user.id}}&amp;org_id={{org.id}}&amp;type=approved"
+        class="button round tiny secondary">
+          {{org.name}}: {{hours}}
+        </a>
+      {% empty %}
+        <p>No hours have been approved.
+          <a href="{% url 'openCurrents:time-tracker' %}">
+            Record hours
+          </a>
+          to create Currents!
+        </p>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% macro user_hour_request_list_macro arg_list arg_status arg_timezone %}
+    {% block user_hour_request_list %}
+      {% with hours_list=arg_list hours_status=arg_status timezone=arg_timezone %}
+        {{ block.super }}
+      {% endwith %}
+    {% endblock %}
+  {% endmacro %}
+
+  <div class="left row one-margin-top collapse">
+    <div class="small-11 medium-10 small-centered columns">
+      <div class="row">
+        <div class="small-9 columns">
+          <h6 class="half-margin-bottom">My hours requested</h6>
+        </div>
+      </div>
+
+      {% usemacro user_hour_request_list_macro hours_requested 'requested' timezone %}
+    </div>
+  </div>
+
+  <div class="row collapse one-margin-top left">
+    <div class="small-11 medium-10 small-centered columns">
+      <div class="row">
+        <div class="small-8 columns">
+          <h6 class="half-margin-bottom">My redeemed offers</h6>
+        </div>
+
+        <div class="right small-4 columns">
+          {% if offers_redeemed %}
+            <h6 class="half-margin-bottom">Status</h6>
+          {% endif %}
+        </div>
+      </div>
+
+      {% if offers_redeemed %}
+        {% for offer_redeemed in offers_redeemed %}
+          {% with transaction=offer_redeemed.transaction status=offer_redeemed.get_action_type_display %}
+            <div class="row half-margin-bottom">
+              <div class="left small-9 columns">
+                {{ offer_redeemed.date_updated|day:timezone }} -
+                You
+                {% with amount_cur=transaction.currents_amount %}
+                  {% with amount_usd=amount_cur|current_to_usd:'with_fee' %}
+                    {% if status == 'pending' %}
+                      requested
+                    {% elif status == 'approved' %}
+                      will receive
+                    {% elif status == 'redeemed' %}
+                      received
+                    {% elif status == 'declined' %}
+                      request of
+                    {% endif %}
+
+                    ${{ amount_usd|floatformat:2 }} for
+                    <span class="no-wrap">
+                      <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
+                      {{ amount_cur|floatformat:3 }}
+                    </span>
+                    from
+                    <strong>
+                      {{ transaction.offer.org.name }}
+                    </strong>
+                    {% if status == 'declined' %}
+                      has been declined
+                    {% endif %}
+                  {% endwith %}
+                {% endwith %}
+              </div>
+
+              <div class="right relative small-3 columns">
+                {{ status }}
+              </div>
+            </div>
+          {% endwith %}
+        {% endfor %}
+      {% else %}
+        <p>You have not yet redeemed any offers.
+          <a href="{% url 'openCurrents:marketplace' %}">
+            Check out the marketplace!
+          </a>
+        </p>
+      {% endif %}
+    </div>
+  </div>
+{% endblock content %}
+
+{% block popups %}
+  <div id="biz-details-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+    {% include "popups/biz-details-popup.html" %}
+  </div>
+
+  <div id="welcome-popup" class="modal center small-12 medium-10 large-8 small-centered columns">
+    {% include "popups/welcome-popup.html" %}
+  </div>
+
+  <div id="earn-currents-popup" class="modal center small-12 medium-10 large-8 small-centered columns">
+    {% include "popups/earn-currents-popup.html" %}
+  </div>
+
+  <div id="cash-out-popup" class="modal center small-12 medium-9 small-centered columns">
+    {% include "popups/cash-out-popup.html" %}
+  </div>
+
+  <div id="no-cash-popup" class="modal center small-12 medium-9 small-centered columns">
+    {% include "popups/no-cash-popup.html" %}
+  </div>
+
+  <div id="approve-hours-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+    {% include "popups/approve-hours-popup.html" %}
+  </div>
+
+  <div id="rsvp-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+    <div class="row center">
+      <h3 class="popup-title">Change RSVP</h3>
+    </div>
+
+    <div class="row center one-margin-top">
+      <div class="small-centered medium-10 columns">
+
+        <input type="radio" id="rsvp-1" name="rsvp-[]" value="" class="hidden styled-radio" checked/>
+          <label for="rsvp-1" class="button round secondary small">Going</label>
+
+        <input type="radio" id="rsvp-2" name="rsvp-[]" value="" class="hidden styled-radio"/>
+          <label for="rsvp-2" class="button round secondary small">Maybe</label>
+
+        <input type="radio" id="rsvp-3" name="rsvp-[]" value="" class="hidden styled-radio"/>
+          <label for="rsvp-3" class="button round secondary small">Not going</label>
+
+        <div class="three-halves-margin-top">
+          <button type="submit" class="rsvp-popup_close button round">Update</button>
         </div>
       </div>
     </div>
-    <div id="approve-hours-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-      <div class="row center">
-        <h3 class="popup-title">Volunteers request approval</h3>
-      </div>
+  </div>
 
-      <div class="row center">
-        <div class="small-centered medium-10 columns">
-
-          <p class="three-halves-margin-bottom">Volunteers have tracked hours and need your signoff before Currents are issued to them. It is recommended that you approve volunteer hours once a week.</p>
-
-          <a href="{% url 'openCurrents:approve-hours' %}" class="button round">View requests</button>
-          <a><button class="approve-hours-popup_close button round secondary">Close</button></a>
-        </div>
+  <div id="balance-popup" class="modal center small-12 medium-9 small-centered columns">
+    <div class="row collapse center">
+      <div class="small-centered medium-11 columns">
+        <h6 class="popup-title">
+          Balance &ndash; Requested offers = Currents available
+        </h6>
       </div>
     </div>
+    <div class="row">
+      <div class="medium-4 columns"><h6></h6></div>
+      <div class="medium-4 columns"><h6></h6></div>
+      <div class="medium-4 columns"><h6></h6></div>
+    </div>
+  </div>
+{% endblock popups %}
 
+{% block js %}
+  <script type="text/javascript">
+    $(document).ready(function(){
 
-    <script type="text/javascript">
-      $(document).ready(function(){
-
-        if(!localStorage.viewed){
-          localStorage.viewed=1;
-          var open = true;
-        }
-        else{
-          var open = false;
-        }
-
-        $('#rsvp-popup, #earn-currents-popup').popup({
-          vertical: 'top',
-          transition: 'all 0.75s',
-          scrolllock: true,
-        });
-
-        $('#welcome-popup').popup({
-          vertical: 'top',
-          transition: 'all 0.75s',
-          scrolllock: true,
-          // autoopen: true,
-        });
-      });
-    </script>
-
-    <script type="text/javascript">
-
-      if ({{app_hr}}){
-          $('#approve-hours-popup').popup({
-            vertical: 'top',
-            transition: 'all 0.75s',
-            scrolllock: true,
-            autoopen: true,
-          });
+      if(!localStorage.viewed){
+        localStorage.viewed=1;
+        var open = true;
       }
-    </script>
+      else{
+        var open = false;
+      }
 
-    <script type="text/javascript" src="{% static "js/end_scripts.js" %}"></script>
-  </body>
-</html>
+      $('#rsvp-popup, #earn-currents-popup, #balance-popup, #no-cash-popup, #cash-out-popup').popup({
+        vertical: 'top',
+        transition: 'all 0.75s',
+        scrolllock: true,
+      });
+
+    {# Turning on/off welcome popup #}
+    {% if user.usersettings.popup_reaction  == None %}
+
+      $('#welcome-popup').popup({
+        vertical: 'top',
+        transition: 'all 0.75s',
+        scrolllock: true,
+        autoopen: true,
+      });
+
+    {% endif %}
+
+    {% if is_admin_biz and org.no_info %}
+      $('#biz-details-popup').popup({
+        vertical: 'top',
+        transition: 'all 0.75s',
+        scrolllock: true,
+        autoopen: true,
+      });
+    {% endif %}
+
+      $('.mini-open').click(function(){
+        $('.mini-menu').hide();
+        $(this).siblings('.mini-menu').toggle();
+        $(this).attr('visibility', 'visible');
+      });
+
+      $(document).click(function(e) {
+        var target = e.target;
+        if (!$(target).is('.mini-open') && !$(target).parents().is('.mini-open')) {
+          $('.mini-menu').hide();
+        }
+      });
+    });
+  </script>
+
+  <script type="text/javascript">
+
+    if ({{ app_hr }}){
+      $('#approve-hours-popup').popup({
+        vertical: 'top',
+        transition: 'all 0.75s',
+        scrolllock: true,
+        autoopen: true,
+      });
+    }
+  </script>
+{% endblock js %}

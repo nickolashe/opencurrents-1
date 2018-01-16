@@ -1,0 +1,74 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+
+    {% include "partials/head.html" %}
+
+    {% block head %}{% endblock head %}
+
+    <title>
+      {% block name %}
+        Get paid for doing good
+      {% endblock name %}
+      &bull; openCurrents
+    </title>
+  </head>
+
+  <body>
+
+    {% include "partials/header.html" %}
+
+    <div id="container" class="js-close-any" canvas="container">
+      <div id="wrapper">
+        {% block status %}
+          <div class="{% if msg_type %}{{msg_type}}{% else %} success {% endif %} row one-margin-top">
+            <div class="columns">
+              {% autoescape off %}
+                {{ status_msg }}
+              {% endautoescape %}
+            </div>
+          </div>
+        {% endblock status %}
+
+        {% block heading %}
+          <div class="row">
+            <div class="small-12 columns">
+              <h3 class="title">
+                {% block title %} openCurrents {% endblock title %}
+              </h3>
+            </div>
+          </div>
+        {% endblock heading %}
+
+        {% block content %}{% endblock content %}
+
+        <div id="push"></div>
+
+      <!-- wrapper div-->
+      </div>
+
+      {% block footer %}
+        {% include 'partials/footer.html' %}
+      {% endblock footer %}
+
+    <!--container div -->
+    </div>
+
+    <div id="bottom-stripe" class="full-width"></div>
+
+    {% block menu %}
+      <div off-canvas="menu right shift" id="menu">
+        {% include 'partials/menu.html' %}
+      </div>
+    {% endblock %}
+
+
+    {% block popups %}{% endblock popups %}
+
+    {% block js %}{% endblock js %}
+
+    {% include "partials/end-scripts.html" %}
+  </body>
+</html>
