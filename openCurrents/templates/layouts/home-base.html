@@ -13,7 +13,7 @@
 
   </head>
 
-  <body class="splash" onunload=''>
+  <body id="{% block page %}home{% endblock page %}" class="splash" onunload=''>
 
     {% block header %}
       <header id="header" class="full-width row collapse js-close-any" canvas>
@@ -36,8 +36,8 @@
           {% block large-links %}
             <a href="{% url 'openCurrents:nonprofit' %}" class="three-halves-margin-right">For nonprofits</a>
             <a href="{% url 'openCurrents:business' %}" class="three-halves-margin-right">For businesses</a>
-            <a href="{% url 'openCurrents:volunteer' %}" class="three-halves-margin-right">For volunteers</a>
             <a href="{% url 'openCurrents:our-story' %}" class="three-halves-margin-right">Our story</a>
+            <a href="{% url 'openCurrents:faq' %}" class="three-halves-margin-right">FAQ</a>
             <a class="two-margin-right" href="{% url 'openCurrents:login' %}">Log in</a>
           {% endblock large-links %}
         </div>
