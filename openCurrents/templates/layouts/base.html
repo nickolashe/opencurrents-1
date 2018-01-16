@@ -8,7 +8,12 @@
 
     {% block head %}{% endblock head %}
 
-    <title>openCurrents</title>
+    <title>
+      {% block name %}
+        Get paid for doing good
+      {% endblock name %}
+      &bull; openCurrents
+    </title>
   </head>
 
   <body>
