@@ -2397,8 +2397,10 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                             'content': Organisation
                         },
                     ])
-                # sending emails to the new users
-                if k:
+                # sending emails to the new users and existing users with no passw
+                to_send =  k + k_old
+
+                if to_send:
                     sendBulkEmail(
                         'invite-volunteer',
                         None,
@@ -2409,18 +2411,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                         marker='1',
                         test_mode = test_mode
                     )
-                # sending emails to existing users with no passw
-                if k_old:
-                    sendBulkEmail(
-                        'invite-volunteer',
-                        None,
-                        email_template_merge_vars,
-                        k_old,
-                        user.email,
-                        session=self.request.session,
-                        marker='1',
-                        test_mode = test_mode
-                    )
+
             except Exception as e:
                 logger.error(
                     'unable to send email: %s (%s)',
