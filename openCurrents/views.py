@@ -1118,7 +1118,10 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                             admin_name,
                             description=form_data['description'],
                             datetime_start=form_data['datetime_start'].strftime("%Y-%m-%d %H:%M:%S"),
-                            datetime_end=form_data['datetime_end'].strftime("%Y-%m-%d %H:%M:%S")
+                            datetime_end=form_data['datetime_end'].strftime("%Y-%m-%d %H:%M:%S"),
+                            date=form_data['datetime_start'].strftime("%Y-%m-%d"),
+                            start_time=form_data['datetime_start'].strftime("%H:%M:%S"),
+                            end_time=form_data['datetime_end'].strftime("%H:%M:%S")
                         )
 
                         # eventually creating DB records for logged time
@@ -1160,6 +1163,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                         return False, 'The coordinator is already affiliated with an existing organization.', msg_type
 
                     else:
+                        # inviting new admin
                         new_npf_admin_user = self.invite_new_admin(
                             org,
                             admin_email,
@@ -1167,7 +1171,12 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                             description=form_data['description'],
                             datetime_start=form_data['datetime_start'].strftime("%Y-%m-%d %H:%M:%S"),
                             datetime_end=form_data['datetime_end'].strftime("%Y-%m-%d %H:%M:%S"),
-                            template='volunteer-invites-org' # using different template when time is logged for a new org
+                            date=form_data['datetime_start'].strftime("%Y-%m-%d"),
+                            start_time=form_data['datetime_start'].strftime("%H:%M:%S"),
+                            end_time=form_data['datetime_end'].strftime("%H:%M:%S"),
+                            admin_template='volunteer-invites-org', # using different template when time is logged for a new org
+                            biz_template='new-org-invited' # using different template when time is logged for a new org
+
                         )
 
                         # as of now, do not submit hours prior to admin registering
@@ -1264,19 +1273,6 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         # adding flag to not call Mandrill during unittests
         test_time_tracker_mode = self.request.POST.get('test_time_tracker_mode')
 
-        # looks like we don't need this piece anymore
-        # try:
-        #     user_new = User.objects.get(username = admin_email)
-        #     doInvite = not user_new.has_usable_password()
-        # except User.DoesNotExist:
-        #     # user_new = User(
-        #     #     username=admin_email,
-        #     #     email=admin_email,
-        #     #     first_name=admin_name
-        #     # )
-        #     # user_new.save()
-        #     doInvite = True
-
         # adapting function for sending org.name or form_data['new_org'] to new admin
         if isinstance(org, Org):
             org = org.name  # the Org instance was passed, using name
@@ -1316,15 +1312,23 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                 self.add_to_email_vars(email_vars, kw_key, kw_value)
 
         # selecting template for emails
-        if 'template' in kwargs.keys():
-            template = 'volunteer-invites-org'
+        if 'admin_template' in kwargs.keys():
+            admin_template = kwargs['admin_template']
         else:
-            template = 'volunteer-invites-admin'
+            admin_template = 'volunteer-invites-admin'
+
+        if 'biz_template' in kwargs.keys():
+            biz_template = kwargs['biz_template']
+        else:
+            biz_template = 'new-admin-invited'
+
+        self.request.session['admin_template'] = admin_template
+        self.request.session['biz_template'] = biz_template
 
         if doInvite:
             try:
                 sendTransactionalEmail(
-                    template,
+                    admin_template,
                     None,
                     email_vars,
                     admin_email,
@@ -1339,18 +1343,6 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                     e.message,
                     type(e)
                 )
-        # try:
-        #     org_user = OrgUser(
-        #         org=org,
-        #         user=user_new
-        #     )
-        #     org_user.save()
-        # except Exception as e:
-        #     logger.error(
-        #         'Org user already present: %s (%s)',
-        #         e.message,
-        #         type(e)
-        #     )
 
         try:
             email_vars_transactional = [
@@ -1382,7 +1374,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                     self.add_to_email_vars(email_vars_transactional, kw_key, kw_value)
 
             sendTransactionalEmail(
-                'new-admin-invited',
+                biz_template,
                 None,
                 email_vars_transactional,
                 'bizdev@opencurrents.com',
