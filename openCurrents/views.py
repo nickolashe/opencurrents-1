@@ -2405,7 +2405,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                         'invite-volunteer',
                         None,
                         email_template_merge_vars,
-                        k,
+                        to_send,
                         user.email,
                         session=self.request.session,
                         marker='1',
