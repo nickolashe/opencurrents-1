@@ -86,6 +86,7 @@ urlpatterns = [
     url(r'^time-tracker/(?P<status_msg>.*)/$', views.TimeTrackerView.as_view(), name='time-tracker'),
     url(r'^time-tracker/(?P<status_msg>.*)/(?P<msg_type>.*)$', views.TimeTrackerView.as_view(), name='time-tracker'),
     url(r'^time-tracked/$', views.TimeTrackedView.as_view(), name='time-tracked'),
+    url(r'^time-tracked/(?P<new_org>\d+)/$', views.TimeTrackedView.as_view(), name='time-tracked'),
     url(r'^volunteer/$', views.VolunteerView.as_view(), name='volunteer'),
     url(r'^volunteer-requests/$', views.VolunteerRequestsView.as_view(), name='volunteer-requests'),
     url(r'^profile/$', views.ProfileView.as_view(), name='profile'),

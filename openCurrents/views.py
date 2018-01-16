@@ -1173,7 +1173,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                         # as of now, do not submit hours prior to admin registering
                         #self.create_approval_request(org.id,usertimelog,new_npf_admin_user)
 
-                        return True, None
+                        return True, 'new-org'
 
             else:
                 return False, 'Please enter admin\'s email'
@@ -1432,7 +1432,10 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         isValid = status[0]
         if isValid:
             # tracked time is valid
-            return redirect('openCurrents:time-tracked')
+            if status[1] == 'new-org':
+                return redirect('openCurrents:time-tracked', new_org=1)
+            else:
+                return redirect('openCurrents:time-tracked')
         else:
             status_msg = None
             try:
