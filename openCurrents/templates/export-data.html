@@ -67,7 +67,7 @@
       </div>
     </div>
 
-    <div class="row three-halves-margin-top">
+    <div class="row one-margin-top">
       <a type="submit" class="button round small">
         Export data
       </a>
@@ -81,12 +81,6 @@
 {% block js %}
   <script type="text/javascript">
     $(document).ready(function(){
-      $('#').popup({
-        vertical: 'top',
-        transition: 'all 0.75s',
-        scrolllock: true,
-      });
-
       $('#start-date').datepicker({
         dateFormat: 'yy-mm-dd',
         maxDate: 0,
