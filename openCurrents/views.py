@@ -2228,7 +2228,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                     elif email_list in user_list:
                         if (not event_create_id and not User.objects.get(email=email_list).has_usable_password()) \
                             or \
-                            (event_create_id and not User.objects.get(email=email_list).has_usable_password()):
+                            event_create_id:
 
                             k_old.append({"email":email_list, "name":post_data['vol-name-'+str(i+1)],"type":"to"})
 
@@ -2276,7 +2276,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                 elif user_email in user_list:
                     if (not event_create_id and not User.objects.get(email=user_email).has_usable_password())\
                         or \
-                        (event_create_id and not User.objects.get(email=user_email).has_usable_password()):
+                        event_create_id:
                         k_old.append({"email":user_email, "type":"to"})
 
                 if user_new and event_create_id:

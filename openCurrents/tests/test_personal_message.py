@@ -579,6 +579,18 @@ class TestIvniteVolunteersToEvent(TestCase):
             user.set_password('password')
             user.save()
 
+        # volunteer user 3 with not usable pass
+        self.volunteer3 = OcUser().setup_user(
+            username='test_user_3',
+            email='test_user_3@e.com',
+        )
+
+        # volunteer user 3 with not usable pass
+        self.volunteer4 = OcUser().setup_user(
+            username='test_user_4',
+            email='test_user_4@e.com',
+        )
+
         # creating a project
         self.project = Project(
             org=self.org,
@@ -823,6 +835,95 @@ class TestIvniteVolunteersToEvent(TestCase):
         self.assertEqual(len(self.client.session['recepient']), 1)
 
 
+    def test_invite_to_event_single_existing_nopass_with_message(self):
+        """
+        test invitation of a registered single volunteer with a personal message to future event
+
+        users wo pass invited to event should receive email
+        """
+
+        self.client.login(username=self.npf_admin_1.username, password='password')
+        self.response = self.client.get('/invite-volunteers/1/')
+        session = self.client.session
+
+        self.assertEqual(self.response.status_code, 200)
+
+        # assert a user exists
+        self.assertTrue(User.objects.get(username=self.volunteer1.username), self.volunteer1.username)
+
+        # posting form
+        response = self.client.post("/invite-volunteers/1/", {
+            'vol-name-1': self.volunteer3.username,
+            'vol-email-1': self.volunteer3.email,
+            'bulk-vol':'',
+            'count-vol':'1',
+            'personal_message':'Test msg single existing',
+            'test_mode':'1' # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+            })
+
+        # assert if we've been redirected
+        self.assertRedirects(response, '/org-admin/1/', status_code=302)
+
+        # asserting that bulk email function has been launched
+        self.assertEqual(self.client.session['bulk'], '1')
+
+        #asserting user is in recepients
+        self.assertTrue(self.client.session['recepient'][0]['email'], self.volunteer1.email)
+        self.assertTrue(self.client.session['recepient'][0]['name'], self.volunteer1.username)
+
+        # asserting email vars values
+        expected_list = ['Test msg single existing', 'PERSONAL_MESSAGE', 'first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'test_project_1', 'EVENT_TITLE', 'NPF_org_1', 'ORG_NAME', 'test_location_1', 'EVENT_LOCATION']
+        self._assert_merge_vars(session['merge_vars'],expected_list)
+
+        # assert we pass emails to mandril
+        self.assertEqual(len(self.client.session['recepient']), 1)
+
+
+    def test_invite_to_event_single_existing_nopass_no_message(self):
+        """
+        test invitation of a registered single volunteer with a personal message to future event
+
+        users wo pass invited to event should receive email
+        """
+
+        self.client.login(username=self.npf_admin_1.username, password='password')
+        self.response = self.client.get('/invite-volunteers/1/')
+        session = self.client.session
+
+        self.assertEqual(self.response.status_code, 200)
+
+        # assert a user exists
+        self.assertTrue(User.objects.get(username=self.volunteer1.username), self.volunteer1.username)
+
+        # posting form
+        response = self.client.post("/invite-volunteers/1/", {
+            'vol-name-1': self.volunteer3.username,
+            'vol-email-1': self.volunteer3.email,
+            'bulk-vol':'',
+            'count-vol':'1',
+            'personal_message':'',
+            'test_mode':'1' # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+            })
+
+        # assert if we've been redirected
+        self.assertRedirects(response, '/org-admin/1/', status_code=302)
+
+        # asserting that bulk email function has been launched
+        self.assertEqual(self.client.session['bulk'], '1')
+
+        #asserting user is in recepients
+        self.assertTrue(self.client.session['recepient'][0]['email'], self.volunteer3.email)
+        self.assertTrue(self.client.session['recepient'][0]['name'], self.volunteer3.username)
+
+        # asserting email vars values
+        expected_list = ['first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'test_project_1', 'EVENT_TITLE', 'NPF_org_1', 'ORG_NAME', 'test_location_1', 'EVENT_LOCATION']
+        self._assert_merge_vars(session['merge_vars'],expected_list)
+
+        # assert we pass emails to mandril
+        self.assertEqual(len(self.client.session['recepient']), 1)
+
+
+
     def test_invite_to_event_single_existing_with_message(self):
         """
         test invitation of a registered single volunteer with a personal message to future event
@@ -940,6 +1041,98 @@ class TestIvniteVolunteersToEvent(TestCase):
 
         # asserting email vars values
         expected_list = ['first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'test_project_1', 'EVENT_TITLE', 'NPF_org_1', 'ORG_NAME', 'test_location_1', 'EVENT_LOCATION']
+        self._assert_merge_vars(session['merge_vars'],expected_list)
+
+        # assert we pass emails to mandril
+        self.assertEqual(len(self.client.session['recepient']), 2)
+
+
+    def test_invite_bulk_existing_nopass_no_message(self):
+        """
+        test invitation of a bunch of new volunteers without a personal message to future event
+
+        users wo pass invited to event should receive email
+        """
+
+        self.client.login(username=self.npf_admin_1.username, password='password')
+        self.response = self.client.get('/invite-volunteers/1/')
+        session = self.client.session
+
+        self.assertEqual(self.response.status_code, 200)
+
+        # posting form
+        self.response = self.client.post("/invite-volunteers/1/", {
+            'bulk-vol':self.volunteer3.email + ", " + self.volunteer4.email,
+            'personal_message':'',
+            'test_mode':'1' # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+            })
+
+        # assert if we've been redirected
+        self.assertRedirects(self.response, '/org-admin/2/', status_code=302)
+
+        # asserting that bulk email function has been launched
+        self.assertEqual(self.client.session['bulk'], '1')
+
+        # assert new users weren't created (equals 4 because of 2 volunteers with usable passwrds)
+        self.assertEqual(len(User.objects.filter(username__contains='test_user_')), 4)
+
+        # assert user profiles weren't created
+        self.assertEqual(len(UserSettings.objects.filter(user__username__contains='test_user_')), 4)
+
+        # assert userentities weren't created
+        self.assertEqual(len(UserEntity.objects.filter(user__username__contains='test_user_')), 4)
+
+        # asserting email vars values
+        expected_list = ['first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'test_project_1', 'EVENT_TITLE', 'NPF_org_1', 'ORG_NAME', 'test_location_1', 'EVENT_LOCATION']
+        self._assert_merge_vars(session['merge_vars'],expected_list)
+
+        # assert we pass emails to mandril
+        self.assertEqual(len(self.client.session['recepient']), 2)
+
+
+    def test_invite_bulk_existing_nopass_with_personal_message(self):
+        """
+        test invitation of a bunch of existing volunteers with personal message to future event
+        """
+
+        self.client.login(username=self.npf_admin_1.username, password='password')
+        self.response = self.client.get('/invite-volunteers/1/')
+        session = self.client.session
+
+        self.assertEqual(self.response.status_code, 200)
+
+        # asserting the users exist
+        self.assertTrue(User.objects.get(username=self.volunteer1.username), self.volunteer1.username)
+        self.assertTrue(User.objects.get(username=self.volunteer2.username), self.volunteer2.username)
+
+        # posting form
+        response = self.client.post("/invite-volunteers/1/", {
+            'bulk-vol': self.volunteer3.email + ", " + self.volunteer4.email,
+            'personal_message':'Test msg bulk existing users',
+            'test_mode':'1' # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+            })
+
+        # assert if we've been redirected
+        self.assertRedirects(response, '/org-admin/2/', status_code=302)
+
+        # asserting that bulk email function has been launched
+        self.assertEqual(self.client.session['bulk'], '1')
+
+        # assert new users weren't created (equals 4 because of 2 volunteers with usable passwrds)
+        self.assertEqual(len(User.objects.filter(username__contains='test_user_')), 4)
+
+        # assert user profiles weren't created
+        self.assertEqual(len(UserSettings.objects.filter(user__username__contains='test_user_')), 4)
+
+        # assert userentities weren't created
+        self.assertEqual(len(UserEntity.objects.filter(user__username__contains='test_user_')), 4)
+
+        #asserting both users are in recepients
+        self.assertTrue(self.client.session['recepient'][0]['email'], self.volunteer3.email)
+        self.assertTrue(self.client.session['recepient'][1]['email'], self.volunteer4.email)
+
+        # asserting email vars values
+        expected_list = ['Test msg bulk existing users', 'PERSONAL_MESSAGE', 'first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'test_project_1', 'EVENT_TITLE', 'NPF_org_1', 'ORG_NAME', 'test_location_1', 'EVENT_LOCATION']
         self._assert_merge_vars(session['merge_vars'],expected_list)
 
         # assert we pass emails to mandril
