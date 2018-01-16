@@ -3483,7 +3483,7 @@ def process_OrgNomination(request):
             if not user_to_check or (user_to_check and not is_admin):
                 # emailing admin with volunteer-invites-org
                 sendTransactionalEmail(
-                    'volunteer-invites-org',
+                    'volunteer-nominates-org',
                     None,
                     [
                         {
