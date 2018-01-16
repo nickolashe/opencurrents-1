@@ -161,9 +161,9 @@
                   <a href="{% url 'openCurrents:edit-offer' offer.id %}">
                     <li> Edit offer </li>
                   </a>
-                  <!-- <a class="delete-offer-popup_open">
+                  <a href="{% url 'openCurrents:delete-offer' offer.id %}">
                     <li class="alert"> Delete offer </li>
-                  </a> -->
+                  </a>
                 </ul>
               </div>
             </div>
@@ -253,18 +253,6 @@
     {% include "popups/biz-details-popup.html" %}
   </div>
 
-  <div id="delete-offer-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-    <div class="row center">
-      <h3 class="popup-title">Are you sure?</h3>
-      <button type="submit" class="button round alert">
-        Yes - Delete offer
-      </button>
-      <a class="delete-offer-popup_close button round secondary">
-        Cancel
-      </a>
-    </div>
-  </div>
-
   <div id="view-receipt-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
     <div class="row center">
       <div class="small-12 medium-8 small-centered columns">
@@ -295,10 +283,18 @@
 
   <script type="text/javascript">
     $(document).ready(function(){
-      $('#view-receipt-popup, #delete-offer-popup, #biz-details-popup').popup({
+      $('#view-receipt-popup, #delete-offer-popup').popup({
         vertical: 'top',
         transition: 'all 0.75s',
         scrolllock: true,
+      });
+
+      $('#biz-details-popup').popup({
+        vertical: 'top',
+        transition: 'all 0.75s',
+        scrolllock: true,
+        escape: false,
+        blur: false
       });
 
       $('#id_phone').mask('000-000-0000')

@@ -4,10 +4,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render, redirect
 from django.views.generic import View, ListView, TemplateView, DetailView, CreateView
-from django.views.generic.edit import FormView
+from django.views.generic.edit import FormView, DeleteView
 from django.contrib.auth.models import User, Group
 from django.db import transaction, IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
+from django.urls import reverse, reverse_lazy
 from django.utils.safestring import mark_safe
 from django.utils import timezone
 from django.db.models import F, Q, Max
@@ -124,6 +125,7 @@ class SessionContextView(View):
         orguser = OrgUserInfo(userid)
         org = orguser.get_org()
         orgid = orguser.get_org_id()
+        context['org'] = org
         context['orgid'] = orgid
         context['org_id'] = orgid
         context['orgname'] = orguser.get_org_name()
@@ -327,10 +329,17 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, FormView):
             intro=data['intro']
         )
 
-        return redirect(
-            'openCurrents:biz-admin',
-            status_msg='Thank you for adding %s\'s details' % self.org.name
-        )
+        if all (i == '' for i in data.values()):
+            return redirect(
+                'openCurrents:biz-admin',
+                status_msg='%s\'s details are blank, please add details' % self.org.name,
+                msg_type='alert'
+            )
+        else:
+            return redirect(
+                'openCurrents:biz-admin',
+                status_msg='Thank you for adding %s\'s details' % self.org.name
+            )
 
 class BusinessView(TemplateView):
     template_name = 'business.html'
@@ -350,6 +359,30 @@ class ConfirmAccountView(TemplateView):
 
 class CommunityView(TemplateView):
     template_name = 'community.html'
+
+
+class DeleteOfferView(BizAdminPermissionMixin, TemplateView):
+    template_name = 'delete-offer.html'
+
+    def post(self, request, *args, **kwargs):
+
+        status_msg = "Couldn't process the offer"
+        msg_type = 'alert'
+
+        if request.method == 'POST':
+            try :
+                offer_id = kwargs['pk']
+                # mark the offer as inactive
+                offer = Offer.objects.get(pk=offer_id)
+                offer.is_active = False
+                offer.save()
+
+                status_msg = 'The offer "{}" has been removed'.format(offer)
+                msg_type = ''
+            except:
+                logger.error("Couldn't process the offer {}".format(offer))
+
+        return redirect('openCurrents:biz-admin', status_msg, msg_type)
 
 
 class LoginView(TemplateView):
@@ -713,7 +746,7 @@ class InventoryView(TemplateView):
 class PublicRecordView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'public-record.html'
 
-    def get_top_list(self, entity_type='top-org', period='month'):
+    def get_top_list(self, entity_type='top-org', period='all-time'):
         if entity_type == 'top-org':
             return OcOrg().get_top_issued_npfs(period)
         elif entity_type == 'top-vol':
@@ -1439,10 +1472,12 @@ class VolunteersInvitedView(LoginRequiredMixin, SessionContextView, TemplateView
         return context
 
 
-class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
+class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
     template_name = 'profile.html'
     login_url = '/home'
     redirect_unauthenticated_users = True
+    form_class = BizDetailsForm
+
 
     def get_context_data(self, **kwargs):
         context = super(ProfileView, self).get_context_data(**kwargs)
@@ -1494,6 +1529,28 @@ class ProfileView(LoginRequiredMixin, SessionContextView, TemplateView):
         context['biz_currents_total'] = OcCommunity().get_biz_currents_total()
 
         return context
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        Org.objects.filter(id=self.org.id).update(
+            website=data['website'],
+            phone=data['phone'],
+            email=data['email'],
+            address=data['address'],
+            intro=data['intro']
+        )
+
+        if all (i == '' for i in data.values()):
+            return redirect(
+                'openCurrents:biz-admin',
+                status_msg='%s\'s details are blank, please add details' % self.org.name,
+                msg_type='alert'
+            )
+        else:
+            return redirect(
+                'openCurrents:biz-admin',
+                status_msg='Thank you for adding %s\'s details' % self.org.name
+            )
 
 
 class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView):
@@ -2156,26 +2213,32 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
 
         for i in range(num_vols):
 
+            # processing individual emails
             if post_data['bulk-vol'].encode('ascii','ignore') == '':
                 email_list = post_data['vol-email-'+str(i+1)].lower()
 
                 if email_list != '':
-                    if email_list not in user_list:
-                        k.append({"email":email_list, "name":post_data['vol-name-'+str(i+1)],"type":"to"})
-
-                    elif email_list in user_list:
-                        k_old.append({"email":email_list, "name":post_data['vol-name-'+str(i+1)],"type":"to"})
 
                     user_new = None
 
-                    try:
-                        user_new = OcUser().setup_user(
-                            username=email_list,
-                            first_name=post_data['vol-name-'+str(i+1)],
-                            email=email_list,
-                        )
-                    except UserExistsException:
-                        user_new = User.objects.get(username=email_list)
+                    if email_list not in user_list:
+                        k.append({"email":email_list, "name":post_data['vol-name-'+str(i+1)],"type":"to"})
+
+                        try:
+                            user_new = OcUser().setup_user(
+                                username=email_list,
+                                first_name=post_data['vol-name-'+str(i+1)],
+                                email=email_list,
+                            )
+                        except UserExistsException:
+                            user_new = User.objects.get(username=email_list)
+
+                    elif email_list in user_list:
+                        if (not event_create_id and not User.objects.get(email=email_list).has_usable_password()) \
+                            or \
+                            (event_create_id and User.objects.get(email=email_list).has_usable_password()):
+
+                            k_old.append({"email":email_list, "name":post_data['vol-name-'+str(i+1)],"type":"to"})
 
                     if user_new and event_create_id:
                         try:
@@ -2192,7 +2255,9 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                 else:
                     num_vols -= 1
 
+            # processing emails from bulk field
             elif post_data['bulk-vol'] != '':
+
                 # setting vars' default values in case we couldn't get all needed data from parsed email
                 first_name = last_name = user_email = None
                 try:
@@ -2201,20 +2266,26 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                     logger.error('Unable to read from parsed email')
 
                 # user_email = str(bulk_list[i].strip())
-                if user_email and user_email not in user_list:
-                    k.append({"email":user_email, "type":"to"})
-                elif user_email in user_list:
-                    k_old.append({"email":user_email, "type":"to"})
+
                 user_new = None
 
-                if user_email:
-                    try:
-                        user_new = OcUser().setup_user(
-                            username=user_email,
-                            email=user_email
-                        )
-                    except UserExistsException:
-                        user_new = User.objects.get(username=user_email)
+                if user_email and user_email not in user_list:
+                    k.append({"email":user_email, "type":"to"})
+
+                    if user_email:
+                        try:
+                            user_new = OcUser().setup_user(
+                                username=user_email,
+                                email=user_email
+                            )
+                        except UserExistsException:
+                            user_new = User.objects.get(username=user_email)
+
+                elif user_email in user_list:
+                    if (not event_create_id and not User.objects.get(email=user_email).has_usable_password())\
+                        or \
+                        (event_create_id and User.objects.get(email=user_email).has_usable_password()):
+                        k_old.append({"email":user_email, "type":"to"})
 
                 if user_new and event_create_id:
                     try:
@@ -2239,6 +2310,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                 })
 
         try:
+            # inviting volunteers (event-based)
             event=Event.objects.get(id=event_create_id[0])
             events = Event.objects.filter(id__in=event_create_id)
             loc = [str(i.location).split(',')[0] for i in events]
@@ -2310,6 +2382,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                 )
         except Exception as e:
             try:
+                # inviting volunteers (non-event-based)
                 email_template_merge_vars.extend([
                         {
                             'name': 'ADMIN_FIRSTNAME',
@@ -2324,13 +2397,25 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                             'content': Organisation
                         },
                     ])
-                # sending emails only to new users
+                # sending emails to the new users
                 if k:
                     sendBulkEmail(
                         'invite-volunteer',
                         None,
                         email_template_merge_vars,
                         k,
+                        user.email,
+                        session=self.request.session,
+                        marker='1',
+                        test_mode = test_mode
+                    )
+                # sending emails to existing users with no passw
+                if k_old:
+                    sendBulkEmail(
+                        'invite-volunteer-event-existing',
+                        None,
+                        email_template_merge_vars,
+                        k_old,
                         user.email,
                         session=self.request.session,
                         marker='1',
@@ -3321,6 +3406,14 @@ def process_signup(
 def process_OrgNomination(request):
     form = OrgNominationForm(request.POST)
 
+    def is_any_org_admin(user_to_check_id):
+        try:
+            is_admin_npf = OcAuth(user_to_check_id).is_admin_org()
+            is_admin_biz = OcAuth(user_to_check_id).is_admin_biz()
+        except:
+            is_admin_npf = is_admin_biz = False
+        return is_admin_npf or is_admin_biz
+
     if form.is_valid():
         org_name = form.cleaned_data['org_name']
         contact_name = form.cleaned_data['contact_name']
@@ -3336,7 +3429,7 @@ def process_OrgNomination(request):
         else:
             try:
                 user_to_check = User.objects.get(email=contact_email)
-                is_admin = OrgUserInfo(user_to_check.id).is_user_in_org_group()
+                is_admin = is_any_org_admin(user_to_check.id)
             except:
                 is_admin = False
 
@@ -3345,9 +3438,8 @@ def process_OrgNomination(request):
         except:
             org_exists = False
 
-        # send email to bizdev in case the nominated org doesn't exist
-        if not org_exists:
-            sendTransactionalEmail(
+        # send email to bizdev in any case
+        sendTransactionalEmail(
                 'new-org-nominated',
                 None,
                 [
@@ -3379,28 +3471,72 @@ def process_OrgNomination(request):
                 'bizdev@opencurrents.com'
             )
 
-        # if org doesn't exist and user is new and user is new OR user exists, but not affiliated
-        if (not org_exists and not user_to_check) or (not org_exists and not is_admin):
-            return redirect('openCurrents:profile', status_msg='Thank you for nominating %s! We will reach out soon.' % org_name)
-
-        # if org is new, but user is affiliated admin
-        elif not org_exists and is_admin:
+        if org_exists:
             return redirect(
                 'openCurrents:profile',
-                status_msg='Thanks for nominating {}, it seems that {} is already affiliated with an organization on openCurrents.'.format(org_name, contact_email),
+                status_msg='It seems that {} is already active on openCurrents. Thanks for the nomination!.'.format(org_name),
+                msg_type='alert'
             )
 
         else:
-            return redirect(
-                'openCurrents:profile',
-                status_msg='Thanks for nominating {0}, it seems that {0} is already active openCurrents.'.format(org_name),
-            )
+            # if it's a new user or existing user but not affiliated
+            if not user_to_check or (user_to_check and not is_admin):
+                # emailing admin with volunteer-invites-org
+                sendTransactionalEmail(
+                    'volunteer-invites-org',
+                    None,
+                    [
+                        {
+                            'name': 'ADMIN_NAME',
+                            'content': contact_name
+                        },
+                        {
+                            'name': 'FNAME',
+                            'content': request.user.first_name
+                        },
+                        {
+                            'name': 'LNAME',
+                            'content': request.user.last_name
+                        },
+                        {
+                            'name': 'EMAIL',
+                            'content': request.user.email
+                        },
+                        {
+                            'name': 'COORD_NAME',
+                            'content': contact_name
+                        },
+                        {
+                            'name': 'COORD_EMAIL',
+                            'content': contact_email
+                        },
+                        {
+                            'name': 'ORG_NAME',
+                            'content': org_name
+                        }
+                    ],
+                    contact_email
+                )
+
+                return redirect(
+                    'openCurrents:profile',
+                    status_msg='Thank you for nominating {} and growing our community! We will reach out soon.'.format(org_name),
+                )
+
+            # else user exists and affiliated
+            else:
+                return redirect(
+                    'openCurrents:profile',
+                    status_msg='It seems that {} is already affiliated with an organization on openCurrents. Thanks for the nomination!'.format(contact_email),
+                    msg_type='alert'
+                )
 
     return redirect(
         'openCurrents:time-tracker',
         status_msg='Organization name is required',
         msg_type='alert'
     )
+
 
 def process_login(request):
     form = UserLoginForm(request.POST)
@@ -3571,7 +3707,8 @@ def process_email_confirmation(request, user_email):
             'openCurrents:confirm-account',
             email=user_email,
             token=token,
-            status_msg=errors[0]
+            status_msg=errors[0],
+            msg_type='alert'
         )
 
 
