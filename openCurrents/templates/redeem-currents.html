@@ -74,6 +74,10 @@
           <!--  form.redeem_receipt_if_checked -->
 
           <!-- <input type="checkbox" name="receipt-if-checked" id="receipt-if-checked" class="hidden" checked /> -->
+          <p id="master-offer-details" class="hidden grey">
+            Use Currents for up to {{ offer.currents_share }}% of your purchase with:
+            {{ form.master_biz_name }}
+          </p>
 
           {{ form.redeem_receipt }}
           <!--input type="file" accept="image/*" capture="camera" id="upload-receipt" name="upload-receipt" class="hidden-file" /-->
@@ -120,10 +124,6 @@
             of this purchase.
           </p>
 
-          <p id="master-offer-details" class="hidden grey">
-            Use Currents for {{ offer.currents_share }}% of your purchase with:
-            {{ form.master_biz_name }}
-          </p>
         </div>
       </div>
 
@@ -157,10 +157,15 @@
             openCurrents account.
           </p>
 
+          <p id="master-offer-terms" class="grey">
+            Note: Special offer is not redeemable for utilities, rent, gas,
+            debt, or cell phone payments. We reserve the right to decline
+            redemption.
+          </p>
+
           <div class="row three-halves-margin-top">
             <a class="prev-offer button round secondary">Back</a>
-
-            <input type='submit' value="Confirm" class="button round"></input>
+            <input type="submit" value="Confirm" class="button round" />
           </div>
         </div>
       </div>
@@ -227,7 +232,7 @@
         vertical: 'top',
         transition: 'all 0.75s',
         scrolllock: true,
-        //autoopen: true,
+        autoopen: true,
         blur: false,
         escape: false
       });
@@ -299,6 +304,20 @@
           $('#progress-'+page+'').removeClass('progress-highlight').siblings('label').removeClass('blue');
 
           page --;
+        }
+      });
+
+      // Master offer revisions
+      $('#master-offer-next').on('click', function(){
+        if ($('#id_biz_name').val() == '') {
+          $('#no-biz-alert').show();
+        }
+        else {
+          $('#master-offer-popup').popup('hide');
+          $('#offer-details').hide();
+          $('#master-offer-details').show();
+          $('#id_master_biz_name').val($('#id_biz_name').val());
+          $('#master-offer-terms').show();
         }
       });
 

@@ -832,6 +832,7 @@ class RedeemCurrentsForm(forms.Form):
 
     master_biz_name = forms.CharField(
         required=False,
+        disabled=True,
         widget=forms.TextInput(attrs={
             'class': 'center',
             'placeholder': 'Business name',

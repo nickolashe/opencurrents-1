@@ -1465,6 +1465,7 @@ input[disabled].good-cat {
 #id_master_biz_name {
   width: 288px;
   margin: auto;
+  border-bottom: none;
 }
 
 #offer-spacer {

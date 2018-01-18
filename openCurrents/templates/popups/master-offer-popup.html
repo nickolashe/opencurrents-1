@@ -2,7 +2,7 @@
 {% load staticfiles %}
 
 {% block title %}
-  Use Currents with any Austin business
+  Use Currents with any business in Austin
 {% endblock title %}
 
 
@@ -18,12 +18,7 @@
     businesses must be located in the Greater Austin area.
   </p>
 
-  <p>
-    Keep up the good work and please let us know if you would like to help us
-    grow the community of businesses valuing time you give for the greater good!
-  </p>
-
-  <input type="text" id="id_biz_name" name="biz_name" placeholder="Business name" class="center"/>
+  <input type="text" id="id_biz_name" name="biz_name" placeholder="What business are you using Currents with?" class="center"/>
 
   <div class="three-halves-margin-top">
     <a id="master-offer-next" class="show-no-biz-alert button round small">
@@ -38,16 +33,6 @@
 
 {% block js %}
   <script type="text/javascript">
-    $('#master-offer-next').on('click', function(){
-      if ($('#id_biz_name').val() == '') {
-        $('#no-biz-alert').show();
-      }
-      else {
-        $('#master-offer-popup').popup('hide');
-        $('#offer-details').hide();
-        $('#master-offer-details').show();
-        $('#id_master_biz_name').val($('#id_biz_name').val());
-      }
-    });
+    
   </script>
 {% endblock js %}
