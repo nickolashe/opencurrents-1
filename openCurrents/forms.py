@@ -830,6 +830,14 @@ class RedeemCurrentsForm(forms.Form):
         )
     )
 
+    master_biz_name = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'center',
+            'placeholder': 'Business name',
+        })
+    )
+
     def clean(self):
         cleaned_data = super(RedeemCurrentsForm, self).clean()
         redeem_receipt = cleaned_data['redeem_receipt']

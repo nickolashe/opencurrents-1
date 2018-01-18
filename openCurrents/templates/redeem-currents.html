@@ -122,7 +122,7 @@
 
           <p id="master-offer-details" class="hidden grey">
             Use Currents for {{ offer.currents_share }}% of your purchase with:
-            <input type="text" id="id_master_biz_name" name="master_biz_name" placeholder="Business name" class="center"/>
+            {{ form.master_biz_name }}
           </p>
         </div>
       </div>
@@ -227,7 +227,7 @@
         vertical: 'top',
         transition: 'all 0.75s',
         scrolllock: true,
-        autoopen: true,
+        //autoopen: true,
         blur: false,
         escape: false
       });
