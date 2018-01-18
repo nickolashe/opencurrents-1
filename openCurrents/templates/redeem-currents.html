@@ -175,6 +175,10 @@
   <div id="no-receipt-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
     {% include "popups/no-receipt-popup.html" %}
   </div>
+
+  <div id="master-offer-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+    {% include "popups/master-offer-popup.html" %}
+  </div>
 {% endblock popups %}
 
 {% block js %}
@@ -196,7 +200,7 @@
 
   <script type="text/javascript">
     $(document).ready(function(){
-      $('#redeem-info-popup, #no-receipt-popup').popup({
+      $('#redeem-info-popup').popup({
         vertical: 'top',
         transition: 'all 0.75s',
         scrolllock: true,
@@ -212,6 +216,13 @@
           $('#id_redeem_no_proof').val(text).slideDown();
           $('#redeem-spacer').animate({height: '+=88'});
         }
+      });
+
+      $('#master-offer-popup').popup({
+        vertical: 'top',
+        transition: 'all 0.75s',
+        scrolllock: true,
+        autoopen: true,
       });
 
       // Set height of spacer = to height of content
