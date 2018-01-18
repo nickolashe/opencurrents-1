@@ -445,8 +445,8 @@ class NpfAdminView(TestCase):
         response = self.client.get('/org-admin/')
         processed_content = re.sub(r'\s+', ' ', response.content )
 
-        self.assertIn('<a href="/hours-detail/?is_admin=1&user_id=1&type=approved"', processed_content)
-        self.assertIn('<a href="/hours-detail/?is_admin=1&user_id=2&type=pending"', processed_content)
+        self.assertIn('<a href="/hours-detail/?is_admin=1&amp;user_id=1&amp;type=approved"', processed_content)
+        self.assertIn('<a href="/hours-detail/?is_admin=1&amp;user_id=2&amp;type=pending"', processed_content)
         self.assertIn('org_user_1_first_name org_user_1_last_name: 4.000 </a>', processed_content)
         self.assertIn('org_user_2_first_name org_user_2_last_name: 2.000 </a>',processed_content)
 
@@ -824,4 +824,3 @@ class NpfAdminCheckIn(TestCase):
         self.assertEqual(48, OcLedger().get_balance(self.user_enitity_id_npf_adm))
         self.assertEqual(48, OcLedger().get_balance(self.user_enitity_id_vol_1))
         self.assertEqual(48, OcLedger().get_balance(self.user_enitity_id_vol_2))
-
