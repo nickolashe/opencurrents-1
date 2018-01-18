@@ -115,9 +115,14 @@
             {{ form.redeem_currents_amount }}
           </div>
 
-          <p class="no-margin-bottom grey">
+          <p id="offer-details" class="no-margin-bottom grey">
             {{ offer.org.name }} accepts Currents for {{ offer.currents_share }}%
             of this purchase.
+          </p>
+
+          <p id="master-offer-details" class="hidden grey">
+            Use Currents for {{ offer.currents_share }}% of your purchase with:
+            <input type="text" id="id_master_biz_name" name="master_biz_name" placeholder="Business name" class="center"/>
           </p>
         </div>
       </div>
@@ -223,6 +228,8 @@
         transition: 'all 0.75s',
         scrolllock: true,
         autoopen: true,
+        blur: false,
+        escape: false
       });
 
       // Set height of spacer = to height of content
