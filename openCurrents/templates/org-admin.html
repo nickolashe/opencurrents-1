@@ -173,7 +173,7 @@
         <h6 class="half-margin-bottom">Hours approved</h6>
         {% for admin, total in issued_by_admin.iteritems %}
           <a
-            href="{% url 'openCurrents:hours-detail' %}?is_admin=1&user_id={{admin.id}}&type=approved"
+            href="{% url 'openCurrents:hours-detail' %}?is_admin=1&amp;user_id={{admin.id}}&amp;type=approved"
             class="button round tiny secondary"
           >
             {{ admin.first_name|fullname:admin.last_name }}: {{total|round_number:3}}
@@ -201,7 +201,7 @@
 
       {% for admin, total in hours_pending_by_admin.iteritems %}
           <a
-            href="{% url 'openCurrents:hours-detail' %}?is_admin=1&user_id={{admin.id}}&type=pending"
+            href="{% url 'openCurrents:hours-detail' %}?is_admin=1&amp;user_id={{admin.id}}&amp;type=pending"
             class="button round tiny secondary"
           >
             {{ admin.first_name|fullname:admin.last_name }}: {{total|round_number:3}}
@@ -238,6 +238,10 @@
             </div>
           </div>
         {% endfor %}
+
+        <p><a href="{% url 'openCurrents:past-events' %}">
+          View all past events
+        </a></p>
       </div>
     </div>
   {% endif %}
