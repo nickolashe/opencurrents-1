@@ -527,7 +527,7 @@ class TimeTrackerForm(forms.Form):
         required=False,
         widget=widgets.TextWidget(attrs={
             'class': 'center',
-            'placeholder':'Coordinator name',
+            'placeholder': 'Coordinator name',
         })
     )
     new_admin_email = forms.EmailField(
