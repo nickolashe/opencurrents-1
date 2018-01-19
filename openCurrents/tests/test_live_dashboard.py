@@ -80,7 +80,7 @@ class SetupTest(TestCase):
 
 
 
-    def _add_nonregistered_user(
+    def _add_user_to_event(
         self,
         admin,
         event_id,
@@ -93,13 +93,14 @@ class SetupTest(TestCase):
         event_id - integer
         admin - user instance for NPF admin
         volunteer - user instance
-        registered_users_num - number of already registered users
+        registered_users_num - number of ALREADY registered users
         expected_user_registration - defines if user shoul or shoudn't be added to the
         event
         """
         # logging in
         self.client.login(username=admin.username, password='password')
         response = self.client.get('/live-dashboard/{}/'.format(str(event_id)))
+
         # check if users sees the page
         self.assertEqual(response.status_code, 200)
 
@@ -109,18 +110,21 @@ class SetupTest(TestCase):
         # assert approved hours from npf admin perspective
         self.assertEqual(0.0 , self.org_npf_adm.get_total_hours_issued())
 
-        # checking the first volunteer
+        # registering the first volunteer
         post_response = self.client.post('/event_register_live/{}/'.format(str(event_id)),
             {
-                'userid':str(volunteer.id),
-                'checkin':'true',
+                'userid':str(volunteer.id)
             })
 
+        # getting data from live-dasboard
         response = self.client.get('/live-dashboard/{}/'.format(str(event_id)))
 
         if expected_user_registration:
             self.assertEqual(post_response.status_code, 201)
             self.assertEqual(len(response.context['registered_users']), registered_users_num + 1)
+            self.assertIn('"userid": "{}"'.format(str(volunteer.id)), post_response.content)
+            self.assertIn('"eventid": "{}"'.format(str(event_id)), post_response.content)
+
         else:
             self.assertEqual(post_response.status_code, 200)
             self.assertEqual(len(response.context['registered_users']), registered_users_num)
@@ -147,6 +151,8 @@ class SetupTest(TestCase):
         self.volunteer_1 = _create_test_user('volunteer_1')
         self.volunteer_2 = _create_test_user('volunteer_2')
         self.volunteer_3 = _create_test_user('volunteer_3')
+        self.volunteer_4 = _create_test_user('volunteer_4')
+        self.volunteer_4.set_unusable_password() # mocking non-confirmed user
 
 
         # creating a future event  (event duration: 24 hrs)
@@ -208,11 +214,15 @@ class SetupTest(TestCase):
         self.org_npf_adm = OrgAdmin(self.npf_admin.id)
         self.oc_vol_1 = OcUser(self.volunteer_1.id)
         self.oc_vol_2 = OcUser(self.volunteer_2.id)
+        self.oc_vol_3 = OcUser(self.volunteer_3.id)
+        self.oc_vol_4 = OcUser(self.volunteer_4.id)
 
         # user entities
         self.user_enitity_id_npf_adm = UserEntity.objects.get(user = self.npf_admin).id
         self.user_enitity_id_vol_1 = UserEntity.objects.get(user = self.volunteer_1).id
         self.user_enitity_id_vol_2 = UserEntity.objects.get(user = self.volunteer_2).id
+        self.user_enitity_id_vol_3 = UserEntity.objects.get(user = self.volunteer_3).id
+        self.user_enitity_id_vol_4 = UserEntity.objects.get(user = self.volunteer_4).id
 
         # setting up client
         self.client = Client()
@@ -482,7 +492,90 @@ class CurrentEventCheckIn(SetupTest):
         """
         user is added to the event
         """
-        self._add_nonregistered_user(self.npf_admin, 1, self.volunteer_3, 3)
+        self._add_user_to_event(self.npf_admin, 1, self.volunteer_3, 3)
+
+
+
+class CurrentEventInvite(SetupTest):
+
+    def test_current_event_invite_new_user(self):
+        """
+        Admin invites new user to the event, Invite volunteer to openCurrents
+        option is checked
+
+        Results:
+        - User created for volunteer with no password
+        - new user automatically registered to event
+        - UserTimeLog created and UserEventRegistration created
+        - AdminActionUserTime created and 'approved'
+        - Volunteer's available Currents increase by the duration of the event
+        - Email sent to volunteer (invite-volunteer)
+        - If admin has not been awarded hours for the event, corresponding
+          UserTimeLog and AdminActionUserTime are created for the admin user
+          as well (so they get credit for the event)
+
+        /process_signup/ call should is tested in test_signup test separately
+        we're testing calls:
+           /event_register_live/x/
+           /event_checkin/x/
+
+        all 3 calls together should be tested in separate functional testing
+
+        """
+
+        self.client.login(username=self.npf_admin.username, password='password')
+        response = self.client.get('/live-dashboard/2/')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context['registered_users']), 3)
+        self._add_user_to_event(self.npf_admin, 2, self.volunteer_4, 3)
+
+        # checking in new volunteer
+        post_response = self.client.post('/event_checkin/2/',
+            {
+                'userid':str(self.volunteer_4.id),
+                'checkin':'true',
+            })
+        self.assertEqual(post_response.status_code, 201)
+
+        # ASSERTION AFTER THE SECOND USER CHECK-IN
+        # general assertion
+        self.assertEqual(2, len(UserTimeLog.objects.all()))
+        self.assertEqual(2, len(AdminActionUserTime.objects.all()))
+
+        # assert approved hours from users perspective
+        self.assertEqual(1, len(self.oc_npf_adm.get_hours_approved()))
+        self.assertEqual(1, len(self.oc_vol_4.get_hours_approved()))
+
+        # assert approved hours from npf admin perspective
+        self.assertEqual(96.0 , self.org_npf_adm.get_total_hours_issued())
+
+
+        # checking ledger records
+        ledger_query = Ledger.objects.all()
+        self.assertEqual(2, len(ledger_query))
+
+        # asserting npf_admin user
+        self._asserting_user_ledger(self.npf_admin, ledger_query, 1, 48)
+
+        # asserting the first user
+        self._asserting_user_ledger(self.volunteer_1, ledger_query, 0, 0)
+
+        # asserting the 2nd user
+        self._asserting_user_ledger(self.volunteer_2, ledger_query, 0, 0)
+
+        # asserting the 2nd user
+        self._asserting_user_ledger(self.volunteer_4, ledger_query, 1, 48)
+
+        # assert get_balance()
+        self.assertEqual(48, OcLedger().get_balance(self.user_enitity_id_npf_adm))
+        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_1))
+        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_2))
+        self.assertEqual(48, OcLedger().get_balance(self.user_enitity_id_vol_4))
+
+
+
+
 
 
 
@@ -705,4 +798,4 @@ class PastEventCheckIn(SetupTest):
         """
         user is added to the event
         """
-        self._add_nonregistered_user(self.npf_admin, 3, self.volunteer_3, 3)
+        self._add_user_to_event(self.npf_admin, 3, self.volunteer_3, 3)
