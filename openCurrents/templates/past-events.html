@@ -1,0 +1,46 @@
+{% extends "layouts/base.html" %}
+{% load staticfiles %}
+{% load tags %}
+
+{% block title %}
+  {% block name %}
+    Past events
+  {% endblock name %}
+{% endblock title %}
+
+{% block content %}
+  {% if events_group_past %}
+    <div id="past-event-list" class="left row full-width collapse">
+      <div class="small-11 medium-9 small-centered columns">
+        {% for event in events_group_past %}
+          <div class="row one-margin-bottom">
+            <div class="left input-left small-9 columns">
+              <strong>{{event.project.name}}</strong>
+              on {{event.datetime_start|day:timezone}}
+              at {{event.datetime_start|time:timezone}}
+              to {{event.datetime_end|time:timezone}}
+              at {{event.location}}
+            </div>
+
+            <div class="right relative small-3 columns">
+              <a class="mini-open"><i class="half-margin-right blue fa-chevron-circle-down fa fa-lg"></i></a>
+              <ul class="mini-menu">
+                <a href="{% url 'openCurrents:live-dashboard' event.id %}"><li>Review attendees</li></a>
+              </ul>
+            </div>
+          </div>
+        {% endfor %}
+
+        <p class="center three-halves-margin-top">
+          <a href="{% url 'openCurrents:org-admin' %}" class="button round small">
+            Back to org profile
+          </a>
+        </p>
+      </div>
+    </div>
+  {% endif %}
+{% endblock content %}
+
+{% block js %}
+  {% include "scripts/mini-menu.html" %}
+{% endblock js %}
