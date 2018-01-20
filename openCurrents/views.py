@@ -749,7 +749,7 @@ class PastEventsView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateVie
     def get_context_data(self, **kwargs):
         context = super(PastEventsView, self).get_context_data(**kwargs)
         context['timezone'] = self.org.timezone
-        
+
         # past org events
         context['events_group_past'] = Event.objects.filter(
             event_type='GR',
@@ -801,6 +801,7 @@ class MarketplaceView(LoginRequiredMixin, SessionContextView, ListView):
             self.request.user.userentity.id
         )
         context['user_balance_available'] = user_balance_available
+        context['master_offer'] = Offer.objects.filter(is_master=True).first()
 
         return context
 
@@ -904,6 +905,9 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         if not data['redeem_receipt']:
             transaction.pop_type = 'oth'
 
+        if data['biz_name']:
+            transaction.biz_name = data['biz_name']
+
         transaction.save()
 
         action = TransactionAction(
@@ -929,6 +933,8 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         context['offer'] = Offer.objects.get(id=self.kwargs['offer_id'])
         context['cur_rate'] = convert._USDCUR
         context['tr_fee'] = int(convert._TR_FEE * 100)
+        context['master_offer'] = Offer.objects.filter(is_master=True).first()
+
         return context
 
     def get_form_kwargs(self):

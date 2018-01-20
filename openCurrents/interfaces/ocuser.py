@@ -259,7 +259,7 @@ class OcUser(object):
         get all offers in the marketplace
             - annotated by number of redeemed for given timeframe
         '''
-        offers_all = Offer.objects.all().order_by('-date_updated')
+        offers_all = Offer.objects.filter(is_master=False).order_by('-date_updated')
 
         for offer in offers_all:
             # logger.debug('%d: %d', offer.id, num_redeemed)

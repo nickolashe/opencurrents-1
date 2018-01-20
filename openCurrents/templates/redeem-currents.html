@@ -61,6 +61,7 @@
         <div class="small-12 medium-8 small-centered columns">
           <h4 class="one-margin-bottom">Upload receipt or proof of purchase</h4>
           <p class="three-halves-margin-bottom">
+
             To exchange Currents for dollars with {{ offer.org.name }},
             upload your receipt as proof of purchase. Other forms, such as
             an image of your bank statement or description of your
@@ -171,10 +172,18 @@
       </div>
     </div>
 
+    {% if offer.id == master_offer.id %}
+      <div id="master-offer-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+        {% include "popups/master-offer-popup.html" %}
+      </div>
+    {% endif %}
+
+    <!-- form ends here because we are getting input from master-offer-popup -->
+    </form>
+
     <!-- Sets height of page since redeem divs are absolutely positioned -->
     <div id="redeem-spacer"></div>
 
-  </form>
 {% endblock content %}
 
 {% block popups %}
@@ -186,9 +195,6 @@
     {% include "popups/no-receipt-popup.html" %}
   </div>
 
-  <div id="master-offer-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-    {% include "popups/master-offer-popup.html" %}
-  </div>
 {% endblock popups %}
 
 {% block js %}

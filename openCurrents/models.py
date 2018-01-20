@@ -467,6 +467,7 @@ class Item(models.Model):
 class Offer(models.Model):
     org = models.ForeignKey(Org)
     item = models.ForeignKey(Item)
+    is_master = models.BooleanField(default=False)
     currents_share = models.IntegerField()
     limit = models.IntegerField(default=-1)
     is_active = models.BooleanField(default=True)
@@ -526,6 +527,12 @@ class Transaction(models.Model):
     currents_amount = models.DecimalField(
         decimal_places=3,
         max_digits=12
+    )
+
+    # used to store biz name for master offer
+    biz_name = models.CharField(
+        max_length=256,
+        null=True
     )
 
     # created / updated timestamps

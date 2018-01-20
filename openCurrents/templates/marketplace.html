@@ -18,7 +18,10 @@
           account!
         </p>
       {% endif %}
-      <a class="half-margin-top half-margin-bottom button round tiny">
+      <a
+        class="half-margin-top half-margin-bottom button round tiny"
+        href="{% url 'openCurrents:redeem-currents' master_offer.id %}"
+      >
         Special offer: Redeem Currents with any business in Austin!
       </a>
     </div>
