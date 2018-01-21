@@ -1462,7 +1462,7 @@ input[disabled].good-cat {
   text-indent: 11px;
 }
 
-#id_master_biz_name {
+#id_biz_name {
   width: 288px;
   margin: auto;
   border-bottom: none;

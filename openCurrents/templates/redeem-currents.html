@@ -77,7 +77,7 @@
           <!-- <input type="checkbox" name="receipt-if-checked" id="receipt-if-checked" class="hidden" checked /> -->
           <p id="master-offer-details" class="hidden grey">
             Use Currents for up to {{ offer.currents_share }}% of your purchase with:
-            {{ form.master_biz_name }}
+            {{ form.biz_name }}
           </p>
 
           {{ form.redeem_receipt }}
@@ -315,14 +315,14 @@
 
       // Master offer revisions
       $('#master-offer-next').on('click', function(){
-        if ($('#id_biz_name').val() == '') {
+        if ($('#biz_name_input').val() == '') {
           $('#no-biz-alert').show();
         }
         else {
           $('#master-offer-popup').popup('hide');
           $('#offer-details').hide();
           $('#master-offer-details').show();
-          $('#id_master_biz_name').val($('#id_biz_name').val());
+          $('#id_biz_name').val($('#biz_name_input').val());
           $('#master-offer-terms').show();
         }
       });
