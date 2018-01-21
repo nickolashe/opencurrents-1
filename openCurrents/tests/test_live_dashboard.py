@@ -126,7 +126,7 @@ class SetupTest(TestCase):
             self.assertIn('"eventid": "{}"'.format(str(event_id)), post_response.content)
 
         else:
-            self.assertEqual(post_response.status_code, 200)
+            self.assertEqual(post_response.status_code, 201)
             self.assertEqual(len(response.context['registered_users']), registered_users_num)
 
     # [helpers End]
@@ -797,5 +797,28 @@ class PastEventCheckIn(SetupTest):
 
         """
         user is added to the event
+        not checked in
         """
         self._add_user_to_event(self.npf_admin, 3, self.volunteer_3, 3)
+
+
+
+class FutureEventAddition(SetupTest):
+
+    def test_future_event_add_user(self):
+
+        """
+        this unit test is the same for registered and non-registered users
+        user is not added to the event
+        """
+
+        self.client.login(username=self.npf_admin.username, password='password')
+        response = self.client.get('/live-dashboard/1/')
+
+        # check if users sees the page
+        self.assertEqual(response.status_code, 200)
+
+        # checking that invite button is disabled
+        processed_content = re.sub(r'\s+', ' ', response.content )
+        self.assertIn('disabled > Add volunteer </a>', processed_content)
+
