@@ -75,10 +75,11 @@
           <!--  form.redeem_receipt_if_checked -->
 
           <!-- <input type="checkbox" name="receipt-if-checked" id="receipt-if-checked" class="hidden" checked /> -->
-          <p id="master-offer-details" class="hidden grey">
-            Use Currents for up to {{ offer.currents_share }}% of your purchase with:
+          <div id="master-offer-details" class="hidden grey one-margin-bottom">
+            Use Currents for up to {{ offer.currents_share }}% of your purchase with
+            <strong><div id="show_biz_name" class="navy"></div></strong>
             {{ form.biz_name }}
-          </p>
+          </div>
 
           {{ form.redeem_receipt }}
           <!--input type="file" accept="image/*" capture="camera" id="upload-receipt" name="upload-receipt" class="hidden-file" /-->
@@ -183,7 +184,7 @@
 
   <!-- Sets height of page since redeem divs are absolutely positioned -->
   <div id="redeem-spacer"></div>
-    
+
 {% endblock content %}
 
 
@@ -324,6 +325,7 @@
           $('#offer-details').hide();
           $('#master-offer-details').show();
           $('#id_biz_name').val($('#biz_name_input').val());
+          $('#show_biz_name').text($('#biz_name_input').val());
           $('#master-offer-terms').show();
         }
       });
