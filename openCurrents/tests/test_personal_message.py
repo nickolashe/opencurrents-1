@@ -120,6 +120,7 @@ class TestIvniteVolunteersNoEvent(TestCase):
 
         # assert we pass emails to mandril
         self.assertEqual(len(self.client.session['recepient']), 1)
+        self.assertIn('single_test_guest_1@mail.cc', self.client.session['recepient'][0]['email'])
 
 
     def test_invite_new_bulk_no_message(self):
@@ -161,6 +162,11 @@ class TestIvniteVolunteersNoEvent(TestCase):
 
         # assert we pass emails to mandril
         self.assertEqual(len(self.client.session['recepient']), 4)
+        self.assertIn('bulk_test_guest_1@e.cc', self.client.session['recepient'][0]['email'])
+        self.assertIn('bulk_test_guest_2@e.cc', self.client.session['recepient'][1]['email'])
+        self.assertIn('bulk_test_guest_3@e.cc', self.client.session['recepient'][2]['email'])
+        self.assertIn('bulk_test_guest_4@e.cc', self.client.session['recepient'][3]['email'])
+
 
 
 
@@ -206,6 +212,7 @@ class TestIvniteVolunteersNoEvent(TestCase):
 
         # assert we pass emails to mandril
         self.assertEqual(len(self.client.session['recepient']), 1)
+        self.assertIn('single_test_guest_1@mail.cc', self.client.session['recepient'][0]['email'])
 
 
     def test_invite_new_bulk_with_personal_message(self):
@@ -248,6 +255,11 @@ class TestIvniteVolunteersNoEvent(TestCase):
 
         # assert we pass emails to mandril
         self.assertEqual(len(self.client.session['recepient']), 4)
+        self.assertIn('bulk_test_guest_1@e.cc', self.client.session['recepient'][0]['email'])
+        self.assertIn('bulk_test_guest_2@e.cc', self.client.session['recepient'][1]['email'])
+        self.assertIn('bulk_test_guest_3@e.cc', self.client.session['recepient'][2]['email'])
+        self.assertIn('bulk_test_guest_4@e.cc', self.client.session['recepient'][3]['email'])
+
 
 
     def test_invite_single_existing_no_message(self):
@@ -398,7 +410,7 @@ class TestIvniteVolunteersNoEvent(TestCase):
 
         """
         test invitation of a bunch of existing volunteers W/WO passw with personal message (no event)
-        - don't send email to the the user WO pass
+        - don't send email to the the user W pass
         """
 
         self.client.login(username=self.npf_admin_1.username, password='password')
@@ -436,7 +448,10 @@ class TestIvniteVolunteersNoEvent(TestCase):
 
         # assert we pass emails to mandril
         self.assertEqual(len(self.client.session['recepient']), 1)
+        self.assertNotIn('test_user_1', self.client.session['recepient'][0]['email'])
+        self.assertNotIn('test_user_2', self.client.session['recepient'][0]['email'])
         self.assertIn('test_user_3', self.client.session['recepient'][0]['email'])
+
 
 
     def test_invite_wo_password_bulk_wo_personal_message(self):
@@ -481,6 +496,8 @@ class TestIvniteVolunteersNoEvent(TestCase):
 
         # assert we pass emails to mandril
         self.assertEqual(len(self.client.session['recepient']), 1)
+        self.assertNotIn('test_user_1', self.client.session['recepient'][0]['email'])
+        self.assertNotIn('test_user_2', self.client.session['recepient'][0]['email'])
         self.assertIn('test_user_3', self.client.session['recepient'][0]['email'])
 
 
@@ -528,6 +545,9 @@ class TestIvniteVolunteersNoEvent(TestCase):
 
         # assert we pass emails to mandril
         self.assertEqual(len(self.client.session['recepient']), 1)
+        self.assertNotIn('test_user_1', self.client.session['recepient'][0]['email'])
+        self.assertNotIn('test_user_2', self.client.session['recepient'][0]['email'])
+        self.assertIn('test_user_3', self.client.session['recepient'][0]['email'])
 
 
 class TestIvniteVolunteersToEvent(TestCase):
@@ -661,6 +681,7 @@ class TestIvniteVolunteersToEvent(TestCase):
 
         # assert we pass emails to mandril
         self.assertEqual(len(self.client.session['recepient']), 1)
+        self.assertIn('single_test_guest_1', self.client.session['recepient'][0]['email'])
 
 
     def test_invite_new_bulk_no_message(self):
@@ -702,6 +723,12 @@ class TestIvniteVolunteersToEvent(TestCase):
 
         # assert we pass emails to mandril
         self.assertEqual(len(self.client.session['recepient']), 4)
+        self.assertEqual(len(self.client.session['recepient']), 4)
+        self.assertIn('bulk_test_guest_1@e.cc', self.client.session['recepient'][0]['email'])
+        self.assertIn('bulk_test_guest_2@e.cc', self.client.session['recepient'][1]['email'])
+        self.assertIn('bulk_test_guest_3@e.cc', self.client.session['recepient'][2]['email'])
+        self.assertIn('bulk_test_guest_4@e.cc', self.client.session['recepient'][3]['email'])
+
 
 
     def test_invite_new_single_with_message(self):
@@ -746,6 +773,7 @@ class TestIvniteVolunteersToEvent(TestCase):
 
         # assert we pass emails to mandril
         self.assertEqual(len(self.client.session['recepient']), 1)
+        self.assertIn('single_test_guest_1', self.client.session['recepient'][0]['email'])
 
 
     def test_invite_new_bulk_with_message(self):
@@ -787,6 +815,10 @@ class TestIvniteVolunteersToEvent(TestCase):
 
         # assert we pass emails to mandril
         self.assertEqual(len(self.client.session['recepient']), 4)
+        self.assertIn('bulk_test_guest_1@e.cc', self.client.session['recepient'][0]['email'])
+        self.assertIn('bulk_test_guest_2@e.cc', self.client.session['recepient'][1]['email'])
+        self.assertIn('bulk_test_guest_3@e.cc', self.client.session['recepient'][2]['email'])
+        self.assertIn('bulk_test_guest_4@e.cc', self.client.session['recepient'][3]['email'])
 
 
     def test_invite_to_event_single_existing_no_message(self):
@@ -833,6 +865,7 @@ class TestIvniteVolunteersToEvent(TestCase):
 
         # assert we pass emails to mandril
         self.assertEqual(len(self.client.session['recepient']), 1)
+
 
 
     def test_invite_to_event_single_existing_nopass_with_message(self):

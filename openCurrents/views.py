@@ -749,7 +749,7 @@ class PastEventsView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateVie
     def get_context_data(self, **kwargs):
         context = super(PastEventsView, self).get_context_data(**kwargs)
         context['timezone'] = self.org.timezone
-        
+
         # past org events
         context['events_group_past'] = Event.objects.filter(
             event_type='GR',
@@ -2245,12 +2245,23 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                         except UserExistsException:
                             user_new = User.objects.get(username=email_list)
 
+
                     elif email_list in user_list:
-                        if (not event_create_id and not User.objects.get(email=email_list).has_usable_password()) \
-                            or \
-                            event_create_id:
+
+                        # if event-based invitation and user exists  w/o password
+                        if event_create_id and not User.objects.get(email=email_list).has_usable_password():
+
+                            k.append({"email":email_list, "name":post_data['vol-name-'+str(i+1)],"type":"to"})
+
+                        # if event-based invitation and user exists with password
+                        elif event_create_id and User.objects.get(email=email_list).has_usable_password():
 
                             k_old.append({"email":email_list, "name":post_data['vol-name-'+str(i+1)],"type":"to"})
+
+                        # non-event-based invitation and user exists wo password
+                        elif not event_create_id and not User.objects.get(email=email_list).has_usable_password():
+                            k.append({"email":email_list, "name":post_data['vol-name-'+str(i+1)],"type":"to"})
+
 
                     if user_new and event_create_id:
                         try:
@@ -2284,20 +2295,31 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                 if user_email and user_email not in user_list:
                     k.append({"email":user_email, "type":"to"})
 
-                    if user_email:
-                        try:
-                            user_new = OcUser().setup_user(
-                                username=user_email,
-                                email=user_email
-                            )
-                        except UserExistsException:
-                            user_new = User.objects.get(username=user_email)
+                    try:
+                        user_new = OcUser().setup_user(
+                            username=user_email,
+                            email=user_email
+                        )
+                    except UserExistsException:
+                        user_new = User.objects.get(username=user_email)
 
-                elif user_email in user_list:
-                    if (not event_create_id and not User.objects.get(email=user_email).has_usable_password())\
-                        or \
-                        event_create_id:
+
+                elif user_email and user_email in user_list:
+
+                    # if event-based invitation and user exists w/o password
+                    if event_create_id and not User.objects.get(email=user_email).has_usable_password():
+
+                        k.append({"email":user_email, "type":"to"})
+
+                    # if event-based invitation and user exists with password
+                    elif event_create_id and User.objects.get(email=user_email).has_usable_password():
+
                         k_old.append({"email":user_email, "type":"to"})
+
+                    # non-event-based invitation and user exists wo password
+                    elif not event_create_id and not User.objects.get(email=user_email).has_usable_password():
+                        k.append({"email":user_email, "type":"to"})
+
 
                 if user_new and event_create_id:
                     try:
@@ -2361,7 +2383,6 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                     'content': event.datetime_end.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p')
                 },
             ])
-
 
             try:
                 if k:
