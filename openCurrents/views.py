@@ -743,6 +743,23 @@ class InventoryView(TemplateView):
     template_name = 'inventory.html'
 
 
+class PastEventsView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView):
+    template_name = 'past-events.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(PastEventsView, self).get_context_data(**kwargs)
+        context['timezone'] = self.org.timezone
+        
+        # past org events
+        context['events_group_past'] = Event.objects.filter(
+            event_type='GR',
+            project__org__id=self.org.id,
+            datetime_end__lte=datetime.now(tz=pytz.utc)
+        ).order_by('-datetime_start')
+
+        return context
+
+
 class PublicRecordView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'public-record.html'
 
