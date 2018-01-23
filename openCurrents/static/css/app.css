@@ -176,13 +176,13 @@ h1, h2, h3, h4, h5, h6 {
   border: 1px solid #e7b708;
 }
 
-.button.disabled, .button[disabled] {
-  background-color: #777777;
+.button.disabled, .button[disabled],
+.button.disabled:hover, .button.disabled:focus,
+.button[disabled]:hover, .button[disabled]:focus {
+  background-color: #555555;
+  border-color: #555555;
+  color: #ffffff;
 }
-
-.button.disabled:hover, .button.disabled:focus, .button[disabled]:hover, .button[disabled]:focus {
-  background-color: #777777;
-  color: #ffffff; }
 
 .button.large {
   padding-left: 2rem;
@@ -1340,8 +1340,10 @@ input[type="checkbox"] + label.vol-arrived {
   z-index: 100002;
 }
 
-.large-icon {
+.checkin-checkbox-icon {
   font-size: 1.5rem;
+  margin-top: -3px;
+  color: #cccccc;
 }
 
 /* volunteer-opportunities */
