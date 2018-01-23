@@ -1324,6 +1324,10 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                 'content': self.request.user.last_name
             },
             {
+                'name': 'USER_EMAIL',
+                'content': self.request.user.email
+            },
+            {
                 'name': 'EVENT',
                 'content': False
             },
