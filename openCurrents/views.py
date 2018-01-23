@@ -1412,8 +1412,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                 biz_template,
                 None,
                 email_vars_transactional,
-                # 'bizdev@opencurrents.com',
-                'tevtonez@gmail.com',
+                'bizdev@opencurrents.com',
                 # marker for testing purpose
                 session=self.request.session,
                 marker='1',
