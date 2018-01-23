@@ -127,6 +127,7 @@ urlpatterns = [
 
     # functional views
     url(r'^get_user_balance_available/$', views.get_user_balance_available, name='get_user_balance_available'),
+    url(r'^get_user_master_offer_remaining/$', views.get_user_master_offer_remaining, name='get_user_master_offer_remaining'),
     url(r'^event_checkin/(?P<pk>\d+)/$', views.event_checkin, name='event_checkin'),
     url(r'^event_register/(?P<pk>\d+)/$', views.event_register, name='event_register'),
     url(r'^event_register_live/(?P<eventid>\d+)/$',

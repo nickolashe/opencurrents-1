@@ -1464,6 +1464,12 @@ input[disabled].good-cat {
   text-indent: 11px;
 }
 
+#id_biz_name {
+  width: 288px;
+  margin: auto;
+  border-bottom: none;
+}
+
 #offer-spacer {
   visibility: hidden;
 }

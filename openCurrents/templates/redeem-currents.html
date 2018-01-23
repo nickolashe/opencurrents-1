@@ -61,6 +61,7 @@
         <div class="small-12 medium-8 small-centered columns">
           <h4 class="one-margin-bottom">Upload receipt or proof of purchase</h4>
           <p class="three-halves-margin-bottom">
+
             To exchange Currents for dollars with {{ offer.org.name }},
             upload your receipt as proof of purchase. Other forms, such as
             an image of your bank statement or description of your
@@ -74,6 +75,11 @@
           <!--  form.redeem_receipt_if_checked -->
 
           <!-- <input type="checkbox" name="receipt-if-checked" id="receipt-if-checked" class="hidden" checked /> -->
+          <div id="master-offer-details" class="hidden grey one-margin-bottom">
+            Use Currents for up to {{ offer.currents_share }}% of your purchase with
+            <strong><div id="show_biz_name" class="navy"></div></strong>
+            {{ form.biz_name }}
+          </div>
 
           {{ form.redeem_receipt }}
           <!--input type="file" accept="image/*" capture="camera" id="upload-receipt" name="upload-receipt" class="hidden-file" /-->
@@ -115,10 +121,11 @@
             {{ form.redeem_currents_amount }}
           </div>
 
-          <p class="no-margin-bottom grey">
+          <p id="offer-details" class="no-margin-bottom grey">
             {{ offer.org.name }} accepts Currents for {{ offer.currents_share }}%
             of this purchase.
           </p>
+
         </div>
       </div>
 
@@ -152,20 +159,34 @@
             openCurrents account.
           </p>
 
+          <p id="master-offer-terms" class="grey">
+            Note: Special offer is not redeemable for utilities, rent, gas,
+            debt, or cell phone payments. We reserve the right to decline
+            redemption.
+          </p>
+
           <div class="row three-halves-margin-top">
             <a class="prev-offer button round secondary">Back</a>
-
-            <input type='submit' value="Confirm" class="button round"></input>
+            <input type="submit" value="Confirm" class="button round" />
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Sets height of page since redeem divs are absolutely positioned -->
-    <div id="redeem-spacer"></div>
+    {% if offer.id == master_offer.id %}
+      <div id="master-offer-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+        {% include "popups/master-offer-popup.html" %}
+      </div>
+    {% endif %}
 
+  <!-- form ends here because we are getting input from master-offer-popup -->
   </form>
+
+  <!-- Sets height of page since redeem divs are absolutely positioned -->
+  <div id="redeem-spacer"></div>
+
 {% endblock content %}
+
 
 {% block popups %}
   <div id="redeem-info-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
@@ -175,6 +196,7 @@
   <div id="no-receipt-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
     {% include "popups/no-receipt-popup.html" %}
   </div>
+
 {% endblock popups %}
 
 {% block js %}
@@ -192,11 +214,25 @@
         callback(null, balanceAvailable);
       });
     };
+
+    let getUserMasterOfferRemaining = function(callback) {
+      // let userid = {{ request.user.id }};
+      $.ajax({
+        url: "{% url 'openCurrents:get_user_master_offer_remaining' %}",
+        type: 'GET',
+        dataType : "json",
+        context: document.body
+      }).complete(function( data ){
+        console.log(data);
+        let masterRemaining = Number(data.responseJSON);
+        callback(null, masterRemaining);
+      });
+    };
   </script>
 
   <script type="text/javascript">
     $(document).ready(function(){
-      $('#redeem-info-popup, #no-receipt-popup').popup({
+      $('#redeem-info-popup').popup({
         vertical: 'top',
         transition: 'all 0.75s',
         scrolllock: true,
@@ -212,6 +248,15 @@
           $('#id_redeem_no_proof').val(text).slideDown();
           $('#redeem-spacer').animate({height: '+=88'});
         }
+      });
+
+      $('#master-offer-popup').popup({
+        vertical: 'top',
+        transition: 'all 0.75s',
+        scrolllock: true,
+        autoopen: true,
+        blur: false,
+        escape: false
       });
 
       // Set height of spacer = to height of content
@@ -284,6 +329,21 @@
         }
       });
 
+      // Master offer revisions
+      $('#master-offer-next').on('click', function(){
+        if ($('#biz_name_input').val() == '') {
+          $('#no-biz-alert').show();
+        }
+        else {
+          $('#master-offer-popup').popup('hide');
+          $('#offer-details').hide();
+          $('#master-offer-details').show();
+          $('#id_biz_name').val($('#biz_name_input').val());
+          $('#show_biz_name').text($('#biz_name_input').val());
+          $('#master-offer-terms').show();
+        }
+      });
+
       // Display filename in upload-receipt label
       $('#upload-receipt').change(function(){
         var fileName = $(this).val().split('\\').pop();;
@@ -310,14 +370,31 @@
         }
       }
 
+      let setElemValuesBasedOnPriceSubjectToShare = function (priceSubjectToShare) {
+        const fee = (parseFloat({{tr_fee}} / 100) * priceSubjectToShare.dollars).toFixed(2);
+        let dollarsReceived = (priceSubjectToShare.dollars - fee).toFixed(2);
+        console.log('priceSubjectToShare.currents:' + priceSubjectToShare.currents);
+        console.log('priceSubjectToShare.dollars:' + priceSubjectToShare.dollars);
+        console.log('priceSubjectToShare.dollarsReceived:' + dollarsReceived);
+
+        $('.currents-total').text(priceSubjectToShare.currents);
+        $('.dollars-total').text(priceSubjectToShare.dollars);
+        $('.dollars-fee').text(fee);
+        $('.dollars-received').text(dollarsReceived);
+
+        $("input[name^=redeem_currents_amount]").val(
+          priceSubjectToShare.currents
+        );
+      }
+
       function setConfirmationVariables() {
         let priceOfferSubjectToShareCurrents = shareToCurrents(
           $('#id_redeem_price').val()
         );
 
-        getUserBalance(function(err, res) {
+        getUserBalance(function(err1, balance) {
           let priceSubjectToShare;
-          const userBalanceCurrents = res;
+          const userBalanceCurrents = balance;
 
           if (userBalanceCurrents < priceOfferSubjectToShareCurrents.currents) {
             priceSubjectToShare = {
@@ -328,18 +405,22 @@
             priceSubjectToShare = priceOfferSubjectToShareCurrents;
           }
 
-          console.log('priceUsed:' + priceSubjectToShare.currents);
-          const fee = (parseFloat({{tr_fee}} / 100) * priceSubjectToShare.dollars).toFixed(2);
-          let dollarsReceived = (priceSubjectToShare.dollars - fee).toFixed(2);
-
-          $('.currents-total').text(priceSubjectToShare.currents);
-          $('.dollars-total').text(priceSubjectToShare.dollars);
-          $('.dollars-fee').text(fee);
-          $('.dollars-received').text(dollarsReceived);
-
-          $("input[name^=redeem_currents_amount]").val(
-            priceSubjectToShare.currents
-          );
+          // now set all required elements to correct values in curr / $ to be used in transaction
+          {% if offer.id == master_offer.id %}
+            getUserMasterOfferRemaining(function (err2, masterRemaining) {
+                if (masterRemaining < priceSubjectToShare.currents) {
+                  priceSubjectToShare.currents = masterRemaining;
+                  priceSubjectToShare.dollars = masterRemaining * parseFloat({{cur_rate}});
+                  console.log('currents amount master remaining');
+                }
+                else {
+                  console.log('currents amount master unchanged')
+                }
+                setElemValuesBasedOnPriceSubjectToShare(priceSubjectToShare);
+            })
+          {% else %}
+            setElemValuesBasedOnPriceSubjectToShare(priceSubjectToShare);
+          {% endif %}
         });
       }
 

@@ -9,9 +9,21 @@
       <h3 class="title-sub">
         {% block title %} Marketplace {% endblock title %}
       </h3>
-      <h6 class="half-margin-bottom">
-        Check out these offers from openCurrents businesses:
-      </h6>
+      {% if not offers %}
+        <p class="one-margin-top">
+          We are talking with businesses in Austin and around the country about
+          exciting opportunities to use Currents for all kinds of products and
+          services. In the meantime, redeem up to 2 Currents for purchases with
+          any Austin businesses, and we'll cover you - that's up to $40 in your
+          account!
+        </p>
+      {% endif %}
+      <a
+        class="half-margin-top half-margin-bottom button round tiny"
+        href="{% url 'openCurrents:redeem-currents' master_offer.id %}"
+      >
+        Special offer: Redeem Currents with any business in Austin!
+      </a>
     </div>
   </div>
 {% endblock heading %}
@@ -19,102 +31,111 @@
 {% block content %}
   <div class="row one-margin-bottom center">
     <div class="small-12 medium-10 small-centered columns">
-      {% for offer in offers %}
-        {% with num_remaining=offer.limit|less:offer.num_redeemed %}
-          <div class="row one-margin-top">
-            <div class="left input-left small-9 columns">
-              <p class="no-margin-bottom">
-                <a class="show-biz-deets">
-                  <strong> {{ offer.org.name }} </strong>
-                </a>
-                accepts Currents for
-                <a href="{% url 'openCurrents:redeem-currents' offer.id %}">
-                  {{ offer.currents_share }}% of {{ offer.item.name }}
-                </a>
+      {% if offers %}
+        <p class="half-margin-bottom">
+          or
+        </p>
+        <h6 class="half-margin-bottom">
+          Check out these offers from openCurrents businesses:
+        </h6>
+        {% for offer in offers %}
+          {% with num_remaining=offer.limit|less:offer.num_redeemed %}
+            <div class="row one-margin-top">
+              <div class="left input-left small-9 columns">
+                <p class="no-margin-bottom">
+                  <a class="show-biz-deets">
+                    <strong> {{ offer.org.name }} </strong>
+                  </a>
+                  accepts Currents for
+                  <a href="{% url 'openCurrents:redeem-currents' offer.id %}">
+                    {{ offer.currents_share }}% of {{ offer.item.name }}
+                  </a>
 
-                <span class="grey small-text">
-                  {% if offer.limit != -1 %}
-                    {% if num_remaining > 0 %}
-                      ({{ num_remaining }}
-                    {% else %}
-                      (0
+                  <span class="grey small-text">
+                    {% if offer.limit != -1 %}
+                      {% if num_remaining > 0 %}
+                        ({{ num_remaining }}
+                      {% else %}
+                        (0
+                      {% endif %}
+                      remaining this month)
                     {% endif %}
-                    remaining this month)
-                  {% endif %}
-                </span>
-              </p>
-            </div>
+                  </span>
+                </p>
+              </div>
 
-            <div class="relative right input-right small-3 columns">
-              <a class="mini-open">
-                <i class="blue half-margin-right fa-chevron-circle-down fa fa-lg"></i>
-              </a>
-              <ul class="mini-menu">
-                <a
-                  href="{% url 'openCurrents:redeem-currents' offer.id %}"
-                  {% if offer.limit != -1 and num_remaining <= 0 %} disabled {% endif %}>
-                  <li>Redeem offer</li>
+              <div class="relative right input-right small-3 columns">
+                <a class="mini-open">
+                  <i class="blue half-margin-right fa-chevron-circle-down fa fa-lg"></i>
                 </a>
-                <a class="show-biz-deets">
-                  <li><span>Show</span> business details</li>
-                </a>
-              </ul>
-            </div>
-          </div>
-
-          {% with org=offer.org %}
-            <div class="biz-deets half-margin-top left row hidden">
-              <div class="small-12 columns">
-                {% if org.website %}
-                  <p class="biz-deets-item">
-                    <i class="half-margin-right fa-fw fa fa-link"></i>
-                    <a href="{{ org.website }}" target="_blank">
-                      {{ org.website }}
-                    </a>
-                  </p>
-                {% endif %}
-
-                {% if org.address %}
-                  <p class="biz-deets-item">
-                    <i class="half-margin-right fa-fw fa fa-home"></i>
-                    {{ org.address }}
-                  </p>
-                {% endif %}
-
-                {% if org.phone %}
-                  <p class="biz-deets-item">
-                    <i class="half-margin-right fa-fw fa fa-phone"></i>
-                    {{ org.phone }}
-                  </p>
-                {% endif %}
-
-                {% if org.email %}
-                  <p class="biz-deets-item">
-                    <i class="half-margin-right fa-fw fa fa-envelope-open-o"></i>
-                    {{ org.email }}
-                  </p>
-                {% endif %}
-
-                {% if org.intro %}
-                  <p class="biz-deets-item">
-                    <i class="half-margin-right fa-fw fa fa-comment"></i>
-                    {{ org.intro }}
-                  </p>
-                {% endif %}
-
-                {% if not org.intro and not org.email and not org.phone and not org.address and not org.website %}
-                  <p class="biz-deets-item">No details added.</p>
-                {% endif %}
+                <ul class="mini-menu">
+                  <a
+                    href="{% url 'openCurrents:redeem-currents' offer.id %}"
+                    {% if offer.limit != -1 and num_remaining <= 0 %} disabled {% endif %}>
+                    <li>Redeem offer</li>
+                  </a>
+                  <a class="show-biz-deets">
+                    <li><span>Show</span> business details</li>
+                  </a>
+                </ul>
               </div>
             </div>
+
+            {% with org=offer.org %}
+              <div class="biz-deets half-margin-top left row hidden">
+                <div class="small-12 columns">
+                  {% if org.website %}
+                    <p class="biz-deets-item">
+                      <i class="half-margin-right fa-fw fa fa-link"></i>
+                      <a href="{{ org.website }}" target="_blank">
+                        {{ org.website }}
+                      </a>
+                    </p>
+                  {% endif %}
+
+                  {% if org.address %}
+                    <p class="biz-deets-item">
+                      <i class="half-margin-right fa-fw fa fa-home"></i>
+                      {{ org.address }}
+                    </p>
+                  {% endif %}
+
+                  {% if org.phone %}
+                    <p class="biz-deets-item">
+                      <i class="half-margin-right fa-fw fa fa-phone"></i>
+                      {{ org.phone }}
+                    </p>
+                  {% endif %}
+
+                  {% if org.email %}
+                    <p class="biz-deets-item">
+                      <i class="half-margin-right fa-fw fa fa-envelope-open-o"></i>
+                      {{ org.email }}
+                    </p>
+                  {% endif %}
+
+                  {% if org.intro %}
+                    <p class="biz-deets-item">
+                      <i class="half-margin-right fa-fw fa fa-comment"></i>
+                      {{ org.intro }}
+                    </p>
+                  {% endif %}
+
+                  {% if not org.intro and not org.email and not org.phone and not org.address and not org.website %}
+                    <p class="biz-deets-item">No details added.</p>
+                  {% endif %}
+                </div>
+              </div>
+            {% endwith %}
           {% endwith %}
-        {% endwith %}
-      {% empty %}
-        <p>We are talking with businesses in Austin and around the country about
-          exciting opportunities to use Currents for all kinds of products and
-          services. We aim to have this marketplace connecting you with
-          businesses accepting Currents in January 2018!</p>
-      {% endfor %}
+        {% endfor %}
+      {% endif %}
+      <p>
+        <a href="{% url 'openCurrents:profile' %}"
+        class="one-margin-top button round tiny secondary">
+          Back to profile
+        </a>
+      </p>
     </div>
   </div>
 {% endblock content %}
@@ -155,7 +176,7 @@
         vertical: 'top',
         transition: 'all 0.75s',
         scrolllock: true,
-        autoopen: true,
+        // autoopen: true,
       });
 
       $('.show-biz-deets').click(function(){
