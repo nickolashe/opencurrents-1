@@ -2266,6 +2266,8 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
 
                     elif email_list in user_list:
 
+                        user_new = User.objects.get(email=email_list)
+
                         # if event-based invitation and user exists  w/o password
                         if event_create_id and not User.objects.get(email=email_list).has_usable_password():
 
@@ -2323,6 +2325,8 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
 
 
                 elif user_email and user_email in user_list:
+
+                    user_new = User.objects.get(email=user_email)
 
                     # if event-based invitation and user exists w/o password
                     if event_create_id and not User.objects.get(email=user_email).has_usable_password():
