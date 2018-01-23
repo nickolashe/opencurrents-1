@@ -231,12 +231,12 @@
                 </div>
 
                 <div class="right relative small-3 columns">
-                  <a class="mini-open">
+                  <!-- <a class="mini-open">
                     <i class="blue half-margin-right fa-chevron-circle-down fa fa-lg"></i>
                   </a>
                   <ul class="mini-menu">
                     <a class="view-receipt-popup_open"><li>View receipt</li></a>
-                  </ul>
+                  </ul> -->
                 </div>
               </div>
             {% endwith %}
@@ -296,6 +296,15 @@
         escape: false,
         blur: false
       });
+
+      {% if org.no_info %}
+           $('#biz-details-popup').popup({
+            vertical: 'top',
+            transition: 'all 0.75s',
+            scrolllock: true,
+            autoopen: true,
+           });
+       {% endif %}
 
       $('#id_phone').mask('000-000-0000')
 

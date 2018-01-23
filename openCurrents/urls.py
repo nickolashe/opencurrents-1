@@ -72,6 +72,7 @@ urlpatterns = [
     url(r'^org-signup/(?P<org_name>.*)/(?P<status_msg>.*)/$',
         views.OrgSignupView.as_view(), name='org-signup'),
     url(r'^our-story/$', views.OurStoryView.as_view(), name='our-story'),
+    url(r'^past-events/$', views.PastEventsView.as_view(), name='past-events'),
     url(r'^redeem-currents/(?P<offer_id>\d+)/$', views.RedeemCurrentsView.as_view(), name='redeem-currents'),
     url(r'^request-currents/$', views.RequestCurrentsView.as_view(), name='request-currents'),
     url(r'^sell/$', views.SellView.as_view(), name='sell'),
@@ -86,6 +87,7 @@ urlpatterns = [
     url(r'^time-tracker/(?P<status_msg>.*)/$', views.TimeTrackerView.as_view(), name='time-tracker'),
     url(r'^time-tracker/(?P<status_msg>.*)/(?P<msg_type>.*)$', views.TimeTrackerView.as_view(), name='time-tracker'),
     url(r'^time-tracked/$', views.TimeTrackedView.as_view(), name='time-tracked'),
+    url(r'^time-tracked/(?P<new_org>\d+)/$', views.TimeTrackedView.as_view(), name='time-tracked'),
     url(r'^volunteer/$', views.VolunteerView.as_view(), name='volunteer'),
     url(r'^volunteer-requests/$', views.VolunteerRequestsView.as_view(), name='volunteer-requests'),
     url(r'^profile/$', views.ProfileView.as_view(), name='profile'),
@@ -125,6 +127,7 @@ urlpatterns = [
 
     # functional views
     url(r'^get_user_balance_available/$', views.get_user_balance_available, name='get_user_balance_available'),
+    url(r'^get_user_master_offer_remaining/$', views.get_user_master_offer_remaining, name='get_user_master_offer_remaining'),
     url(r'^event_checkin/(?P<pk>\d+)/$', views.event_checkin, name='event_checkin'),
     url(r'^event_register/(?P<pk>\d+)/$', views.event_register, name='event_register'),
     url(r'^event_register_live/(?P<eventid>\d+)/$',

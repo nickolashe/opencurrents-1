@@ -527,7 +527,7 @@ class TimeTrackerForm(forms.Form):
         required=False,
         widget=widgets.TextWidget(attrs={
             'class': 'center',
-            'placeholder':'Coordinator name',
+            'placeholder': 'Coordinator name',
         })
     )
     new_admin_email = forms.EmailField(
@@ -828,6 +828,14 @@ class RedeemCurrentsForm(forms.Form):
                 'class': 'hidden'
             }
         )
+    )
+
+    biz_name = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'id': 'id_biz_name',
+            'class': 'center hidden',
+        })
     )
 
     def clean(self):

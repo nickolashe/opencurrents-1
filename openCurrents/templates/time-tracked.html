@@ -1,14 +1,26 @@
 {% extends "layouts/base.html" %}
 {% load staticfiles %}
 
-
-{% block title %} Your time has been recorded {% endblock title %}
+{% block title %}
+  {% if new_org %}
+    Your request has been received
+  {% else %}
+    Your time has been recorded
+  {% endif %}
+{% endblock title %}
 
 
 {% block content %}
   <div class="row one-margin-bottom center">
     <div class="small-12 medium-8 small-centered columns">
-      <p class="two-margin-bottom">Once the organizer approves your volunteer hours, Currents will be added to your account. Well done!</p>
+      <p class="two-margin-bottom">
+        Once
+        {% if new_org %}
+          we verify the organization and
+        {% endif %}
+        the coordinator approves your volunteer hours, Currents will be
+        added to your account. Thanks for your time!
+      </p>
 
       <a href="{% url 'openCurrents:profile' %}" class="button round">Back to profile</a>
       <a href="{% url 'openCurrents:time-tracker' %}" class="button round secondary">Add more time</a>
