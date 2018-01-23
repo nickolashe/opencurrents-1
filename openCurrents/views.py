@@ -1324,10 +1324,6 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                 'content': self.request.user.last_name
             },
             {
-                'name': 'USER_EMAIL',
-                'content': self.request.user.email
-            },
-            {
                 'name': 'EVENT',
                 'content': False
             },
@@ -1400,7 +1396,11 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                     {
                         'name': 'LNAME',
                         'content': self.request.user.last_name
-                    }
+                    },
+                    {
+                        'name': 'EMAIL',
+                        'content': self.request.user.email
+                    },
                 ]
 
             # adding kwargs to email vars
@@ -1412,7 +1412,8 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                 biz_template,
                 None,
                 email_vars_transactional,
-                'bizdev@opencurrents.com',
+                # 'bizdev@opencurrents.com',
+                'tevtonez@gmail.com',
                 # marker for testing purpose
                 session=self.request.session,
                 marker='1',
