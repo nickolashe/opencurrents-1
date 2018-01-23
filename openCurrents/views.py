@@ -900,7 +900,6 @@ class MarketplaceView(LoginRequiredMixin, SessionContextView, ListView):
         return context
 
 
-
 class MissionView(TemplateView):
     template_name = 'mission.html'
 
@@ -3189,7 +3188,6 @@ def event_register_live(request, eventid):
         }),
         status=201
     )
-
 
 
 # resend the verification email to a user who hits the Resend button on their check-email page
