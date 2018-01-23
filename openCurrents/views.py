@@ -28,7 +28,7 @@ from interfaces.orgs import OcOrg, \
     OrgExistsException, \
     InvalidOrgUserException
 
-from openCurrents.interfaces.common import diffInHours, diffInMinutes
+from openCurrents.interfaces import common
 from openCurrents.interfaces.community import OcCommunity
 from openCurrents.interfaces import convert
 
@@ -800,8 +800,9 @@ class MarketplaceView(LoginRequiredMixin, SessionContextView, ListView):
         user_balance_available = OcLedger().get_balance(
             self.request.user.userentity.id
         )
-        context['user_balance_available'] = user_balance_available
+
         context['master_offer'] = Offer.objects.filter(is_master=True).first()
+        context['user_balance_available'] = user_balance_available
 
         return context
 
@@ -854,7 +855,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
 
         reqForbidden = False
         user_balance_available = self.ocuser.get_balance_available()
-        # logger.debug(user_balance_available)
+        user_master_offer_remaining = self.ocuser.get_master_offer_remaining()
 
         if user_balance_available <= 0:
             # TODO: replace with a page explaining no sufficient funds
@@ -864,6 +865,15 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
                 'You need Currents to redeem an offer. <br/>',
                 '<a href="{% url "openCurrents:upcoming-events" %}">',
                 'Find a volunteer opportunity!</a>'
+            ])
+            msg_type = 'alert'
+
+        if self.offer.is_master and user_master_offer_remaining <= 0:
+            reqForbidden = True
+            status_msg = ' '.join([
+                'You have already redeemed the maximum of',
+                str(common._MASTER_OFFER_LIMIT),
+                'Currents for this special offer.'
             ])
             msg_type = 'alert'
 
@@ -891,7 +901,8 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
 
     def form_valid(self, form):
         data = form.cleaned_data
-        logger.info(data['redeem_currents_amount'])
+        logger.info(data)
+        # logger.info(data['redeem_currents_amount'])
 
         transaction = Transaction(
             user=self.request.user,
@@ -922,11 +933,8 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
             self.request.user.id
         )
 
-        status_msg = 'We\'ve received your request for redeeming %s\'s offer' % self.offer.org.name
-        return redirect(
-            'openCurrents:profile',
-            status_msg = status_msg,
-        )
+        status_msg = 'You have submitted a request for approval by %s' % self.offer.org.name
+        return redirect('openCurrents:profile', status_msg = status_msg)
 
     def get_context_data(self, **kwargs):
         context = super(RedeemCurrentsView, self).get_context_data(**kwargs)
@@ -2730,7 +2738,7 @@ def event_checkin(request, pk):
             'user %s; event %s' % (userid, event.project.name)
         )
 
-        event_duration = diffInHours(event.datetime_start, event.datetime_end)
+        event_duration = common.diffInHours(event.datetime_start, event.datetime_end)
 
         status = 200
         if checkin:
@@ -2815,7 +2823,7 @@ def event_checkin(request, pk):
                         str(usertimelog.datetime_end)
                     )
                     return HttpResponse(
-                        diffInMinutes(usertimelog.datetime_start, usertimelog.datetime_end),
+                        common.diffInMinutes(usertimelog.datetime_start, usertimelog.datetime_end),
                         status=201
                     )
                 else:
@@ -3921,9 +3929,21 @@ def process_logout(request):
 def get_user_balance_available(request):
     '''
     GET available balance for the logged in user
-    TODO: convert to an API call for any user id
+    TODO: convert to an API call parametrized by user id
     '''
     balance = OcUser(request.user.id).get_balance_available()
+    return HttpResponse(
+        balance,
+        status=200
+    )
+
+@login_required
+def get_user_master_offer_remaining(request):
+    '''
+    GET remaining amount (in currents) that can be applied to the master offer redemption
+    TODO: convert to an API call parametrized by user id
+    '''
+    balance = OcUser(request.user.id).get_master_offer_remaining()
     return HttpResponse(
         balance,
         status=200

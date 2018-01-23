@@ -478,7 +478,8 @@ class Offer(models.Model):
 
     def __unicode__(self):
         return ' '.join([
-            'Offer for',
+            'Master offer' if self.is_master else 'Offer',
+            'for',
             str(self.currents_share) + '% on',
             self.item.name,
             'by',
@@ -548,7 +549,9 @@ class Transaction(models.Model):
         return ' '.join([
             'Transaction initiated by user',
             self.user.username,
-            'for offer',
+            'for',
+            'master' if self.offer.is_master else '',
+            'offer',
             str(self.offer.id),
             'in the amount of',
             str(self.currents_amount),

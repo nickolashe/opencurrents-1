@@ -214,6 +214,20 @@
         callback(null, balanceAvailable);
       });
     };
+
+    let getUserMasterOfferRemaining = function(callback) {
+      // let userid = {{ request.user.id }};
+      $.ajax({
+        url: "{% url 'openCurrents:get_user_master_offer_remaining' %}",
+        type: 'GET',
+        dataType : "json",
+        context: document.body
+      }).complete(function( data ){
+        console.log(data);
+        let masterRemaining = Number(data.responseJSON);
+        callback(null, masterRemaining);
+      });
+    };
   </script>
 
   <script type="text/javascript">
@@ -356,14 +370,31 @@
         }
       }
 
+      let setElemValuesBasedOnPriceSubjectToShare = function (priceSubjectToShare) {
+        const fee = (parseFloat({{tr_fee}} / 100) * priceSubjectToShare.dollars).toFixed(2);
+        let dollarsReceived = (priceSubjectToShare.dollars - fee).toFixed(2);
+        console.log('priceSubjectToShare.currents:' + priceSubjectToShare.currents);
+        console.log('priceSubjectToShare.dollars:' + priceSubjectToShare.dollars);
+        console.log('priceSubjectToShare.dollarsReceived:' + dollarsReceived);
+
+        $('.currents-total').text(priceSubjectToShare.currents);
+        $('.dollars-total').text(priceSubjectToShare.dollars);
+        $('.dollars-fee').text(fee);
+        $('.dollars-received').text(dollarsReceived);
+
+        $("input[name^=redeem_currents_amount]").val(
+          priceSubjectToShare.currents
+        );
+      }
+
       function setConfirmationVariables() {
         let priceOfferSubjectToShareCurrents = shareToCurrents(
           $('#id_redeem_price').val()
         );
 
-        getUserBalance(function(err, res) {
+        getUserBalance(function(err1, balance) {
           let priceSubjectToShare;
-          const userBalanceCurrents = res;
+          const userBalanceCurrents = balance;
 
           if (userBalanceCurrents < priceOfferSubjectToShareCurrents.currents) {
             priceSubjectToShare = {
@@ -374,18 +405,22 @@
             priceSubjectToShare = priceOfferSubjectToShareCurrents;
           }
 
-          console.log('priceUsed:' + priceSubjectToShare.currents);
-          const fee = (parseFloat({{tr_fee}} / 100) * priceSubjectToShare.dollars).toFixed(2);
-          let dollarsReceived = (priceSubjectToShare.dollars - fee).toFixed(2);
-
-          $('.currents-total').text(priceSubjectToShare.currents);
-          $('.dollars-total').text(priceSubjectToShare.dollars);
-          $('.dollars-fee').text(fee);
-          $('.dollars-received').text(dollarsReceived);
-
-          $("input[name^=redeem_currents_amount]").val(
-            priceSubjectToShare.currents
-          );
+          // now set all required elements to correct values in curr / $ to be used in transaction
+          {% if offer.id == master_offer.id %}
+            getUserMasterOfferRemaining(function (err2, masterRemaining) {
+                if (masterRemaining < priceSubjectToShare.currents) {
+                  priceSubjectToShare.currents = masterRemaining;
+                  priceSubjectToShare.dollars = masterRemaining * parseFloat({{cur_rate}});
+                  console.log('currents amount master remaining');
+                }
+                else {
+                  console.log('currents amount master unchanged')
+                }
+                setElemValuesBasedOnPriceSubjectToShare(priceSubjectToShare);
+            })
+          {% else %}
+            setElemValuesBasedOnPriceSubjectToShare(priceSubjectToShare);
+          {% endif %}
         });
       }
 
