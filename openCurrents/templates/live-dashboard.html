@@ -51,14 +51,14 @@
           </div>
         </div>
 
-        <div class="no-margin-top half-margin-bottom checkbox center">
+        <div class="no-margin-top qtr-margin-bottom checkbox center">
           <label>
             <input type="checkbox" name="invite-optin" id="invite-optin"/>
             Invite volunteer to openCurrents
           </label>
         </div>
 
-        <a id="add-volunteer" class="half-margin-bottom button round tiny secondary" {% if checkin_disabled %} disabled {% endif %}>
+        <a id="add-volunteer" class="half-margin-bottom button round small secondary" {% if checkin_disabled %} disabled {% endif %}>
           Add volunteer
         </a>
 
@@ -86,7 +86,7 @@
           You may only add volunteers via live dashboard during or after the event.
           To invite volunteers to the event, please visit
           {% with event_ids=event.id|jsonify_list_id %}
-            <a href="{% url 'openCurrents:invite-volunteers' event_ids %}"> invite volunteers </a>.
+            <a href="{% url 'openCurrents:invite-volunteers' event_ids %}">invite volunteers</a>.
           {% endwith %}
         </p>
       </div>
@@ -146,7 +146,7 @@
                 {% endif %}
               />
 
-              <label class="large-icon" for="vol-checkin-{{ user.id }}">
+              <label class="checkin-checkbox-icon" for="vol-checkin-{{ user.id }}">
                 <i class="fa fa-lg fa-check-circle"></i>
               </label>
             </div>
@@ -296,7 +296,7 @@
                     <div class="right small-3 columns"> \
                         <input {% if checkin_disabled %}disabled{% endif %} type="checkbox" id="vol-checkin-${userid}" name="vol-checkin-${userid}" value="${userid}" class="hidden checkin-checkbox"/> \
 
-                        <label class="large-icon" for="vol-checkin-${userid}"> \
+                        <label class="checkin-checkbox-icon" for="vol-checkin-${userid}"> \
                           <i class="fa fa-lg fa-check-circle"></i> \
                         </label> \
                     </div> \
