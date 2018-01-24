@@ -2,6 +2,7 @@ from openCurrents.interfaces import convert
 
 from decimal import Decimal
 
+_MASTER_OFFER_LIMIT = 2
 
 def one_week_from_now():
     return datetime.now() + timedelta(days=7)
@@ -17,7 +18,6 @@ def _get_redemption_total(records, currency='cur'):
 
     for rec in records:
         tr = rec.transaction
-        offer = tr.offer
         amount_cur = tr.currents_amount
 
         if currency == 'usd':

@@ -176,13 +176,13 @@ h1, h2, h3, h4, h5, h6 {
   border: 1px solid #e7b708;
 }
 
-.button.disabled, .button[disabled] {
-  background-color: #777777;
+.button.disabled, .button[disabled],
+.button.disabled:hover, .button.disabled:focus,
+.button[disabled]:hover, .button[disabled]:focus {
+  background-color: #555555;
+  border-color: #555555;
+  color: #ffffff;
 }
-
-.button.disabled:hover, .button.disabled:focus, .button[disabled]:hover, .button[disabled]:focus {
-  background-color: #777777;
-  color: #ffffff; }
 
 .button.large {
   padding-left: 2rem;
@@ -814,10 +814,9 @@ label {
 .list-group-item {
   position: relative;
   display: block;
-  height: 60px;
-  padding: 20px 15px;
-  margin-bottom: -1px;
-  border-bottom: 1px solid #ddd;
+  padding: 17px 15px;
+  margin-bottom: 0px;
+  border-bottom: 1px solid #fff;
   transition: background-color 0.25s ease-in-out, color 0.25s ease-in-out;
 }
 
@@ -1341,8 +1340,10 @@ input[type="checkbox"] + label.vol-arrived {
   z-index: 100002;
 }
 
-.large-icon {
+.checkin-checkbox-icon {
   font-size: 1.5rem;
+  margin-top: -3px;
+  color: #cccccc;
 }
 
 /* volunteer-opportunities */
@@ -1461,6 +1462,12 @@ input[disabled].good-cat {
 #id_redeem_price {
   width: 77px;
   text-indent: 11px;
+}
+
+#id_biz_name {
+  width: 288px;
+  margin: auto;
+  border-bottom: none;
 }
 
 #offer-spacer {

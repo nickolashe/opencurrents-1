@@ -39,6 +39,16 @@ class Org(models.Model):
     date_created = models.DateTimeField('date created', auto_now_add=True)
     date_updated = models.DateTimeField('date updated', auto_now=True)
 
+    @property
+    def no_info(self):
+        no_info = True
+        fields = [self.website, self.phone, self.email, self.address, self.intro ]
+
+        if any (f != '' for f in fields):
+            no_info = False
+
+        return no_info
+
     def __unicode__(self):
         return ' '.join([
             str(self.status),
@@ -457,8 +467,10 @@ class Item(models.Model):
 class Offer(models.Model):
     org = models.ForeignKey(Org)
     item = models.ForeignKey(Item)
+    is_master = models.BooleanField(default=False)
     currents_share = models.IntegerField()
     limit = models.IntegerField(default=-1)
+    is_active = models.BooleanField(default=True)
 
     # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)
@@ -466,7 +478,8 @@ class Offer(models.Model):
 
     def __unicode__(self):
         return ' '.join([
-            'Offer for',
+            'Master offer' if self.is_master else 'Offer',
+            'for',
             str(self.currents_share) + '% on',
             self.item.name,
             'by',
@@ -477,10 +490,7 @@ class Offer(models.Model):
 class Transaction(models.Model):
     user = models.ForeignKey(User)
 
-    offer = models.ForeignKey(
-        Offer,
-        on_delete=models.CASCADE
-    )
+    offer = models.ForeignKey(Offer)
 
     pop_image = models.ImageField(
         upload_to='images/redeem/%Y/%m/%d',
@@ -520,6 +530,12 @@ class Transaction(models.Model):
         max_digits=12
     )
 
+    # used to store biz name for master offer
+    biz_name = models.CharField(
+        max_length=256,
+        null=True
+    )
+
     # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)
     date_updated = models.DateTimeField('date updated', auto_now=True)
@@ -533,7 +549,9 @@ class Transaction(models.Model):
         return ' '.join([
             'Transaction initiated by user',
             self.user.username,
-            'for offer',
+            'for',
+            'master' if self.offer.is_master else '',
+            'offer',
             str(self.offer.id),
             'in the amount of',
             str(self.currents_amount),
