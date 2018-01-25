@@ -38,15 +38,16 @@ from openCurrents.interfaces.ledger import OcLedger
 from openCurrents.interfaces.common import diffInHours
 from openCurrents.interfaces.community import OcCommunity
 
-from openCurrents.tests.interfaces.common import \
-     _create_test_user, \
-     _create_project, \
-    _setup_volunteer_hours, \
-    _create_event, \
-    _setup_user_event_registration, \
-    _setup_transactions, \
-    _setup_ledger_entry
-
+from openCurrents.tests.interfaces.common import (
+     _create_test_user,
+     _create_project,
+    _setup_volunteer_hours,
+    _create_event,
+    _setup_user_event_registration,
+    _setup_transactions,
+    _setup_ledger_entry,
+    _create_org
+)
 
 import pytz
 import uuid
@@ -62,8 +63,7 @@ class TestUserPopup(TestCase):
 
     def setUp(self):
         # creating org
-        org = OcOrg().setup_org(name="NPF_org_1", status="npf")
-
+        org = _create_org("NPF_org_1", "npf")
 
         #creating a volunteer that sees the popup
         user_name = 'volunteer_default'
@@ -206,8 +206,8 @@ class TestUserProfileView(TestCase):
         past_date = timezone.now() - timedelta(days=2)
 
         # creating orgs
-        org1 = OcOrg().setup_org(name="NPF_org_1", status="npf")
-        org2 = OcOrg().setup_org(name="NPF_org_2", status="npf")
+        org1 = _create_org("NPF_org_1", "npf")
+        org2 = _create_org("NPF_org_2", "npf")
 
         # creating a volunteer
         volunteer_1 = _create_test_user('volunteer_1')
@@ -421,9 +421,9 @@ class TestUserProfileCommunityActivity(TestCase):
         past_date = timezone.now() - timedelta(days=2)
 
         # creating orgs
-        self.org1 = OcOrg().setup_org(name="NPF_org_1", status="npf")
-        self.org2 = OcOrg().setup_org(name="NPF_org_2", status="npf")
-        self.biz_org = OcOrg().setup_org(name="BIZ_org_1", status='biz')
+        self.org1 = _create_org("NPF_org_1", "npf")
+        self.org2 = _create_org("NPF_org_2", "npf")
+        self.biz_org = _create_org("BIZ_org_1", 'biz')
 
         # creating 2 projects for 2 npf orgs
         self.project_1 = _create_project(self.org1, 'org1_project_1')

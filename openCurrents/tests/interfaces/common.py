@@ -25,8 +25,14 @@ from openCurrents.interfaces.ocuser import \
     InvalidUserException, \
     UserExistsException
 
-from openCurrents.interfaces.orgs import \
-    OrgUserInfo
+from openCurrents.interfaces.orgs import (
+    OrgUserInfo,
+    OcOrg
+)
+
+from openCurrents.interfaces.auth import (
+        OcAuth
+    )
 
 from openCurrents.interfaces.orgadmin import OrgAdmin
 
@@ -39,6 +45,7 @@ import string
 import re
 
 # ====== CONTENT =======
+# _create_org
 # _create_test_user
 # _create_project
 # _create_event
@@ -46,6 +53,137 @@ import re
 # _setup_volunteer_hours
 # _setup_transactions
 # _setup_ledger_entry
+
+
+class SetUpTests(object):
+    """
+    helper class to setup tests
+    """
+
+    def generic_setup(
+            self,
+            npf_orgs_list,
+            biz_orgs_list,
+            volunteers_list,
+            create_admins=True,
+            create_projects=True
+        ):
+        """
+        takes lists of initial data and create needed objects
+
+        npf_orgs_list - list of NPF orgs titles (string)
+        biz_orgs_list - list of BIZ orgs titles (string)
+        volunteers_list - list of volunteers names (string)
+        create_admins - boolean, to create an admin per NPF/BIZ org
+        create_projects - boolean, to create a project per each NPF org
+        """
+
+        # creating NPF org with projects if required
+        org_i = 0
+        for npf_org in npf_orgs_list:
+
+            org_i += 1
+            org = _create_org(npf_org, "npf")
+
+            # creating projects
+            if create_projects:
+                _create_project(org, 'test_project_{}'.format(str(org_i)))
+
+            #creating an NPF admin
+            if create_admins:
+                _create_test_user('npf_admin_{}'.format(str(org_i)), org = org, is_org_admin=True)
+
+
+        # creating BIZ org
+        biz_org_i = 0
+        for biz_org in biz_orgs_list:
+
+            biz_org_i += 1
+            org = _create_org(biz_org, "biz")
+
+            #creating an NPF admin
+            if create_admins:
+                _create_test_user('biz_admin_{}'.format(str(biz_org_i)), org = org, is_org_admin=True)
+
+
+        #creating existing volunteers
+        for volunteer in volunteers_list:
+            _create_test_user(volunteer)
+
+
+
+    def get_all_volunteers(self):
+        """
+        returns list of volunteers
+        """
+        volunteers = []
+        for user in User.objects.all():
+            if not OcAuth(user.id).is_admin():
+                volunteers.append(user)
+
+        return volunteers
+
+
+    def get_all_npf_admins(self):
+        """
+        returns list of NPF admins (user instance)
+        """
+        npf_admins = []
+        for user in OrgUser.objects.all():
+            u = OcAuth(user.id)
+            if u.is_admin_org():
+                npf_admins.append(user.user)
+
+        return npf_admins
+
+
+    def get_all_biz_admins(self):
+        """
+        returns list of BIZ admins
+        """
+        biz_admins = []
+        for user in OrgUser.objects.all():
+            u = OcAuth(user.id)
+            if u.is_admin_biz():
+                biz_admins.append(user.user)
+
+        return biz_admins
+
+
+    def get_all_npf_orgs(self):
+        """
+        returns list of NPF orgs
+        """
+        return [org for org in Org.objects.filter(status='npf')]
+
+
+    def get_all_biz_orgs(self):
+        """
+        returns list of BIZ orgs
+        """
+        return [org for org in Org.objects.filter(status='biz')]
+
+
+    def get_all_projects(self, org):
+        """
+        returns list of projects
+        """
+        return [proj for proj in Project.objects.filter(org=org)]
+
+
+
+def _create_org(org_name, org_status):
+    """
+    Creates users and maps them to the org if needed.
+    Takes:
+        org_name - string
+        org_status - string ('npf', 'biz')
+    """
+
+    new_org = OcOrg().setup_org(name=org_name, status=org_status)
+
+    return new_org
+
 
 def _create_test_user(user_name, password = 'password', org = None,  is_org_admin=False):
     """

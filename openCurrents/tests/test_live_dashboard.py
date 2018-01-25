@@ -24,16 +24,15 @@ from openCurrents.interfaces.ocuser import \
     InvalidUserException, \
     UserExistsException
 
-from openCurrents.interfaces.orgs import \
-    OcOrg, \
-    OrgUserInfo
-
-from openCurrents.tests.interfaces.common import \
-    _create_test_user, \
-    _create_project, \
-    _setup_volunteer_hours, \
-    _create_event, \
-    _setup_user_event_registration
+from openCurrents.tests.interfaces.common import (
+    SetUpTests,
+    _create_test_user,
+    _create_project,
+    _setup_volunteer_hours,
+    _create_event,
+    _setup_user_event_registration,
+    _create_org
+)
 
 
 from openCurrents.interfaces.orgadmin import OrgAdmin
@@ -136,22 +135,36 @@ class SetupTest(TestCase):
 
         future_date = timezone.now() + timedelta(days=1)
         past_date = timezone.now() - timedelta(days=1)
+        biz_orgs_list = []
 
-        # creating org
-        self.org = OcOrg().setup_org(name="NPF_org_1", status="npf")
 
-        # creating projects
-        self.project_1 = _create_project(self.org, 'test_project_1')
+        npf_orgs_list = ['NPF_org_1']
+        volunteers_list = ['volunteer_1', 'volunteer_2', 'volunteer_3', 'volunteer_4']
+
+        test_setup = SetUpTests()
+        test_setup.generic_setup(npf_orgs_list, biz_orgs_list, volunteers_list)
+
+
+        # setting org var
+        self.org = test_setup.get_all_npf_orgs()[0]
+
+        # setting up projects
+        org_projects = test_setup.get_all_projects(self.org)
+        self.project_1 = org_projects[0]
         self.project_2 = _create_project(self.org, 'test_project_2')
 
         #creating an npf admin
-        self.npf_admin = _create_test_user('npf_admin_1', org = self.org, is_org_admin=True)
+        all_admins = test_setup.get_all_npf_admins()
+        self.npf_admin = all_admins[0]
 
-        #creating existing volunteers
-        self.volunteer_1 = _create_test_user('volunteer_1')
-        self.volunteer_2 = _create_test_user('volunteer_2')
-        self.volunteer_3 = _create_test_user('volunteer_3')
-        self.volunteer_4 = _create_test_user('volunteer_4')
+        #assigning existing volunteers to variables
+        all_volunteers = test_setup.get_all_volunteers()
+
+        self.volunteer_1 = all_volunteers[0]
+        self.volunteer_2 = all_volunteers[1]
+        self.volunteer_3 = all_volunteers[2]
+        self.volunteer_4 = all_volunteers[3]
+
         self.volunteer_4.set_unusable_password() # mocking non-confirmed user
 
 
@@ -162,7 +175,7 @@ class SetupTest(TestCase):
                             self.npf_admin.id,
                             future_date,
                             future_date2,
-                            description="Current Event",
+                            description="Future Event",
                             is_public=True,
                             event_type="GR",
                             coordinator=self.npf_admin
