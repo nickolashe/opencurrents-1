@@ -5,6 +5,7 @@ diff-match-patch==20121119
 dj-database-url==0.4.2
 Django==1.10.3
 django-import-export==0.5.1
+django-extensions==1.9.9
 django-templates-macros==0.2
 djangorestframework==3.5.3
 docopt==0.4.0
