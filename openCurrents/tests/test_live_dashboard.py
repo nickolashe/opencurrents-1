@@ -349,6 +349,7 @@ class CurrentEventCheckIn(SetupTest):
         self.assertEqual(response.status_code, 200)
 
         # checking the first volunteer
+        time_now = timezone.now()
         post_response = self.client.post('/event_checkin/1/',
             {
                 'userid':str(self.volunteer_1.id),
@@ -363,6 +364,11 @@ class CurrentEventCheckIn(SetupTest):
         # general assertion
         self.assertEqual(2, len(UserTimeLog.objects.all()))
         self.assertEqual(2, len(AdminActionUserTime.objects.all()))
+
+        # asserting UserTimeLog timestamp
+        ut = UserTimeLog.objects.get(user=self.volunteer_1)
+        self.assertAlmostEqual(ut.datetime_start, time_now, delta=timedelta(seconds=1))
+
 
         # assert approved hours from users perspective
         self.assertEqual(1, len(self.oc_npf_adm.get_hours_approved()))
@@ -392,6 +398,7 @@ class CurrentEventCheckIn(SetupTest):
 
 
         # checking the second volunteer
+        time_now = timezone.now()
         post_response = self.client.post('/event_checkin/1/',
             {
                 'userid':str(self.volunteer_2.id),
@@ -404,6 +411,10 @@ class CurrentEventCheckIn(SetupTest):
         # general assertion
         self.assertEqual(3, len(UserTimeLog.objects.all()))
         self.assertEqual(3, len(AdminActionUserTime.objects.all()))
+
+        # asserting UserTimeLog timestamp for volunteer2
+        ut = UserTimeLog.objects.get(user=self.volunteer_2)
+        self.assertAlmostEqual(ut.datetime_start, time_now, delta=timedelta(seconds=1))
 
         # assert approved hours from users perspective
         self.assertEqual(1, len(self.oc_npf_adm.get_hours_approved()))
@@ -471,17 +482,22 @@ class CurrentEventCheckIn(SetupTest):
         self.assertEqual(24, OcLedger().get_balance(self.user_enitity_id_vol_1))
 
         # UN-checking the first volunteer
+        time_now = timezone.now()
         post_response = self.client.post('/event_checkin/1/',
             {
                 'userid':str(self.volunteer_1.id),
-                'checkin':'true',
+                'checkin':'false',
             })
 
-        self.assertEqual(post_response.status_code, 200)
+        self.assertEqual(post_response.status_code, 201)
 
         # general assertion
         self.assertEqual(2, len(UserTimeLog.objects.all()))
         self.assertEqual(2, len(AdminActionUserTime.objects.all()))
+
+        # asserting UserTimeLog timestamp
+        ut = UserTimeLog.objects.get(user=self.volunteer_1)
+        self.assertAlmostEqual(ut.datetime_end, time_now, delta=timedelta(seconds=1))
 
         # assert approved hours from users perspective
         self.assertEqual(1, len(self.oc_npf_adm.get_hours_approved()))
@@ -698,6 +714,7 @@ class CurrentEventInvite(SetupTest):
 
 class PastEventInvite(SetupTest):
 
+    @skip('until speck is confirmed')
     def test_past_event_invite_new_user_invitation_opt_out(self):
         """
         Admin invites new user to the event, Invite volunteer to openCurrents
@@ -788,7 +805,7 @@ class PastEventInvite(SetupTest):
         self.assertEqual(48, OcLedger().get_balance(new_user_entity_id))
 
 
-
+    @skip('until speck is confirmed')
     def test_past_event_invite_new_user_invitation_opt_in(self):
         """
         Admin invites new user to the event, Invite volunteer to openCurrents

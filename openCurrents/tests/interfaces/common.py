@@ -265,7 +265,7 @@ def _create_event(
 def _setup_user_event_registration(
         user,
         event,
-        is_confirmed=True
+        is_confirmed=False
     ):
     """
     creates a user event registration with given parameters
@@ -273,6 +273,7 @@ def _setup_user_event_registration(
     user_event_registration = UserEventRegistration(
         user=user,
         event=event,
+        is_confirmed = is_confirmed
     )
     user_event_registration.save()
     return user_event_registration
