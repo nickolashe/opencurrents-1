@@ -6,18 +6,22 @@ from datetime import datetime, timedelta
 from django.utils import timezone
 
 # MODELS
-from openCurrents.models import \
-    Org, \
-    Project, \
-    Event, \
-    UserSettings, \
-    UserEntity
+from openCurrents.models import (
+    Org,
+    Project,
+    Event,
+    UserSettings,
+    UserEntity,
+    UserEventRegistration,
+    User
+)
 
 # INTERFACES
 from openCurrents.interfaces.ocuser import OcUser
-from openCurrents.interfaces.orgs import \
-    OcOrg, \
+from openCurrents.interfaces.orgs import (
+    OcOrg,
     OrgUserInfo
+)
 
 
 class TestIvniteVolunteersNoEvent(TestCase):
@@ -683,6 +687,10 @@ class TestIvniteVolunteersToEvent(TestCase):
         self.assertEqual(len(self.client.session['recepient']), 1)
         self.assertIn('single_test_guest_1', self.client.session['recepient'][0]['email'])
 
+        # asserting user has been registered to event
+        u = User.objects.get(email='single_test_guest_1@mail.cc')
+        self.assertEqual(len(UserEventRegistration.objects.filter(user=u)), 1)
+
 
     def test_invite_new_bulk_no_message(self):
         """
@@ -728,6 +736,9 @@ class TestIvniteVolunteersToEvent(TestCase):
         self.assertIn('bulk_test_guest_2@e.cc', self.client.session['recepient'][1]['email'])
         self.assertIn('bulk_test_guest_3@e.cc', self.client.session['recepient'][2]['email'])
         self.assertIn('bulk_test_guest_4@e.cc', self.client.session['recepient'][3]['email'])
+
+        # asserting user has been registered to event
+        self.assertEqual(len(UserEventRegistration.objects.filter(user__username__contains='bulk_test_guest_')), 4)
 
 
 
@@ -775,6 +786,10 @@ class TestIvniteVolunteersToEvent(TestCase):
         self.assertEqual(len(self.client.session['recepient']), 1)
         self.assertIn('single_test_guest_1', self.client.session['recepient'][0]['email'])
 
+        # asserting user has been registered to event
+        u = User.objects.get(email='single_test_guest_1@mail.cc')
+        self.assertEqual(len(UserEventRegistration.objects.filter(user=u)), 1)
+
 
     def test_invite_new_bulk_with_message(self):
         """
@@ -819,6 +834,9 @@ class TestIvniteVolunteersToEvent(TestCase):
         self.assertIn('bulk_test_guest_2@e.cc', self.client.session['recepient'][1]['email'])
         self.assertIn('bulk_test_guest_3@e.cc', self.client.session['recepient'][2]['email'])
         self.assertIn('bulk_test_guest_4@e.cc', self.client.session['recepient'][3]['email'])
+
+        # asserting user has been registered to event
+        self.assertEqual(len(UserEventRegistration.objects.filter(user__username__contains='bulk_test_guest_')), 4)
 
 
     def test_invite_to_event_single_existing_no_message(self):
@@ -866,6 +884,8 @@ class TestIvniteVolunteersToEvent(TestCase):
         # assert we pass emails to mandril
         self.assertEqual(len(self.client.session['recepient']), 1)
 
+        # asserting user has been registered to event
+        self.assertEqual(len(UserEventRegistration.objects.filter(user=self.volunteer1)), 1)
 
 
     def test_invite_to_event_single_existing_nopass_with_message(self):
@@ -911,6 +931,9 @@ class TestIvniteVolunteersToEvent(TestCase):
         # assert we pass emails to mandril
         self.assertEqual(len(self.client.session['recepient']), 1)
 
+        # asserting user has been registered to event
+        self.assertEqual(len(UserEventRegistration.objects.filter(user=self.volunteer3)), 1)
+
 
     def test_invite_to_event_single_existing_nopass_no_message(self):
         """
@@ -955,6 +978,9 @@ class TestIvniteVolunteersToEvent(TestCase):
         # assert we pass emails to mandril
         self.assertEqual(len(self.client.session['recepient']), 1)
 
+        # asserting user has been registered to event
+        self.assertEqual(len(UserEventRegistration.objects.filter(user=self.volunteer3)), 1)
+
 
 
     def test_invite_to_event_single_existing_with_message(self):
@@ -998,6 +1024,9 @@ class TestIvniteVolunteersToEvent(TestCase):
         # assert we pass emails to mandril
         self.assertEqual(len(self.client.session['recepient']), 1)
 
+        # asserting user has been registered to event
+        self.assertEqual(len(UserEventRegistration.objects.filter(user=self.volunteer1)), 1)
+
 
     def test_invite_bulk_existing_with_personal_message(self):
         """
@@ -1037,6 +1066,9 @@ class TestIvniteVolunteersToEvent(TestCase):
 
         # assert we pass emails to mandril
         self.assertEqual(len(self.client.session['recepient']), 2)
+
+        # asserting user has been registered to event
+        self.assertEqual(len(UserEventRegistration.objects.filter(user=self.volunteer1)), 1)
 
 
     def test_invite_bulk_existing_users_no_message(self):
@@ -1078,6 +1110,10 @@ class TestIvniteVolunteersToEvent(TestCase):
 
         # assert we pass emails to mandril
         self.assertEqual(len(self.client.session['recepient']), 2)
+
+        # asserting user has been registered to event
+        self.assertEqual(len(UserEventRegistration.objects.filter(user=self.volunteer1)), 1)
+        self.assertEqual(len(UserEventRegistration.objects.filter(user=self.volunteer2)), 1)
 
 
     def test_invite_bulk_existing_nopass_no_message(self):
@@ -1121,6 +1157,10 @@ class TestIvniteVolunteersToEvent(TestCase):
 
         # assert we pass emails to mandril
         self.assertEqual(len(self.client.session['recepient']), 2)
+
+        # asserting user has been registered to event
+        self.assertEqual(len(UserEventRegistration.objects.filter(user=self.volunteer3)), 1)
+        self.assertEqual(len(UserEventRegistration.objects.filter(user=self.volunteer4)), 1)
 
 
     def test_invite_bulk_existing_nopass_with_personal_message(self):
@@ -1170,3 +1210,7 @@ class TestIvniteVolunteersToEvent(TestCase):
 
         # assert we pass emails to mandril
         self.assertEqual(len(self.client.session['recepient']), 2)
+
+        # asserting user has been registered to event
+        self.assertEqual(len(UserEventRegistration.objects.filter(user=self.volunteer3)), 1)
+        self.assertEqual(len(UserEventRegistration.objects.filter(user=self.volunteer4)), 1)
