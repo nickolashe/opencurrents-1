@@ -19,6 +19,7 @@
 
 {% block content %}
   <form method="post">
+  {% csrf_token %}
     <div class="row one-margin-bottom">
       <div class="small-8 small-centered columns">
         <div class="left small-12 medium-4 columns">
@@ -67,9 +68,8 @@
     </div>
 
     <div class="row one-margin-top">
-      <a type="submit" class="button round small">
-        Export data
-      </a>
+      <input type="submit" class="button round small" value="Export data" />
+
       <a href="{% url 'openCurrents:org-admin' %}" class="button round small secondary">
         Back to org profile
       </a>
