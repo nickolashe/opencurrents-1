@@ -3220,6 +3220,7 @@ def process_signup(
 
     # validate form data
     if form.is_valid():
+
         user_firstname = form.cleaned_data['user_firstname']
         user_lastname = form.cleaned_data['user_lastname']
         user_email = form.cleaned_data['user_email']
@@ -3412,6 +3413,9 @@ def process_signup(
                             e.message,
                             type(e)
                         )
+                # for testing purposes
+                else:
+                    request.session['invitation_email'] = 'True'
 
         # return
         if endpoint:
