@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'openCurrents.apps.OpencurrentsConfig',
-    'macros'
+    'macros',
+    'django_extensions'
 ]
 
 MIDDLEWARE = [
