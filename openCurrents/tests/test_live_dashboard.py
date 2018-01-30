@@ -93,8 +93,7 @@ class SetupTest(TestCase):
         admin - user instance for NPF admin
         volunteer - user instance
         registered_users_num - number of ALREADY registered users
-        expected_user_registration - defines if user shoul or shoudn't be added to the
-        event
+        expected_user_registration - defines if user should or shouldn't be added to the event
         """
         # logging in
         self.client.login(username=admin.username, password='password')
@@ -575,7 +574,7 @@ class CurrentEventInvite(SetupTest):
         self._add_user_to_event(self.npf_admin, 2, self.volunteer_4, 3)
 
         # 1 in the url below means we're mocking emails
-        post_signup = self.client.post('/process_signup/True/False/',
+        post_signup = self.client.post('/process_signup/True/False/1/',
             {
                 'user_firstname': 'newuser_name',
                 'user_lastname': 'newuser_lastname',
@@ -764,7 +763,7 @@ class PastEventInvite(SetupTest):
         self._add_user_to_event(self.npf_admin, 2, self.volunteer_4, 3)
 
         # 1 in the url below means we're mocking emails
-        post_signup = self.client.post('/process_signup/True/False/',
+        post_signup = self.client.post('/process_signup/True/False/1/',
             {
                 'user_firstname': 'newuser_name',
                 'user_lastname': 'newuser_lastname',
@@ -1127,7 +1126,7 @@ class PastEventCheckIn(SetupTest):
         post_response = self.client.post('/event_checkin/3/',
             {
                 'userid':str(self.volunteer_1.id),
-                'checkin':'true',
+                'checkin':'false',
             })
 
         self.assertEqual(post_response.status_code, 200)
@@ -1173,8 +1172,7 @@ class PastEventCheckIn(SetupTest):
 
 class FutureEventAddition(SetupTest):
 
-    def test_future_event_add_user(self):
-
+    def test_future_event_add_user_button_inactive(self):
         """
         this unit test is the same for registered and non-registered users
         user is not added to the event
@@ -1182,11 +1180,65 @@ class FutureEventAddition(SetupTest):
 
         self.client.login(username=self.npf_admin.username, password='password')
         response = self.client.get('/live-dashboard/1/')
-
         # check if users sees the page
         self.assertEqual(response.status_code, 200)
 
         # checking that invite button is disabled
         processed_content = re.sub(r'\s+', ' ', response.content )
         self.assertIn('disabled > Add volunteer </a>', processed_content)
+
+
+    def test_future_event_add_new_user(self):
+        """
+        this unit test is the same for registered and non-registered users
+        user is not added to the event
+
+        - user shouldn't be added to the event
+        - adminaction and usertimelog shouldn't be created
+        """
+
+        self.client.login(username=self.npf_admin.username, password='password')
+
+        # adding a volunteer wo usable password (mocking POST /event_register_live/xx/ call after clicking Add volunteer button)
+        self._add_user_to_event(self.npf_admin, 1, self.volunteer_4, 3, expected_user_registration=False)
+
+        # checking if user wasn't automatically checked in
+        response = self.client.get('/live-dashboard/1/')
+        self.assertEqual(response.status_code, 200)
+
+        # check there are no checked users
+        self.assertEqual(len(response.context['checkedin_users']), 0)
+
+
+        self.assertEqual(0, len(UserTimeLog.objects.all()))
+        self.assertEqual(0, len(AdminActionUserTime.objects.all()))
+
+
+    def test_future_event_checkin_existing_user(self):
+        """
+        Status message: "Volunteers may only be checked in once event begins". Please visit <a>Invite volunteers</a> page to add volunteers before event starts.
+        """
+
+        self.client.login(username=self.npf_admin.username, password='password')
+        response = self.client.get('/live-dashboard/1/')
+        self.assertEqual(response.status_code, 200)
+
+        post_response = self.client.post('/event_checkin/1/',
+            {
+                'userid':str(self.volunteer_1.id),
+                'checkin':'true',
+            })
+
+        self.assertEqual(post_response.status_code, 201)
+
+        self.assertEqual(0, len(UserTimeLog.objects.all()))
+        self.assertEqual(0, len(AdminActionUserTime.objects.all()))
+
+
+        # assert approved hours from user and admin perspective
+        self.assertEqual(0, len(self.oc_vol_1.get_hours_approved()))
+        self.assertEqual(0, len(self.oc_npf_adm.get_hours_approved()))
+
+        # checking ledger records
+        self.assertEqual(0, len(Ledger.objects.all()))
 
