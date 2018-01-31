@@ -443,7 +443,6 @@ class CurrentEventCheckIn(SetupTest):
         self.assertEqual(48, OcLedger().get_balance(self.user_enitity_id_vol_2))
 
 
-    @skip('until 1017 is fixed')
     def test_current_event_uncheck_user(self):
 
         # logging in
@@ -737,7 +736,6 @@ class CurrentEventInvite(SetupTest):
 
 class PastEventInvite(SetupTest):
 
-    @skip('until speck is confirmed')
     def test_past_event_invite_new_user_invitation_opt_out(self):
         """
         Admin invites new user to the event, Invite volunteer to openCurrents
@@ -760,7 +758,6 @@ class PastEventInvite(SetupTest):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context['registered_users']), 3)
-        self._add_user_to_event(self.npf_admin, 2, self.volunteer_4, 3)
 
         # 1 in the url below means we're mocking emails
         post_signup = self.client.post('/process_signup/True/False/1/',
@@ -778,6 +775,9 @@ class PastEventInvite(SetupTest):
         new_user_id = new_user.id
         self.assertEqual(len(User.objects.filter(email='newuser@ccc.cc')), 1)
         self.assertFalse(new_user.has_usable_password())
+
+        # registering new user to event
+        self._add_user_to_event(self.npf_admin, 3, new_user, 3)
 
         # checking in new volunteer
         post_response = self.client.post('/event_checkin/3/',
@@ -800,7 +800,7 @@ class PastEventInvite(SetupTest):
 
 
         # assert approved hours from npf admin perspective
-        self.assertEqual(96.0 , self.org_npf_adm.get_total_hours_issued())
+        self.assertEqual(48.0 , self.org_npf_adm.get_total_hours_issued())
 
 
         # checking ledger records
@@ -808,7 +808,7 @@ class PastEventInvite(SetupTest):
         self.assertEqual(2, len(ledger_query))
 
         # asserting npf_admin user
-        self._asserting_user_ledger(self.npf_admin, ledger_query, 1, 48)
+        self._asserting_user_ledger(self.npf_admin, ledger_query, 1, 24)
 
         # asserting the first user
         self._asserting_user_ledger(self.volunteer_1, ledger_query, 0, 0)
@@ -816,19 +816,25 @@ class PastEventInvite(SetupTest):
         # asserting the 2nd user
         self._asserting_user_ledger(self.volunteer_2, ledger_query, 0, 0)
 
-        # asserting the 2nd user
-        self._asserting_user_ledger(new_user, ledger_query, 1, 48)
+        # asserting new user
+        self._asserting_user_ledger(new_user, ledger_query, 1, 24)
 
         # assert get_balance()
-        self.assertEqual(48, OcLedger().get_balance(self.user_enitity_id_npf_adm))
+        self.assertEqual(24, OcLedger().get_balance(self.user_enitity_id_npf_adm))
         self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_1))
         self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_2))
 
         new_user_entity_id = UserEntity.objects.get(user = new_user).id
-        self.assertEqual(48, OcLedger().get_balance(new_user_entity_id))
+        self.assertEqual(24, OcLedger().get_balance(new_user_entity_id))
+
+        # checking that invite button is disabled
+        response = self.client.get('/live-dashboard/3/')
+        processed_content = re.sub(r'\s+', ' ', response.content )
+        # asserting the first volunteer has blue icon
+        self.assertIn('name="vol-checkin-6" value="6" class="hidden checkin-checkbox" checked', processed_content)
 
 
-    @skip('until speck is confirmed')
+
     def test_past_event_invite_new_user_invitation_opt_in(self):
         """
         Admin invites new user to the event, Invite volunteer to openCurrents
@@ -851,7 +857,6 @@ class PastEventInvite(SetupTest):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context['registered_users']), 3)
-        self._add_user_to_event(self.npf_admin, 2, self.volunteer_4, 3)
 
         # 1 in the url below means we're mocking emails
         post_signup = self.client.post('/process_signup/True/True/1/',
@@ -873,6 +878,9 @@ class PastEventInvite(SetupTest):
         self.assertEqual(len(User.objects.filter(email='newuser2@ccc.cc')), 1)
         self.assertFalse(new_user.has_usable_password())
 
+        # registering new user to event
+        self._add_user_to_event(self.npf_admin, 3, new_user, 3)
+
         # checking in new volunteer
         post_response = self.client.post('/event_checkin/3/',
             {
@@ -881,7 +889,7 @@ class PastEventInvite(SetupTest):
             })
         self.assertEqual(post_response.status_code, 201)
 
-        # ASSERTION AFTER THE SECOND USER CHECK-IN
+        # ASSERTION USER CHECK-IN
         # general assertion
         self.assertEqual(2, len(UserTimeLog.objects.all()))
         self.assertEqual(2, len(AdminActionUserTime.objects.all()))
@@ -892,9 +900,8 @@ class PastEventInvite(SetupTest):
         oc_new_user = OcUser(new_user.id)
         self.assertEqual(1, len(oc_new_user.get_hours_approved()))
 
-
         # assert approved hours from npf admin perspective
-        self.assertEqual(96.0 , self.org_npf_adm.get_total_hours_issued())
+        self.assertEqual(48.0 , self.org_npf_adm.get_total_hours_issued())
 
 
         # checking ledger records
@@ -902,7 +909,7 @@ class PastEventInvite(SetupTest):
         self.assertEqual(2, len(ledger_query))
 
         # asserting npf_admin user
-        self._asserting_user_ledger(self.npf_admin, ledger_query, 1, 48)
+        self._asserting_user_ledger(self.npf_admin, ledger_query, 1, 24)
 
         # asserting the first user
         self._asserting_user_ledger(self.volunteer_1, ledger_query, 0, 0)
@@ -910,16 +917,22 @@ class PastEventInvite(SetupTest):
         # asserting the 2nd user
         self._asserting_user_ledger(self.volunteer_2, ledger_query, 0, 0)
 
-        # asserting the 2nd user
-        self._asserting_user_ledger(new_user, ledger_query, 1, 48)
+        # asserting new user
+        self._asserting_user_ledger(new_user, ledger_query, 1, 24)
 
         # assert get_balance()
-        self.assertEqual(48, OcLedger().get_balance(self.user_enitity_id_npf_adm))
+        self.assertEqual(24, OcLedger().get_balance(self.user_enitity_id_npf_adm))
         self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_1))
         self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_2))
 
         new_user_entity_id = UserEntity.objects.get(user = new_user).id
-        self.assertEqual(48, OcLedger().get_balance(new_user_entity_id))
+        self.assertEqual(24, OcLedger().get_balance(new_user_entity_id))
+
+        # checking that invite button is disabled
+        response = self.client.get('/live-dashboard/3/')
+        processed_content = re.sub(r'\s+', ' ', response.content )
+        # asserting the first volunteer has blue icon
+        self.assertIn('name="vol-checkin-6" value="6" class="hidden checkin-checkbox" checked', processed_content)
 
 
 
@@ -1059,7 +1072,6 @@ class PastEventCheckIn(SetupTest):
         self.assertEqual(24, OcLedger().get_balance(self.user_enitity_id_vol_2))
 
 
-    @skip('until 1017 is fixed')
     def test_past_event_uncheck_user(self):
 
         """
