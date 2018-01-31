@@ -829,10 +829,13 @@ class PastEventInvite(SetupTest):
 
         # checking that invite button is disabled
         response = self.client.get('/live-dashboard/3/')
-        processed_content = re.sub(r'\s+', ' ', response.content )
+
         # asserting the first volunteer has blue icon
+        processed_content = re.sub(r'\s+', ' ', response.content )
         self.assertIn('name="vol-checkin-6" value="6" class="hidden checkin-checkbox" checked', processed_content)
 
+        # asserting new user in checkedin_users
+        self.assertIn(new_user_id, response.context['checkedin_users'])
 
 
     def test_past_event_invite_new_user_invitation_opt_in(self):
@@ -930,9 +933,13 @@ class PastEventInvite(SetupTest):
 
         # checking that invite button is disabled
         response = self.client.get('/live-dashboard/3/')
-        processed_content = re.sub(r'\s+', ' ', response.content )
+
         # asserting the first volunteer has blue icon
+        processed_content = re.sub(r'\s+', ' ', response.content )
         self.assertIn('name="vol-checkin-6" value="6" class="hidden checkin-checkbox" checked', processed_content)
+
+         # asserting new user in checkedin_users
+        self.assertIn(new_user_id, response.context['checkedin_users'])
 
 
 
