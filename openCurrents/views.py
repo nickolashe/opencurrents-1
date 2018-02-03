@@ -901,8 +901,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
 
     def form_valid(self, form):
         data = form.cleaned_data
-        logger.info(data)
-        # logger.info(data['redeem_currents_amount'])
+        # logger.info(data)
 
         transaction = Transaction(
             user=self.request.user,
@@ -942,6 +941,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         context['cur_rate'] = convert._USDCUR
         context['tr_fee'] = int(convert._TR_FEE * 100)
         context['master_offer'] = Offer.objects.filter(is_master=True).first()
+        context['master_funds_available'] = self.ocuser.get_master_offer_remaining()
 
         return context
 
