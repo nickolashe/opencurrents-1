@@ -1115,17 +1115,26 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
 
                     # if ORG user doesn't exist
                     elif OrgUser.objects.filter(user__email=admin_email).exists() != True:
-                        # creating a new user
-                        try:
-                            npf_user = OcUser().setup_user(
-                                username=admin_email,
-                                email=admin_email,
-                                first_name=admin_name,
-                            )
 
-                        except UserExistsException:
-                            logger.debug('Org user %s already exists', admin_email)
-                            # npf_user = User.objects.get(username=admin_email)
+                        # finding a user in system
+                        try:
+                            npf_user = User.objects.get(username=admin_email)
+                        except:
+                            npf_user = None
+
+                        if not npf_user:
+
+                            # creating a new user
+                            try:
+                                npf_user = OcUser().setup_user(
+                                    username=admin_email,
+                                    email=admin_email,
+                                    first_name=admin_name,
+                                )
+
+                            except UserExistsException:
+                                logger.debug('Org user %s already exists', admin_email)
+
 
                         # setting up new NPF user
                         try:
@@ -1136,6 +1145,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                             return False, 'Couldn\'t setup NPF admin', msg_type
 
                         is_biz_admin=False
+
 
                     if is_biz_admin:
                         msg_type='alert'
