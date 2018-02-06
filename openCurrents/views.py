@@ -2767,6 +2767,11 @@ def event_checkin(request, pk):
             'user %s; event %s' % (userid, event.project.name)
         )
 
+        # allow checkins only as early as 15 min before event
+        if timezone.now() < event.datetime_start - timedelta(minutes=15):
+            clogger.warning('checkin too early for event start time')
+            return HttpResponse(content=json.dumps({}), status=400)
+
         event_duration = common.diffInHours(event.datetime_start, event.datetime_end)
 
         status = 200

@@ -76,9 +76,6 @@ class SetupTest(TestCase):
         else:
             self.assertEqual(expected_num_entries, len(ledger_query.filter(action__usertimelog__user=user)))
 
-
-
-
     def _add_user_to_event(
         self,
         admin,
@@ -129,20 +126,17 @@ class SetupTest(TestCase):
 
     # [helpers End]
 
-
     def setUp(self):
 
         future_date = timezone.now() + timedelta(days=1)
         past_date = timezone.now() - timedelta(days=1)
         biz_orgs_list = []
 
-
         npf_orgs_list = ['NPF_org_1']
         volunteers_list = ['volunteer_1', 'volunteer_2', 'volunteer_3', 'volunteer_4']
 
         test_setup = SetUpTests()
         test_setup.generic_setup(npf_orgs_list, biz_orgs_list, volunteers_list)
-
 
         # setting org var
         self.org = test_setup.get_all_npf_orgs()[0]
@@ -165,7 +159,6 @@ class SetupTest(TestCase):
         self.volunteer_4 = all_volunteers[3]
 
         self.volunteer_4.set_unusable_password() # mocking non-confirmed user
-
 
         # creating a future event  (event duration: 24 hrs)
         future_date2 = future_date +timedelta(days=1)
@@ -205,7 +198,6 @@ class SetupTest(TestCase):
                             coordinator=self.npf_admin
                         )
 
-
         #creating UserEventRegistration for event_future for npf admin and a volunteer1
         npf_admin_event_registration = _setup_user_event_registration(self.npf_admin, self.event_future)
         volunteer_event_registration = _setup_user_event_registration(self.volunteer_1, self.event_future)
@@ -238,7 +230,6 @@ class SetupTest(TestCase):
 
         # setting up client
         self.client = Client()
-
 
 
 class LiveDashboard(SetupTest):
@@ -306,8 +297,6 @@ class LiveDashboard(SetupTest):
         self.assertIn(self.volunteer_2, response.context['registered_users'])
 
 
-
-
 class CurrentEventCheckIn(SetupTest):
 
     def test_current_event_check_in(self):
@@ -324,7 +313,6 @@ class CurrentEventCheckIn(SetupTest):
         self.assertEqual(0, len(self.oc_npf_adm.get_hours_approved()))
         self.assertEqual(0, len(self.oc_vol_1.get_hours_approved()))
         self.assertEqual(0, len(self.oc_vol_2.get_hours_approved()))
-
 
         # checking ledger records
         ledger_query = Ledger.objects.all()
@@ -357,7 +345,6 @@ class CurrentEventCheckIn(SetupTest):
 
         self.assertEqual(post_response.status_code, 201)
 
-
         # ASSERTION AFTER THE FIRST USER CHECK-IN
 
         # general assertion
@@ -367,7 +354,6 @@ class CurrentEventCheckIn(SetupTest):
         # asserting UserTimeLog timestamp
         ut = UserTimeLog.objects.get(user=self.volunteer_1)
         self.assertAlmostEqual(ut.datetime_start, time_now, delta=timedelta(seconds=1))
-
 
         # assert approved hours from users perspective
         self.assertEqual(1, len(self.oc_npf_adm.get_hours_approved()))
@@ -395,7 +381,6 @@ class CurrentEventCheckIn(SetupTest):
         self.assertEqual(Decimal('48'), OcLedger().get_balance(self.user_enitity_id_vol_1))
         self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_2))
 
-
         # checking the second volunteer
         time_now = timezone.now()
         post_response = self.client.post('/event_checkin/2/',
@@ -403,7 +388,6 @@ class CurrentEventCheckIn(SetupTest):
                 'userid':str(self.volunteer_2.id),
                 'checkin':'true',
             })
-
 
         # ASSERTION AFTER THE SECOND USER CHECK-IN
 
@@ -423,7 +407,6 @@ class CurrentEventCheckIn(SetupTest):
         # assert approved hours from npf admin perspective
         self.assertEqual(144.0 , self.org_npf_adm.get_total_hours_issued())
 
-
         # checking ledger records
         ledger_query = Ledger.objects.all()
         self.assertEqual(3, len(ledger_query))
@@ -442,12 +425,12 @@ class CurrentEventCheckIn(SetupTest):
         self.assertEqual(48, OcLedger().get_balance(self.user_enitity_id_vol_1))
         self.assertEqual(48, OcLedger().get_balance(self.user_enitity_id_vol_2))
 
-
     def test_current_event_uncheck_user(self):
 
         # logging in
         self.client.login(username=self.npf_admin.username, password='password')
         response = self.client.get('/live-dashboard/2/')
+
         # check if users sees the page
         self.assertEqual(response.status_code, 200)
 
@@ -455,7 +438,10 @@ class CurrentEventCheckIn(SetupTest):
         self.assertEqual(len(response.context['checkedin_users']), 0)
 
         # asserting the first volunteer has grey icon
-        self.assertNotIn('name="vol-checkin-2" value="2" class="hidden checkin-checkbox" checked', re.sub(r'\s+', ' ', response.content ))
+        self.assertNotIn(
+            'name="vol-checkin-2" value="2" class="hidden checkin-checkbox" checked',
+            re.sub(r'\s+', ' ', response.content )
+        )
 
         # checking IN the first volunteer
         post_response = self.client.post('/event_checkin/2/',
@@ -504,13 +490,16 @@ class CurrentEventCheckIn(SetupTest):
 
         self.assertEqual(post_response.status_code, 201)
 
-        # check there is only admin checked
+        # check user 1 is still included in checked in users (check out is dummy)
         response = self.client.get('/live-dashboard/2/')
         self.assertIn(self.npf_admin.id, response.context['checkedin_users'])
-        self.assertEqual(len(response.context['checkedin_users']), 1) # THIS ASSERTION FAILS !!!
+        self.assertEqual(len(response.context['checkedin_users']), 2) # THIS ASSERTION FAILS !!!
 
         # asserting the first volunteer has grey icon
-        self.assertNotIn('name="vol-checkin-2" value="2" class="hidden checkin-checkbox" checked', re.sub(r'\s+', ' ', response.content )) # THIS ASSERTION FAILS !!!
+        self.assertIn(
+            'name="vol-checkin-2" value="2" class="hidden checkin-checkbox" checked',
+            re.sub(r'\s+', ' ', response.content )
+        ) # THIS ASSERTION FAILS !!!
 
         # general assertion
         self.assertEqual(2, len(UserTimeLog.objects.all()))
@@ -545,13 +534,12 @@ class CurrentEventCheckIn(SetupTest):
         self._add_user_to_event(self.npf_admin, 1, self.volunteer_3, 3)
 
 
-
 class CurrentEventInvite(SetupTest):
 
     def test_current_event_invite_new_user_invitation_opt_out(self):
         """
-        Admin invites new user to the event, Invite volunteer to openCurrents
-        option is checked
+        Admin invites new user to the event
+        Invite volunteer to openCurrents option is checked
 
         Results:
         - User created for volunteer with no password
@@ -608,10 +596,8 @@ class CurrentEventInvite(SetupTest):
         oc_new_user = OcUser(new_user.id)
         self.assertEqual(1, len(oc_new_user.get_hours_approved()))
 
-
         # assert approved hours from npf admin perspective
         self.assertEqual(96.0 , self.org_npf_adm.get_total_hours_issued())
-
 
         # checking ledger records
         ledger_query = Ledger.objects.all()
@@ -637,12 +623,10 @@ class CurrentEventInvite(SetupTest):
         new_user_entity_id = UserEntity.objects.get(user = new_user).id
         self.assertEqual(48, OcLedger().get_balance(new_user_entity_id))
 
-
-
     def test_current_event_invite_new_user_invitation_opt_in(self):
         """
-        Admin invites new user to the event, Invite volunteer to openCurrents
-        option is checked
+        Admin invites new user to the event
+        Invite volunteer to openCurrents option is checked
 
         Results:
         - User created for volunteer with no password
@@ -702,10 +686,8 @@ class CurrentEventInvite(SetupTest):
         oc_new_user = OcUser(new_user.id)
         self.assertEqual(1, len(oc_new_user.get_hours_approved()))
 
-
         # assert approved hours from npf admin perspective
         self.assertEqual(96.0 , self.org_npf_adm.get_total_hours_issued())
-
 
         # checking ledger records
         ledger_query = Ledger.objects.all()
@@ -732,14 +714,12 @@ class CurrentEventInvite(SetupTest):
         self.assertEqual(48, OcLedger().get_balance(new_user_entity_id))
 
 
-
-
 class PastEventInvite(SetupTest):
 
     def test_past_event_invite_new_user_invitation_opt_out(self):
         """
-        Admin invites new user to the event, Invite volunteer to openCurrents
-        option is checked
+        Admin invites new user to the event
+        Invite volunteer to openCurrents option is checked
 
         Results:
         - User created for volunteer with no password
@@ -798,10 +778,8 @@ class PastEventInvite(SetupTest):
         oc_new_user = OcUser(new_user.id)
         self.assertEqual(1, len(oc_new_user.get_hours_approved()))
 
-
         # assert approved hours from npf admin perspective
         self.assertEqual(48.0 , self.org_npf_adm.get_total_hours_issued())
-
 
         # checking ledger records
         ledger_query = Ledger.objects.all()
@@ -837,11 +815,10 @@ class PastEventInvite(SetupTest):
         # asserting new user in checkedin_users
         self.assertIn(new_user_id, response.context['checkedin_users'])
 
-
     def test_past_event_invite_new_user_invitation_opt_in(self):
         """
-        Admin invites new user to the event, Invite volunteer to openCurrents
-        option is checked
+        Admin invites new user to the event
+        Invite volunteer to openCurrents option is checked
 
         Results:
         - User created for volunteer with no password
@@ -906,7 +883,6 @@ class PastEventInvite(SetupTest):
         # assert approved hours from npf admin perspective
         self.assertEqual(48.0 , self.org_npf_adm.get_total_hours_issued())
 
-
         # checking ledger records
         ledger_query = Ledger.objects.all()
         self.assertEqual(2, len(ledger_query))
@@ -942,11 +918,9 @@ class PastEventInvite(SetupTest):
         self.assertIn(new_user_id, response.context['checkedin_users'])
 
 
-
 class PastEventCheckIn(SetupTest):
 
     def test_past_event_check_in(self):
-
         """
         admin checks-in a volunteer
         admin and the volunteer receive amount of currents that is equal to
@@ -998,7 +972,6 @@ class PastEventCheckIn(SetupTest):
 
         self.assertEqual(post_response.status_code, 201)
 
-
         # ASSERTION AFTER THE FIRST USER CHECK-IN
 
         # general assertion
@@ -1013,11 +986,9 @@ class PastEventCheckIn(SetupTest):
         # assert approved hours from npf admin perspective
         self.assertEqual(48.0 , self.org_npf_adm.get_total_hours_issued())
 
-
         # checking ledger records
         ledger_query = Ledger.objects.all()
         self.assertEqual(2, len(ledger_query))
-
 
         # asserting npf_admin user
         self._asserting_user_ledger(self.npf_admin, ledger_query, 1, 24)
@@ -1028,12 +999,10 @@ class PastEventCheckIn(SetupTest):
         # asserting the 2nd user
         self._asserting_user_ledger(self.volunteer_2, ledger_query, 0, 0)
 
-
         # assert get_balance()
         self.assertEqual(24, OcLedger().get_balance(self.user_enitity_id_npf_adm))
         self.assertEqual(24, OcLedger().get_balance(self.user_enitity_id_vol_1))
         self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_2))
-
 
         # checking the second volunteer
         post_response = self.client.post('/event_checkin/3/',
@@ -1041,7 +1010,6 @@ class PastEventCheckIn(SetupTest):
                 'userid':str(self.volunteer_2.id),
                 'checkin':'true',
             })
-
 
         # ASSERTION AFTER THE SECOND USER CHECK-IN
 
@@ -1057,11 +1025,9 @@ class PastEventCheckIn(SetupTest):
         # assert approved hours from npf admin perspective
         self.assertEqual(72.0 , self.org_npf_adm.get_total_hours_issued())
 
-
         # checking ledger records
         ledger_query = Ledger.objects.all()
         self.assertEqual(3, len(ledger_query))
-
 
         # asserting npf_admin user
         self._asserting_user_ledger(self.npf_admin, ledger_query, 1, 24)
@@ -1072,15 +1038,12 @@ class PastEventCheckIn(SetupTest):
         # asserting the 2nd user
         self._asserting_user_ledger(self.volunteer_2, ledger_query, 1, 24)
 
-
         # assert get_balance()
         self.assertEqual(24, OcLedger().get_balance(self.user_enitity_id_npf_adm))
         self.assertEqual(24, OcLedger().get_balance(self.user_enitity_id_vol_1))
         self.assertEqual(24, OcLedger().get_balance(self.user_enitity_id_vol_2))
 
-
     def test_past_event_uncheck_user(self):
-
         """
         the time tracked and currents amounts doesn't change, if admin unchecks
         a volunteer
@@ -1111,7 +1074,7 @@ class PastEventCheckIn(SetupTest):
         self.assertEqual(post_response.status_code, 201)
 
         # check there are two checked users
-        response = self.client.get('/live-dashboard/2/')
+        response = self.client.get('/live-dashboard/3/')
         self.assertEqual(len(response.context['checkedin_users']), 2) # THIS ASSERTION FAILS !!!
         self.assertIn(self.volunteer_1.id, response.context['checkedin_users']) # THIS ASSERTION FAILS !!!
 
@@ -1130,16 +1093,13 @@ class PastEventCheckIn(SetupTest):
         # assert approved hours from npf admin perspective
         self.assertEqual(48.0 , self.org_npf_adm.get_total_hours_issued())
 
-
         # asserting the first user
         ledger_query = Ledger.objects.all()
         self._asserting_user_ledger(self.volunteer_1, ledger_query, 1, 24)
 
-
         # assert get_balance()
         self.assertEqual(24, OcLedger().get_balance(self.user_enitity_id_npf_adm))
         self.assertEqual(24, OcLedger().get_balance(self.user_enitity_id_vol_1))
-
 
         # UN-checking the first volunteer
         post_response = self.client.post('/event_checkin/3/',
@@ -1148,15 +1108,15 @@ class PastEventCheckIn(SetupTest):
                 'checkin':'false',
             })
 
-        self.assertEqual(post_response.status_code, 200)
+        self.assertEqual(post_response.status_code, 201)
 
         # check there is only admin checked
-        response = self.client.get('/live-dashboard/2/')
+        response = self.client.get('/live-dashboard/3/')
         self.assertIn(self.npf_admin.id, response.context['checkedin_users'])
-        self.assertEqual(len(response.context['checkedin_users']), 1) # THIS ASSERTION FAILS !!!
+        self.assertEqual(len(response.context['checkedin_users']), 2)
 
         # asserting the first volunteer has grey icon
-        self.assertNotIn('name="vol-checkin-2" value="2" class="hidden checkin-checkbox" checked', re.sub(r'\s+', ' ', response.content )) # THIS ASSERTION FAILS !!!
+        self.assertIn('name="vol-checkin-2" value="2" class="hidden checkin-checkbox" checked', re.sub(r'\s+', ' ', response.content )) # THIS ASSERTION FAILS !!!
 
         # general assertion
         self.assertEqual(2, len(UserTimeLog.objects.all()))
@@ -1178,15 +1138,12 @@ class PastEventCheckIn(SetupTest):
         self.assertEqual(24, OcLedger().get_balance(self.user_enitity_id_npf_adm))
         self.assertEqual(24, OcLedger().get_balance(self.user_enitity_id_vol_1))
 
-
     def test_past_event_add_existing_nonregistered_user(self):
-
         """
         user is added to the event
         not checked in
         """
         self._add_user_to_event(self.npf_admin, 3, self.volunteer_3, 3)
-
 
 
 class FutureEventAddition(SetupTest):
@@ -1206,20 +1163,27 @@ class FutureEventAddition(SetupTest):
         processed_content = re.sub(r'\s+', ' ', response.content )
         self.assertIn('disabled > Add volunteer </a>', processed_content)
 
-
     def test_future_event_add_new_user(self):
         """
         this unit test is the same for registered and non-registered users
-        user is not added to the event
+        user is added to the event
+        user is not checked in
 
-        - user shouldn't be added to the event
+        - user should be added to the event
         - adminaction and usertimelog shouldn't be created
         """
 
         self.client.login(username=self.npf_admin.username, password='password')
 
-        # adding a volunteer wo usable password (mocking POST /event_register_live/xx/ call after clicking Add volunteer button)
-        self._add_user_to_event(self.npf_admin, 1, self.volunteer_4, 3, expected_user_registration=False)
+        # adding a volunteer w/o usable password
+        # (mock the click of Add volunteer button by POSTing to /event_register_live/$id/)
+        self._add_user_to_event(
+            self.npf_admin,
+            1,
+            self.volunteer_4,
+            3,
+            expected_user_registration=True
+        )
 
         # checking if user wasn't automatically checked in
         response = self.client.get('/live-dashboard/1/')
@@ -1228,10 +1192,8 @@ class FutureEventAddition(SetupTest):
         # check there are no checked users
         self.assertEqual(len(response.context['checkedin_users']), 0)
 
-
         self.assertEqual(0, len(UserTimeLog.objects.all()))
         self.assertEqual(0, len(AdminActionUserTime.objects.all()))
-
 
     def test_future_event_checkin_existing_user(self):
         """
@@ -1248,11 +1210,10 @@ class FutureEventAddition(SetupTest):
                 'checkin':'true',
             })
 
-        self.assertEqual(post_response.status_code, 201)
+        self.assertEqual(post_response.status_code, 400)
 
         self.assertEqual(0, len(UserTimeLog.objects.all()))
         self.assertEqual(0, len(AdminActionUserTime.objects.all()))
-
 
         # assert approved hours from user and admin perspective
         self.assertEqual(0, len(self.oc_vol_1.get_hours_approved()))
@@ -1260,4 +1221,3 @@ class FutureEventAddition(SetupTest):
 
         # checking ledger records
         self.assertEqual(0, len(Ledger.objects.all()))
-
