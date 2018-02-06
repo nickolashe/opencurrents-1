@@ -901,8 +901,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
 
     def form_valid(self, form):
         data = form.cleaned_data
-        logger.info(data)
-        # logger.info(data['redeem_currents_amount'])
+        # logger.info(data)
 
         transaction = Transaction(
             user=self.request.user,
@@ -942,6 +941,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         context['cur_rate'] = convert._USDCUR
         context['tr_fee'] = int(convert._TR_FEE * 100)
         context['master_offer'] = Offer.objects.filter(is_master=True).first()
+        context['master_funds_available'] = self.ocuser.get_master_offer_remaining()
 
         return context
 
@@ -1115,17 +1115,26 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
 
                     # if ORG user doesn't exist
                     elif OrgUser.objects.filter(user__email=admin_email).exists() != True:
-                        # creating a new user
-                        try:
-                            npf_user = OcUser().setup_user(
-                                username=admin_email,
-                                email=admin_email,
-                                first_name=admin_name,
-                            )
 
-                        except UserExistsException:
-                            logger.debug('Org user %s already exists', admin_email)
-                            # npf_user = User.objects.get(username=admin_email)
+                        # finding a user in system
+                        try:
+                            npf_user = User.objects.get(username=admin_email)
+                        except:
+                            npf_user = None
+
+                        if not npf_user:
+
+                            # creating a new user
+                            try:
+                                npf_user = OcUser().setup_user(
+                                    username=admin_email,
+                                    email=admin_email,
+                                    first_name=admin_name,
+                                )
+
+                            except UserExistsException:
+                                logger.debug('Org user %s already exists', admin_email)
+
 
                         # setting up new NPF user
                         try:
@@ -1136,6 +1145,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                             return False, 'Couldn\'t setup NPF admin', msg_type
 
                         is_biz_admin=False
+
 
                     if is_biz_admin:
                         msg_type='alert'
