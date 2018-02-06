@@ -3237,6 +3237,7 @@ def process_signup(
 
         # try saving the user without password at this point
         user = None
+        isExisting = False
         try:
             if org_name and Org.objects.filter(name=org_name).exists():
                 return redirect(
@@ -3253,7 +3254,7 @@ def process_signup(
                 )
         except UserExistsException:
             logger.debug('user %s already exists', user_email)
-
+            isExisting = True
             user = User.objects.get(username=user_email)
 
             update_name = False
@@ -3397,7 +3398,7 @@ def process_signup(
                 admin_user = OcUser(org_admin_id).get_user()
                 admin_org = OrgUserInfo(org_admin_id).get_org()
 
-                if not mock_emails:
+                if not isExisting and not mock_emails:
                     # send invite email
                     try:
                         sendTransactionalEmail(
