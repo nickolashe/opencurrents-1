@@ -3262,6 +3262,17 @@ def process_signup(
                     first_name=user_firstname,
                     last_name=user_lastname
                 )
+
+                # if User.objects.filter(email=user_email):
+                #     user = User.objects.get(username=user_email)
+                # else:
+                #     user = OcUser().setup_user(
+                #         username=user_email,
+                #         email=user_email,
+                #         first_name=user_firstname,
+                #         last_name=user_lastname
+                #     )
+
         except UserExistsException:
             logger.debug('user %s already exists', user_email)
             isExisting = True

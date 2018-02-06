@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 from datetime import datetime, timedelta
 from django.utils import timezone
 
+from django.db import transaction
+
 #from openCurrents import views, urls
 
 from openCurrents.models import \
@@ -558,7 +560,6 @@ class CurrentEventInvite(SetupTest):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context['registered_users']), 3)
-        self._add_user_to_event(self.npf_admin, 2, self.volunteer_4, 3)
 
         # 1 in the url below means we're mocking emails
         post_signup = self.client.post('/process_signup/True/False/1/',
@@ -576,6 +577,8 @@ class CurrentEventInvite(SetupTest):
         new_user_id = new_user.id
         self.assertEqual(len(User.objects.filter(email='newuser@ccc.cc')), 1)
         self.assertFalse(new_user.has_usable_password())
+
+        self._add_user_to_event(self.npf_admin, 2, new_user, 3)
 
         # checking in new volunteer
         post_response = self.client.post('/event_checkin/2/',
@@ -623,6 +626,7 @@ class CurrentEventInvite(SetupTest):
         new_user_entity_id = UserEntity.objects.get(user = new_user).id
         self.assertEqual(48, OcLedger().get_balance(new_user_entity_id))
 
+
     def test_current_event_invite_new_user_invitation_opt_in(self):
         """
         Admin invites new user to the event
@@ -638,6 +642,7 @@ class CurrentEventInvite(SetupTest):
         - If admin has not been awarded hours for the event, corresponding
           UserTimeLog and AdminActionUserTime are created for the admin user
           as well (so they get credit for the event)
+        - user IS checked in automatically
         """
 
         self.client.login(username=self.npf_admin.username, password='password')
@@ -645,7 +650,6 @@ class CurrentEventInvite(SetupTest):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context['registered_users']), 3)
-        self._add_user_to_event(self.npf_admin, 2, self.volunteer_4, 3)
 
         # 1 in the url below means we're mocking emails
         post_signup = self.client.post('/process_signup/True/True/1/',
@@ -658,6 +662,10 @@ class CurrentEventInvite(SetupTest):
                 'org_status': ''
             })
 
+        # asserting response after signing up
+        self.assertEqual(post_signup.status_code, 201)
+        self.assertEqual(post_signup.content, str(User.objects.get(email='newuser2@ccc.cc').id))
+
         # check if email was sent to user
         self.assertTrue(self.client.session['invitation_email'])
 
@@ -666,6 +674,9 @@ class CurrentEventInvite(SetupTest):
         new_user_id = new_user.id
         self.assertEqual(len(User.objects.filter(email='newuser2@ccc.cc')), 1)
         self.assertFalse(new_user.has_usable_password())
+
+        # imitating 2nd POST call (adding user to event)
+        self._add_user_to_event(self.npf_admin, 2, new_user, 3)
 
         # checking in new volunteer
         post_response = self.client.post('/event_checkin/2/',
@@ -712,6 +723,115 @@ class CurrentEventInvite(SetupTest):
 
         new_user_entity_id = UserEntity.objects.get(user = new_user).id
         self.assertEqual(48, OcLedger().get_balance(new_user_entity_id))
+
+        # asserting existing user was checked-in
+        response = self.client.get('/live-dashboard/2/')
+        self.assertEqual(len(response.context['registered_users']), 4)
+        self.assertEqual(len(response.context['checkedin_users']), 2)
+        self.assertIn(new_user_id, response.context['checkedin_users'])
+
+
+
+    def test_current_event_invite_existing_user_invitation_opt_in(self):
+        """
+        Admin invites existing volunteer to the event
+        Invite volunteer to openCurrents option is checked
+
+        Results:
+        - existing volunteer automatically registered to event
+        - UserTimeLog created and UserEventRegistration created
+        - AdminActionUserTime created and 'approved'
+        - Volunteer's available Currents increase by the duration of the event
+        - Email IS NOT SENT to volunteer (invite-volunteer)
+        - If admin has not been awarded hours for the event, corresponding
+          UserTimeLog and AdminActionUserTime are created for the admin user
+          as well (so they get credit for the event)
+        - user IS checked in automatically
+        """
+
+        self.client.login(username=self.npf_admin.username, password='password')
+        response = self.client.get('/live-dashboard/2/')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context['registered_users']), 3)
+
+        # a hack for volunteer #3 before imitating process_signup call for an existing user
+        self.volunteer_3.username = self.volunteer_3.email
+        self.volunteer_3.save()
+
+        # 1 in the url below means we're mocking emails
+        post_signup = self.client.post('/process_signup/True/True/1/',
+            {
+                'user_firstname': self.volunteer_3.first_name,
+                'user_lastname': self.volunteer_3.last_name,
+                'user_email': self.volunteer_3.email,
+                'org_admin_id': self.npf_admin.id,
+                'org_name': '',
+                'org_status': ''
+            })
+
+        # asserting response after signing up
+        self.assertEqual(post_signup.status_code, 201)
+        self.assertEqual(post_signup.content, str(User.objects.get(email=self.volunteer_3.email).id))
+
+        # check if email WASN'T sent to user
+        self.assertTrue(self.client.session['invitation_email'])
+
+        # imitating 2nd POST call (adding user to event)
+        self._add_user_to_event(self.npf_admin, 2, self.volunteer_3, 3)
+
+        # checking in new volunteer
+        post_response = self.client.post('/event_checkin/2/',
+            {
+                'userid':str(self.volunteer_3.id),
+                'checkin':'true',
+            })
+        self.assertEqual(post_response.status_code, 201)
+
+        # ASSERTION AFTER USER CHECK-IN
+        # general assertion
+        self.assertEqual(2, len(UserTimeLog.objects.all()))
+        self.assertEqual(2, len(AdminActionUserTime.objects.all()))
+
+        # assert approved hours from users perspective
+        self.assertEqual(1, len(self.oc_npf_adm.get_hours_approved()))
+
+        oc_new_user = OcUser(self.volunteer_3.id)
+        self.assertEqual(1, len(oc_new_user.get_hours_approved()))
+
+        # assert approved hours from npf admin perspective
+        self.assertEqual(96.0 , self.org_npf_adm.get_total_hours_issued())
+
+        # checking ledger records
+        ledger_query = Ledger.objects.all()
+        self.assertEqual(2, len(ledger_query))
+
+        # asserting npf_admin user
+        self._asserting_user_ledger(self.npf_admin, ledger_query, 1, 48)
+
+        # asserting the first user
+        self._asserting_user_ledger(self.volunteer_1, ledger_query, 0, 0)
+
+        # asserting the 2nd user
+        self._asserting_user_ledger(self.volunteer_2, ledger_query, 0, 0)
+
+        # asserting the 2nd user
+        self._asserting_user_ledger(self.volunteer_3, ledger_query, 1, 48)
+
+        # assert get_balance()
+        self.assertEqual(48, OcLedger().get_balance(self.user_enitity_id_npf_adm))
+        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_1))
+        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_2))
+
+        new_user_entity_id = UserEntity.objects.get(user = self.volunteer_3).id
+        self.assertEqual(48, OcLedger().get_balance(new_user_entity_id))
+
+        # asserting existing user was checked-in
+        response = self.client.get('/live-dashboard/2/')
+        self.assertEqual(len(response.context['registered_users']), 4)
+        self.assertEqual(len(response.context['checkedin_users']), 2)
+        self.assertIn(self.volunteer_3.id, response.context['checkedin_users'])
+
 
 
 class PastEventInvite(SetupTest):
@@ -914,8 +1034,115 @@ class PastEventInvite(SetupTest):
         processed_content = re.sub(r'\s+', ' ', response.content )
         self.assertIn('name="vol-checkin-6" value="6" class="hidden checkin-checkbox" checked', processed_content)
 
-         # asserting new user in checkedin_users
+        # asserting new user in checkedin_users
         self.assertIn(new_user_id, response.context['checkedin_users'])
+
+        # asserting existing user was checked-in
+        self.assertEqual(len(response.context['registered_users']), 4)
+        self.assertEqual(len(response.context['checkedin_users']), 2)
+        self.assertIn(new_user_id, response.context['checkedin_users'])
+
+class PastEventInviteExisting(SetupTest):
+    def test_past_event_invite_existing_user_invitation_opt_in(self):
+        """
+        Admin invites existing volunteer to the event
+        Invite volunteer to openCurrents option is checked
+
+        Results:
+        - existing volunteer automatically registered to event
+        - UserTimeLog created and UserEventRegistration created
+        - AdminActionUserTime created and 'approved'
+        - Volunteer's available Currents increase by the duration of the event
+        - Email IS NOT SENT to volunteer (invite-volunteer)
+        - If admin has not been awarded hours for the event, corresponding
+          UserTimeLog and AdminActionUserTime are created for the admin user
+          as well (so they get credit for the event)
+
+        - user IS checked in automatically
+        """
+
+        self.client.login(username=self.npf_admin.username, password='password')
+        response = self.client.get('/live-dashboard/3/')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context['registered_users']), 3)
+
+        # a hack for volunteer #3 before imitating process_signup call for an existing user
+        self.volunteer_3.username = self.volunteer_3.email
+        self.volunteer_3.save()
+
+        # 1 in the url below means we're mocking emails
+        post_signup = self.client.post('/process_signup/True/True/1/',
+            {
+                'user_firstname': self.volunteer_3.first_name,
+                'user_lastname': self.volunteer_3.last_name,
+                'user_email': self.volunteer_3.email,
+                'org_admin_id': self.npf_admin.id,
+                'org_name': '',
+                'org_status': ''
+            })
+
+        # asserting response after signing up
+        self.assertEqual(post_signup.status_code, 201)
+        self.assertEqual(post_signup.content, str(User.objects.get(email=self.volunteer_3.email).id))
+
+        # check if email WASN'T sent to user
+        self.assertTrue(self.client.session['invitation_email'])
+
+        # imitating 2nd POST call (adding user to event)
+        self._add_user_to_event(self.npf_admin, 3, self.volunteer_3, 3)
+
+        # checking in new volunteer
+        post_response = self.client.post('/event_checkin/3/',
+            {
+                'userid':str(self.volunteer_3.id),
+                'checkin':'true',
+            })
+        self.assertEqual(post_response.status_code, 201)
+
+        # ASSERTION AFTER USER CHECK-IN
+        # general assertion
+        self.assertEqual(2, len(UserTimeLog.objects.all()))
+        self.assertEqual(2, len(AdminActionUserTime.objects.all()))
+
+        # assert approved hours from users perspective
+        self.assertEqual(1, len(self.oc_npf_adm.get_hours_approved()))
+
+        oc_new_user = OcUser(self.volunteer_3.id)
+        self.assertEqual(1, len(oc_new_user.get_hours_approved()))
+
+        # assert approved hours from npf admin perspective
+        self.assertEqual(48.0 , self.org_npf_adm.get_total_hours_issued())
+
+        # checking ledger records
+        ledger_query = Ledger.objects.all()
+        self.assertEqual(2, len(ledger_query))
+
+        # asserting npf_admin user
+        self._asserting_user_ledger(self.npf_admin, ledger_query, 1, 24)
+
+        # asserting the first user
+        self._asserting_user_ledger(self.volunteer_1, ledger_query, 0, 0)
+
+        # asserting the 2nd user
+        self._asserting_user_ledger(self.volunteer_2, ledger_query, 0, 0)
+
+        # asserting the 2nd user
+        self._asserting_user_ledger(self.volunteer_3, ledger_query, 1, 24)
+
+        # assert get_balance()
+        self.assertEqual(24, OcLedger().get_balance(self.user_enitity_id_npf_adm))
+        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_1))
+        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_2))
+
+        new_user_entity_id = UserEntity.objects.get(user = self.volunteer_3).id
+        self.assertEqual(24, OcLedger().get_balance(new_user_entity_id))
+
+        # asserting existing user was checked-in
+        response = self.client.get('/live-dashboard/3/')
+        self.assertEqual(len(response.context['registered_users']), 4)
+        self.assertEqual(len(response.context['checkedin_users']), 2)
+        self.assertIn(self.volunteer_3.id, response.context['checkedin_users'])
 
 
 class PastEventCheckIn(SetupTest):
