@@ -3256,15 +3256,22 @@ def process_signup(
 
             user = User.objects.get(username=user_email)
 
-            if not (user.first_name and user.last_name):
+            update_name = False
+            if user_firstname:
                 user.first_name = user_firstname
+                update_name = True
+
+            if user_lastname:
                 user.last_name = user_lastname
+                update_name = True
+
+            if update_name:
                 user.save()
 
             if endpoint and not verify_email:
                 return HttpResponse(user.id, status=200)
 
-            elif user.has_usable_password():
+            elif user.has_usable_password() and not endpoint:
                 logger.info('user %s already verified', user_email)
                 return redirect(
                     'openCurrents:login',
