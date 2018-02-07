@@ -1,4 +1,6 @@
-from django.test import Client, TestCase
+from django.db import connection
+
+from django.test import Client, TestCase, TransactionTestCase
 from django.contrib.auth.models import User
 
 from datetime import datetime, timedelta
@@ -53,7 +55,7 @@ from decimal import Decimal
 from unittest import skip
 
 
-class SetupTest(TestCase):
+class SetupTest(object):
 
     # [helpers begin]
 
@@ -234,7 +236,17 @@ class SetupTest(TestCase):
         self.client = Client()
 
 
-class LiveDashboard(SetupTest):
+    def tearDown(self):
+        # resetting after TransactionTestCase
+        User.objects.all().delete
+        OrgUser.objects.all().delete
+        Event.objects.all().delete
+        connection.cursor().execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='openCurrents_orguser';")
+        connection.cursor().execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='openCurrents_event';")
+        connection.cursor().execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='auth_user';")
+
+
+class LiveDashboard(SetupTest, TestCase):
 
     def test_initial_setup_assertion(self):
         """
@@ -299,7 +311,7 @@ class LiveDashboard(SetupTest):
         self.assertIn(self.volunteer_2, response.context['registered_users'])
 
 
-class CurrentEventCheckIn(SetupTest):
+class CurrentEventCheckIn(SetupTest, TestCase):
 
     def test_current_event_check_in(self):
 
@@ -536,7 +548,7 @@ class CurrentEventCheckIn(SetupTest):
         self._add_user_to_event(self.npf_admin, 1, self.volunteer_3, 3)
 
 
-class CurrentEventInvite(SetupTest):
+class CurrentEventInvite(SetupTest, TestCase):
 
     def test_current_event_invite_new_user_invitation_opt_out(self):
         """
@@ -731,6 +743,7 @@ class CurrentEventInvite(SetupTest):
         self.assertIn(new_user_id, response.context['checkedin_users'])
 
 
+class CurrentEventInviteExisting(SetupTest, TransactionTestCase):
 
     def test_current_event_invite_existing_user_invitation_opt_in(self):
         """
@@ -834,7 +847,7 @@ class CurrentEventInvite(SetupTest):
 
 
 
-class PastEventInvite(SetupTest):
+class PastEventInvite(SetupTest, TestCase):
 
     def test_past_event_invite_new_user_invitation_opt_out(self):
         """
@@ -1042,7 +1055,9 @@ class PastEventInvite(SetupTest):
         self.assertEqual(len(response.context['checkedin_users']), 2)
         self.assertIn(new_user_id, response.context['checkedin_users'])
 
-class PastEventInviteExisting(SetupTest):
+
+class PastEventInviteExisting(SetupTest, TransactionTestCase):
+
     def test_past_event_invite_existing_user_invitation_opt_in(self):
         """
         Admin invites existing volunteer to the event
@@ -1145,7 +1160,7 @@ class PastEventInviteExisting(SetupTest):
         self.assertIn(self.volunteer_3.id, response.context['checkedin_users'])
 
 
-class PastEventCheckIn(SetupTest):
+class PastEventCheckIn(SetupTest, TestCase):
 
     def test_past_event_check_in(self):
         """
@@ -1373,7 +1388,7 @@ class PastEventCheckIn(SetupTest):
         self._add_user_to_event(self.npf_admin, 3, self.volunteer_3, 3)
 
 
-class FutureEventAddition(SetupTest):
+class FutureEventAddition(SetupTest, TestCase):
 
     def test_future_event_add_user_button_inactive(self):
         """
