@@ -49,6 +49,7 @@ import re
 # _create_test_user
 # _create_project
 # _create_event
+# _create_offer
 # _setup_user_event_registration
 # _setup_volunteer_hours
 # _setup_transactions
@@ -262,6 +263,38 @@ def _create_event(
     return event
 
 
+def _create_offer(
+        org,
+        offer_item_name = 'Test Item',
+        offer_limit = None,
+        currents_share=25
+    ):
+    """
+    takes
+    org - biz Org instance
+    item_name - string
+    offer_limit - None or Int
+    currents_share - int
+    creates Item and Offer, returns Offer object
+    """
+
+    offer_item = Item(name=offer_item_name)
+    offer_item.save()
+
+    offer = Offer(
+        org=org,
+        item=offer_item,
+        currents_share=currents_share
+    )
+
+    if offer_limit:
+        offer.limit = offer_limit
+
+    offer.save()
+
+    return offer
+
+
 def _setup_user_event_registration(
         user,
         event,
@@ -406,4 +439,4 @@ def _setup_ledger_entry(
 
     ledger_rec.save()
 
-    return
+    return ledger_rec
