@@ -287,11 +287,6 @@ class Redemption(SetupTest, TestCase):
         # logging in as a volunteer 1
         self.client.login(username=self.volunteer_1.username,
                           password='password')
-        response_balance = self.client.get('/get_user_balance_available/')
-        self.assertEqual(response_balance.status_code, 200)
-
-        # checking initial user CURRENTS balance
-        self.assertEqual(response_balance.content, str(self.initial_currents))
         response = self.client.get('/redeem-currents/1/')
         self.assertEqual(response.status_code, 200)
 
@@ -325,12 +320,6 @@ class Redemption(SetupTest, TestCase):
         except OSError:
             print "Uploaded testing receipt wasn't deleted!"
 
-        # Message displayed 'You have submitted an offer for approval
-        # by {{ orgname ]}. Hooray!"
-        self.assertRedirects(
-            post_response, '/profile/You%20have%20submitted%20a%20request%20for%20approval%20by%20{}/'.format(self.org_biz.name),
-            status_code=302, target_status_code=200)
-
         # DB TransactionAction record of action_type "pending" created
         self.assertEqual(len(TransactionAction.objects.filter(
             action_type='req')), 1)
@@ -345,63 +334,3 @@ class Redemption(SetupTest, TestCase):
 
         self.assert_redeemed_amount_usd(self.volunteer_1, 20)
 
-        # checking that currents were subtracted from user's account
-        response_balance = self.client.get('/get_user_balance_available/')
-        self.assertEqual(response_balance.status_code, 200)
-        self.assertEqual(
-            response_balance.content,
-            str(self.initial_currents - redeem_currents_amount))
-
-        # Transaction summary is displayed in /profile:
-        # {{ redemption_date }} - You requested {{ commissioned_amount_usd }}
-        # for {{ current_share_amount }} from {{ orgname }}
-        response = self.client.get('/profile/')
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            response.context['offers_redeemed'][0],
-            TransactionAction.objects.get(transaction__user=self.volunteer_1))
-
-        # My redeemed offers list entry
-        redeemed_offer_text = '{} - You requested ${} for <span class="no-wrap"> <img class="med-text-symbol" src="/static/img/symbol-navy.svg"/> {}0 </span> from <strong> {} </strong>'.format(
-            today_date,
-            redeemed_usd_amount,
-            redeem_currents_amount,
-            self.org_biz.name)
-        processed_content = re.sub(r'\s+', ' ', response.content)
-        self.assertIn(redeemed_offer_text, processed_content)
-
-        # User's pending USD balance increased by {{ commissioned_amount_usd }}
-        self.assertEqual(
-            response.context['balance_pending_usd'], redeemed_usd_amount)
-
-        # logging in as biz admin
-        self.client.login(
-            username=self.biz_admin.username, password='password')
-        response = self.client.get('/biz-admin/')
-
-        self.assertEqual(response.status_code, 200)
-
-        # Pending biz's Currents is increased by {{ current_share_amount }}
-        self.assertEqual(
-            response.context['currents_pending'], redeem_currents_amount)
-
-        # Transaction summary is displayed in /biz-admin:
-        # {{ redemption_date }} - {{ user.first_name user.last_name} purchased
-        # {{ offer.item }} for {{ price_reported }} and would receive
-        # {{ commissioned_amount_usd }} for {{ current_share_amount }}
-        self.assertEqual(
-            float(response.context['redeemed_pending'][0].
-                  transaction.currents_amount),
-            redeem_currents_amount)
-
-        processed_content = re.sub(r'\s+', ' ', response.content)
-        redeemed_offer_text = '{} - {} {} purchased <strong> {} for ${}.00 </strong> and would receive ${} for <span class="no-wrap"> <img class="med-text-symbol" src="/static/img/symbol-navy.svg"/> {}0'.format(
-            today_date,
-            self.volunteer_1.first_name,
-            self.volunteer_1.last_name,
-            self.purchased_item.name,
-            redeem_price,
-            redeemed_usd_amount,
-            redeem_currents_amount)
-
-        self.assertIn(redeemed_offer_text, processed_content)
