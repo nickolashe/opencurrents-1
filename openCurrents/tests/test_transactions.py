@@ -1,7 +1,9 @@
 """Testing transactions."""
 import re
+import pytz
 import os
 
+from datetime import datetime
 from django.test import Client, TestCase
 from django.utils import timezone
 
@@ -182,7 +184,8 @@ class Redemption(SetupTest, TestCase):
         redeem_currents_amount = redeem_price * self._SHARE / _USDCUR
         redeemed_usd_amount = redeem_price * self._SHARE - \
             redeem_price * self._SHARE * _TR_FEE
-        today_date = timezone.now().strftime("%b %d, %Y")  # eg Jan 15, 2018
+        uzer_tz = pytz.timezone(self.volunteer_1.usersettings.timezone)
+        today_date = datetime.now(uzer_tz).strftime("%b %d, %Y")  # eg Jan 15, 2018
 
         post_response = self.client.post('/redeem-currents/1/', {
             'redeem_currents_amount': redeem_currents_amount,
@@ -393,7 +396,8 @@ class Redemption(SetupTest, TestCase):
 
         processed_content = re.sub(r'\s+', ' ', response.content)
         redeemed_offer_text = '{} - {} {} purchased <strong> {} for ${}.00 </strong> and would receive ${} for <span class="no-wrap"> <img class="med-text-symbol" src="/static/img/symbol-navy.svg"/> {}0'.format(
-            today_date, self.volunteer_1.first_name,
+            today_date,
+            self.volunteer_1.first_name,
             self.volunteer_1.last_name,
             self.purchased_item.name,
             redeem_price,
