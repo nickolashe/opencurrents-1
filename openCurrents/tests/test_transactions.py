@@ -55,6 +55,37 @@ class SetupTest(object):
 
         self.assertEqual(usd_pending, expected_usd)
 
+    def biz_pending_currents_assertion(
+        self,
+        biz_admin,  # User, biz admin
+        expected_pending_current,  # integer
+    ):
+        """Assert biz pending currents."""
+        self.client.login(
+            username=biz_admin.username, password='password')
+        response = self.client.get('/biz-admin/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.context['currents_pending'], expected_pending_current)
+
+        return response
+
+    def volunteer_currents_assert(
+        self,
+        user,  # User, volunteer
+        currents_amount,  # integer
+    ):
+        """Assert volunteer currents."""
+        self.client.login(username=user.username,
+                          password='password')
+        response_balance = self.client.get('/get_user_balance_available/')
+        self.assertEqual(response_balance.status_code, 200)
+
+        # checking initial user CURRENTS balance
+        self.assertEqual(response_balance.content, str(currents_amount))
+
+        response = self.client.get('/redeem-currents/1/')
+        self.assertEqual(response.status_code, 200)
     # [helpers End]
 
     def setUp(self):
@@ -113,12 +144,12 @@ class SetupTest(object):
         pass
 
 
-class Redemption(SetupTest, TestCase):
-    """Test currents redemption process."""
+class FullRedemption(SetupTest, TestCase):
+    """Test currents full redemption process."""
 
     def setUp(self):
         """Setting up testing environment."""
-        super(Redemption, self).setUp()
+        super(FullRedemption, self).setUp()
 
         # giving volunteer_1 some currency
         self.initial_currents = 30.0
@@ -155,29 +186,12 @@ class Redemption(SetupTest, TestCase):
         {{ redemption_date }} - {{ user.first_name user.last_name} purchased
         {{ offer.item }} for {{ price_reported }} and would receive
         {{ commissioned_amount_usd }} for {{ current_share_amount }}
-
-        # @@ TODO @@
-        - If provided, receipt image is uploaded to images/redeem/YYYY/MM/DD
-        path on the server
         """
         # logging in as biz admin to check initial state of pending currents
-        self.client.login(
-            username=self.biz_admin.username, password='password')
-        response = self.client.get('/biz-admin/')
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['currents_pending'], 0)
+        self.biz_pending_currents_assertion(self.biz_admin, 0)
 
-        # logging in as a volunteer 1
-        self.client.login(username=self.volunteer_1.username,
-                          password='password')
-        response_balance = self.client.get('/get_user_balance_available/')
-        self.assertEqual(response_balance.status_code, 200)
-
-        # checking initial user CURRENTS balance
-        self.assertEqual(response_balance.content, str(self.initial_currents))
-
-        response = self.client.get('/redeem-currents/1/')
-        self.assertEqual(response.status_code, 200)
+        # asserting initial currents for volunteer 1
+        self.volunteer_currents_assert(self.volunteer_1, self.initial_currents)
 
         # setting variables
         redeem_price = 20
@@ -216,11 +230,8 @@ class Redemption(SetupTest, TestCase):
         self.assert_redeemed_amount_usd(self.volunteer_1, 20)
 
         # checking that currents were subtracted from user's account
-        response_balance = self.client.get('/get_user_balance_available/')
-        self.assertEqual(response_balance.status_code, 200)
-        self.assertEqual(
-            response_balance.content,
-            str(self.initial_currents - redeem_currents_amount))
+        self.volunteer_currents_assert(
+            self.volunteer_1, self.initial_currents - redeem_currents_amount)
 
         # Transaction summary is displayed in /profile:
         # {{ redemption_date }} - You requested {{ commissioned_amount_usd }}
@@ -244,16 +255,9 @@ class Redemption(SetupTest, TestCase):
         self.assertEqual(
             response.context['balance_pending_usd'], redeemed_usd_amount)
 
-        # logging in as biz admin
-        self.client.login(
-            username=self.biz_admin.username, password='password')
-        response = self.client.get('/biz-admin/')
-
-        self.assertEqual(response.status_code, 200)
-
         # Pending biz's Currents is increased by {{ current_share_amount }}
-        self.assertEqual(
-            response.context['currents_pending'], redeem_currents_amount)
+        response = self.biz_pending_currents_assertion(
+            self.biz_admin, redeem_currents_amount)
 
         # Transaction summary is displayed in /biz-admin:
         # {{ redemption_date }} - {{ user.first_name user.last_name} purchased
@@ -278,11 +282,7 @@ class Redemption(SetupTest, TestCase):
     def test_redemption_img_upload(self):
         """Test redemption img upload by a volunteer."""
         # logging in as biz admin to check initial state of pending currents
-        self.client.login(
-            username=self.biz_admin.username, password='password')
-        response = self.client.get('/biz-admin/')
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['currents_pending'], 0)
+        self.biz_pending_currents_assertion(self.biz_admin, 0)
 
         # logging in as a volunteer 1
         self.client.login(username=self.volunteer_1.username,
@@ -293,12 +293,9 @@ class Redemption(SetupTest, TestCase):
         # setting variables
         redeem_price = 20
         redeem_currents_amount = redeem_price * self._SHARE / _USDCUR
-        redeemed_usd_amount = redeem_price * self._SHARE - \
-            redeem_price * self._SHARE * _TR_FEE
-        today_date = timezone.now().strftime("%b %d, %Y")  # eg Jan 15, 2018
 
         with open(self.receipt_path + self.receipt_name) as f:
-            post_response = self.client.post('/redeem-currents/1/', {
+            self.client.post('/redeem-currents/1/', {
                 'redeem_currents_amount': redeem_currents_amount,
                 'redeem_receipt': f,
                 'redeem_price': redeem_price,
@@ -334,3 +331,59 @@ class Redemption(SetupTest, TestCase):
 
         self.assert_redeemed_amount_usd(self.volunteer_1, 20)
 
+
+class PartialRedemption(SetupTest, TestCase):
+    """Test currents full redemption process."""
+
+    def setUp(self):
+        """Setting up testing environment."""
+        super(PartialRedemption, self).setUp()
+
+        # giving volunteer_1 some currency
+        self.initial_currents = 1.0
+        self.receipt_path = 'openCurrents/tests/test_files/'
+        self.receipt_name = 'unittest_receipt.jpg'
+        _setup_ledger_entry(self.org_npf.orgentity, self.vol_1_entity,
+                            amount=self.initial_currents, is_issued=True)
+
+    def test_partial_redemption(self):
+        """
+        Partial redemption.
+
+        Action:
+        User redeems Currents with Currents balance that's below the offer's
+        current share (based on reported price)
+
+        Expected result:
+        - DB Transaction record created: pop_type is "receipt" if image is
+        uploaded and "other" if text proof provided; currents_amount is
+        {{ user_balance_available }} (equals user's currents available)
+
+        - If provided, receipt image is uploaded to images/redeem/YYYY/MM/DD
+        path on the server
+
+        - DB TransactionAction record of action_type "pending" created
+
+        - User's pending USD balance increased by {{ commissioned_amount_usd }}
+        - Transaction summary is displayed in /profile: {{ redemption_date }} -
+        You requested {{ commissioned_amount_usd }} for
+        {{ user_balance_available }} from {{ orgname }}
+
+        - Pending biz's Currents is increased by {{ user_balance_available }}
+
+        - Transaction summary is displayed in /biz-admin:
+        {{ redemption_date }} - {{ user.first_name user.last_name} purchased
+        {{ offer.item }} for {{ price_reported }} and would receive
+        {{ commissioned_amount_usd }} for {{ user_balance_available }}
+
+        NOTE:
+        we're testing only 1 call `get_user_balance_available` that JS makes
+        before user can submit the form
+        Submitting the form with data is tested in full redemption test above.
+        """
+        # logging in as biz admin to check initial state of pending currents
+        self.biz_pending_currents_assertion(self.biz_admin, 0)
+
+        # volunteer's initial  currents
+        self.volunteer_currents_assert(
+            self.volunteer_1, self.initial_currents)
