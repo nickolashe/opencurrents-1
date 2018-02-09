@@ -348,7 +348,7 @@ class PartialRedemption(SetupTest, TestCase):
 
     def test_partial_redemption(self):
         """
-        Partial redemption.
+        Partial redemption test.
 
         Action:
         User redeems Currents with Currents balance that's below the offer's
