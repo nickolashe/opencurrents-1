@@ -383,7 +383,7 @@
         console.log('priceSubjectToShare.currents:' + priceSubjectToShare.currents);
         console.log('priceSubjectToShare.dollars:' + priceSubjectToShare.dollars);
         console.log('priceSubjectToShare.dollarsReceived:' + dollarsReceived);
-        console.log('fee:' + parseFloat({{tr_fee}}) * priceSubjectToShare.dollars /100);
+        console.log('fee before rounding:' + parseFloat({{tr_fee}}) * priceSubjectToShare.dollars /100);
 
         $('.currents-total').text(priceSubjectToShare.currents.toFixed(3));
         $('.dollars-total').text(priceSubjectToShare.dollars);
