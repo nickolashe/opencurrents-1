@@ -384,7 +384,7 @@
         console.log('priceSubjectToShare.dollars:' + priceSubjectToShare.dollars);
         console.log('priceSubjectToShare.dollarsReceived:' + dollarsReceived);
 
-        $('.currents-total').text(priceSubjectToShare.currents);
+        $('.currents-total').text(priceSubjectToShare.currents.toFixed(3));
         $('.dollars-total').text(priceSubjectToShare.dollars);
         $('.dollars-fee').text(fee);
         $('.dollars-received').text(dollarsReceived);
