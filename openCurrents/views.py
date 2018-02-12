@@ -1115,17 +1115,26 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
 
                     # if ORG user doesn't exist
                     elif OrgUser.objects.filter(user__email=admin_email).exists() != True:
-                        # creating a new user
-                        try:
-                            npf_user = OcUser().setup_user(
-                                username=admin_email,
-                                email=admin_email,
-                                first_name=admin_name,
-                            )
 
-                        except UserExistsException:
-                            logger.debug('Org user %s already exists', admin_email)
-                            # npf_user = User.objects.get(username=admin_email)
+                        # finding a user in system
+                        try:
+                            npf_user = User.objects.get(username=admin_email)
+                        except:
+                            npf_user = None
+
+                        if not npf_user:
+
+                            # creating a new user
+                            try:
+                                npf_user = OcUser().setup_user(
+                                    username=admin_email,
+                                    email=admin_email,
+                                    first_name=admin_name,
+                                )
+
+                            except UserExistsException:
+                                logger.debug('Org user %s already exists', admin_email)
+
 
                         # setting up new NPF user
                         try:
@@ -1136,6 +1145,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                             return False, 'Couldn\'t setup NPF admin', msg_type
 
                         is_biz_admin=False
+
 
                     if is_biz_admin:
                         msg_type='alert'
@@ -2767,6 +2777,11 @@ def event_checkin(request, pk):
             'user %s; event %s' % (userid, event.project.name)
         )
 
+        # allow checkins only as early as 15 min before event
+        if timezone.now() < event.datetime_start - timedelta(minutes=15):
+            clogger.warning('checkin too early for event start time')
+            return HttpResponse(content=json.dumps({}), status=400)
+
         event_duration = common.diffInHours(event.datetime_start, event.datetime_end)
 
         status = 200
@@ -3220,6 +3235,7 @@ def process_signup(
 
     # validate form data
     if form.is_valid():
+
         user_firstname = form.cleaned_data['user_firstname']
         user_lastname = form.cleaned_data['user_lastname']
         user_email = form.cleaned_data['user_email']
@@ -3231,6 +3247,7 @@ def process_signup(
 
         # try saving the user without password at this point
         user = None
+        isExisting = False
         try:
             if org_name and Org.objects.filter(name=org_name).exists():
                 return redirect(
@@ -3245,20 +3262,28 @@ def process_signup(
                     first_name=user_firstname,
                     last_name=user_lastname
                 )
+
         except UserExistsException:
             logger.debug('user %s already exists', user_email)
-
+            isExisting = True
             user = User.objects.get(username=user_email)
 
-            if not (user.first_name and user.last_name):
+            update_name = False
+            if user_firstname:
                 user.first_name = user_firstname
+                update_name = True
+
+            if user_lastname:
                 user.last_name = user_lastname
+                update_name = True
+
+            if update_name:
                 user.save()
 
             if endpoint and not verify_email:
                 return HttpResponse(user.id, status=200)
 
-            elif user.has_usable_password():
+            elif user.has_usable_password() and not endpoint:
                 logger.info('user %s already verified', user_email)
                 return redirect(
                     'openCurrents:login',
@@ -3384,7 +3409,7 @@ def process_signup(
                 admin_user = OcUser(org_admin_id).get_user()
                 admin_org = OrgUserInfo(org_admin_id).get_org()
 
-                if not mock_emails:
+                if not isExisting and not mock_emails:
                     # send invite email
                     try:
                         sendTransactionalEmail(
@@ -3412,6 +3437,9 @@ def process_signup(
                             e.message,
                             type(e)
                         )
+                # for testing purposes
+                else:
+                    request.session['invitation_email'] = 'True'
 
         # return
         if endpoint:
