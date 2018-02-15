@@ -1,151 +1,28 @@
-"""Test transactions."""
+"""Unit test: transactions."""
 import re
 import pytz
 import os
 
 from datetime import datetime
-from django.test import Client, TestCase
+from django.test import TestCase
 from django.utils import timezone
 
-from openCurrents.interfaces.bizadmin import BizAdmin
 
 from openCurrents.interfaces.convert import (
     _TR_FEE,
     _USDCUR
 )
 
-from openCurrents.interfaces.ocuser import(
-    OcUser
-)
-
 from openCurrents.models import(
-    Item,
     Transaction,
     TransactionAction,
-    UserEntity
 )
+
+from openCurrents.tests.interfaces.transactions_setup import SetupTest
 
 from openCurrents.tests.interfaces.common import (
-    SetUpTests,
-    _create_offer,
     _setup_ledger_entry,
-    _selenium_wait_for
 )
-
-from selenium import webdriver
-from seleniumlogin import force_login
-
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-
-
-class SetupTest(object):
-    """Setup class."""
-
-    # [helpers begin]
-
-    _SHARE = .25
-
-    def assert_redeemed_amount_usd(
-        self,
-        user,
-        sum_payed,
-        share=_SHARE,  # default biz org share
-        tr_fee=_TR_FEE,  # transaction fee currently 15%
-        usdcur=_USDCUR  # exchange rate usd per 1 curr
-    ):
-        """Assert the amount of pending dollars after a transaction."""
-        accepted_sum = sum_payed * share
-        expected_usd = accepted_sum - accepted_sum * tr_fee
-
-        usd_pending = OcUser(user.id).get_balance_pending_usd()
-
-        self.assertEqual(usd_pending, expected_usd)
-
-    def biz_pending_currents_assertion(
-        self,
-        biz_admin,  # User, biz admin
-        expected_pending_current,  # integer
-    ):
-        """Assert biz pending currents."""
-        self.client.login(
-            username=biz_admin.username, password='password')
-        response = self.client.get('/biz-admin/')
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            response.context['currents_pending'], expected_pending_current)
-
-        return response
-
-    def volunteer_currents_assert(
-        self,
-        user,  # User, volunteer
-        currents_amount,  # integer
-    ):
-        """Assert volunteer currents."""
-        self.client.login(username=user.username,
-                          password='password')
-        response_balance = self.client.get('/get_user_balance_available/')
-        self.assertEqual(response_balance.status_code, 200)
-
-        # checking initial user CURRENTS balance
-        self.assertEqual(response_balance.content, str(currents_amount))
-
-    # [helpers End]
-
-    def setUp(self):
-        """Set testing environment."""
-        biz_orgs_list = ['BIZ_org_1']
-        npf_orgs_list = ['NPF_org_1']
-        volunteers_list = ['volunteer_1']
-
-        test_setup = SetUpTests()
-        test_setup.generic_setup(npf_orgs_list, biz_orgs_list, volunteers_list)
-
-        # setting orgs
-        self.org_npf = test_setup.get_all_npf_orgs()[0]
-        self.org_biz = test_setup.get_all_biz_orgs()[0]
-
-        # creating an npf admin
-        # all_admins = test_setup.get_all_npf_admins()
-        # self.npf_admin = all_admins[0]
-
-        # creating an npf admin
-        all_admins = test_setup.get_all_biz_admins()
-        self.biz_admin = all_admins[0]
-
-        # assigning existing volunteers to variables
-        all_volunteers = test_setup.get_all_volunteers()
-
-        self.volunteer_1 = all_volunteers[0]
-
-        # oc instances
-        self.oc_npf_adm = OcUser(self.biz_admin.id)
-        self.org_biz_adm = BizAdmin(self.biz_admin.id)
-        self.oc_vol_1 = OcUser(self.volunteer_1.id)
-        # self.oc_vol_2 = OcUser(self.volunteer_2.id)
-        # self.oc_vol_3 = OcUser(self.volunteer_3.id)
-        # self.oc_vol_4 = OcUser(self.volunteer_4.id)
-
-        # user entities
-        self.vol_1_entity = UserEntity.objects.get(user=self.volunteer_1)
-        self.user_enitity_id_biz_adm = UserEntity.objects.get(
-            user=self.biz_admin).id
-        self.user_enitity_id_vol_1 = UserEntity.objects.get(
-            user=self.volunteer_1).id
-
-        # creating an offer
-        self.offer = _create_offer(
-            self.org_biz, currents_share=self._SHARE * 100)
-
-        # getting item
-        self.purchased_item = Item.objects.filter(offer__id=self.offer.id)[0]
-
-        # setting up client
-        self.client = Client()
-
-    def tearDown(self):
-        """Tear down."""
-        pass
 
 
 class FullRedemption(SetupTest, TestCase):
@@ -203,7 +80,9 @@ class FullRedemption(SetupTest, TestCase):
         redeemed_usd_amount = redeem_price * self._SHARE - \
             redeem_price * self._SHARE * _TR_FEE
         uzer_tz = pytz.timezone(self.volunteer_1.usersettings.timezone)
-        today_date = datetime.now(uzer_tz).strftime("%b %d, %Y")  # eg Jan 15, 2018
+
+        # today date, eg Jan 15, 2018
+        today_date = datetime.now(uzer_tz).strftime("%b %d, %Y")
 
         post_response = self.client.post('/redeem-currents/1/', {
             'redeem_currents_amount': redeem_currents_amount,
@@ -216,7 +95,9 @@ class FullRedemption(SetupTest, TestCase):
         # Message displayed 'You have submitted an offer for approval
         # by {{ orgname ]}. Hooray!"
         self.assertRedirects(
-            post_response, '/profile/You%20have%20submitted%20a%20request%20for%20approval%20by%20{}/'.format(self.org_biz.name),
+            post_response,
+            '/profile/You%20have%20submitted%20a%20request%20for%20\
+approval%20by%20{}/'.format(self.org_biz.name),
             status_code=302, target_status_code=200)
 
         # DB TransactionAction record of action_type "pending" created
@@ -247,11 +128,14 @@ class FullRedemption(SetupTest, TestCase):
             TransactionAction.objects.get(transaction__user=self.volunteer_1))
 
         # My redeemed offers list entry
-        redeemed_offer_text = '{} - You requested ${} for <span class="no-wrap"> <img class="med-text-symbol" src="/static/img/symbol-navy.svg"/> {}0 </span> from <strong> {} </strong>'.format(
-            today_date,
-            redeemed_usd_amount,
-            redeem_currents_amount,
-            self.org_biz.name)
+        redeemed_offer_text = '{} - You requested ${} for \
+<span class="no-wrap"> <img class="med-text-symbol" \
+src="/static/img/symbol-navy.svg"/> {}0 </span> from <strong> {} </strong>'.\
+            format(
+                today_date,
+                redeemed_usd_amount,
+                redeem_currents_amount,
+                self.org_biz.name)
         processed_content = re.sub(r'\s+', ' ', response.content)
         self.assertIn(redeemed_offer_text, processed_content)
 
@@ -273,7 +157,9 @@ class FullRedemption(SetupTest, TestCase):
             redeem_currents_amount)
 
         processed_content = re.sub(r'\s+', ' ', response.content)
-        redeemed_offer_text = '{} - {} {} purchased <strong> {} for ${}.00 </strong> and would receive ${} for <span class="no-wrap"> <img class="med-text-symbol" src="/static/img/symbol-navy.svg"/> {}0'.format(
+        redeemed_offer_text = '{} - {} {} purchased <strong> {} for ${}.00 \
+</strong> and would receive ${} for <span class="no-wrap"> \
+<img class="med-text-symbol" src="/static/img/symbol-navy.svg"/> {}0'.format(
             today_date,
             self.volunteer_1.first_name,
             self.volunteer_1.last_name,
@@ -308,11 +194,12 @@ class FullRedemption(SetupTest, TestCase):
             })
 
         # check if the file was created
-        uploaded_receipt_path = 'oc/mediafiles/images/redeem/{}/{}/{}/{}'.format(
-            timezone.now().strftime("%Y"),
-            timezone.now().strftime("%m"),
-            timezone.now().strftime("%d"),
-            self.receipt_name)
+        uploaded_receipt_path = 'oc/mediafiles/images/redeem/{}/{}/{}/{}'.\
+            format(
+                timezone.now().strftime("%Y"),
+                timezone.now().strftime("%m"),
+                timezone.now().strftime("%d"),
+                self.receipt_name)
         self.assertTrue(os.path.isfile(uploaded_receipt_path))
 
         # cleaning uploaded file after test
@@ -334,123 +221,3 @@ class FullRedemption(SetupTest, TestCase):
         self.assertEqual(transacton[0].pop_type, 'rec')
 
         self.assert_redeemed_amount_usd(self.volunteer_1, 20)
-
-
-class PartialRedemptionSelenium(SetupTest, StaticLiveServerTestCase):
-    """Test currents full redemption process."""
-
-    def setUp(self):
-        """Setup Selenium test."""
-        super(PartialRedemptionSelenium, self).setUp()
-
-        self.selenium = webdriver.Firefox()
-        self.live_server_url = 'http://127.0.0.1:8081/'
-
-        # giving volunteer_1 some currency
-        self.initial_currents = 1.0
-        self.receipt_path = 'openCurrents/tests/test_files/'
-        self.receipt_name = 'unittest_receipt.jpg'
-        _setup_ledger_entry(self.org_npf.orgentity, self.vol_1_entity,
-                            amount=self.initial_currents, is_issued=True)
-
-        # creating a new offer to prevent error 500 on marketplace page
-        self.offer = _create_offer(
-            self.org_biz,
-            offer_item_name='Test Item Master',
-            currents_share=self._SHARE * 100,
-            is_master=True)
-
-    def tearDown(self):
-        """Tear down Selenium test."""
-        self.selenium.quit()
-
-    def test_partial_redemption_selenium(self):
-        """
-        Partial redemption test.
-
-        Action:
-        User redeems Currents with Currents balance that's below the offer's
-        current share (based on reported price)
-
-        Expected result:
-        - DB Transaction record created: pop_type is "receipt" if image is
-        uploaded and "other" if text proof provided; currents_amount is
-        {{ user_balance_available }} (equals user's currents available)
-
-        - If provided, receipt image is uploaded to images/redeem/YYYY/MM/DD
-        path on the server
-
-        - DB TransactionAction record of action_type "pending" created
-
-        - User's pending USD balance increased by {{ commissioned_amount_usd }}
-        - Transaction summary is displayed in /profile: {{ redemption_date }} -
-        You requested {{ commissioned_amount_usd }} for
-        {{ user_balance_available }} from {{ orgname }}
-
-        - Pending biz's Currents is increased by {{ user_balance_available }}
-
-        - Transaction summary is displayed in /biz-admin:
-        {{ redemption_date }} - {{ user.first_name user.last_name} purchased
-        {{ offer.item }} for {{ price_reported }} and would receive
-        {{ commissioned_amount_usd }} for {{ user_balance_available }}
-        """
-        selenium = self.selenium
-
-        redeem_price = 2000
-        exprected_usd_amount_gross = 20
-        exprected_usd_amount_net = 17
-
-        # logging in as biz admin to check initial state of pending currents
-        self.biz_pending_currents_assertion(self.biz_admin, 0)
-
-        # asserting initial currents for volunteer 1
-        self.volunteer_currents_assert(self.volunteer_1, self.initial_currents)
-
-        force_login(self.volunteer_1, selenium, self.live_server_url)
-        selenium.set_window_size(1024, 768)
-        selenium.get('{}redeem-currents/1/'.format(self.live_server_url))
-
-        # STEP 1: Add description of purchase
-        selenium.find_element_by_class_name('no-receipt-popup_open').click()
-        text_to_input = 'this is a test description'
-        selenium.find_element_by_id('no-proof-typed').send_keys(text_to_input)
-        selenium.find_element_by_class_name('no-receipt-popup_close').click()
-        text_area_text = selenium.find_element_by_id('id_redeem_no_proof').get_attribute('value')
-        self.assertEqual(text_area_text, text_to_input)
-        button = selenium.find_element_by_xpath(
-            '/html/body/div[3]/div/form/div[1]/div[2]/a')
-        selenium.execute_script("$(arguments[0]).click();", button)
-
-        # STEP 2: Record price
-        _selenium_wait_for(lambda: selenium.find_element_by_id(
-            'id_redeem_price'
-        ))
-        selenium.find_element_by_id('id_redeem_price').send_keys(redeem_price)
-        button = selenium.find_element_by_xpath(
-            '/html/body/div[3]/div/form/div[1]/div[2]/a')
-        selenium.execute_script("$(arguments[0]).click();", button)
-
-        # STEP 3: Confirm exchange
-        submit_button = selenium.find_element_by_xpath(
-            '//*[@id="offer-3"]/div/div/div/input')
-        _selenium_wait_for(lambda: submit_button)
-        self.assertIn('$<span class="dollars-total">{}</span>'.format(
-            exprected_usd_amount_gross), selenium.page_source)
-        self.assertIn('$<span class="dollars-received">{}</span>'.format(
-            exprected_usd_amount_net), selenium.page_source)
-        selenium.execute_script("$(arguments[0]).click();", submit_button)
-
-        # wait for redirection to user profile page
-        _selenium_wait_for(
-            lambda: selenium.find_element_by_class_name(
-                'earn-currents-popup_open'))
-
-        # asserting currents and USD for volunteer_1 after submitting the form
-        self.volunteer_currents_assert(self.volunteer_1, 0.0)
-        self.assertEqual(
-            OcUser(self.volunteer_1.id).get_balance_pending_usd(),
-            exprected_usd_amount_net)
-
-        # logging in as biz admin to check state of pending currents after
-        # submitting the form
-        self.biz_pending_currents_assertion(self.biz_admin, 1.0)
