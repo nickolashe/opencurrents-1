@@ -14,6 +14,7 @@ from django.utils import timezone
 from django.db.models import F, Q, Max
 from django.views.decorators.csrf import csrf_exempt,csrf_protect
 from django.template.context_processors import csrf
+from django.utils.html import strip_tags
 from datetime import datetime, time, date
 from collections import OrderedDict
 from copy import deepcopy
@@ -2658,10 +2659,12 @@ class OfferCreateView(LoginRequiredMixin, BizSessionContextView, FormView):
 
     def form_invalid(self, form):
         existing_item_err = form.errors.get('offer_item', '')
+
         if existing_item_err:
             return redirect(
                 'openCurrents:biz-admin',
-                status_msg=existing_item_err
+                status_msg=strip_tags(existing_item_err),
+                msg_type='alert'
             )
 
         return super(OfferCreateView, self).form_invalid(form)
