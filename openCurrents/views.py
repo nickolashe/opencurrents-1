@@ -788,7 +788,7 @@ class PublicRecordView(LoginRequiredMixin, SessionContextView, TemplateView):
         return render(request, self.template_name, context)
 
 
-class MarketplaceView(LoginRequiredMixin, SessionContextView, ListView):
+class MarketplaceView(SessionContextView, ListView):
     template_name = 'marketplace.html'
     context_object_name = 'offers'
 
