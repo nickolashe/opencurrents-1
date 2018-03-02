@@ -79,7 +79,7 @@
                     {% else %}
                       href="{% url 'openCurrents:login/?next=/redeem-currents/' %}"
                     {% endif %}
-                    
+
                     {% if offer.limit != -1 and num_remaining <= 0 %} disabled {% endif %}>
                     <li>Redeem offer</li>
                   </a>
