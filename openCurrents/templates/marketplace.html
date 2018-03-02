@@ -20,7 +20,11 @@
       {% endif %}
       <a
         class="half-margin-top half-margin-bottom button round tiny"
-        href="{% url 'openCurrents:redeem-currents' master_offer.id %}"
+        {% if request.user.is_authenticated %}
+          href="{% url 'openCurrents:redeem-currents' master_offer.id %}"
+        {% else %}
+          href="{% url 'openCurrents:login/?next=/redeem-currents/' %}"
+        {% endif %}
       >
         Special offer: Redeem Currents with any business in Austin!
       </a>
@@ -70,7 +74,12 @@
                 </a>
                 <ul class="mini-menu">
                   <a
-                    href="{% url 'openCurrents:redeem-currents' offer.id %}"
+                    {% if request.user.is_authenticated %}
+                      href="{% url 'openCurrents:redeem-currents' offer.id %}"
+                    {% else %}
+                      href="{% url 'openCurrents:login/?next=/redeem-currents/' %}"
+                    {% endif %}
+                    
                     {% if offer.limit != -1 and num_remaining <= 0 %} disabled {% endif %}>
                     <li>Redeem offer</li>
                   </a>
