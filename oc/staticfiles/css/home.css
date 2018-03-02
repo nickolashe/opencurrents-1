@@ -1,0 +1,428 @@
+/* landing page backgrounds */
+
+@media screen and (min-width: 42em) {
+  #home {
+    background: url(/static/img/wheelbarrow.jpg) center bottom fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+  }
+
+  #nonprofit {
+    background: url(/static/img/hands.jpg) no-repeat center 40px fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+  }
+
+  #business {
+    background: url(/static/img/market.jpg) no-repeat right center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+  }
+
+  #our-story {
+    background: url(/static/img/moab.jpg) no-repeat left center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+  }
+
+  #faq {
+    background: url(/static/img/tree.jpg) no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+  }
+}
+
+/* home nonprofit business and our-story */
+
+.splash {
+  display: block;
+  overflow: visible;
+  background-color: #ffffff;
+  color: #ffffff;
+  min-height: 100vh;
+}
+
+
+/* small */
+@media (max-width: 41.9375em) {
+
+  #home:after {
+    content:"";
+    position:fixed;
+    top:0;
+    height:100vh;
+    left:0;
+    right:0;
+    z-index:-1;
+    background: url(/static/img/wheelbarrow.jpg) center bottom;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+  }
+
+  #nonprofit:after {
+    content:"";
+    position:fixed;
+    top:0;
+    height:100vh;
+    left:0;
+    right:0;
+    z-index:-1;
+    background: url(/static/img/hands.jpg) center 40px;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+  }
+
+  #business:after {
+    content:"";
+    position:fixed;
+    top:0;
+    height:100vh;
+    left:0;
+    right:0;
+    z-index:-1;
+    background: url(/static/img/market.jpg) right center;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+  }
+
+  #our-story:after {
+    content:"";
+    position:fixed;
+    top:0;
+    height:100vh;
+    left:0;
+    right:0;
+    z-index:-1;
+    background: url(/static/img/moab.jpg) -300px center;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+  }
+
+  #faq:after {
+    content:"";
+    position:fixed;
+    top:0;
+    height:100vh;
+    left:0;
+    right:0;
+    z-index:-1;
+    background: url(/static/img/tree.jpg) center 60px;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+  }
+}
+
+#intro-1, #intro-2, #intro-3, #intro-4, #intro-5, #intro-6, #intro-7 {
+  min-height: 100vh;
+}
+
+#intro-2, #intro-4, #intro-6 {
+  background-color: #ffffff;
+  color: #1f4795;
+}
+
+.home-input {
+  background-color: transparent;
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+input.home-input::-webkit-input-placeholder {
+  color: #ffffff; }
+
+input.home-input::-moz-placeholder {
+  color: #ffffff;
+}
+
+input.home-input:-ms-input-placeholder {
+  color: #ffffff; }
+
+input.home-input::placeholder {
+  color: #ffffff; }
+
+.home-input:hover {
+  background-color: transparent;
+  border-color: #ffffff;
+}
+
+.home-input:focus {
+  background-color: transparent;
+  border-color: #24b2e7;
+}
+
+/* small home */
+
+#home-logo {
+  margin-top: 4rem;
+  width: 234px;
+}
+
+#home-tagline {
+  font-size: 2.5rem;
+  margin-top: 3.5rem;
+  margin-bottom: 1rem;
+}
+
+#home-symbol {
+  margin-right: 0.375rem;
+  height: 2rem;
+}
+
+.benefit-icon #home-symbol {
+  stroke: #1f4795;
+}
+
+.benefit-icon:hover #home-symbol g, .styled-radio:checked + label #home-symbol g {
+  stroke: #ffffff;
+}
+
+.home-link {
+  font-size: 1.125rem;
+}
+
+.home-quote {
+  font-family: 'Alegreya Sans SC', sans-serif;
+  font-weight: 300;
+}
+
+.splash .home-link:hover {
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.splash .home-link:active {
+  color: #ffffff;
+  font-weight: normal;
+}
+
+.splash .home-link:focus {
+  color: #ffffff;
+  font-weight: normal;
+}
+
+.splash .button.blue-bg:hover {
+  background-color: #169ccd;
+  border-color: #169ccd;
+  color: #fff;
+}
+
+.splash .button.blue-bg:focus {
+  background-color: #169ccd;
+  border-color: #169ccd;
+  color: #fff;
+}
+
+.splash .button.clear:hover {
+  background-color: #24b2e7;
+  border-color: #24b2e7;
+}
+
+.splash .button.clear:focus {
+  background-color: #24b2e7;
+  border-color: #24b2e7;
+}
+
+.splash .white {
+  filter: drop-shadow(0 0 30px black);
+}
+
+.splash .alert {
+  background-color: #ffffff;
+  border-radius: 4px;
+}
+
+.accordion-title {
+  background-color: transparent;
+}
+
+.accordion-title:hover,
+.accordion-item.is-active .accordion-title {
+  background-color: #24b2e7;
+}
+
+#back-button {
+  position: fixed;
+  left: 55px;
+  top: 55px;
+  cursor: pointer;
+}
+
+.icon-box {
+  margin: 1.5rem 0.5rem;
+}
+
+.intro-icon {
+  width: 77px;
+  height: 77px;
+  padding: 21px 0;
+  border-radius: 99px;
+  border: 1px solid #1f4795;
+  color: #1f4795;
+  background-color: #ffffff;
+  cursor: default;
+  display: inline-block;
+  margin: 0 0.25rem 1rem;
+}
+
+.intro-icon.clear {
+  background-color: transparent;
+  color: #ffffff;
+  border-color: #ffffff;
+}
+
+
+.business-table {
+  padding: 0 0.75rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.business-arrow {
+  position: absolute;
+  right: 0;
+  top: 27px;
+  height: 20px;
+}
+
+.business-arrow-sm {
+  width: 20px;
+}
+
+#arrow-1 {
+  height: 22px;
+  position: absolute;
+  top: 40px;
+  left: 273px;
+}
+
+#arrow-2 {
+  height: 15px;
+  position: absolute;
+  top: 160px;
+  right: 88px;
+}
+
+#arrow-3 {
+  height: 19px;
+  position: absolute;
+  bottom: 117px;
+  right: 155px;
+}
+
+#arrow-4 {
+  height: 19px;
+  position: absolute;
+  bottom: 117px;
+  left: 155px;
+}
+
+#arrow-5 {
+  height: 15px;
+  position: absolute;
+  top: 165px;
+  left: 83px;
+}
+
+#arrow-down {
+  height: 10px;
+  margin: 0.5rem auto 1rem;
+}
+
+#arrow-up {
+  position: absolute;
+  top: 211px;
+  left: 16px;
+}
+
+#how-it-works-small {
+  max-width: 400px;
+  width: 100%;
+}
+
+.benefit-icon {
+  width: 77px;
+  height: 77px;
+  padding: 21px 0;
+  border-radius: 99px;
+  border: 1px solid #1f4795;
+  color: #1f4795;
+  background-color: #ffffff;
+}
+
+#mission-box {
+  max-width: 433px;
+  margin: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+
+/* non-small home */
+@media screen and (min-width: 42em) {
+
+  #home-tagline {
+    margin-top: 4rem;
+    margin-bottom: 1rem;
+    font-size: 3rem;
+  }
+
+  #signup-box .button:hover {
+    background-color: #077ec0;
+    border-color: #077ec0;
+  }
+
+  #signup-box .button:focus {
+    background-color: #077ec0;
+    border-color: #077ec0;
+  }
+
+  .icon-box {
+    width: 155px;
+    display: inline-block;
+  }
+
+  .diagram-div {
+    width: 555px;
+    margin: auto;
+    position: relative;
+  }
+
+  #benefits-div {
+    width: 640px;
+    margin: auto;
+  }
+
+  #benefit-box {
+    height: 99px;
+    width: 488px;
+    margin: auto;
+  }
+
+  #mission-box {
+    width: 433px;
+  }
+}
+
+#play-video {
+  margin-top: 4rem;
+}
