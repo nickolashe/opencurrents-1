@@ -389,6 +389,11 @@ class DeleteOfferView(BizAdminPermissionMixin, TemplateView):
 class LoginView(TemplateView):
     template_name = 'login.html'
 
+    def get_context_data(self, **kwargs):
+        context = super(LoginView, self).get_context_data(**kwargs)
+        context['next'] = self.request.GET.get('next', None)
+        return context
+
 
 class InviteFriendsView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'invite-friends.html'
@@ -3622,6 +3627,12 @@ def process_login(request):
     if form.is_valid():
         user_name = form.cleaned_data['user_email']
         user_password = form.cleaned_data['user_password']
+
+        try:
+            redirection = request.POST['next']
+        except:
+            redirection = None
+
         user = authenticate(
             username=user_name,
             password=user_password
@@ -3652,12 +3663,17 @@ def process_login(request):
                 request.session['profile'] = 'True'
             except KeyError:
                 pass
-            return redirect('openCurrents:profile', app_hr)
+
+            if redirection:
+                return redirect(redirection)
+            else:
+                return redirect('openCurrents:profile', app_hr)
+
         else:
             return redirect(
                 'openCurrents:login',
                 status_msg='Invalid login/password.',
-                msg_type = 'alert'
+                msg_type='alert'
             )
     else:
         logger.error(
@@ -3674,8 +3690,8 @@ def process_login(request):
         return redirect(
             'openCurrents:login',
             status_msg=errors[0],
-            msg_type = 'alert'
-            )
+            msg_type='alert'
+        )
 
 
 def process_email_confirmation(request, user_email):
