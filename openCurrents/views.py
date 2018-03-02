@@ -3589,13 +3589,16 @@ def process_login(request):
 
     # valid form data received
     if form.is_valid():
+        print 'valid form submitted'
         user_name = form.cleaned_data['user_email']
         user_password = form.cleaned_data['user_password']
         user = authenticate(
             username=user_name,
             password=user_password
         )
+        print 'user', user
         if user is not None and user.is_active:
+            print 'user authenticated'
             userid = user.id
             app_hr = 0
             today = date.today()
@@ -3623,6 +3626,7 @@ def process_login(request):
                 pass
             return redirect('openCurrents:profile', app_hr)
         else:
+            print 'user not authenticated'
             return redirect(
                 'openCurrents:login',
                 status_msg='Invalid login/password.',
