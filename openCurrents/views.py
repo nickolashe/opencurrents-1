@@ -788,19 +788,22 @@ class PublicRecordView(LoginRequiredMixin, SessionContextView, TemplateView):
         return render(request, self.template_name, context)
 
 
-class MarketplaceView(SessionContextView, ListView):
+class MarketplaceView(ListView):
     template_name = 'marketplace.html'
     context_object_name = 'offers'
 
     def get_queryset(self):
-        offers_all = self.ocuser.get_offers_marketplace()
+        offers_all = OcUser().get_offers_marketplace()
         return offers_all
 
     def get_context_data(self, **kwargs):
         context = super(MarketplaceView, self).get_context_data(**kwargs)
-        user_balance_available = OcLedger().get_balance(
-            self.request.user.userentity.id
-        )
+        if self.request.user.is_authenticated:
+            user_balance_available = OcLedger().get_balance(
+                self.request.user.userentity.id
+            )
+        else:
+            user_balance_available = 0
 
         context['master_offer'] = Offer.objects.filter(is_master=True).first()
         context['user_balance_available'] = user_balance_available
@@ -849,54 +852,55 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
     form_class = RedeemCurrentsForm
 
     def dispatch(self, request, *args, **kwargs):
-        offer_id = kwargs.get('offer_id')
-        self.offer = Offer.objects.get(id=offer_id)
-        self.userid = request.user.id
-        self.ocuser = OcUser(self.userid)
+        if request.user.is_authenticated:
+            offer_id = kwargs.get('offer_id')
+            self.offer = Offer.objects.get(id=offer_id)
+            self.userid = request.user.id
+            self.ocuser = OcUser(self.userid)
 
-        reqForbidden = False
-        user_balance_available = self.ocuser.get_balance_available()
-        user_master_offer_remaining = self.ocuser.get_master_offer_remaining()
+            reqForbidden = False
+            user_balance_available = self.ocuser.get_balance_available()
+            user_master_offer_remaining = self.ocuser.get_master_offer_remaining()
 
-        if user_balance_available <= 0:
-            # TODO: replace with a page explaining no sufficient funds
+            if user_balance_available <= 0:
+                # TODO: replace with a page explaining no sufficient funds
 
-            reqForbidden = True
-            status_msg = ' '.join([
-                'You need Currents to redeem an offer. <br/>',
-                '<a href="{% url "openCurrents:upcoming-events" %}">',
-                'Find a volunteer opportunity!</a>'
-            ])
-            msg_type = 'alert'
+                reqForbidden = True
+                status_msg = ' '.join([
+                    'You need Currents to redeem an offer. <br/>',
+                    '<a href="{% url "openCurrents:upcoming-events" %}">',
+                    'Find a volunteer opportunity!</a>'
+                ])
+                msg_type = 'alert'
 
-        if self.offer.is_master and user_master_offer_remaining <= 0:
-            reqForbidden = True
-            status_msg = ' '.join([
-                'You have already redeemed the maximum of',
-                str(common._MASTER_OFFER_LIMIT),
-                'Currents for this special offer.'
-            ])
-            msg_type = 'alert'
+            if self.offer.is_master and user_master_offer_remaining <= 0:
+                reqForbidden = True
+                status_msg = ' '.join([
+                    'You have already redeemed the maximum of',
+                    str(common._MASTER_OFFER_LIMIT),
+                    'Currents for this special offer.'
+                ])
+                msg_type = 'alert'
 
-        offer_num_redeemed = self.ocuser.get_offer_num_redeemed(self.offer)
-        # logger.debug(offer_num_redeemed)
+            offer_num_redeemed = self.ocuser.get_offer_num_redeemed(self.offer)
+            # logger.debug(offer_num_redeemed)
 
-        offer_has_limit = self.offer.limit != -1
-        offer_limit_exceeded = self.offer.limit - offer_num_redeemed <= 0
-        if not reqForbidden and offer_has_limit and offer_limit_exceeded:
-            reqForbidden = True
-            status_msg = ' '.join([
-                'Vendor %s chose to set a limit',
-                'on the number of redemptions for %s this month'
-            ]) % (self.offer.org.name, self.offer.item.name)
-            msg_type = 'alert'
+            offer_has_limit = self.offer.limit != -1
+            offer_limit_exceeded = self.offer.limit - offer_num_redeemed <= 0
+            if not reqForbidden and offer_has_limit and offer_limit_exceeded:
+                reqForbidden = True
+                status_msg = ' '.join([
+                    'Vendor %s chose to set a limit',
+                    'on the number of redemptions for %s this month'
+                ]) % (self.offer.org.name, self.offer.item.name)
+                msg_type = 'alert'
 
-        if reqForbidden:
-            return redirect(
-                'openCurrents:marketplace',
-                status_msg,
-                msg_type
-            )
+            if reqForbidden:
+                return redirect(
+                    'openCurrents:marketplace',
+                    status_msg,
+                    msg_type
+                )
 
         return super(RedeemCurrentsView, self).dispatch(request, *args, **kwargs)
 
