@@ -38,15 +38,15 @@ from openCurrents.interfaces.ledger import OcLedger
 from openCurrents.interfaces.common import diffInHours
 from openCurrents.interfaces.community import OcCommunity
 
-from openCurrents.tests.interfaces.common import \
-     _create_test_user, \
-     _create_project, \
-    _setup_volunteer_hours, \
-    _create_event, \
-    _setup_user_event_registration, \
-    _setup_transactions, \
-    _setup_ledger_entry
-
+from openCurrents.tests.interfaces.common import (
+    _create_test_user,
+    _create_project,
+    _setup_volunteer_hours,
+    _create_event,
+    _setup_user_event_registration,
+    _create_org,
+    _setup_transactions
+)
 
 import pytz
 import uuid
@@ -62,13 +62,13 @@ class SetupAll(TestCase):
     def setUp(self):
 
         # creating npf org and a volunteer
-        self.org = OcOrg().setup_org(name="NPF_org_1", status="npf")
+        self.org = _create_org("NPF_org_1", "npf")
 
         self.volunteer_1 = _create_test_user('volunteer_1')
         self.vol_1_entity = UserEntity.objects.get(user=self.volunteer_1)
 
         # creting biz org and its admin
-        self.biz_org = OcOrg().setup_org(name="BIZ_org_1", status='biz')
+        self.biz_org = _create_org("BIZ_org_1", 'biz')
         self.biz_admin_1 = _create_test_user('biz_admin_1', org = self.biz_org, is_org_admin=True)
 
         # create Transaction adn Transactionaction

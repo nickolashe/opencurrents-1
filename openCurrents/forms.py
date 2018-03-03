@@ -866,8 +866,8 @@ class RedeemCurrentsForm(forms.Form):
 
 class PublicRecordsForm(forms.Form):
     periods = (
-        ('month', 'Last 30 days'),
         ('all-time', 'All-time'),
+        ('month', 'Last 30 days'),
     )
 
     record_types = (

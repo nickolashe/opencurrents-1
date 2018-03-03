@@ -366,7 +366,7 @@
 
       let shareToCurrents = function (priceSubjectToShare) {
         var share = {{ offer.currents_share }} /100.;
-        var dollars = (priceSubjectToShare * share).toFixed(2);
+        var dollars = Math.round(priceSubjectToShare * share * 100) /100;
 
         // TODO: switch to an API call to get the converstion rate
         var currents = dollars / parseFloat({{cur_rate}});
@@ -378,11 +378,12 @@
       }
 
       let setElemValuesBasedOnPriceSubjectToShare = function (priceSubjectToShare) {
-        const fee = (parseFloat({{tr_fee}} / 100) * priceSubjectToShare.dollars).toFixed(2);
-        let dollarsReceived = (priceSubjectToShare.dollars - fee).toFixed(2);
+        const fee = Math.round(parseFloat({{tr_fee}}) * priceSubjectToShare.dollars)/100;
+        let dollarsReceived = (priceSubjectToShare.dollars - fee);
         console.log('priceSubjectToShare.currents:' + priceSubjectToShare.currents);
         console.log('priceSubjectToShare.dollars:' + priceSubjectToShare.dollars);
         console.log('priceSubjectToShare.dollarsReceived:' + dollarsReceived);
+        console.log('fee before rounding:' + parseFloat({{tr_fee}}) * priceSubjectToShare.dollars /100);
 
         $('.currents-total').text(priceSubjectToShare.currents);
         $('.dollars-total').text(priceSubjectToShare.dollars);
