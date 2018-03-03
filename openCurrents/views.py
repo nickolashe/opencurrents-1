@@ -813,6 +813,9 @@ class MarketplaceView(ListView):
         context['master_offer'] = Offer.objects.filter(is_master=True).first()
         context['user_balance_available'] = user_balance_available
 
+        if 'status_msg' in self.kwargs and ('form' not in context or not context['form'].errors):
+            context['status_msg'] = self.kwargs.get('status_msg', '')
+
         return context
 
 
