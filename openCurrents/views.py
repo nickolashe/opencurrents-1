@@ -290,7 +290,6 @@ class AssignAdminsView(TemplateView):
 
 class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, FormView):
     template_name = 'biz-admin.html'
-    form_class = BizDetailsForm
 
     def get_context_data(self, **kwargs):
         context = super(BizAdminView, self).get_context_data(**kwargs)
@@ -320,6 +319,11 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, FormView):
 
         return context
 
+
+class BizDetailsView(BizAdminPermissionMixin, BizSessionContextView, FormView):
+    template_name = 'biz-details.html'
+    form_class = BizDetailsForm
+
     def form_valid(self, form):
         data = form.cleaned_data
         Org.objects.filter(id=self.org.id).update(
@@ -341,6 +345,7 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, FormView):
                 'openCurrents:biz-admin',
                 status_msg='Thank you for adding %s\'s details' % self.org.name
             )
+
 
 class BusinessView(TemplateView):
     template_name = 'business.html'

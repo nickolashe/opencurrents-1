@@ -47,6 +47,7 @@ urlpatterns = [
     url(r'^biz-admin/$', views.BizAdminView.as_view(), name='biz-admin'),
     url(r'^biz-admin/(?P<status_msg>.*)/(?P<msg_type>.*)/$', views.BizAdminView.as_view(), name='biz-admin'),
     url(r'^biz-admin/(?P<status_msg>.*)/$', views.BizAdminView.as_view(), name='biz-admin'),
+    url(r'^biz-details/$', views.BizDetailsView.as_view(), name='biz-details'),
     url(r'^invite-admins/$', views.InviteAdminsView.as_view(), name='invite-admins'),
     url(r'^public-record/$', views.PublicRecordView.as_view(), name='public-record'),
     url(r'^my-hours/$', views.MyHoursView.as_view(), name='my-hours'),
