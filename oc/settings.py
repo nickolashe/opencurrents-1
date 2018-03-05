@@ -126,6 +126,7 @@ STATIC_URL = 'https://storage.googleapis.com/opencurrents-194003.appspot.com/sta
 # django-storages
 DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 GS_BUCKET_NAME = 'opencurrents-194003.appspot.com'
+GS_PROJECT_ID = 'opencurrents-194003'
 
 MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'mediafiles')
 MEDIA_URL = 'https://storage.googleapis.com/opencurrents-194003.appspot.com/media/'
