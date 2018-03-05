@@ -879,7 +879,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
                 reqForbidden = True
                 status_msg = ' '.join([
                     'You need Currents to redeem an offer.<br/>\
-<a href="/upcoming-events/">Find a volunteer opportunity!</a>'
+<a href="/volunteer-opportunities/">Find a volunteer opportunity!</a>'
                 ])
                 msg_type = 'alert'
 
