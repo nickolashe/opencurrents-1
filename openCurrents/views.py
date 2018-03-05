@@ -816,6 +816,9 @@ class MarketplaceView(ListView):
         if 'status_msg' in self.kwargs and ('form' not in context or not context['form'].errors):
             context['status_msg'] = self.kwargs.get('status_msg', '')
 
+        if 'msg_type' in self.kwargs:
+            context['msg_type'] = self.kwargs.get('msg_type', '')
+
         return context
 
 
