@@ -333,7 +333,7 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, FormView):
         if all (i == '' for i in data.values()):
             return redirect(
                 'openCurrents:biz-admin',
-                status_msg='%s\'s details are blank, please add details' % self.org.name,
+                status_msg='Please include at least one way for customers to contact you',
                 msg_type='alert'
             )
         else:
@@ -815,6 +815,9 @@ class MarketplaceView(ListView):
 
         if 'status_msg' in self.kwargs and ('form' not in context or not context['form'].errors):
             context['status_msg'] = self.kwargs.get('status_msg', '')
+
+        if 'msg_type' in self.kwargs:
+            context['msg_type'] = self.kwargs.get('msg_type', '')
 
         return context
 
