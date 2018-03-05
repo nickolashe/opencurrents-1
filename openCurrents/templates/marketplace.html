@@ -71,6 +71,7 @@
                 <ul class="mini-menu">
                   <a
                     href="{% url 'openCurrents:redeem-currents' offer.id %}"
+
                     {% if offer.limit != -1 and num_remaining <= 0 %} disabled {% endif %}>
                     <li>Redeem offer</li>
                   </a>
