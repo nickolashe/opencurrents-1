@@ -333,7 +333,7 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, FormView):
         if all (i == '' for i in data.values()):
             return redirect(
                 'openCurrents:biz-admin',
-                status_msg='%s\'s details are blank, please add details' % self.org.name,
+                status_msg='Please include at least one way for customers to contact you',
                 msg_type='alert'
             )
         else:
