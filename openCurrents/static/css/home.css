@@ -183,6 +183,12 @@ input.home-input::placeholder {
   margin-bottom: 1rem;
 }
 
+#intro-symbol {
+  height: 28px;
+  margin-left: 0.25rem;
+  margin-top: -14px;
+}
+
 #home-symbol {
   margin-right: 0.375rem;
   height: 2rem;
