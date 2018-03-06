@@ -19,9 +19,11 @@ gnureadline==6.3.8
 google-api-core==0.1.4
 google-auth==1.4.1
 google-cloud-core==0.28.1
+google-cloud-logging==1.6.0
 google-cloud-storage==1.8.0
 google-resumable-media==0.3.1
 googleapis-common-protos==1.5.3
+grpcio==1.10.0
 gunicorn==19.6.0
 idna==2.6
 ipython==3.1.0
