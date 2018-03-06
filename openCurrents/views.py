@@ -944,7 +944,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         if request.user.is_authenticated:
             offer_id = kwargs.get('offer_id')
             self.offer = Offer.objects.get(id=offer_id)
-            self.userid = request.user.id
+            self.userid = self.request.user.id
             self.ocuser = OcUser(self.userid)
 
             glogger_struct = {
@@ -4015,12 +4015,16 @@ def process_email_confirmation(request, user_email):
         user_settings.save()
 
         logger.debug('verification of user %s is complete', user.email)
-        glogger_struct = {
-            'msg': 'user verified',
-            'username': user.email,
-            'token': token
-        }
-        glogger.log_struct(glogger_struct, labels=glogger_labels)
+
+        # TODO: understand why the following error is thrown at runtime:
+        # ParseError: Unexpected type for Value message.
+        # at _ConvertFieldValuePair (/env/local/lib/python2.7/site-packages/google/protobuf/json_format.py:537)
+        # glogger_struct = {
+        #     'msg': 'user verified',
+        #     'username': user.email,
+        #     'token': token
+        # }
+        # glogger.log_struct(glogger_struct, labels=glogger_labels)
 
         # send verification email
         try:
