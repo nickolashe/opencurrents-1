@@ -15,7 +15,7 @@ from django.db.models import F, Q, Max
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.template.context_processors import csrf
 from django.utils.html import strip_tags
-from datetime import datetime, time, date
+from datetime import datetime, time, date, timedelta
 from collections import OrderedDict
 from copy import deepcopy
 
@@ -24,10 +24,12 @@ from interfaces.bizadmin import BizAdmin
 from interfaces.orgadmin import OrgAdmin
 from interfaces.ledger import OcLedger
 from interfaces.ocuser import OcUser, UserExistsException, InvalidUserException
-from interfaces.orgs import OcOrg, \
-    OrgUserInfo, \
-    OrgExistsException, \
+from interfaces.orgs import (
+    OcOrg,
+    OrgUserInfo,
+    OrgExistsException,
     InvalidOrgUserException
+)
 
 from openCurrents.interfaces import common
 from openCurrents.interfaces.community import OcCommunity
@@ -37,45 +39,44 @@ import math
 import re
 
 from openCurrents import config
-from openCurrents.models import \
-    Org, \
-    OrgUser, \
-    Token, \
-    Project, \
-    Event, \
-    UserEventRegistration, \
-    UserSettings, \
-    UserTimeLog, \
-    AdminActionUserTime, \
-    Item, \
-    Offer, \
-    Transaction, \
-    TransactionAction, \
+from openCurrents.models import (
+    Org,
+    OrgUser,
+    Token,
+    Project,
+    Event,
+    UserEventRegistration,
+    UserSettings,
+    UserTimeLog,
+    AdminActionUserTime,
+    Item,
+    Offer,
+    Transaction,
+    TransactionAction,
     Ledger
+)
 
-from openCurrents.forms import \
-    UserSignupForm, \
-    UserLoginForm, \
-    EmailVerificationForm, \
-    PasswordResetForm, \
-    PasswordResetRequestForm, \
-    OrgSignupForm, \
-    CreateEventForm, \
-    EditEventForm, \
-    EventRegisterForm, \
-    EventCheckinForm, \
-    OrgNominationForm, \
-    TimeTrackerForm, \
-    BizDetailsForm, \
-    OfferCreateForm, \
-    OfferEditForm, \
-    RedeemCurrentsForm, \
-    PublicRecordsForm, \
-    PopUpAnswer, \
+from openCurrents.forms import (
+    UserSignupForm,
+    UserLoginForm,
+    EmailVerificationForm,
+    PasswordResetForm,
+    PasswordResetRequestForm,
+    OrgSignupForm,
+    CreateEventForm,
+    EditEventForm,
+    EventRegisterForm,
+    EventCheckinForm,
+    OrgNominationForm,
+    TimeTrackerForm,
+    BizDetailsForm,
+    OfferCreateForm,
+    OfferEditForm,
+    RedeemCurrentsForm,
+    PublicRecordsForm,
+    PopUpAnswer
     # HoursDetailsForm
-
-
-from datetime import date, datetime, timedelta
+)
 
 import json
 import mandrill
@@ -333,7 +334,7 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, FormView):
             'username': self.user.email,
             'orgname': self.org.name
         }
-        glogger.log_struct(glogger_struct, labels=glogger_labels)
+        glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
         return context
 
@@ -360,7 +361,7 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, FormView):
                 'username': self.user.email,
                 'orgname': self.org.name
             }
-            glogger.log_struct(glogger_struct, labels=glogger_labels)
+            glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
             return redirect(
                 'openCurrents:biz-admin',
@@ -448,7 +449,7 @@ class ApproveHoursView(OrgAdminPermissionMixin, OrgSessionContextView, ListView)
             'admin': self.user.email,
             'hours_req_count': len(requested_actions)
         }
-        glogger.log_struct(glogger_struct, labels=glogger_labels)
+        glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
         # week list holds dictionary ordered pairs for 7 days of timelogs
         week = []
@@ -667,7 +668,7 @@ class ApproveHoursView(OrgAdminPermissionMixin, OrgSessionContextView, ListView)
                 # volunteer deferred
                 # TODO: decide if we need to keep this
                 elif action_type == 'def':
-                    logger.warning('deferred timelog (legacy warning): %s', declined)
+                    logger.warning('deferred timelog (legacy warning)')
 
                 # TODO: instead of updating the requests for approval,
                 # we should create a new action respresenting the action taken and save it
@@ -681,7 +682,7 @@ class ApproveHoursView(OrgAdminPermissionMixin, OrgSessionContextView, ListView)
                     'req_actions_count': len(requested_actions),
                     'action': action_type
                 }
-                glogger.log_struct(glogger_struct, labels=glogger_labels)
+                glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
         # lastly, determine if there any approval requests remaining for admin
         admin_requested_hours = self.orgadmin.get_hours_requested()
@@ -711,10 +712,6 @@ class EditHoursView(TemplateView):
 
 class ExportDataView(TemplateView):
     template_name = 'export-data.html'
-
-
-class FaqView(TemplateView):
-    template_name = 'faq.html'
 
 
 class FindOrgsView(TemplateView):
@@ -792,7 +789,7 @@ class HoursDetailView(LoginRequiredMixin, SessionContextView, ListView):
             'is_admin': self.is_admin,
             'org_id': self.org_id
         }
-        glogger.log_struct(glogger_struct, labels=glogger_labels)
+        glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
         return context
 
@@ -835,7 +832,7 @@ class PublicRecordView(LoginRequiredMixin, SessionContextView, TemplateView):
             'record': entity_type,
             'period': period
         }
-        glogger.log_struct(glogger_struct, labels=glogger_labels)
+        glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
         if entity_type == 'top-org':
             return OcOrg().get_top_issued_npfs(period)
@@ -895,7 +892,7 @@ class MarketplaceView(ListView):
         if 'msg_type' in self.kwargs:
             context['msg_type'] = self.kwargs.get('msg_type', '')
 
-        glogger.log_struct(glogger_struct, labels=glogger_labels)
+        glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
         return context
 
@@ -996,7 +993,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
                 msg_type = 'alert'
                 glogger_struct['reject_reason'] = 'monthly offer limit reached'
 
-            glogger.log_struct(glogger_struct, labels=glogger_labels)
+            glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
             if reqForbidden:
                 return redirect(
@@ -1195,7 +1192,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                     'orgname': org.name,
                     'adminid': form_data['admin']
                 }
-                glogger.log_struct(glogger_struct, labels=glogger_labels)
+                glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
                 return True, None
 
@@ -1210,7 +1207,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                     'orgname': org.name,
                     'admin_email': admin_email
                 }
-                glogger.log_struct(glogger_struct, labels=glogger_labels)
+                glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
                 if not admin_email:
                     # admin field should be populated
@@ -1306,7 +1303,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                 'orgname': form_data['new_org'],
                 'admin': form_data['new_admin_email']
             }
-            glogger.log_struct(glogger_struct, labels=glogger_labels)
+            glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
             if form_data['new_admin_email']:
                 org = form_data['new_org']
@@ -1846,7 +1843,7 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             'username': self.user.email,
             'orgname': self.org.name
         }
-        glogger.log_struct(glogger_struct, labels=glogger_labels)
+        glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
         return context
 
@@ -2044,7 +2041,7 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
             'orgname': self.org.name,
             'event_count': len(event_ids)
         }
-        glogger.log_struct(glogger_struct, labels=glogger_labels)
+        glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
         return redirect(
             'openCurrents:invite-volunteers',
@@ -2181,7 +2178,7 @@ class EditEventView(CreateEventView):
                         {
                             'name': 'TIME',
                             'content': int(
-                                self.event.datetime_start != data['datetime_start'] or \
+                                self.event.datetime_start != data['datetime_start'] or
                                 self.event.datetime_end != data['datetime_end']
                             )
                         },
@@ -2753,7 +2750,7 @@ class LiveDashboardView(OrgAdminPermissionMixin, SessionContextView, TemplateVie
         ))
 
         glogger_struct['checked_in_user_count'] = len(context['checkedin_users'])
-        glogger.log_struct(glogger_struct, labels=glogger_labels)
+        glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
         return context
 
@@ -2809,7 +2806,7 @@ class OfferCreateView(LoginRequiredMixin, BizSessionContextView, FormView):
             'orgname': self.org.name,
             'offerid': offer.id
         }
-        glogger.log_struct(glogger_struct, labels=glogger_labels)
+        glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
         return redirect(
             'openCurrents:biz-admin',
@@ -2943,7 +2940,7 @@ def event_checkin(request, pk):
         )
         glogger_struct = {
             'admin': admin_user.email,
-            'username': user.email,
+            'username': request.user.email,
             'eventid': event.id,
             'event_startime': event.datetime_start.strftime('%m/%d/%Y %H:%M:%S')
         }

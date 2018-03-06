@@ -4,16 +4,17 @@ from decimal import Decimal
 from django.contrib.auth.models import User
 from django.db.models import Max
 
-from openCurrents.models import \
-    OrgUser, \
-    UserEntity, \
-    UserEventRegistration, \
-    UserSettings, \
-    UserTimeLog, \
-    AdminActionUserTime, \
-    Offer, \
-    Transaction, \
+from openCurrents.models import (
+    OrgUser,
+    UserEntity,
+    UserEventRegistration,
+    UserSettings,
+    UserTimeLog,
+    AdminActionUserTime,
+    Offer,
+    Transaction,
     TransactionAction
+)
 
 from openCurrents.interfaces import common
 from openCurrents.interfaces import convert
