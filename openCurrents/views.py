@@ -944,12 +944,12 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         if request.user.is_authenticated:
             offer_id = kwargs.get('offer_id')
             self.offer = Offer.objects.get(id=offer_id)
-            self.userid = self.request.user.id
+            self.userid = request.user.id
             self.ocuser = OcUser(self.userid)
 
             glogger_struct = {
                 'msg': 'offer redemption request',
-                'username': self.user.email,
+                'username': request.user.email,
                 'offerid': self.offer.id
             }
 
