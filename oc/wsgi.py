@@ -15,7 +15,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "oc.settings")
 
 try:
     application = get_wsgi_application()
-    print 'WSGI without exception'
+    print 'WSGI started without exception'
 except Exception as e:
     print 'handling WSGI exception'
     print e.message
