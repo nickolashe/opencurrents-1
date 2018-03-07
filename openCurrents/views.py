@@ -288,7 +288,7 @@ class AssignAdminsView(TemplateView):
     template_name = 'assign-admins.html'
 
 
-class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, FormView):
+class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, TemplateView):
     template_name = 'biz-admin.html'
 
     def get_context_data(self, **kwargs):
@@ -311,11 +311,6 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, FormView):
         # pending currents balance
         currents_pending = self.bizadmin.get_balance_pending()
         context['currents_pending'] = currents_pending
-
-        for field in context['form'].declared_fields.keys():
-            val = getattr(self.org, field)
-            if val:
-                context['form'].fields[field].widget.attrs['value'] = val
 
         return context
 
