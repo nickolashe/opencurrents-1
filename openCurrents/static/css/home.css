@@ -1,8 +1,10 @@
 /* landing page backgrounds */
+{% load staticfiles %}
 
 @media screen and (min-width: 42em) {
   #home {
-    background: url(/static/img/wheelbarrow.jpg) center bottom fixed;
+    background: url(https://storage.googleapis.com/opencurrents-194003.appspot.com/static/img/wheelbarrow.jpg) center bottom fixed;
+    /* background: url({% static 'img/wheelbarrow.jpg' %}) center bottom fixed; */
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -10,7 +12,7 @@
   }
 
   #nonprofit {
-    background: url(/static/img/hands.jpg) no-repeat center 40px fixed;
+    background: url(https://storage.googleapis.com/opencurrents-194003.appspot.com/static/img/hands.jpg) no-repeat center 40px fixed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -18,7 +20,7 @@
   }
 
   #business {
-    background: url(/static/img/market.jpg) no-repeat right center fixed;
+    background: url(https://storage.googleapis.com/opencurrents-194003.appspot.com/static/img/market.jpg) no-repeat right center fixed;a
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -26,7 +28,7 @@
   }
 
   #our-story {
-    background: url(/static/img/moab.jpg) no-repeat left center fixed;
+    background: url(https://storage.googleapis.com/opencurrents-194003.appspot.com/static/img/moab.jpg) no-repeat left center fixed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -34,7 +36,7 @@
   }
 
   #faq {
-    background: url(/static/img/tree.jpg) no-repeat center center fixed;
+    background: url(https://storage.googleapis.com/opencurrents-194003.appspot.com/static/img/tree.jpg) no-repeat center center fixed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -64,7 +66,8 @@
     left:0;
     right:0;
     z-index:-1;
-    background: url(/static/img/wheelbarrow.jpg) center bottom;
+    background: url(https://storage.googleapis.com/opencurrents-194003.appspot.com/static/img/wheelbarrow.jpg) center bottom;
+    /* background: url({% static 'img/wheelbarrow.jpg' %}) center bottom; */
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -79,7 +82,7 @@
     left:0;
     right:0;
     z-index:-1;
-    background: url(/static/img/hands.jpg) center 40px;
+    background: url(https://storage.googleapis.com/opencurrents-194003.appspot.com/static/img/hands.jpg) center 40px;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -94,7 +97,7 @@
     left:0;
     right:0;
     z-index:-1;
-    background: url(/static/img/market.jpg) right center;
+    background: url(https://storage.googleapis.com/opencurrents-194003.appspot.com/static/img/market.jpg) right center;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -109,7 +112,7 @@
     left:0;
     right:0;
     z-index:-1;
-    background: url(/static/img/moab.jpg) -300px center;
+    background: url(https://storage.googleapis.com/opencurrents-194003.appspot.com/static/img/moab.jpg) -300px center;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -124,7 +127,7 @@
     left:0;
     right:0;
     z-index:-1;
-    background: url(/static/img/tree.jpg) center 60px;
+    background: url(https://storage.googleapis.com/opencurrents-194003.appspot.com/static/img/tree.jpg) center 60px;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
