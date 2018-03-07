@@ -720,6 +720,16 @@ class OfferCreateForm(forms.Form):
         required=False
     )
 
+    def clean_offer_current_share(self):
+        offer_current_share = self.cleaned_data['offer_current_share']
+
+        if offer_current_share < 5:
+            raise ValidationError(_(
+                'We require a minimum share of 5%'
+            ))
+
+        return int(offer_current_share)
+
     def clean_offer_item(self):
         offer_item = self.cleaned_data['offer_item']
         offer = Offer.objects.filter(
@@ -738,7 +748,14 @@ class OfferCreateForm(forms.Form):
         return offer_item
 
     def clean_offer_limit_choice(self):
-        return int(self.cleaned_data['offer_limit_choice'])
+        offer_limit_choice = self.cleaned_data['offer_limit_choice']
+
+        if offer_limit_choice <= 0:
+            raise ValidationError(_(
+                'Monthly transaction limit must be greater than 0'
+            ))
+
+        return int(offer_limit_choice)
 
     def clean(self):
         cleaned_data = super(OfferCreateForm, self).clean()
