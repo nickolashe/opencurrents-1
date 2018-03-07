@@ -74,17 +74,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'oc.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/1.10/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
-
-
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
 
@@ -152,11 +141,11 @@ LOGIN_URL = 'openCurrents:login'
 # MySQLdb. This is a convenience feature for developers who cannot install
 # MySQLdb locally; when running in production on Google App Engine Standard
 # Environment, MySQLdb will be used.
-try:
-    import MySQLdb  # noqa: F401
-except ImportError:
-    import pymysql
-    pymysql.install_as_MySQLdb()
+# try:
+#     import MySQLdb  # noqa: F401
+# except ImportError:
+#     import pymysql
+#     pymysql.install_as_MySQLdb()
 
 # [START db_setup]
 # (standard)
@@ -214,6 +203,19 @@ DATABASES['default']['HOST'] = '/cloudsql/opencurrents-194003:us-central1:oc-pg'
 if os.getenv('GAE_INSTANCE'):
     pass
 else:
-    DATABASES['default']['HOST'] = '127.0.0.1'
-    DATABASES['default']['PORT'] = '3307'
+    # uncomment (and comment out local sqlite set up below)
+    # when using CloudSQL proxy to forward connections to remote db
+    # DATABASES['default']['HOST'] = '127.0.0.1'
+    # DATABASES['default']['PORT'] = '3307'
+
+
+    # Database
+    # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
+    }
+
 # [END dbconfig]
