@@ -3925,7 +3925,7 @@ def process_login(request):
         else:
             glogger_struct = {
                 'msg': 'login invalid',
-                'username': user.email
+                'username': user_name
             }
             glogger.log_struct(glogger_struct, labels=glogger_labels)
 
