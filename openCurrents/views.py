@@ -34,10 +34,6 @@ from interfaces.orgs import (
 from openCurrents.interfaces import common
 from openCurrents.interfaces.community import OcCommunity
 from openCurrents.interfaces import convert
-
-import math
-import re
-
 from openCurrents import config
 from openCurrents.models import (
     Org,
@@ -80,8 +76,12 @@ from openCurrents.forms import (
 
 import json
 import mandrill
+import math
 import logging
+import os
 import pytz
+import socket
+import re
 import uuid
 import decimal
 
@@ -90,10 +90,16 @@ logging.basicConfig(level=logging.DEBUG, filename='log/views.log')
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-# Imports the Google Cloud client library
+# set up Google Cloud logging
 from google.cloud import logging as glogging
 logging_client = glogging.Client()
-glogger = logging_client.logger('oc-views')
+
+if os.getenv('GAE_INSTANCE'):
+    logger_name = 'oc-gae-views'
+else:
+    logger_name = '-'.join([os.getlogin(), socket.gethostname()])
+
+glogger = logging_client.logger(logger_name)
 
 
 class DatetimeEncoder(json.JSONEncoder):
