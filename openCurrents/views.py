@@ -2779,7 +2779,7 @@ class AddVolunteersView(TemplateView):
     template_name = 'add-volunteers.html'
 
 
-class OfferCreateView(LoginRequiredMixin, BizSessionContextView, FormView):
+class OfferCreateView(FormView):
     template_name = 'offer.html'
     form_class = OfferCreateForm
     glogger_labels = {
@@ -2845,7 +2845,11 @@ class OfferCreateView(LoginRequiredMixin, BizSessionContextView, FormView):
         Passes orgid down to the offer form.
         '''
         kwargs = super(OfferCreateView, self).get_form_kwargs()
-        kwargs.update({'orgid': self.org.id})
+
+        if 'new_biz_org_id' in self.request.session:
+            kwargs.update({'orgid': self.request.session['new_biz_org_id']})
+        else:
+            kwargs.update({'orgid': self.org.id})
 
         return kwargs
 
@@ -3569,40 +3573,41 @@ def process_signup(
                 return redirect('openCurrents:500')
 
             if not mock_emails:
-                try:
-                    sendTransactionalEmail(
-                        'new-org-registered',
-                        None,
-                        [
-                            {
-                                'name': 'FNAME',
-                                'content': user_firstname
-                            },
-                            {
-                                'name': 'LNAME',
-                                'content': user_lastname
-                            },
-                            {
-                                'name': 'EMAIL',
-                                'content': user_email
-                            },
-                            {
-                                'name': 'ORG_NAME',
-                                'content': org_name
-                            },
-                            {
-                                'name': 'ORG_STATUS',
-                                'content': org_status
-                            }
-                        ],
-                        'bizdev@opencurrents.com'
-                    )
-                except Exception as e:
-                    logger.error(
-                        'unable to send transactional email: %s (%s)',
-                        e.message,
-                        type(e)
-                    )
+                pass
+                # try:
+                #     sendTransactionalEmail(
+                #         'new-org-registered',
+                #         None,
+                #         [
+                #             {
+                #                 'name': 'FNAME',
+                #                 'content': user_firstname
+                #             },
+                #             {
+                #                 'name': 'LNAME',
+                #                 'content': user_lastname
+                #             },
+                #             {
+                #                 'name': 'EMAIL',
+                #                 'content': user_email
+                #             },
+                #             {
+                #                 'name': 'ORG_NAME',
+                #                 'content': org_name
+                #             },
+                #             {
+                #                 'name': 'ORG_STATUS',
+                #                 'content': org_status
+                #             }
+                #         ],
+                #         'bizdev@opencurrents.com'
+                #     )
+                # except Exception as e:
+                #     logger.error(
+                #         'unable to send transactional email: %s (%s)',
+                #         e.message,
+                #         type(e)
+                #     )
 
         if verify_email:
             if not org_admin_id:
@@ -3623,66 +3628,68 @@ def process_signup(
                 token_record.save()
 
                 if not mock_emails:
+                    pass
                     # send verification email
-                    try:
-                        sendTransactionalEmail(
-                            'verify-email',
-                            None,
-                            [
-                                {
-                                    'name': 'FIRSTNAME',
-                                    'content': user_firstname
-                                },
-                                {
-                                    'name': 'EMAIL',
-                                    'content': user_email
-                                },
-                                {
-                                    'name': 'TOKEN',
-                                    'content': str(token)
-                                }
-                            ],
-                            user_email
-                        )
-                    except Exception as e:
-                        logger.error(
-                            'unable to send transactional email: %s (%s)',
-                            e.message,
-                            type(e)
-                        )
+                    # try:
+                    #     sendTransactionalEmail(
+                    #         'verify-email',
+                    #         None,
+                    #         [
+                    #             {
+                    #                 'name': 'FIRSTNAME',
+                    #                 'content': user_firstname
+                    #             },
+                    #             {
+                    #                 'name': 'EMAIL',
+                    #                 'content': user_email
+                    #             },
+                    #             {
+                    #                 'name': 'TOKEN',
+                    #                 'content': str(token)
+                    #             }
+                    #         ],
+                    #         user_email
+                    #     )
+                    # except Exception as e:
+                    #     logger.error(
+                    #         'unable to send transactional email: %s (%s)',
+                    #         e.message,
+                    #         type(e)
+                    #     )
             else:
                 logger.debug('User invited by admin %d', org_admin_id)
                 admin_user = OcUser(org_admin_id).get_user()
                 admin_org = OrgUserInfo(org_admin_id).get_org()
 
                 if not isExisting and not mock_emails:
+                    pass
                     # send invite email
-                    try:
-                        sendTransactionalEmail(
-                            'invite-volunteer',
-                            None,
-                            [
-                                {
-                                    'name': 'ADMIN_FIRSTNAME',
-                                    'content': admin_user.first_name
-                                },
-                                {
-                                    'name': 'ADMIN_LASTNAME',
-                                    'content': admin_user.last_name
-                                },
-                                {
-                                    'name': 'ORG_NAME',
-                                    'content': admin_org.name
-                                }
-                            ],
-                            user_email
-                        )
-                    except Exception as e:
-                        logger.error(
-                            'unable to send transactional email: %s (%s)',
-                            e.message,
-                            type(e)
-                        )
+                    # try:
+                    #     sendTransactionalEmail(
+                    #         'invite-volunteer',
+                    #         None,
+                    #         [
+                    #             {
+                    #                 'name': 'ADMIN_FIRSTNAME',
+                    #                 'content': admin_user.first_name
+                    #             },
+                    #             {
+                    #                 'name': 'ADMIN_LASTNAME',
+                    #                 'content': admin_user.last_name
+                    #             },
+                    #             {
+                    #                 'name': 'ORG_NAME',
+                    #                 'content': admin_org.name
+                    #             }
+                    #         ],
+                    #         user_email
+                    #     )
+                    # except Exception as e:
+                    #     logger.error(
+                    #         'unable to send transactional email: %s (%s)',
+                    #         e.message,
+                    #         type(e)
+                    #     )
                 # for testing purposes
                 else:
                     request.session['invitation_email'] = 'True'
@@ -3692,6 +3699,9 @@ def process_signup(
             return HttpResponse(user.id, status=201)
         else:
             if org_name:
+
+                logger.debug('Processing organization...')
+
                 glogger_struct = {
                     'msg': 'new user invited by org',
                     'username': user_email,
@@ -3699,11 +3709,21 @@ def process_signup(
                 }
                 glogger.log_struct(glogger_struct, labels=glogger_labels)
 
-                return redirect(
-                    'openCurrents:check-email',
-                    user_email,
-                    org.id
-                )
+                if org_status == 'biz':
+
+                    request.session['is_registration'] = True
+                    request.session['new_biz_user'] = User.objects.get(email=user_email)
+                    request.session['new_biz_org_id'] = Org.objects.get(name=org_name).id
+
+                    logger.debug('redirecting new biz admin to offer page...')
+                    return redirect('openCurrents:offer')
+
+                else:
+                    return redirect(
+                        'openCurrents:check-email',
+                        user_email,
+                        org.id
+                    )
             else:
                 glogger_struct = {
                     'msg': 'new user signup',
