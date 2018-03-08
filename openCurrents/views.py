@@ -2846,10 +2846,11 @@ class OfferCreateView(FormView):
         '''
         kwargs = super(OfferCreateView, self).get_form_kwargs()
 
-        if 'new_biz_org_id' in self.request.session:
-            kwargs.update({'orgid': self.request.session['new_biz_org_id']})
+        if 'new_biz_org_id' in self.request.session.keys():
+            new_biz_org_id = self.request.session.pop('new_biz_org_id', None)
+            kwargs.update({'orgid': new_biz_org_id})
         else:
-            kwargs.update({'orgid': self.org.id})
+            kwargs.update({'orgid': OrgUser.objects.get(user=self.request.user).org.id})
 
         return kwargs
 
@@ -3712,7 +3713,7 @@ def process_signup(
                 if org_status == 'biz':
 
                     request.session['is_registration'] = True
-                    request.session['new_biz_user'] = User.objects.get(email=user_email)
+                    request.session['new_biz_user'] = User.objects.get(email=user_email).id
                     request.session['new_biz_org_id'] = Org.objects.get(name=org_name).id
 
                     logger.debug('redirecting new biz admin to offer page...')
