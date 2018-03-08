@@ -713,9 +713,7 @@ class OfferCreateForm(forms.Form):
     )
 
     offer_limit_value = forms.IntegerField(
-        widget=forms.NumberInput(attrs={
-           'placeholder': 100
-        }),
+        widget=forms.NumberInput(attrs={'placeholder': 100}),
         initial=100,
         required=False
     )

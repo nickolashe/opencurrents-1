@@ -2850,9 +2850,67 @@ class OfferCreateView(FormView):
             new_biz_org_id = self.request.session.pop('new_biz_org_id', None)
             kwargs.update({'orgid': new_biz_org_id})
         else:
+
             kwargs.update({'orgid': OrgUser.objects.get(user=self.request.user).org.id})
 
         return kwargs
+
+
+    def dispatch(self, request, *args, **kwargs):
+
+        if 'new_biz_registration' not in self.request.session.keys() \
+        and not self.request.user.is_authenticated():
+            return redirect('openCurrents:login')
+        elif 'new_biz_registration' in self.request.session.keys():
+            self.userid = self.request.session['new_biz_user_id']
+            try:
+                self.user = User.objects.get(id=self.userid)
+            except:
+                logger.debug('Couldnt find the user by id')
+
+            # oc user
+            self.ocuser = OcUser(self.userid)
+
+            # user org
+            orguserinfo = OrgUserInfo(self.userid)
+            self.org = orguserinfo.get_org()
+
+            # org auth
+            self.ocauth = OcAuth(self.userid)
+
+            return super(OfferCreateView, self).dispatch(
+                request, *args, **kwargs
+            )
+        else:
+            self.userid = request.user.id
+            self.user = request.user
+
+            # oc user
+            self.ocuser = OcUser(self.userid)
+
+            # user org
+            orguserinfo = OrgUserInfo(request.user.id)
+            self.org = orguserinfo.get_org()
+
+            # org auth
+            self.ocauth = OcAuth(self.userid)
+
+            return super(OfferCreateView, self).dispatch(
+                request, *args, **kwargs
+            )
+
+    # def get(self, request, *args, **kwargs):
+
+    #     # if 'is_registration' not in self.request.session:
+    #     if not request.user.is_authenticated():
+    #         return redirect('openCurrents:login')
+    #     else:
+    #         form_class = self.get_form_class()
+    #         form = self.get_form(form_class)
+    #         context = self.get_context_data(**kwargs)
+    #         context['form'] = form
+    #         return self.render_to_response(context)
+
 
 
 class OfferEditView(OfferCreateView):
@@ -3712,8 +3770,8 @@ def process_signup(
 
                 if org_status == 'biz':
 
-                    request.session['is_registration'] = True
-                    request.session['new_biz_user'] = User.objects.get(email=user_email).id
+                    request.session['new_biz_registration'] = True
+                    request.session['new_biz_user_id'] = User.objects.get(email=user_email).id
                     request.session['new_biz_org_id'] = Org.objects.get(name=org_name).id
 
                     logger.debug('redirecting new biz admin to offer page...')
