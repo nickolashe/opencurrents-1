@@ -452,7 +452,7 @@ class ApproveHoursView(OrgAdminPermissionMixin, OrgSessionContextView, ListView)
 
         glogger_struct = {
             'msg': 'approve hours accessed',
-            'admin': self.user.email,
+            'admin_email': self.user.email,
             'hours_req_count': len(requested_actions)
         }
         glogger.log_struct(glogger_struct, labels=self.glogger_labels)
@@ -964,7 +964,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
                 'msg': 'offer redemption request',
                 'username': request.user.email,
                 'offerid': self.offer.id,
-                'orgname': self.offer.org.name
+                'bizname': self.offer.org.name
             }
 
             reqForbidden = False
@@ -1055,7 +1055,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
             'msg': 'offer redeemed',
             'username': self.request.user.email,
             'offerid': self.offer.id,
-            'orgname': self.offer.org.name
+            'bizname': self.offer.org.name
         }
         glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
