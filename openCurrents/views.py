@@ -427,6 +427,14 @@ class BizDetailsView(BizSessionContextView, FormView):
         'handler': 'BizDetailsView'
     }
 
+    def get_context_data(self, **kwargs):
+        context = super(BizDetailsView, self).get_context_data(**kwargs)
+
+        for field in context['form'].declared_fields.keys():
+            val = getattr(self.org, field)
+            if val:
+                context['form'].fields[field].widget.attrs['value'] = val
+
     def form_valid(self, form):
         data = form.cleaned_data
 
