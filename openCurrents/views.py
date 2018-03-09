@@ -112,47 +112,122 @@ class DatetimeEncoder(json.JSONEncoder):
 
 class SessionContextView(View):
     def dispatch(self, request, *args, **kwargs):
-        self.userid = request.user.id
-        self.user = request.user
+        # self.userid = request.user.id
+        # self.user = request.user
 
-        # oc user
-        self.ocuser = OcUser(self.userid)
+        # # oc user
+        # self.ocuser = OcUser(self.userid)
 
-        # user org
-        orguserinfo = OrgUserInfo(request.user.id)
-        self.org = orguserinfo.get_org()
+        # # user org
+        # orguserinfo = OrgUserInfo(request.user.id)
+        # self.org = orguserinfo.get_org()
 
-        # org auth
-        self.ocauth = OcAuth(self.userid)
+        # # org auth
+        # self.ocauth = OcAuth(self.userid)
+
+        # return super(SessionContextView, self).dispatch(
+        #     request, *args, **kwargs
+        # )
+
+        if self.request.user.is_authenticated():
+            self.userid = request.user.id
+            self.user = request.user
+
+            # oc user
+            self.ocuser = OcUser(self.userid)
+
+            # user org
+            orguserinfo = OrgUserInfo(request.user.id)
+            self.org = orguserinfo.get_org()
+
+            # org auth
+            self.ocauth = OcAuth(self.userid)
+
+        if 'new_biz_registration' not in self.request.session.keys() \
+                and not self.request.user.is_authenticated():
+            return redirect('openCurrents:403')
+
+        elif 'new_biz_registration' in self.request.session.keys():
+
+            logger.debug('registering new biz org...')
+
+            self.userid = self.request.session['new_biz_user_id']
+            try:
+                self.user = User.objects.get(id=self.userid)
+            except:
+                logger.debug('Couldnt find the user by id')
+
+            # oc user
+            self.ocuser = OcUser(self.userid)
+
+            # user org
+            orguserinfo = OrgUserInfo(self.userid)
+            self.org = orguserinfo.get_org()
+
+            # org auth
+            self.ocauth = OcAuth(self.userid)
 
         return super(SessionContextView, self).dispatch(
-            request, *args, **kwargs
+            request,
+            *args,
+            **kwargs
         )
 
     def get_context_data(self, **kwargs):
+
         context = super(SessionContextView, self).get_context_data(**kwargs)
-        userid = self.request.user.id
-        context['userid'] = userid
 
-        # user org
-        orguser = OrgUserInfo(userid)
-        org = orguser.get_org()
-        orgid = orguser.get_org_id()
-        context['org'] = org
-        context['orgid'] = orgid
-        context['org_id'] = orgid
-        context['orgname'] = orguser.get_org_name()
-        context['org_timezone'] = orguser.get_org_timezone()
-        context['is_admin'] = self.ocauth.is_admin()
-        context['is_admin_org'] = self.ocauth.is_admin_org()
-        context['is_admin_biz'] = self.ocauth.is_admin_biz()
+        if self.request.user.is_authenticated():
+            userid = self.request.user.id
+            context['userid'] = userid
 
-        # workaround with status message for anything but TemplateView
-        if 'status_msg' in self.kwargs and ('form' not in context or not context['form'].errors):
-            context['status_msg'] = self.kwargs.get('status_msg', '')
+            # user org
+            orguser = OrgUserInfo(userid)
+            org = orguser.get_org()
+            orgid = orguser.get_org_id()
+            context['org'] = org
+            context['orgid'] = orgid
+            context['org_id'] = orgid
+            context['orgname'] = orguser.get_org_name()
+            context['org_timezone'] = orguser.get_org_timezone()
+            context['is_admin'] = self.ocauth.is_admin()
+            context['is_admin_org'] = self.ocauth.is_admin_org()
+            context['is_admin_biz'] = self.ocauth.is_admin_biz()
 
-        if 'msg_type' in self.kwargs:
-            context['msg_type'] = self.kwargs.get('msg_type', '')
+            # workaround with status message for anything but TemplateView
+            if 'status_msg' in self.kwargs and ('form' not in context or not context['form'].errors):
+                context['status_msg'] = self.kwargs.get('status_msg', '')
+
+            if 'msg_type' in self.kwargs:
+                context['msg_type'] = self.kwargs.get('msg_type', '')
+
+        if 'new_biz_registration' not in self.request.session.keys() \
+                and not self.request.user.is_authenticated():
+            return redirect('openCurrents:403')
+
+        elif 'new_biz_registration' in self.request.session.keys():
+            userid = self.request.session['new_biz_user_id']
+            context['userid'] = userid
+
+            # user org
+            orguser = OrgUserInfo(userid)
+            org = orguser.get_org()
+            orgid = orguser.get_org_id()
+            context['org'] = org
+            context['orgid'] = orgid
+            context['org_id'] = orgid
+            context['orgname'] = orguser.get_org_name()
+            context['org_timezone'] = orguser.get_org_timezone()
+            context['is_admin'] = self.ocauth.is_admin()
+            context['is_admin_org'] = self.ocauth.is_admin_org()
+            context['is_admin_biz'] = self.ocauth.is_admin_biz()
+
+            # workaround with status message for anything but TemplateView
+            if 'status_msg' in self.kwargs and ('form' not in context or not context['form'].errors):
+                context['status_msg'] = self.kwargs.get('status_msg', '')
+
+            if 'msg_type' in self.kwargs:
+                context['msg_type'] = self.kwargs.get('msg_type', '')
 
         return context
 
@@ -160,7 +235,10 @@ class SessionContextView(View):
 class BizSessionContextView(SessionContextView):
     def dispatch(self, request, *args, **kwargs):
         # biz admin user
-        self.bizadmin = BizAdmin(request.user.id)
+        if self.request.user.is_authenticated():
+            self.bizadmin = BizAdmin(request.user.id)
+        elif 'new_biz_registration' in self.request.session.keys():
+            self.bizadmin = BizAdmin(request.session['new_biz_user_id'])
 
         return super(BizSessionContextView, self).dispatch(
             request, *args, **kwargs
@@ -342,9 +420,12 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, TemplateView)
         return context
 
 
-class BizDetailsView(BizAdminPermissionMixin, BizSessionContextView, FormView):
+class BizDetailsView(BizSessionContextView, FormView):
     template_name = 'biz-details.html'
     form_class = BizDetailsForm
+    glogger_labels = {
+        'handler': 'BizDetailsView'
+    }
 
     def form_valid(self, form):
         data = form.cleaned_data
@@ -364,17 +445,34 @@ class BizDetailsView(BizAdminPermissionMixin, BizSessionContextView, FormView):
                 intro=data['intro']
             )
 
+            if self.request.user.is_authenticated():
+                user_email = self.user.email
+            elif 'new_biz_registration' in self.request.session.keys():
+                user_email = User.objects.get(id=self.request.session['new_biz_user_id']).email
+
             glogger_struct = {
                 'msg': 'biz details updated',
-                'username': self.user.email,
+                'username': user_email,
                 'orgname': self.org.name
             }
             glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
-            return redirect(
-                'openCurrents:biz-admin',
-                status_msg='Thank you for adding %s\'s details' % self.org.name
-            )
+            if self.request.user.is_authenticated():
+                return redirect(
+                    'openCurrents:biz-admin',
+                    status_msg='Thank you for adding %s\'s details' % self.org.name
+                )
+            elif 'new_biz_registration' in self.request.session.keys():
+
+                # remove all new_biz_registration related session vars
+                self.request.session.pop('new_biz_registration')
+                self.request.session.pop('new_biz_user_id')
+                self.request.session.pop('new_biz_org_id')
+
+                return redirect(
+                    'openCurrents:check-email',
+                    user_email
+                )
 
 
 class BusinessView(TemplateView):
@@ -2117,11 +2215,11 @@ class EditEventView(CreateEventView):
 
         # event detail changes
         if int(self.event.is_public) != data['event_privacy'] or \
-            self.event.location != data['event_location'] or \
-            self.event.description != data['event_description'] or \
-            self.event.coordinator.id != int(data['event_coordinator']) or \
-            self.event.datetime_start != data['datetime_start'] or \
-            self.event.datetime_end != data['datetime_end']:
+                self.event.location != data['event_location'] or \
+                self.event.description != data['event_description'] or \
+                self.event.coordinator.id != int(data['event_coordinator']) or \
+                self.event.datetime_start != data['datetime_start'] or \
+                self.event.datetime_end != data['datetime_end']:
 
             userregs = UserEventRegistration.objects.filter(
                 event__id=self.event.id,
@@ -2779,7 +2877,7 @@ class AddVolunteersView(TemplateView):
     template_name = 'add-volunteers.html'
 
 
-class OfferCreateView(FormView):
+class OfferCreateView(SessionContextView, FormView):
     template_name = 'offer.html'
     form_class = OfferCreateForm
     glogger_labels = {
@@ -2802,6 +2900,11 @@ class OfferCreateView(FormView):
 
         offer.save()
 
+        if self.request.user.is_authenticated():
+            user_email = self.user.email
+        elif 'new_biz_registration' in self.request.session.keys():
+            user_email = User.objects.get(id=self.request.session['new_biz_user_id']).email
+
         logger.debug(
             'Offer for %d% on %s created by %s',
             data['offer_current_share'],
@@ -2810,16 +2913,22 @@ class OfferCreateView(FormView):
         )
         glogger_struct = {
             'msg': 'new offer created',
-            'username': self.request.user.email,
+            'username': user_email,
             'orgname': self.org.name,
             'offerid': offer.id
         }
         glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
-        return redirect(
-            'openCurrents:biz-admin',
-            'Your offer for %s is now live!' % offer_item.name
-        )
+        if self.request.user.is_authenticated():
+            return redirect(
+                'openCurrents:biz-admin',
+                'Your offer for %s is now live!' % offer_item.name
+            )
+        else:
+            return redirect(
+                'openCurrents:biz-details',
+                "You have posted an offer for in the marketplace. Nice!"
+            )
 
     def form_invalid(self, form):
         existing_item_err = form.errors.get('offer_item', '')
@@ -2846,71 +2955,18 @@ class OfferCreateView(FormView):
         '''
         kwargs = super(OfferCreateView, self).get_form_kwargs()
 
-        if 'new_biz_org_id' in self.request.session.keys():
-            new_biz_org_id = self.request.session.pop('new_biz_org_id', None)
-            kwargs.update({'orgid': new_biz_org_id})
-        else:
+        if 'new_biz_registration' in self.request.session.keys() and \
+                not self.request.user.is_authenticated():
+            try:
+                new_biz_org_id = self.request.session['new_biz_org_id']
+                kwargs.update({'orgid': new_biz_org_id})
+            except:
+                logger.debug('Couldnt find new_biz_org_id in session')
 
+        else:
             kwargs.update({'orgid': OrgUser.objects.get(user=self.request.user).org.id})
 
         return kwargs
-
-
-    def dispatch(self, request, *args, **kwargs):
-
-        if 'new_biz_registration' not in self.request.session.keys() \
-        and not self.request.user.is_authenticated():
-            return redirect('openCurrents:login')
-        elif 'new_biz_registration' in self.request.session.keys():
-            self.userid = self.request.session['new_biz_user_id']
-            try:
-                self.user = User.objects.get(id=self.userid)
-            except:
-                logger.debug('Couldnt find the user by id')
-
-            # oc user
-            self.ocuser = OcUser(self.userid)
-
-            # user org
-            orguserinfo = OrgUserInfo(self.userid)
-            self.org = orguserinfo.get_org()
-
-            # org auth
-            self.ocauth = OcAuth(self.userid)
-
-            return super(OfferCreateView, self).dispatch(
-                request, *args, **kwargs
-            )
-        else:
-            self.userid = request.user.id
-            self.user = request.user
-
-            # oc user
-            self.ocuser = OcUser(self.userid)
-
-            # user org
-            orguserinfo = OrgUserInfo(request.user.id)
-            self.org = orguserinfo.get_org()
-
-            # org auth
-            self.ocauth = OcAuth(self.userid)
-
-            return super(OfferCreateView, self).dispatch(
-                request, *args, **kwargs
-            )
-
-    # def get(self, request, *args, **kwargs):
-
-    #     # if 'is_registration' not in self.request.session:
-    #     if not request.user.is_authenticated():
-    #         return redirect('openCurrents:login')
-    #     else:
-    #         form_class = self.get_form_class()
-    #         form = self.get_form(form_class)
-    #         context = self.get_context_data(**kwargs)
-    #         context['form'] = form
-    #         return self.render_to_response(context)
-
 
 
 class OfferEditView(OfferCreateView):
@@ -3632,41 +3688,40 @@ def process_signup(
                 return redirect('openCurrents:500')
 
             if not mock_emails:
-                pass
-                # try:
-                #     sendTransactionalEmail(
-                #         'new-org-registered',
-                #         None,
-                #         [
-                #             {
-                #                 'name': 'FNAME',
-                #                 'content': user_firstname
-                #             },
-                #             {
-                #                 'name': 'LNAME',
-                #                 'content': user_lastname
-                #             },
-                #             {
-                #                 'name': 'EMAIL',
-                #                 'content': user_email
-                #             },
-                #             {
-                #                 'name': 'ORG_NAME',
-                #                 'content': org_name
-                #             },
-                #             {
-                #                 'name': 'ORG_STATUS',
-                #                 'content': org_status
-                #             }
-                #         ],
-                #         'bizdev@opencurrents.com'
-                #     )
-                # except Exception as e:
-                #     logger.error(
-                #         'unable to send transactional email: %s (%s)',
-                #         e.message,
-                #         type(e)
-                #     )
+                try:
+                    sendTransactionalEmail(
+                        'new-org-registered',
+                        None,
+                        [
+                            {
+                                'name': 'FNAME',
+                                'content': user_firstname
+                            },
+                            {
+                                'name': 'LNAME',
+                                'content': user_lastname
+                            },
+                            {
+                                'name': 'EMAIL',
+                                'content': user_email
+                            },
+                            {
+                                'name': 'ORG_NAME',
+                                'content': org_name
+                            },
+                            {
+                                'name': 'ORG_STATUS',
+                                'content': org_status
+                            }
+                        ],
+                        'bizdev@opencurrents.com'
+                    )
+                except Exception as e:
+                    logger.error(
+                        'unable to send transactional email: %s (%s)',
+                        e.message,
+                        type(e)
+                    )
 
         if verify_email:
             if not org_admin_id:
@@ -3687,68 +3742,66 @@ def process_signup(
                 token_record.save()
 
                 if not mock_emails:
-                    pass
                     # send verification email
-                    # try:
-                    #     sendTransactionalEmail(
-                    #         'verify-email',
-                    #         None,
-                    #         [
-                    #             {
-                    #                 'name': 'FIRSTNAME',
-                    #                 'content': user_firstname
-                    #             },
-                    #             {
-                    #                 'name': 'EMAIL',
-                    #                 'content': user_email
-                    #             },
-                    #             {
-                    #                 'name': 'TOKEN',
-                    #                 'content': str(token)
-                    #             }
-                    #         ],
-                    #         user_email
-                    #     )
-                    # except Exception as e:
-                    #     logger.error(
-                    #         'unable to send transactional email: %s (%s)',
-                    #         e.message,
-                    #         type(e)
-                    #     )
+                    try:
+                        sendTransactionalEmail(
+                            'verify-email',
+                            None,
+                            [
+                                {
+                                    'name': 'FIRSTNAME',
+                                    'content': user_firstname
+                                },
+                                {
+                                    'name': 'EMAIL',
+                                    'content': user_email
+                                },
+                                {
+                                    'name': 'TOKEN',
+                                    'content': str(token)
+                                }
+                            ],
+                            user_email
+                        )
+                    except Exception as e:
+                        logger.error(
+                            'unable to send transactional email: %s (%s)',
+                            e.message,
+                            type(e)
+                        )
             else:
                 logger.debug('User invited by admin %d', org_admin_id)
                 admin_user = OcUser(org_admin_id).get_user()
                 admin_org = OrgUserInfo(org_admin_id).get_org()
 
                 if not isExisting and not mock_emails:
-                    pass
                     # send invite email
-                    # try:
-                    #     sendTransactionalEmail(
-                    #         'invite-volunteer',
-                    #         None,
-                    #         [
-                    #             {
-                    #                 'name': 'ADMIN_FIRSTNAME',
-                    #                 'content': admin_user.first_name
-                    #             },
-                    #             {
-                    #                 'name': 'ADMIN_LASTNAME',
-                    #                 'content': admin_user.last_name
-                    #             },
-                    #             {
-                    #                 'name': 'ORG_NAME',
-                    #                 'content': admin_org.name
-                    #             }
-                    #         ],
-                    #         user_email
-                    #     )
-                    # except Exception as e:
-                    #     logger.error(
-                    #         'unable to send transactional email: %s (%s)',
-                    #         e.message,
-                    #         type(e)
-                    #     )
+                    try:
+                        sendTransactionalEmail(
+                            'invite-volunteer',
+                            None,
+                            [
+                                {
+                                    'name': 'ADMIN_FIRSTNAME',
+                                    'content': admin_user.first_name
+                                },
+                                {
+                                    'name': 'ADMIN_LASTNAME',
+                                    'content': admin_user.last_name
+                                },
+                                {
+                                    'name': 'ORG_NAME',
+                                    'content': admin_org.name
+                                }
+                            ],
+                            user_email
+                        )
+                    except Exception as e:
+                        logger.error(
+                            'unable to send transactional email: %s (%s)',
+                            e.message,
+                            type(e)
+                        )
                 # for testing purposes
                 else:
                     request.session['invitation_email'] = 'True'
