@@ -4,9 +4,5 @@ log/views.log
 .DS_Store
 oc/staticfiles
 oc/mediafiles
-<<<<<<< HEAD
-/env
-=======
 env/
 lib/
->>>>>>> d2c6fe98c6b1e70795a3ba25b78867fb4b50dd64
