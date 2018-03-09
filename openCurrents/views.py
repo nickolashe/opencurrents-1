@@ -433,7 +433,10 @@ class BizDetailsView(BizSessionContextView, FormView):
         for field in context['form'].declared_fields.keys():
             val = getattr(self.org, field)
             if val:
+                print val
                 context['form'].fields[field].widget.attrs['value'] = val
+
+        return context
 
     def form_valid(self, form):
         data = form.cleaned_data
