@@ -4,3 +4,5 @@ log/views.log
 .DS_Store
 oc/staticfiles
 oc/mediafiles
+env/
+lib/
