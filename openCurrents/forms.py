@@ -834,7 +834,7 @@ class RedeemCurrentsForm(forms.Form):
         })
     )
 
-    redeem_price = forms.IntegerField(
+    redeem_price = forms.DecimalField(
         widget=forms.NumberInput(),
         required=False
     )
