@@ -97,7 +97,7 @@ logging_client = glogging.Client()
 if os.getenv('GAE_INSTANCE'):
     logger_name = 'oc-gae-views'
 else:
-    logger_name = '-'.join([os.getlogin(), socket.gethostname()])
+    logger_name = '-'.join(['oc-local', socket.gethostname()])
 
 glogger = logging_client.logger(logger_name)
 
