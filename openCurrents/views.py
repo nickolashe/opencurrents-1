@@ -2313,6 +2313,9 @@ class ProjectDetailsView(TemplateView):
 
 class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
     template_name = 'invite-volunteers.html'
+    glogger_labels = {
+        'handler': 'InviteVolunteersView'
+    }
 
     def get_context_data(self, **kwargs):
         # skip context param determines whether we show skip button or not
@@ -3078,7 +3081,7 @@ def event_checkin(request, pk):
                     usertimelog.datetime_end = datetime.now(tz=pytz.utc)
                     usertimelog.save()
                     clogger.debug(
-                        'user checkout',
+                        '%s: user checkout',
                         usertimelog.datetime_end.strftime('%m/%d/%Y %H:%M:%S')
                     )
                     glogger_struct['msg'] = 'event user checkout'
