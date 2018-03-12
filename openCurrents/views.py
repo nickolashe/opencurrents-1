@@ -458,10 +458,7 @@ class BizDetailsView(BizSessionContextView, FormView):
                 intro=data['intro']
             )
 
-            if self.request.user.is_authenticated():
-                user_email = self.user.email
-            elif 'new_biz_registration' in self.request.session.keys():
-                user_email = User.objects.get(id=self.request.session['new_biz_user_id']).email
+            user_email = common.check_if_new_biz_registration(self)
 
             glogger_struct = {
                 'msg': 'biz details updated',
@@ -2923,10 +2920,7 @@ class OfferCreateView(SessionContextView, FormView):
 
         offer.save()
 
-        if self.request.user.is_authenticated():
-            user_email = self.user.email
-        elif 'new_biz_registration' in self.request.session.keys():
-            user_email = User.objects.get(id=self.request.session['new_biz_user_id']).email
+        user_email = common.check_if_new_biz_registration(self)
 
         logger.debug(
             'Offer for %d%% on %s created by %s',
