@@ -639,7 +639,7 @@ class BizDetailsForm(forms.Form):
     address = forms.CharField(
         widget=forms.TextInput(attrs={
             'placeholder': 'Address',
-            'class': 'center',
+            'class': 'center location',
         }),
         required=False
     )
