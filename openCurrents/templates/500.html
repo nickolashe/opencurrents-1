@@ -9,7 +9,7 @@
         {% block title %} Oops! What just happened? {% endblock title %}
       </h3>
     </div>
-  </div> 
+  </div>
 {% endblock heading %}
 
 {% block content %}
@@ -18,7 +18,17 @@
       <p class="three-halves-margin-bottom">Don't worry, everything is going to be fine. And no, it's not your fault - it's ours. But really, we want to know - how did you arrive here? Please share feedback to describe what happened. Thank you!</p>
       <a href="javascript:void(Tawk_API.toggle())" class="button round">Share feedback</a>
 
-      <a href="{% url 'openCurrents:profile' %}" class="button round secondary">Back to profile</a>
+      {% if request.user.is_authenticated %}
+          <a href="{% url 'openCurrents:profile' %}"
+          class="one-margin-top button round tiny secondary">
+            Back to profile
+          </a>
+      {% else %}
+          <a href="{% url 'openCurrents:home' %}"
+          class="one-margin-top button round tiny secondary">
+            Back to homepage
+          </a>
+      {% endif %}
     </div>
   </div>
 {% endblock content %}

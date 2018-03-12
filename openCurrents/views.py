@@ -97,7 +97,7 @@ logging_client = glogging.Client()
 if os.getenv('GAE_INSTANCE'):
     logger_name = 'oc-gae-views'
 else:
-    logger_name = '-'.join([os.getlogin(), socket.gethostname()])
+    logger_name = '-'.join(['oc-local', socket.gethostname()])
 
 glogger = logging_client.logger(logger_name)
 
@@ -335,7 +335,7 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, TemplateView)
         glogger_struct = {
             'msg': 'biz profile accessed',
             'username': self.user.email,
-            'orgname': self.org.name
+            'bizname': self.org.name
         }
         glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
@@ -367,7 +367,7 @@ class BizDetailsView(BizAdminPermissionMixin, BizSessionContextView, FormView):
             glogger_struct = {
                 'msg': 'biz details updated',
                 'username': self.user.email,
-                'orgname': self.org.name
+                'bizname': self.org.name
             }
             glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
@@ -454,7 +454,7 @@ class ApproveHoursView(OrgAdminPermissionMixin, OrgSessionContextView, ListView)
 
         glogger_struct = {
             'msg': 'approve hours accessed',
-            'admin': self.user.email,
+            'admin_email': self.user.email,
             'hours_req_count': len(requested_actions)
         }
         glogger.log_struct(glogger_struct, labels=self.glogger_labels)
@@ -646,6 +646,13 @@ class ApproveHoursView(OrgAdminPermissionMixin, OrgSessionContextView, ListView)
             requested_actions = self.get_requested_actions(week_date, events, user)
             logger.debug('requested_actions: %s', requested_actions)
 
+            glogger_struct = {
+                'msg': 'hours reviewed',
+                'admin_email': self.user.email,
+                'req_actions_count': len(requested_actions),
+            }
+            hours_approved = 0
+
             with transaction.atomic():
                 if action_type == 'app':
                     # for approved hours, additionally set is_verified boolean on usertimelogs
@@ -667,6 +674,9 @@ class ApproveHoursView(OrgAdminPermissionMixin, OrgSessionContextView, ListView)
                             action,
                             (usertimelog.datetime_end - usertimelog.datetime_start).total_seconds() / 3600
                         )
+                        hours_approved += common.diffInHours(
+                            usertimelog.datetime_start, usertimelog.datetime_end
+                        )
 
                     vols_approved += 1
 
@@ -684,12 +694,8 @@ class ApproveHoursView(OrgAdminPermissionMixin, OrgSessionContextView, ListView)
                     action.action_type = action_type
                     action.save()
 
-                glogger_struct = {
-                    'msg': 'approve hours posted',
-                    'admin': self.user.email,
-                    'req_actions_count': len(requested_actions),
-                    'action': action_type
-                }
+                glogger_struct['action'] = action_type
+                glogger_struct['hours_approved'] = hours_approved
                 glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
         # lastly, determine if there any approval requests remaining for admin
@@ -785,18 +791,19 @@ class HoursDetailView(LoginRequiredMixin, SessionContextView, ListView):
         context['hours_type'] = self.hours_type
         context['timezone'] = 'America/Chicago'
 
-        if self.org_id:
-            org = OcOrg(self.org_id)
-            context['hours_orgname'] = org.get_org_name()
-
         glogger_struct = {
             'msg': 'hours detail accessed',
-            'username': self.user.email,
-            'hours_userid': self.userid,
+            'username': self.request.user.email,
+            'hours_username': self.user.email,
             'hours_type': self.hours_type,
-            'is_admin': self.is_admin,
-            'org_id': self.org_id
         }
+
+        if self.org_id:
+            org = OcOrg(self.org_id)
+            orgname = org.get_org_name()
+            context['hours_orgname'] = orgname
+            glogger_struct['orgname'] = orgname
+
         glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
         return context
@@ -958,7 +965,8 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
             glogger_struct = {
                 'msg': 'offer redemption request',
                 'username': request.user.email,
-                'offerid': self.offer.id
+                'offerid': self.offer.id,
+                'bizname': self.offer.org.name
             }
 
             reqForbidden = False
@@ -1044,6 +1052,14 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
             self.offer.id,
             self.request.user.id
         )
+
+        glogger_struct = {
+            'msg': 'offer redeemed',
+            'username': self.request.user.email,
+            'offerid': self.offer.id,
+            'bizname': self.offer.org.name
+        }
+        glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
         status_msg = 'You have submitted a request for approval by %s' % self.offer.org.name
         return redirect('openCurrents:profile', status_msg=status_msg)
@@ -1184,6 +1200,8 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         if form_data['org'].isdigit() and not form_data['new_org']:
             # logging hours for existing admin
             if form_data['admin'].isdigit():
+                admin_user = User.objects.get(id=form_data['admin'])
+
                 # create admin-specific approval request
                 self.create_proj_event_utimelog(
                     user,
@@ -1197,8 +1215,14 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                 glogger_struct = {
                     'msg': 'hours tracked',
                     'username': user.email,
+                    'orgid': org.id,
                     'orgname': org.name,
-                    'adminid': form_data['admin']
+                    'admin_id': form_data['admin'],
+                    'admin_email': admin_user.email,
+                    'hours_requested': common.diffInHours(
+                        form_data['datetime_start'],
+                        form_data['datetime_end']
+                    )
                 }
                 glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
@@ -1210,10 +1234,16 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                 admin_email = form_data['new_admin_email']
 
                 glogger_struct = {
-                    'msg': 'hour tracking request (new admin)',
+                    'msg': 'hours tracked',
                     'username': user.email,
+                    'orgid': org.id,
                     'orgname': org.name,
-                    'admin_email': admin_email
+                    'admin_id': 'other',
+                    'admin_email': admin_email,
+                    'hours_requested': common.diffInHours(
+                        form_data['datetime_start'],
+                        form_data['datetime_end']
+                    )
                 }
                 glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
@@ -1306,10 +1336,16 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         # if logging for a new org
         elif form_data['new_org']:
             glogger_struct = {
-                'msg': 'hour tracking request (new org)',
+                'msg': 'hours tracked',
                 'username': user.email,
+                'orgid': 'other',
                 'orgname': form_data['new_org'],
-                'admin': form_data['new_admin_email']
+                'admin_id': 'other',
+                'admin_email': form_data['new_admin_email'],
+                'hours_requested': common.diffInHours(
+                    form_data['datetime_start'],
+                    form_data['datetime_end']
+                )
             }
             glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
@@ -1935,9 +1971,6 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
 
         if (coord_user.id != self.userid):
             # send an invite to coordinator
-            # TODO (@danny):
-            #   - is invite-admin the correct template to use, event for
-            #     existing users?
             try:
                 sendContactEmail(
                     'change-event-coordinator',
@@ -2044,8 +2077,8 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
         event_ids = map(lambda loc: self._create_event(loc, form_data), locations)
 
         glogger_struct = {
-            'msg': 'new event(s) created',
-            'admin': self.user.email,
+            'msg': 'event(s) created',
+            'admin_email': self.user.email,
             'orgname': self.org.name,
             'event_count': len(event_ids)
         }
@@ -2200,7 +2233,6 @@ class EditEventView(CreateEventView):
                     self.user.email
                 )
             except Exception as e:
-                logger.info(e)
                 logger.error(
                     'unable to send email: %s (%s)',
                     e,
@@ -2237,10 +2269,12 @@ class EditEventView(CreateEventView):
         return kwargs
 
 
-# TODO: prioritize view by projects which user was invited to
 class UpcomingEventsView(LoginRequiredMixin, SessionContextView, ListView):
     template_name = 'upcoming-events.html'
     context_object_name = 'events'
+    glogger_labels = {
+        'handler': 'UpcomingEventsView'
+    }
 
     def get_context_data(self, **kwargs):
         # skip context param determines whether we show skip button or not
@@ -2248,6 +2282,12 @@ class UpcomingEventsView(LoginRequiredMixin, SessionContextView, ListView):
         # context['timezone'] = self.request.user.account.timezone
         context['timezone'] = 'America/Chicago'
 
+        glogger_struct = {
+            'msg': 'upcoming events accessed',
+            'username': self.user.email,
+        }
+        glogger.log_struct(glogger_struct, labels=self.glogger_labels)
+
         return context
 
     def get_queryset(self):
@@ -2265,31 +2305,8 @@ class UpcomingEventsView(LoginRequiredMixin, SessionContextView, ListView):
         )
 
 
-class VolunteerOpportunitiesView(LoginRequiredMixin, SessionContextView, ListView):
+class VolunteerOpportunitiesView(UpcomingEventsView):
     template_name = 'volunteer-opportunities.html'
-    context_object_name = 'events'
-
-    def get_context_data(self, **kwargs):
-        # skip context param determines whether we show skip button or not
-        context = super(VolunteerOpportunitiesView, self).get_context_data(**kwargs)
-        # context['timezone'] = self.request.user.account.timezone
-        context['timezone'] = 'America/Chicago'
-
-        return context
-
-    def get_queryset(self):
-        # show all public events plus private event for orgs the user is admin for
-        userid = self.request.user.id
-
-        event_query_filter = Q(is_public=True)
-        if self.ocauth.is_admin_org():
-            event_query_filter |= Q(is_public=False, project__org__id=self.org.id)
-
-        return Event.objects.filter(
-            datetime_end__gte=datetime.now(tz=pytz.utc)
-        ).filter(
-            event_query_filter
-        )
 
 
 class ProjectDetailsView(TemplateView):
@@ -2298,6 +2315,9 @@ class ProjectDetailsView(TemplateView):
 
 class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, TemplateView):
     template_name = 'invite-volunteers.html'
+    glogger_labels = {
+        'handler': 'InviteVolunteersView'
+    }
 
     def get_context_data(self, **kwargs):
         # skip context param determines whether we show skip button or not
@@ -2580,6 +2600,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                         marker='1',
                         test_mode=test_mode
                     )
+
             except Exception as e:
                 logger.error(
                     'unable to send email: %s (%s)',
@@ -2625,6 +2646,15 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                     e,
                     type(e)
                 )
+
+        total_volunteers = sum([len(k), len(k_old)])
+        glogger_struct = {
+            'msg': 'volunteer(s) invited',
+            'admin_email': self.user.email,
+            'orgname': self.org.name,
+            'volunteer_count': total_volunteers
+        }
+        glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
         return redirect('openCurrents:org-admin', num_vols)
 
@@ -2706,8 +2736,10 @@ class LiveDashboardView(OrgAdminPermissionMixin, SessionContextView, TemplateVie
         context['event'] = event
 
         glogger_struct = {
-            'admin': self.request.user.email,
-            'eventid': event.id
+            'admin_email': self.request.user.email,
+            'orgname': event.project.org.name,
+            'eventid': event.id,
+            'eventname': event.project.name
         }
 
         # disable checkin if event is too far in future
@@ -2803,7 +2835,7 @@ class OfferCreateView(LoginRequiredMixin, BizSessionContextView, FormView):
         offer.save()
 
         logger.debug(
-            'Offer for %d% on %s created by %s',
+            'Offer for %d%% on %s created by %s',
             data['offer_current_share'],
             offer_item.name,
             self.org.name
@@ -2947,16 +2979,19 @@ def event_checkin(request, pk):
             'user %s; event %s' % (userid, event.project.name)
         )
         glogger_struct = {
-            'admin': admin_user.email,
+            'msg': 'event user checkin',
+            'admin_email': admin_user.email,
             'username': request.user.email,
             'eventid': event.id,
+            'eventname': event.project.name,
+            'orgname': event.project.org.name,
             'event_startime': event.datetime_start.strftime('%m/%d/%Y %H:%M:%S')
         }
 
         # allow checkins only as early as 15 min before event
         if timezone.now() < event.datetime_start - timedelta(minutes=15):
             clogger.warning('checkin too early for event start time')
-            glogger_struct['msg'] = 'checkin attempt prior to allowed time'
+            glogger_struct['reject_reason'] = 'checkin attempt prior to allowed time'
             glogger.log_struct(glogger_struct, labels=glogger_labels)
 
             return HttpResponse(content=json.dumps({}), status=400)
@@ -2993,13 +3028,11 @@ def event_checkin(request, pk):
                         '%s: user checkin',
                         usertimelog.datetime_start.strftime('%m/%d/%Y %H:%M:%S')
                     )
-                    glogger_struct['msg'] = 'user checkin'
                     glogger.log_struct(glogger_struct, labels=glogger_labels)
 
                     status = 201
             except Exception as e:
-                clogger.debug(e.message)
-                clogger.debug('user already checked in')
+                clogger.debug('%s: user already checked in', e.message)
 
             # check in admin/coordinator
             try:
@@ -3025,7 +3058,7 @@ def event_checkin(request, pk):
                         event_duration
                     )
                     status = 201
-                    glogger_struct['msg'] = 'admin checkin'
+                    glogger_struct['msg'] = 'event admin checkin'
                     glogger.log_struct(glogger_struct, labels=glogger_labels)
 
             except Exception as e:
@@ -3050,10 +3083,10 @@ def event_checkin(request, pk):
                     usertimelog.datetime_end = datetime.now(tz=pytz.utc)
                     usertimelog.save()
                     clogger.debug(
-                        'user checkout',
+                        '%s: user checkout',
                         usertimelog.datetime_end.strftime('%m/%d/%Y %H:%M:%S')
                     )
-                    glogger_struct['msg'] = 'user checkout'
+                    glogger_struct['msg'] = 'event user checkout'
                     glogger.log_struct(glogger_struct, labels=glogger_labels)
 
                     return HttpResponse(
@@ -3113,9 +3146,11 @@ def event_register(request, pk):
                 user_event_registration.save()
 
             glogger_struct = {
-                'msg': 'user event registration confirmed',
+                'msg': 'user event register',
                 'username': user.email,
-                'eventid': event.id
+                'eventid': event.id,
+                'eventname': event.project.name,
+                'orgname': event.project.org.name
             }
             glogger.log_struct(glogger_struct, labels=glogger_labels)
 
@@ -3207,9 +3242,11 @@ def event_register(request, pk):
                 ]
 
                 glogger_struct = {
-                    'msg': 'event message from coordinator',
+                    'msg': 'event register coordinator message',
                     'username': user.email,
                     'eventid': event.id,
+                    'eventname': event.project.name,
+                    'orgname': event.project.org.name,
                     'volunteer_count': len(reg_receipients)
                 }
                 glogger.log_struct(glogger_struct, labels=glogger_labels)
@@ -3233,9 +3270,11 @@ def event_register(request, pk):
 
             else:
                 glogger_struct = {
-                    'msg': 'event message from volunteer',
+                    'msg': 'event register user message',
                     'username': user.email,
-                    'eventid': event.id
+                    'eventid': event.id,
+                    'eventname': event.project.name,
+                    'orgname': event.project.org.name,
                 }
 
                 email_template = 'volunteer-messaged'
@@ -3346,9 +3385,11 @@ def event_register_live(request, eventid):
     event_status &= now < event.datetime_end + timedelta(minutes=15)
 
     glogger_struct = {
-        'msg': 'user registered for event live',
+        'msg': 'event user register live',
         'username': user.email,
         'eventid': eventid,
+        'eventname': event.project.name,
+        'orgname': event.project.org.name,
         'event_in_progress': event_status
     }
     glogger.log_struct(glogger_struct, labels=glogger_labels)
@@ -3549,6 +3590,14 @@ def process_signup(
                 org_user = OrgUserInfo(user.id)
                 org_user.setup_orguser(org=org, is_admin=org_status == 'biz')
 
+                glogger_struct = {
+                    'msg': 'signup user org',
+                    'username': user.email,
+                    'orgname': org_name,
+                    'orgstatus': org_status
+                }
+                glogger.log_struct(glogger_struct, labels=glogger_labels)
+
             except OrgExistsException:
                 logger.warning('org %s already exists', org_name)
                 redirect_url = {
@@ -3693,9 +3742,10 @@ def process_signup(
         else:
             if org_name:
                 glogger_struct = {
-                    'msg': 'new user invited by org',
+                    'msg': 'signup user',
                     'username': user_email,
-                    'orgname': org_name
+                    'orgname': org_name,
+                    'referral': 'org'
                 }
                 glogger.log_struct(glogger_struct, labels=glogger_labels)
 
@@ -3706,7 +3756,7 @@ def process_signup(
                 )
             else:
                 glogger_struct = {
-                    'msg': 'new user signup',
+                    'msg': 'signup user',
                     'username': user_email
                 }
                 glogger.log_struct(glogger_struct, labels=glogger_labels)
@@ -3738,6 +3788,9 @@ def process_signup(
 
 def process_OrgNomination(request):
     form = OrgNominationForm(request.POST)
+    glogger_labels = {
+        'handler': 'process_signup'
+    }
 
     def is_any_org_admin(user_to_check_id):
         try:
@@ -3851,6 +3904,14 @@ def process_OrgNomination(request):
                     contact_email
                 )
 
+                glogger_struct = {
+                    'msg': 'org nominated',
+                    'username': request.user.email,
+                    'orgname': org_name,
+                    'admin_email': contact_email
+                }
+                glogger.log_struct(glogger_struct, labels=glogger_labels)
+
                 return redirect(
                     'openCurrents:profile',
                     status_msg='Thank you for nominating {} and growing our community! We will reach out soon.'.format(org_name),
@@ -3894,8 +3955,9 @@ def process_login(request):
 
         if user is not None and user.is_active:
             glogger_struct = {
-                'msg': 'login successful',
-                'username': user.email
+                'msg': 'user login',
+                'username': user.email,
+                'status': 200
             }
             glogger.log_struct(glogger_struct, labels=glogger_labels)
 
@@ -3932,8 +3994,9 @@ def process_login(request):
 
         else:
             glogger_struct = {
-                'msg': 'login invalid',
-                'username': user_name
+                'msg': 'user login',
+                'username': user_name,
+                'status': 403
             }
             glogger.log_struct(glogger_struct, labels=glogger_labels)
 
@@ -4022,17 +4085,14 @@ def process_email_confirmation(request, user_email):
 
         user_settings.save()
 
-        logger.debug('verification of user %s is complete', user.email)
+        logger.debug('user %s verified', user.email)
 
-        # TODO: understand why the following error is thrown at runtime:
-        # ParseError: Unexpected type for Value message.
-        # at _ConvertFieldValuePair (/env/local/lib/python2.7/site-packages/google/protobuf/json_format.py:537)
-        # glogger_struct = {
-        #     'msg': 'user verified',
-        #     'username': user.email,
-        #     'token': token
-        # }
-        # glogger.log_struct(glogger_struct, labels=glogger_labels)
+        glogger_struct = {
+            'msg': 'user verified',
+            'username': user.email,
+            'token': str(token)
+        }
+        glogger.log_struct(glogger_struct, labels=glogger_labels)
 
         # send verification email
         try:
@@ -4110,7 +4170,7 @@ def password_reset_request(request):
         if user.has_usable_password():
             logger.debug('verified user %s, send password reset email', user_email)
             glogger_struct = {
-                'msg': 'password reset request',
+                'msg': 'user password reset request',
                 'username': user.email
             }
             glogger.log_struct(glogger_struct, labels=glogger_labels)
@@ -4217,9 +4277,9 @@ def process_reset_password(request, user_email):
         if user.has_usable_password():
             logger.debug('verified user %s, allow password reset', user_email)
             glogger_struct = {
-                'msg': 'password changed',
+                'msg': 'user password reset',
                 'username': user.email,
-                'token': token
+                'token': str(token)
             }
             glogger.log_struct(glogger_struct, labels=glogger_labels)
 

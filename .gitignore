@@ -5,3 +5,4 @@ log/views.log
 oc/staticfiles
 oc/mediafiles
 env/
+lib/
