@@ -433,10 +433,8 @@ class BizDetailsView(BizSessionContextView, FormView):
         for field in context['form'].declared_fields.keys():
             val = getattr(self.org, field)
             if val:
-                # print dir(context['form'].fields[field])
                 if field == 'intro':
                     context['form'].fields[field].initial = val
-
                 else:
                     context['form'].fields[field].widget.attrs['value'] = val
 
@@ -1842,28 +1840,6 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
         context['biz_currents_total'] = OcCommunity().get_biz_currents_total()
 
         return context
-
-    def form_valid(self, form):
-        data = form.cleaned_data
-        Org.objects.filter(id=self.org.id).update(
-            website=data['website'],
-            phone=data['phone'],
-            email=data['email'],
-            address=data['address'],
-            intro=data['intro']
-        )
-
-        if all(i == '' for i in data.values()):
-            return redirect(
-                'openCurrents:biz-admin',
-                status_msg='%s\'s details are blank, please add details' % self.org.name,
-                msg_type='alert'
-            )
-        else:
-            return redirect(
-                'openCurrents:biz-admin',
-                status_msg='Thank you for adding %s\'s details' % self.org.name
-            )
 
 
 class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView):
