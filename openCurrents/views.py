@@ -433,8 +433,12 @@ class BizDetailsView(BizSessionContextView, FormView):
         for field in context['form'].declared_fields.keys():
             val = getattr(self.org, field)
             if val:
-                print val
-                context['form'].fields[field].widget.attrs['value'] = val
+                # print dir(context['form'].fields[field])
+                if field == 'intro':
+                    context['form'].fields[field].initial = val
+
+                else:
+                    context['form'].fields[field].widget.attrs['value'] = val
 
         return context
 
