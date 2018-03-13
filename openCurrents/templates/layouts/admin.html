@@ -44,7 +44,8 @@
           {{ user.first_name }} {{ user.last_name }}
         </h6>
         {% block button-left %}
-          <a class="biz-details-popup_open button round tiny secondary">
+          <a href="{% url 'openCurrents:biz-details' %}"
+          class="button round tiny secondary">
             Edit business details
           </a>
         {% endblock button-left %}
@@ -249,10 +250,6 @@
 
 
 {% block popups %}
-  <div id="biz-details-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-    {% include "popups/biz-details-popup.html" %}
-  </div>
-
   <div id="view-receipt-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
     <div class="row center">
       <div class="small-12 medium-8 small-centered columns">
@@ -289,22 +286,14 @@
         scrolllock: true,
       });
 
-      $('#biz-details-popup').popup({
-        vertical: 'top',
-        transition: 'all 0.75s',
-        scrolllock: true,
-        escape: false,
-        blur: false
-      });
-
-      {% if org.no_info %}
-           $('#biz-details-popup').popup({
-            vertical: 'top',
-            transition: 'all 0.75s',
-            scrolllock: true,
-            autoopen: true,
-           });
-       {% endif %}
+      // {% if org.no_info %}
+      //      $('#biz-details-popup').popup({
+      //       vertical: 'top',
+      //       transition: 'all 0.75s',
+      //       scrolllock: true,
+      //       autoopen: true,
+      //      });
+      //  {% endif %}
 
       $('#id_phone').mask('000-000-0000')
 
@@ -321,24 +310,5 @@
         }
       });
     });
-
-    // Google Places autocomplete
-    function initAutoComplete() {
-
-      var input = document.getElementById("id_address");
-
-      var autocomplete = new google.maps.places.Autocomplete(input);
-      // autocomplete.inputId = inputs[i].id;
-
-      google.maps.event.addListener(autocomplete);
-
-      google.maps.event.addDomListener(input, 'keydown', function(e) {
-        if (e.keyCode == 13 && $('.pac-container:visible').length) {
-            e.preventDefault();
-        }
-      });
-    }
-
-    initAutoComplete();
   </script>
 {% endblock js %}

@@ -639,7 +639,7 @@ class BizDetailsForm(forms.Form):
     address = forms.CharField(
         widget=forms.TextInput(attrs={
             'placeholder': 'Address',
-            'class': 'center',
+            'class': 'center location',
         }),
         required=False
     )
@@ -713,9 +713,7 @@ class OfferCreateForm(forms.Form):
     )
 
     offer_limit_value = forms.IntegerField(
-        widget=forms.NumberInput(attrs={
-           'placeholder': 100
-        }),
+        widget=forms.NumberInput(attrs={'placeholder': 100}),
         initial=100,
         required=False
     )
