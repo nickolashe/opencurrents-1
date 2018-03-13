@@ -1,10 +1,16 @@
 {% extends "layouts/base.html" %}
 
+{% load staticfiles %}
 {% load tags %}
 
 {% block name %}
   Edit business details
 {% endblock name %}
+
+
+{% block head %}
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAGfdpv-Vg_rskfib8jzp-a6VI92QuC2I0&v=3.exp&types=address&libraries=places"></script>
+{% endblock head %}
 
 {% block heading %}
   <div class="row center">
@@ -22,23 +28,31 @@
   <form class="" method="post">
   {% csrf_token %}
 
-    {{ form.website }}
-
     <div class="row">
-      <div class="medium-6 columns">
-        {{ form.phone }}
-      </div>
+      <div class="medium-8 small-centered columns">
+        <div class="row">
+          <div class="columns">
+            {{ form.website }}
+          </div>
 
-      <div class="medium-6 columns">
-        {{ form.email }}
-      </div>
+          <div class="medium-6 columns">
+            {{ form.phone }}
+          </div>
 
-      <div class="columns">
-        {{ form.address }}
+          <div class="medium-6 columns">
+            {{ form.email }}
+          </div>
+
+          <div class="columns">
+            {{ form.address }}
+          </div>
+
+          <div class="columns">
+            {{ form.intro }}
+          </div>
+        </div>
       </div>
     </div>
-
-    {{ form.intro }}
 
     <div class="row three-halves-margin-top">
       <button type="submit" class="button round small">
@@ -52,24 +66,10 @@
 {% endblock content %}
 
 {% block js %}
+
+  {% include "scripts/location-dropdown.html" %}
+
   <script type="text/javascript">
-    // Google Places autocomplete
-    function initAutoComplete() {
-
-      var input = document.getElementById("id_address");
-
-      var autocomplete = new google.maps.places.Autocomplete(input);
-      // autocomplete.inputId = inputs[i].id;
-
-      google.maps.event.addListener(autocomplete);
-
-      google.maps.event.addDomListener(input, 'keydown', function(e) {
-        if (e.keyCode == 13 && $('.pac-container:visible').length) {
-            e.preventDefault();
-        }
-      });
-    }
-
-    initAutoComplete();
+      initAutoComplete();
   </script>
 {% endblock js %}
