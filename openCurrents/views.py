@@ -2981,7 +2981,7 @@ class OfferCreateView(SessionContextView, FormView):
                 logger.debug('Couldnt find new_biz_org_id in session')
 
         else:
-            kwargs.update({'orgid': OrgUser.objects.get(user=self.request.user).org.id})
+            kwargs.update({'orgid': OrgUserInfo(self.user.id).get_org_id()})
 
         return kwargs
 
