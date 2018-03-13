@@ -45,13 +45,7 @@
     {% if form.errors %}
       <div class="row">
         {% for field, error in form.errors.iteritems %}
-          <div class="center alert">
-            {% if field != '__all__' %}
-              {{ field|addstr:': '}} {{ error }}
-            {% else %}
-              {{ error }}
-            {% endif %}
-          </div>
+          <div class="center alert"> {{ error }} </div>
         {% endfor %}
       </div>
     {% endif %}
@@ -63,8 +57,8 @@
           <p class="three-halves-margin-bottom">
 
             To exchange Currents for dollars with {{ offer.org.name }},
-            upload your receipt as proof of purchase. Other forms, such as
-            an image of your bank statement or description of your
+            you <strong>must</strong> upload your receipt as proof of purchase. Other forms, such
+            as an image of your bank statement or description of your
             purchase, may or may not be accepted.
 
             <a class="redeem-info-popup_open no-wrap">
@@ -266,7 +260,7 @@
       });
 
       // Set height of spacer = to height of content
-      $('#redeem-spacer').height($('#offer-3').height());
+      $('#redeem-spacer').height($('#offer-3').height()+100);
 
       // Disable submit on Enter
       $("form input").on("keypress", function(e) {
@@ -365,11 +359,12 @@
       });
 
       let shareToCurrents = function (priceSubjectToShare) {
-        var share = {{ offer.currents_share }} /100.;
-        var dollars = Math.round(priceSubjectToShare * share * 100) /100;
-
+        var share = {{ offer.currents_share }} / 100.;
+        var dollars = Math.round(priceSubjectToShare * share * 100) / 100;
+        console.log('dollars: ' + dollars);
         // TODO: switch to an API call to get the converstion rate
-        var currents = dollars / parseFloat({{cur_rate}});
+        var currents = (dollars / parseFloat({{cur_rate}}));
+        console.log('currents: ' + currents);
 
         return {
           'currents': currents,
@@ -385,10 +380,10 @@
         console.log('priceSubjectToShare.dollarsReceived:' + dollarsReceived);
         console.log('fee before rounding:' + parseFloat({{tr_fee}}) * priceSubjectToShare.dollars /100);
 
-        $('.currents-total').text(priceSubjectToShare.currents);
-        $('.dollars-total').text(priceSubjectToShare.dollars);
-        $('.dollars-fee').text(fee);
-        $('.dollars-received').text(dollarsReceived);
+        $('.currents-total').text(priceSubjectToShare.currents.toFixed(3));
+        $('.dollars-total').text(priceSubjectToShare.dollars.toFixed(2));
+        $('.dollars-fee').text(fee.toFixed(2));
+        $('.dollars-received').text(dollarsReceived.toFixed(2));
 
         $("input[name^=redeem_currents_amount]").val(
           priceSubjectToShare.currents

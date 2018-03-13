@@ -7,6 +7,8 @@ from uuid import uuid4
 from datetime import datetime, timedelta
 
 from openCurrents.interfaces.common import one_week_from_now, diffInHours
+
+import os
 import pytz
 
 # Notes:
@@ -488,12 +490,34 @@ class Offer(models.Model):
 
 
 class Transaction(models.Model):
+    def path_and_rename(instance, filename):
+        upload_to = 'receipts/{}/'.format(datetime.now().strftime('%Y/%m'))
+        ext = filename.split('.')[-1]
+
+        # get filename
+        if instance:
+            filename = 'org_{}.offer_{}.user_{}.price_reported_{}.date_{}.time_{}.{}'.format(
+                instance.offer.org.name,
+                instance.offer.id,
+                instance.user.id,
+                instance.price_reported,
+                datetime.now().strftime('%d'),
+                datetime.now().strftime('%H-%M-%S.%f'),
+                ext
+            )
+        else:
+            # set filename as random string
+            filename = '{}.{}'.format(uuid4().hex, ext)
+
+        # return the whole path to the file
+        return os.path.join(upload_to, filename)
+
     user = models.ForeignKey(User)
 
     offer = models.ForeignKey(Offer)
 
     pop_image = models.ImageField(
-        upload_to='images/redeem/%Y/%m/%d',
+        upload_to=path_and_rename,
         null=True
     )
 
