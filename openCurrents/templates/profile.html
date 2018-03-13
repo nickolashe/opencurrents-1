@@ -322,15 +322,6 @@
 
     {% endif %}
 
-    {% if is_admin_biz and org.no_info %}
-      $('#biz-details-popup').popup({
-        vertical: 'top',
-        transition: 'all 0.75s',
-        scrolllock: true,
-        autoopen: true,
-      });
-    {% endif %}
-
       $('.mini-open').click(function(){
         $('.mini-menu').hide();
         $(this).siblings('.mini-menu').toggle();
