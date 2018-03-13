@@ -7,6 +7,7 @@
   Edit business details
 {% endblock name %}
 
+
 {% block head %}
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAGfdpv-Vg_rskfib8jzp-a6VI92QuC2I0&v=3.exp&types=address&libraries=places"></script>
 {% endblock head %}
@@ -26,6 +27,7 @@
 {% block content %}
   <form class="" method="post">
   {% csrf_token %}
+
     <div class="row">
       <div class="medium-8 small-centered columns">
         <div class="row">
@@ -64,6 +66,7 @@
 {% endblock content %}
 
 {% block js %}
+
   {% include "scripts/location-dropdown.html" %}
 
   <script type="text/javascript">
