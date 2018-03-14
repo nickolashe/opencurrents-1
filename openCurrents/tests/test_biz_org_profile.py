@@ -113,7 +113,12 @@ class TestOfferDelete(SetupAll):
 
         # remove offer
         response = self.client.post('/delete-offer/1/')
-        self.assertRedirects(response, '/biz-admin/The%20offer%20%22Offer%20for%2040%25%20on%20Test%20Item1%20by%20BIZ_org_1%22%20has%20been%20removed//', status_code=302, target_status_code=200)
+        self.assertRedirects(
+            response,
+            '/biz-admin/Offer%20\'Offer%20for%2040%25%20on%20Test%20Item1%20by%20BIZ_org_1\'%20has%20been%20removed//',
+            status_code=302,
+            target_status_code=200
+        )
 
         self.assertEqual(len(Offer.objects.exclude(is_active=False)), 1)
         self.assertEqual(len(Offer.objects.exclude(is_active=True)), 1)
