@@ -424,6 +424,7 @@ class LoginView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(LoginView, self).get_context_data(**kwargs)
         context['next'] = self.request.GET.get('next', None)
+
         return context
 
 
@@ -3115,7 +3116,6 @@ def event_register(request, pk):
     event = Event.objects.get(id=pk)
     form = EventRegisterForm(request.POST)
 
-    # validate form data
     if form.is_valid():
         user = request.user
         message = form.cleaned_data['contact_message']
@@ -3946,6 +3946,9 @@ def process_login(request):
             redirection = request.POST['next']
         except:
             redirection = None
+
+        if 'event_register' in request.POST['next']:
+            redirection = re.sub('event_register', 'event-detail', request.POST['next'])
 
         user = authenticate(
             username=user_name,
