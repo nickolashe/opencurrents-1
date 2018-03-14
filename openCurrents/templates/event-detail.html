@@ -81,19 +81,23 @@
       {% else %}
       </form>
     </div>
-    <a href="{% url 'openCurrents:login' %}?next={% url 'openCurrents:event-detail' event.id %}"><button  class="button round">Register</button></a>
+        <a href="{% url 'openCurrents:login' %}?next={% url 'openCurrents:event-detail' event.id %}">
+          <button  class="button round">Register</button>
+        </a>
       {% endif %}
 
-
-    {% if coordinator or admin %}
-        <a href="{% url 'openCurrents:org-admin' %}">
-            Back to org profile
-        </a>
-    {% elif is_registered %}
-        <a href="{% url 'openCurrents:profile' %}">
-            Back to profile
-        </a>
+    {% if request.user.is_authenticated %}
+      {% if coordinator or admin %}
+          <a href="{% url 'openCurrents:org-admin' %}">
+              Back to org profile
+          </a>
+      {% elif is_registered %}
+          <a href="{% url 'openCurrents:profile' %}">
+              Back to profile
+          </a>
+      {% endif %}
     {% endif %}
+
 {% endblock content %}
 
 {% block popups %}
