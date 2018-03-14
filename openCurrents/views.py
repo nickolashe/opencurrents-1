@@ -3948,6 +3948,7 @@ def process_login(request):
         user_name = form.cleaned_data['user_email']
         user_password = form.cleaned_data['user_password']
 
+        # direct posts to event_register are forwarded to event-detail page
         try:
             if 'event_register' in request.POST['next']:
                 redirection = re.sub('event_register', 'event-detail', request.POST['next'])
@@ -3955,7 +3956,6 @@ def process_login(request):
                 redirection = request.POST['next']
         except:
             redirection = None
-
 
         user = authenticate(
             username=user_name,
