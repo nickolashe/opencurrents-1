@@ -3943,12 +3943,13 @@ def process_login(request):
         user_password = form.cleaned_data['user_password']
 
         try:
-            redirection = request.POST['next']
+            if 'event_register' in request.POST['next']:
+                redirection = re.sub('event_register', 'event-detail', request.POST['next'])
+            else:
+                redirection = request.POST['next']
         except:
             redirection = None
 
-        if 'event_register' in request.POST['next']:
-            redirection = re.sub('event_register', 'event-detail', request.POST['next'])
 
         user = authenticate(
             username=user_name,
