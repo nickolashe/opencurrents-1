@@ -68,13 +68,17 @@
     </div>
 
     <div class="one-margin-top center">
-      <button type='submit' class="button round">
-        {% if not is_registered and not coordinator %}
-          Register
-        {% else %}
-          Send message
-        {% endif %}
-      </button>
+      {% if request.user.is_authenticated %}
+        <button type='submit' class="button round">
+          {% if not is_registered and not coordinator %}
+            Register
+          {% else %}
+            Send message
+          {% endif %}
+        </button>
+      {% else %}
+        <a href="{% url 'openCurrents:login' %}?next=/event-detail/"></a>
+      {% endif %}
     </div>
     <a href="{% url 'openCurrents:org-admin' %}">
       Back to org profile
