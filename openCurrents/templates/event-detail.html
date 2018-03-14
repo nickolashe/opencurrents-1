@@ -77,13 +77,13 @@
           {% endif %}
         </button>
       </form>
+    </div>
       {% else %}
       </form>
-        <a href="{% url 'openCurrents:login' %}?next={% url 'openCurrents:event-detail' event.id %}">
-          <button class="button round"> Register </button>
-        </a>
-      {% endif %}
     </div>
+    <a href="{% url 'openCurrents:login' %}?next={% url 'openCurrents:event-detail' event.id %}"><button  class="button round">Register</button></a>
+      {% endif %}
+
 
     {% if coordinator or admin %}
         <a href="{% url 'openCurrents:org-admin' %}">
