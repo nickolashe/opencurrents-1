@@ -445,7 +445,7 @@ class BizDetailsView(BizSessionContextView, FormView):
 
         if all(i == '' for i in data.values()):
             return redirect(
-                'openCurrents:biz-admin',
+                'openCurrents:biz-details',
                 status_msg='Please include at least one way for customers to contact you',
                 msg_type='alert'
             )
