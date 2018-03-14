@@ -47,7 +47,7 @@ from openCurrents.tests.interfaces.common import (
 
 import re
 
-# from unittest import skip
+from unittest import skip
 
 
 class SetupAll(TestCase):
@@ -129,6 +129,7 @@ class TestOfferDelete(SetupAll):
         self.assertEqual(len(response.context['offers']), 1)
 
 
+@skip('we moved popup to a separate page')
 class TestBizDetailsPopup(SetupAll):
     """Testing class for Biz Details popup."""
 

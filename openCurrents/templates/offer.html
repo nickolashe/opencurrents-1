@@ -83,6 +83,13 @@
           <div class="row half-margin-top one-margin-bottom">
             <div class="medium-10 small-centered columns">
               <a class="next-offer button round">Got it</a>
+              <p>
+                {% if request.user.is_authenticated %}
+                  <a href="{% url 'openCurrents:biz-admin' %}">Cancel</a>
+                {% else %}
+                  <a href="{% url 'openCurrents:biz-details' %}">Skip for now</a>
+                {% endif %}
+              </p>
             </div>
           </div>
         </div>
