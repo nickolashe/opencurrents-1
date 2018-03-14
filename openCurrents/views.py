@@ -2709,6 +2709,12 @@ class EventDetailView(DetailView):
                     for reg in regs
                 ])
 
+            if 'status_msg' in self.kwargs:
+                context['status_msg'] = self.kwargs.get('status_msg', '')
+
+            if 'msg_type' in self.kwargs:
+                context['msg_type'] = self.kwargs.get('msg_type', '')
+
         return context
 
 
