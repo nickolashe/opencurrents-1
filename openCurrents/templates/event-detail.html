@@ -84,9 +84,16 @@
         </a>
       {% endif %}
     </div>
-    <a href="{% url 'openCurrents:org-admin' %}">
-      Back to org profile
-    </a>
+
+    {% if coordinator or admin %}
+        <a href="{% url 'openCurrents:org-admin' %}">
+            Back to org profile
+        </a>
+    {% elif is_registered %}
+        <a href="{% url 'openCurrents:profile' %}">
+            Back to profile
+        </a>
+    {% endif %}
 {% endblock content %}
 
 {% block popups %}
