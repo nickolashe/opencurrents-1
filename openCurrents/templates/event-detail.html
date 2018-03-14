@@ -76,8 +76,12 @@
             Send message
           {% endif %}
         </button>
+      </form>
       {% else %}
-        <a href="{% url 'openCurrents:login' %}?next=/event-detail/"></a>
+      </form>
+        <a href="{% url 'openCurrents:login' %}?next={% url 'openCurrents:event-detail' event.id %}">
+          <button class="button round"> Register </button>
+        </a>
       {% endif %}
     </div>
     <a href="{% url 'openCurrents:org-admin' %}">

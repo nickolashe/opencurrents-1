@@ -2661,7 +2661,7 @@ class EventCreatedView(TemplateView):
     template_name = 'event-created.html'
 
 
-class EventDetailView(LoginRequiredMixin, SessionContextView, DetailView):
+class EventDetailView(DetailView):
     model = Event
     context_object_name = 'event'
     template_name = 'event-detail.html'
@@ -2670,42 +2670,43 @@ class EventDetailView(LoginRequiredMixin, SessionContextView, DetailView):
         context = super(EventDetailView, self).get_context_data(**kwargs)
         context['form'] = EventRegisterForm()
 
-        orguser = OrgUserInfo(self.request.user.id)
+        if self.request.user.is_authenticated():
+            orguser = OrgUserInfo(self.request.user.id)
 
-        # determine whether the user has already registered for the event
-        is_registered = UserEventRegistration.objects.filter(
-            user__id=self.request.user.id,
-            event__id=context['event'].id,
-            is_confirmed=True
-        ).exists()
-
-        # check if admin for the event's org
-        is_org_admin = orguser.is_org_admin(context['event'].project.org.id)
-
-        # check if event coordinator
-        is_coord = Event.objects.filter(
-            id=context['event'].id,
-            coordinator__id=self.request.user.id
-        ).exists()
-
-        context['is_registered'] = is_registered
-        context['admin'] = is_org_admin
-        context['coordinator'] = is_coord
-
-        # list of confirmed registered users
-        if is_coord or is_org_admin:
-            regs = UserEventRegistration.objects.filter(
+            # determine whether the user has already registered for the event
+            is_registered = UserEventRegistration.objects.filter(
+                user__id=self.request.user.id,
                 event__id=context['event'].id,
                 is_confirmed=True
-            )
+            ).exists()
 
-            context['registrants'] = dict([
-                (reg.user.email, {
-                    'first_name': reg.user.first_name,
-                    'last_name': reg.user.last_name
-                })
-                for reg in regs
-            ])
+            # check if admin for the event's org
+            is_org_admin = orguser.is_org_admin(context['event'].project.org.id)
+
+            # check if event coordinator
+            is_coord = Event.objects.filter(
+                id=context['event'].id,
+                coordinator__id=self.request.user.id
+            ).exists()
+
+            context['is_registered'] = is_registered
+            context['admin'] = is_org_admin
+            context['coordinator'] = is_coord
+
+            # list of confirmed registered users
+            if is_coord or is_org_admin:
+                regs = UserEventRegistration.objects.filter(
+                    event__id=context['event'].id,
+                    is_confirmed=True
+                )
+
+                context['registrants'] = dict([
+                    (reg.user.email, {
+                        'first_name': reg.user.first_name,
+                        'last_name': reg.user.last_name
+                    })
+                    for reg in regs
+                ])
 
         return context
 
