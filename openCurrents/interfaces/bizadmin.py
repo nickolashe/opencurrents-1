@@ -3,13 +3,14 @@ from decimal import Decimal
 
 from django.db.models import Max
 
-from openCurrents.models import \
-	UserEventRegistration, \
-    UserTimeLog, \
-    AdminActionUserTime, \
-    Offer, \
-    Transaction, \
+from openCurrents.models import (
+	UserEventRegistration,
+    UserTimeLog,
+    AdminActionUserTime,
+    Offer,
+    Transaction,
     TransactionAction
+)
 
 from openCurrents.interfaces import common
 from openCurrents.interfaces import convert
@@ -39,7 +40,7 @@ class BizAdmin(object):
             currency=currency
         )
 
-        return round(balance, 3)
+        return balance
 
     def get_balance_pending(self):
         '''
@@ -51,10 +52,10 @@ class BizAdmin(object):
             active_redemption_reqs
         )
 
-        return round(total_redemptions, 3)
+        return total_redemptions
 
     def get_offers_all(self):
-        offers = Offer.objects.filter(
+        offers = Offer.objects.exclude(is_active=False).filter(
             org__id=self.org.id
         ).order_by(
             '-date_updated'

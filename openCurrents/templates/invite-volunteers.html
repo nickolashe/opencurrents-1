@@ -9,7 +9,7 @@
       </h3>
 
       {% if event_project_name %}
-        <p>to help <strong>{{ event_project_name }}</strong></p>
+        <p>to help with <strong>{{ event_project_name }}</strong></p>
       {% else %}
         <p>to join the community and record hours with {{ orgname }}</p>
       {% endif %}
@@ -33,10 +33,11 @@
       <div class="small-12 medium-8 small-centered columns">
 
         <div id="bulk-invites-box" class="hidden three-halves-margin-top">
-          <label for="id_bulk_invites" class="left">
-            Copy/paste email list separated by commas
+          <label for="id_bulk_invites" class="left navy">
+            Copy/paste email list:
           </label>
-          <textarea name="bulk-vol" id="id_bulk_invites" rows="4"></textarea>
+          <textarea name="bulk-vol" id="id_bulk_invites" rows="4"
+          placeholder="volunteer@yahoo.com, dogooder@hooray.org"></textarea>
         </div>
 
         <div id="single-invites-box">

@@ -43,10 +43,9 @@
     <div class="row one-margin-bottom">
       <div class="small-12 medium-6 small-centered columns">
         {{ form.project_name.errors }}
-        <h6 class="fit-left navy half-margin-top">
-          {{ form.project_name.label }}
-        </h6>
-        <span class="input-sizer"> {{ form.project_name }} </span>
+
+        {{ form.project_name }}
+
         {% if form.project_name.help_text %}
           <p class="small">
             ({{ form.project_name.help_text|safe }})
@@ -110,10 +109,10 @@
 
     <div class="row three-halves-margin-top">
       {{form.event_privacy.0.tag}}
-      <label for="id-event-privacy_0">Public event</label>
+      <label for="id_event_privacy_0">Public event</label>
 
       {{form.event_privacy.1.tag}}
-      <label for="id-event-privacy_1" class="two-margin-left">Invite only</label>
+      <label for="id_event_privacy_1" class="two-margin-left">Invite only</label>
 
       <a class="privacy-info-popup_open"><i class="half-margin-left fa fa-lg fa-question-circle grey"></i></a>
     </div>
@@ -216,24 +215,9 @@
     });
   </script>
 
+  {% include "scripts/location-dropdown.html" %}
+
   <script type="text/javascript">
-    function initAutoComplete() {
-
-      var inputs = document.getElementsByClassName("location");
-
-      for (var i = 0; i < inputs.length; i++) {
-        var autocomplete = new google.maps.places.Autocomplete(inputs[i]);
-        // autocomplete.inputId = inputs[i].id;
-
-        google.maps.event.addListener(autocomplete);
-
-        google.maps.event.addDomListener(inputs[i], 'keydown', function(e) {
-            if (e.keyCode == 13 && $('.pac-container:visible').length) {
-                e.preventDefault();
-            }
-        });
-      }
-    }
 
     var id = 1;
 

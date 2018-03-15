@@ -71,10 +71,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .h6-symbol {
-  vertical-align: top;
+  vertical-align: -3px;
   margin-top: 0.25rem;
   margin-right: -0.125rem;
-  height: 1.25rem;
+  height: 1.125rem;
 }
 
 .large-text-symbol {
@@ -171,18 +171,18 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .button.clear:hover, .button.clear:focus {
-  background-color: #e7b708;
+  background-color: #147db6;
   color: #ffffff;
-  border: 1px solid #e7b708;
+  border: 1px solid #147db6;
 }
 
-.button.disabled, .button[disabled] {
-  background-color: #777777;
+.button.disabled, .button[disabled],
+.button.disabled:hover, .button.disabled:focus,
+.button[disabled]:hover, .button[disabled]:focus {
+  background-color: #555555;
+  border-color: #555555;
+  color: #ffffff;
 }
-
-.button.disabled:hover, .button.disabled:focus, .button[disabled]:hover, .button[disabled]:focus {
-  background-color: #777777;
-  color: #ffffff; }
 
 .button.large {
   padding-left: 2rem;
@@ -394,10 +394,27 @@ label {
   color: #ffffff;
 }
 
+.accordion {
+  background: transparent;
+}
+
 .accordion-title {
   font-size: 1rem;
   padding: 1rem;
   border-bottom: none;
+  background-color: #ffffff;
+}
+
+.accordion-title:focus {
+  background-color: #ffffff;
+}
+
+.accordion-title::before {
+  content: '';
+}
+
+.is-active > .accordion-title::before {
+  content: '';
 }
 
 /*#volunteer-list li .accordion-title {
@@ -421,14 +438,6 @@ label {
 .accordion-content .button {
   margin-bottom: 0.25rem;
   margin-top: 0.5rem;
-}
-
-.accordion-title::before {
-  content: '';
-}
-
-.is-active > .accordion-title::before {
-  content: '';
 }
 
 /* Align large checkboxes on non-small screens */
@@ -562,6 +571,10 @@ label {
 
 .blue {
   color: #24b2e7;
+}
+
+.blue-bg {
+  background-color: #24b2e7;
 }
 
 .blue-icon {
@@ -801,10 +814,9 @@ label {
 .list-group-item {
   position: relative;
   display: block;
-  height: 60px;
-  padding: 20px 15px;
-  margin-bottom: -1px;
-  border-bottom: 1px solid #ddd;
+  padding: 17px 15px;
+  margin-bottom: 0px;
+  border-bottom: 1px solid #fff;
   transition: background-color 0.25s ease-in-out, color 0.25s ease-in-out;
 }
 
@@ -819,7 +831,7 @@ a.list-group-item {
 
 #beta-home {
   position: absolute;
-  top: -12px;
+  top: -13px;
   left: 5px;
   color: #888888;
   transition: color 0.25s ease-in-out;
@@ -1328,8 +1340,10 @@ input[type="checkbox"] + label.vol-arrived {
   z-index: 100002;
 }
 
-.large-icon {
+.checkin-checkbox-icon {
   font-size: 1.5rem;
+  margin-top: -3px;
+  color: #cccccc;
 }
 
 /* volunteer-opportunities */
@@ -1448,6 +1462,12 @@ input[disabled].good-cat {
 #id_redeem_price {
   width: 77px;
   text-indent: 11px;
+}
+
+#id_biz_name {
+  width: 288px;
+  margin: auto;
+  border-bottom: none;
 }
 
 #offer-spacer {

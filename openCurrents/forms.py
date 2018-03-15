@@ -289,7 +289,6 @@ class CreateEventForm(forms.Form):
         widget=widgets.RadioWidget(
             attrs={
                 'class': 'custom-radio',
-                'id': 'id-event-privacy'
             }
         ),
         choices=[(1, 'public'), (0, 'private')],
@@ -528,7 +527,7 @@ class TimeTrackerForm(forms.Form):
         required=False,
         widget=widgets.TextWidget(attrs={
             'class': 'center',
-            'placeholder':'Coordinator name',
+            'placeholder': 'Coordinator name',
         })
     )
     new_admin_email = forms.EmailField(
@@ -640,7 +639,7 @@ class BizDetailsForm(forms.Form):
     address = forms.CharField(
         widget=forms.TextInput(attrs={
             'placeholder': 'Address',
-            'class': 'center',
+            'class': 'center location',
         }),
         required=False
     )
@@ -714,12 +713,20 @@ class OfferCreateForm(forms.Form):
     )
 
     offer_limit_value = forms.IntegerField(
-        widget=forms.NumberInput(attrs={
-           'placeholder': 100
-        }),
+        widget=forms.NumberInput(attrs={'placeholder': 100}),
         initial=100,
         required=False
     )
+
+    def clean_offer_current_share(self):
+        offer_current_share = self.cleaned_data['offer_current_share']
+
+        if offer_current_share < 5:
+            raise ValidationError(_(
+                'We require a minimum share of 5%'
+            ))
+
+        return int(offer_current_share)
 
     def clean_offer_item(self):
         offer_item = self.cleaned_data['offer_item']
@@ -739,7 +746,14 @@ class OfferCreateForm(forms.Form):
         return offer_item
 
     def clean_offer_limit_choice(self):
-        return int(self.cleaned_data['offer_limit_choice'])
+        offer_limit_choice = self.cleaned_data['offer_limit_choice']
+
+        if offer_limit_choice <= 0:
+            raise ValidationError(_(
+                'Monthly transaction limit must be greater than 0'
+            ))
+
+        return int(offer_limit_choice)
 
     def clean(self):
         cleaned_data = super(OfferCreateForm, self).clean()
@@ -814,10 +828,11 @@ class RedeemCurrentsForm(forms.Form):
         widget= forms.Textarea(attrs={
             'class': 'hidden',
             'rows': '2',
-            })
-        )
+            'placeholder': 'Details to help business identify your purchase'
+        })
+    )
 
-    redeem_price = forms.IntegerField(
+    redeem_price = forms.DecimalField(
         widget=forms.NumberInput(),
         required=False
     )
@@ -828,6 +843,14 @@ class RedeemCurrentsForm(forms.Form):
                 'class': 'hidden'
             }
         )
+    )
+
+    biz_name = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'id': 'id_biz_name',
+            'class': 'center hidden',
+        })
     )
 
     def clean(self):
@@ -858,8 +881,8 @@ class RedeemCurrentsForm(forms.Form):
 
 class PublicRecordsForm(forms.Form):
     periods = (
-        ('month', 'Last 30 days'),
         ('all-time', 'All-time'),
+        ('month', 'Last 30 days'),
     )
 
     record_types = (

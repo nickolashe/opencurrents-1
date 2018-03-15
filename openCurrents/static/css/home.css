@@ -1,8 +1,10 @@
 /* landing page backgrounds */
+{% load staticfiles %}
 
 @media screen and (min-width: 42em) {
   #home {
-    background: url(/static/img/wheelbarrow.jpg) center bottom fixed;
+    background: url(https://storage.googleapis.com/opencurrents-194003.appspot.com/static/img/wheelbarrow.jpg) center bottom fixed;
+    /* background: url({% static 'img/wheelbarrow.jpg' %}) center bottom fixed; */
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -10,7 +12,7 @@
   }
 
   #nonprofit {
-    background: url(/static/img/hands.jpg) no-repeat center 40px fixed;
+    background: url(https://storage.googleapis.com/opencurrents-194003.appspot.com/static/img/hands.jpg) no-repeat center 40px fixed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -18,7 +20,7 @@
   }
 
   #business {
-    background: url(/static/img/market.jpg) no-repeat right center fixed;
+    background: url(https://storage.googleapis.com/opencurrents-194003.appspot.com/static/img/market.jpg) no-repeat right center fixed;a
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -26,15 +28,15 @@
   }
 
   #our-story {
-    background: url(/static/img/moab.jpg) no-repeat left center fixed;
+    background: url(https://storage.googleapis.com/opencurrents-194003.appspot.com/static/img/moab.jpg) no-repeat left center fixed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
     background-size: cover;
   }
 
-  #volunteer {
-    background: url(/static/img/tree.jpg) no-repeat center center fixed;
+  #faq {
+    background: url(https://storage.googleapis.com/opencurrents-194003.appspot.com/static/img/tree.jpg) no-repeat center center fixed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -64,7 +66,8 @@
     left:0;
     right:0;
     z-index:-1;
-    background: url(/static/img/wheelbarrow.jpg) center bottom;
+    background: url(https://storage.googleapis.com/opencurrents-194003.appspot.com/static/img/wheelbarrow.jpg) center bottom;
+    /* background: url({% static 'img/wheelbarrow.jpg' %}) center bottom; */
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -79,7 +82,7 @@
     left:0;
     right:0;
     z-index:-1;
-    background: url(/static/img/hands.jpg) center 40px;
+    background: url(https://storage.googleapis.com/opencurrents-194003.appspot.com/static/img/hands.jpg) center 40px;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -94,7 +97,7 @@
     left:0;
     right:0;
     z-index:-1;
-    background: url(/static/img/market.jpg) right center;
+    background: url(https://storage.googleapis.com/opencurrents-194003.appspot.com/static/img/market.jpg) right center;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -109,14 +112,14 @@
     left:0;
     right:0;
     z-index:-1;
-    background: url(/static/img/moab.jpg) -300px center;
+    background: url(https://storage.googleapis.com/opencurrents-194003.appspot.com/static/img/moab.jpg) -300px center;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
     background-size: cover;
   }
 
-  #volunteer:after {
+  #faq:after {
     content:"";
     position:fixed;
     top:0;
@@ -124,7 +127,7 @@
     left:0;
     right:0;
     z-index:-1;
-    background: url(/static/img/tree.jpg) center 60px;
+    background: url(https://storage.googleapis.com/opencurrents-194003.appspot.com/static/img/tree.jpg) center 60px;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -178,9 +181,15 @@ input.home-input::placeholder {
 }
 
 #home-tagline {
-  font-size: 1.875rem;
+  font-size: 2.5rem;
   margin-top: 3.5rem;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+#intro-symbol {
+  height: 28px;
+  margin-left: 0.25rem;
+  margin-top: -14px;
 }
 
 #home-symbol {
@@ -220,14 +229,44 @@ input.home-input::placeholder {
   font-weight: normal;
 }
 
-.button.clear:hover {
+.splash .button.blue-bg:hover {
+  background-color: #169ccd;
+  border-color: #169ccd;
+  color: #fff;
+}
+
+.splash .button.blue-bg:focus {
+  background-color: #169ccd;
+  border-color: #169ccd;
+  color: #fff;
+}
+
+.splash .button.clear:hover {
   background-color: #24b2e7;
   border-color: #24b2e7;
 }
 
-.button.clear:focus {
+.splash .button.clear:focus {
   background-color: #24b2e7;
   border-color: #24b2e7;
+}
+
+.splash .white {
+  filter: drop-shadow(0 0 30px black);
+}
+
+.splash .alert {
+  background-color: #ffffff;
+  border-radius: 4px;
+}
+
+.accordion-title {
+  background-color: transparent;
+}
+
+.accordion-title:hover,
+.accordion-item.is-active .accordion-title {
+  background-color: #24b2e7;
 }
 
 #back-button {
@@ -252,6 +291,12 @@ input.home-input::placeholder {
   cursor: default;
   display: inline-block;
   margin: 0 0.25rem 1rem;
+}
+
+.intro-icon.clear {
+  background-color: transparent;
+  color: #ffffff;
+  border-color: #ffffff;
 }
 
 
@@ -345,9 +390,9 @@ input.home-input::placeholder {
 @media screen and (min-width: 42em) {
 
   #home-tagline {
-    margin-top: 4.5rem;
-    margin-bottom: 1.5rem;
-    font-size: 2.75rem;
+    margin-top: 4rem;
+    margin-bottom: 1rem;
+    font-size: 3rem;
   }
 
   #signup-box .button:hover {
@@ -385,4 +430,8 @@ input.home-input::placeholder {
   #mission-box {
     width: 433px;
   }
+}
+
+#play-video {
+  margin-top: 4rem;
 }

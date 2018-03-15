@@ -39,11 +39,11 @@
       </h6>
       <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
       <h6 class="inline-block no-margin-bottom">
-        {{ balance_available }}
+        {{ balance_available|round_number:3 }}
       </h6>
       <p class="grey half-margin-bottom">Pending:
         <img class="med-text-symbol" src="{% static 'img/symbol.svg' %}"/>
-        {{ balance_pending }}
+        {{ balance_pending|round_number:3 }}
       </p>
       <p class="no-margin-bottom">
         <a href="{% url 'openCurrents:marketplace' %}" class="button round secondary tiny">
@@ -54,10 +54,10 @@
 
     <div class="small-12 medium-6 columns">
       <h6 class="qtr-margin-bottom">
-        Dollars available: ${{ balance_available_usd }}
+        Dollars available: ${{ balance_available_usd|round_number:2 }}
       </h6>
       <p class="grey half-margin-bottom">
-        Pending: ${{ balance_pending_usd }}
+        Pending: ${{ balance_pending_usd|round_number:2 }}
       </p>
 
       <a class="
@@ -115,13 +115,13 @@
     <div class="small-11 medium-10 small-centered columns">
       <h6 class="half-margin-bottom">Community activity</h6>
       <a href="{% url 'openCurrents:public-record' %}?record_type=top-org&period=month" class="button tiny round secondary">
-        Currents issued: {% if currents_amount_total %}{{ currents_amount_total }}{% else %}0{% endif %}
+        Currents issued: {% if currents_amount_total %}{{ currents_amount_total|round_number:3 }}{% else %}0{% endif %}
       </a>
       <a href="{% url 'openCurrents:public-record' %}?record_type=top-vol&period=month" class="button tiny round secondary">
         Active volunteers: {% if active_volunteers_total %}{{ active_volunteers_total }}{% else %}0{% endif %}
       </a>
       <a href="{% url 'openCurrents:public-record' %}?record_type=top-biz&period=month" class="button tiny round secondary">
-        Currents redeemed: {{ biz_currents_total }}
+        Currents redeemed: {{ biz_currents_total|round_number:3 }}
       </a>
     </div>
   </div>
