@@ -76,15 +76,13 @@
             Send message
           {% endif %}
         </button>
-      </form>
-    </div>
       {% else %}
-      </form>
-    </div>
         <a href="{% url 'openCurrents:login' %}?next={% url 'openCurrents:event-detail' event.id %}">
           <button  class="button round">Register</button>
         </a>
       {% endif %}
+    </div>
+  </form>
 
     {% if request.user.is_authenticated %}
       {% if coordinator or admin %}
