@@ -4069,10 +4069,10 @@ def process_login(request):
 
         # direct posts to event_register are forwarded to event-detail page
         try:
-            # if 'event_register' in request.POST['next']:
-            #     redirection = re.sub('event_register', 'event-detail', request.POST['next'])
-            # else:
-            redirection = request.POST['next']
+            if 'event_register' in request.POST['next']:
+                redirection = re.sub('event_register', 'event-detail', request.POST['next'])
+            else:
+                redirection = request.POST['next']
         except:
             redirection = None
 
