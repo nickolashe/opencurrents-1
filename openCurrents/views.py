@@ -157,6 +157,22 @@ class SessionContextView(View):
         return context
 
 
+class MessagesContextMixin(object):
+    """MessagesContextMixin to display alerts on public pages."""
+
+    def get_context_data(self, **kwargs):
+        context = super(MessagesContextMixin, self).get_context_data(**kwargs)
+
+        # workaround with status message for anything but TemplateView
+        if 'status_msg' in self.kwargs and ('form' not in context or not context['form'].errors):
+            context['status_msg'] = self.kwargs.get('status_msg', '')
+
+        if 'msg_type' in self.kwargs:
+            context['msg_type'] = self.kwargs.get('msg_type', '')
+
+        return context
+
+
 class BizSessionContextView(SessionContextView):
     def dispatch(self, request, *args, **kwargs):
         # biz admin user
@@ -2662,7 +2678,7 @@ class EventCreatedView(TemplateView):
     template_name = 'event-created.html'
 
 
-class EventDetailView(DetailView):
+class EventDetailView(MessagesContextMixin, DetailView):
     model = Event
     context_object_name = 'event'
     template_name = 'event-detail.html'
@@ -2708,12 +2724,6 @@ class EventDetailView(DetailView):
                     })
                     for reg in regs
                 ])
-
-            if 'status_msg' in self.kwargs:
-                context['status_msg'] = self.kwargs.get('status_msg', '')
-
-            if 'msg_type' in self.kwargs:
-                context['msg_type'] = self.kwargs.get('msg_type', '')
 
         return context
 
