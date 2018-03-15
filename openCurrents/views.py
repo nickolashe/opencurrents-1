@@ -1711,6 +1711,22 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         userid = self.userid
 
         try:
+            if 'fields_data' in self.kwargs:
+                context['fields_data'] = self.kwargs.get('fields_data', '')
+                fields_data = json.loads(str(context['fields_data']))
+
+                for field in fields_data:
+                    try:
+                        if field[0] == 'description':
+                            context['form'].fields[field[0]].initial = field[1]
+                        else:
+                            context['form'].fields[field[0]].widget.attrs['value'] = field[1]
+                    except:
+                        pass
+        except:
+            pass
+
+        try:
             usertimelog = UserTimeLog.objects.filter(user__id=userid).order_by('datetime_start').reverse()[0]
             actiontimelog = AdminActionUserTime.objects.filter(usertimelog=usertimelog)
             context['org_stat_id'] = actiontimelog[0].usertimelog.event.project.org.id
@@ -1761,6 +1777,27 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                 status_msg=status_msg,
                 msg_type=msg_type
             )
+
+    def form_invalid(self, form):
+
+        # data = form.cleaned_data
+        data = self.request.POST.items()
+        data = json.dumps(data)
+
+        try:
+            existing_field_err = form.errors.as_data().values()[0][0].messages[0]
+        except:
+            pass
+
+        if existing_field_err:
+            return redirect(
+                'openCurrents:time-tracker',
+                status_msg=strip_tags(existing_field_err),
+                msg_type='alert',
+                fields_data=data
+            )
+
+        return super(TimeTrackerView, self).form_invalid(form)
 
 
 class TimeTrackedView(TemplateView):
