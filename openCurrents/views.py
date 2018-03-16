@@ -113,47 +113,122 @@ class DatetimeEncoder(json.JSONEncoder):
 
 class SessionContextView(View):
     def dispatch(self, request, *args, **kwargs):
-        self.userid = request.user.id
-        self.user = request.user
+        # self.userid = request.user.id
+        # self.user = request.user
 
-        # oc user
-        self.ocuser = OcUser(self.userid)
+        # # oc user
+        # self.ocuser = OcUser(self.userid)
 
-        # user org
-        orguserinfo = OrgUserInfo(request.user.id)
-        self.org = orguserinfo.get_org()
+        # # user org
+        # orguserinfo = OrgUserInfo(request.user.id)
+        # self.org = orguserinfo.get_org()
 
-        # org auth
-        self.ocauth = OcAuth(self.userid)
+        # # org auth
+        # self.ocauth = OcAuth(self.userid)
+
+        # return super(SessionContextView, self).dispatch(
+        #     request, *args, **kwargs
+        # )
+
+        if self.request.user.is_authenticated():
+            self.userid = request.user.id
+            self.user = request.user
+
+            # oc user
+            self.ocuser = OcUser(self.userid)
+
+            # user org
+            orguserinfo = OrgUserInfo(request.user.id)
+            self.org = orguserinfo.get_org()
+
+            # org auth
+            self.ocauth = OcAuth(self.userid)
+
+        if 'new_biz_registration' not in self.request.session.keys() \
+                and not self.request.user.is_authenticated():
+            return redirect('openCurrents:403')
+
+        elif 'new_biz_registration' in self.request.session.keys():
+
+            logger.debug('registering new biz org...')
+
+            self.userid = self.request.session['new_biz_user_id']
+            try:
+                self.user = User.objects.get(id=self.userid)
+            except:
+                logger.debug('Couldnt find the user by id')
+
+            # oc user
+            self.ocuser = OcUser(self.userid)
+
+            # user org
+            orguserinfo = OrgUserInfo(self.userid)
+            self.org = orguserinfo.get_org()
+
+            # org auth
+            self.ocauth = OcAuth(self.userid)
 
         return super(SessionContextView, self).dispatch(
-            request, *args, **kwargs
+            request,
+            *args,
+            **kwargs
         )
 
     def get_context_data(self, **kwargs):
+
         context = super(SessionContextView, self).get_context_data(**kwargs)
-        userid = self.request.user.id
-        context['userid'] = userid
 
-        # user org
-        orguser = OrgUserInfo(userid)
-        org = orguser.get_org()
-        orgid = orguser.get_org_id()
-        context['org'] = org
-        context['orgid'] = orgid
-        context['org_id'] = orgid
-        context['orgname'] = orguser.get_org_name()
-        context['org_timezone'] = orguser.get_org_timezone()
-        context['is_admin'] = self.ocauth.is_admin()
-        context['is_admin_org'] = self.ocauth.is_admin_org()
-        context['is_admin_biz'] = self.ocauth.is_admin_biz()
+        if self.request.user.is_authenticated():
+            userid = self.request.user.id
+            context['userid'] = userid
 
-        # workaround with status message for anything but TemplateView
-        if 'status_msg' in self.kwargs and ('form' not in context or not context['form'].errors):
-            context['status_msg'] = self.kwargs.get('status_msg', '')
+            # user org
+            orguser = OrgUserInfo(userid)
+            org = orguser.get_org()
+            orgid = orguser.get_org_id()
+            context['org'] = org
+            context['orgid'] = orgid
+            context['org_id'] = orgid
+            context['orgname'] = orguser.get_org_name()
+            context['org_timezone'] = orguser.get_org_timezone()
+            context['is_admin'] = self.ocauth.is_admin()
+            context['is_admin_org'] = self.ocauth.is_admin_org()
+            context['is_admin_biz'] = self.ocauth.is_admin_biz()
 
-        if 'msg_type' in self.kwargs:
-            context['msg_type'] = self.kwargs.get('msg_type', '')
+            # workaround with status message for anything but TemplateView
+            if 'status_msg' in self.kwargs and ('form' not in context or not context['form'].errors):
+                context['status_msg'] = self.kwargs.get('status_msg', '')
+
+            if 'msg_type' in self.kwargs:
+                context['msg_type'] = self.kwargs.get('msg_type', '')
+
+        if 'new_biz_registration' not in self.request.session.keys() \
+                and not self.request.user.is_authenticated():
+            return redirect('openCurrents:403')
+
+        elif 'new_biz_registration' in self.request.session.keys():
+            userid = self.request.session['new_biz_user_id']
+            context['userid'] = userid
+
+            # user org
+            orguser = OrgUserInfo(userid)
+            org = orguser.get_org()
+            orgid = orguser.get_org_id()
+            context['org'] = org
+            context['orgid'] = orgid
+            context['org_id'] = orgid
+            context['orgname'] = orguser.get_org_name()
+            context['org_timezone'] = orguser.get_org_timezone()
+            context['is_admin'] = self.ocauth.is_admin()
+            context['is_admin_org'] = self.ocauth.is_admin_org()
+            context['is_admin_biz'] = self.ocauth.is_admin_biz()
+
+            # workaround with status message for anything but TemplateView
+            if 'status_msg' in self.kwargs and ('form' not in context or not context['form'].errors):
+                context['status_msg'] = self.kwargs.get('status_msg', '')
+
+            if 'msg_type' in self.kwargs:
+                context['msg_type'] = self.kwargs.get('msg_type', '')
 
         return context
 
@@ -177,7 +252,10 @@ class MessagesContextMixin(object):
 class BizSessionContextView(SessionContextView):
     def dispatch(self, request, *args, **kwargs):
         # biz admin user
-        self.bizadmin = BizAdmin(request.user.id)
+        if self.request.user.is_authenticated():
+            self.bizadmin = BizAdmin(request.user.id)
+        elif 'new_biz_registration' in self.request.session.keys():
+            self.bizadmin = BizAdmin(request.session['new_biz_user_id'])
 
         return super(BizSessionContextView, self).dispatch(
             request, *args, **kwargs
@@ -319,14 +397,16 @@ class AssignAdminsView(TemplateView):
     template_name = 'assign-admins.html'
 
 
-class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, FormView):
+class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, TemplateView):
+    """Biz admin view."""
+
     template_name = 'biz-admin.html'
-    form_class = BizDetailsForm
     glogger_labels = {
         'handler': 'BizAdminView'
     }
 
     def get_context_data(self, **kwargs):
+        """Get view context."""
         context = super(BizAdminView, self).get_context_data(**kwargs)
 
         # offers created by business
@@ -347,11 +427,6 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, FormView):
         currents_pending = self.bizadmin.get_balance_pending()
         context['currents_pending'] = currents_pending
 
-        for field in context['form'].declared_fields.keys():
-            val = getattr(self.org, field)
-            if val:
-                context['form'].fields[field].widget.attrs['value'] = val
-
         glogger_struct = {
             'msg': 'biz profile accessed',
             'username': self.user.email,
@@ -361,12 +436,33 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, FormView):
 
         return context
 
+
+class BizDetailsView(BizSessionContextView, FormView):
+    template_name = 'biz-details.html'
+    form_class = BizDetailsForm
+    glogger_labels = {
+        'handler': 'BizDetailsView'
+    }
+
+    def get_context_data(self, **kwargs):
+        context = super(BizDetailsView, self).get_context_data(**kwargs)
+
+        for field in context['form'].declared_fields.keys():
+            val = getattr(self.org, field)
+            if val:
+                if field == 'intro':
+                    context['form'].fields[field].initial = val
+                else:
+                    context['form'].fields[field].widget.attrs['value'] = val
+
+        return context
+
     def form_valid(self, form):
         data = form.cleaned_data
 
         if all(i == '' for i in data.values()):
             return redirect(
-                'openCurrents:biz-admin',
+                'openCurrents:biz-details',
                 status_msg='Please include at least one way for customers to contact you',
                 msg_type='alert'
             )
@@ -379,17 +475,31 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, FormView):
                 intro=data['intro']
             )
 
+            user_email = common.check_if_new_biz_registration(self)
+
             glogger_struct = {
                 'msg': 'biz details updated',
-                'username': self.user.email,
-                'bizname': self.org.name
+                'username': user_email,
+                'orgname': self.org.name
             }
             glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
-            return redirect(
-                'openCurrents:biz-admin',
-                status_msg='Thank you for adding %s\'s details' % self.org.name
-            )
+            if self.request.user.is_authenticated():
+                return redirect(
+                    'openCurrents:biz-admin',
+                    status_msg='Thank you for adding %s\'s details' % self.org.name
+                )
+            elif 'new_biz_registration' in self.request.session.keys():
+
+                # remove all new_biz_registration related session vars
+                self.request.session.pop('new_biz_registration')
+                self.request.session.pop('new_biz_user_id')
+                self.request.session.pop('new_biz_org_id')
+
+                return redirect(
+                    'openCurrents:check-email',
+                    user_email
+                )
 
 
 class BusinessView(TemplateView):
@@ -1746,28 +1856,6 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
 
         return context
 
-    def form_valid(self, form):
-        data = form.cleaned_data
-        Org.objects.filter(id=self.org.id).update(
-            website=data['website'],
-            phone=data['phone'],
-            email=data['email'],
-            address=data['address'],
-            intro=data['intro']
-        )
-
-        if all(i == '' for i in data.values()):
-            return redirect(
-                'openCurrents:biz-admin',
-                status_msg='%s\'s details are blank, please add details' % self.org.name,
-                msg_type='alert'
-            )
-        else:
-            return redirect(
-                'openCurrents:biz-admin',
-                status_msg='Thank you for adding %s\'s details' % self.org.name
-            )
-
 
 class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView):
     template_name = 'org-admin.html'
@@ -2166,11 +2254,11 @@ class EditEventView(CreateEventView):
 
         # event detail changes
         if int(self.event.is_public) != data['event_privacy'] or \
-            self.event.location != data['event_location'] or \
-            self.event.description != data['event_description'] or \
-            self.event.coordinator.id != int(data['event_coordinator']) or \
-            self.event.datetime_start != data['datetime_start'] or \
-            self.event.datetime_end != data['datetime_end']:
+                self.event.location != data['event_location'] or \
+                self.event.description != data['event_description'] or \
+                self.event.coordinator.id != int(data['event_coordinator']) or \
+                self.event.datetime_start != data['datetime_start'] or \
+                self.event.datetime_end != data['datetime_end']:
 
             userregs = UserEventRegistration.objects.filter(
                 event__id=self.event.id,
@@ -2828,7 +2916,7 @@ class AddVolunteersView(TemplateView):
     template_name = 'add-volunteers.html'
 
 
-class OfferCreateView(LoginRequiredMixin, BizSessionContextView, FormView):
+class OfferCreateView(SessionContextView, FormView):
     template_name = 'offer.html'
     form_class = OfferCreateForm
     glogger_labels = {
@@ -2851,6 +2939,8 @@ class OfferCreateView(LoginRequiredMixin, BizSessionContextView, FormView):
 
         offer.save()
 
+        user_email = common.check_if_new_biz_registration(self)
+
         logger.debug(
             'Offer for %d%% on %s created by %s',
             data['offer_current_share'],
@@ -2859,16 +2949,22 @@ class OfferCreateView(LoginRequiredMixin, BizSessionContextView, FormView):
         )
         glogger_struct = {
             'msg': 'new offer created',
-            'username': self.request.user.email,
+            'username': user_email,
             'orgname': self.org.name,
             'offerid': offer.id
         }
         glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
-        return redirect(
-            'openCurrents:biz-admin',
-            'Your offer for %s is now live!' % offer_item.name
-        )
+        if self.request.user.is_authenticated():
+            return redirect(
+                'openCurrents:biz-admin',
+                'Your offer for %s is now live!' % offer_item.name
+            )
+        else:
+            return redirect(
+                'openCurrents:biz-details',
+                "You have posted an offer for in the marketplace. Nice!"
+            )
 
     def form_invalid(self, form):
         existing_item_err = form.errors.get('offer_item', '')
@@ -2894,7 +2990,17 @@ class OfferCreateView(LoginRequiredMixin, BizSessionContextView, FormView):
         Passes orgid down to the offer form.
         '''
         kwargs = super(OfferCreateView, self).get_form_kwargs()
-        kwargs.update({'orgid': self.org.id})
+
+        if 'new_biz_registration' in self.request.session.keys() and \
+                not self.request.user.is_authenticated():
+            try:
+                new_biz_org_id = self.request.session['new_biz_org_id']
+                kwargs.update({'orgid': new_biz_org_id})
+            except:
+                logger.debug('Couldnt find new_biz_org_id in session')
+
+        else:
+            kwargs.update({'orgid': OrgUserInfo(self.user.id).get_org_id()})
 
         return kwargs
 
@@ -3757,6 +3863,9 @@ def process_signup(
             return HttpResponse(user.id, status=201)
         else:
             if org_name:
+
+                logger.debug('Processing organization...')
+
                 glogger_struct = {
                     'msg': 'signup user',
                     'username': user_email,
@@ -3765,11 +3874,21 @@ def process_signup(
                 }
                 glogger.log_struct(glogger_struct, labels=glogger_labels)
 
-                return redirect(
-                    'openCurrents:check-email',
-                    user_email,
-                    org.id
-                )
+                if org_status == 'biz':
+
+                    request.session['new_biz_registration'] = True
+                    request.session['new_biz_user_id'] = User.objects.get(email=user_email).id
+                    request.session['new_biz_org_id'] = Org.objects.get(name=org_name).id
+
+                    logger.debug('redirecting new biz admin to offer page...')
+                    return redirect('openCurrents:offer')
+
+                else:
+                    return redirect(
+                        'openCurrents:check-email',
+                        user_email,
+                        org.id
+                    )
             else:
                 glogger_struct = {
                     'msg': 'signup user',
@@ -3959,6 +4078,7 @@ def process_login(request):
         user_name = form.cleaned_data['user_email']
         user_password = form.cleaned_data['user_password']
 
+        # direct posts to event_register are forwarded to event-detail page
         try:
             if 'event_register' in request.POST['next']:
                 redirection = re.sub('event_register', 'event-detail', request.POST['next'])
@@ -3966,7 +4086,6 @@ def process_login(request):
                 redirection = request.POST['next']
         except:
             redirection = None
-
 
         user = authenticate(
             username=user_name,

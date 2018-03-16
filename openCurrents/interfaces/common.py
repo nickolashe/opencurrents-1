@@ -1,4 +1,5 @@
 from openCurrents.interfaces import convert
+from django.contrib.auth.models import User
 
 from decimal import Decimal
 
@@ -31,3 +32,13 @@ def _get_redemption_total(records, currency='cur'):
         balance += amount
 
     return balance
+
+
+def check_if_new_biz_registration(self):
+    """Check if user is autenticated or a new biz."""
+    if self.request.user.is_authenticated():
+        user_email = self.user.email
+    elif 'new_biz_registration' in self.request.session.keys():
+        user_email = User.objects.get(id=self.request.session['new_biz_user_id']).email
+
+    return user_email
