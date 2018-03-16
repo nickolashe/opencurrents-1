@@ -44,7 +44,11 @@
       </div>
     </div>
 
-    <div class="three-halves-margin-top row left">
+    <div class="three-halves-margin-top row left
+    {% if not request.user.is_authenticated %}
+      hidden
+    {% endif %}
+    ">
       <div class="small-10 medium-6 small-centered columns">
           {% if coordinator %}
             <h6 class="navy inline">Contact invited volunteers</h6>
@@ -68,17 +72,36 @@
     </div>
 
     <div class="one-margin-top center">
-      <button type='submit' class="button round">
-        {% if not is_registered and not coordinator %}
-          Register
-        {% else %}
-          Send message
-        {% endif %}
-      </button>
+      {% if request.user.is_authenticated %}
+        <button type='submit' class="button round">
+          {% if not is_registered and not coordinator %}
+            Register
+          {% else %}
+            Send message
+          {% endif %}
+        </button>
+      </form>
     </div>
-    <a href="{% url 'openCurrents:org-admin' %}">
-      Back to org profile
-    </a>
+      {% else %}
+      </form>
+    </div>
+        <a href="{% url 'openCurrents:login' %}?next={% url 'openCurrents:event-detail' event.id %}">
+          <button  class="button round">Register</button>
+        </a>
+      {% endif %}
+
+    {% if request.user.is_authenticated %}
+      {% if coordinator or admin %}
+          <a href="{% url 'openCurrents:org-admin' %}">
+              Back to org profile
+          </a>
+      {% elif is_registered %}
+          <a href="{% url 'openCurrents:profile' %}">
+              Back to profile
+          </a>
+      {% endif %}
+    {% endif %}
+
 {% endblock content %}
 
 {% block popups %}
