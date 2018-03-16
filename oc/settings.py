@@ -208,7 +208,6 @@ else:
     # DATABASES['default']['HOST'] = '127.0.0.1'
     # DATABASES['default']['PORT'] = '3307'
 
-
     # Database
     # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
     DATABASES = {
@@ -217,5 +216,10 @@ else:
             'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         }
     }
+
+# do not send emails from local servers
+SENDEMAIL = False
+if os.getenv('GAE_INSTANCE'):
+    SENDEMAILS = True
 
 # [END dbconfig]

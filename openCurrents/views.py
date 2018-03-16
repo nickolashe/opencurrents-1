@@ -1,6 +1,7 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render, redirect
 from django.views.generic import View, ListView, TemplateView, DetailView, CreateView
@@ -228,6 +229,22 @@ class SessionContextView(View):
 
             if 'msg_type' in self.kwargs:
                 context['msg_type'] = self.kwargs.get('msg_type', '')
+
+        return context
+
+
+class MessagesContextMixin(object):
+    """MessagesContextMixin to display alerts on public pages."""
+
+    def get_context_data(self, **kwargs):
+        context = super(MessagesContextMixin, self).get_context_data(**kwargs)
+
+        # workaround with status message for anything but TemplateView
+        if 'status_msg' in self.kwargs and ('form' not in context or not context['form'].errors):
+            context['status_msg'] = self.kwargs.get('status_msg', '')
+
+        if 'msg_type' in self.kwargs:
+            context['msg_type'] = self.kwargs.get('msg_type', '')
 
         return context
 
@@ -2750,7 +2767,7 @@ class EventCreatedView(TemplateView):
     template_name = 'event-created.html'
 
 
-class EventDetailView(DetailView):
+class EventDetailView(MessagesContextMixin, DetailView):
     model = Event
     context_object_name = 'event'
     template_name = 'event-detail.html'
@@ -2796,12 +2813,6 @@ class EventDetailView(DetailView):
                     })
                     for reg in regs
                 ])
-
-            if 'status_msg' in self.kwargs:
-                context['status_msg'] = self.kwargs.get('status_msg', '')
-
-            if 'msg_type' in self.kwargs:
-                context['msg_type'] = self.kwargs.get('msg_type', '')
 
         return context
 
@@ -4521,25 +4532,27 @@ def get_user_master_offer_remaining(request):
 
 
 def sendContactEmail(template_name, template_content, merge_vars, admin_email, user_email):
-    mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)
-    message = {
-        'from_email': 'info@opencurrents.com',
-        'from_name': 'openCurrents',
-        'to': [{
-            'email': admin_email,
-            'type': 'to'
-        }],
-        'headers': {
-            'Reply-To': user_email
-        },
-        'global_merge_vars': merge_vars
-    }
 
-    mandrill_client.messages.send_template(
-        template_name=template_name,
-        template_content=template_content,
-        message=message
-    )
+    if settings.SENDEMAILS:
+        mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)
+        message = {
+            'from_email': 'info@opencurrents.com',
+            'from_name': 'openCurrents',
+            'to': [{
+                'email': admin_email,
+                'type': 'to'
+            }],
+            'headers': {
+                'Reply-To': user_email
+            },
+            'global_merge_vars': merge_vars
+        }
+
+        mandrill_client.messages.send_template(
+            template_name=template_name,
+            template_content=template_content,
+            message=message
+        )
 
 
 def sendTransactionalEmail(template_name, template_content, merge_vars, recipient_email, **kwargs):
@@ -4554,22 +4567,23 @@ def sendTransactionalEmail(template_name, template_content, merge_vars, recipien
 
     # mocking email function for testing purpose
     if not test_time_tracker_mode:
-        mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)
-        message = {
-            'from_email': 'info@opencurrents.com',
-            'from_name': 'openCurrents',
-            'to': [{
-                'email': recipient_email,
-                'type': 'to'
-            }],
-            'global_merge_vars': merge_vars
-        }
+        if settings.SENDEMAILS:  # sending emails if on prod
+            mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)
+            message = {
+                'from_email': 'info@opencurrents.com',
+                'from_name': 'openCurrents',
+                'to': [{
+                    'email': recipient_email,
+                    'type': 'to'
+                }],
+                'global_merge_vars': merge_vars
+            }
 
-        mandrill_client.messages.send_template(
-            template_name=template_name,
-            template_content=template_content,
-            message=message
-        )
+            mandrill_client.messages.send_template(
+                template_name=template_name,
+                template_content=template_content,
+                message=message
+            )
     else:
         logger.debug('test mode: mocking mandrill call')
 
@@ -4586,23 +4600,23 @@ def sendBulkEmail(template_name, template_content, merge_vars, recipient_email, 
 
     # mocking email function for testing purpose
     if not test_mode:
-        mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)
-        message = {
-            'from_email': 'info@opencurrents.com',
-            'from_name': 'openCurrents',
-            'to': recipient_email,
-            'headers': {
-                'Reply-To': sender_email.encode('ascii', 'ignore')
-            },
-            'global_merge_vars': merge_vars
-        }
+        if settings.SENDEMAILS:  # sending emails if on prod
+            mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)
+            message = {
+                'from_email': 'info@opencurrents.com',
+                'from_name': 'openCurrents',
+                'to': recipient_email,
+                'headers': {
+                    'Reply-To': sender_email.encode('ascii', 'ignore')
+                },
+                'global_merge_vars': merge_vars
+            }
 
-        mandrill_client.messages.send_template(
-            template_name=template_name,
-            template_content=template_content,
-            message=message
-        )
-
+            mandrill_client.messages.send_template(
+                template_name=template_name,
+                template_content=template_content,
+                message=message
+            )
     else:
         logger.info('test mode: mocking mandrill call')
         sess['recepient'] = recipient_email
