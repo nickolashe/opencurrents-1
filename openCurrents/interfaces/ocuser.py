@@ -234,7 +234,7 @@ class OcUser(object):
             date_created__in=[
                 tr.last_action_created for tr in transactions
             ]
-        )
+        ).order_by('-date_created')
 
         return transaction_actions
 
