@@ -134,9 +134,6 @@ LOGIN_URL = 'openCurrents:login'
 # db_from_env = dj_database_url.config(conn_max_age=500)
 # DATABASES['default'].update(db_from_env)
 
-# Database
-# https://docs.djangoproject.com/en/1.8/ref/settings/#databases
-
 # Check to see if MySQLdb is available; if not, have pymysql masquerade as
 # MySQLdb. This is a convenience feature for developers who cannot install
 # MySQLdb locally; when running in production on Google App Engine Standard
@@ -146,40 +143,6 @@ LOGIN_URL = 'openCurrents:login'
 # except ImportError:
 #     import pymysql
 #     pymysql.install_as_MySQLdb()
-
-# [START db_setup]
-# (standard)
-# if True:
-# if os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine'):
-#     # Running on production App Engine, so connect to Google Cloud SQL using
-#     # the unix socket at /cloudsql/<your-cloudsql-connection string>
-#     DATABASES = {
-#         'default': {
-#             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#             'HOST': '/cloudsql/opencurrents-194003:us-central1:oc-pg',
-#             'NAME': 'opencurrents',
-#             'USER': 'oc_admin',
-#             'PASSWORD': '0pencu44',
-#         }
-#     }
-# else:
-#     # Running locally so connect to either a local MySQL instance or connect to
-#     # Cloud SQL via the proxy. To start the proxy via command line:
-#     #
-#     #     $ cloud_sql_proxy -instances=[INSTANCE_CONNECTION_NAME]=tcp:3306
-#     #
-#     # See https://cloud.google.com/sql/docs/mysql-connect-proxy
-#     DATABASES = {
-#         'default': {
-#             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#             'HOST': '127.0.0.1',
-#             'PORT': '3307',
-#             'NAME': 'opencurrents',
-#             'USER': 'opencurrents',
-#             'PASSWORD': '0pencu44',
-#         }
-#     }
-# # [END db_setup]
 
 # [START dbconfig]
 # (flexible)
@@ -196,30 +159,29 @@ DATABASES = {
         'PORT': '5432',
     }
 }
+
 # In the flexible environment, you connect to CloudSQL using a unix socket.
 # Locally, you can use the CloudSQL proxy to proxy a localhost connection
 # to the instance
 DATABASES['default']['HOST'] = '/cloudsql/opencurrents-194003:us-central1:oc-pg'
 if os.getenv('GAE_INSTANCE'):
+    # when running on Google App Engine
     pass
-else:
-    # uncomment (and comment out local sqlite set up below)
+elif os.getenv('GOOGLE_CLOUD_PROXY'):
     # when using CloudSQL proxy to forward connections to remote db
-    # DATABASES['default']['HOST'] = '127.0.0.1'
-    # DATABASES['default']['PORT'] = '3307'
-
-    # Database
-    # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
+    DATABASES['default']['HOST'] = '127.0.0.1'
+else:
+    # local db (sqlite)
+    https://docs.djangoproject.com/en/1.10/ref/settings/#databases
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         }
     }
+# [END dbconfig]
 
 # do not send emails from local servers
-SENDEMAIL = False
+SENDEMAILS = False
 if os.getenv('GAE_INSTANCE'):
     SENDEMAILS = True
-
-# [END dbconfig]
