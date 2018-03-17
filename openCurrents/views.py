@@ -7,7 +7,7 @@ from django.shortcuts import render, redirect
 from django.views.generic import View, ListView, TemplateView, DetailView, CreateView
 from django.views.generic.edit import FormView, DeleteView
 from django.contrib.auth.models import User, Group
-from django.db import transaction, IntegrityError
+from django.db import transaction, DataError, IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.utils.safestring import mark_safe
@@ -1150,7 +1150,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         data = form.cleaned_data
         # logger.info(data)
 
-        transaction = Transaction(
+        tr_rec = Transaction(
             user=self.request.user,
             offer=self.offer,
             pop_image=data['redeem_receipt'],
@@ -1160,21 +1160,19 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         )
 
         if not data['redeem_receipt']:
-            transaction.pop_type = 'oth'
+            tr_rec.pop_type = 'oth'
 
         if data['biz_name']:
-            transaction.biz_name = data['biz_name']
+            tr_rec.biz_name = data['biz_name']
 
-        transaction.save()
-
-        action = TransactionAction(
-            transaction=transaction
-        )
-        action.save()
+        with transaction.atomic():
+            tr_rec.save()
+            action = TransactionAction(transaction=tr_rec)
+            action.save()
 
         logger.debug(
             'Transaction %d for offer %d was requested by userid %d',
-            transaction.id,
+            tr_rec.id,
             self.offer.id,
             self.request.user.id
         )
