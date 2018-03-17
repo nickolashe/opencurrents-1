@@ -172,7 +172,7 @@ elif os.getenv('GOOGLE_CLOUD_PROXY'):
     DATABASES['default']['HOST'] = '127.0.0.1'
 else:
     # local db (sqlite)
-    https://docs.djangoproject.com/en/1.10/ref/settings/#databases
+    # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
