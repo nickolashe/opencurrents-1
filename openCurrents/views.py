@@ -967,6 +967,9 @@ class PublicRecordView(LoginRequiredMixin, SessionContextView, TemplateView):
     }
 
     def get_top_list(self, entity_type='top-org', period='all-time'):
+        if not period:
+            period = 'all-time'
+
         glogger_struct = {
             'msg': 'public record accessed',
             'username': self.user.email,
