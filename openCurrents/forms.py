@@ -513,7 +513,7 @@ class TimeTrackerForm(forms.Form):
         widget=forms.TextInput(attrs={
             'id': 'end-time',
             'name':'',
-            'value': '12:00:00'
+            'value': '13:00:00'
         })
     )
     new_org = forms.CharField(

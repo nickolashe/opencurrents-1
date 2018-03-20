@@ -1710,38 +1710,37 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         context = super(TimeTrackerView, self).get_context_data(**kwargs)
         userid = self.userid
 
+        if 'fields_data' in self.kwargs:
+            context['fields_data'] = self.kwargs.get('fields_data', '')
+            fields_data = json.loads(context['fields_data'])
+
+            logger.info(fields_data)
+            if isinstance(fields_data, list):
+                for field_name, field_val in fields_data:
+                    if field_name == 'description':
+                        context['form'].fields[field_name].initial = field_val
+                    else:
+                        context['form'].fields[field_name].widget.attrs['value'] = field_val
+
+        # attempt to fetch last tracked org/admin
         try:
-            if 'fields_data' in self.kwargs:
-                context['fields_data'] = self.kwargs.get('fields_data', '')
-                fields_data = json.loads(str(context['fields_data']))
+            usertimelog = UserTimeLog.objects.filter(
+                user__id=userid
+            ).order_by(
+                '-datetime_start'
+            ).first()
+            adminaction = AdminActionUserTime.objects.filter(
+                usertimelog=usertimelog
+            ).last()
+            context['org_stat_id'] = usertimelog.event.project.org.id
+            context['admin_id'] = adminaction.user.id
 
-                for field in fields_data:
-                    try:
-                        if field[0] == 'description':
-                            context['form'].fields[field[0]].initial = field[1]
-                        else:
-                            context['form'].fields[field[0]].widget.attrs['value'] = field[1]
-                    except:
-                        pass
-        except:
-            pass
-
-        try:
-            usertimelog = UserTimeLog.objects.filter(user__id=userid).order_by('datetime_start').reverse()[0]
-            actiontimelog = AdminActionUserTime.objects.filter(usertimelog=usertimelog)
-            context['org_stat_id'] = actiontimelog[0].usertimelog.event.project.org.id
-
-            if context['org_stat_id'] == userid:
-                context['org_stat_id'] = ''
-            else:
-                context['admin_name'] = ':'.join([
-                    actiontimelog[0].user.first_name,
-                    actiontimelog[0].user.last_name
-                ])
-        except KeyError:
-                pass
-        except:
-            context['org_stat_id'] = ''
+        except Exception as e:
+            logger.debug(
+                'Unable to fetch last tracked org/admin: %s (%s)',
+                e.message,
+                type(e)
+            )
 
         return context
 
@@ -1781,12 +1780,16 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
     def form_invalid(self, form):
 
         # data = form.cleaned_data
-        data = self.request.POST.items()
+        data = [
+            item
+            for item in self.request.POST.items()
+            if item[0] != 'csrfmiddlewaretoken'
+        ]
         data = json.dumps(data)
 
         try:
             existing_field_err = form.errors.as_data().values()[0][0].messages[0]
-        except:
+        except Exception as e:
             pass
 
         if existing_field_err:
