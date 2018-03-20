@@ -489,8 +489,7 @@ class Offer(models.Model):
         ])
 
 
-class Transaction(models.Model):
-    def path_and_rename(instance, filename):
+def path_and_rename(instance, filename):
         upload_to = 'receipts/{}/'.format(datetime.now().strftime('%Y/%m'))
         ext = filename.split('.')[-1]
 
@@ -512,12 +511,15 @@ class Transaction(models.Model):
         # return the whole path to the file
         return os.path.join(upload_to, filename)
 
+
+class Transaction(models.Model):
     user = models.ForeignKey(User)
 
     offer = models.ForeignKey(Offer)
 
     pop_image = models.ImageField(
         upload_to=path_and_rename,
+        max_length=512,
         null=True
     )
 

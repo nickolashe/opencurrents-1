@@ -198,12 +198,6 @@ class OcOrg(object):
         else:
             return None
 
-    def get_admins(self):
-        if self.org_admin_group:
-            return self.org_admin_group.user_set.all()
-        else:
-            return None
-
 
 class InvalidOrgException(Exception):
     pass

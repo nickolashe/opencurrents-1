@@ -1,12 +1,13 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render, redirect
 from django.views.generic import View, ListView, TemplateView, DetailView, CreateView
 from django.views.generic.edit import FormView, DeleteView
 from django.contrib.auth.models import User, Group
-from django.db import transaction, IntegrityError
+from django.db import transaction, DataError, IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.utils.safestring import mark_safe
@@ -232,6 +233,22 @@ class SessionContextView(View):
         return context
 
 
+class MessagesContextMixin(object):
+    """MessagesContextMixin to display alerts on public pages."""
+
+    def get_context_data(self, **kwargs):
+        context = super(MessagesContextMixin, self).get_context_data(**kwargs)
+
+        # workaround with status message for anything but TemplateView
+        if 'status_msg' in self.kwargs and ('form' not in context or not context['form'].errors):
+            context['status_msg'] = self.kwargs.get('status_msg', '')
+
+        if 'msg_type' in self.kwargs:
+            context['msg_type'] = self.kwargs.get('msg_type', '')
+
+        return context
+
+
 class BizSessionContextView(SessionContextView):
     def dispatch(self, request, *args, **kwargs):
         # biz admin user
@@ -445,7 +462,7 @@ class BizDetailsView(BizSessionContextView, FormView):
 
         if all(i == '' for i in data.values()):
             return redirect(
-                'openCurrents:biz-admin',
+                'openCurrents:biz-details',
                 status_msg='Please include at least one way for customers to contact you',
                 msg_type='alert'
             )
@@ -534,6 +551,7 @@ class LoginView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(LoginView, self).get_context_data(**kwargs)
         context['next'] = self.request.GET.get('next', None)
+
         return context
 
 
@@ -949,6 +967,9 @@ class PublicRecordView(LoginRequiredMixin, SessionContextView, TemplateView):
     }
 
     def get_top_list(self, entity_type='top-org', period='all-time'):
+        if not period:
+            period = 'all-time'
+
         glogger_struct = {
             'msg': 'public record accessed',
             'username': self.user.email,
@@ -1132,7 +1153,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         data = form.cleaned_data
         # logger.info(data)
 
-        transaction = Transaction(
+        tr_rec = Transaction(
             user=self.request.user,
             offer=self.offer,
             pop_image=data['redeem_receipt'],
@@ -1142,21 +1163,19 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         )
 
         if not data['redeem_receipt']:
-            transaction.pop_type = 'oth'
+            tr_rec.pop_type = 'oth'
 
         if data['biz_name']:
-            transaction.biz_name = data['biz_name']
+            tr_rec.biz_name = data['biz_name']
 
-        transaction.save()
-
-        action = TransactionAction(
-            transaction=transaction
-        )
-        action.save()
+        with transaction.atomic():
+            tr_rec.save()
+            action = TransactionAction(transaction=tr_rec)
+            action.save()
 
         logger.debug(
             'Transaction %d for offer %d was requested by userid %d',
-            transaction.id,
+            tr_rec.id,
             self.offer.id,
             self.request.user.id
         )
@@ -2789,7 +2808,7 @@ class EventCreatedView(TemplateView):
     template_name = 'event-created.html'
 
 
-class EventDetailView(LoginRequiredMixin, SessionContextView, DetailView):
+class EventDetailView(MessagesContextMixin, DetailView):
     model = Event
     context_object_name = 'event'
     template_name = 'event-detail.html'
@@ -2798,42 +2817,43 @@ class EventDetailView(LoginRequiredMixin, SessionContextView, DetailView):
         context = super(EventDetailView, self).get_context_data(**kwargs)
         context['form'] = EventRegisterForm()
 
-        orguser = OrgUserInfo(self.request.user.id)
+        if self.request.user.is_authenticated():
+            orguser = OrgUserInfo(self.request.user.id)
 
-        # determine whether the user has already registered for the event
-        is_registered = UserEventRegistration.objects.filter(
-            user__id=self.request.user.id,
-            event__id=context['event'].id,
-            is_confirmed=True
-        ).exists()
-
-        # check if admin for the event's org
-        is_org_admin = orguser.is_org_admin(context['event'].project.org.id)
-
-        # check if event coordinator
-        is_coord = Event.objects.filter(
-            id=context['event'].id,
-            coordinator__id=self.request.user.id
-        ).exists()
-
-        context['is_registered'] = is_registered
-        context['admin'] = is_org_admin
-        context['coordinator'] = is_coord
-
-        # list of confirmed registered users
-        if is_coord or is_org_admin:
-            regs = UserEventRegistration.objects.filter(
+            # determine whether the user has already registered for the event
+            is_registered = UserEventRegistration.objects.filter(
+                user__id=self.request.user.id,
                 event__id=context['event'].id,
                 is_confirmed=True
-            )
+            ).exists()
 
-            context['registrants'] = dict([
-                (reg.user.email, {
-                    'first_name': reg.user.first_name,
-                    'last_name': reg.user.last_name
-                })
-                for reg in regs
-            ])
+            # check if admin for the event's org
+            is_org_admin = orguser.is_org_admin(context['event'].project.org.id)
+
+            # check if event coordinator
+            is_coord = Event.objects.filter(
+                id=context['event'].id,
+                coordinator__id=self.request.user.id
+            ).exists()
+
+            context['is_registered'] = is_registered
+            context['admin'] = is_org_admin
+            context['coordinator'] = is_coord
+
+            # list of confirmed registered users
+            if is_coord or is_org_admin:
+                regs = UserEventRegistration.objects.filter(
+                    event__id=context['event'].id,
+                    is_confirmed=True
+                )
+
+                context['registrants'] = dict([
+                    (reg.user.email, {
+                        'first_name': reg.user.first_name,
+                        'last_name': reg.user.last_name
+                    })
+                    for reg in regs
+                ])
 
         return context
 
@@ -3260,7 +3280,6 @@ def event_register(request, pk):
     event = Event.objects.get(id=pk)
     form = EventRegisterForm(request.POST)
 
-    # validate form data
     if form.is_valid():
         user = request.user
         message = form.cleaned_data['contact_message']
@@ -4100,8 +4119,12 @@ def process_login(request):
         user_name = form.cleaned_data['user_email']
         user_password = form.cleaned_data['user_password']
 
+        # direct posts to event_register are forwarded to event-detail page
         try:
-            redirection = request.POST['next']
+            if 'event_register' in request.POST['next']:
+                redirection = re.sub('event_register', 'event-detail', request.POST['next'])
+            else:
+                redirection = request.POST['next']
         except:
             redirection = None
 
@@ -4550,25 +4573,27 @@ def get_user_master_offer_remaining(request):
 
 
 def sendContactEmail(template_name, template_content, merge_vars, admin_email, user_email):
-    mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)
-    message = {
-        'from_email': 'info@opencurrents.com',
-        'from_name': 'openCurrents',
-        'to': [{
-            'email': admin_email,
-            'type': 'to'
-        }],
-        'headers': {
-            'Reply-To': user_email
-        },
-        'global_merge_vars': merge_vars
-    }
 
-    mandrill_client.messages.send_template(
-        template_name=template_name,
-        template_content=template_content,
-        message=message
-    )
+    if settings.SENDEMAILS:
+        mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)
+        message = {
+            'from_email': 'info@opencurrents.com',
+            'from_name': 'openCurrents',
+            'to': [{
+                'email': admin_email,
+                'type': 'to'
+            }],
+            'headers': {
+                'Reply-To': user_email
+            },
+            'global_merge_vars': merge_vars
+        }
+
+        mandrill_client.messages.send_template(
+            template_name=template_name,
+            template_content=template_content,
+            message=message
+        )
 
 
 def sendTransactionalEmail(template_name, template_content, merge_vars, recipient_email, **kwargs):
@@ -4583,22 +4608,23 @@ def sendTransactionalEmail(template_name, template_content, merge_vars, recipien
 
     # mocking email function for testing purpose
     if not test_time_tracker_mode:
-        mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)
-        message = {
-            'from_email': 'info@opencurrents.com',
-            'from_name': 'openCurrents',
-            'to': [{
-                'email': recipient_email,
-                'type': 'to'
-            }],
-            'global_merge_vars': merge_vars
-        }
+        if settings.SENDEMAILS:  # sending emails if on prod
+            mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)
+            message = {
+                'from_email': 'info@opencurrents.com',
+                'from_name': 'openCurrents',
+                'to': [{
+                    'email': recipient_email,
+                    'type': 'to'
+                }],
+                'global_merge_vars': merge_vars
+            }
 
-        mandrill_client.messages.send_template(
-            template_name=template_name,
-            template_content=template_content,
-            message=message
-        )
+            mandrill_client.messages.send_template(
+                template_name=template_name,
+                template_content=template_content,
+                message=message
+            )
     else:
         logger.debug('test mode: mocking mandrill call')
 
@@ -4615,23 +4641,23 @@ def sendBulkEmail(template_name, template_content, merge_vars, recipient_email, 
 
     # mocking email function for testing purpose
     if not test_mode:
-        mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)
-        message = {
-            'from_email': 'info@opencurrents.com',
-            'from_name': 'openCurrents',
-            'to': recipient_email,
-            'headers': {
-                'Reply-To': sender_email.encode('ascii', 'ignore')
-            },
-            'global_merge_vars': merge_vars
-        }
+        if settings.SENDEMAILS:  # sending emails if on prod
+            mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)
+            message = {
+                'from_email': 'info@opencurrents.com',
+                'from_name': 'openCurrents',
+                'to': recipient_email,
+                'headers': {
+                    'Reply-To': sender_email.encode('ascii', 'ignore')
+                },
+                'global_merge_vars': merge_vars
+            }
 
-        mandrill_client.messages.send_template(
-            template_name=template_name,
-            template_content=template_content,
-            message=message
-        )
-
+            mandrill_client.messages.send_template(
+                template_name=template_name,
+                template_content=template_content,
+                message=message
+            )
     else:
         logger.info('test mode: mocking mandrill call')
         sess['recepient'] = recipient_email
