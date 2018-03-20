@@ -2189,10 +2189,14 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
         }
         glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
-        return redirect(
-            'openCurrents:invite-volunteers',
-            json.dumps(event_ids)
-        )
+        # skipping volunteers invitation if event in the past
+        if form_data['datetime_start'].date() > datetime.now().date():
+            return redirect(
+                'openCurrents:invite-volunteers',
+                json.dumps(event_ids)
+            )
+        else:
+            return redirect('openCurrents:org-admin')
 
     def get_context_data(self, **kwargs):
         context = super(CreateEventView, self).get_context_data()
