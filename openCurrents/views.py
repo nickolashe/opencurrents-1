@@ -552,6 +552,8 @@ class LoginView(TemplateView):
         context = super(LoginView, self).get_context_data(**kwargs)
         context['next'] = self.request.GET.get('next', None)
 
+        # adding 'next' to session
+        self.request.session['next'] = context['next']
         return context
 
 
@@ -3793,6 +3795,32 @@ def process_signup(
                 )
 
                 token_record.save()
+
+                # registering user to an event
+                if request.session['next'] and ('event-detail' in request.session['next']):
+
+                    try:
+                        user = User.objects.get(email=user_email)
+                    except:
+                        user = None
+                        logger.debug("Couldn't find user with email {}".format(user_email))
+
+                    if user:
+                        event_id = re.search('/(\d*)/', request.session['next']).group(1)
+                        try:
+                            event = Event.objects.get(id=event_id)
+                            user_event_registration = UserEventRegistration(
+                                user=user,
+                                event=event,
+                                is_confirmed=True
+                            )
+                            user_event_registration.save()
+
+                            # cleaning session
+                            request.session.pop('next')
+                        except:
+                            user = None
+                            logger.debug("Couldn't find event with ID {}".format(event_id))
 
                 if not mock_emails:
                     # send verification email
