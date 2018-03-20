@@ -385,7 +385,7 @@ class InviteView(TemplateView):
     template_name = 'home.html'
 
 
-class CheckEmailView(TemplateView):
+class CheckEmailView(MessagesContextMixin, TemplateView):
     template_name = 'check-email.html'
 
 
@@ -3638,6 +3638,9 @@ def process_signup(
     }
     form = UserSignupForm(request.POST)
 
+    status_msg = ''
+    msg_type = ''
+
     # TODO: figure out a way to pass booleans in the url
     if endpoint == 'False':
         endpoint = False
@@ -3822,6 +3825,9 @@ def process_signup(
                             user = None
                             logger.debug("Couldn't find event with ID {}".format(event_id))
 
+                        status_msg = 'You have been registered for ({})'.format(event)
+
+
                 if not mock_emails:
                     # send verification email
                     try:
@@ -3928,6 +3934,8 @@ def process_signup(
                 return redirect(
                     'openCurrents:check-email',
                     user_email,
+                    status_msg,
+                    msg_type
                 )
 
     # fail with form validation error
