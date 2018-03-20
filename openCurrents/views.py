@@ -1733,7 +1733,6 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             context['fields_data'] = self.kwargs.get('fields_data', '')
             fields_data = json.loads(context['fields_data'])
 
-            logger.info(fields_data)
             if isinstance(fields_data, list):
                 for field_name, field_val in fields_data:
                     if field_name == 'description':
@@ -1745,9 +1744,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         try:
             usertimelog = UserTimeLog.objects.filter(
                 user__id=userid
-            ).order_by(
-                '-datetime_start'
-            ).first()
+            ).last()
             adminaction = AdminActionUserTime.objects.filter(
                 usertimelog=usertimelog
             ).last()
