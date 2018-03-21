@@ -513,7 +513,7 @@ class TimeTrackerForm(forms.Form):
         widget=forms.TextInput(attrs={
             'id': 'end-time',
             'name':'',
-            'value': '12:00:00'
+            'value': '13:00:00'
         })
     )
     new_org = forms.CharField(
@@ -892,7 +892,7 @@ class PublicRecordsForm(forms.Form):
     )
 
     record_type = forms.ChoiceField(choices=record_types)
-    period = forms.ChoiceField(choices=periods)
+    period = forms.ChoiceField(choices=periods, required=False)
 
 class PopUpAnswer(forms.Form):
     answer = forms.CharField(max_length=3,required=False)

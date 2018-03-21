@@ -1,12 +1,13 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render, redirect
 from django.views.generic import View, ListView, TemplateView, DetailView, CreateView
 from django.views.generic.edit import FormView, DeleteView
 from django.contrib.auth.models import User, Group
-from django.db import transaction, IntegrityError
+from django.db import transaction, DataError, IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.utils.safestring import mark_safe
@@ -228,6 +229,22 @@ class SessionContextView(View):
 
             if 'msg_type' in self.kwargs:
                 context['msg_type'] = self.kwargs.get('msg_type', '')
+
+        return context
+
+
+class MessagesContextMixin(object):
+    """MessagesContextMixin to display alerts on public pages."""
+
+    def get_context_data(self, **kwargs):
+        context = super(MessagesContextMixin, self).get_context_data(**kwargs)
+
+        # workaround with status message for anything but TemplateView
+        if 'status_msg' in self.kwargs and ('form' not in context or not context['form'].errors):
+            context['status_msg'] = self.kwargs.get('status_msg', '')
+
+        if 'msg_type' in self.kwargs:
+            context['msg_type'] = self.kwargs.get('msg_type', '')
 
         return context
 
@@ -950,6 +967,9 @@ class PublicRecordView(LoginRequiredMixin, SessionContextView, TemplateView):
     }
 
     def get_top_list(self, entity_type='top-org', period='all-time'):
+        if not period:
+            period = 'all-time'
+
         glogger_struct = {
             'msg': 'public record accessed',
             'username': self.user.email,
@@ -1133,7 +1153,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         data = form.cleaned_data
         # logger.info(data)
 
-        transaction = Transaction(
+        tr_rec = Transaction(
             user=self.request.user,
             offer=self.offer,
             pop_image=data['redeem_receipt'],
@@ -1143,21 +1163,19 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         )
 
         if not data['redeem_receipt']:
-            transaction.pop_type = 'oth'
+            tr_rec.pop_type = 'oth'
 
         if data['biz_name']:
-            transaction.biz_name = data['biz_name']
+            tr_rec.biz_name = data['biz_name']
 
-        transaction.save()
-
-        action = TransactionAction(
-            transaction=transaction
-        )
-        action.save()
+        with transaction.atomic():
+            tr_rec.save()
+            action = TransactionAction(transaction=tr_rec)
+            action.save()
 
         logger.debug(
             'Transaction %d for offer %d was requested by userid %d',
-            transaction.id,
+            tr_rec.id,
             self.offer.id,
             self.request.user.id
         )
@@ -1711,38 +1729,34 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         context = super(TimeTrackerView, self).get_context_data(**kwargs)
         userid = self.userid
 
+        if 'fields_data' in self.kwargs:
+            context['fields_data'] = self.kwargs.get('fields_data', '')
+            fields_data = json.loads(context['fields_data'])
+
+            if isinstance(fields_data, list):
+                for field_name, field_val in fields_data:
+                    if field_name == 'description':
+                        context['form'].fields[field_name].initial = field_val
+                    else:
+                        context['form'].fields[field_name].widget.attrs['value'] = field_val
+
+        # attempt to fetch last tracked org/admin
         try:
-            if 'fields_data' in self.kwargs:
-                context['fields_data'] = self.kwargs.get('fields_data', '')
-                fields_data = json.loads(str(context['fields_data']))
+            usertimelog = UserTimeLog.objects.filter(
+                user__id=userid
+            ).last()
+            adminaction = AdminActionUserTime.objects.filter(
+                usertimelog=usertimelog
+            ).last()
+            context['org_stat_id'] = usertimelog.event.project.org.id
+            context['admin_id'] = adminaction.user.id
 
-                for field in fields_data:
-                    try:
-                        if field[0] == 'description':
-                            context['form'].fields[field[0]].initial = field[1]
-                        else:
-                            context['form'].fields[field[0]].widget.attrs['value'] = field[1]
-                    except:
-                        pass
-        except:
-            pass
-
-        try:
-            usertimelog = UserTimeLog.objects.filter(user__id=userid).order_by('datetime_start').reverse()[0]
-            actiontimelog = AdminActionUserTime.objects.filter(usertimelog=usertimelog)
-            context['org_stat_id'] = actiontimelog[0].usertimelog.event.project.org.id
-
-            if context['org_stat_id'] == userid:
-                context['org_stat_id'] = ''
-            else:
-                context['admin_name'] = ':'.join([
-                    actiontimelog[0].user.first_name,
-                    actiontimelog[0].user.last_name
-                ])
-        except KeyError:
-                pass
-        except:
-            context['org_stat_id'] = ''
+        except Exception as e:
+            logger.debug(
+                'Unable to fetch last tracked org/admin: %s (%s)',
+                e.message,
+                type(e)
+            )
 
         return context
 
@@ -1782,12 +1796,16 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
     def form_invalid(self, form):
 
         # data = form.cleaned_data
-        data = self.request.POST.items()
+        data = [
+            item
+            for item in self.request.POST.items()
+            if item[0] != 'csrfmiddlewaretoken'
+        ]
         data = json.dumps(data)
 
         try:
             existing_field_err = form.errors.as_data().values()[0][0].messages[0]
-        except:
+        except Exception as e:
             pass
 
         if existing_field_err:
@@ -2787,7 +2805,7 @@ class EventCreatedView(TemplateView):
     template_name = 'event-created.html'
 
 
-class EventDetailView(DetailView):
+class EventDetailView(MessagesContextMixin, DetailView):
     model = Event
     context_object_name = 'event'
     template_name = 'event-detail.html'
@@ -2833,12 +2851,6 @@ class EventDetailView(DetailView):
                     })
                     for reg in regs
                 ])
-
-            if 'status_msg' in self.kwargs:
-                context['status_msg'] = self.kwargs.get('status_msg', '')
-
-            if 'msg_type' in self.kwargs:
-                context['msg_type'] = self.kwargs.get('msg_type', '')
 
         return context
 
@@ -4558,25 +4570,27 @@ def get_user_master_offer_remaining(request):
 
 
 def sendContactEmail(template_name, template_content, merge_vars, admin_email, user_email):
-    mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)
-    message = {
-        'from_email': 'info@opencurrents.com',
-        'from_name': 'openCurrents',
-        'to': [{
-            'email': admin_email,
-            'type': 'to'
-        }],
-        'headers': {
-            'Reply-To': user_email
-        },
-        'global_merge_vars': merge_vars
-    }
 
-    mandrill_client.messages.send_template(
-        template_name=template_name,
-        template_content=template_content,
-        message=message
-    )
+    if settings.SENDEMAILS:
+        mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)
+        message = {
+            'from_email': 'info@opencurrents.com',
+            'from_name': 'openCurrents',
+            'to': [{
+                'email': admin_email,
+                'type': 'to'
+            }],
+            'headers': {
+                'Reply-To': user_email
+            },
+            'global_merge_vars': merge_vars
+        }
+
+        mandrill_client.messages.send_template(
+            template_name=template_name,
+            template_content=template_content,
+            message=message
+        )
 
 
 def sendTransactionalEmail(template_name, template_content, merge_vars, recipient_email, **kwargs):
@@ -4591,22 +4605,23 @@ def sendTransactionalEmail(template_name, template_content, merge_vars, recipien
 
     # mocking email function for testing purpose
     if not test_time_tracker_mode:
-        mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)
-        message = {
-            'from_email': 'info@opencurrents.com',
-            'from_name': 'openCurrents',
-            'to': [{
-                'email': recipient_email,
-                'type': 'to'
-            }],
-            'global_merge_vars': merge_vars
-        }
+        if settings.SENDEMAILS:  # sending emails if on prod
+            mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)
+            message = {
+                'from_email': 'info@opencurrents.com',
+                'from_name': 'openCurrents',
+                'to': [{
+                    'email': recipient_email,
+                    'type': 'to'
+                }],
+                'global_merge_vars': merge_vars
+            }
 
-        mandrill_client.messages.send_template(
-            template_name=template_name,
-            template_content=template_content,
-            message=message
-        )
+            mandrill_client.messages.send_template(
+                template_name=template_name,
+                template_content=template_content,
+                message=message
+            )
     else:
         logger.debug('test mode: mocking mandrill call')
 
@@ -4623,23 +4638,23 @@ def sendBulkEmail(template_name, template_content, merge_vars, recipient_email, 
 
     # mocking email function for testing purpose
     if not test_mode:
-        mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)
-        message = {
-            'from_email': 'info@opencurrents.com',
-            'from_name': 'openCurrents',
-            'to': recipient_email,
-            'headers': {
-                'Reply-To': sender_email.encode('ascii', 'ignore')
-            },
-            'global_merge_vars': merge_vars
-        }
+        if settings.SENDEMAILS:  # sending emails if on prod
+            mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)
+            message = {
+                'from_email': 'info@opencurrents.com',
+                'from_name': 'openCurrents',
+                'to': recipient_email,
+                'headers': {
+                    'Reply-To': sender_email.encode('ascii', 'ignore')
+                },
+                'global_merge_vars': merge_vars
+            }
 
-        mandrill_client.messages.send_template(
-            template_name=template_name,
-            template_content=template_content,
-            message=message
-        )
-
+            mandrill_client.messages.send_template(
+                template_name=template_name,
+                template_content=template_content,
+                message=message
+            )
     else:
         logger.info('test mode: mocking mandrill call')
         sess['recepient'] = recipient_email
