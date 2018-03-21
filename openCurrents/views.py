@@ -1794,10 +1794,18 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             except:
                 msg_type = 'success'
 
+            data = [
+                item
+                for item in self.request.POST.items()
+                if item[0] != 'csrfmiddlewaretoken'
+            ]
+            data = json.dumps(data)
+
             return redirect(
                 'openCurrents:time-tracker',
                 status_msg=status_msg,
-                msg_type=msg_type
+                msg_type=msg_type,
+                fields_data=data
             )
 
     def form_invalid(self, form):
