@@ -1460,6 +1460,11 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                         )
                         return True, None
 
+            elif form_data['admin'] == '':
+                msg_type = 'alert'
+                return False, 'You have to select a coordinator.', msg_type
+
+
         # if logging for a new org
         elif form_data['new_org']:
             glogger_struct = {
@@ -1761,7 +1766,13 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                     elif field_name == 'org':
                         context['org_stat_id'] = int(field_val)
                     elif field_name == 'admin':
-                        context['admin_id'] = int(field_val)
+                        print "\nHERE"
+                        print 'admin:', field_val
+                        print "HERE\n"
+                        if field_val != '':
+                            context['admin_id'] = int(field_val)
+                        else:
+                            context['admin_id'] = 'sel-admin'
                     else:
                         context['form'].fields[field_name].widget.attrs['value'] = field_val
 
