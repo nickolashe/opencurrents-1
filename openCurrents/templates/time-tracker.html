@@ -115,16 +115,16 @@
       $("#volunteer-date").mask("9999-99-99");
 
       {% if date_start %}
-        var dd = "{{date_start}}";
+        var d_st = "{{date_start}}";
       {% else %}
-        var dd = new Date()
+        var d_st = new Date()
       {% endif %}
 
       $('#volunteer-date').datepicker({
         dateFormat: 'yy-mm-dd',
         minDate: -13,
         maxDate: 0,
-      }).datepicker("setDate", dd );
+      }).datepicker("setDate", d_st );
 
       $('#start-time, #end-time').timepicker({
         step: 15,

@@ -1315,7 +1315,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                     'to',
                     track_existing_datetime_end.astimezone(pytz.timezone(tz)).strftime('%-I:%M %p'),
                     'on',
-                    track_existing_datetime_start.strftime('%-m/%-d')
+                    track_existing_datetime_start.strftime('%B %-d')
                 ])
                 logger.debug(status_time)
 
@@ -1758,13 +1758,12 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                         context['form'].fields[field_name].initial = field_val
                     elif field_name == 'date_start':
                         context['date_start'] = field_val
+                    elif field_name == 'org':
+                        context['org_stat_id'] = int(field_val)
+                    elif field_name == 'admin':
+                        context['admin_id'] = int(field_val)
                     else:
-                        if field_name == 'org':
-                            context['org_stat_id'] = int(field_val)
-                        elif field_name == 'admin':
-                            context['admin_id'] = int(field_val)
-                        else:
-                            context['form'].fields[field_name].widget.attrs['value'] = field_val
+                        context['form'].fields[field_name].widget.attrs['value'] = field_val
 
         return context
 
