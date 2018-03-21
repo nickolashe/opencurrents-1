@@ -114,11 +114,17 @@
 
       $("#volunteer-date").mask("9999-99-99");
 
+      {% if date_start %}
+        var dd = "{{date_start}}";
+      {% else %}
+        var dd = new Date()
+      {% endif %}
+
       $('#volunteer-date').datepicker({
         dateFormat: 'yy-mm-dd',
         minDate: -13,
         maxDate: 0,
-      }).datepicker("setDate", new Date());
+      }).datepicker("setDate", dd );
 
       $('#start-time, #end-time').timepicker({
         step: 15,

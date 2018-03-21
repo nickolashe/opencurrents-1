@@ -1729,17 +1729,6 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         context = super(TimeTrackerView, self).get_context_data(**kwargs)
         userid = self.userid
 
-        if 'fields_data' in self.kwargs:
-            context['fields_data'] = self.kwargs.get('fields_data', '')
-            fields_data = json.loads(context['fields_data'])
-
-            if isinstance(fields_data, list):
-                for field_name, field_val in fields_data:
-                    if field_name == 'description':
-                        context['form'].fields[field_name].initial = field_val
-                    else:
-                        context['form'].fields[field_name].widget.attrs['value'] = field_val
-
         # attempt to fetch last tracked org/admin
         try:
             usertimelog = UserTimeLog.objects.filter(
@@ -1757,6 +1746,25 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                 e.message,
                 type(e)
             )
+
+        if 'fields_data' in self.kwargs:
+            context['fields_data'] = self.kwargs.get('fields_data', '')
+
+            fields_data = json.loads(context['fields_data'])
+
+            if isinstance(fields_data, list):
+                for field_name, field_val in fields_data:
+                    if field_name == 'description':
+                        context['form'].fields[field_name].initial = field_val
+                    elif field_name == 'date_start':
+                        context['date_start'] = field_val
+                    else:
+                        if field_name == 'org':
+                            context['org_stat_id'] = int(field_val)
+                        elif field_name == 'admin':
+                            context['admin_id'] = int(field_val)
+                        else:
+                            context['form'].fields[field_name].widget.attrs['value'] = field_val
 
         return context
 
@@ -1806,7 +1814,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         try:
             existing_field_err = form.errors.as_data().values()[0][0].messages[0]
         except Exception as e:
-            pass
+            existing_field_err = None
 
         if existing_field_err:
             return redirect(
