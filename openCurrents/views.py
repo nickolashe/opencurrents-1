@@ -2196,7 +2196,14 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
                 json.dumps(event_ids)
             )
         else:
-            return redirect('openCurrents:org-admin')
+            return redirect(
+                'openCurrents:org-admin',
+                status_msg='{name} was created at {num} location{pl}'.format(
+                    name=self.project.name.encode('utf-8'),
+                    num=len(event_ids),
+                    pl=('s' if len(event_ids) > 1 else '')
+                )
+            )
 
     def get_context_data(self, **kwargs):
         context = super(CreateEventView, self).get_context_data()
