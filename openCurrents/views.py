@@ -4140,11 +4140,6 @@ def process_login(request):
 
             login(request, user)
 
-
-            # getting user's role (eg biz admin, npf admin)
-            oc_auth = OcAuth(user.id)
-            redirection = common.where_to_redirect(oc_auth)
-
             try:
                 # set the session var to keep the user logged in
                 remember_me = request.POST['remember-me']
@@ -4155,6 +4150,10 @@ def process_login(request):
             if 'next' in request.POST:
                 return redirect(redirection)
             else:
+                # getting user's role (eg biz admin, npf admin)
+                oc_auth = OcAuth(user.id)
+                redirection = common.where_to_redirect(oc_auth)
+                
                 return redirect(redirection, app_hr)
 
         else:
