@@ -3994,18 +3994,19 @@ def process_signup(
                 }
                 glogger.log_struct(glogger_struct, labels=glogger_labels)
 
-                if status_msg:
-                    return redirect(
-                        'openCurrents:check-email',
-                        user_email,
-                        status_msg
-                    )
-                elif msg_type:
+
+                if status_msg and msg_type:
                     return redirect(
                         'openCurrents:check-email',
                         user_email,
                         status_msg,
                         msg_type
+                    )
+                elif status_msg:
+                    return redirect(
+                        'openCurrents:check-email',
+                        user_email,
+                        status_msg
                     )
                 else:
                     return redirect(
