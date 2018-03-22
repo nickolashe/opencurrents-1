@@ -3825,7 +3825,7 @@ def process_signup(
                             user = None
                             logger.debug("Couldn't find event with ID {}".format(event_id))
 
-                        status_msg = 'You have been registered for ({})'.format(event)
+                        status_msg = 'You have been registered for {}'.format(event)
 
                         if event:
                             logger.debug("Sending event reg confirm email")
@@ -3995,6 +3995,12 @@ def process_signup(
                 glogger.log_struct(glogger_struct, labels=glogger_labels)
 
                 if status_msg:
+                    return redirect(
+                        'openCurrents:check-email',
+                        user_email,
+                        status_msg
+                    )
+                elif msg_type:
                     return redirect(
                         'openCurrents:check-email',
                         user_email,
