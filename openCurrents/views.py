@@ -2189,10 +2189,29 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
         }
         glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
-        return redirect(
-            'openCurrents:invite-volunteers',
-            json.dumps(event_ids)
-        )
+        # skipping volunteers invitation if event in the past
+        if form_data['datetime_start'].date() > datetime.now().date():
+            return redirect(
+                'openCurrents:invite-volunteers',
+                json.dumps(event_ids)
+            )
+        else:
+            num_vols = 0
+            return redirect(
+                'openCurrents:org-admin',
+                num_vols  
+
+                # 'num_vols' parameter is evaluated in org-admin.html to 
+                # display a proper message to an npf admin, thus the code 
+                # below will be overwritten by the code in org-admin.html 
+                # template
+
+                # status_msg='{name} was created at {num} location{pl}'.format(
+                #     name=self.project.name.encode('utf-8'),
+                #     num=len(event_ids),
+                #     pl=('s' if len(event_ids) > 1 else '')
+                # )
+            )
 
     def get_context_data(self, **kwargs):
         context = super(CreateEventView, self).get_context_data()
@@ -4120,6 +4139,12 @@ def process_login(request):
                     )
 
             login(request, user)
+
+
+            # getting user's role (eg biz admin, npf admin)
+            oc_auth = OcAuth(user.id)
+            redirection = common.where_to_redirect(oc_auth)
+
             try:
                 # set the session var to keep the user logged in
                 remember_me = request.POST['remember-me']
@@ -4127,10 +4152,10 @@ def process_login(request):
             except KeyError:
                 pass
 
-            if redirection:
+            if 'next' in request.POST:
                 return redirect(redirection)
             else:
-                return redirect('openCurrents:profile', app_hr)
+                return redirect(redirection, app_hr)
 
         else:
             glogger_struct = {
@@ -4186,7 +4211,9 @@ def process_email_confirmation(request, user_email):
 
         if user.has_usable_password():
             logger.warning('user %s has already been verified', user_email)
-            return redirect('openCurrents:profile')
+            oc_auth = OcAuth(user.id)
+            redirection = common.where_to_redirect(oc_auth)
+            return redirect(redirection)
 
         # second, make sure the verification token and user email match
         token_record = None
@@ -4206,7 +4233,10 @@ def process_email_confirmation(request, user_email):
 
         if token_record.is_verified:
             logger.warning('token for %s has already been verified', user_email)
-            return redirect('openCurrents:profile')
+            # user = User.objects.get(email=user_email)
+            oc_auth = OcAuth(user.id)
+            redirection = common.where_to_redirect(oc_auth)
+            return redirect(redirection)
 
         # mark the verification record as verified
         token_record.is_verified = True
@@ -4260,7 +4290,10 @@ def process_email_confirmation(request, user_email):
 
         login(request, user)
 
-        return redirect('openCurrents:profile')
+        oc_auth = OcAuth(user.id)
+        redirection = common.where_to_redirect(oc_auth)
+        return redirect(redirection)
+
 
     # if form was invalid for bad password, still need to preserve token
     else:
