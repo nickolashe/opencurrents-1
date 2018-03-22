@@ -619,3 +619,26 @@ class TransactionAction(models.Model):
             'for',
             str(self.transaction)
         ])
+
+
+class UserCashOut(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
+
+    balance = models.DecimalField(max_digits=12, decimal_places=2)
+
+    # created / updated timestamps
+    date_created = models.DateTimeField('date created', auto_now_add=True)
+    date_updated = models.DateTimeField('date updated', auto_now=True)
+
+    def __unicode__(self):
+        return ' '.join([
+            'User',
+            '%s' % self.user.username,
+            'requested cashout in the amount of',
+            '%.3f' % self.balance,
+            'on',
+            self.date_created.strftime('%m/%d/%Y %H:%M:%S'),
+        ])

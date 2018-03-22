@@ -50,6 +50,7 @@ from openCurrents.models import (
     Offer,
     Transaction,
     TransactionAction,
+    UserCashOut,
     Ledger
 )
 
@@ -1857,6 +1858,50 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
 
         return context
 
+    def post(self, request, *args, **kwargs):
+        balance_available_usd = self.ocuser.get_balance_available_usd()
+
+        UserCashOut(user=self.user, balance=balance_available_usd).save()
+
+        try:
+            sendTransactionalEmail(
+                'user-cash-out',
+                None,
+                [
+                    {
+                        'name': 'FNAME',
+                        'content': self.user.first_name
+                    },
+                    {
+                        'name': 'LNAME',
+                        'content': self.user.last_name
+                    },
+                    {
+                        'name': 'EMAIL',
+                        'content': self.user.email
+                    },
+                    {
+                        'name': 'AVAILABLE_DOLLARS',
+                        'content': balance_available_usd
+                    }
+                ],
+                # 'bizdev@opencurrents.com'
+                'nicko.shestopalov@gmail.com'
+            )
+        except Exception as e:
+            logger.error(
+                'unable to send transactional email: %s (%s)',
+                e.message,
+                type(e)
+            )
+
+        return redirect(
+            'openCurrents:profile',
+            status_msg=' '.join([
+                'Your dollars are on the way.',
+                'Look for an email from Dwolla soon.'
+            ])
+        )
 
 class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView):
     template_name = 'org-admin.html'
