@@ -385,7 +385,7 @@ class InviteView(TemplateView):
     template_name = 'home.html'
 
 
-class CheckEmailView(TemplateView):
+class CheckEmailView(MessagesContextMixin, TemplateView):
     template_name = 'check-email.html'
 
 
@@ -552,6 +552,8 @@ class LoginView(TemplateView):
         context = super(LoginView, self).get_context_data(**kwargs)
         context['next'] = self.request.GET.get('next', None)
 
+        # adding 'next' to session
+        self.request.session['next'] = context['next']
         return context
 
 
@@ -3655,6 +3657,9 @@ def process_signup(
     }
     form = UserSignupForm(request.POST)
 
+    status_msg = ''
+    msg_type = ''
+
     # TODO: figure out a way to pass booleans in the url
     if endpoint == 'False':
         endpoint = False
@@ -3813,6 +3818,98 @@ def process_signup(
 
                 token_record.save()
 
+                # registering user to an event
+                if 'next' in request.session and 'event-detail' in request.session['next']:
+                    try:
+                        user = User.objects.get(email=user_email)
+                    except:
+                        user = None
+                        logger.debug("Couldn't find user with email {}".format(user_email))
+
+                    if user:
+                        event_id = re.search('/(\d*)/', request.session['next']).group(1)
+                        try:
+                            event = Event.objects.get(id=event_id)
+                            user_event_registration = UserEventRegistration(
+                                user=user,
+                                event=event,
+                                is_confirmed=True
+                            )
+                            user_event_registration.save()
+
+                            # cleaning session
+                            request.session.pop('next')
+
+                        except:
+                            user = None
+                            logger.debug("Couldn't find event with ID {}".format(event_id))
+
+                        status_msg = 'You have been registered for {}'.format(event)
+
+                        if event:
+                            logger.debug("Sending event reg confirm email")
+                            # sending event registration confirmation email to the new volunteer
+                            tz = event.project.org.timezone
+                            merge_var_list = [
+                                {
+                                    'name': 'EVENT_NAME',
+                                    'content': event.project.name
+                                },
+                                {
+                                    'name': 'DATE',
+                                    'content': event.datetime_start.astimezone(pytz.timezone(tz)).strftime('%b %d, %Y')
+                                },
+                                {
+                                    'name': 'START_TIME',
+                                    'content': event.datetime_start.astimezone(pytz.timezone(tz)).strftime('%-I:%M %p')
+                                },
+                                {
+                                    'name': 'END_TIME',
+                                    'content': event.datetime_end.astimezone(pytz.timezone(tz)).strftime('%-I:%M %p')
+                                },
+                                {
+                                    'name': 'LOCATION',
+                                    'content': event.location
+                                },
+                                {
+                                    'name': 'DESCRIPTION',
+                                    'content': event.description
+                                },
+                                {
+                                    'name': 'EVENT_ID',
+                                    'content': event.id
+                                },
+                                {
+                                    'name': 'ORG_NAME',
+                                    'content': event.project.org.name
+                                },
+                                {
+                                    'name': 'ADMIN_FIRSTNAME',
+                                    'content': event.coordinator.first_name
+                                },
+                                {
+                                    'name': 'ADMIN_LASTNAME',
+                                    'content': event.coordinator.last_name
+                                }
+                            ]
+
+                            try:
+                                sendContactEmail(
+                                    'volunteer-confirmation',
+                                    None,
+                                    merge_var_list,
+                                    user_email,
+                                    event.coordinator.email
+                                )
+                            except Exception as e:
+                                logger.error(
+                                    'unable to send email: %s (%s)',
+                                    e.message,
+                                    type(e)
+                                )
+
+
+
                 if not mock_emails:
                     # send verification email
                     try:
@@ -3916,10 +4013,25 @@ def process_signup(
                 }
                 glogger.log_struct(glogger_struct, labels=glogger_labels)
 
-                return redirect(
-                    'openCurrents:check-email',
-                    user_email,
-                )
+
+                if status_msg and msg_type:
+                    return redirect(
+                        'openCurrents:check-email',
+                        user_email,
+                        status_msg,
+                        msg_type
+                    )
+                elif status_msg:
+                    return redirect(
+                        'openCurrents:check-email',
+                        user_email,
+                        status_msg
+                    )
+                else:
+                    return redirect(
+                        'openCurrents:check-email',
+                        user_email
+                    )
 
     # fail with form validation error
     else:
