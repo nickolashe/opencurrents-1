@@ -2196,13 +2196,21 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
                 json.dumps(event_ids)
             )
         else:
+            num_vols = 0
             return redirect(
                 'openCurrents:org-admin',
-                status_msg='{name} was created at {num} location{pl}'.format(
-                    name=self.project.name.encode('utf-8'),
-                    num=len(event_ids),
-                    pl=('s' if len(event_ids) > 1 else '')
-                )
+                num_vols  
+
+                # 'num_vols' parameter is evaluated in org-admin.html to 
+                # display a proper message to an npf admin, thus the code 
+                # below will be overwritten by the code in org-admin.html 
+                # template
+
+                # status_msg='{name} was created at {num} location{pl}'.format(
+                #     name=self.project.name.encode('utf-8'),
+                #     num=len(event_ids),
+                #     pl=('s' if len(event_ids) > 1 else '')
+                # )
             )
 
     def get_context_data(self, **kwargs):
