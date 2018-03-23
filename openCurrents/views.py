@@ -1887,8 +1887,7 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
                         'content': balance_available_usd
                     }
                 ],
-                # 'bizdev@opencurrents.com'
-                'nicko.shestopalov@gmail.com'
+                'bizdev@opencurrents.com'
             )
         except Exception as e:
             logger.error(
@@ -2246,11 +2245,11 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
             num_vols = 0
             return redirect(
                 'openCurrents:org-admin',
-                num_vols  
+                num_vols
 
-                # 'num_vols' parameter is evaluated in org-admin.html to 
-                # display a proper message to an npf admin, thus the code 
-                # below will be overwritten by the code in org-admin.html 
+                # 'num_vols' parameter is evaluated in org-admin.html to
+                # display a proper message to an npf admin, thus the code
+                # below will be overwritten by the code in org-admin.html
                 # template
 
                 # status_msg='{name} was created at {num} location{pl}'.format(
