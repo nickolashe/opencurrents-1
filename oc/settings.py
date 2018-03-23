@@ -182,6 +182,6 @@ else:
 # [END dbconfig]
 
 # do not send emails from local servers
-SENDEMAILS = False
+SENDEMAILS = os.getenv('OC_SEND_EMAILS')
 if os.getenv('GAE_INSTANCE'):
     SENDEMAILS = True
