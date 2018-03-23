@@ -50,6 +50,7 @@ from openCurrents.models import (
     Offer,
     Transaction,
     TransactionAction,
+    UserCashOut,
     Ledger
 )
 
@@ -1859,6 +1860,49 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
 
         return context
 
+    def post(self, request, *args, **kwargs):
+        balance_available_usd = self.ocuser.get_balance_available_usd()
+
+        UserCashOut(user=self.user, balance=balance_available_usd).save()
+
+        try:
+            sendTransactionalEmail(
+                'user-cash-out',
+                None,
+                [
+                    {
+                        'name': 'FNAME',
+                        'content': self.user.first_name
+                    },
+                    {
+                        'name': 'LNAME',
+                        'content': self.user.last_name
+                    },
+                    {
+                        'name': 'EMAIL',
+                        'content': self.user.email
+                    },
+                    {
+                        'name': 'AVAILABLE_DOLLARS',
+                        'content': balance_available_usd
+                    }
+                ],
+                'bizdev@opencurrents.com'
+            )
+        except Exception as e:
+            logger.error(
+                'unable to send transactional email: %s (%s)',
+                e.message,
+                type(e)
+            )
+
+        return redirect(
+            'openCurrents:profile',
+            status_msg=' '.join([
+                'Your dollars are on the way.',
+                'Look for an email from Dwolla soon.'
+            ])
+        )
 
 class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView):
     template_name = 'org-admin.html'
@@ -2201,11 +2245,11 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
             num_vols = 0
             return redirect(
                 'openCurrents:org-admin',
-                num_vols  
+                num_vols
 
-                # 'num_vols' parameter is evaluated in org-admin.html to 
-                # display a proper message to an npf admin, thus the code 
-                # below will be overwritten by the code in org-admin.html 
+                # 'num_vols' parameter is evaluated in org-admin.html to
+                # display a proper message to an npf admin, thus the code
+                # below will be overwritten by the code in org-admin.html
                 # template
 
                 # status_msg='{name} was created at {num} location{pl}'.format(
