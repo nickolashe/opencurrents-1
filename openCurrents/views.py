@@ -1813,12 +1813,25 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
 
     def get_context_data(self, **kwargs):
         context = super(ProfileView, self).get_context_data(**kwargs)
-        userid = self.request.user.id
+        user = self.request.user
+        userid = user.id
 
-        if kwargs.get('app_hr') == '1':
-            context['app_hr'] = 1
-        else:
-            context['app_hr'] = 0
+        context['app_hr'] = 0
+        today = date.today()
+
+        # do a weekly check for unapproved requests (popup)
+        if not user.last_login or user.last_login.date() < today - timedelta(days=today.weekday()):
+            try:
+                orgadmin = OrgAdmin(userid)
+                admin_requested_hours = orgadmin.get_hours_requested()
+
+                if admin_requested_hours:
+                    context['app_hr'] = 1
+            except Exception:
+                logger.debug(
+                    'User %s is not org admin, no requested hours check',
+                    userid
+                )
 
         # verified currents balance
         context['balance_available'] = self.ocuser.get_balance_available()
@@ -4276,24 +4289,6 @@ def process_login(request):
             }
             glogger.log_struct(glogger_struct, labels=glogger_labels)
 
-            userid = user.id
-            app_hr = 0
-            today = date.today()
-
-            # do a weekly check for unapproved requests (popup)
-            if not user.last_login or user.last_login.date() < today - timedelta(days=today.weekday()):
-                try:
-                    orgadmin = OrgAdmin(userid)
-                    admin_requested_hours = orgadmin.get_hours_requested()
-
-                    if admin_requested_hours:
-                        app_hr = 1
-                except Exception:
-                    logger.debug(
-                        'User %s is not org admin, no requested hours check',
-                        userid
-                    )
-
             login(request, user)
 
             try:
@@ -4309,8 +4304,8 @@ def process_login(request):
                 # getting user's role (eg biz admin, npf admin)
                 oc_auth = OcAuth(user.id)
                 redirection = common.where_to_redirect(oc_auth)
-                
-                return redirect(redirection, app_hr)
+
+                return redirect(redirection)
 
         else:
             glogger_struct = {
