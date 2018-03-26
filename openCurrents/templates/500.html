@@ -15,8 +15,15 @@
 {% block content %}
   <div class="row one-margin-bottom center">
     <div class="small-12 medium-8 small-centered columns">
-      <p class="three-halves-margin-bottom">Don't worry, everything is going to be fine. And no, it's not your fault - it's ours. But really, we want to know - how did you arrive here? Please share feedback to describe what happened. Thank you!</p>
-      <a href="javascript:void(Tawk_API.toggle())" class="button round">Share feedback</a>
+      <p class="three-halves-margin-bottom">Don't worry, everything is going to
+        be fine. And no, it's not your fault - it's ours. But really, we want to
+        know - how did you arrive here? Please share feedback to describe what
+        happened. Thank you!</p>
+      <p>
+        <a href="javascript:void(Tawk_API.toggle())" class="button round">
+          Share feedback
+        </a>
+      </p>
 
       {% if request.user.is_authenticated %}
           <a href="{% url 'openCurrents:profile' %}"
