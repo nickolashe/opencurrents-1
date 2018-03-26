@@ -1318,7 +1318,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                     'to',
                     track_existing_datetime_end.astimezone(pytz.timezone(tz)).strftime('%-I:%M %p'),
                     'on',
-                    track_existing_datetime_start.strftime('%-m/%-d')
+                    track_existing_datetime_start.strftime('%B %-d')
                 ])
                 logger.debug(status_time)
 
@@ -1462,6 +1462,11 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                             form_data['datetime_end']
                         )
                         return True, None
+
+            elif form_data['admin'] == '':
+                msg_type = 'alert'
+                return False, 'You have to select a coordinator.', msg_type
+
 
         # if logging for a new org
         elif form_data['new_org']:
@@ -1732,22 +1737,47 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         context = super(TimeTrackerView, self).get_context_data(**kwargs)
         userid = self.userid
 
+        # attempt to fetch last tracked org/admin
         try:
-            usertimelog = UserTimeLog.objects.filter(user__id=userid).order_by('datetime_start').reverse()[0]
-            actiontimelog = AdminActionUserTime.objects.filter(usertimelog=usertimelog)
-            context['org_stat_id'] = actiontimelog[0].usertimelog.event.project.org.id
+            usertimelog = UserTimeLog.objects.filter(
+                user__id=userid
+            ).last()
+            adminaction = AdminActionUserTime.objects.filter(
+                usertimelog=usertimelog
+            ).last()
+            context['org_stat_id'] = usertimelog.event.project.org.id
+            context['admin_id'] = adminaction.user.id
 
-            if context['org_stat_id'] == userid:
-                context['org_stat_id'] = ''
-            else:
-                context['admin_name'] = ':'.join([
-                    actiontimelog[0].user.first_name,
-                    actiontimelog[0].user.last_name
-                ])
-        except KeyError:
-                pass
-        except:
-            context['org_stat_id'] = ''
+        except Exception as e:
+            logger.debug(
+                'Unable to fetch last tracked org/admin: %s (%s)',
+                e.message,
+                type(e)
+            )
+
+        if 'fields_data' in self.kwargs:
+            context['fields_data'] = self.kwargs.get('fields_data', '')
+
+            fields_data = json.loads(context['fields_data'])
+
+            if isinstance(fields_data, list):
+                for field_name, field_val in fields_data:
+                    if field_name == 'description':
+                        context['form'].fields[field_name].initial = field_val
+                    elif field_name == 'date_start':
+                        context['date_start'] = field_val
+                    elif field_name == 'org':
+                        context['org_stat_id'] = int(field_val)
+                    elif field_name == 'admin':
+                        print "\nHERE"
+                        print 'admin:', field_val
+                        print "HERE\n"
+                        if field_val != '':
+                            context['admin_id'] = int(field_val)
+                        else:
+                            context['admin_id'] = 'sel-admin'
+                    else:
+                        context['form'].fields[field_name].widget.attrs['value'] = field_val
 
         return context
 
@@ -1778,11 +1808,44 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             except:
                 msg_type = 'success'
 
+            data = [
+                item
+                for item in self.request.POST.items()
+                if item[0] != 'csrfmiddlewaretoken'
+            ]
+            data = json.dumps(data)
+
             return redirect(
                 'openCurrents:time-tracker',
                 status_msg=status_msg,
-                msg_type=msg_type
+                msg_type=msg_type,
+                fields_data=data
             )
+
+    def form_invalid(self, form):
+
+        # data = form.cleaned_data
+        data = [
+            item
+            for item in self.request.POST.items()
+            if item[0] != 'csrfmiddlewaretoken'
+        ]
+        data = json.dumps(data)
+
+        try:
+            existing_field_err = form.errors.as_data().values()[0][0].messages[0]
+        except Exception as e:
+            existing_field_err = None
+
+        if existing_field_err:
+            return redirect(
+                'openCurrents:time-tracker',
+                status_msg=strip_tags(existing_field_err),
+                msg_type='alert',
+                fields_data=data
+            )
+
+        return super(TimeTrackerView, self).form_invalid(form)
 
 
 class TimeTrackedView(TemplateView):
