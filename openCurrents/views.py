@@ -369,6 +369,20 @@ class HomeView(TemplateView):
             # no session set
             return super(HomeView, self).dispatch(*args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super(HomeView, self).get_context_data(**kwargs)
+        try:
+            context['org_admin'] = OcAuth(self.request.user.id).is_admin_org()
+        except:
+            context['org_admin'] = None
+
+        try:
+            context['biz_admin'] = OcAuth(self.request.user.id).is_admin_biz()
+        except:
+            context['biz_admin'] = None
+
+        return context
+
 
 class ForbiddenView(SessionContextView, TemplateView):
     template_name = '403.html'
