@@ -42,3 +42,20 @@ def check_if_new_biz_registration(self):
         user_email = User.objects.get(id=self.request.session['new_biz_user_id']).email
 
     return user_email
+
+
+def where_to_redirect(oc_auth):
+    """
+    User redirection.
+
+    Check if user is an org/biz admin or a volunteer and return redirect string
+    with a proper page url.
+    """
+    redirection = 'openCurrents:profile'
+    if oc_auth.is_admin_org():
+        redirection = 'openCurrents:org-admin'
+    elif oc_auth.is_admin_biz():
+        redirection = 'openCurrents:biz-admin'
+
+
+    return redirection
