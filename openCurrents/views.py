@@ -1318,7 +1318,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                     'to',
                     track_existing_datetime_end.astimezone(pytz.timezone(tz)).strftime('%-I:%M %p'),
                     'on',
-                    track_existing_datetime_start.strftime('%-m/%-d')
+                    track_existing_datetime_start.strftime('%B %-d')
                 ])
                 logger.debug(status_time)
 
@@ -1462,6 +1462,11 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                             form_data['datetime_end']
                         )
                         return True, None
+
+            elif form_data['admin'] == '':
+                msg_type = 'alert'
+                return False, 'You have to select a coordinator.', msg_type
+
 
         # if logging for a new org
         elif form_data['new_org']:
@@ -1732,22 +1737,47 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         context = super(TimeTrackerView, self).get_context_data(**kwargs)
         userid = self.userid
 
+        # attempt to fetch last tracked org/admin
         try:
-            usertimelog = UserTimeLog.objects.filter(user__id=userid).order_by('datetime_start').reverse()[0]
-            actiontimelog = AdminActionUserTime.objects.filter(usertimelog=usertimelog)
-            context['org_stat_id'] = actiontimelog[0].usertimelog.event.project.org.id
+            usertimelog = UserTimeLog.objects.filter(
+                user__id=userid
+            ).last()
+            adminaction = AdminActionUserTime.objects.filter(
+                usertimelog=usertimelog
+            ).last()
+            context['org_stat_id'] = usertimelog.event.project.org.id
+            context['admin_id'] = adminaction.user.id
 
-            if context['org_stat_id'] == userid:
-                context['org_stat_id'] = ''
-            else:
-                context['admin_name'] = ':'.join([
-                    actiontimelog[0].user.first_name,
-                    actiontimelog[0].user.last_name
-                ])
-        except KeyError:
-                pass
-        except:
-            context['org_stat_id'] = ''
+        except Exception as e:
+            logger.debug(
+                'Unable to fetch last tracked org/admin: %s (%s)',
+                e.message,
+                type(e)
+            )
+
+        if 'fields_data' in self.kwargs:
+            context['fields_data'] = self.kwargs.get('fields_data', '')
+
+            fields_data = json.loads(context['fields_data'])
+
+            if isinstance(fields_data, list):
+                for field_name, field_val in fields_data:
+                    if field_name == 'description':
+                        context['form'].fields[field_name].initial = field_val
+                    elif field_name == 'date_start':
+                        context['date_start'] = field_val
+                    elif field_name == 'org':
+                        context['org_stat_id'] = int(field_val)
+                    elif field_name == 'admin':
+                        print "\nHERE"
+                        print 'admin:', field_val
+                        print "HERE\n"
+                        if field_val != '':
+                            context['admin_id'] = int(field_val)
+                        else:
+                            context['admin_id'] = 'sel-admin'
+                    else:
+                        context['form'].fields[field_name].widget.attrs['value'] = field_val
 
         return context
 
@@ -1778,11 +1808,44 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             except:
                 msg_type = 'success'
 
+            data = [
+                item
+                for item in self.request.POST.items()
+                if item[0] != 'csrfmiddlewaretoken'
+            ]
+            data = json.dumps(data)
+
             return redirect(
                 'openCurrents:time-tracker',
                 status_msg=status_msg,
-                msg_type=msg_type
+                msg_type=msg_type,
+                fields_data=data
             )
+
+    def form_invalid(self, form):
+
+        # data = form.cleaned_data
+        data = [
+            item
+            for item in self.request.POST.items()
+            if item[0] != 'csrfmiddlewaretoken'
+        ]
+        data = json.dumps(data)
+
+        try:
+            existing_field_err = form.errors.as_data().values()[0][0].messages[0]
+        except Exception as e:
+            existing_field_err = None
+
+        if existing_field_err:
+            return redirect(
+                'openCurrents:time-tracker',
+                status_msg=strip_tags(existing_field_err),
+                msg_type='alert',
+                fields_data=data
+            )
+
+        return super(TimeTrackerView, self).form_invalid(form)
 
 
 class TimeTrackedView(TemplateView):
@@ -1813,12 +1876,25 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
 
     def get_context_data(self, **kwargs):
         context = super(ProfileView, self).get_context_data(**kwargs)
-        userid = self.request.user.id
+        user = self.request.user
+        userid = user.id
 
-        if kwargs.get('app_hr') == '1':
-            context['app_hr'] = 1
-        else:
-            context['app_hr'] = 0
+        context['app_hr'] = 0
+        today = date.today()
+
+        # do a weekly check for unapproved requests (popup)
+        if not user.last_login or user.last_login.date() < today - timedelta(days=today.weekday()):
+            try:
+                orgadmin = OrgAdmin(userid)
+                admin_requested_hours = orgadmin.get_hours_requested()
+
+                if admin_requested_hours:
+                    context['app_hr'] = 1
+            except Exception:
+                logger.debug(
+                    'User %s is not org admin, no requested hours check',
+                    userid
+                )
 
         # verified currents balance
         context['balance_available'] = self.ocuser.get_balance_available()
@@ -4276,25 +4352,8 @@ def process_login(request):
             }
             glogger.log_struct(glogger_struct, labels=glogger_labels)
 
-            userid = user.id
-            app_hr = 0
-            today = date.today()
-
-            # do a weekly check for unapproved requests (popup)
-            if not user.last_login or user.last_login.date() < today - timedelta(days=today.weekday()):
-                try:
-                    orgadmin = OrgAdmin(userid)
-                    admin_requested_hours = orgadmin.get_hours_requested()
-
-                    if admin_requested_hours:
-                        app_hr = 1
-                except Exception:
-                    logger.debug(
-                        'User %s is not org admin, no requested hours check',
-                        userid
-                    )
-
             login(request, user)
+
             try:
                 # set the session var to keep the user logged in
                 remember_me = request.POST['remember-me']
@@ -4302,10 +4361,14 @@ def process_login(request):
             except KeyError:
                 pass
 
-            if redirection:
+            if 'next' in request.POST:
                 return redirect(redirection)
             else:
-                return redirect('openCurrents:profile', app_hr)
+                # getting user's role (eg biz admin, npf admin)
+                oc_auth = OcAuth(user.id)
+                redirection = common.where_to_redirect(oc_auth)
+
+                return redirect(redirection)
 
         else:
             glogger_struct = {
@@ -4361,7 +4424,9 @@ def process_email_confirmation(request, user_email):
 
         if user.has_usable_password():
             logger.warning('user %s has already been verified', user_email)
-            return redirect('openCurrents:profile')
+            oc_auth = OcAuth(user.id)
+            redirection = common.where_to_redirect(oc_auth)
+            return redirect(redirection)
 
         # second, make sure the verification token and user email match
         token_record = None
@@ -4381,7 +4446,10 @@ def process_email_confirmation(request, user_email):
 
         if token_record.is_verified:
             logger.warning('token for %s has already been verified', user_email)
-            return redirect('openCurrents:profile')
+            # user = User.objects.get(email=user_email)
+            oc_auth = OcAuth(user.id)
+            redirection = common.where_to_redirect(oc_auth)
+            return redirect(redirection)
 
         # mark the verification record as verified
         token_record.is_verified = True
@@ -4435,7 +4503,10 @@ def process_email_confirmation(request, user_email):
 
         login(request, user)
 
-        return redirect('openCurrents:profile')
+        oc_auth = OcAuth(user.id)
+        redirection = common.where_to_redirect(oc_auth)
+        return redirect(redirection)
+
 
     # if form was invalid for bad password, still need to preserve token
     else:
