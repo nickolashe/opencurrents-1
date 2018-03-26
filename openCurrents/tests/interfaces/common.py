@@ -205,7 +205,7 @@ def _create_test_user(
         username=user_name,
         email=user_name + '@email.cc',
         first_name=user_name + '_first_name',
-        last_nam=user_name + '_last_name'
+        last_name=user_name + '_last_name'
     )
 
     if org:

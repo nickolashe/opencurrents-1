@@ -243,30 +243,32 @@ class TestUserProfileView(TestCase):
         datetime_start_2 = past_date + timedelta(hours=3)
         datetime_end_2 = past_date + timedelta(hours=5)
 
-        # setting 2 approved events for different NPF orgs in the past
-        # 3 hrs
+        # setting two approved events for different NPF orgs in the past
+        # approved 3 hrs for org1
         _setup_volunteer_hours(
             volunteer_1,
             npf_admin_1,
-            org1, project_1,
+            org1,
+            project_1,
             datetime_start_1,
             datetime_end_1,
             is_verified=True,
             action_type='app'
         )
 
-        # 2 hrs
+        # approved 2 hrs for org2
         _setup_volunteer_hours(
             volunteer_1,
             npf_admin_2,
-            org2, project_2,
+            org2,
+            project_2,
             datetime_start_2,
             datetime_end_2,
             is_verified=True,
             action_type='app'
         )
 
-        # setting a pending events 3 hrs
+        # setting a pending past events 3 hrs
         _setup_volunteer_hours(
             volunteer_1,
             npf_admin_1,
@@ -276,7 +278,7 @@ class TestUserProfileView(TestCase):
             datetime_end_1
         )
 
-        # setting up future events
+        # setting up two future events 5 hrs each
         self.event1 = _create_event(
             project_1,
             npf_admin_1.id,
@@ -298,7 +300,7 @@ class TestUserProfileView(TestCase):
             entity_id_from=org1.orgentity.id,
             entity_id_to=vol_1_entity.id,
             action=None,
-            amount=20,
+            amount=40,
         )
 
         # registering user for an event
@@ -314,14 +316,25 @@ class TestUserProfileView(TestCase):
         )
 
         # setting approved and pending dollars
-        _setup_transactions(biz_org, volunteer_1, 12, 20)  # Pending: $72.0
-        _setup_transactions(biz_org, volunteer_1, 12, 20, action_type='app')  # 72.0 +
-        _setup_transactions(biz_org, volunteer_1, 12, 20, action_type='red')  # + 72.0 = 204
+        _setup_transactions(biz_org, volunteer_1, 12, 20)  # Pending: $204.0
+        _setup_transactions(biz_org, volunteer_1, 12, 20, action_type='app')  # 204.0 +
+        _setup_transactions(biz_org, volunteer_1, 12, 20, action_type='red')  # + 204.0 = 408
 
         # setting up client
         self.client = Client()
 
     def test_user_approved_buttons_exist(self):
+        """
+        Check if buttons with org names are present on volunteer profile under
+        My volunteer hours heading.
+
+        Expected:
+        - two links with text 'NPF_org_1: 3.0' and 'NPF_org_2: 2.0'
+        - href of these two links expected to be
+        '/hours-detail/?user_id=1&amp;org_id=1&amp;type=approved'
+        and
+        '/hours-detail/?user_id=1&amp;org_id=2&amp;type=approved'
+        """
         oc_user = User.objects.get(username="volunteer_1")
         self.client.login(username=oc_user.username, password='password')
         response = self.client.get('/profile/')
@@ -341,6 +354,14 @@ class TestUserProfileView(TestCase):
         )
 
     def test_user_events_upcoming(self):
+        """
+        Check context vars 'events_upcoming' and 'events' on volunteer page and
+        events page.
+
+        Expected:
+        - len() of 'events_upcoming' == 1 - user is registered to one event
+        - len() of 'events' == 2 - the total num of events in the system
+        """
         oc_user = User.objects.get(username="volunteer_1")
         self.client.login(username=oc_user.username, password='password')
 
@@ -353,15 +374,28 @@ class TestUserProfileView(TestCase):
         self.assertEqual(len(response.context['events']), 2)
 
     def test_user_currents_available(self):
+        """
+        Check volunteer's balance_available on profile page.
+
+        available currents = balance based on ledger - redeemed offers
+        Expected:
+        - balance_available = issued 40 curr - 12+12 redeemed curr = 16
+        """
         oc_user = User.objects.get(username="volunteer_1")
         self.client.login(username=oc_user.username, password='password')
 
         response = self.client.get('/profile/')
         self.assertEqual(response.status_code, 200)
 
-        self.assertEqual(response.context['balance_available'], 8.0)
+        self.assertEqual(response.context['balance_available'], 16.0)
 
     def test_user_currents_pending(self):
+        """
+        Check volunteer's pendign currents on profile page.
+
+        Expected:
+        - balance_pending = 3 (based on pending past events 3 hrs)
+        """
         oc_user = User.objects.get(username="volunteer_1")
         self.client.login(username=oc_user.username, password='password')
 
@@ -371,15 +405,34 @@ class TestUserProfileView(TestCase):
         self.assertEqual(response.context['balance_pending'], 3.0)
 
     def test_user_dollars_available(self):
+        """
+        Check volunteer's dollars available.
+
+        available usd balance is composed of transactions in ledger
+        Expected:
+        - $30.3 from SetUp in "setting up user dollars "Dollars available"
+        - plus $204 from transaction with redeemed status
+        - TOTAL 234.30
+        """
         oc_user = User.objects.get(username="volunteer_1")
         self.client.login(username=oc_user.username, password='password')
 
         response = self.client.get('/profile/')
         self.assertEqual(response.status_code, 200)
 
-        self.assertEqual(response.context['balance_available_usd'], 30.30)
+        self.assertEqual(response.context['balance_available_usd'], 234.30)
 
     def test_user_dollars_pending(self):
+        """
+        Check volunteer's dollars pending.
+
+        pending usd balance = pending and approved redemptions
+        (redeemed transactions do not count)
+        Expected:
+        - plus $204 from transaction with pending status
+        - plus $204 from transaction with approved status
+        - TOTAL 408
+        """
         oc_user = User.objects.get(username="volunteer_1")
         self.client.login(username=oc_user.username, password='password')
 
@@ -389,6 +442,12 @@ class TestUserProfileView(TestCase):
         self.assertEqual(response.context['balance_pending_usd'], 408.0)
 
     def test_user_offers_redemed(self):
+        """
+        Check volunteer's redeemed offers.
+
+        Expected:
+        - 3 offers in total with 12 currents_amount and 20 price_reported each
+        """
         oc_user = User.objects.get(username="volunteer_1")
         self.client.login(username=oc_user.username, password='password')
 
@@ -396,16 +455,25 @@ class TestUserProfileView(TestCase):
         self.assertEqual(response.status_code, 200)
 
         self.assertEqual(len(response.context['offers_redeemed']), 3)
-        self.assertEqual(
-            response.context['offers_redeemed'][0].transaction.currents_amount,
-            12
-        )
-        self.assertEqual(
-            response.context['offers_redeemed'][0].transaction.price_reported,
-            20
-        )
+
+        for offer in response.context['offers_redeemed']:
+            self.assertEqual(
+                offer.transaction.currents_amount,
+                12
+            )
+            self.assertEqual(
+                offer.transaction.price_reported,
+                20
+            )
 
     def test_user_pending_hours_list(self):
+        """
+        Check volunteer's pending hours under My hours requested.
+
+        Expected:
+        - 1 entry in AdminActionUserTime table (based on pending past events 3 hrs)
+        - len(hours_requested) = 1 (based on pending past events 3 hrs)
+        """
         oc_user = User.objects.get(username="volunteer_1")
         self.client.login(username=oc_user.username, password='password')
 
@@ -421,6 +489,14 @@ class TestUserProfileView(TestCase):
         )
 
     def test_user_approved_buttons_click(self):
+        """
+        Check volunteer clicks links under My volunteer hours.
+
+        Expected:
+        - status_code == 200
+        - user name, description with 'npf_org_1' and 3.0 hrs are on the page
+        - user name, description with 'npf_org_2' and 2.0 hrs are on the page
+        """
         oc_user = User.objects.get(username="volunteer_1")
         self.client.login(username=oc_user.username, password='password')
 
@@ -476,6 +552,14 @@ class TestUserProfileView(TestCase):
         )
 
     def test_user_has_no_approved_hours(self):
+        """
+        Check volunteer #2 no hours on profile.
+
+        Expected:
+        - Currents available/Pending = 0
+        - Dollars available/Pending = 0
+        - Hours Approved/Pending = 0
+        """
         oc_user = User.objects.get(username="volunteer_2")
         self.client.login(username=oc_user.username, password='password')
 
