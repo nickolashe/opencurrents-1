@@ -7,6 +7,7 @@ from uuid import uuid4
 from datetime import datetime, timedelta
 
 from openCurrents.interfaces.common import one_week_from_now, diffInHours
+from openCurrents.interfaces import convert
 
 import os
 import pytz
@@ -609,6 +610,31 @@ class TransactionAction(models.Model):
     class Meta:
         unique_together = ('transaction', 'action_type')
         get_latest_by = 'date_updated'
+
+    # trigger ledger record on approve action
+    def save(self, *args, **kwargs):
+        super(TransactionAction, self).save(*args, **kwargs)
+
+        if self.action_type == 'app':
+            tr = self.transaction
+
+            # transact cur from user to org
+            Ledger.objects.create(
+                entity_from=tr.user.userentity,
+                entity_to=tr.offer.org.orgentity,
+                currency='cur',
+                amount=tr.currents_amount,
+                transaction=self
+            )
+
+            # transact usd from oC to user
+            Ledger.objects.create(
+                entity_from=OrgEntity.objects.get(org__name='GreatDeeds'),
+                entity_to=tr.user.userentity,
+                currency='usd',
+                amount=convert.cur_to_usd(tr.currents_amount, True),
+                transaction=self
+            )
 
     def __unicode__(self):
         return ' '.join([
