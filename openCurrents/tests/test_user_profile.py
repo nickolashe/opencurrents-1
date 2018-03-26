@@ -359,10 +359,6 @@ class TestUserProfileView(TestCase):
         response = self.client.get('/profile/')
         self.assertEqual(response.status_code, 200)
 
-        print "\nHERE"
-        print response
-        print "HERE\n"
-
         self.assertEqual(response.context['balance_available'], 8.0)
 
     def test_user_currents_pending(self):
@@ -435,21 +431,49 @@ class TestUserProfileView(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn('hours_detail', response.context)
         expected_list_of_hours_len = 1
-        self.assertEqual(len(response.context['hours_detail']), expected_list_of_hours_len)
+        self.assertEqual(
+            len(response.context['hours_detail']), expected_list_of_hours_len)
 
-        self.assertEqual(response.context['hours_detail'][0].usertimelog.user.username, 'volunteer_1')
-        self.assertEqual(response.context['hours_detail'][0].usertimelog.event.project.org.name, 'NPF_org_1')
+        self.assertEqual(
+            response.context['hours_detail'][0].usertimelog.user.username,
+            'volunteer_1'
+        )
+        self.assertEqual(
+            response.context['hours_detail'][0].usertimelog.event.project.org.name,
+            'NPF_org_1'
+        )
 
-        self.assertEqual(diffInHours(response.context['hours_detail'][0].usertimelog.datetime_start, response.context['hours_detail'][0].usertimelog.datetime_end), 3.0)
+        self.assertEqual(diffInHours(
+            response.context['hours_detail'][0].usertimelog.datetime_start,
+            response.context['hours_detail'][0].usertimelog.datetime_end),
+            3.0
+        )
 
-        response = self.client.get('/hours-detail/?user_id=1&amp;org_id=2&amp;type=approved')
+        response = self.client.get(
+            '/hours-detail/?user_id=1&amp;org_id=2&amp;type=approved'
+        )
         expected_list_of_hours_len = 1
-        self.assertEqual(len(response.context['hours_detail']), expected_list_of_hours_len)
+        self.assertEqual(
+            len(response.context['hours_detail']),
+            expected_list_of_hours_len
+        )
 
-        self.assertEqual(response.context['hours_detail'][0].usertimelog.user.username, 'volunteer_1')
-        self.assertEqual(response.context['hours_detail'][0].usertimelog.event.project.org.name, 'NPF_org_2')
+        self.assertEqual(
+            response.context['hours_detail'][0].usertimelog.user.username,
+            'volunteer_1'
+        )
+        self.assertEqual(
+            response.context['hours_detail'][0].usertimelog.event.project.org.name,
+            'NPF_org_2'
+        )
 
-        self.assertEqual(diffInHours(response.context['hours_detail'][0].usertimelog.datetime_start, response.context['hours_detail'][0].usertimelog.datetime_end), 2.0)
+        self.assertEqual(
+            diffInHours(
+                response.context['hours_detail'][0].usertimelog.datetime_start,
+                response.context['hours_detail'][0].usertimelog.datetime_end
+            ),
+            2.0
+        )
 
     def test_user_has_no_approved_hours(self):
         oc_user = User.objects.get(username="volunteer_2")
