@@ -194,8 +194,8 @@ class OcUser(object):
     def get_balance_pending_usd(self):
         '''
         pending usd balance is composed of:
-            - requested and accepted redemptions
-            - redemptions in status redeemed do not count
+            - requested redemptions
+            - redemptions in status redeemed and accepted do not count
         '''
         redemption_reqs = Transaction.objects.filter(
             user__id=self.userid
@@ -208,7 +208,7 @@ class OcUser(object):
                 req.last_action_created for req in redemption_reqs
             ]
         ).filter(
-            action_type__in=['req', 'app']
+            action_type__in=['req']
         )
 
         total_redemptions = common._get_redemption_total(

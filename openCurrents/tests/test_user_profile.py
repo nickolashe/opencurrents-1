@@ -413,6 +413,8 @@ class TestUserProfileView(TestCase):
         - $30.3 from SetUp in "setting up user dollars "Dollars available"
         - plus $204 from transaction with redeemed status
         - TOTAL 234.30
+        - check TransactionAction from openCurrents to volunteer_1 in the
+        amount of 204.00
         """
         oc_user = User.objects.get(username="volunteer_1")
         self.client.login(username=oc_user.username, password='password')
@@ -422,11 +424,22 @@ class TestUserProfileView(TestCase):
 
         self.assertEqual(response.context['balance_available_usd'], 234.30)
 
+        # checking transaction action, related transaction and ledger entries
+        app_tra_query = TransactionAction.objects.filter(action_type='app')
+        self.assertEqual(len(app_tra_query), 1)
+        self.assertEqual(app_tra_query[0].id, 2)
+        self.assertEqual(app_tra_query[0].transaction.id, 2)
+        self.assertEqual(
+            len(Ledger.objects.filter(
+                transaction=app_tra_query[0]).filter(amount=204.0)),
+            1
+        )
+
     def test_user_dollars_pending(self):
         """
         Check volunteer's dollars pending.
 
-        pending usd balance = pending and approved redemptions
+        pending usd balance = pending
         (redeemed transactions do not count)
         Expected:
         - plus $204 from transaction with pending status
@@ -439,7 +452,7 @@ class TestUserProfileView(TestCase):
         response = self.client.get('/profile/')
         self.assertEqual(response.status_code, 200)
 
-        self.assertEqual(response.context['balance_pending_usd'], 408.0)
+        self.assertEqual(response.context['balance_pending_usd'], 204.0)
 
     def test_user_offers_redemed(self):
         """
