@@ -429,9 +429,18 @@ class TestUserProfileView(TestCase):
         self.assertEqual(len(app_tra_query), 1)
         self.assertEqual(app_tra_query[0].id, 2)
         self.assertEqual(app_tra_query[0].transaction.id, 2)
+
+        # check ledger entry: $ from oC to volunteer_1
         self.assertEqual(
             len(Ledger.objects.filter(
                 transaction=app_tra_query[0]).filter(amount=204.0)),
+            1
+        )
+
+        # check ledger entry: $ from volunteer_1 to BIZ_org_1
+        self.assertEqual(
+            len(Ledger.objects.filter(
+                transaction=app_tra_query[0]).filter(amount=12.0)),
             1
         )
 
