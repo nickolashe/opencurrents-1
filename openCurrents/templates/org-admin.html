@@ -290,4 +290,16 @@
       $('#status_msg').html("There are no hours that need your approval.");
     }
   </script>
+
+  <script type="text/javascript">
+
+    if ({{ app_hr }}){
+      $('#approve-hours-popup').popup({
+        vertical: 'top',
+        transition: 'all 0.75s',
+        scrolllock: true,
+        autoopen: true,
+      });
+    }
+  </script>
 {% endblock js %}

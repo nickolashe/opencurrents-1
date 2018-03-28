@@ -1783,9 +1783,6 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                     elif field_name == 'org':
                         context['org_stat_id'] = int(field_val)
                     elif field_name == 'admin':
-                        print "\nHERE"
-                        print 'admin:', field_val
-                        print "HERE\n"
                         if field_val != '':
                             context['admin_id'] = int(field_val)
                         else:
@@ -1892,23 +1889,6 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
         context = super(ProfileView, self).get_context_data(**kwargs)
         user = self.request.user
         userid = user.id
-
-        context['app_hr'] = 0
-        today = date.today()
-
-        # do a weekly check for unapproved requests (popup)
-        if not user.last_login or user.last_login.date() < today - timedelta(days=today.weekday()):
-            try:
-                orgadmin = OrgAdmin(userid)
-                admin_requested_hours = orgadmin.get_hours_requested()
-
-                if admin_requested_hours:
-                    context['app_hr'] = 1
-            except Exception:
-                logger.debug(
-                    'User %s is not org admin, no requested hours check',
-                    userid
-                )
 
         # verified currents balance
         context['balance_available'] = self.ocuser.get_balance_available()
@@ -2034,11 +2014,25 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
         context = super(OrgAdminView, self).get_context_data(**kwargs)
         context['timezone'] = self.org.timezone
 
+        user = self.request.user
+        userid = user.id
+        orguserinfo = OrgUserInfo(userid)
+
         try:
             context['vols_approved'] = self.kwargs.pop('vols_approved')
             context['vols_declined'] = self.kwargs.pop('vols_declined')
         except KeyError:
             pass
+
+        # getting all admins for organization
+        context['org_admins'] = OcOrg(self.org.id).get_admins()
+
+        # setting approve hours context var
+        try:
+            context['app_hr'] = self.kwargs['app_hr'][-1]
+        except:
+            context['app_hr'] = 0
+
 
         # getting all admins for organization
         context['org_admins'] = OcOrg(self.org.id).get_admins()
@@ -4366,6 +4360,10 @@ def process_login(request):
             }
             glogger.log_struct(glogger_struct, labels=glogger_labels)
 
+            userid = user.id
+            app_hr = 0
+            today = date.today()
+
             login(request, user)
 
             try:
@@ -4374,6 +4372,25 @@ def process_login(request):
                 request.session['profile'] = 'True'
             except KeyError:
                 pass
+
+            # do a weekly check for unapproved requests (popup)
+            if not user.last_login or user.last_login.date() < today - timedelta(days=1):
+                try:
+                    orgadmin = OrgAdmin(userid)
+                    admin_requested_hours = orgadmin.get_hours_requested()
+
+                    if admin_requested_hours:
+                        app_hr = 1
+                    return redirect(
+                        'openCurrents:org-admin',
+                        app_hr='approve1',
+                    )
+
+                except Exception:
+                    logger.debug(
+                        'User %s is not org admin, no requested hours check',
+                        userid
+                    )
 
             if 'next' in request.POST:
                 return redirect(redirection)
