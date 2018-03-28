@@ -1191,6 +1191,50 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         }
         glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
+        # sending email to bizdev
+        try:
+            email_vars_transactional = [
+
+                {
+                    'name': 'FNAME',
+                    'content': self.request.user.first_name
+                },
+                {
+                    'name': 'LNAME',
+                    'content': self.request.user.last_name
+                },
+                {
+                    'name': 'EMAIL',
+                    'content': self.request.user.email
+                },
+                {
+                    'name': 'BIZ_NAME',
+                    'content': data['biz_name']
+                },
+                {
+                    'name': 'ITEM_NAME',
+                    'content': self.offer.item
+                },
+                {
+                    'name': 'REDEEMED_CURRENTS',
+                    'content': data['redeem_currents_amount']
+                }
+            ]
+
+            sendTransactionalEmail(
+                'redeemed-offer',
+                None,
+                email_vars_transactional,
+                'bizdev@opencurrents.com',
+            )
+
+        except Exception as e:
+                logger.error(
+                    'unable to send transactional email: %s (%s)',
+                    e.message,
+                    type(e)
+                )
+
         status_msg = 'You have submitted a request for approval by %s' % self.offer.org.name
         return redirect('openCurrents:profile', status_msg=status_msg)
 
