@@ -2318,7 +2318,7 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
         orgid = orguser.get_org_id()
         org_tz = orguser.get_org_timezone()
 
-        if form_data['datetime_start'].astimezone(pytz.timezone(org_tz)).date() > datetime.now(pytz.timezone(org_tz)).date():
+        if form_data['datetime_start'].astimezone(pytz.timezone(org_tz)) > datetime.now(pytz.timezone(org_tz)):
             return redirect(
                 'openCurrents:invite-volunteers',
                 json.dumps(event_ids)
