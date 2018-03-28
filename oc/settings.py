@@ -106,6 +106,8 @@ USE_L10N = True
 
 USE_TZ = True
 
+SESSION_COOKIE_AGE = 3600
+
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
