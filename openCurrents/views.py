@@ -2312,7 +2312,23 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
         glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
         # skipping volunteers invitation if event in the past
-        if form_data['datetime_start'].date() > datetime.now().date():
+        userid = self.request.user.id
+        orguser = OrgUserInfo(userid)
+        org = orguser.get_org()
+        orgid = orguser.get_org_id()
+        org_tz = orguser.get_org_timezone()
+
+        print "\nHERE"
+        print
+        print 'datetime_start', form_data['datetime_start'].date()
+        print 'now', datetime.now().date()
+        print form_data['datetime_start'].astimezone(pytz.timezone(org_tz)).date()
+        print datetime.now(pytz.timezone(org_tz)).date()
+        print 'comparison: ', form_data['datetime_start'].astimezone(pytz.timezone(org_tz)).date() > datetime.now(pytz.timezone(org_tz)).date()
+        print "HERE\n"
+
+
+        if form_data['datetime_start'].astimezone(pytz.timezone(org_tz)).date() > datetime.now(pytz.timezone(org_tz)).date():
             return redirect(
                 'openCurrents:invite-volunteers',
                 json.dumps(event_ids)
