@@ -2314,32 +2314,22 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
         # skipping volunteers invitation if event in the past
         userid = self.request.user.id
         orguser = OrgUserInfo(userid)
-        org = orguser.get_org()
-        orgid = orguser.get_org_id()
         org_tz = orguser.get_org_timezone()
+        event_datetime_start = form_data['datetime_start'].astimezone(
+            pytz.timezone(org_tz)
+        )
 
-        if form_data['datetime_start'].astimezone(pytz.timezone(org_tz)) > datetime.now(pytz.timezone(org_tz)):
+        # invite volunteers for future events only
+        if event_datetime_start > datetime.now(pytz.utc):
             return redirect(
                 'openCurrents:invite-volunteers',
                 json.dumps(event_ids)
             )
         else:
+            # num_vols parameter is evaluated in OrgAdminView to
+            # display a proper message to the admin
             num_vols = 0
-            return redirect(
-                'openCurrents:org-admin',
-                num_vols
-
-                # 'num_vols' parameter is evaluated in org-admin.html to
-                # display a proper message to an npf admin, thus the code
-                # below will be overwritten by the code in org-admin.html
-                # template
-
-                # status_msg='{name} was created at {num} location{pl}'.format(
-                #     name=self.project.name.encode('utf-8'),
-                #     num=len(event_ids),
-                #     pl=('s' if len(event_ids) > 1 else '')
-                # )
-            )
+            return redirect('openCurrents:org-admin', num_vols)
 
     def get_context_data(self, **kwargs):
         context = super(CreateEventView, self).get_context_data()
