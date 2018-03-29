@@ -605,6 +605,8 @@ class ApproveHoursView(OrgAdminPermissionMixin, OrgSessionContextView, ListView)
         # get the weeks timelog; week starting from 'week_startdate_monday'
         # TODO (@karbmk): can you describe the difference between main_timelog and local_timelog
         # and why we need both?
+
+        # main timelog contains
         main_timelog = self.weeks_timelog(week_startdate_monday, today)
         actions = main_timelog[0]
         time_log_week = main_timelog[1]
@@ -706,7 +708,7 @@ class ApproveHoursView(OrgAdminPermissionMixin, OrgSessionContextView, ListView)
         ).filter(
             usertimelog__datetime_start__gte=week_date
         ).filter(
-            usertimelog__datetime_end__lt=week_date + timedelta(days=7)
+            usertimelog__datetime_start__lt=week_date + timedelta(days=7)
         ).filter(
             action_type='req'
         ).filter(
