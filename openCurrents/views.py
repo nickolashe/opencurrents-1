@@ -3968,12 +3968,17 @@ def process_signup(
                             # sending event registration confirmation email to the new volunteer
                             tz = event.project.org.timezone
 
+                            print event_coord_fname
+
                             try:
                                 event_coord_fname = event.coordinator.first_name
                                 event_coord_lname = event.coordinator.last_name
-                            except:
+                            except UnboundLocalError:
                                 event_coord_fname = " "
                                 event_coord_lname = " "
+                                logger.debug(
+                                    "Not specified event coordinator first/last name."
+                                )
 
                             merge_var_list = [
                                 {
@@ -4347,8 +4352,12 @@ def process_login(request):
         try:
             # cleaning session var next after successfull login and redirection
             request.session.pop('next')
-        except:
-            pass
+        except KeyError:
+            logger.warning(
+                "no session var 'next'"
+            )
+
+
 
         user = authenticate(
             username=user_name,
