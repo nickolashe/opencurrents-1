@@ -42,9 +42,9 @@
                 {% if not org_admin and  not biz_admin%}
                     <a class="two-margin-right" href="{% url 'openCurrents:profile' %}">Profile</a>
                 {% elif org_admin %}
-                    <a class="two-margin-right" href="{% url 'openCurrents:org-admin' %}">Admin panel</a>
+                    <a class="two-margin-right" href="{% url 'openCurrents:org-admin' %}"> Your organization </a>
                 {% elif biz_admin %}
-                    <a class="two-margin-right" href="{% url 'openCurrents:biz-admin' %}">Admin panel</a>
+                    <a class="two-margin-right" href="{% url 'openCurrents:biz-admin' %}"> Your business </a>
                 {% endif %}
             {% else %}
                 <a class="two-margin-right" href="{% url 'openCurrents:login' %}">Log in</a>
