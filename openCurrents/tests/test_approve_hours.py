@@ -36,11 +36,10 @@ import re
 class TestApproveHoursOneWeek(TestCase):
 
     def setUp(self):
-
         # creating org
         self.org1 = OcOrg().setup_org(name="NPF_org_1", status="npf")
 
-        #creating volunteers
+        # creating volunteers
         self.volunteer_1 = _create_test_user('volunteer_1')
         self.volunteer_2 = _create_test_user('volunteer_2')
 
@@ -49,7 +48,7 @@ class TestApproveHoursOneWeek(TestCase):
         self.volunteer_2_full_name = self.volunteer_2.first_name + ' ' + self.volunteer_2.last_name
 
         # creating an admins for NPF_orgs
-        self.npf_admin_1 = _create_test_user('npf_admin_1', org = self.org1, is_org_admin=True)
+        self.npf_admin_1 = _create_test_user('npf_admin_1', org=self.org1, is_org_admin=True)
 
         # creating a project
         self.project_1 = _create_project(self.org1, 'org1_project_1')
@@ -69,22 +68,18 @@ class TestApproveHoursOneWeek(TestCase):
         # getting previous week start
         self.monday = (timezone.now() - timedelta(days=timezone.now().weekday())).strftime("%-m-%-d-%Y")
 
-
         # oc instances
         self.oc_vol_1 = OcUser(self.volunteer_1.id)
         self.oc_vol_2 = OcUser(self.volunteer_2.id)
 
         # user entities
-        self.user_enitity_id_vol_1 = UserEntity.objects.get(user = self.volunteer_1).id
-        self.user_enitity_id_vol_2 = UserEntity.objects.get(user = self.volunteer_2).id
-
+        self.user_enitity_id_vol_1 = UserEntity.objects.get(user=self.volunteer_1).id
+        self.user_enitity_id_vol_2 = UserEntity.objects.get(user=self.volunteer_2).id
 
         # setting up client
         self.client = Client()
         self.client.login(username=self.npf_admin_1.username, password='password')
         self.response = self.client.get('/approve-hours/')
-
-
 
     def test_logged_hours_displayed(self):
 
@@ -99,11 +94,9 @@ class TestApproveHoursOneWeek(TestCase):
             self.assertEqual(3.0, self.response.context[0]['week'][0][k][self.volunteer_1.email]['Total'])
             self.assertEqual(self.volunteer_1_full_name, self.response.context[0]['week'][0][k][self.volunteer_1.email]['name'])
 
-
             self.assertEqual(3, len(self.response.context[0]['week'][0][k][self.volunteer_2.email]))
             self.assertEqual(2.0, self.response.context[0]['week'][0][k][self.volunteer_2.email]['Total'])
             self.assertEqual(self.volunteer_2_full_name, self.response.context[0]['week'][0][k][self.volunteer_2.email]['name'])
-
 
     def test_logged_hours_accept(self):
 
@@ -128,8 +121,8 @@ class TestApproveHoursOneWeek(TestCase):
 
         # approving hours
         self.response = self.client.post('/approve-hours/', {
-                'post-data': self.volunteer_1.username + ':1:' + self.monday +',' + self.volunteer_2.username + ':1:' + self.monday
-                })
+            'post-data': self.volunteer_1.username + ':1:' + self.monday + ',' + self.volunteer_2.username + ':1:' + self.monday
+        })
 
         # return to org-amdin after approving
         self.assertRedirects(self.response, '/org-admin/2/0/', status_code=302)
@@ -164,7 +157,6 @@ class TestApproveHoursOneWeek(TestCase):
         self.assertEqual(1, len(self.oc_vol_2.get_hours_approved()))
         self.assertEqual(2, OcLedger().get_balance(self.user_enitity_id_vol_2))
 
-
     def test_logged_hours_declined(self):
         self.assertEqual(self.response.status_code, 200)
 
@@ -184,8 +176,8 @@ class TestApproveHoursOneWeek(TestCase):
         self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_2))
 
         self.response = self.client.post('/approve-hours/', {
-                'post-data': self.volunteer_1.username + ':0:' + self.monday +',' + self.volunteer_2.username + ':0:' + self.monday
-                })
+            'post-data': self.volunteer_1.username + ':0:' + self.monday + ',' + self.volunteer_2.username + ':0:' + self.monday
+        })
 
         # return to org-amdin after declining
         self.assertRedirects(self.response, '/org-admin/0/2/', status_code=302)
@@ -218,16 +210,13 @@ class TestApproveHoursOneWeek(TestCase):
         self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_1))
 
 
-
-
 class TestApproveHoursTwoWeeks(TestCase):
 
     def setUp(self):
-
         # creating org
         self.org1 = OcOrg().setup_org(name="NPF_org_1", status="npf")
 
-        #creating volunteers
+        # creating volunteers
         self.volunteer_1 = _create_test_user('volunteer_1')
         self.volunteer_2 = _create_test_user('volunteer_2')
 
@@ -236,7 +225,7 @@ class TestApproveHoursTwoWeeks(TestCase):
         self.volunteer_2_full_name = self.volunteer_2.first_name + ' ' + self.volunteer_2.last_name
 
         # creating an admins for NPF_orgs
-        self.npf_admin_1 = _create_test_user('npf_admin_1', org = self.org1, is_org_admin=True)
+        self.npf_admin_1 = _create_test_user('npf_admin_1', org=self.org1, is_org_admin=True)
 
         # creating a project
         self.project_1 = _create_project(self.org1, 'org1_project_1')
@@ -254,7 +243,7 @@ class TestApproveHoursTwoWeeks(TestCase):
         _setup_volunteer_hours(self.volunteer_2, self.npf_admin_1, self.org1, self.project_1, datetime_start_2, datetime_end_2,)
 
         # getting previous week start
-        self.monday_prev = (timezone.now() - timedelta(days=timezone.now().weekday()+7)).strftime("%-m-%-d-%Y")
+        self.monday_prev = (timezone.now() - timedelta(days=timezone.now().weekday() + 7)).strftime("%-m-%-d-%Y")
         self.monday_last = (timezone.now() - timedelta(days=timezone.now().weekday())).strftime("%-m-%-d-%Y")
 
         # oc instances
@@ -262,15 +251,13 @@ class TestApproveHoursTwoWeeks(TestCase):
         self.oc_vol_2 = OcUser(self.volunteer_2.id)
 
         # user entities
-        self.user_enitity_id_vol_1 = UserEntity.objects.get(user = self.volunteer_1).id
-        self.user_enitity_id_vol_2 = UserEntity.objects.get(user = self.volunteer_2).id
+        self.user_enitity_id_vol_1 = UserEntity.objects.get(user=self.volunteer_1).id
+        self.user_enitity_id_vol_2 = UserEntity.objects.get(user=self.volunteer_2).id
 
         # setting up client
         self.client = Client()
         self.client.login(username=self.npf_admin_1.username, password='password')
         self.response = self.client.get('/approve-hours/')
-
-
 
     def test_logged_hours_displayed(self):
 
@@ -285,7 +272,6 @@ class TestApproveHoursTwoWeeks(TestCase):
             self.assertEqual(3, len(context_hr_displayed[k][self.volunteer_2.email]))
             self.assertEqual(2.0, context_hr_displayed[k][self.volunteer_2.email]['Total'])
             self.assertEqual(self.volunteer_2_full_name, context_hr_displayed[k][self.volunteer_2.email]['name'])
-
 
     def test_logged_hours_accept(self):
 
@@ -308,8 +294,8 @@ class TestApproveHoursTwoWeeks(TestCase):
 
         # approving hours
         self.response = self.client.post('/approve-hours/', {
-                'post-data': self.volunteer_2.username + ':1:' + self.monday_prev
-                })
+            'post-data': self.volunteer_2.username + ':1:' + self.monday_prev
+        })
 
         # return to org-amdin after approving
         self.assertRedirects(self.response, '/approve-hours/1/0/', status_code=302)
@@ -329,7 +315,6 @@ class TestApproveHoursTwoWeeks(TestCase):
         self.assertEqual(1, len(self.oc_vol_2.get_hours_approved()))
         self.assertEqual(2, OcLedger().get_balance(self.user_enitity_id_vol_2))
 
-
         # checking that the the last week submitted hours are displayed
         org_admin_response_approve_second_week = self.client.get('/approve-hours/2/0/')
         context_hr_last_week = org_admin_response_approve_second_week.context[0]['week'][0]
@@ -340,11 +325,10 @@ class TestApproveHoursTwoWeeks(TestCase):
             self.assertEqual(3.0, context_hr_last_week[k][self.volunteer_1.email]['Total'])
             self.assertEqual(self.volunteer_1_full_name, context_hr_last_week[k][self.volunteer_1.email]['name'])
 
-
         # approving hours for the last week
         response_post_last_week = self.client.post('/approve-hours/', {
-                'post-data': self.volunteer_1.username + ':1:' + self.monday_last
-                })
+            'post-data': self.volunteer_1.username + ':1:' + self.monday_last
+        })
 
         # return to org-amdin after approving
         self.assertRedirects(response_post_last_week, '/org-admin/1/0/', status_code=302)
@@ -370,7 +354,6 @@ class TestApproveHoursTwoWeeks(TestCase):
         self.assertEqual(1, len(self.oc_vol_2.get_hours_approved()))
         self.assertEqual(2, OcLedger().get_balance(self.user_enitity_id_vol_2))
 
-
     def test_logged_hours_decline(self):
         self.assertEqual(self.response.status_code, 200)
 
@@ -391,8 +374,8 @@ class TestApproveHoursTwoWeeks(TestCase):
 
         # declining hrs for the previous week
         post_decline_hours = self.client.post('/approve-hours/', {
-                'post-data': self.volunteer_2.username + ':0:' + self.monday_prev
-                })
+            'post-data': self.volunteer_2.username + ':0:' + self.monday_prev
+        })
 
         # return to org-amdin after declining
         self.assertRedirects(post_decline_hours, '/approve-hours/0/1/', status_code=302)
@@ -410,11 +393,10 @@ class TestApproveHoursTwoWeeks(TestCase):
         self.assertEqual(0, len(self.oc_vol_2.get_hours_approved()))
         self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_2))
 
-
         # declining for the last week
         post_decline_hours_last = self.client.post('/approve-hours/0/1/', {
-                'post-data': self.volunteer_1.username + ':0:' + self.monday_last
-                })
+            'post-data': self.volunteer_1.username + ':0:' + self.monday_last
+        })
 
         # return to org-amdin after declining
         self.assertRedirects(post_decline_hours_last, '/org-admin/0/1/', status_code=302)
