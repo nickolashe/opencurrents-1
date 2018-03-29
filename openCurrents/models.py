@@ -268,9 +268,8 @@ class Event(models.Model):
         found = re.findall(pat, text)
 
         for f in found:
-            # pattern = r"" + re.escape(str(f[0])) + r""
             text = re.sub(re.escape(str(f[0])), '<a href="{0}" target="_blank">{0}</a>'.format(f[0]), text)
-            # re.sub(pattern, repl, string)
+
         self.description = text
         super(Event, self).save(*args, **kwargs)
 

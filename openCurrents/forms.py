@@ -391,7 +391,18 @@ class EditEventForm(CreateEventForm):
         ).time()
         self.fields['event_privacy'].initial = int(self.event.is_public)
         self.fields['event_location'].initial = self.event.location
-        self.fields['event_description'].initial = self.event.description
+
+        # cleaning field from HREF tags
+        text = str(self.event.description)
+
+        patt1 = r'<a href=[^>]*>'
+        patt2 = r'</a>'
+        text = re.sub(patt1, "", text)
+        text = re.sub(patt2, "", text)
+
+        self.fields['event_description'].initial = text
+
+        # self.fields['event_description'].initial = self.event.description
 
         # build the coordinator choices list dynamically
         # set (preselect) initially to existing coordinator
