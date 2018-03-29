@@ -42,7 +42,7 @@
                 {% if not org_admin and  not biz_admin%}
                     <a class="two-margin-right" href="{% url 'openCurrents:profile' %}">Profile</a>
                 {% elif org_admin %}
-                    <a class="two-margin-right" href="{% url 'openCurrents:org-admin' %}"> Your organization </a>
+                    <a class="two-margin-right" href="{% url 'openCurrents:org-admin' %}"> Your nonprofit </a>
                 {% elif biz_admin %}
                     <a class="two-margin-right" href="{% url 'openCurrents:biz-admin' %}"> Your business </a>
                 {% endif %}
