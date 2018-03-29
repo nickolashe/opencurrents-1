@@ -1465,7 +1465,6 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                 msg_type = 'alert'
                 return False, 'You have to select a coordinator.', msg_type
 
-
         # if logging for a new org
         elif form_data['new_org']:
             glogger_struct = {
@@ -1957,6 +1956,7 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
                 'Look for an email from Dwolla soon.'
             ])
         )
+
 
 class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView):
     template_name = 'org-admin.html'
@@ -4011,8 +4011,6 @@ def process_signup(
                                     type(e)
                                 )
 
-
-
                 if not mock_emails:
                     # send verification email
                     try:
@@ -4115,7 +4113,6 @@ def process_signup(
                     'username': user_email
                 }
                 glogger.log_struct(glogger_struct, labels=glogger_labels)
-
 
                 if status_msg and msg_type:
                     return redirect(
@@ -4492,7 +4489,6 @@ def process_email_confirmation(request, user_email):
         oc_auth = OcAuth(user.id)
         redirection = common.where_to_redirect(oc_auth)
         return redirect(redirection)
-
 
     # if form was invalid for bad password, still need to preserve token
     else:
