@@ -3968,8 +3968,6 @@ def process_signup(
                             # sending event registration confirmation email to the new volunteer
                             tz = event.project.org.timezone
 
-                            print event_coord_fname
-
                             try:
                                 event_coord_fname = event.coordinator.first_name
                                 event_coord_lname = event.coordinator.last_name
