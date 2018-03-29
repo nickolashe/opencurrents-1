@@ -270,6 +270,9 @@ class Event(models.Model):
         for f in found:
             text = re.sub(re.escape(str(f[0])), '<a href="{0}" target="_blank">{0}</a>'.format(f[0]), text)
 
+        # adding http:// to www
+        text = re.sub('href="www.', 'href="http://www.', text)
+
         self.description = text
         super(Event, self).save(*args, **kwargs)
 
