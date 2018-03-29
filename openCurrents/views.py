@@ -1769,9 +1769,6 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                     elif field_name == 'org':
                         context['org_stat_id'] = int(field_val)
                     elif field_name == 'admin':
-                        print "\nHERE"
-                        print 'admin:', field_val
-                        print "HERE\n"
                         if field_val != '':
                             context['admin_id'] = int(field_val)
                         else:
@@ -3966,6 +3963,14 @@ def process_signup(
                             logger.debug("Sending event reg confirm email")
                             # sending event registration confirmation email to the new volunteer
                             tz = event.project.org.timezone
+
+                            try:
+                                event_coord_fname = event.coordinator.first_name
+                                event_coord_lname = event.coordinator.last_name
+                            except UnboundLocalError:
+                                event_coord_fname = " "
+                                event_coord_lname = " "
+
                             merge_var_list = [
                                 {
                                     'name': 'EVENT_NAME',
@@ -4001,11 +4006,11 @@ def process_signup(
                                 },
                                 {
                                     'name': 'ADMIN_FIRSTNAME',
-                                    'content': event.coordinator.first_name
+                                    'content': event_coord_fname
                                 },
                                 {
                                     'name': 'ADMIN_LASTNAME',
-                                    'content': event.coordinator.last_name
+                                    'content': event_coord_lname
                                 }
                             ]
 
@@ -4335,11 +4340,18 @@ def process_login(request):
         except:
             redirection = None
 
+        try:
+            # cleaning session var next after successfull login and redirection
+            request.session.pop('next')
+        except KeyError:
+            pass
+
+
+
         user = authenticate(
             username=user_name,
             password=user_password
         )
-
         if user is not None and user.is_active:
             glogger_struct = {
                 'msg': 'user login',
