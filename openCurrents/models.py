@@ -11,6 +11,7 @@ from openCurrents.interfaces import convert
 
 import os
 import pytz
+import re
 
 # Notes:
 # *) unverified users are still created as User objects but with unusable password
@@ -257,6 +258,21 @@ class Event(models.Model):
     class Meta:
         get_latest_by = 'datetime_start'
         ordering = ['datetime_start']
+
+    def save(self, *args, **kwargs):
+        # looking for an URL in self.description:
+
+        text = str(self.description)
+        pat = r'(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'\".,<>?]))'
+
+        found = re.findall(pat, text)
+
+        for f in found:
+            # pattern = r"" + re.escape(str(f[0])) + r""
+            text = re.sub(re.escape(str(f[0])), '<a href="{0}" target="_blank">{0}</a>'.format(f[0]), text)
+            # re.sub(pattern, repl, string)
+        self.description = text
+        super(Event, self).save(*args, **kwargs)
 
     def __unicode__(self):
         tz = self.project.org.timezone
