@@ -3974,9 +3974,6 @@ def process_signup(
                             except UnboundLocalError:
                                 event_coord_fname = " "
                                 event_coord_lname = " "
-                                logger.debug(
-                                    "Not specified event coordinator first/last name."
-                                )
 
                             merge_var_list = [
                                 {
@@ -4351,9 +4348,7 @@ def process_login(request):
             # cleaning session var next after successfull login and redirection
             request.session.pop('next')
         except KeyError:
-            logger.warning(
-                "no session var 'next'"
-            )
+            pass
 
 
 
