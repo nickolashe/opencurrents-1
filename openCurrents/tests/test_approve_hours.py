@@ -1,8 +1,8 @@
+"""Tests collection for approve time records functionality."""
 from django.test import Client, TestCase
 from django.contrib.auth.models import User
 from django.shortcuts import redirect
 
-from datetime import datetime, timedelta
 from django.utils import timezone
 
 # MODELS
@@ -25,17 +25,24 @@ from openCurrents.interfaces.orgs import \
     OrgUserInfo
 
 # TESTING INTERFACES
-from openCurrents.tests.interfaces.common import \
-    _create_test_user, \
-    _create_project, \
-    _setup_volunteer_hours
+from openCurrents.tests.interfaces.common import(
+    _create_test_user,
+    _create_project,
+    _setup_volunteer_hours,
+    SetUpTests
+)
 
+from datetime import datetime, timedelta
+from numpy import random
+import pytz
 import re
 
 
 class TestApproveHoursOneWeek(TestCase):
+    """Collection of tests for time records within one week."""
 
     def setUp(self):
+        """Set testing environment."""
         # creating org
         self.org1 = OcOrg().setup_org(name="NPF_org_1", status="npf")
 
@@ -211,8 +218,10 @@ class TestApproveHoursOneWeek(TestCase):
 
 
 class TestApproveHoursTwoWeeks(TestCase):
+    """Collection of tests for time records within 2 weeks."""
 
     def setUp(self):
+        """Set testing environment."""
         # creating org
         self.org1 = OcOrg().setup_org(name="NPF_org_1", status="npf")
 
@@ -415,3 +424,146 @@ class TestApproveHoursTwoWeeks(TestCase):
         self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_1))
         self.assertEqual(0, len(self.oc_vol_2.get_hours_approved()))
         self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_2))
+
+
+class TestApproveHoursRandomDates(TestCase):
+    """
+    Tests with random dates for time records.
+
+    The main purpose is to check that query returns proper time records per
+    week.
+    """
+
+    def _get_earliest_monday(self):
+        """Get earliest monday for approve-hours page."""
+        earliest_request_date = self.org_admin.get_hours_requested().order_by('usertimelog__datetime_start').first().usertimelog.datetime_start
+        earliest_monday = earliest_request_date - timedelta(days=(earliest_request_date.weekday()))
+
+        print '======= PRINT ======='
+        print
+        print 'The earliest_request_date: ', earliest_request_date
+        print 'The earliest_monday: ', earliest_monday
+
+        return earliest_monday
+
+    def _current_week_records(self, earliest_monday):
+        current_week_sunday = earliest_monday + timedelta(days=6)
+        admin_actions_requested = self.org_admin.get_hours_requested().order_by('usertimelog__datetime_start')
+        current_week_records = [rec for rec in admin_actions_requested if rec.usertimelog.datetime_start >= earliest_monday and rec.usertimelog.datetime_start <= current_week_sunday]
+        print 'current_week_sunday', current_week_sunday
+        print '\nAdmin actions requested total --', len(admin_actions_requested)
+        print 'The current_week_records: ', current_week_records
+
+        return current_week_records
+
+    def _compare_shown_records(self, current_week_records, response):
+        records_num = len(current_week_records)
+
+        print 'records_num: ', records_num
+        print '\nweek context:', response.context[0]['week'][0].items()[0][1].items()[0][1].items()[2:]
+        print 'week context len: ', len(response.context[0]['week'][0].items()[0][1].items()[0][1].items()) - 2
+        print
+        print '======= PRINT END ======='
+
+        # asserting num of displayed records and num of real records in DB
+        self.assertEqual(
+            records_num,
+            len(response.context[0]['week'][0].items()[0][1].items()[0][1].items()) - 2  # we have to account for 'toal' and 'name' keys here
+        )
+
+        return records_num
+
+    def setUp(self):
+        """Set testing environment."""
+        biz_orgs_list = ['BIZ_org_1']
+        npf_orgs_list = ['NPF_org_1']
+        volunteers_list = ['volunteer_1']
+
+        test_setup = SetUpTests()
+        test_setup.generic_setup(npf_orgs_list, biz_orgs_list, volunteers_list)
+
+        # setting orgs
+        self.org_npf = test_setup.get_all_npf_orgs()[0]
+        # self.org_biz = test_setup.get_all_biz_orgs()[0]
+
+        # set up project
+        self.project = test_setup.get_all_projects(self.org_npf)[0]
+
+        # creating an npf admin
+        all_admins = test_setup.get_all_npf_admins()
+        self.npf_admin = all_admins[0]
+        self.org_admin = OrgAdmin(self.npf_admin.id)
+
+        # creating a biz admin
+        # all_admins_biz = test_setup.get_all_biz_admins()
+        # self.biz_admin = all_admins_biz[0]
+
+        # assigning existing volunteers to variables
+        all_volunteers = test_setup.get_all_volunteers()
+
+        self.volunteer_1 = all_volunteers[0]
+
+        # oc instances
+        self.oc_npf_adm = OcUser(self.npf_admin.id)
+        # self.org_biz_adm = BizAdmin(self.biz_admin.id)
+        self.oc_vol_1 = OcUser(self.volunteer_1.id)
+
+        # user entities
+        self.vol_1_entity = UserEntity.objects.get(user=self.volunteer_1)
+        self.user_enitity_id_vol_1 = UserEntity.objects.get(
+            user=self.volunteer_1).id
+
+        # generating time records
+        def _gen_time():
+            datetime_start = datetime.now(tz=pytz.utc) - \
+                timedelta(days=random.randint(60)) + \
+                timedelta(hours=random.randint(12, 24))
+            datetime_end = datetime_start + \
+                timedelta(hours=random.randint(1, 4))
+            return datetime_start, datetime_end
+
+        self.counter = 10
+        for i in range(self.counter):
+            time = _gen_time()
+            records = _setup_volunteer_hours(
+                self.volunteer_1,
+                self.npf_admin,
+                self.org_npf,
+                self.project,
+                time[0],
+                time[1]
+            )
+
+        # setting up client
+        self.client = Client()
+        self.client.login(username=self.npf_admin.username, password='password')
+
+    def test_check_workflow(self):
+        """Check if all entries are in week context arg for every week."""
+        test_counter = 0
+
+        while True:
+            response = self.client.get('/approve-hours/')
+            # check how many AdminActionUserTime records are in the first week
+            earliest_monday = self._get_earliest_monday()
+            current_week_records = self._current_week_records(earliest_monday)
+
+            # checking first displayed week contains correct # of AdminActionUserTime
+            records_num_approved = self._compare_shown_records(current_week_records, response)
+
+            # accepting hours for displayed week
+            for i in range(records_num_approved):
+                post_response = self.client.post('/approve-hours/', {
+                    'post-data': self.volunteer_1.username +
+                    ':1:' +
+                    earliest_monday.strftime("%-m-%-d-%Y")
+                })
+
+                test_counter += records_num_approved
+
+                if test_counter < self.counter:
+                    self.assertRedirects(post_response, '/approve-hours/1/0/', status_code=302)
+                if test_counter == self.counter:
+                    self.assertRedirects(post_response, '/org-admin/1/0/', status_code=302)
+                    break
+
