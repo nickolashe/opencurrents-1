@@ -51,6 +51,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    'openCurrents.middleware.AutoLogout',
 ]
 
 ROOT_URLCONF = 'oc.urls'
@@ -105,6 +107,11 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+# sessions and auto-logout
+SESSION_COOKIE_AGE = 3600  # in seconds
+AUTO_LOGOUT_DELAY = 60  # in minutes
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
