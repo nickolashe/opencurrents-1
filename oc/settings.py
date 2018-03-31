@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
+import dj_database_url
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -23,7 +24,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'k)2cm1xy=m9zwyvqj9xw@0pe(fnzlmtq&x6xzk@@em2$590_wg'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -136,11 +137,6 @@ STATICFILES_DIRS = (
 
 LOGIN_URL = 'openCurrents:login'
 
-# Update database configuration with $DATABASE_URL.
-# import dj_database_url
-# db_from_env = dj_database_url.config(conn_max_age=500)
-# DATABASES['default'].update(db_from_env)
-
 # Check to see if MySQLdb is available; if not, have pymysql masquerade as
 # MySQLdb. This is a convenience feature for developers who cannot install
 # MySQLdb locally; when running in production on Google App Engine Standard
@@ -153,40 +149,45 @@ LOGIN_URL = 'openCurrents:login'
 
 # [START dbconfig]
 # (flexible)
-DATABASES = {
-    'default': {
-        # If you are using Cloud SQL for MySQL rather than PostgreSQL, set
-        # 'ENGINE': 'django.db.backends.mysql' instead of the following.
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'opencurrents',
-        'USER': 'oc_admin',
-        'PASSWORD': '0pencu44',
-        # For MySQL, set 'PORT': '3306' instead of the following. Any Cloud
-        # SQL Proxy instances running locally must also be set to tcp:3306.
-        'PORT': '5432',
-    }
-}
-
-# In the flexible environment, you connect to CloudSQL using a unix socket.
-# Locally, you can use the CloudSQL proxy to proxy a localhost connection
-# to the instance
-DATABASES['default']['HOST'] = '/cloudsql/opencurrents-194003:us-central1:oc-pg'
-if os.getenv('GAE_INSTANCE'):
-    # when running on Google App Engine
-    pass
-elif os.getenv('GOOGLE_CLOUD_PROXY'):
-    # when using CloudSQL proxy to forward connections to remote db
-    DATABASES['default']['HOST'] = '127.0.0.1'
+if os.getenv['OC_HEROKU']:
+    # Update database configuration with $DATABASE_URL.
+    db_from_env = dj_database_url.config(conn_max_age=500)
+    DATABASES['default'].update(db_from_env)
 else:
-    # local db (sqlite)
-    # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+            # If you are using Cloud SQL for MySQL rather than PostgreSQL, set
+            # 'ENGINE': 'django.db.backends.mysql' instead of the following.
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'opencurrents',
+            'USER': 'oc_admin',
+            'PASSWORD': '0pencu44',
+            # For MySQL, set 'PORT': '3306' instead of the following. Any Cloud
+            # SQL Proxy instances running locally must also be set to tcp:3306.
+            'PORT': '5432',
         }
     }
-# [END dbconfig]
+
+    # In the flexible environment, you connect to CloudSQL using a unix socket.
+    # Locally, you can use the CloudSQL proxy to proxy a localhost connection
+    # to the instance
+    DATABASES['default']['HOST'] = '/cloudsql/opencurrents-194003:us-central1:oc-pg'
+    if os.getenv('GAE_INSTANCE'):
+        # when running on Google App Engine
+        pass
+    elif os.getenv('GOOGLE_CLOUD_PROXY'):
+        # when using CloudSQL proxy to forward connections to remote db
+        DATABASES['default']['HOST'] = '127.0.0.1'
+    else:
+        # local db (sqlite)
+        # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+            }
+        }
+    # [END dbconfig]
 
 # do not send emails from local servers
 SENDEMAILS = os.getenv('OC_SEND_EMAILS')
