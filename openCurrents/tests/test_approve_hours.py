@@ -436,41 +436,42 @@ class TestApproveHoursRandomDates(TestCase):
 
     def _get_earliest_monday(self):
         """Get earliest monday for approve-hours page."""
-        earliest_request_date = self.org_admin.get_hours_requested().order_by('usertimelog__datetime_start').first().usertimelog.datetime_start
-        earliest_monday = earliest_request_date - timedelta(days=(earliest_request_date.weekday()))
-
-        print '======= PRINT ======='
-        print
-        print 'The earliest_request_date: ', earliest_request_date
-        print 'The earliest_monday: ', earliest_monday
+        earliest_request_date = self.org_admin.get_hours_requested().\
+            order_by('usertimelog__datetime_start').first().\
+            usertimelog.datetime_start
+        earliest_monday = earliest_request_date - timedelta(
+            days=(earliest_request_date.weekday()))
+        earliest_monday = earliest_monday.replace(hour=00, minute=00, second=00)
 
         return earliest_monday
 
     def _current_week_records(self, earliest_monday):
         current_week_sunday = earliest_monday + timedelta(days=6)
-        admin_actions_requested = self.org_admin.get_hours_requested().order_by('usertimelog__datetime_start')
-        current_week_records = [rec for rec in admin_actions_requested if rec.usertimelog.datetime_start >= earliest_monday and rec.usertimelog.datetime_start <= current_week_sunday]
-        print 'current_week_sunday', current_week_sunday
-        print '\nAdmin actions requested total --', len(admin_actions_requested)
-        print 'The current_week_records: ', current_week_records
+        current_week_sunday = current_week_sunday.replace(
+            hour=23, minute=59, second=59
+        )
+        admin_actions_requested = self.org_admin.get_hours_requested().\
+            order_by('usertimelog__datetime_start')
+
+        current_week_records = []
+        for rec in admin_actions_requested:
+            if earliest_monday <= rec.usertimelog.datetime_start <= current_week_sunday:
+                current_week_records.append(rec)
 
         return current_week_records
 
     def _compare_shown_records(self, current_week_records, response):
         records_num = len(current_week_records)
 
-        print 'records_num: ', records_num
-        print '\nweek context:', response.context[0]['week'][0].items()[0][1].items()[0][1].items()[2:]
-        print 'week context len: ', len(response.context[0]['week'][0].items()[0][1].items()[0][1].items()) - 2
-        print
-        print '======= PRINT END ======='
-
         # asserting num of displayed records and num of real records in DB
+        num_of_recs_in_context_week = 0
+        for i in response.context[0]['week'][0].items()[0][1].items()[0][1].items()[2:]:
+            num_of_recs_in_context_week += len(i[1]) - 1
+
         self.assertEqual(
             records_num,
-            len(response.context[0]['week'][0].items()[0][1].items()[0][1].items()) - 2  # we have to account for 'toal' and 'name' keys here
+            num_of_recs_in_context_week
         )
-
         return records_num
 
     def setUp(self):
@@ -493,10 +494,6 @@ class TestApproveHoursRandomDates(TestCase):
         all_admins = test_setup.get_all_npf_admins()
         self.npf_admin = all_admins[0]
         self.org_admin = OrgAdmin(self.npf_admin.id)
-
-        # creating a biz admin
-        # all_admins_biz = test_setup.get_all_biz_admins()
-        # self.biz_admin = all_admins_biz[0]
 
         # assigning existing volunteers to variables
         all_volunteers = test_setup.get_all_volunteers()
@@ -522,7 +519,7 @@ class TestApproveHoursRandomDates(TestCase):
                 timedelta(hours=random.randint(1, 4))
             return datetime_start, datetime_end
 
-        self.counter = 10
+        self.counter = 10  # number of generated hours
         for i in range(self.counter):
             time = _gen_time()
             records = _setup_volunteer_hours(
@@ -533,6 +530,7 @@ class TestApproveHoursRandomDates(TestCase):
                 time[0],
                 time[1]
             )
+            # print time[0], '  ', time[1]
 
         # setting up client
         self.client = Client()
@@ -544,26 +542,41 @@ class TestApproveHoursRandomDates(TestCase):
 
         while True:
             response = self.client.get('/approve-hours/')
+            records_num_for_approval = 0
             # check how many AdminActionUserTime records are in the first week
             earliest_monday = self._get_earliest_monday()
             current_week_records = self._current_week_records(earliest_monday)
 
             # checking first displayed week contains correct # of AdminActionUserTime
-            records_num_approved = self._compare_shown_records(current_week_records, response)
+            records_num_for_approval = self._compare_shown_records(
+                current_week_records,
+                response
+            )
 
             # accepting hours for displayed week
-            for i in range(records_num_approved):
-                post_response = self.client.post('/approve-hours/', {
-                    'post-data': self.volunteer_1.username +
-                    ':1:' +
-                    earliest_monday.strftime("%-m-%-d-%Y")
-                })
+            post_response = self.client.post('/approve-hours/', {
+                'post-data': self.volunteer_1.username +
+                ':1:' +
+                earliest_monday.strftime("%-m-%-d-%Y")
+            })
+            test_counter += records_num_for_approval
 
-                test_counter += records_num_approved
+            if test_counter < self.counter:
+                self.assertRedirects(
+                    post_response,
+                    '/approve-hours/1/0/',
+                    status_code=302
+                )
+            if test_counter == self.counter:
+                self.assertRedirects(
+                    post_response,
+                    '/org-admin/1/0/',
+                    status_code=302
+                )
+                break
 
-                if test_counter < self.counter:
-                    self.assertRedirects(post_response, '/approve-hours/1/0/', status_code=302)
-                if test_counter == self.counter:
-                    self.assertRedirects(post_response, '/org-admin/1/0/', status_code=302)
-                    break
-
+            # check if correct num of records approved
+            self.assertEqual(
+                test_counter,
+                len(self.oc_vol_1.get_hours_approved())
+            )
