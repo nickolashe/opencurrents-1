@@ -357,7 +357,6 @@
       // });
 
       // Change text on Confirm page based on inputs
-
       function setText() {
         let share = $('#id_offer_current_share').val();
         let item = $('#id_offer_item').val();
@@ -379,6 +378,7 @@
           $('#limit-yes-text').show();
         }
 
+        // Set variables on page load in case of error message
         setText();
       });
 
