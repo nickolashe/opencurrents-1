@@ -426,13 +426,8 @@ class TestApproveHoursTwoWeeks(TestCase):
         self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_2))
 
 
-class TestApproveHoursRandomDates(TestCase):
-    """
-    Tests with random dates for time records.
-
-    The main purpose is to check that query returns proper time records per
-    week.
-    """
+class SetupAdditionalTimeRecords(TestCase):
+    """SetUp class for TestApproveHoursRandomDates and  TestApproveHoursCornerCases."""
 
     def _get_earliest_monday(self):
         """Get earliest monday for approve-hours page."""
@@ -510,7 +505,25 @@ class TestApproveHoursRandomDates(TestCase):
         self.user_enitity_id_vol_1 = UserEntity.objects.get(
             user=self.volunteer_1).id
 
+        # setting up client
+        self.client = Client()
+        self.client.login(username=self.npf_admin.username, password='password')
+
+
+class TestApproveHoursRandomDates(SetupAdditionalTimeRecords):
+    """
+    Tests with random dates for time records.
+
+    The main purpose is to check that query returns proper time records per
+    week.
+    """
+
+    def setUp(self):
+        """Additional setup for TestApproveHoursRandomDates class."""
         # generating time records
+
+        super(TestApproveHoursRandomDates, self).setUp()
+
         def _gen_time():
             datetime_start = datetime.now(tz=pytz.utc) - \
                 timedelta(days=random.randint(60)) + \
@@ -531,10 +544,6 @@ class TestApproveHoursRandomDates(TestCase):
                 time[1]
             )
             # print time[0], '  ', time[1]
-
-        # setting up client
-        self.client = Client()
-        self.client.login(username=self.npf_admin.username, password='password')
 
     def test_check_workflow(self):
         """
