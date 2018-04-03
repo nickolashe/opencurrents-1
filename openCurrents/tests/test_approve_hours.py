@@ -553,7 +553,7 @@ class TestApproveHoursRandomDates(TestCase):
                 response
             )
 
-            # accepting hours for displayed week
+            # approving hours for displayed week
             post_response = self.client.post('/approve-hours/', {
                 'post-data': self.volunteer_1.username +
                 ':1:' +
