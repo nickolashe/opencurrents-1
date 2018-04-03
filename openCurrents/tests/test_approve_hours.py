@@ -608,9 +608,9 @@ class TestApproveHoursCornerCases(SetupAdditionalTimeRecords, TestCase):
     week and admin can approve these records.
     """
 
-    def _get_current_week_start_end_utc(self):
-            """Return closest monday UTC timezone."""
-            utc_now = datetime.now(tz=pytz.utc)
+    def _get_current_week_start_end_utc(self, pytz_tz):
+            """Return closest monday in provided pytz_tz timezone."""
+            utc_now = datetime.now(tz=pytz_tz)
             utc_monday = utc_now - timedelta(days=(utc_now.weekday()))
             utc_monday = utc_monday.replace(hour=00, minute=00, second=00)
             utc_sunday = utc_monday + timedelta(days=6)
@@ -636,6 +636,9 @@ class TestApproveHoursCornerCases(SetupAdditionalTimeRecords, TestCase):
 
         return datetime_start, datetime_end
 
+    def _change_org_tz(self, org):
+        Org.objects.filter(pk=org.pk)[0].timezone = 'America/Detroit'
+
     # def _clean_all_records(self):
     #     """Delete all previously requested hours."""
     #     UserTimeLog.objects.all().delete()
@@ -648,10 +651,18 @@ class TestApproveHoursCornerCases(SetupAdditionalTimeRecords, TestCase):
         # utc =  00:00
         # America/Detroit = -4:00
         # America/Chicago = -6:00
+        self.pytz_utc = pytz.utc
+        self.pytz_utc_minus_6 = pytz.timezone('America/Detroit')
 
-        utc_current_week = self._get_current_week_start_end_utc()
+        utc_current_week = self._get_current_week_start_end_utc(self.pytz_utc)
         self.utc_monday = utc_current_week[0]
         self.utc_sunday = utc_current_week[1]
+
+        amchic_current_week = self._get_current_week_start_end_utc(
+            self.pytz_utc_minus_6
+        )
+        self.amchic_monday = amchic_current_week[0]
+        self.amchic_sunday = amchic_current_week[1]
 
         # setting up client
         self.client = Client()
@@ -675,7 +686,52 @@ class TestApproveHoursCornerCases(SetupAdditionalTimeRecords, TestCase):
             weekdays_records[0],
             weekdays_records[1]
         )
-        print weekdays_records
+        # print weekdays_records
+
+        response = self.client.get('/approve-hours/')
+
+        earliest_monday = self._get_earliest_monday()
+        current_week_records = self._current_week_records(earliest_monday)
+
+        # checking context varibale 'week' if it contains correct # of
+        # AdminActionUserTime objects
+        records_num_for_approval = self._compare_shown_records(
+            current_week_records,
+            response
+        )
+
+        # approving hours for displayed week
+        post_response = self.client.post('/approve-hours/', {
+            'post-data': self.volunteer_1.username +
+            ':1:' +
+            earliest_monday.strftime("%-m-%-d-%Y")
+        })
+
+        # check if correct num of records approved
+        self.assertEqual(
+            1,
+            len(self.oc_vol_1.get_hours_approved())
+        )
+
+    def test_timerecord_split_weekend_utc(self):
+        """
+        Testing time record (UTC) that starts on one day and finishes on another day (weekend).
+
+        Expected behavior:
+        - time record is correctly shown on approve-hours page.
+        - time record may be approved by admin.
+        """
+        # setting up the record's time
+        weekdays_records = self._gen_weekend_split_time(self.utc_monday)
+        _setup_volunteer_hours(
+            self.volunteer_1,
+            self.npf_admin,
+            self.org_npf,
+            self.project,
+            weekdays_records[0],
+            weekdays_records[1]
+        )
+        # print weekdays_records
 
         response = self.client.get('/approve-hours/')
 
@@ -710,19 +766,8 @@ class TestApproveHoursCornerCases(SetupAdditionalTimeRecords, TestCase):
         - time record is correctly shown on approve-hours page.
         - time record may be approved by admin.
         """
-        pass
-
-    def test_timerecord_split_weekend_utc(self):
-        """
-        Testing time record (UTC) that starts on one day and finishes on another day (weekend).
-
-        Expected behavior:
-        - time record is correctly shown on approve-hours page.
-        - time record may be approved by admin.
-        """
-
         # setting up the record's time
-        weekdays_records = self._gen_weekend_split_time(self.utc_monday)
+        weekdays_records = self._gen_weekdays_split_time(self.amchic_monday)
         _setup_volunteer_hours(
             self.volunteer_1,
             self.npf_admin,
@@ -731,7 +776,7 @@ class TestApproveHoursCornerCases(SetupAdditionalTimeRecords, TestCase):
             weekdays_records[0],
             weekdays_records[1]
         )
-        print weekdays_records
+        # print weekdays_records
 
         response = self.client.get('/approve-hours/')
 
@@ -766,4 +811,39 @@ class TestApproveHoursCornerCases(SetupAdditionalTimeRecords, TestCase):
         - time record is correctly shown on approve-hours page.
         - time record may be approved by admin.
         """
-        pass
+        # setting up the record's time
+        weekdays_records = self._gen_weekend_split_time(self.amchic_monday)
+        _setup_volunteer_hours(
+            self.volunteer_1,
+            self.npf_admin,
+            self.org_npf,
+            self.project,
+            weekdays_records[0],
+            weekdays_records[1]
+        )
+        # print weekdays_records
+
+        response = self.client.get('/approve-hours/')
+
+        earliest_monday = self._get_earliest_monday()
+        current_week_records = self._current_week_records(earliest_monday)
+
+        # checking context varibale 'week' if it contains correct # of
+        # AdminActionUserTime objects
+        records_num_for_approval = self._compare_shown_records(
+            current_week_records,
+            response
+        )
+
+        # approving hours for displayed week
+        post_response = self.client.post('/approve-hours/', {
+            'post-data': self.volunteer_1.username +
+            ':1:' +
+            earliest_monday.strftime("%-m-%-d-%Y")
+        })
+
+        # check if correct num of records approved
+        self.assertEqual(
+            1,
+            len(self.oc_vol_1.get_hours_approved())
+        )
