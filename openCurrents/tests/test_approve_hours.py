@@ -426,7 +426,7 @@ class TestApproveHoursTwoWeeks(TestCase):
         self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_2))
 
 
-class SetupAdditionalTimeRecords(TestCase):
+class SetupAdditionalTimeRecords():
     """SetUp class for TestApproveHoursRandomDates and  TestApproveHoursCornerCases."""
 
     def _get_earliest_monday(self):
@@ -510,12 +510,12 @@ class SetupAdditionalTimeRecords(TestCase):
         self.client.login(username=self.npf_admin.username, password='password')
 
 
-class TestApproveHoursRandomDates(SetupAdditionalTimeRecords):
+class TestApproveHoursRandomDates(SetupAdditionalTimeRecords, TestCase):
     """
     Tests with random dates for time records.
 
     The main purpose is to check that query returns proper time records per
-    week.
+    week and admin can approve these records.
     """
 
     def setUp(self):
@@ -598,3 +598,152 @@ class TestApproveHoursRandomDates(SetupAdditionalTimeRecords):
                 test_counter,
                 len(self.oc_vol_1.get_hours_approved())
             )
+
+
+class TestApproveHoursCornerCases(SetupAdditionalTimeRecords, TestCase):
+    """
+    Tests with specific dates for time records.
+
+    The main purpose is to check that query returns specific records per
+    week and admin can approve these records.
+    """
+
+    def _get_current_week_start_end_utc(self):
+            """Return closest monday UTC timezone."""
+            utc_now = datetime.now(tz=pytz.utc)
+            utc_monday = utc_now - timedelta(days=(utc_now.weekday()))
+            utc_monday = utc_monday.replace(hour=00, minute=00, second=00)
+            utc_sunday = utc_monday + timedelta(days=6)
+            # print utc_monday, utc_sunday
+
+            return utc_monday, utc_sunday
+
+    def _gen_weekdays_split_time(self, monday_date):
+        """Generate a time record within current week UTC."""
+        datetime_start = monday_date + \
+            timedelta(days=random.randint(1, 5)) + \
+            timedelta(hours=random.randint(20, 23))
+        datetime_end = datetime_start + \
+            timedelta(hours=random.randint(5, 8))
+
+        return datetime_start, datetime_end
+
+    # def _clean_all_records(self):
+    #     """Delete all previously requested hours."""
+    #     UserTimeLog.objects.all().delete()
+    #     AdminActionUserTime.objects.all().delete()
+
+    def setUp(self):
+        """Additional setup for TestApproveHoursRandomDates class."""
+        super(TestApproveHoursCornerCases, self).setUp()
+
+        """
+        npf_orgs_list = ['NPF_org_2']
+        biz_orgs_list = []
+        volunteers_list = []
+
+        test_setup = SetUpTests()
+        test_setup.generic_setup(npf_orgs_list, biz_orgs_list, volunteers_list)
+
+        # setting orgs
+        self.org_npf_2 = test_setup.get_all_npf_orgs()[0]
+
+        # set up project
+        self.project_2 = test_setup.get_all_projects(self.org_npf_2)[0]
+
+        # creating an npf admin
+        all_admins = test_setup.get_all_npf_admins()
+        self.npf_admin_2 = all_admins[0]
+        self.org_admin_2 = OrgAdmin(self.npf_admin_2.id)
+
+        # oc instances
+        self.oc_npf_adm_2 = OcUser(self.npf_admin_2.id)
+        """
+
+        # utc =  00:00
+        # America/Detroit = -4:00
+        # America/Chicago = -6:00
+
+        utc_current_week = self._get_current_week_start_end_utc()
+        self.utc_monday = utc_current_week[0]
+        self.utc_sunday = utc_current_week[1]
+
+        # setting up client
+        self.client = Client()
+        self.client.login(username=self.npf_admin.username, password='password')
+
+    def test_timerecord_split_weekdays_utc(self):
+        """
+        Testing time record (UTC) that starts on one day and finishes on another day (weekdays).
+
+        Expected behavior:
+        - time record is correctly shown on approve-hours page.
+        - time record may be approved by admin.
+        """
+
+        # setting up the record's time
+        weekdays_records = self._gen_weekdays_split_time(self.utc_monday)
+        _setup_volunteer_hours(
+            self.volunteer_1,
+            self.npf_admin,
+            self.org_npf,
+            self.project,
+            weekdays_records[0],
+            weekdays_records[1]
+        )
+        # print weekdays_records
+
+        response = self.client.get('/approve-hours/')
+
+        earliest_monday = self._get_earliest_monday()
+        current_week_records = self._current_week_records(earliest_monday)
+
+        # checking context varibale 'week' if it contains correct # of
+        # AdminActionUserTime objects
+        records_num_for_approval = self._compare_shown_records(
+            current_week_records,
+            response
+        )
+
+        # approving hours for displayed week
+        post_response = self.client.post('/approve-hours/', {
+            'post-data': self.volunteer_1.username +
+            ':1:' +
+            earliest_monday.strftime("%-m-%-d-%Y")
+        })
+
+        # check if correct num of records approved
+        self.assertEqual(
+            1,
+            len(self.oc_vol_1.get_hours_approved())
+        )
+
+    def test_timerecord_split_weekdays_non_utc(self):
+        """
+        Testing time record (non-UTC) that starts on one day and finishes on another day (weekdays).
+
+        Expected behavior:
+        - time record is correctly shown on approve-hours page.
+        - time record may be approved by admin.
+        """
+        pass
+
+    def test_timerecord_split_weekend_utc(self):
+        """
+        Testing time record (UTC) that starts on one day and finishes on another day (weekend).
+
+        Expected behavior:
+        - time record is correctly shown on approve-hours page.
+        - time record may be approved by admin.
+        """
+        pass
+
+    def test_timerecord_split_weekend_non_utc(self):
+        """
+        Testing time record (non-UTC) that starts on one day and finishes on another day (weekend).
+
+        Expected behavior:
+        - time record is correctly shown on approve-hours page.
+        - time record may be approved by admin.
+        """
+        pass
