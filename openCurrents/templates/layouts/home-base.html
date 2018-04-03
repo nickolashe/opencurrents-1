@@ -40,17 +40,9 @@
             <a href="{% url 'openCurrents:faq' %}" class="three-halves-margin-right">FAQ</a>
           {% endblock large-links %}
 
-          {% if request.user.is_authenticated %}
-            {% if not org_admin and not biz_admin %}
-              <a class="two-margin-right" href="{% url 'openCurrents:profile' %}">
-            {% elif org_admin %}
-              <a class="two-margin-right" href="{% url 'openCurrents:org-admin' %}">
-            {% elif biz_admin %}
-              <a class="two-margin-right" href="{% url 'openCurrents:biz-admin' %}">
-            {% endif %}
-          {% else %}
-            <a class="two-margin-right" href="{% url 'openCurrents:login' %}">
-          {% endif %}
+          <a class="two-margin-right"
+            {% include "partials/login-logic.html" %}
+            >
             Log in
           </a>
         </div>
