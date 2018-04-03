@@ -18,7 +18,19 @@
   FAQ
 </a>
 
-<a class="list-group-item" href="{% url 'openCurrents:login' %}">
+<a class="list-group-item"
+  {% if request.user.is_authenticated %}
+    {% if not org_admin and not biz_admin %}
+      href="{% url 'openCurrents:profile' %}"
+    {% elif org_admin %}
+      href="{% url 'openCurrents:org-admin' %}"
+    {% elif biz_admin %}
+      href="{% url 'openCurrents:biz-admin' %}"
+    {% endif %}
+  {% else %}
+    href="{% url 'openCurrents:login' %}"
+  {% endif %}
+  >
   <i class="half-margin-right fa-fw fa fa-sign-in"></i>
   Log in
 </a>
