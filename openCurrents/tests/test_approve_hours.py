@@ -537,7 +537,15 @@ class TestApproveHoursRandomDates(TestCase):
         self.client.login(username=self.npf_admin.username, password='password')
 
     def test_check_workflow(self):
-        """Check if all entries are in week context arg for every week."""
+        """
+        Check if all entries are in week context arg for every week.
+
+        It is expected that self.counter number of UserTimeLog objects and
+        AdminActionUserTime with action_type='req' is created with different
+        dates.
+        These time records are displayed for every week and then approved
+        by org-admin.
+        """
         test_counter = 0
 
         while True:
@@ -547,7 +555,8 @@ class TestApproveHoursRandomDates(TestCase):
             earliest_monday = self._get_earliest_monday()
             current_week_records = self._current_week_records(earliest_monday)
 
-            # checking first displayed week contains correct # of AdminActionUserTime
+            # checking context varibale 'week' if it contains correct # of
+            # AdminActionUserTime objects
             records_num_for_approval = self._compare_shown_records(
                 current_week_records,
                 response
