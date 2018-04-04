@@ -114,7 +114,7 @@ class NpfAdminView(TestCase):
         past_date = timezone.now() - timedelta(days=2)
 
         # setting up events
-        future_event = Event.objects.create(
+        self.future_event = Event.objects.create(
             project=project,
             is_public = True,
             description="future event",
@@ -126,7 +126,7 @@ class NpfAdminView(TestCase):
             datetime_end=future_date + timedelta(days=1)
         )
 
-        current_event = Event.objects.create(
+        self.current_event = Event.objects.create(
             project=project,
             is_public = True,
             description="current event",
@@ -138,7 +138,7 @@ class NpfAdminView(TestCase):
             datetime_end=future_date
         )
 
-        finished_event = Event.objects.create(
+        self.finished_event = Event.objects.create(
             project=project,
             is_public = True,
             description="finished event",
@@ -359,6 +359,33 @@ class NpfAdminView(TestCase):
             action_type='req'
         )
 
+    def _check_url_parser(self, event_id, url):
+        """
+        Assert string 'url' exist is in the response.content when edit an event.
+
+        This method asserts forward (upon saving) and backward (upon loading
+        EditEventForm) href HTML tags substitution in description field of an
+        Event with id 'event_id' (integer).
+        """
+
+        # update event description field
+        upcoming_event_obj = Event.objects.get(pk=event_id)
+        upcoming_event_obj.description = url
+        upcoming_event_obj.save()
+
+        # check if URLs are shown on event-detail page
+        response = self.client.get('/event-detail/%d/' % event_id)
+        processed_content = re.sub(r'\s+', ' ', response.content)
+
+        if ('http' not in url) and ('https' not in url):
+            self.assertIn('href="http://%s"' % url, processed_content)
+        else:
+            self.assertIn('href="%s"' % url, processed_content)
+
+        # check if there is no HTML tags in edit event form description field
+        response = self.client.get('/edit-event/%d/' % event_id)
+        self.assertNotIn('href=', response.context['form']['event_description'])
+
 
     def setUp(self):
         # setting up objects
@@ -497,3 +524,16 @@ class NpfAdminView(TestCase):
         self.assertEqual(hours_approved_npf_admin2.status_code, 200)
         expected_queryset_len = 1
         self.assertEqual(len(hours_approved_npf_admin2.context['hours_detail'].all()), expected_queryset_len)
+
+    def test_upcoming_event_description_parser(self):
+        """Test parser in event description field when editing event."""
+        upcoming_event_id = self.future_event.pk
+
+        # adding url with WWW to upcoming event
+        self._check_url_parser(upcoming_event_id, 'www.testurl.com')
+
+        # adding url with http to upcoming event
+        self._check_url_parser(upcoming_event_id, 'http://www.testurl.com')
+
+        # adding url with https to upcoming event
+        self._check_url_parser(upcoming_event_id, 'https://www.testurl.com')

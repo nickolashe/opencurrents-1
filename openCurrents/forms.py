@@ -343,7 +343,6 @@ class CreateEventForm(forms.Form):
             logger.debug('%s: %s', error_msg, e.message)
             raise ValidationError(_(error_msg))
 
-
         try:
             datetime_end = datetime.strptime(
                 ' '.join([date_start, time_end]),
@@ -384,10 +383,10 @@ class EditEventForm(CreateEventForm):
             pytz.timezone(tz)
         ).date()
         self.fields['event_starttime'].initial = self.event.datetime_start.astimezone(
-        pytz.timezone(tz)
+            pytz.timezone(tz)
         ).time()
         self.fields['event_endtime'].initial = self.event.datetime_end.astimezone(
-        pytz.timezone(tz)
+            pytz.timezone(tz)
         ).time()
         self.fields['event_privacy'].initial = int(self.event.is_public)
         self.fields['event_location'].initial = self.event.location
