@@ -1170,6 +1170,8 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
 
         if data['biz_name']:
             tr_rec.biz_name = data['biz_name']
+        else:
+            tr_rec.biz_name = self.offer.org.name
 
         with transaction.atomic():
             tr_rec.save()
@@ -1209,7 +1211,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
                 },
                 {
                     'name': 'BIZ_NAME',
-                    'content': data['biz_name']
+                    'content': tr_rec.biz_name
                 },
                 {
                     'name': 'ITEM_NAME',
