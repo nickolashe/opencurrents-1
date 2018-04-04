@@ -4009,7 +4009,7 @@ def process_signup(
                             try:
                                 event_coord_fname = event.coordinator.first_name
                                 event_coord_lname = event.coordinator.last_name
-                            except UnboundLocalError:
+                            except (UnboundLocalError, AttributeError):
                                 event_coord_fname = " "
                                 event_coord_lname = " "
 
