@@ -56,9 +56,7 @@ import re
 
 
 class SetUpTests(object):
-    """
-    helper class to setup tests
-    """
+    """Helper class to setup tests."""
 
     def generic_setup(
             self,
@@ -69,7 +67,7 @@ class SetUpTests(object):
             create_projects=True
     ):
         """
-        takes lists of initial data and create needed objects
+        Take lists of initial data and create needed objects.
 
         npf_orgs_list - list of NPF orgs titles (string)
         biz_orgs_list - list of BIZ orgs titles (string)
@@ -77,7 +75,6 @@ class SetUpTests(object):
         create_admins - boolean, to create an admin per NPF/BIZ org
         create_projects - boolean, to create a project per each NPF org
         """
-
         # creating NPF org with projects if required
         org_i = 0
         for npf_org in npf_orgs_list:
@@ -117,9 +114,7 @@ class SetUpTests(object):
             _create_test_user(volunteer)
 
     def get_all_volunteers(self):
-        """
-        returns list of volunteers
-        """
+        """Return list of volunteers."""
         volunteers = []
         for user in User.objects.all():
             if not OcAuth(user.id).is_admin():
@@ -128,9 +123,7 @@ class SetUpTests(object):
         return volunteers
 
     def get_all_npf_admins(self):
-        """
-        returns list of NPF admins (user instance)
-        """
+        """Return list of NPF admins (user instance)."""
         npf_admins = []
         for user in OrgUser.objects.all():
             u = OcAuth(user.id)
@@ -140,9 +133,7 @@ class SetUpTests(object):
         return npf_admins
 
     def get_all_biz_admins(self):
-        """
-        returns list of BIZ admins
-        """
+        """Return list of BIZ admins."""
         biz_admins = []
         for user in OrgUser.objects.all():
             u = OcAuth(user.id)
@@ -152,21 +143,15 @@ class SetUpTests(object):
         return biz_admins
 
     def get_all_npf_orgs(self):
-        """
-        returns list of NPF orgs
-        """
+        """Return list of NPF orgs."""
         return [org for org in Org.objects.filter(status='npf')]
 
     def get_all_biz_orgs(self):
-        """
-        returns list of BIZ orgs
-        """
+        """Return list of BIZ orgs."""
         return [org for org in Org.objects.filter(status='biz')]
 
     def get_all_projects(self, org):
-        """
-        returns list of projects
-        """
+        """Return list of projects."""
         return [proj for proj in Project.objects.filter(org=org)]
 
 
@@ -295,6 +280,8 @@ def _setup_volunteer_hours(
     action_type='req'
 ):
     """
+    Set up volunteers manually recprded hours.
+
     function takes:
         volunteer = User objects
         npf_admin = npf admin object
@@ -333,6 +320,8 @@ def _setup_volunteer_hours(
         action_type=action_type
     )
 
+    return volunteer_timelog, actiontimelog, event
+
 
 def _setup_transactions(
     biz_org,
@@ -346,7 +335,8 @@ def _setup_transactions(
     action_type='req'
 ):
     """
-    creates pending or approved transactions
+    Create pending or approved transactions.
+
     biz_org - biz org instance;
     biz_admin - biz admin user instance;
     transaction_currents_amount - int or float;
@@ -355,7 +345,6 @@ def _setup_transactions(
     currents_share - int or float;
     action_type - string. Possible values: 'req', 'app', 'red', 'dec'
     """
-
     offer_item = Item(name=offer_item_name)
     offer_item.save()
 
