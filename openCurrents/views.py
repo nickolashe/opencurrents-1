@@ -3974,7 +3974,7 @@ def process_signup(
                 token_record.save()
 
                 # registering user to an event
-                if 'next' in request.session and 'event-detail' in request.session['next']:
+                if request.session and 'next' in request.session and request.session['next'] and 'event-detail' in request.session['next']:
                     try:
                         user = User.objects.get(email=user_email)
                     except:
