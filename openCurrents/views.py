@@ -2971,7 +2971,9 @@ class LiveDashboardView(OrgAdminPermissionMixin, SessionContextView, TemplateVie
         }
 
         # disable checkin if event is too far in future
-        if event.datetime_start > datetime.now(tz=pytz.UTC) + timedelta(minutes=15):
+        if event.datetime_start > datetime.now(tz=pytz.UTC) + timedelta(
+            minutes=config.CHECKIN_EVENT_MINUTES_PRIOR
+        ):
             context['checkin_disabled'] = True
         else:
             context['checkin_disabled'] = False
@@ -3235,7 +3237,9 @@ def event_checkin(request, pk):
         }
 
         # allow checkins only as early as 15 min before event
-        if timezone.now() < event.datetime_start - timedelta(minutes=15):
+        if timezone.now() < event.datetime_start - timedelta(
+            minutes=config.CHECKIN_EVENT_MINUTES_PRIOR
+        ):
             clogger.warning('checkin too early for event start time')
             glogger_struct['reject_reason'] = 'checkin attempt prior to allowed time'
             glogger.log_struct(glogger_struct, labels=glogger_labels)
@@ -3626,8 +3630,12 @@ def event_register_live(request, eventid):
     )
 
     now = datetime.now(tz=pytz.utc)
-    event_status = now > event.datetime_start - timedelta(minutes=15)
-    event_status &= now < event.datetime_end + timedelta(minutes=15)
+    event_status = now > event.datetime_start - timedelta(
+        minutes=config.CHECKIN_EVENT_MINUTES_PRIOR
+    )
+    event_status &= now < event.datetime_end + timedelta(
+        minutes=config.CHECKIN_EVENT_MINUTES_PRIOR
+    )
 
     glogger_struct = {
         'msg': 'event user register live',
@@ -4330,8 +4338,6 @@ def process_login(request):
             request.session.pop('next')
         except KeyError:
             pass
-
-
 
         user = authenticate(
             username=user_name,
