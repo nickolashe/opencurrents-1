@@ -236,10 +236,10 @@ class MessagesContextMixin(object):
 class BizSessionContextView(SessionContextView):
     def dispatch(self, request, *args, **kwargs):
         # biz admin user
-        if self.request.user.is_authenticated():
-            self.bizadmin = BizAdmin(request.user.id)
-        elif 'new_biz_registration' in self.request.session.keys():
+        if 'new_biz_registration' in self.request.session.keys():
             self.bizadmin = BizAdmin(request.session['new_biz_user_id'])
+        elif self.request.user.is_authenticated():
+            self.bizadmin = BizAdmin(request.user.id)
 
         return super(BizSessionContextView, self).dispatch(
             request, *args, **kwargs
@@ -483,12 +483,7 @@ class BizDetailsView(BizSessionContextView, FormView):
             }
             glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
-            if self.request.user.is_authenticated():
-                return redirect(
-                    'openCurrents:biz-admin',
-                    status_msg='Thank you for adding %s\'s details' % self.org.name
-                )
-            elif 'new_biz_registration' in self.request.session.keys():
+            if 'new_biz_registration' in self.request.session.keys():
 
                 # remove all new_biz_registration related session vars
                 self.request.session.pop('new_biz_registration')
@@ -498,6 +493,11 @@ class BizDetailsView(BizSessionContextView, FormView):
                 return redirect(
                     'openCurrents:check-email',
                     user_email
+                )
+            elif self.request.user.is_authenticated():
+                return redirect(
+                    'openCurrents:biz-admin',
+                    status_msg='Thank you for adding %s\'s details' % self.org.name
                 )
 
 
@@ -3080,7 +3080,8 @@ class OfferCreateView(SessionContextView, FormView):
         }
         glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
-        if self.request.user.is_authenticated():
+        # if self.request.user.is_authenticated():
+        if 'new_biz_registration' not in self.request.session.keys():
             return redirect(
                 'openCurrents:biz-admin',
                 'Your offer for %s is now live!' % offer_item.name
@@ -3116,8 +3117,7 @@ class OfferCreateView(SessionContextView, FormView):
         '''
         kwargs = super(OfferCreateView, self).get_form_kwargs()
 
-        if 'new_biz_registration' in self.request.session.keys() and \
-                not self.request.user.is_authenticated():
+        if 'new_biz_registration' in self.request.session.keys():
             try:
                 new_biz_org_id = self.request.session['new_biz_org_id']
                 kwargs.update({'orgid': new_biz_org_id})
