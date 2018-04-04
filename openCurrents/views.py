@@ -114,23 +114,6 @@ class DatetimeEncoder(json.JSONEncoder):
 
 class SessionContextView(View):
     def dispatch(self, request, *args, **kwargs):
-        # self.userid = request.user.id
-        # self.user = request.user
-
-        # # oc user
-        # self.ocuser = OcUser(self.userid)
-
-        # # user org
-        # orguserinfo = OrgUserInfo(request.user.id)
-        # self.org = orguserinfo.get_org()
-
-        # # org auth
-        # self.ocauth = OcAuth(self.userid)
-
-        # return super(SessionContextView, self).dispatch(
-        #     request, *args, **kwargs
-        # )
-
         if self.request.user.is_authenticated():
             self.userid = request.user.id
             self.user = request.user
@@ -253,10 +236,10 @@ class MessagesContextMixin(object):
 class BizSessionContextView(SessionContextView):
     def dispatch(self, request, *args, **kwargs):
         # biz admin user
-        if self.request.user.is_authenticated():
-            self.bizadmin = BizAdmin(request.user.id)
-        elif 'new_biz_registration' in self.request.session.keys():
+        if 'new_biz_registration' in self.request.session.keys():
             self.bizadmin = BizAdmin(request.session['new_biz_user_id'])
+        elif self.request.user.is_authenticated():
+            self.bizadmin = BizAdmin(request.user.id)
 
         return super(BizSessionContextView, self).dispatch(
             request, *args, **kwargs
@@ -315,11 +298,12 @@ class AdminPermissionMixin(LoginRequiredMixin):
 
 class OrgAdminPermissionMixin(AdminPermissionMixin):
     def dispatch(self, request, *args, **kwargs):
-        userorgs = OrgUserInfo(self.request.user.id)
+        userid = self.request.user.id
+        userorgs = OrgUserInfo(userid)
         org = userorgs.get_org()
 
         # check if user is an admin of an org
-        if org.status != 'npf':
+        if not org or org.status != 'npf':
             logger.warning(
                 'insufficient permission for user %s',
                 request.user.username
@@ -368,6 +352,20 @@ class HomeView(TemplateView):
         except:
             # no session set
             return super(HomeView, self).dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(HomeView, self).get_context_data(**kwargs)
+        try:
+            context['org_admin'] = OcAuth(self.request.user.id).is_admin_org()
+        except Exception as e:
+            pass
+
+        try:
+            context['biz_admin'] = OcAuth(self.request.user.id).is_admin_biz()
+        except Exception as e:
+            pass
+
+        return context
 
 
 class ForbiddenView(SessionContextView, TemplateView):
@@ -485,12 +483,7 @@ class BizDetailsView(BizSessionContextView, FormView):
             }
             glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
-            if self.request.user.is_authenticated():
-                return redirect(
-                    'openCurrents:biz-admin',
-                    status_msg='Thank you for adding %s\'s details' % self.org.name
-                )
-            elif 'new_biz_registration' in self.request.session.keys():
+            if 'new_biz_registration' in self.request.session.keys():
 
                 # remove all new_biz_registration related session vars
                 self.request.session.pop('new_biz_registration')
@@ -500,6 +493,11 @@ class BizDetailsView(BizSessionContextView, FormView):
                 return redirect(
                     'openCurrents:check-email',
                     user_email
+                )
+            elif self.request.user.is_authenticated():
+                return redirect(
+                    'openCurrents:biz-admin',
+                    status_msg='Thank you for adding %s\'s details' % self.org.name
                 )
 
 
@@ -605,6 +603,8 @@ class ApproveHoursView(OrgAdminPermissionMixin, OrgSessionContextView, ListView)
         # get the weeks timelog; week starting from 'week_startdate_monday'
         # TODO (@karbmk): can you describe the difference between main_timelog and local_timelog
         # and why we need both?
+
+        # main timelog contains
         main_timelog = self.weeks_timelog(week_startdate_monday, today)
         actions = main_timelog[0]
         time_log_week = main_timelog[1]
@@ -706,7 +706,7 @@ class ApproveHoursView(OrgAdminPermissionMixin, OrgSessionContextView, ListView)
         ).filter(
             usertimelog__datetime_start__gte=week_date
         ).filter(
-            usertimelog__datetime_end__lt=week_date + timedelta(days=7)
+            usertimelog__datetime_start__lt=week_date + timedelta(days=7)
         ).filter(
             action_type='req'
         ).filter(
@@ -1467,7 +1467,6 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                 msg_type = 'alert'
                 return False, 'You have to select a coordinator.', msg_type
 
-
         # if logging for a new org
         elif form_data['new_org']:
             glogger_struct = {
@@ -1769,9 +1768,6 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                     elif field_name == 'org':
                         context['org_stat_id'] = int(field_val)
                     elif field_name == 'admin':
-                        print "\nHERE"
-                        print 'admin:', field_val
-                        print "HERE\n"
                         if field_val != '':
                             context['admin_id'] = int(field_val)
                         else:
@@ -1879,23 +1875,6 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
         user = self.request.user
         userid = user.id
 
-        context['app_hr'] = 0
-        today = date.today()
-
-        # do a weekly check for unapproved requests (popup)
-        if not user.last_login or user.last_login.date() < today - timedelta(days=today.weekday()):
-            try:
-                orgadmin = OrgAdmin(userid)
-                admin_requested_hours = orgadmin.get_hours_requested()
-
-                if admin_requested_hours:
-                    context['app_hr'] = 1
-            except Exception:
-                logger.debug(
-                    'User %s is not org admin, no requested hours check',
-                    userid
-                )
-
         # verified currents balance
         context['balance_available'] = self.ocuser.get_balance_available()
 
@@ -1980,6 +1959,7 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
             ])
         )
 
+
 class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView):
     template_name = 'org-admin.html'
     glogger_labels = {
@@ -2018,16 +1998,28 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
 
     def get_context_data(self, **kwargs):
         context = super(OrgAdminView, self).get_context_data(**kwargs)
+        context['hours_requested'] = self.orgadmin.get_hours_requested()
+        context['hours_approved'] = self.orgadmin.get_hours_approved()
         context['timezone'] = self.org.timezone
 
+        # app_hr is a flag that determines whether approve hours popup is shown
+        context['app_hr'] = 0
+
+        if context['hours_requested']:
+            ts_earliest_timelog = min([
+                rec.usertimelog.datetime_start.astimezone(pytz.timezone(context['timezone']))
+                for rec in context['hours_requested']
+            ])
+
+            if ts_earliest_timelog < datetime.now(tz=pytz.utc) - timedelta(days=1):
+                context['app_hr'] = 1
+
+        # approved / declined volunteer counts shown in status message
         try:
             context['vols_approved'] = self.kwargs.pop('vols_approved')
             context['vols_declined'] = self.kwargs.pop('vols_declined')
         except KeyError:
             pass
-
-        # getting all admins for organization
-        context['org_admins'] = OcOrg(self.org.id).get_admins()
 
         # find events created by admin that they have not been notified of
         new_events = Event.objects.filter(
@@ -2045,6 +2037,7 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
             event.save()
 
         # calculating pending hours for every NPF admin
+        context['org_admins'] = OcOrg(self.org.id).get_admins()
         context['hours_pending_by_admin'] = {}
 
         for admin in context['org_admins']:
@@ -2052,8 +2045,6 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
 
             if total_hours_pending > 0:
                 context['hours_pending_by_admin'][admin] = total_hours_pending
-
-        logger.debug(context['hours_pending_by_admin'])
 
         # sorting the list of admins by # of pending hours descending and putting current admin at the beginning of the list
         context['hours_pending_by_admin'] = self._sorting_hours(context['hours_pending_by_admin'], self.user.id)
@@ -2081,33 +2072,27 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
         # sorting the list of admins by # of approved hours descending and putting current admin at the beginning of the list
         context['issued_by_admin'] = self._sorting_hours(context['issued_by_admin'], self.user.id)
 
-        # past org events
-        context['events_group_past'] = Event.objects.filter(
+        # org events
+        org_events = Event.objects.filter(
             event_type='GR',
-            project__org__id=self.org.id,
+            project__org__id=self.org.id
+        )
+
+        # past
+        context['events_group_past'] = org_events.filter(
             datetime_end__lte=datetime.now(tz=pytz.utc)
         ).order_by('-datetime_start')[:3]
 
-        # current org events
-        context['events_group_current'] = Event.objects.filter(
-            event_type='GR',
-            project__org__id=self.org.id,
+        # current
+        context['events_group_current'] = org_events.filter(
             datetime_start__lte=datetime.now(tz=pytz.utc) + timedelta(hours=1),
             datetime_end__gte=datetime.now(tz=pytz.utc)
         )
 
-        # upcoming org events
-        context['events_group_upcoming'] = Event.objects.filter(
-            event_type='GR',
-            project__org__id=self.org.id,
+        # upcoming
+        context['events_group_upcoming'] = org_events.filter(
             datetime_start__gte=datetime.now(tz=pytz.utc) + timedelta(hours=1)
         )
-
-        hours_requested = self.orgadmin.get_hours_requested()
-        context['hours_requested'] = hours_requested
-
-        hours_approved = self.orgadmin.get_hours_approved()
-        context['hours_approved'] = hours_approved
 
         glogger_struct = {
             'msg': 'npf profile accessed',
@@ -2986,7 +2971,9 @@ class LiveDashboardView(OrgAdminPermissionMixin, SessionContextView, TemplateVie
         }
 
         # disable checkin if event is too far in future
-        if event.datetime_start > datetime.now(tz=pytz.UTC) + timedelta(minutes=15):
+        if event.datetime_start > datetime.now(tz=pytz.UTC) + timedelta(
+            minutes=config.CHECKIN_EVENT_MINUTES_PRIOR
+        ):
             context['checkin_disabled'] = True
         else:
             context['checkin_disabled'] = False
@@ -3093,7 +3080,8 @@ class OfferCreateView(SessionContextView, FormView):
         }
         glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
-        if self.request.user.is_authenticated():
+        # if self.request.user.is_authenticated():
+        if 'new_biz_registration' not in self.request.session.keys():
             return redirect(
                 'openCurrents:biz-admin',
                 'Your offer for %s is now live!' % offer_item.name
@@ -3129,8 +3117,7 @@ class OfferCreateView(SessionContextView, FormView):
         '''
         kwargs = super(OfferCreateView, self).get_form_kwargs()
 
-        if 'new_biz_registration' in self.request.session.keys() and \
-                not self.request.user.is_authenticated():
+        if 'new_biz_registration' in self.request.session.keys():
             try:
                 new_biz_org_id = self.request.session['new_biz_org_id']
                 kwargs.update({'orgid': new_biz_org_id})
@@ -3250,7 +3237,9 @@ def event_checkin(request, pk):
         }
 
         # allow checkins only as early as 15 min before event
-        if timezone.now() < event.datetime_start - timedelta(minutes=15):
+        if timezone.now() < event.datetime_start - timedelta(
+            minutes=config.CHECKIN_EVENT_MINUTES_PRIOR
+        ):
             clogger.warning('checkin too early for event start time')
             glogger_struct['reject_reason'] = 'checkin attempt prior to allowed time'
             glogger.log_struct(glogger_struct, labels=glogger_labels)
@@ -3641,8 +3630,12 @@ def event_register_live(request, eventid):
     )
 
     now = datetime.now(tz=pytz.utc)
-    event_status = now > event.datetime_start - timedelta(minutes=15)
-    event_status &= now < event.datetime_end + timedelta(minutes=15)
+    event_status = now > event.datetime_start - timedelta(
+        minutes=config.CHECKIN_EVENT_MINUTES_PRIOR
+    )
+    event_status &= now < event.datetime_end + timedelta(
+        minutes=config.CHECKIN_EVENT_MINUTES_PRIOR
+    )
 
     glogger_struct = {
         'msg': 'event user register live',
@@ -3966,6 +3959,14 @@ def process_signup(
                             logger.debug("Sending event reg confirm email")
                             # sending event registration confirmation email to the new volunteer
                             tz = event.project.org.timezone
+
+                            try:
+                                event_coord_fname = event.coordinator.first_name
+                                event_coord_lname = event.coordinator.last_name
+                            except UnboundLocalError:
+                                event_coord_fname = " "
+                                event_coord_lname = " "
+
                             merge_var_list = [
                                 {
                                     'name': 'EVENT_NAME',
@@ -4001,11 +4002,11 @@ def process_signup(
                                 },
                                 {
                                     'name': 'ADMIN_FIRSTNAME',
-                                    'content': event.coordinator.first_name
+                                    'content': event_coord_fname
                                 },
                                 {
                                     'name': 'ADMIN_LASTNAME',
-                                    'content': event.coordinator.last_name
+                                    'content': event_coord_lname
                                 }
                             ]
 
@@ -4023,8 +4024,6 @@ def process_signup(
                                     e.message,
                                     type(e)
                                 )
-
-
 
                 if not mock_emails:
                     # send verification email
@@ -4128,7 +4127,6 @@ def process_signup(
                     'username': user_email
                 }
                 glogger.log_struct(glogger_struct, labels=glogger_labels)
-
 
                 if status_msg and msg_type:
                     return redirect(
@@ -4335,11 +4333,16 @@ def process_login(request):
         except:
             redirection = None
 
+        try:
+            # cleaning session var next after successfull login and redirection
+            request.session.pop('next')
+        except KeyError:
+            pass
+
         user = authenticate(
             username=user_name,
             password=user_password
         )
-
         if user is not None and user.is_active:
             glogger_struct = {
                 'msg': 'user login',
@@ -4347,6 +4350,9 @@ def process_login(request):
                 'status': 200
             }
             glogger.log_struct(glogger_struct, labels=glogger_labels)
+
+            userid = user.id
+            today = date.today()
 
             login(request, user)
 
@@ -4502,7 +4508,6 @@ def process_email_confirmation(request, user_email):
         oc_auth = OcAuth(user.id)
         redirection = common.where_to_redirect(oc_auth)
         return redirect(redirection)
-
 
     # if form was invalid for bad password, still need to preserve token
     else:

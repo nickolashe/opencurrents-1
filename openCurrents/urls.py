@@ -99,7 +99,6 @@ urlpatterns = [
     url(r'^volunteer/$', views.VolunteerView.as_view(), name='volunteer'),
     url(r'^volunteer-requests/$', views.VolunteerRequestsView.as_view(), name='volunteer-requests'),
     url(r'^profile/$', views.ProfileView.as_view(), name='profile'),
-    url(r'^profile/(?P<app_hr>(1|0))/$', views.ProfileView.as_view(), name='profile'),
     url(r'^profile/(?P<status_msg>.*)/$', views.ProfileView.as_view(), name='profile'),
     url(r'^profile/(?P<status_msg>[^/]*)/(?P<msg_type>[^/]*)', views.ProfileView.as_view(), name='profile'),
     url(r'^org-admin/$', views.OrgAdminView.as_view(), name='org-admin'),
