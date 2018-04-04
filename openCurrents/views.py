@@ -1170,8 +1170,6 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
 
         if data['biz_name']:
             tr_rec.biz_name = data['biz_name']
-        else:
-            tr_rec.biz_name = self.offer.org.name
 
         with transaction.atomic():
             tr_rec.save()
@@ -1194,6 +1192,8 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
         # sending email to bizdev
+        email_biz_name = data['biz_name'] if data['biz_name'] else self.offer.org.name
+
         try:
             email_vars_transactional = [
 
@@ -1211,7 +1211,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
                 },
                 {
                     'name': 'BIZ_NAME',
-                    'content': tr_rec.biz_name
+                    'content': email_biz_name
                 },
                 {
                     'name': 'ITEM_NAME',
