@@ -61,7 +61,7 @@
       </p>
 
       <a class="
-        {% if balance_available_usd|str_to_num == 0 %}
+        {% if balance_available_usd|str_to_num > 0 %}
           cash-out-popup_open
         {% else %}
           no-cash-popup_open
