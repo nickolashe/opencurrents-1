@@ -137,19 +137,8 @@ STATICFILES_DIRS = (
 
 LOGIN_URL = 'openCurrents:login'
 
-# Check to see if MySQLdb is available; if not, have pymysql masquerade as
-# MySQLdb. This is a convenience feature for developers who cannot install
-# MySQLdb locally; when running in production on Google App Engine Standard
-# Environment, MySQLdb will be used.
-# try:
-#     import MySQLdb  # noqa: F401
-# except ImportError:
-#     import pymysql
-#     pymysql.install_as_MySQLdb()
-
 # [START dbconfig]
-# (flexible)
-if os.getenv('OC_HEROKU'):
+if os.getenv('OC_HEROKU_DEV'):
     # Update database configuration with $DATABASE_URL.
     db_from_env = dj_database_url.config(conn_max_age=500)
     DATABASES = {

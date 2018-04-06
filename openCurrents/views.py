@@ -98,6 +98,8 @@ logging_client = glogging.Client()
 
 if os.getenv('GAE_INSTANCE'):
     logger_name = 'oc-gae-views'
+elif os.getenv('OC_HEROKU_DEV'):
+    logger_name = 'oc-heroku-dev'
 else:
     logger_name = '-'.join(['oc-local', socket.gethostname()])
 
