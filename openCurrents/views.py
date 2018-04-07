@@ -2934,6 +2934,10 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         return redirect('openCurrents:org-admin', num_vols)
 
 
+class InviteVolunteersPastView(InviteVolunteersView):
+    template_name = 'invite-volunteers-past.html'
+
+
 class EventCreatedView(TemplateView):
     template_name = 'event-created.html'
 

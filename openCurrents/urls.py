@@ -114,6 +114,7 @@ urlpatterns = [
     url(r'^create-event/(?P<org_id>\d+)/$', views.CreateEventView.as_view(), name='create-event'),
     url(r'^project-details/$', views.ProjectDetailsView.as_view(), name='project-details'),
     url(r'^invite-volunteers/$', views.InviteVolunteersView.as_view(), name='invite-volunteers'),
+    url(r'^invite-volunteers-past/$', views.InviteVolunteersPastView.as_view(), name='invite-volunteers-past'),
     url(r'^invite-volunteers/(?P<event_ids>.+)/$', views.InviteVolunteersView.as_view(), name='invite-volunteers'),
     url(r'^volunteers-invited/(?P<vol_no>\d+)/$', views.VolunteersInvitedView.as_view(), name='volunteers-invited'),
     url(r'^event-created/(?P<project>\w+)/(?P<num_events>\d+)/$', views.EventCreatedView.as_view(), name='event-created'),
