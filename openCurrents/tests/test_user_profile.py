@@ -714,7 +714,7 @@ class TestUserProfileCommunityActivity(TestCase):
         self.assertEqual(response.context['active_volunteers_total'], 1)
 
         self.assertIn('Currents redeemed: 4', response.content)
-        self.assertEqual(float(response.context['biz_currents_total']), 4.436)
+        self.assertEqual(float(response.context['biz_currents_total']), 4.0)
 
     def test_community_activity_click_curr_issued(self):
 
@@ -736,4 +736,4 @@ class TestUserProfileCommunityActivity(TestCase):
         response = self.client.get('/public-record/?record_type=top-biz&period=month')
         self.assertIn('entries', response.context)
         self.assertEqual(response.context['entries'][0]['name'], self.biz_org.name)
-        self.assertEqual(round(response.context['entries'][0]['total'], 3), 0.436)
+        self.assertEqual(round(response.context['entries'][0]['total'], 3), 0.0)
