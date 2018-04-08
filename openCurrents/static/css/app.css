@@ -171,9 +171,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .button.clear:hover, .button.clear:focus {
-  background-color: #e7b708;
+  background-color: #147db6;
   color: #ffffff;
-  border: 1px solid #e7b708;
+  border: 1px solid #147db6;
 }
 
 .button.disabled, .button[disabled],

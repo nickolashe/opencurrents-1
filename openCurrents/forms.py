@@ -513,7 +513,7 @@ class TimeTrackerForm(forms.Form):
         widget=forms.TextInput(attrs={
             'id': 'end-time',
             'name':'',
-            'value': '12:00:00'
+            'value': '13:00:00'
         })
     )
     new_org = forms.CharField(
@@ -639,7 +639,7 @@ class BizDetailsForm(forms.Form):
     address = forms.CharField(
         widget=forms.TextInput(attrs={
             'placeholder': 'Address',
-            'class': 'center',
+            'class': 'center location',
         }),
         required=False
     )
@@ -713,12 +713,20 @@ class OfferCreateForm(forms.Form):
     )
 
     offer_limit_value = forms.IntegerField(
-        widget=forms.NumberInput(attrs={
-           'placeholder': 100
-        }),
+        widget=forms.NumberInput(attrs={'placeholder': 100}),
         initial=100,
         required=False
     )
+
+    def clean_offer_current_share(self):
+        offer_current_share = self.cleaned_data['offer_current_share']
+
+        if offer_current_share < 5:
+            raise ValidationError(_(
+                'We require a minimum share of 5%'
+            ))
+
+        return int(offer_current_share)
 
     def clean_offer_item(self):
         offer_item = self.cleaned_data['offer_item']
@@ -738,7 +746,14 @@ class OfferCreateForm(forms.Form):
         return offer_item
 
     def clean_offer_limit_choice(self):
-        return int(self.cleaned_data['offer_limit_choice'])
+        offer_limit_choice = self.cleaned_data['offer_limit_choice']
+
+        if offer_limit_choice <= 0:
+            raise ValidationError(_(
+                'Monthly transaction limit must be greater than 0'
+            ))
+
+        return int(offer_limit_choice)
 
     def clean(self):
         cleaned_data = super(OfferCreateForm, self).clean()
@@ -817,7 +832,7 @@ class RedeemCurrentsForm(forms.Form):
         })
     )
 
-    redeem_price = forms.IntegerField(
+    redeem_price = forms.DecimalField(
         widget=forms.NumberInput(),
         required=False
     )
@@ -877,7 +892,7 @@ class PublicRecordsForm(forms.Form):
     )
 
     record_type = forms.ChoiceField(choices=record_types)
-    period = forms.ChoiceField(choices=periods)
+    period = forms.ChoiceField(choices=periods, required=False)
 
 class PopUpAnswer(forms.Form):
     answer = forms.CharField(max_length=3,required=False)
