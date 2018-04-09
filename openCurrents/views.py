@@ -503,7 +503,7 @@ class BizDetailsView(BizSessionContextView, FormView):
                 )
 
 
-class BusinessView(TemplateView):
+class BusinessView(HomeView):
     template_name = 'business.html'
 
 
@@ -847,7 +847,7 @@ class CausesView(TemplateView):
     template_name = 'causes.html'
 
 
-class FaqView(TemplateView):
+class FaqView(HomeView):
     template_name = 'faq.html'
 
 
@@ -1066,7 +1066,7 @@ class NominationEmailView(TemplateView):
     template_name = 'nomination-email.html'
 
 
-class NonprofitView(TemplateView):
+class NonprofitView(HomeView):
     template_name = 'nonprofit.html'
 
 
@@ -1078,7 +1078,7 @@ class OrgSignupView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'org-signup.html'
 
 
-class OurStoryView(TemplateView):
+class OurStoryView(HomeView):
     template_name = 'our-story.html'
 
 
