@@ -4075,24 +4075,36 @@ def process_signup(
 
                 if not mock_emails:
                     # send verification email
+                    verify_email_vars = [
+                        {
+                            'name': 'FIRSTNAME',
+                            'content': user_firstname
+                        },
+                        {
+                            'name': 'EMAIL',
+                            'content': user_email
+                        },
+                        {
+                            'name': 'TOKEN',
+                            'content': str(token)
+                        }
+                    ]
+
+                    # define NPF email variable
+                    npf_var = {
+                        'name': 'NPF',
+                        'content': False
+                    }
+                    if org_name:
+                        npf_var['content'] = True
+
+                    verify_email_vars.append(npf_var)
+
                     try:
                         sendTransactionalEmail(
                             'verify-email',
                             None,
-                            [
-                                {
-                                    'name': 'FIRSTNAME',
-                                    'content': user_firstname
-                                },
-                                {
-                                    'name': 'EMAIL',
-                                    'content': user_email
-                                },
-                                {
-                                    'name': 'TOKEN',
-                                    'content': str(token)
-                                }
-                            ],
+                            verify_email_vars,
                             user_email
                         )
                     except Exception as e:
