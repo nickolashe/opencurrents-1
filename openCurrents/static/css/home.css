@@ -197,6 +197,10 @@ input.home-input::placeholder {
   height: 2rem;
 }
 
+#home-email {
+  height: 2.875rem;
+}
+
 .benefit-icon #home-symbol {
   stroke: #1f4795;
 }
