@@ -178,6 +178,10 @@ class TestExistingUserEventRegistration(SetupTests, TestCase):
         processed_content = re.sub(r'\s+', ' ', response.content)
         self.assertIn('/login/?next=/event-detail/1/', processed_content)
 
+        # change volunteer's username to be able to login
+        self.volunteer_1.username = self.volunteer_1.email
+        self.volunteer_1.save()
+
         # logging in user and asserting what is displayed
         response = self.client.post(
             self.url_login,
@@ -189,14 +193,14 @@ class TestExistingUserEventRegistration(SetupTests, TestCase):
         )
         self.assertRedirects(response, '/event-detail/1/')
 
-        # response = self.client.get('/event-detail/1/')
-        # processed_content = re.sub(r'\s+', ' ', response.content)
-        # self.assertEqual(response.status_code, 200)
-        # self.assertIn(
-        #     '<button type="submit" class="button round"> Register </button>',
-        #     processed_content
-        # )
-        # self.assertNotIn(
-        #     'three-halves-margin-top row left hidden',
-        #     processed_content
-        # )
+        response = self.client.get('/event-detail/1/')
+        processed_content = re.sub(r'\s+', ' ', response.content)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(
+            '<button type=\'submit\' class="button round"> Register </button>',
+            processed_content
+        )
+        self.assertNotIn(
+            'three-halves-margin-top row left hidden',
+            processed_content
+        )
