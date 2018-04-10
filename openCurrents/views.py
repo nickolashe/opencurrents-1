@@ -116,9 +116,8 @@ class DatetimeEncoder(json.JSONEncoder):
 
 class SessionContextView(View):
 
-    def _get_session_mixin_data(self, user):
+    def _get_session_mixin_data(self, userid):
         """Return ocuser, org, ocauth."""
-        userid = user.id
         ocuser = OcUser(userid)
         orguserinfo = OrgUserInfo(userid)
         org = orguserinfo.get_org()
@@ -129,6 +128,7 @@ class SessionContextView(View):
     def dispatch(self, request, *args, **kwargs):
         if self.request.user.is_authenticated():
             self.user = request.user
+            self.userid = self.user.id
 
         if 'new_biz_registration' not in self.request.session.keys() \
                 and not self.request.user.is_authenticated():
@@ -142,7 +142,7 @@ class SessionContextView(View):
             except:
                 logger.debug('Couldnt find the user by id')
 
-        mixin_data = self._get_session_mixin_data(self.user)
+        mixin_data = self._get_session_mixin_data(self.userid)
 
         # oc user
         self.ocuser = mixin_data[0]
