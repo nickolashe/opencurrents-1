@@ -115,44 +115,43 @@ class DatetimeEncoder(json.JSONEncoder):
 
 
 class SessionContextView(View):
+
+    def _get_session_mixin_data(self, user):
+        """Return ocuser, org, ocauth."""
+        userid = user.id
+        ocuser = OcUser(userid)
+        orguserinfo = OrgUserInfo(userid)
+        org = orguserinfo.get_org()
+        ocauth = OcAuth(userid)
+
+        return ocuser, org, ocauth
+
     def dispatch(self, request, *args, **kwargs):
         if self.request.user.is_authenticated():
-            self.userid = request.user.id
             self.user = request.user
-
-            # oc user
-            self.ocuser = OcUser(self.userid)
-
-            # user org
-            orguserinfo = OrgUserInfo(request.user.id)
-            self.org = orguserinfo.get_org()
-
-            # org auth
-            self.ocauth = OcAuth(self.userid)
 
         if 'new_biz_registration' not in self.request.session.keys() \
                 and not self.request.user.is_authenticated():
             return redirect('openCurrents:403')
 
         elif 'new_biz_registration' in self.request.session.keys():
-
             logger.debug('registering new biz org...')
-
             self.userid = self.request.session['new_biz_user_id']
             try:
                 self.user = User.objects.get(id=self.userid)
             except:
                 logger.debug('Couldnt find the user by id')
 
-            # oc user
-            self.ocuser = OcUser(self.userid)
+        mixin_data = self._get_session_mixin_data(self.user)
 
-            # user org
-            orguserinfo = OrgUserInfo(self.userid)
-            self.org = orguserinfo.get_org()
+        # oc user
+        self.ocuser = mixin_data[0]
 
-            # org auth
-            self.ocauth = OcAuth(self.userid)
+        # user org
+        self.org = mixin_data[1]
+
+        # org auth
+        self.ocauth = mixin_data[2]
 
         return super(SessionContextView, self).dispatch(
             request,
