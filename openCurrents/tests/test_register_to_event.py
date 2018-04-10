@@ -135,6 +135,7 @@ class TestNewUserEventRegistration(SetupTests, TestCase):
         """
         response = self.client.get('/event-detail/1/')
         processed_content = re.sub(r'\s+', ' ', response.content)
+        # assert textarea is hidden
         self.assertIn(
             'three-halves-margin-top row left hidden',
             processed_content
@@ -196,6 +197,8 @@ class TestExistingUserEventRegistration(SetupTests, TestCase):
         response = self.client.get('/event-detail/1/')
         processed_content = re.sub(r'\s+', ' ', response.content)
         self.assertEqual(response.status_code, 200)
+
+        # assert Register button and textarea are visible
         self.assertIn(
             '<button type=\'submit\' class="button round"> Register </button>',
             processed_content
