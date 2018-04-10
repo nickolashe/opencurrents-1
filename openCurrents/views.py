@@ -4090,16 +4090,6 @@ def process_signup(
                         }
                     ]
 
-                    # define NPF email variable
-                    npf_var = {
-                        'name': 'NPF',
-                        'content': False
-                    }
-                    if org_name:
-                        npf_var['content'] = True
-
-                    verify_email_vars.append(npf_var)
-
                     try:
                         sendTransactionalEmail(
                             'verify-email',
@@ -4540,20 +4530,34 @@ def process_email_confirmation(request, user_email):
         glogger.log_struct(glogger_struct, labels=glogger_labels)
 
         # send verification email
+        confirm_email_vars = [
+            {
+                'name': 'FIRSTNAME',
+                'content': user.first_name
+            },
+            {
+                'name': 'REFERRER',
+                'content': user.username
+            }
+        ]
+
+        # define NPF email variable
+        oc_auth = OcAuth(user.id)
+        is_npf_admin = oc_auth.is_admin_org()
+        npf_var = {
+            'name': 'NPF',
+            'content': False
+        }
+        if is_npf_admin:
+            npf_var['content'] = True
+
+        confirm_email_vars.append(npf_var)
+
         try:
             sendTransactionalEmail(
                 'email-confirmed',
                 None,
-                [
-                    {
-                        'name': 'FIRSTNAME',
-                        'content': user.first_name
-                    },
-                    {
-                        'name': 'REFERRER',
-                        'content': user.username
-                    }
-                ],
+                confirm_email_vars,
                 user.email
             )
         except Exception as e:
@@ -4565,7 +4569,6 @@ def process_email_confirmation(request, user_email):
 
         login(request, user)
 
-        oc_auth = OcAuth(user.id)
         redirection = common.where_to_redirect(oc_auth)
         return redirect(redirection)
 
