@@ -1914,7 +1914,7 @@ class VolunteersInvitedView(LoginRequiredMixin, SessionContextView, TemplateView
 
 class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
     template_name = 'profile.html'
-    login_url = '/home'
+    # login_url = '/home'
     redirect_unauthenticated_users = True
     form_class = BizDetailsForm
 
@@ -4542,17 +4542,17 @@ def process_email_confirmation(request, user_email):
         ]
 
         # define NPF email variable
-        oc_auth = OcAuth(user.id)
-        is_npf_admin = oc_auth.is_admin_org()
         npf_var = {
             'name': 'NPF',
             'content': False
         }
-        if is_npf_admin:
+
+        org_user = OrgUserInfo(user.id)
+        is_org_user = org_user.get_orguser()
+        if len(is_org_user) > 0:
             npf_var['content'] = True
 
         confirm_email_vars.append(npf_var)
-
         try:
             sendTransactionalEmail(
                 'email-confirmed',
@@ -4566,9 +4566,9 @@ def process_email_confirmation(request, user_email):
                 e.message,
                 type(e)
             )
-
         login(request, user)
 
+        oc_auth = OcAuth(user.id)
         redirection = common.where_to_redirect(oc_auth)
         return redirect(redirection)
 
