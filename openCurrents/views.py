@@ -863,7 +863,7 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
 
     def post(self, request):
         post_data = self.request.POST
-        # tz = OrgUserInfo(self.userid).get_org().timezone
+        tz = OrgUserInfo(self.userid).get_org().timezone
 
         if post_data['start-date'] != u'' and post_data['end-date'] != u'':
             user_timelog_record = UserTimeLog.objects.filter(
@@ -894,9 +894,10 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
             columns = [
                 '#',
                 'Event',
+                'Location',
                 'Volunteer',
                 'Date and Time Start',
-                'Duration, hours',
+                'Duration, hours'
             ]
             for column in range(len(columns)):
                 ws.write(row_num, column, columns[column], font_style)
@@ -906,18 +907,27 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
             for record in user_timelog_record:
                 row_num += 1
                 duration = common.diffInHours(
-                    record.datetime_start, record.datetime_end
+                    record.datetime_start.astimezone(pytz.timezone(tz)),
+                    record.datetime_end.astimezone(pytz.timezone(tz))
                 )
                 volunteer = "{} {} <{}>".format(
                     record.user.first_name.encode('utf-8').strip(),
                     record.user.last_name.encode('utf-8').strip(),
                     record.user.email.encode('utf-8').strip()
                 )
+                if record.event.event_type == 'MN':
+                    event = 'Manual'
+                    location = ''
+                else:
+                    event = record.event.project.name
+                    location = record.event.location
+
                 row_data = [
                     row_num,
-                    record.event.__unicode__(),
+                    event,
+                    location,
                     volunteer,
-                    record.datetime_start.strftime('%Y-%m-%d %H:%M'),
+                    record.datetime_start.astimezone(pytz.timezone(tz)).strftime('%Y-%m-%d %H:%M'),
                     duration
                 ]
                 for col in range(len(row_data)):

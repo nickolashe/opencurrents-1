@@ -260,10 +260,8 @@ class Event(models.Model):
 
     def __unicode__(self):
         tz = self.project.org.timezone
-        prefix = 'Manual' if self.event_type == 'MN' else ''
-
         return ' '.join([
-            prefix,
+            'Event',
             self.project.name,
             'by',
             self.project.org.name,
@@ -275,7 +273,7 @@ class Event(models.Model):
             self.datetime_start.astimezone(pytz.timezone(tz)).strftime('%-I:%M %p'),
             'to',
             self.datetime_end.astimezone(pytz.timezone(tz)).strftime('%-I:%M %p')
-        ]).strip()
+        ])
 
 
 class ProjectTemplate(models.Model):
