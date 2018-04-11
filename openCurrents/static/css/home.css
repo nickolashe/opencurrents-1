@@ -303,6 +303,19 @@ input.home-input::placeholder {
   border-color: #ffffff;
 }
 
+.biz-logos {
+  border: 1px solid #cccccc;
+  border-radius: 5px;
+  -webkit-filter: grayscale(100%); /* Safari 6.0 - 9.0 */
+  filter: grayscale(100%);
+  transition: filter 0.25s, border-color 0.25s ease-in-out;
+}
+
+.biz-logos:hover {
+  -webkit-filter: grayscale(0%); /* Safari 6.0 - 9.0 */
+  filter: grayscale(0%);
+  border-color: #24b2e7;
+}
 
 .business-table {
   padding: 0 0.75rem;
