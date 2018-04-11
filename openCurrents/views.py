@@ -15,7 +15,6 @@ from django.utils import timezone
 from django.db.models import F, Q, Max
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.template.context_processors import csrf
-import csv
 from django.utils.html import strip_tags
 from datetime import datetime, time, date, timedelta
 from collections import OrderedDict
@@ -87,6 +86,8 @@ import socket
 import re
 import uuid
 import decimal
+import csv
+import xlwt
 
 
 logging.basicConfig(level=logging.DEBUG, filename='log/views.log')
@@ -879,22 +880,31 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
                 post_data['start-date'],
                 post_data['end-date']
             )
-            response = HttpResponse(content_type='text/csv')
-            response['Content-Disposition'] = 'attachment; filename={}'.format(
-                file_name
-            )
-            writer = csv.writer(response)
 
-            # writing to CSV file
-            writer.writerow([
-                'n',
+            # writing to XLS file
+            response = HttpResponse(content_type='application/ms-excel')
+            response['Content-Disposition'] = 'attachment; filename="users.xls"'
+            wb = xlwt.Workbook(encoding='utf-8')
+            ws = wb.add_sheet('Time logs', cell_overwrite_ok=True)
+
+            # Sheet header, first row
+            row_num = 0
+            font_style = xlwt.XFStyle()
+            font_style.font.bold = True
+            columns = [
+                '#',
                 'Event',
                 'Volunteer',
                 'Date and Time Start',
                 'Duration, hours',
-            ])
-            i = 0
+            ]
+            for column in range(len(columns)):
+                ws.write(row_num, column, columns[column], font_style)
+
+            # Sheet body, remaining rows
+            font_style = xlwt.XFStyle()
             for record in user_timelog_record:
+                row_num += 1
                 duration = common.diffInHours(
                     record.datetime_start, record.datetime_end
                 )
@@ -903,16 +913,52 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
                     record.user.last_name.encode('utf-8').strip(),
                     record.user.email.encode('utf-8').strip()
                 )
-                writer.writerow([
-                    i,
-                    record.event,
+                row_data = [
+                    row_num,
+                    record.event.__unicode__(),
                     volunteer,
                     record.datetime_start.strftime('%Y-%m-%d %H:%M'),
                     duration
-                ])
-                i += 1
+                ]
+                for col in range(len(row_data)):
+                    ws.write(row_num, col, row_data[col], font_style)
 
-            return response  # redirect('openCurrents:export-data',)
+            wb.save(response)
+            return response
+
+            # # writing to CSV file
+            # response = HttpResponse(content_type='text/csv')
+            # response['Content-Disposition'] = 'attachment; filename={}'.format(
+            #     file_name
+            # )
+            # writer = csv.writer(response)
+            # writer.writerow([
+            #     '#',
+            #     'Event',
+            #     'Volunteer',
+            #     'Date and Time Start',
+            #     'Duration, hours',
+            # ])
+            # i = 0
+            # for record in user_timelog_record:
+            #     duration = common.diffInHours(
+            #         record.datetime_start, record.datetime_end
+            #     )
+            #     volunteer = "{} {} <{}>".format(
+            #         record.user.first_name.encode('utf-8').strip(),
+            #         record.user.last_name.encode('utf-8').strip(),
+            #         record.user.email.encode('utf-8').strip()
+            #     )
+            #     writer.writerow([
+            #         i,
+            #         record.event,
+            #         volunteer,
+            #         record.datetime_start.strftime('%Y-%m-%d %H:%M'),
+            #         duration
+            #     ])
+            #     i += 1
+
+            # return response  # redirect('openCurrents:export-data',)
 
         else:
             return redirect(
