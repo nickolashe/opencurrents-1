@@ -895,7 +895,9 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
                 '#',
                 'Event',
                 'Location',
-                'Volunteer',
+                'Volunteer Name',
+                'Volunteer Last name',
+                'Volunteer Email',
                 'Date and Time Start',
                 'Duration, hours'
             ]
@@ -910,11 +912,6 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
                     record.datetime_start.astimezone(pytz.timezone(tz)),
                     record.datetime_end.astimezone(pytz.timezone(tz))
                 )
-                volunteer = "{} {} <{}>".format(
-                    record.user.first_name.encode('utf-8').strip(),
-                    record.user.last_name.encode('utf-8').strip(),
-                    record.user.email.encode('utf-8').strip()
-                )
                 if record.event.event_type == 'MN':
                     event = 'Manual'
                     location = ''
@@ -926,7 +923,9 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
                     row_num,
                     event,
                     location,
-                    volunteer,
+                    record.user.first_name.encode('utf-8').strip(),
+                    record.user.last_name.encode('utf-8').strip(),
+                    record.user.email.encode('utf-8').strip(),
                     record.datetime_start.astimezone(pytz.timezone(tz)).strftime('%Y-%m-%d %H:%M'),
                     duration
                 ]
