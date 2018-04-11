@@ -2,11 +2,12 @@ from datetime import datetime
 
 from django.db.models import Max
 
-from openCurrents.models import \
-	Project, \
-    Event, \
-    AdminActionUserTime, \
+from openCurrents.models import (
+	Project,
+    Event,
+    AdminActionUserTime,
     UserTimeLog
+)
 
 from openCurrents.interfaces import common
 from openCurrents.interfaces import convert

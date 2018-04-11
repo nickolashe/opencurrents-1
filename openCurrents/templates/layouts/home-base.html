@@ -38,8 +38,13 @@
             <a href="{% url 'openCurrents:business' %}" class="three-halves-margin-right">For businesses</a>
             <a href="{% url 'openCurrents:our-story' %}" class="three-halves-margin-right">Our story</a>
             <a href="{% url 'openCurrents:faq' %}" class="three-halves-margin-right">FAQ</a>
-            <a class="two-margin-right" href="{% url 'openCurrents:login' %}">Log in</a>
           {% endblock large-links %}
+
+          <a class="two-margin-right"
+            {% include "partials/login-logic.html" %}
+            >
+            Log in
+          </a>
         </div>
 
         <div class="hide-for-large small-2 relative columns right end">

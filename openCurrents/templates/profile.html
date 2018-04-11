@@ -114,13 +114,13 @@
   <div class="row collapse one-margin-top left">
     <div class="small-11 medium-10 small-centered columns">
       <h6 class="half-margin-bottom">Community activity</h6>
-      <a href="{% url 'openCurrents:public-record' %}?record_type=top-org&period=month" class="button tiny round secondary">
+      <a href="{% url 'openCurrents:public-record' %}?record_type=top-org" class="button tiny round secondary">
         Currents issued: {% if currents_amount_total %}{{ currents_amount_total|round_number:3 }}{% else %}0{% endif %}
       </a>
-      <a href="{% url 'openCurrents:public-record' %}?record_type=top-vol&period=month" class="button tiny round secondary">
+      <a href="{% url 'openCurrents:public-record' %}?record_type=top-vol" class="button tiny round secondary">
         Active volunteers: {% if active_volunteers_total %}{{ active_volunteers_total }}{% else %}0{% endif %}
       </a>
-      <a href="{% url 'openCurrents:public-record' %}?record_type=top-biz&period=month" class="button tiny round secondary">
+      <a href="{% url 'openCurrents:public-record' %}?record_type=top-biz" class="button tiny round secondary">
         Currents redeemed: {{ biz_currents_total|round_number:3 }}
       </a>
     </div>
@@ -232,10 +232,6 @@
 {% endblock content %}
 
 {% block popups %}
-  <div id="biz-details-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-    {% include "popups/biz-details-popup.html" %}
-  </div>
-
   <div id="welcome-popup" class="modal center small-12 medium-10 large-8 small-centered columns">
     {% include "popups/welcome-popup.html" %}
   </div>
@@ -326,15 +322,6 @@
 
     {% endif %}
 
-    {% if is_admin_biz and org.no_info %}
-      $('#biz-details-popup').popup({
-        vertical: 'top',
-        transition: 'all 0.75s',
-        scrolllock: true,
-        autoopen: true,
-      });
-    {% endif %}
-
       $('.mini-open').click(function(){
         $('.mini-menu').hide();
         $(this).siblings('.mini-menu').toggle();
@@ -350,15 +337,4 @@
     });
   </script>
 
-  <script type="text/javascript">
-
-    if ({{ app_hr }}){
-      $('#approve-hours-popup').popup({
-        vertical: 'top',
-        transition: 'all 0.75s',
-        scrolllock: true,
-        autoopen: true,
-      });
-    }
-  </script>
 {% endblock js %}

@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
+import dj_database_url
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -38,17 +39,21 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'openCurrents.apps.OpencurrentsConfig',
-    'macros'
+    'macros',
+    'django_extensions'
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    'openCurrents.middleware.AutoLogout',
 ]
 
 ROOT_URLCONF = 'oc.urls'
@@ -70,17 +75,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'oc.wsgi.application'
-
-
-# Database
-# https://docs.djangoproject.com/en/1.10/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
 
 
 # Password validation
@@ -115,13 +109,24 @@ USE_L10N = True
 
 USE_TZ = True
 
+# sessions and auto-logout
+SESSION_COOKIE_AGE = 3600  # in seconds
+AUTO_LOGOUT_DELAY = 60  # in minutes
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
-STATIC_URL = '/static/'
+# STATIC_URL = '/static/'
+STATIC_URL = 'https://storage.googleapis.com/opencurrents-194003.appspot.com/static/'
+
+# django-storages
+DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+GS_BUCKET_NAME = 'opencurrents-194003.appspot.com'
+GS_PROJECT_ID = 'opencurrents-194003'
 
 MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'mediafiles')
-MEDIA_URL = '/media/'
+MEDIA_URL = 'https://storage.googleapis.com/opencurrents-194003.appspot.com/media/'
 
 APPEND_SLASH = True
 
@@ -132,7 +137,51 @@ STATICFILES_DIRS = (
 
 LOGIN_URL = 'openCurrents:login'
 
-# Update database configuration with $DATABASE_URL.
-import dj_database_url
-db_from_env = dj_database_url.config(conn_max_age=500)
-DATABASES['default'].update(db_from_env)
+# [START dbconfig]
+if os.getenv('OC_HEROKU_DEV'):
+    # Update database configuration with $DATABASE_URL.
+    db_from_env = dj_database_url.config(conn_max_age=500)
+    DATABASES = {
+        'default': db_from_env
+    }
+elif os.getenv('GAE_INSTANCE') or os.getenv('GOOGLE_CLOUD_PROXY'):
+    DATABASES = {
+        'default': {
+            # If you are using Cloud SQL for MySQL rather than PostgreSQL, set
+            # 'ENGINE': 'django.db.backends.mysql' instead of the following.
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'opencurrents',
+            'USER': 'oc_admin',
+            'PASSWORD': '0pencu44',
+            # For MySQL, set 'PORT': '3306' instead of the following. Any Cloud
+            # SQL Proxy instances running locally must also be set to tcp:3306.
+            'PORT': '5432',
+        }
+    }
+
+    # In the flexible environment, you connect to CloudSQL using a unix socket.
+    # Locally, you can use the CloudSQL proxy to proxy a localhost connection
+    # to the instance
+    DATABASES['default']['HOST'] = '/cloudsql/opencurrents-194003:us-central1:oc-pg'
+    if os.getenv('GAE_INSTANCE'):
+        # when running on Google App Engine
+        pass
+    elif os.getenv('GOOGLE_CLOUD_PROXY'):
+        # when using CloudSQL proxy to forward connections to remote db
+        DATABASES['default']['HOST'] = '127.0.0.1'
+
+# local db (sqlite)
+else:
+    # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
+    }
+# [END dbconfig]
+
+# do not send emails from local servers
+SENDEMAILS = os.getenv('OC_SEND_EMAILS')
+if os.getenv('GAE_INSTANCE'):
+    SENDEMAILS = True

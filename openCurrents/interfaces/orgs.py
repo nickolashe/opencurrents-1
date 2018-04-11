@@ -1,5 +1,6 @@
 from collections import OrderedDict
 from django.contrib.auth.models import Group
+from django.db.models import Q
 
 from openCurrents.models import Org, OrgUser, OrgEntity
 from openCurrents.interfaces.bizadmin import BizAdmin
@@ -154,9 +155,9 @@ class OcOrg(object):
 
         return result
 
-    def get_top_bizs(self, period, quantity=10, accepted_only=False):
+    def get_top_bizs(self, period, quantity=10, accepted_only=True):
         result = list()
-        bizs = Org.objects.filter(status='biz')
+        bizs = Org.objects.filter(Q(status='biz') | Q(name='openCurrents'))
 
         for biz in bizs:
             total_cur_amount = 0
@@ -191,12 +192,6 @@ class OcOrg(object):
             result = result[:quantity]
 
         return result
-
-    def get_admins(self):
-        if self.org_admin_group:
-            return self.org_admin_group.user_set.all()
-        else:
-            return None
 
     def get_admins(self):
         if self.org_admin_group:

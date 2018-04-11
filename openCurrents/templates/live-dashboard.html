@@ -53,7 +53,7 @@
 
         <div class="no-margin-top qtr-margin-bottom checkbox center">
           <label>
-            <input type="checkbox" name="invite-optin" id="invite-optin"/>
+            <input type="checkbox" name="invite-optin" id="invite-optin" checked/>
             Invite volunteer to openCurrents
           </label>
         </div>
@@ -79,8 +79,8 @@
           User was checked in to the event, but not everything went smoothly.
           Please contact us at team@opencurrents.com
         </p>
-        <p id="live-dashboard-not-in-progress" class="small-text hidden alert">
-          Event not in progress, volunteer was not checked in
+        <p id="live-dashboard-not-in-progress" class="small-text hidden success">
+          Volunteer added to the event, please check in to record hours
         </p>
         <p id='live-dashboard-checkin-disabled' class='small-text hidden alert'>
           You may only add volunteers via live dashboard during or after the event.
@@ -307,7 +307,7 @@
                 $('#new-firstname').val('');
                 $('#new-lastname').val('');
                 $('#new-email').val('');
-                $('#invite-optin').attr("checked", false);
+                $('#invite-optin').attr("checked", true);
 
                 // bind new checkbox to checkin
                 $(`input[name='vol-checkin-${userid}']`).click(onCheckClick);
@@ -321,7 +321,7 @@
                 $('#new-firstname').val('');
                 $('#new-lastname').val('');
                 $('#new-email').val('');
-                $('#invite-optin').attr("checked", false);
+                $('#invite-optin').attr("checked", true);
                 $('#vol-exist').slideDown();
               }
             }).fail( function (data) {

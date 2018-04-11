@@ -215,24 +215,9 @@
     });
   </script>
 
+  {% include "scripts/location-dropdown.html" %}
+
   <script type="text/javascript">
-    function initAutoComplete() {
-
-      var inputs = document.getElementsByClassName("location");
-
-      for (var i = 0; i < inputs.length; i++) {
-        var autocomplete = new google.maps.places.Autocomplete(inputs[i]);
-        // autocomplete.inputId = inputs[i].id;
-
-        google.maps.event.addListener(autocomplete);
-
-        google.maps.event.addDomListener(inputs[i], 'keydown', function(e) {
-            if (e.keyCode == 13 && $('.pac-container:visible').length) {
-                e.preventDefault();
-            }
-        });
-      }
-    }
 
     var id = 1;
 

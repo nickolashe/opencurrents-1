@@ -2,6 +2,7 @@
 {% load staticfiles %}
 
 {% block status %}
+  {{block.super}}
   <div class="row one-margin-top">
     <div class="medium-8 columns small-centered">
       {% if status == "success" %}

@@ -7,6 +7,9 @@ from uuid import uuid4
 from datetime import datetime, timedelta
 
 from openCurrents.interfaces.common import one_week_from_now, diffInHours
+from openCurrents.interfaces import convert
+
+import os
 import pytz
 
 # Notes:
@@ -487,13 +490,37 @@ class Offer(models.Model):
         ])
 
 
+def path_and_rename(instance, filename):
+        upload_to = 'receipts/{}/'.format(datetime.now().strftime('%Y/%m'))
+        ext = filename.split('.')[-1]
+
+        # get filename
+        if instance:
+            filename = 'org_{}.offer_{}.user_{}.price_reported_{}.date_{}.time_{}.{}'.format(
+                instance.offer.org.name,
+                instance.offer.id,
+                instance.user.id,
+                instance.price_reported,
+                datetime.now().strftime('%d'),
+                datetime.now().strftime('%H-%M-%S.%f'),
+                ext
+            )
+        else:
+            # set filename as random string
+            filename = '{}.{}'.format(uuid4().hex, ext)
+
+        # return the whole path to the file
+        return os.path.join(upload_to, filename)
+
+
 class Transaction(models.Model):
     user = models.ForeignKey(User)
 
     offer = models.ForeignKey(Offer)
 
     pop_image = models.ImageField(
-        upload_to='images/redeem/%Y/%m/%d',
+        upload_to=path_and_rename,
+        max_length=512,
         null=True
     )
 
@@ -584,6 +611,31 @@ class TransactionAction(models.Model):
         unique_together = ('transaction', 'action_type')
         get_latest_by = 'date_updated'
 
+    # trigger ledger record on approve action
+    def save(self, *args, **kwargs):
+        super(TransactionAction, self).save(*args, **kwargs)
+
+        if self.action_type == 'app':
+            tr = self.transaction
+
+            # transact cur from user to org
+            Ledger.objects.create(
+                entity_from=tr.user.userentity,
+                entity_to=tr.offer.org.orgentity,
+                currency='cur',
+                amount=tr.currents_amount,
+                transaction=self
+            )
+
+            # transact usd from oC to user
+            Ledger.objects.create(
+                entity_from=OrgEntity.objects.get(org__name='openCurrents'),
+                entity_to=tr.user.userentity,
+                currency='usd',
+                amount=convert.cur_to_usd(tr.currents_amount, True),
+                transaction=self
+            )
+
     def __unicode__(self):
         return ' '.join([
             'Action',
@@ -592,4 +644,27 @@ class TransactionAction(models.Model):
             self.date_updated.strftime('%m/%d/%Y %H:%M:%S'),
             'for',
             str(self.transaction)
+        ])
+
+
+class UserCashOut(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
+
+    balance = models.DecimalField(max_digits=12, decimal_places=2)
+
+    # created / updated timestamps
+    date_created = models.DateTimeField('date created', auto_now_add=True)
+    date_updated = models.DateTimeField('date updated', auto_now=True)
+
+    def __unicode__(self):
+        return ' '.join([
+            'User',
+            '%s' % self.user.username,
+            'requested cashout in the amount of',
+            '%.3f' % self.balance,
+            'on',
+            self.date_created.strftime('%m/%d/%Y %H:%M:%S'),
         ])
