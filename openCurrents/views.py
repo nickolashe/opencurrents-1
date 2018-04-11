@@ -116,12 +116,12 @@ class DatetimeEncoder(json.JSONEncoder):
 
 class SessionContextView(View):
 
-    def _get_session_mixin_data(self, userid):
+    def _get_session_mixin_data(self):
         """Return ocuser, org, ocauth."""
-        ocuser = OcUser(userid)
-        orguserinfo = OrgUserInfo(userid)
+        ocuser = OcUser(self.userid)
+        orguserinfo = OrgUserInfo(self.userid)
         org = orguserinfo.get_org()
-        ocauth = OcAuth(userid)
+        ocauth = OcAuth(self.userid)
 
         return ocuser, org, ocauth
 
@@ -142,7 +142,7 @@ class SessionContextView(View):
             except:
                 logger.debug('Couldnt find the user by id')
 
-        mixin_data = self._get_session_mixin_data(self.userid)
+        mixin_data = self._get_session_mixin_data()
 
         # oc user
         self.ocuser = mixin_data[0]
