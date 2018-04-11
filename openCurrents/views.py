@@ -876,14 +876,14 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
                 is_verified=True
             ).order_by('datetime_start')
 
-            file_name = "timelog_report_{}_{}.csv".format(
+            file_name = "timelog_report_{}_{}.xls".format(
                 post_data['start-date'],
                 post_data['end-date']
             )
 
             # writing to XLS file
             response = HttpResponse(content_type='application/ms-excel')
-            response['Content-Disposition'] = 'attachment; filename="users.xls"'
+            response['Content-Disposition'] = 'attachment; filename="{}"'.format(file_name)
             wb = xlwt.Workbook(encoding='utf-8')
             ws = wb.add_sheet('Time logs', cell_overwrite_ok=True)
 
