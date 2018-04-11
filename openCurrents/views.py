@@ -840,9 +840,9 @@ class ApproveHoursView(OrgAdminPermissionMixin, OrgSessionContextView, ListView)
             vols_declined
         )
 
-
     def get_hours_rounded(self, datetime_start, datetime_end):
-        return math.ceil((datetime_end - datetime_start).total_seconds() / 3600 * 4) / 4
+        return math.ceil(
+            (datetime_end - datetime_start).total_seconds() / 3600 * 4) / 4
 
 
 class CausesView(TemplateView):
@@ -862,94 +862,155 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
 
     def post(self, request):
         post_data = self.request.POST
-        k_dict = OrderedDict([
-            #'admin-full-name',
-            ('volunteer-first-name',0),
-            ('volunteer-last-name',1),
-            ('volunteer-email',2),
-            ('duration',3),
-            ('volunteer-login-time',4),
-            ('volunteer-logout-time',5),
-            ('event-date',6),
-            ('location',7),
-            ('event-name',8)
-        ])
-        tz = OrgUserInfo(self.request.user.id).get_org().timezone
-        vol_personal_info = User.objects.all()
-        if post_data['start-date'] != u'':
-            event_info = Event.objects.filter(datetime_start__gte=post_data['start-date']).filter(datetime_end__lte=post_data['end-date'])
+        # tz = OrgUserInfo(self.userid).get_org().timezone
+
+        if post_data['start-date'] != u'' and post_data['end-date'] != u'':
+            user_timelog_record = UserTimeLog.objects.filter(
+                event__project__org=self.org
+            ).filter(
+                datetime_start__gte=post_data['start-date']
+            ).filter(
+                datetime_end__lte=post_data['end-date']
+            ).filter(
+                is_verified=True
+            ).order_by('datetime_start')
+
+            file_name = "timelog_report_{}_{}.csv".format(
+                post_data['start-date'],
+                post_data['end-date']
+            )
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename={}'.format(
+                file_name
+            )
+            writer = csv.writer(response)
+
+            # writing to CSV file
+            writer.writerow([
+                'n',
+                'Event',
+                'Volunteer',
+                'Date and Time Start',
+                'Duration, hours',
+            ])
+            i = 0
+            for record in user_timelog_record:
+                duration = common.diffInHours(
+                    record.datetime_start, record.datetime_end
+                )
+                volunteer = "{} {} <{}>".format(
+                    record.user.first_name.encode('utf-8').strip(),
+                    record.user.last_name.encode('utf-8').strip(),
+                    record.user.email.encode('utf-8').strip()
+                )
+                writer.writerow([
+                    i,
+                    record.event,
+                    volunteer,
+                    record.datetime_start.strftime('%Y-%m-%d %H:%M'),
+                    duration
+                ])
+                i += 1
+
+            return response  # redirect('openCurrents:export-data',)
+
         else:
-            event_info = Event.objects.filter(datetime_end__lte=post_data['end-date'])
-        rem_index = []
-        for i in k_dict.keys():
-            #keep track of deselected columns by users in a list
-            if i == 'volunteer-login-time' or i == 'volunteer-logout-time':
-                if post_data.get('start-time')==None:
-                    try:
-                        rem_index.append(k_dict['volunteer-login-time'])
-                        del k_dict['volunteer-login-time']
-                        rem_index.append(k_dict['volunteer-logout-time'])
-                        del k_dict['volunteer-logout-time']
-                    except:
-                        continue
-            else:
-                if post_data.get(i)==None or post_data.get(i)=='':
-                    rem_index.append(k_dict[i])
-                    del k_dict[i]
+            return redirect(
+                'openCurrents:export-data',
+                'You have to provide date range!',
+                'alert'
+            )
 
-        response = HttpResponse(content_type='text/csv')
-        #print(datetime.now())
-        response['Content-Disposition'] = 'attachment; filename="volunteer-data.csv"'
+    # def post(self, request):
+    #     post_data = self.request.POST
+    #     k_dict = OrderedDict([
+    #         #'admin-full-name',
+    #         ('volunteer-first-name',0),
+    #         ('volunteer-last-name',1),
+    #         ('volunteer-email',2),
+    #         ('duration',3),
+    #         ('volunteer-login-time',4),
+    #         ('volunteer-logout-time',5),
+    #         ('event-date',6),
+    #         ('location',7),
+    #         ('event-name',8)
+    #     ])
+    #     tz = OrgUserInfo(self.request.user.id).get_org().timezone
+    #     vol_personal_info = User.objects.all()
+    #     if post_data['start-date'] != u'':
+    #         event_info = Event.objects.filter(datetime_start__gte=post_data['start-date']).filter(datetime_end__lte=post_data['end-date'])
+    #     else:
+    #         event_info = Event.objects.filter(datetime_end__lte=post_data['end-date'])
+    #     rem_index = []
+    #     for i in k_dict.keys():
+    #         #keep track of deselected columns by users in a list
+    #         if i == 'volunteer-login-time' or i == 'volunteer-logout-time':
+    #             if post_data.get('start-time')==None:
+    #                 try:
+    #                     rem_index.append(k_dict['volunteer-login-time'])
+    #                     del k_dict['volunteer-login-time']
+    #                     rem_index.append(k_dict['volunteer-logout-time'])
+    #                     del k_dict['volunteer-logout-time']
+    #                 except:
+    #                     continue
+    #         else:
+    #             if post_data.get(i)==None or post_data.get(i)=='':
+    #                 rem_index.append(k_dict[i])
+    #                 del k_dict[i]
 
-        writer = csv.writer(response)
-        writer.writerow(k_dict.keys())
-        for i in vol_personal_info:
-            usertimelog_info = UserTimeLog.objects.filter(user=i,event__in=event_info).filter(is_verified=True)
-            for j in usertimelog_info:
-                # Loop across all the users registered
-                try:
-                    datetime_duration = j.event.datetime_end-j.event.datetime_start
-                except:
-                    datetime_duration = '00:00:00'
-                if post_data['start-date'] != u'':
-                    #if the user fill the start-time this condition is executed
-                    s_dt_db = j.event.datetime_start
-                    logger.info(s_dt_db.tzinfo)
-                    s_dt_ui = post_data['start-date']
-                    e_dt_db = j.event.datetime_end
-                    e_dt_ui = post_data['end-date']
-                    if ( s_dt_db >= pytz.timezone(tz).localize(datetime.strptime(s_dt_ui, '%Y-%m-%d')) ) \
-                    and ( e_dt_db <= pytz.timezone(tz).localize(datetime.strptime(e_dt_ui, '%Y-%m-%d')) ):
-                        cleaned_list = [i.first_name, i.last_name, i.email, datetime_duration, j.event.datetime_start,\
-                            j.event.datetime_end, j.event.datetime_start.date(), j.event.location, j.event.project.name]
-                        for k in rem_index:
-                            #delete the columns which were deselected by the user
-                            del cleaned_list[k]
-                        cleaned_list = map(str, cleaned_list)
-                        reader = csv.reader(response)
-                        if self.user_per_event(reader, cleaned_list):
-                            writer.writerow(cleaned_list)#write to the CSV file
-                else:
-                    #if the user input in start-time is empty
-                    if j.event.datetime_end <= pytz.timezone(tz).localize(datetime.strptime(post_data['end-date'], '%Y-%m-%d')):
-                        cleaned_list = [i.first_name, i.last_name, i.email, datetime_duration, j.event.datetime_start,\
-                            j.event.datetime_end, j.event.datetime_start.date(), j.event.location, j.event.project.name]
-                        for k in rem_index:
-                            #delete the columns which were deselected by the user
-                            del cleaned_list[k]
-                        cleaned_list = map(str, cleaned_list)
-                        reader = csv.reader(response)
-                        if self.user_per_event(reader, cleaned_list):
-                            writer.writerow(cleaned_list)#write to the CSV file
-        return response#redirect('openCurrents:export-data')#
+    #     response = HttpResponse(content_type='text/csv')
+    #     #print(datetime.now())
+    #     response['Content-Disposition'] = 'attachment; filename="volunteer-data.csv"'
 
-    def user_per_event(self, csvreader, cleaned_list):
-        #returns 0 if the record is duplicate else return 1
-        record_status = 1
-        for row in csvreader:
-            if cleaned_list == row:
-                record_status = 0
-        return record_status
+    #     writer = csv.writer(response)
+    #     writer.writerow(k_dict.keys())
+    #     for i in vol_personal_info:
+    #         usertimelog_info = UserTimeLog.objects.filter(user=i,event__in=event_info).filter(is_verified=True)
+    #         for j in usertimelog_info:
+    #             # Loop across all the users registered
+    #             try:
+    #                 datetime_duration = j.event.datetime_end-j.event.datetime_start
+    #             except:
+    #                 datetime_duration = '00:00:00'
+    #             if post_data['start-date'] != u'':
+    #                 #if the user fill the start-time this condition is executed
+    #                 s_dt_db = j.event.datetime_start
+    #                 logger.info(s_dt_db.tzinfo)
+    #                 s_dt_ui = post_data['start-date']
+    #                 e_dt_db = j.event.datetime_end
+    #                 e_dt_ui = post_data['end-date']
+    #                 if ( s_dt_db >= pytz.timezone(tz).localize(datetime.strptime(s_dt_ui, '%Y-%m-%d')) ) \
+    #                 and ( e_dt_db <= pytz.timezone(tz).localize(datetime.strptime(e_dt_ui, '%Y-%m-%d')) ):
+    #                     cleaned_list = [i.first_name, i.last_name, i.email, datetime_duration, j.event.datetime_start,\
+    #                         j.event.datetime_end, j.event.datetime_start.date(), j.event.location, j.event.project.name]
+    #                     for k in rem_index:
+    #                         #delete the columns which were deselected by the user
+    #                         del cleaned_list[k]
+    #                     cleaned_list = map(str, cleaned_list)
+    #                     reader = csv.reader(response)
+    #                     if self.user_per_event(reader, cleaned_list):
+    #                         writer.writerow(cleaned_list)#write to the CSV file
+    #             else:
+    #                 #if the user input in start-time is empty
+    #                 if j.event.datetime_end <= pytz.timezone(tz).localize(datetime.strptime(post_data['end-date'], '%Y-%m-%d')):
+    #                     cleaned_list = [i.first_name, i.last_name, i.email, datetime_duration, j.event.datetime_start,\
+    #                         j.event.datetime_end, j.event.datetime_start.date(), j.event.location, j.event.project.name]
+    #                     for k in rem_index:
+    #                         #delete the columns which were deselected by the user
+    #                         del cleaned_list[k]
+    #                     cleaned_list = map(str, cleaned_list)
+    #                     reader = csv.reader(response)
+    #                     if self.user_per_event(reader, cleaned_list):
+    #                         writer.writerow(cleaned_list)#write to the CSV file
+    #     return response#redirect('openCurrents:export-data')#
+
+    # def user_per_event(self, csvreader, cleaned_list):
+    #     #returns 0 if the record is duplicate else return 1
+    #     record_status = 1
+    #     for row in csvreader:
+    #         if cleaned_list == row:
+    #             record_status = 0
+    #     return record_status
 
 
 class FindOrgsView(TemplateView):
