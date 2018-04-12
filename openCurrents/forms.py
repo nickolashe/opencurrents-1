@@ -129,33 +129,33 @@ def validate_password_strength(new_password, new_password_confirm):
         if new_password and new_password_confirm and new_password != new_password_confirm:
             raise ValidationError(_('Passwords don\'t match. Please check again.'))
 
-        #check for minimum length
-        if len(new_password) < min_length:
-            raise ValidationError(_('Please make sure that the password has at least {0} characters '
-                                    'long.').format(min_length))
+        # #check for minimum length
+        # if len(new_password) < min_length:
+        #     raise ValidationError(_('Please make sure that the password has at least {0} characters '
+        #                             'long.').format(min_length))
 
-        # check for digit
-        if not any(char.isdigit() for char in new_password):
-            raise ValidationError(_('Please make sure that the password contains at least 1 digit.'))
+        # # check for digit
+        # if not any(char.isdigit() for char in new_password):
+        #     raise ValidationError(_('Please make sure that the password contains at least 1 digit.'))
 
-        # check for letter
-        if not any(char.isalpha() for char in new_password):
-            raise ValidationError(_('Please make sure that the password contains at least 1 letter.'))
+        # # check for letter
+        # if not any(char.isalpha() for char in new_password):
+        #     raise ValidationError(_('Please make sure that the password contains at least 1 letter.'))
 
-        #check for special character
-        specialChars = set(string.punctuation.replace("_", ""))
-        if not any(char in specialChars for char in new_password):
-            raise ValidationError(_('Please make sure that the password contains at least 1 special character.'))
+        # #check for special character
+        # specialChars = set(string.punctuation.replace("_", ""))
+        # if not any(char in specialChars for char in new_password):
+        #     raise ValidationError(_('Please make sure that the password contains at least 1 special character.'))
 
-        #check for atleast 1 uppercase chanracter
-        if not any(char.isupper() for char in new_password):
-            raise ValidationError(_('Please make sure that the password contains at least 1 uppercase character.'))
+        # #check for atleast 1 uppercase chanracter
+        # if not any(char.isupper() for char in new_password):
+        #     raise ValidationError(_('Please make sure that the password contains at least 1 uppercase character.'))
 
 class EmailVerificationForm(forms.Form):
     user_password = forms.CharField(min_length=8)
     user_password_confirm = forms.CharField(min_length=8)
     verification_token = forms.UUIDField()
-    monthly_updates = forms.BooleanField(initial=False,required=False)
+    monthly_updates = forms.BooleanField(initial=False, required=False)
 
     def clean(self):
         cleaned_data = super(EmailVerificationForm, self).clean()
