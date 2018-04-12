@@ -2001,10 +2001,7 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
 
         return redirect(
             'openCurrents:profile',
-            status_msg=' '.join([
-                'Your dollars are on the way.',
-                'Look for an email from Dwolla soon.'
-            ])
+            status_msg='Your balance of $%.2f will clear in the next 48 hours. Look for an email from Dwolla soon.' % balance_available_usd
         )
 
 
