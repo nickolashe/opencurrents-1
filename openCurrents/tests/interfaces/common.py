@@ -44,6 +44,8 @@ import random
 import string
 import re
 
+from django.test import Client
+
 # ====== CONTENT =======
 # _create_org
 # _create_test_user
@@ -409,3 +411,96 @@ def _setup_ledger_entry(
     ledger_rec.save()
 
     return
+
+
+class SetupAdditionalTimeRecords():
+    """SetUp class for TestApproveHoursRandomDates and TestApproveHoursCornerCases."""
+
+    def _get_earliest_monday(self):
+        """Get earliest monday for approve-hours page."""
+        try:
+            earliest_request_date = self.org_admin.get_hours_requested().\
+                order_by('usertimelog__datetime_start').first().\
+                usertimelog.datetime_start
+        except:
+            earliest_request_date = self.org_admin.get_hours_approved().\
+                order_by('usertimelog__datetime_start').first().\
+                usertimelog.datetime_start
+
+        earliest_monday = earliest_request_date - timedelta(
+            days=(earliest_request_date.weekday()))
+        earliest_monday = earliest_monday.replace(hour=00, minute=00, second=00)
+
+        return earliest_monday
+
+    def _current_week_records(self, earliest_monday):
+        current_week_sunday = earliest_monday + timedelta(days=6)
+        current_week_sunday = current_week_sunday.replace(
+            hour=23, minute=59, second=59
+        )
+        admin_actions_requested = self.org_admin.get_hours_requested().\
+            order_by('usertimelog__datetime_start')
+
+        current_week_records = []
+        for rec in admin_actions_requested:
+            if earliest_monday <= rec.usertimelog.datetime_start <= current_week_sunday:
+                current_week_records.append(rec)
+
+        return current_week_records
+
+    def _compare_shown_records(self, current_week_records, response):
+        records_num = len(current_week_records)
+
+        # asserting num of displayed records and num of real records in DB
+        num_of_recs_in_context_week = 0
+        for i in response.context[0]['week'][0].items()[0][1].items()[0][1].items()[2:]:
+            num_of_recs_in_context_week += len(i[1]) - 1
+
+        self.assertEqual(
+            records_num,
+            num_of_recs_in_context_week
+        )
+        return records_num
+
+    def setUp(self):
+        """Set testing environment."""
+        biz_orgs_list = ['BIZ_org_1']
+        npf_orgs_list = ['NPF_org_1', 'NPF_org_2']
+        volunteers_list = ['volunteer_1']
+
+        test_setup = SetUpTests()
+        test_setup.generic_setup(npf_orgs_list, biz_orgs_list, volunteers_list)
+
+        # setting orgs
+        self.org_npf = test_setup.get_all_npf_orgs()[0]
+        self.org_npf2 = test_setup.get_all_npf_orgs()[1]
+        # self.org_biz = test_setup.get_all_biz_orgs()[0]
+
+        # set up project
+        self.project = test_setup.get_all_projects(self.org_npf)[0]
+        self.project2 = test_setup.get_all_projects(self.org_npf2)[0]
+
+        # creating an npf admin
+        all_admins = test_setup.get_all_npf_admins()
+        self.npf_admin = all_admins[0]
+        self.npf_admin2 = all_admins[1]
+        self.org_admin = OrgAdmin(self.npf_admin.id)
+
+        # assigning existing volunteers to variables
+        all_volunteers = test_setup.get_all_volunteers()
+
+        self.volunteer_1 = all_volunteers[0]
+
+        # oc instances
+        self.oc_npf_adm = OcUser(self.npf_admin.id)
+        # self.org_biz_adm = BizAdmin(self.biz_admin.id)
+        self.oc_vol_1 = OcUser(self.volunteer_1.id)
+
+        # user entities
+        self.vol_1_entity = UserEntity.objects.get(user=self.volunteer_1)
+        self.user_enitity_id_vol_1 = UserEntity.objects.get(
+            user=self.volunteer_1).id
+
+        # setting up client
+        self.client = Client()
+        self.client.login(username=self.npf_admin.username, password='password')

@@ -865,13 +865,23 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
         post_data = self.request.POST
         tz = OrgUserInfo(self.userid).get_org().timezone
 
+        time_start = datetime.strptime(
+            post_data['start-date'],
+            '%Y-%m-%d'
+        )
+        time_end = datetime.strptime(
+            post_data['end-date'],
+            '%Y-%m-%d'
+        ) + timedelta(seconds=59, minutes=59, hours=23,)
+
         if post_data['start-date'] != u'' and post_data['end-date'] != u'':
+
             user_timelog_record = UserTimeLog.objects.filter(
                 event__project__org=self.org
             ).filter(
-                datetime_start__gte=post_data['start-date']
+                datetime_start__gte=time_start
             ).filter(
-                datetime_end__lte=post_data['end-date']
+                datetime_start__lte=time_end
             ).filter(
                 is_verified=True
             ).order_by('datetime_start')
@@ -894,6 +904,7 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
             columns = [
                 '#',
                 'Event',
+                'Description',
                 'Location',
                 'Volunteer Name',
                 'Volunteer Last name',
@@ -907,30 +918,36 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
             # Sheet body, remaining rows
             font_style = xlwt.XFStyle()
             for record in user_timelog_record:
-                row_num += 1
-                duration = common.diffInHours(
-                    record.datetime_start.astimezone(pytz.timezone(tz)),
-                    record.datetime_end.astimezone(pytz.timezone(tz))
-                )
-                if record.event.event_type == 'MN':
-                    event = 'Manual'
-                    location = ''
-                else:
-                    event = record.event.project.name
-                    location = record.event.location
 
-                row_data = [
-                    row_num,
-                    event,
-                    location,
-                    record.user.first_name.encode('utf-8').strip(),
-                    record.user.last_name.encode('utf-8').strip(),
-                    record.user.email.encode('utf-8').strip(),
-                    record.datetime_start.astimezone(pytz.timezone(tz)).strftime('%Y-%m-%d %H:%M'),
-                    duration
-                ]
-                for col in range(len(row_data)):
-                    ws.write(row_num, col, row_data[col], font_style)
+                if record.datetime_end:
+                    row_num += 1
+                    duration = common.diffInHours(
+                        record.datetime_start.astimezone(pytz.timezone(tz)),
+                        record.datetime_end.astimezone(pytz.timezone(tz))
+                    )
+                    record_event = record.event
+                    if record_event.event_type == 'MN':
+                        event_name = 'Manual'
+                        record_description = record_event.description
+                        event_location = ''
+                    else:
+                        event_name = record_event.project.name
+                        record_description = ''
+                        event_location = record_event.location
+
+                    row_data = [
+                        row_num,
+                        event_name,
+                        record_description,
+                        event_location,
+                        record.user.first_name.encode('utf-8').strip(),
+                        record.user.last_name.encode('utf-8').strip(),
+                        record.user.email.encode('utf-8').strip(),
+                        record.datetime_start.astimezone(pytz.timezone(tz)).strftime('%Y-%m-%d %H:%M'),
+                        duration
+                    ]
+                    for col in range(len(row_data)):
+                        ws.write(row_num, col, row_data[col], font_style)
 
             wb.save(response)
             return response
