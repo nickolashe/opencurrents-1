@@ -861,20 +861,43 @@ class EditHoursView(TemplateView):
 class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'export-data.html'
 
-    def post(self, request):
+    def post(self, request, **kwargs):
         post_data = self.request.POST
         tz = OrgUserInfo(self.userid).get_org().timezone
-
-        time_start = datetime.strptime(
-            post_data['start-date'],
-            '%Y-%m-%d'
-        )
-        time_end = datetime.strptime(
-            post_data['end-date'],
-            '%Y-%m-%d'
-        ) + timedelta(seconds=59, minutes=59, hours=23,)
+        now = datetime.now(tz=pytz.timezone(tz))
+        now_date = now.date()
 
         if post_data['start-date'] != u'' and post_data['end-date'] != u'':
+
+            incorrect_dates = False
+            end_date_not_ok = False
+
+            try:
+                time_start = pytz.timezone(tz).localize(
+                    datetime.strptime(
+                        post_data['start-date'],
+                        '%Y-%m-%d'
+                    )
+                )
+                time_end = pytz.timezone(tz).localize(
+                    datetime.strptime(
+                        post_data['end-date'],
+                        '%Y-%m-%d'
+                    )
+                ) + timedelta(seconds=59, minutes=59, hours=23,)
+
+                if time_end < time_start or time_end.date() > now_date or time_start.date() > now_date:
+                    end_date_not_ok = True
+
+            except ValueError:
+                incorrect_dates = True
+
+            if incorrect_dates or end_date_not_ok:
+                return redirect(
+                    'openCurrents:export-data',
+                    'Incorrect dates!',
+                    'alert'
+                )
 
             user_timelog_record = UserTimeLog.objects.filter(
                 event__project__org=self.org
@@ -990,7 +1013,7 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
         else:
             return redirect(
                 'openCurrents:export-data',
-                'You have to provide date range!',
+                'Start and End date cannot be empty!',
                 'alert'
             )
 

@@ -1,3 +1,5 @@
+"""Selection of common classess and methods for the unit tests."""
+
 from django.contrib.auth.models import User
 
 from datetime import datetime, timedelta
@@ -159,12 +161,12 @@ class SetUpTests(object):
 
 def _create_org(org_name, org_status):
     """
-    Creates users and maps them to the org if needed.
+    Create users and maps them to the org if needed.
+
     Takes:
         org_name - string
         org_status - string ('npf', 'biz')
     """
-
     new_org = OcOrg().setup_org(name=org_name, status=org_status)
 
     return new_org
@@ -177,7 +179,8 @@ def _create_test_user(
     is_org_admin=False
 ):
     """
-    Creates users and maps them to the org if needed.
+    Create users and maps them to the org if needed.
+
     Takes:
         user_name - string
 
@@ -187,7 +190,6 @@ def _create_test_user(
 
         is_org_admin - if True, the user will be made an org admin, if org is provided.
     """
-
     test_user = OcUser().setup_user(
         username=user_name,
         email=user_name + '@email.cc',
@@ -211,10 +213,11 @@ def _create_test_user(
 
 def _create_project(org, project_name):
     """
+    Create project.
+
     org - Org object
     project_name - string
     """
-
     project = Project(
         org=org,
         name=project_name
@@ -234,10 +237,7 @@ def _create_event(
     event_type="MN",
     coordinator=None
 ):
-    """
-    creates an event with given parameters
-    """
-
+    """Create an event with given parameters."""
     event = Event(
         project=project,
         description=description,
@@ -257,9 +257,7 @@ def _setup_user_event_registration(
     event,
     is_confirmed=False
 ):
-    """
-    creates a user event registration with given parameters
-    """
+    """Create a user event registration with given parameters."""
     user_event_registration = UserEventRegistration(
         user=user,
         event=event,
@@ -385,9 +383,8 @@ def _setup_ledger_entry(
     action=None,
     transaction=None
 ):
-
     """
-    USE IT UNTILL WE HAVE ledger.OcLedger.add_fiat implemented
+    USE IT UNTILL WE HAVE ledger.OcLedger.add_fiat implemented.
 
     entity_from -   Entity objects (eg User and Org)
     entity_to -     Entity objects (eg User and Org)
@@ -397,7 +394,6 @@ def _setup_ledger_entry(
     action -        AdminActionUserTime instance
     transaction -   TransactionAction instance
     """
-
     ledger_rec = Ledger(
         entity_from=entity_from,
         entity_to=entity_to,

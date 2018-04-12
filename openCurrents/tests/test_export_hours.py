@@ -32,6 +32,7 @@ from openCurrents.tests.interfaces.common import(
     SetUpTests,
     SetupAdditionalTimeRecords
 )
+import openCurrents.tests.interfaces.testing_urls as testing_urls
 
 from datetime import datetime, timedelta
 from numpy import random
@@ -42,7 +43,7 @@ import re
 import xlrd
 
 
-class TestExportApprovedHoursRandomDates(SetupAdditionalTimeRecords, TestCase):
+class TestExportApprovedHours(SetupAdditionalTimeRecords, TestCase):
     """Tests with random dates for time records export."""
 
     def _assert_file_created_downloaded(self):
@@ -55,7 +56,7 @@ class TestExportApprovedHoursRandomDates(SetupAdditionalTimeRecords, TestCase):
         )
 
         response = self.client.post(
-            '/export-data/',
+            testing_urls.export_data_url,
             {
                 'start-date': earliest_mon_date.strftime("%Y-%m-%d"),
                 'end-date': latest_date.strftime("%Y-%m-%d")
@@ -70,10 +71,38 @@ class TestExportApprovedHoursRandomDates(SetupAdditionalTimeRecords, TestCase):
 
         return response
 
+    def _assert_date_input(self, start_d, end_d):
+        """
+        Assert date input when Export volunteer data.
+
+        Takes str() start_d, end_d and evaluates
+        """
+        if start_d == '' or end_d == '':
+            error_msg = "Start%20and%20End%20date%20cannot%20be%20empty!/alert"
+        else:
+            error_msg = "Incorrect%20dates!/alert"
+
+        url = testing_urls.export_data_url
+
+        response = self.client.post(
+            testing_urls.export_data_url,
+            {
+                'start-date': start_d,
+                'end-date': end_d
+            }
+        )
+        expected_url = url + error_msg
+        self.assertRedirects(
+            response,
+            expected_url,
+            status_code=302,
+            target_status_code=200
+        )
+
     def setUp(self):
         """Additional setup for TestApproveHoursRandomDates class."""
         # generating time records
-        super(TestExportApprovedHoursRandomDates, self).setUp()
+        super(TestExportApprovedHours, self).setUp()
 
         def _gen_time():
             datetime_start = datetime.now(tz=pytz.utc) - \
@@ -138,3 +167,55 @@ class TestExportApprovedHoursRandomDates(SetupAdditionalTimeRecords, TestCase):
             worksheet = workbook.sheet_by_name('Time logs')
 
             self.assertEquals(worksheet.nrows, self.counter * 2 + 1)
+
+    def test_incorrect_dates_input(self):
+        """
+        Check incorrect dates input.
+
+        Expected:
+        - user is returned to export page
+        - warning message is displayed
+        """
+        # badly formatted start date
+        self._assert_date_input(
+            '20118-112-343',
+            datetime.now(tz=pytz.utc).strftime("%Y-%m-%d")
+        )
+
+        # badly formatted end date
+        self._assert_date_input(
+            (datetime.now(tz=pytz.utc) - timedelta(days=10)).strftime("%Y-%m-%d"),
+            '20118-112-343'
+        )
+
+        # start date in the future
+        self._assert_date_input(
+            (datetime.now(tz=pytz.utc) + timedelta(days=10)).strftime("%Y-%m-%d"),
+            datetime.now(tz=pytz.utc).strftime("%Y-%m-%d")
+        )
+
+        # end date in the future
+        self._assert_date_input(
+            datetime.now(tz=pytz.utc).strftime("%Y-%m-%d"),
+            (datetime.now(tz=pytz.utc) + timedelta(days=10)).strftime("%Y-%m-%d")
+        )
+
+    def test_empty_dates_input(self):
+        """
+        Check empty dates input.
+
+        Expected:
+        - user is returned to export page
+        - warning message is displayed
+        """
+        # empty start date
+        self._assert_date_input(
+            '',
+            datetime.now(tz=pytz.utc).strftime("%Y-%m-%d")
+        )
+
+        # empty end date
+        self._assert_date_input(
+            (datetime.now(tz=pytz.utc) - timedelta(days=10)).strftime("%Y-%m-%d"),
+            '',
+        )
