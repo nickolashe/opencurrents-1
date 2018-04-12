@@ -130,9 +130,9 @@ def validate_password_strength(new_password, new_password_confirm):
             raise ValidationError(_('Passwords don\'t match. Please check again.'))
 
         # #check for minimum length
-        # if len(new_password) < min_length:
-        #     raise ValidationError(_('Please make sure that the password has at least {0} characters '
-        #                             'long.').format(min_length))
+        if len(new_password) < min_length:
+            raise ValidationError(_('Please make sure that the password has at least {0} characters '
+                                    'long.').format(min_length))
 
         # # check for digit
         # if not any(char.isdigit() for char in new_password):
