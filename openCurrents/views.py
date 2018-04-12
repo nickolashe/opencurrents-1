@@ -4549,7 +4549,7 @@ def process_email_confirmation(request, user_email):
 
         org_user = OrgUserInfo(user.id)
         is_org_user = org_user.get_orguser()
-        if len(is_org_user) > 0:
+        if len(is_org_user) > 0 and org_user.get_org().status == 'npf':
             npf_var['content'] = True
 
         confirm_email_vars.append(npf_var)
