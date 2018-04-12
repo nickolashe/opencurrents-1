@@ -919,35 +919,36 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
             font_style = xlwt.XFStyle()
             for record in user_timelog_record:
 
-                if record.datetime_end:
-                    row_num += 1
-                    duration = common.diffInHours(
-                        record.datetime_start.astimezone(pytz.timezone(tz)),
-                        record.datetime_end.astimezone(pytz.timezone(tz))
-                    )
-                    record_event = record.event
-                    if record_event.event_type == 'MN':
-                        event_name = 'Manual'
-                        record_description = record_event.description
-                        event_location = ''
-                    else:
-                        event_name = record_event.project.name
-                        record_description = ''
-                        event_location = record_event.location
+                row_num += 1
+                record_event = record.event
 
-                    row_data = [
-                        row_num,
-                        event_name,
-                        record_description,
-                        event_location,
-                        record.user.first_name.encode('utf-8').strip(),
-                        record.user.last_name.encode('utf-8').strip(),
-                        record.user.email.encode('utf-8').strip(),
-                        record.datetime_start.astimezone(pytz.timezone(tz)).strftime('%Y-%m-%d %H:%M'),
-                        duration
-                    ]
-                    for col in range(len(row_data)):
-                        ws.write(row_num, col, row_data[col], font_style)
+                duration = common.diffInHours(
+                    record_event.datetime_start.astimezone(pytz.timezone(tz)),
+                    record_event.datetime_end.astimezone(pytz.timezone(tz))
+                )
+
+                if record_event.event_type == 'MN':
+                    event_name = 'Manual'
+                    record_description = record_event.description
+                    event_location = ''
+                else:
+                    event_name = record_event.project.name
+                    record_description = ''
+                    event_location = record_event.location
+
+                row_data = [
+                    row_num,
+                    event_name,
+                    record_description,
+                    event_location,
+                    record.user.first_name.encode('utf-8').strip(),
+                    record.user.last_name.encode('utf-8').strip(),
+                    record.user.email.encode('utf-8').strip(),
+                    record.datetime_start.astimezone(pytz.timezone(tz)).strftime('%Y-%m-%d %H:%M'),
+                    duration
+                ]
+                for col in range(len(row_data)):
+                    ws.write(row_num, col, row_data[col], font_style)
 
             wb.save(response)
             return response

@@ -38,7 +38,7 @@ from numpy import random
 import io
 import pytz
 import re
-from unittest import skip
+# from unittest import skip
 import xlrd
 
 
@@ -87,7 +87,7 @@ class TestExportApprovedHoursRandomDates(SetupAdditionalTimeRecords, TestCase):
         self.counter = 10  # number of generated records
         for i in range(self.counter):
             time = _gen_time()
-            records = _setup_volunteer_hours(
+            manual_records_org1 = _setup_volunteer_hours(
                 self.volunteer_1,
                 self.npf_admin,
                 self.org_npf,
@@ -97,8 +97,19 @@ class TestExportApprovedHoursRandomDates(SetupAdditionalTimeRecords, TestCase):
                 is_verified=True,
                 action_type='app',
             )
+            group_records_org1 = _setup_volunteer_hours(
+                self.volunteer_1,
+                self.npf_admin,
+                self.org_npf,
+                self.project,
+                time[0],
+                time[1],
+                event_type="GR",
+                is_verified=True,
+                action_type='app',
+            )
             # setting up recs for org2
-            records2 = _setup_volunteer_hours(
+            manual_records_org2 = _setup_volunteer_hours(
                 self.volunteer_1,
                 self.npf_admin2,
                 self.org_npf2,
@@ -125,28 +136,5 @@ class TestExportApprovedHoursRandomDates(SetupAdditionalTimeRecords, TestCase):
             workbook = xlrd.open_workbook(file_contents=response.content)
             worksheet = workbook.sheet_by_name('Time logs')
 
-            self.assertEquals(worksheet.nrows, self.counter + 1)
-
-    @skip('For now')
-    def test_ignore_recs_wo_start_end(self):
-        """
-        Check if records wo start or end dates don't get to exporeted file.
-
-        Expected:
-        - 9 records in the file.
-        - 10 lines in the file in total.
-        """
-        response = self._assert_file_created_downloaded()
-
-        user_time_logs = UserTimeLog.objects.filter(
-            event__project__org=self.org_npf
-        )
-        first_rec = user_time_logs.first()
-        first_rec.datetime_end = None
-        first_rec.save()
-
-        with io.BytesIO(response.content) as file:
-            workbook = xlrd.open_workbook(file_contents=response.content)
-            worksheet = workbook.sheet_by_name('Time logs')
-
-            self.assertEquals(worksheet.nrows, self.counter)
+            # it is exptected to get 20 records in the xls file + 1 heading line
+            self.assertEquals(worksheet.nrows, self.counter + 11)
