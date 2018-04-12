@@ -127,7 +127,8 @@ class TestExportApprovedHoursRandomDates(SetupAdditionalTimeRecords, TestCase):
         Also check if all records are in downloaded file.
         Expected:
         - file is downloaded
-        - 10 records in the file.
+        - it is exptected to get self.counter * 2 records (half for manual and
+          half for group events) in the xls file + 1 heading line
         """
         response = self._assert_file_created_downloaded()
 
@@ -136,5 +137,4 @@ class TestExportApprovedHoursRandomDates(SetupAdditionalTimeRecords, TestCase):
             workbook = xlrd.open_workbook(file_contents=response.content)
             worksheet = workbook.sheet_by_name('Time logs')
 
-            # it is exptected to get 20 records in the xls file + 1 heading line
-            self.assertEquals(worksheet.nrows, self.counter + 11)
+            self.assertEquals(worksheet.nrows, self.counter * 2 + 1)
