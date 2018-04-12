@@ -1961,6 +1961,8 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
         # getting currents total (accepted + pending)
         context['biz_currents_total'] = OcCommunity().get_biz_currents_total()
 
+        context['master_offer'] = Offer.objects.filter(is_master=True).first()
+
         return context
 
     def post(self, request, *args, **kwargs):

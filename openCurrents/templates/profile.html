@@ -4,6 +4,22 @@
 {% load tags %}
 {% load staticfiles %}
 
+
+{% block status %}
+  {% if status_msg %}
+    {{ block.super }}
+  {% else %}
+    <div class="status-highlight row full-width">
+      <div class="small-12 column">
+        <a href="{% url 'openCurrents:redeem-currents' master_offer.id %}"
+        class="white-link">
+          Get $40 credit for Volunteer Appreciation Month!
+        </a>
+      </div>
+    </div>
+  {% endif %}
+
+{% endblock status %}
 {% block heading %}
   <div class="row">
     <div class="small-12 small-centered columns">

@@ -34,7 +34,7 @@
       <div class="row center">
         <div class="medium-8 small-centered columns">
           <h1 id="home-tagline" class="white">
-            The currency you earn by volunteering
+            The currency you earn by volunteering!
           </h1>
         </div>
       </div>
@@ -61,18 +61,28 @@
       </div> -->
 
       <div class="row center collapse three-margin-top">
-        <div class="medium-6 small-centered columns">
-          <!--<a href="#2" class="button blue-bg">What are Currents?</a>
-          <button class="play-intro_open button clear">Watch the video</button>-->
-          <a href="#signup" class="one-margin-left button round blue-bg fit-right">Get started</a>
+        <div class="small-11 medium-6 small-centered columns">
+          <a href="#signup" class="one-margin-left button round blue-bg fit-right">
+            Get started
+          </a>
           <span class="input-sizer">
             <input id="home-email" type="email" placeholder="Email"/>
           </span>
-
         </div>
       </div>
 
-      <div class="row center three-halves-margin-top two-margin-bottom">
+      <div class="row center one-margin-top">
+        <a class="play-intro_open button round small clear">
+          Play video
+        </a>
+        <a
+        {% include "partials/login-logic.html" %}
+        class="button clear round small">
+          Log in
+        </a>
+      </div>
+
+      <div class="row center one-margin-top two-margin-bottom">
         <div class="small-12 medium-6 large-4 small-centered columns">
           <!--<a href="#signup" class="button blue-bg round large">
             Join openCurrents

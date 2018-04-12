@@ -569,6 +569,16 @@ label {
   color: #ffffff;
 }
 
+.white-link {
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.white-link:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
 .blue {
   color: #24b2e7;
 }
