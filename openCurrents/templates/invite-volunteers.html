@@ -74,6 +74,7 @@
           </div>
         </div>
 
+        {% block add_email_block %}
         <div id="personal-message-div" class="left hidden">
           <label for="personal-message-text">
             A message from {{ user.first_name }} {{ user.last_name }} (optional):
@@ -86,20 +87,26 @@
             Add personal message
           </a>
         </p>
+        {% endblock add_email_block %}
       </div>
 
       <!--<a href="{% url 'openCurrents:org-admin' %}" class="button round secondary">Send invites</a>-->
       <button type='submit' id="button_1" class="button round half-margin-top">
-        Send invites
+        {% block send_button_name %}
+            Send invites
+        {% endblock send_button_name %}
         <input type="hidden" id="count-vol" name="count-vol" value="3" />
       </button>
     </div>
 
+    {% block preview_email %}
     <p class="half-margin-bottom">
       <a class="preview-email-popup_open">
         Preview email
       </a>
     </p>
+    {% endblock preview_email %}
+
 
     {% if skip == 1 %}
       <a href="{% url 'openCurrents:org-admin' num_vols=0 %}">

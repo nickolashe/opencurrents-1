@@ -2358,8 +2358,15 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
         else:
             # num_vols parameter is evaluated in OrgAdminView to
             # display a proper message to the admin
-            num_vols = 0
-            return redirect('openCurrents:org-admin', num_vols)
+
+            # old code:
+            # num_vols = 0
+            # return redirect('openCurrents:org-admin', num_vols)
+
+            return redirect(
+                'openCurrents:invite-volunteers-past',
+                json.dumps(event_ids)
+            )
 
     def get_context_data(self, **kwargs):
         context = super(CreateEventView, self).get_context_data()
@@ -2639,21 +2646,20 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         else:
             return False
 
-    def post(self, request, *args, **kwargs):
-        userid = self.request.user.id
-        user = User.objects.get(id=userid)
-        post_data = self.request.POST
-        event_create_id = None
-        test_mode = post_data.get('test_mode')
+    def _register_volunteers(self):
+        """
+        Register volunteers to an event w/o sending invitations.
 
+        Returns number of invited volunteers and lists for sending emails.
+        """
         try:
-            event_create_id = kwargs.pop('event_ids')
-            if type(json.loads(event_create_id)) == list:
+            self.event_create_id = self.kwargs.pop('event_ids')
+            if type(json.loads(self.event_create_id)) == list:
                 pass
             else:
-                event_create_id = [int(event_create_id)]
-                event_create_id = unicode(event_create_id)
-            event_create_id = json.loads(event_create_id)
+                self.event_create_id = [int(self.event_create_id)]
+                self.event_create_id = unicode(self.event_create_id)
+            self.event_create_id = json.loads(self.event_create_id)
         except Exception as e:
             logger.error('unable to process events IDs')
 
@@ -2665,13 +2671,13 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
 
         OrgUsers = OrgUserInfo(self.request.user.id)
         if OrgUsers:
-            Organisation = OrgUsers.get_org_name()
+            self.Organisation = OrgUsers.get_org_name()
 
-        if post_data['bulk-vol'].encode('ascii', 'ignore') == '':
-            num_vols = int(post_data['count-vol'])
+        if self.post_data['bulk-vol'].encode('ascii', 'ignore') == '':
+            num_vols = int(self.post_data['count-vol'])
 
         else:
-            bulk_list_raw = re.split(',|\n|\s', post_data['bulk-vol'].lower())
+            bulk_list_raw = re.split(',|\n|\s', self.post_data['bulk-vol'].lower())
             bulk_list = []
             for email_string in bulk_list_raw:
                 email = self.email_parser(email_string)
@@ -2682,8 +2688,8 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         for i in range(num_vols):
 
             # processing individual emails
-            if post_data['bulk-vol'].encode('ascii', 'ignore') == '':
-                email_list = post_data['vol-email-' + str(i + 1)].lower()
+            if self.post_data['bulk-vol'].encode('ascii', 'ignore') == '':
+                email_list = self.post_data['vol-email-' + str(i + 1)].lower()
 
                 if email_list != '':
 
@@ -2692,14 +2698,14 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                     if email_list not in user_list:
                         k.append({
                             'email': email_list,
-                            'name': post_data['vol-name-' + str(i + 1)],
+                            'name': self.post_data['vol-name-' + str(i + 1)],
                             'type': 'to'
                         })
 
                         try:
                             user_new = OcUser().setup_user(
                                 username=email_list,
-                                first_name=post_data['vol-name-' + str(i + 1)],
+                                first_name=self.post_data['vol-name-' + str(i + 1)],
                                 email=email_list,
                             )
                         except UserExistsException:
@@ -2709,32 +2715,32 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                         user_new = User.objects.get(email=email_list)
 
                         # if event-based invitation and user exists  w/o password
-                        if event_create_id and not User.objects.get(email=email_list).has_usable_password():
+                        if self.event_create_id and not User.objects.get(email=email_list).has_usable_password():
                             k.append({
                                 'email': email_list,
-                                'name': post_data['vol-name-' + str(i + 1)],
+                                'name': self.post_data['vol-name-' + str(i + 1)],
                                 'type': 'to'
                             })
 
                         # if event-based invitation and user exists with password
-                        elif event_create_id and User.objects.get(email=email_list).has_usable_password():
+                        elif self.event_create_id and User.objects.get(email=email_list).has_usable_password():
                             k_old.append({
                                 'email': email_list,
-                                'name': post_data['vol-name-' + str(i + 1)],
+                                'name': self.post_data['vol-name-' + str(i + 1)],
                                 'type': 'to'
                             })
 
                         # non-event-based invitation and user exists wo password
-                        elif not event_create_id and not User.objects.get(email=email_list).has_usable_password():
+                        elif not self.event_create_id and not User.objects.get(email=email_list).has_usable_password():
                             k.append({
                                 'email': email_list,
-                                'name': post_data['vol-name-' + str(i + 1)],
+                                'name': self.post_data['vol-name-' + str(i + 1)],
                                 'type': 'to'
                             })
 
-                    if user_new and event_create_id:
+                    if user_new and self.event_create_id:
                         try:
-                            multiple_event_reg = Event.objects.filter(id__in=event_create_id)
+                            multiple_event_reg = Event.objects.filter(id__in=self.event_create_id)
                             for i in multiple_event_reg:
                                 user_event_registration = UserEventRegistration(
                                     user=user_new,
@@ -2748,7 +2754,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                     num_vols -= 1
 
             # processing emails from bulk field
-            elif post_data['bulk-vol'] != '':
+            elif self.post_data['bulk-vol'] != '':
 
                 # setting vars' default values in case we couldn't get all needed data from parsed email
                 first_name = last_name = user_email = None
@@ -2776,20 +2782,20 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                     user_new = User.objects.get(email=user_email)
 
                     # if event-based invitation and user exists w/o password
-                    if event_create_id and not User.objects.get(email=user_email).has_usable_password():
+                    if self.event_create_id and not User.objects.get(email=user_email).has_usable_password():
                         k.append({'email': user_email, 'type': 'to'})
 
                     # if event-based invitation and user exists with password
-                    elif event_create_id and User.objects.get(email=user_email).has_usable_password():
+                    elif self.event_create_id and User.objects.get(email=user_email).has_usable_password():
                         k_old.append({'email': user_email, 'type': 'to'})
 
                     # non-event-based invitation and user exists wo password
-                    elif not event_create_id and not User.objects.get(email=user_email).has_usable_password():
+                    elif not self.event_create_id and not User.objects.get(email=user_email).has_usable_password():
                         k.append({'email': user_email, 'type': 'to'})
 
-                if user_new and event_create_id:
+                if user_new and self.event_create_id:
                     try:
-                        multiple_event_reg = Event.objects.filter(id__in=event_create_id)
+                        multiple_event_reg = Event.objects.filter(id__in=self.event_create_id)
                         for i in multiple_event_reg:
                             user_event_registration = UserEventRegistration(
                                 user=user_new,
@@ -2800,18 +2806,33 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                     except Exception as e:
                         logger.error('unable to register user for event')
 
+        return num_vols, k, k_old
+
+    def post(self, request, *args, **kwargs):
+        """Process post request."""
+        userid = self.request.user.id
+        user = User.objects.get(id=userid)
+        self.post_data = self.request.POST
+        self.event_create_id = None
+        test_mode = self.post_data.get('test_mode')
+
+        register_vols = self._register_volunteers(kwargs)
+        num_vols = register_vols[0]
+        k = register_vols[1]
+        k_old = register_vols[2]
+
         email_template_merge_vars = []
 
-        if post_data['personal_message'] != '':
+        if self.post_data['personal_message'] != '':
             email_template_merge_vars.append({
                 'name': 'PERSONAL_MESSAGE',
-                'content': post_data['personal_message']
+                'content': self.post_data['personal_message']
             })
 
         try:
             # inviting volunteers (event-based)
-            event = Event.objects.get(id=event_create_id[0])
-            events = Event.objects.filter(id__in=event_create_id)
+            event = Event.objects.get(id=self.event_create_id[0])
+            events = Event.objects.filter(id__in=self.event_create_id)
             loc = [str(i.location).split(',')[0] for i in events]
             tz = event.project.org.timezone
             email_template_merge_vars.extend([
@@ -2829,7 +2850,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                 },
                 {
                     'name': 'ORG_NAME',
-                    'content': Organisation
+                    'content': self.Organisation
                 },
                 {
                     'name': 'EVENT_LOCATION',
@@ -2893,7 +2914,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                     },
                     {
                         'name': 'ORG_NAME',
-                        'content': Organisation
+                        'content': self.Organisation
                     },
                 ])
 
@@ -2932,7 +2953,19 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
 
 
 class InviteVolunteersPastView(InviteVolunteersView):
+    """Show Add attendees form when creating an event in the past."""
+
     template_name = 'invite-volunteers-past.html'
+    glogger_labels = {
+        'handler': 'InviteVolunteersPastView'
+    }
+
+    def post(self, request, *args, **kwargs):
+        """Process post request."""
+        register_vols = self._register_volunteers()
+        num_vols = register_vols[0]
+
+        return redirect('openCurrents:org-admin', num_vols)
 
 
 class EventCreatedView(TemplateView):
