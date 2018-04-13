@@ -503,7 +503,7 @@ class BizDetailsView(BizSessionContextView, FormView):
                 )
 
 
-class BusinessView(TemplateView):
+class BusinessView(HomeView):
     template_name = 'business.html'
 
 
@@ -847,7 +847,7 @@ class CausesView(TemplateView):
     template_name = 'causes.html'
 
 
-class FaqView(TemplateView):
+class FaqView(HomeView):
     template_name = 'faq.html'
 
 
@@ -1066,7 +1066,7 @@ class NominationEmailView(TemplateView):
     template_name = 'nomination-email.html'
 
 
-class NonprofitView(TemplateView):
+class NonprofitView(HomeView):
     template_name = 'nonprofit.html'
 
 
@@ -1078,7 +1078,7 @@ class OrgSignupView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'org-signup.html'
 
 
-class OurStoryView(TemplateView):
+class OurStoryView(HomeView):
     template_name = 'our-story.html'
 
 
@@ -1914,7 +1914,7 @@ class VolunteersInvitedView(LoginRequiredMixin, SessionContextView, TemplateView
 
 class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
     template_name = 'profile.html'
-    login_url = '/home'
+    # login_url = '/home'
     redirect_unauthenticated_users = True
     form_class = BizDetailsForm
 
@@ -2001,10 +2001,7 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
 
         return redirect(
             'openCurrents:profile',
-            status_msg=' '.join([
-                'Your dollars are on the way.',
-                'Look for an email from Dwolla soon.'
-            ])
+            status_msg='Your balance of $%.2f will clear in the next 48 hours. Look for an email from Dwolla soon.' % balance_available_usd
         )
 
 
@@ -4075,24 +4072,26 @@ def process_signup(
 
                 if not mock_emails:
                     # send verification email
+                    verify_email_vars = [
+                        {
+                            'name': 'FIRSTNAME',
+                            'content': user_firstname
+                        },
+                        {
+                            'name': 'EMAIL',
+                            'content': user_email
+                        },
+                        {
+                            'name': 'TOKEN',
+                            'content': str(token)
+                        }
+                    ]
+
                     try:
                         sendTransactionalEmail(
                             'verify-email',
                             None,
-                            [
-                                {
-                                    'name': 'FIRSTNAME',
-                                    'content': user_firstname
-                                },
-                                {
-                                    'name': 'EMAIL',
-                                    'content': user_email
-                                },
-                                {
-                                    'name': 'TOKEN',
-                                    'content': str(token)
-                                }
-                            ],
+                            verify_email_vars,
                             user_email
                         )
                     except Exception as e:
@@ -4528,20 +4527,34 @@ def process_email_confirmation(request, user_email):
         glogger.log_struct(glogger_struct, labels=glogger_labels)
 
         # send verification email
+        confirm_email_vars = [
+            {
+                'name': 'FIRSTNAME',
+                'content': user.first_name
+            },
+            {
+                'name': 'REFERRER',
+                'content': user.username
+            }
+        ]
+
+        # define NPF email variable
+        npf_var = {
+            'name': 'NPF',
+            'content': False
+        }
+
+        org_user = OrgUserInfo(user.id)
+        is_org_user = org_user.get_orguser()
+        if len(is_org_user) > 0 and org_user.get_org().status == 'npf':
+            npf_var['content'] = True
+
+        confirm_email_vars.append(npf_var)
         try:
             sendTransactionalEmail(
                 'email-confirmed',
                 None,
-                [
-                    {
-                        'name': 'FIRSTNAME',
-                        'content': user.first_name
-                    },
-                    {
-                        'name': 'REFERRER',
-                        'content': user.username
-                    }
-                ],
+                confirm_email_vars,
                 user.email
             )
         except Exception as e:
@@ -4550,7 +4563,6 @@ def process_email_confirmation(request, user_email):
                 e.message,
                 type(e)
             )
-
         login(request, user)
 
         oc_auth = OcAuth(user.id)
