@@ -1,5 +1,7 @@
 {% extends "layouts/popup.html" %}
 
+{% load tags %}
+
 {% block title %}
   Confirm cash out
 {% endblock title %}
@@ -10,7 +12,8 @@
     <p class="three-halves-margin-bottom">
       openCurrents uses Dwolla to send cash directly to your bank
       account. You will receive an email in the next 48 hours inviting
-      you to transfer your full balance of ${{ balance_available_usd }}.
+      you to transfer your full balance of
+      ${{ balance_available_usd|round_number:2 }}.
       If you have any questions, don't hesitate to reach out.</p>
 
     <button type="submit" class="button round">

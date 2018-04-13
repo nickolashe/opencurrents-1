@@ -1,0 +1,11 @@
+{% if request.user.is_authenticated %}
+  {% if not org_admin and not biz_admin %}
+    href="{% url 'openCurrents:profile' %}"
+  {% elif org_admin %}
+    href="{% url 'openCurrents:org-admin' %}"
+  {% elif biz_admin %}
+    href="{% url 'openCurrents:biz-admin' %}"
+  {% endif %}
+{% else %}
+  href="{% url 'openCurrents:login' %}"
+{% endif %}
