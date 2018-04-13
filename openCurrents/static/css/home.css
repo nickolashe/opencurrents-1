@@ -266,6 +266,10 @@ input.home-input::placeholder {
   border-radius: 4px;
 }
 
+.orange {
+  background-color: #f5a412;
+}
+
 .accordion-title {
   background-color: transparent;
 }

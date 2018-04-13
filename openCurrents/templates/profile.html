@@ -129,21 +129,6 @@
 
   <div class="row collapse one-margin-top left">
     <div class="small-11 medium-10 small-centered columns">
-      <h6 class="half-margin-bottom">Community activity</h6>
-      <a href="{% url 'openCurrents:public-record' %}?record_type=top-org" class="button tiny round secondary">
-        Currents issued: {% if currents_amount_total %}{{ currents_amount_total|round_number:3 }}{% else %}0{% endif %}
-      </a>
-      <a href="{% url 'openCurrents:public-record' %}?record_type=top-vol" class="button tiny round secondary">
-        Active volunteers: {% if active_volunteers_total %}{{ active_volunteers_total }}{% else %}0{% endif %}
-      </a>
-      <a href="{% url 'openCurrents:public-record' %}?record_type=top-biz" class="button tiny round secondary">
-        Currents redeemed: {{ biz_currents_total|round_number:3 }}
-      </a>
-    </div>
-  </div>
-
-  <div class="row collapse one-margin-top left">
-    <div class="small-11 medium-10 small-centered columns">
       <h6 class="half-margin-bottom">My volunteer hours</h6>
       {% for org, hours in hours_by_org.items %}
         <a href="{% url 'openCurrents:hours-detail' %}?user_id={{user.id}}&amp;org_id={{org.id}}&amp;type=approved"
