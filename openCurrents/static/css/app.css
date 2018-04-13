@@ -505,6 +505,10 @@ label {
   margin-top: 0.75rem;
 }
 
+.three-qtr-margin-left {
+  margin-left: 0.75rem;
+}
+
 .one-margin-bottom {
   margin-bottom: 1rem;
 }
@@ -918,8 +922,8 @@ a.list-group-item {
 .status-highlight {
   background-color: #24b2e7;
   color: #ffffff;
-  padding-top: 0.25rem;
-  padding-bottom: 0.25rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
 }
 
 /* Titles */
