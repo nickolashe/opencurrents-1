@@ -10,10 +10,14 @@
 {% endblock heading %}
 
 {% block content %}
-  <form method="post" action="{% url 'openCurrents:process_login' %}">
+    <form method="post" action="{% url 'openCurrents:process_login' %}">
+
     {% csrf_token %}
       <div class="row half-margin-top">
         <div class="small-12 medium-6 small-centered columns">
+        {% if next %}
+            <input type="hidden" name="next" value="{{ next }}" />
+        {% endif %}
           <input type="email" name="user_email" class="center" placeholder="Email address"/>
           <input type="password" name="user_password" class="center" placeholder="Password"/>
           <a class="forgotpassword-box_open">Forgot password?</a>
@@ -25,11 +29,14 @@
             <label for="remember-me">Keep me logged in</label>
         </div>
 
-        <button type="submit" class="button round">Enter</button>
+        <button type="submit" class="button round" onclick="this.disabled=true,this.form.submit();">Enter</button>
       </div>
 
       <div class="row center half-margin-top">
-        <p class="grey">New member?<br/> <a href="{% url 'openCurrents:home' %}">Join openCurrents</a></p>
+        <p class="grey">
+          New member?<br/>
+          <a href="{% url 'openCurrents:root' %}#6">Join openCurrents</a>
+        </p>
       </div>
   </form>
 {% endblock content %}

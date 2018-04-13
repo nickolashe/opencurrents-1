@@ -45,13 +45,7 @@
     {% if form.errors %}
       <div class="row">
         {% for field, error in form.errors.iteritems %}
-          <div class="center alert">
-            {% if field != '__all__' %}
-              {{ field|addstr:': '}} {{ error }}
-            {% else %}
-              {{ error }}
-            {% endif %}
-          </div>
+          <div class="center alert"> {{ error }} </div>
         {% endfor %}
       </div>
     {% endif %}
@@ -63,8 +57,8 @@
           <p class="three-halves-margin-bottom">
 
             To exchange Currents for dollars with {{ offer.org.name }},
-            upload your receipt as proof of purchase. Other forms, such as
-            an image of your bank statement or description of your
+            you <strong>must</strong> upload your receipt as proof of purchase. Other forms, such
+            as an image of your bank statement or description of your
             purchase, may or may not be accepted.
 
             <a class="redeem-info-popup_open no-wrap">
@@ -140,12 +134,18 @@
         <div class="small-12 medium-8 small-centered columns">
           <h4 class="one-margin-bottom">Confirm exchange</h4>
 
-          <p class="one-margin-bottom">
+          <p>
             I agree to give
             <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
             <span class="currents-total">0.00</span> to {{ offer.org.name }}
             in exchange for $<span class="dollars-total">0.00</span> minus a
             {{ tr_fee }}% transaction fee of $<span class="dollars-fee">0.00</span>.
+            <span id="master-offer-limit" class="hidden">
+              (You have up to
+              <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
+              {{ master_funds_available }}
+              remaining for the special offer.)
+            </span>
           </p>
 
           <p>
@@ -260,7 +260,7 @@
       });
 
       // Set height of spacer = to height of content
-      $('#redeem-spacer').height($('#offer-3').height());
+      $('#redeem-spacer').height($('#offer-3').height()+100);
 
       // Disable submit on Enter
       $("form input").on("keypress", function(e) {
@@ -337,6 +337,7 @@
         else {
           $('#master-offer-popup').popup('hide');
           $('#offer-details').hide();
+          $('#master-offer-limit').show();
           $('#master-offer-details').show();
           $('#id_biz_name').val($('#biz_name_input').val());
           $('#show_biz_name').text($('#biz_name_input').val());
@@ -358,11 +359,12 @@
       });
 
       let shareToCurrents = function (priceSubjectToShare) {
-        var share = {{ offer.currents_share }} /100.;
-        var dollars = (priceSubjectToShare * share).toFixed(2);
-
+        var share = {{ offer.currents_share }} / 100.;
+        var dollars = Math.round(priceSubjectToShare * share * 100) / 100;
+        console.log('dollars: ' + dollars);
         // TODO: switch to an API call to get the converstion rate
-        var currents = dollars / parseFloat({{cur_rate}});
+        var currents = (dollars / parseFloat({{cur_rate}}));
+        console.log('currents: ' + currents);
 
         return {
           'currents': currents,
@@ -371,16 +373,17 @@
       }
 
       let setElemValuesBasedOnPriceSubjectToShare = function (priceSubjectToShare) {
-        const fee = (parseFloat({{tr_fee}} / 100) * priceSubjectToShare.dollars).toFixed(2);
-        let dollarsReceived = (priceSubjectToShare.dollars - fee).toFixed(2);
+        const fee = Math.round(parseFloat({{tr_fee}}) * priceSubjectToShare.dollars)/100;
+        let dollarsReceived = (priceSubjectToShare.dollars - fee);
         console.log('priceSubjectToShare.currents:' + priceSubjectToShare.currents);
         console.log('priceSubjectToShare.dollars:' + priceSubjectToShare.dollars);
         console.log('priceSubjectToShare.dollarsReceived:' + dollarsReceived);
+        console.log('fee before rounding:' + parseFloat({{tr_fee}}) * priceSubjectToShare.dollars /100);
 
-        $('.currents-total').text(priceSubjectToShare.currents);
-        $('.dollars-total').text(priceSubjectToShare.dollars);
-        $('.dollars-fee').text(fee);
-        $('.dollars-received').text(dollarsReceived);
+        $('.currents-total').text(priceSubjectToShare.currents.toFixed(3));
+        $('.dollars-total').text(priceSubjectToShare.dollars.toFixed(2));
+        $('.dollars-fee').text(fee.toFixed(2));
+        $('.dollars-received').text(dollarsReceived.toFixed(2));
 
         $("input[name^=redeem_currents_amount]").val(
           priceSubjectToShare.currents

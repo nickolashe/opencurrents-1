@@ -2,13 +2,14 @@ from datetime import datetime, timedelta
 from itertools import chain
 
 from django.db.models import Q, Sum
-from openCurrents.models import \
-    Entity, \
-    UserEntity, \
-    OrgEntity, \
-    Ledger, \
-    AdminActionUserTime, \
+from openCurrents.models import (
+    Entity,
+    UserEntity,
+    OrgEntity,
+    Ledger,
+    AdminActionUserTime,
     TransactionAction
+)
 
 import logging
 import pytz

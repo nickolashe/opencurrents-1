@@ -1,15 +1,14 @@
 {% extends "layouts/popup.html" %}
 
 {% block title %}
-  Over $40 required to cash out
+  No Available Dollars
 {% endblock title %}
 
 {% block content %}
-  <p>During the special offer promotion, you need more than $40 in
-    Available Dollars to cash out to your bank account or donate to a nonprofit
-    of your choice. If you have redeemed an offer and have pending dollars in
-    your account, you'll need to wait until the business verifies your proof of
-    purchase at the end of the month.</p>
+  <p>You will need Available Dollars to cash out to your bank
+    account or donate to a nonprofit of your choice. If you have redeemed an
+    offer and have pending dollars in your account, you'll need to wait until
+    the business verifies your proof of purchase at the end of the month.</p>
   <p>To see offers from businesses in the community, please visit the
     <a href="{% url 'openCurrents:marketplace' %}">Marketplace</a>.</p>
   <a class="no-cash-popup_close button round">

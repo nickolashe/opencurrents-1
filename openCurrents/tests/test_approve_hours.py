@@ -1,8 +1,8 @@
+"""Tests collection for approve time records functionality."""
 from django.test import Client, TestCase
 from django.contrib.auth.models import User
 from django.shortcuts import redirect
 
-from datetime import datetime, timedelta
 from django.utils import timezone
 
 # MODELS
@@ -25,22 +25,29 @@ from openCurrents.interfaces.orgs import \
     OrgUserInfo
 
 # TESTING INTERFACES
-from openCurrents.tests.interfaces.common import \
-    _create_test_user, \
-    _create_project, \
-    _setup_volunteer_hours
+from openCurrents.tests.interfaces.common import(
+    _create_test_user,
+    _create_project,
+    _setup_volunteer_hours,
+    SetUpTests,
+    SetupAdditionalTimeRecords
+)
 
+from datetime import datetime, timedelta
+from numpy import random
+import pytz
 import re
 
 
 class TestApproveHoursOneWeek(TestCase):
+    """Collection of tests for time records within one week."""
 
     def setUp(self):
-
+        """Set testing environment."""
         # creating org
         self.org1 = OcOrg().setup_org(name="NPF_org_1", status="npf")
 
-        #creating volunteers
+        # creating volunteers
         self.volunteer_1 = _create_test_user('volunteer_1')
         self.volunteer_2 = _create_test_user('volunteer_2')
 
@@ -49,7 +56,7 @@ class TestApproveHoursOneWeek(TestCase):
         self.volunteer_2_full_name = self.volunteer_2.first_name + ' ' + self.volunteer_2.last_name
 
         # creating an admins for NPF_orgs
-        self.npf_admin_1 = _create_test_user('npf_admin_1', org = self.org1, is_org_admin=True)
+        self.npf_admin_1 = _create_test_user('npf_admin_1', org=self.org1, is_org_admin=True)
 
         # creating a project
         self.project_1 = _create_project(self.org1, 'org1_project_1')
@@ -69,22 +76,18 @@ class TestApproveHoursOneWeek(TestCase):
         # getting previous week start
         self.monday = (timezone.now() - timedelta(days=timezone.now().weekday())).strftime("%-m-%-d-%Y")
 
-
         # oc instances
         self.oc_vol_1 = OcUser(self.volunteer_1.id)
         self.oc_vol_2 = OcUser(self.volunteer_2.id)
 
         # user entities
-        self.user_enitity_id_vol_1 = UserEntity.objects.get(user = self.volunteer_1).id
-        self.user_enitity_id_vol_2 = UserEntity.objects.get(user = self.volunteer_2).id
-
+        self.user_enitity_id_vol_1 = UserEntity.objects.get(user=self.volunteer_1).id
+        self.user_enitity_id_vol_2 = UserEntity.objects.get(user=self.volunteer_2).id
 
         # setting up client
         self.client = Client()
         self.client.login(username=self.npf_admin_1.username, password='password')
         self.response = self.client.get('/approve-hours/')
-
-
 
     def test_logged_hours_displayed(self):
 
@@ -99,11 +102,9 @@ class TestApproveHoursOneWeek(TestCase):
             self.assertEqual(3.0, self.response.context[0]['week'][0][k][self.volunteer_1.email]['Total'])
             self.assertEqual(self.volunteer_1_full_name, self.response.context[0]['week'][0][k][self.volunteer_1.email]['name'])
 
-
             self.assertEqual(3, len(self.response.context[0]['week'][0][k][self.volunteer_2.email]))
             self.assertEqual(2.0, self.response.context[0]['week'][0][k][self.volunteer_2.email]['Total'])
             self.assertEqual(self.volunteer_2_full_name, self.response.context[0]['week'][0][k][self.volunteer_2.email]['name'])
-
 
     def test_logged_hours_accept(self):
 
@@ -128,8 +129,8 @@ class TestApproveHoursOneWeek(TestCase):
 
         # approving hours
         self.response = self.client.post('/approve-hours/', {
-                'post-data': self.volunteer_1.username + ':1:' + self.monday +',' + self.volunteer_2.username + ':1:' + self.monday
-                })
+            'post-data': self.volunteer_1.username + ':1:' + self.monday + ',' + self.volunteer_2.username + ':1:' + self.monday
+        })
 
         # return to org-amdin after approving
         self.assertRedirects(self.response, '/org-admin/2/0/', status_code=302)
@@ -164,7 +165,6 @@ class TestApproveHoursOneWeek(TestCase):
         self.assertEqual(1, len(self.oc_vol_2.get_hours_approved()))
         self.assertEqual(2, OcLedger().get_balance(self.user_enitity_id_vol_2))
 
-
     def test_logged_hours_declined(self):
         self.assertEqual(self.response.status_code, 200)
 
@@ -184,8 +184,8 @@ class TestApproveHoursOneWeek(TestCase):
         self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_2))
 
         self.response = self.client.post('/approve-hours/', {
-                'post-data': self.volunteer_1.username + ':0:' + self.monday +',' + self.volunteer_2.username + ':0:' + self.monday
-                })
+            'post-data': self.volunteer_1.username + ':0:' + self.monday + ',' + self.volunteer_2.username + ':0:' + self.monday
+        })
 
         # return to org-amdin after declining
         self.assertRedirects(self.response, '/org-admin/0/2/', status_code=302)
@@ -218,16 +218,15 @@ class TestApproveHoursOneWeek(TestCase):
         self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_1))
 
 
-
-
 class TestApproveHoursTwoWeeks(TestCase):
+    """Collection of tests for time records within 2 weeks."""
 
     def setUp(self):
-
+        """Set testing environment."""
         # creating org
         self.org1 = OcOrg().setup_org(name="NPF_org_1", status="npf")
 
-        #creating volunteers
+        # creating volunteers
         self.volunteer_1 = _create_test_user('volunteer_1')
         self.volunteer_2 = _create_test_user('volunteer_2')
 
@@ -236,7 +235,7 @@ class TestApproveHoursTwoWeeks(TestCase):
         self.volunteer_2_full_name = self.volunteer_2.first_name + ' ' + self.volunteer_2.last_name
 
         # creating an admins for NPF_orgs
-        self.npf_admin_1 = _create_test_user('npf_admin_1', org = self.org1, is_org_admin=True)
+        self.npf_admin_1 = _create_test_user('npf_admin_1', org=self.org1, is_org_admin=True)
 
         # creating a project
         self.project_1 = _create_project(self.org1, 'org1_project_1')
@@ -254,7 +253,7 @@ class TestApproveHoursTwoWeeks(TestCase):
         _setup_volunteer_hours(self.volunteer_2, self.npf_admin_1, self.org1, self.project_1, datetime_start_2, datetime_end_2,)
 
         # getting previous week start
-        self.monday_prev = (timezone.now() - timedelta(days=timezone.now().weekday()+7)).strftime("%-m-%-d-%Y")
+        self.monday_prev = (timezone.now() - timedelta(days=timezone.now().weekday() + 7)).strftime("%-m-%-d-%Y")
         self.monday_last = (timezone.now() - timedelta(days=timezone.now().weekday())).strftime("%-m-%-d-%Y")
 
         # oc instances
@@ -262,15 +261,13 @@ class TestApproveHoursTwoWeeks(TestCase):
         self.oc_vol_2 = OcUser(self.volunteer_2.id)
 
         # user entities
-        self.user_enitity_id_vol_1 = UserEntity.objects.get(user = self.volunteer_1).id
-        self.user_enitity_id_vol_2 = UserEntity.objects.get(user = self.volunteer_2).id
+        self.user_enitity_id_vol_1 = UserEntity.objects.get(user=self.volunteer_1).id
+        self.user_enitity_id_vol_2 = UserEntity.objects.get(user=self.volunteer_2).id
 
         # setting up client
         self.client = Client()
         self.client.login(username=self.npf_admin_1.username, password='password')
         self.response = self.client.get('/approve-hours/')
-
-
 
     def test_logged_hours_displayed(self):
 
@@ -285,7 +282,6 @@ class TestApproveHoursTwoWeeks(TestCase):
             self.assertEqual(3, len(context_hr_displayed[k][self.volunteer_2.email]))
             self.assertEqual(2.0, context_hr_displayed[k][self.volunteer_2.email]['Total'])
             self.assertEqual(self.volunteer_2_full_name, context_hr_displayed[k][self.volunteer_2.email]['name'])
-
 
     def test_logged_hours_accept(self):
 
@@ -308,8 +304,8 @@ class TestApproveHoursTwoWeeks(TestCase):
 
         # approving hours
         self.response = self.client.post('/approve-hours/', {
-                'post-data': self.volunteer_2.username + ':1:' + self.monday_prev
-                })
+            'post-data': self.volunteer_2.username + ':1:' + self.monday_prev
+        })
 
         # return to org-amdin after approving
         self.assertRedirects(self.response, '/approve-hours/1/0/', status_code=302)
@@ -329,7 +325,6 @@ class TestApproveHoursTwoWeeks(TestCase):
         self.assertEqual(1, len(self.oc_vol_2.get_hours_approved()))
         self.assertEqual(2, OcLedger().get_balance(self.user_enitity_id_vol_2))
 
-
         # checking that the the last week submitted hours are displayed
         org_admin_response_approve_second_week = self.client.get('/approve-hours/2/0/')
         context_hr_last_week = org_admin_response_approve_second_week.context[0]['week'][0]
@@ -340,11 +335,10 @@ class TestApproveHoursTwoWeeks(TestCase):
             self.assertEqual(3.0, context_hr_last_week[k][self.volunteer_1.email]['Total'])
             self.assertEqual(self.volunteer_1_full_name, context_hr_last_week[k][self.volunteer_1.email]['name'])
 
-
         # approving hours for the last week
         response_post_last_week = self.client.post('/approve-hours/', {
-                'post-data': self.volunteer_1.username + ':1:' + self.monday_last
-                })
+            'post-data': self.volunteer_1.username + ':1:' + self.monday_last
+        })
 
         # return to org-amdin after approving
         self.assertRedirects(response_post_last_week, '/org-admin/1/0/', status_code=302)
@@ -370,7 +364,6 @@ class TestApproveHoursTwoWeeks(TestCase):
         self.assertEqual(1, len(self.oc_vol_2.get_hours_approved()))
         self.assertEqual(2, OcLedger().get_balance(self.user_enitity_id_vol_2))
 
-
     def test_logged_hours_decline(self):
         self.assertEqual(self.response.status_code, 200)
 
@@ -391,8 +384,8 @@ class TestApproveHoursTwoWeeks(TestCase):
 
         # declining hrs for the previous week
         post_decline_hours = self.client.post('/approve-hours/', {
-                'post-data': self.volunteer_2.username + ':0:' + self.monday_prev
-                })
+            'post-data': self.volunteer_2.username + ':0:' + self.monday_prev
+        })
 
         # return to org-amdin after declining
         self.assertRedirects(post_decline_hours, '/approve-hours/0/1/', status_code=302)
@@ -410,11 +403,10 @@ class TestApproveHoursTwoWeeks(TestCase):
         self.assertEqual(0, len(self.oc_vol_2.get_hours_approved()))
         self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_2))
 
-
         # declining for the last week
         post_decline_hours_last = self.client.post('/approve-hours/0/1/', {
-                'post-data': self.volunteer_1.username + ':0:' + self.monday_last
-                })
+            'post-data': self.volunteer_1.username + ':0:' + self.monday_last
+        })
 
         # return to org-amdin after declining
         self.assertRedirects(post_decline_hours_last, '/org-admin/0/1/', status_code=302)
@@ -433,3 +425,342 @@ class TestApproveHoursTwoWeeks(TestCase):
         self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_1))
         self.assertEqual(0, len(self.oc_vol_2.get_hours_approved()))
         self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_2))
+
+
+class TestApproveHoursRandomDates(SetupAdditionalTimeRecords, TestCase):
+    """
+    Tests with random dates for time records.
+
+    The main purpose is to check that query returns proper time records per
+    week and admin can approve these records.
+    """
+
+    def setUp(self):
+        """Additional setup for TestApproveHoursRandomDates class."""
+        # generating time records
+
+        super(TestApproveHoursRandomDates, self).setUp()
+
+        def _gen_time():
+            datetime_start = datetime.now(tz=pytz.utc) - \
+                timedelta(days=random.randint(60)) + \
+                timedelta(hours=random.randint(12, 24))
+            datetime_end = datetime_start + \
+                timedelta(hours=random.randint(1, 4))
+            return datetime_start, datetime_end
+
+        self.counter = 10  # number of generated hours
+        for i in range(self.counter):
+            time = _gen_time()
+            records = _setup_volunteer_hours(
+                self.volunteer_1,
+                self.npf_admin,
+                self.org_npf,
+                self.project,
+                time[0],
+                time[1]
+            )
+            # print time[0], '  ', time[1]
+
+    def test_check_workflow(self):
+        """
+        Check if all entries are in week context arg for every week.
+
+        It is expected that self.counter number of UserTimeLog objects and
+        AdminActionUserTime with action_type='req' is created with different
+        dates.
+        These time records are displayed for every week and then approved
+        by org-admin.
+        """
+        test_counter = 0
+
+        while True:
+            response = self.client.get('/approve-hours/')
+            records_num_for_approval = 0
+            # check how many AdminActionUserTime records are in the first week
+            earliest_monday = self._get_earliest_monday()
+            current_week_records = self._current_week_records(earliest_monday)
+
+            # checking context varibale 'week' if it contains correct # of
+            # AdminActionUserTime objects
+            records_num_for_approval = self._compare_shown_records(
+                current_week_records,
+                response
+            )
+
+            # approving hours for displayed week
+            post_response = self.client.post('/approve-hours/', {
+                'post-data': self.volunteer_1.username +
+                ':1:' +
+                earliest_monday.strftime("%-m-%-d-%Y")
+            })
+            test_counter += records_num_for_approval
+
+            if test_counter < self.counter:
+                self.assertRedirects(
+                    post_response,
+                    '/approve-hours/1/0/',
+                    status_code=302
+                )
+            if test_counter == self.counter:
+                self.assertRedirects(
+                    post_response,
+                    '/org-admin/1/0/',
+                    status_code=302
+                )
+                break
+
+            # check if correct num of records approved
+            self.assertEqual(
+                test_counter,
+                len(self.oc_vol_1.get_hours_approved())
+            )
+
+
+class TestApproveHoursCornerCases(SetupAdditionalTimeRecords, TestCase):
+    """
+    Tests with specific dates for time records.
+
+    The main purpose is to check that query returns specific records per
+    week and admin can approve these records.
+    """
+
+    def _get_current_week_start_end_utc(self, pytz_tz):
+            """Return closest monday in provided pytz_tz timezone."""
+            utc_now = datetime.now(tz=pytz_tz)
+            utc_monday = utc_now - timedelta(days=(utc_now.weekday()))
+            utc_monday = utc_monday.replace(hour=00, minute=00, second=00)
+            utc_sunday = utc_monday + timedelta(days=6)
+            # print utc_monday, utc_sunday
+
+            return utc_monday, utc_sunday
+
+    def _gen_weekdays_split_time(self, monday_date):
+        """Generate a time record within current week UTC."""
+        datetime_start = monday_date + \
+            timedelta(days=random.randint(1, 5)) + \
+            timedelta(hours=random.randint(20, 23))
+        datetime_end = datetime_start + \
+            timedelta(hours=random.randint(5, 8))
+
+        return datetime_start, datetime_end
+
+    def _gen_weekend_split_time(self, monday_date):
+        """Generate a time record within current week UTC."""
+        datetime_start = monday_date + \
+            timedelta(days=6) + timedelta(hours=23)
+        datetime_end = datetime_start + timedelta(hours=2)
+
+        return datetime_start, datetime_end
+
+    def _change_org_tz(self, org):
+        Org.objects.filter(pk=org.pk)[0].timezone = 'America/Detroit'
+
+    # def _clean_all_records(self):
+    #     """Delete all previously requested hours."""
+    #     UserTimeLog.objects.all().delete()
+    #     AdminActionUserTime.objects.all().delete()
+
+    def setUp(self):
+        """Additional setup for TestApproveHoursRandomDates class."""
+        super(TestApproveHoursCornerCases, self).setUp()
+
+        # utc =  00:00
+        # America/Detroit = -4:00
+        # America/Chicago = -6:00
+        self.pytz_utc = pytz.utc
+        self.pytz_utc_minus_6 = pytz.timezone('America/Detroit')
+
+        utc_current_week = self._get_current_week_start_end_utc(self.pytz_utc)
+        self.utc_monday = utc_current_week[0]
+        self.utc_sunday = utc_current_week[1]
+
+        amchic_current_week = self._get_current_week_start_end_utc(
+            self.pytz_utc_minus_6
+        )
+        self.amchic_monday = amchic_current_week[0]
+        self.amchic_sunday = amchic_current_week[1]
+
+        # setting up client
+        self.client = Client()
+        self.client.login(username=self.npf_admin.username, password='password')
+
+    def test_timerecord_split_weekdays_utc(self):
+        """
+        Testing time record (UTC) that starts on one day and finishes on another day (weekdays).
+
+        Expected behavior:
+        - time record is correctly shown on approve-hours page.
+        - time record may be approved by admin.
+        """
+        # setting up the record's time
+        weekdays_records = self._gen_weekdays_split_time(self.utc_monday)
+        _setup_volunteer_hours(
+            self.volunteer_1,
+            self.npf_admin,
+            self.org_npf,
+            self.project,
+            weekdays_records[0],
+            weekdays_records[1]
+        )
+        # print weekdays_records
+
+        response = self.client.get('/approve-hours/')
+
+        earliest_monday = self._get_earliest_monday()
+        current_week_records = self._current_week_records(earliest_monday)
+
+        # checking context varibale 'week' if it contains correct # of
+        # AdminActionUserTime objects
+        records_num_for_approval = self._compare_shown_records(
+            current_week_records,
+            response
+        )
+
+        # approving hours for displayed week
+        post_response = self.client.post('/approve-hours/', {
+            'post-data': self.volunteer_1.username +
+            ':1:' +
+            earliest_monday.strftime("%-m-%-d-%Y")
+        })
+
+        # check if correct num of records approved
+        self.assertEqual(
+            1,
+            len(self.oc_vol_1.get_hours_approved())
+        )
+
+    def test_timerecord_split_weekend_utc(self):
+        """
+        Testing time record (UTC) that starts on one day and finishes on another day (weekend).
+
+        Expected behavior:
+        - time record is correctly shown on approve-hours page.
+        - time record may be approved by admin.
+        """
+        # setting up the record's time
+        weekdays_records = self._gen_weekend_split_time(self.utc_monday)
+        _setup_volunteer_hours(
+            self.volunteer_1,
+            self.npf_admin,
+            self.org_npf,
+            self.project,
+            weekdays_records[0],
+            weekdays_records[1]
+        )
+        # print weekdays_records
+
+        response = self.client.get('/approve-hours/')
+
+        earliest_monday = self._get_earliest_monday()
+        current_week_records = self._current_week_records(earliest_monday)
+
+        # checking context varibale 'week' if it contains correct # of
+        # AdminActionUserTime objects
+        records_num_for_approval = self._compare_shown_records(
+            current_week_records,
+            response
+        )
+
+        # approving hours for displayed week
+        post_response = self.client.post('/approve-hours/', {
+            'post-data': self.volunteer_1.username +
+            ':1:' +
+            earliest_monday.strftime("%-m-%-d-%Y")
+        })
+
+        # check if correct num of records approved
+        self.assertEqual(
+            1,
+            len(self.oc_vol_1.get_hours_approved())
+        )
+
+    def test_timerecord_split_weekdays_non_utc(self):
+        """
+        Testing time record (non-UTC) that starts on one day and finishes on another day (weekdays).
+
+        Expected behavior:
+        - time record is correctly shown on approve-hours page.
+        - time record may be approved by admin.
+        """
+        # setting up the record's time
+        weekdays_records = self._gen_weekdays_split_time(self.amchic_monday)
+        _setup_volunteer_hours(
+            self.volunteer_1,
+            self.npf_admin,
+            self.org_npf,
+            self.project,
+            weekdays_records[0],
+            weekdays_records[1]
+        )
+        # print weekdays_records
+
+        response = self.client.get('/approve-hours/')
+
+        earliest_monday = self._get_earliest_monday()
+        current_week_records = self._current_week_records(earliest_monday)
+
+        # checking context varibale 'week' if it contains correct # of
+        # AdminActionUserTime objects
+        records_num_for_approval = self._compare_shown_records(
+            current_week_records,
+            response
+        )
+
+        # approving hours for displayed week
+        post_response = self.client.post('/approve-hours/', {
+            'post-data': self.volunteer_1.username +
+            ':1:' +
+            earliest_monday.strftime("%-m-%-d-%Y")
+        })
+
+        # check if correct num of records approved
+        self.assertEqual(
+            1,
+            len(self.oc_vol_1.get_hours_approved())
+        )
+
+    def test_timerecord_split_weekend_non_utc(self):
+        """
+        Testing time record (non-UTC) that starts on one day and finishes on another day (weekend).
+
+        Expected behavior:
+        - time record is correctly shown on approve-hours page.
+        - time record may be approved by admin.
+        """
+        # setting up the record's time
+        weekdays_records = self._gen_weekend_split_time(self.amchic_monday)
+        _setup_volunteer_hours(
+            self.volunteer_1,
+            self.npf_admin,
+            self.org_npf,
+            self.project,
+            weekdays_records[0],
+            weekdays_records[1]
+        )
+        # print weekdays_records
+
+        response = self.client.get('/approve-hours/')
+
+        earliest_monday = self._get_earliest_monday()
+        current_week_records = self._current_week_records(earliest_monday)
+
+        # checking context varibale 'week' if it contains correct # of
+        # AdminActionUserTime objects
+        records_num_for_approval = self._compare_shown_records(
+            current_week_records,
+            response
+        )
+
+        # approving hours for displayed week
+        post_response = self.client.post('/approve-hours/', {
+            'post-data': self.volunteer_1.username +
+            ':1:' +
+            earliest_monday.strftime("%-m-%-d-%Y")
+        })
+
+        # check if correct num of records approved
+        self.assertEqual(
+            1,
+            len(self.oc_vol_1.get_hours_approved())
+        )
