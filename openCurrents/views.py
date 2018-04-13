@@ -1914,7 +1914,7 @@ class VolunteersInvitedView(LoginRequiredMixin, SessionContextView, TemplateView
 
 class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
     template_name = 'profile.html'
-    login_url = '/home'
+    # login_url = '/home'
     redirect_unauthenticated_users = True
     form_class = BizDetailsForm
 
@@ -4072,24 +4072,26 @@ def process_signup(
 
                 if not mock_emails:
                     # send verification email
+                    verify_email_vars = [
+                        {
+                            'name': 'FIRSTNAME',
+                            'content': user_firstname
+                        },
+                        {
+                            'name': 'EMAIL',
+                            'content': user_email
+                        },
+                        {
+                            'name': 'TOKEN',
+                            'content': str(token)
+                        }
+                    ]
+
                     try:
                         sendTransactionalEmail(
                             'verify-email',
                             None,
-                            [
-                                {
-                                    'name': 'FIRSTNAME',
-                                    'content': user_firstname
-                                },
-                                {
-                                    'name': 'EMAIL',
-                                    'content': user_email
-                                },
-                                {
-                                    'name': 'TOKEN',
-                                    'content': str(token)
-                                }
-                            ],
+                            verify_email_vars,
                             user_email
                         )
                     except Exception as e:
@@ -4525,20 +4527,34 @@ def process_email_confirmation(request, user_email):
         glogger.log_struct(glogger_struct, labels=glogger_labels)
 
         # send verification email
+        confirm_email_vars = [
+            {
+                'name': 'FIRSTNAME',
+                'content': user.first_name
+            },
+            {
+                'name': 'REFERRER',
+                'content': user.username
+            }
+        ]
+
+        # define NPF email variable
+        npf_var = {
+            'name': 'NPF',
+            'content': False
+        }
+
+        org_user = OrgUserInfo(user.id)
+        is_org_user = org_user.get_orguser()
+        if len(is_org_user) > 0 and org_user.get_org().status == 'npf':
+            npf_var['content'] = True
+
+        confirm_email_vars.append(npf_var)
         try:
             sendTransactionalEmail(
                 'email-confirmed',
                 None,
-                [
-                    {
-                        'name': 'FIRSTNAME',
-                        'content': user.first_name
-                    },
-                    {
-                        'name': 'REFERRER',
-                        'content': user.username
-                    }
-                ],
+                confirm_email_vars,
                 user.email
             )
         except Exception as e:
@@ -4547,7 +4563,6 @@ def process_email_confirmation(request, user_email):
                 e.message,
                 type(e)
             )
-
         login(request, user)
 
         oc_auth = OcAuth(user.id)
