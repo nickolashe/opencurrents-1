@@ -516,6 +516,30 @@ class TestApproveHoursRandomDates(SetupAdditionalTimeRecords, TestCase):
                 len(self.oc_vol_1.get_hours_approved())
             )
 
+    def test_requested_hours_popup_visibile(self):
+        """
+        Check if NPF admin sees Volunteers request approval popup.
+
+        It is expected that NPF admin sees the popoup that informs him about
+        existing requested hours recorded by volunteers.
+        """
+        response = self.client.get('/org-admin/')
+        self.assertEqual(response.context['app_hr'], 1)
+
+    def test_requested_hours_popup_hidden(self):
+        """
+        Check if NPF admin doesn't see Volunteers request approval popup.
+
+        It is expected that NPF admin doesn't see the popoup if there are no
+        requested hours recorded by volunteers.
+        """
+        for admin_action in AdminActionUserTime.objects.all():
+            admin_action.action_type = 'app'
+            admin_action.save()
+
+        response = self.client.get('/org-admin/')
+        self.assertEqual(response.context['app_hr'], 0)
+
 
 class TestApproveHoursCornerCases(SetupAdditionalTimeRecords, TestCase):
     """
