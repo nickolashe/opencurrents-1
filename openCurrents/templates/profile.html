@@ -18,8 +18,8 @@
       </div>
     </div>
   {% endif %}
-
 {% endblock status %}
+
 {% block heading %}
   <div class="row">
     <div class="small-12 small-centered columns">
@@ -85,6 +85,34 @@
          button round secondary tiny">
         Cash out
       </a>
+    </div>
+  </div>
+
+  <div class="row collapse left three-halves-margin-top">
+    <div class="small-11 medium-10 small-centered columns">
+      <h6>Featured businesses</h6>
+      <div class="row">
+        <div class="small-6 medium-3 columns">
+          <a href="{% url 'openCurrents:redeem-currents' master_offer.id %}">
+            <img class="biz-logos" src="{% static 'img/whole-foods.png' %}"/>
+          </a>
+        </div>
+        <div class="small-6 medium-3 columns">
+          <a href="{% url 'openCurrents:redeem-currents' master_offer.id %}">
+            <img class="biz-logos" src="{% static 'img/amazon.png' %}"/>
+          </a>
+        </div>
+        <div class="small-6 medium-3 columns">
+          <a href="{% url 'openCurrents:redeem-currents' master_offer.id %}">
+            <img class="biz-logos" src="{% static 'img/heb.png' %}"/>
+          </a>
+        </div>
+        <div class="small-6 medium-3 columns">
+          <a href="{% url 'openCurrents:redeem-currents' master_offer.id %}">
+            <img class="biz-logos" src="{% static 'img/central-market.png' %}"/>
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 
