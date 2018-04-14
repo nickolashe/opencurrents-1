@@ -24,7 +24,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'k)2cm1xy=m9zwyvqj9xw@0pe(fnzlmtq&x6xzk@@em2$590_wg'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -110,8 +110,8 @@ USE_L10N = True
 USE_TZ = True
 
 # sessions and auto-logout
-SESSION_COOKIE_AGE = 3600  # in seconds
-AUTO_LOGOUT_DELAY = 60  # in minutes
+SESSION_COOKIE_AGE = 3 * 3600  # in seconds
+AUTO_LOGOUT_DELAY = 3 * 60  # in minutes
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
