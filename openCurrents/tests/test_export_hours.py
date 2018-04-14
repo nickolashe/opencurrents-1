@@ -77,27 +77,40 @@ class TestExportApprovedHours(SetupAdditionalTimeRecords, TestCase):
 
         Takes str() start_d, end_d and evaluates
         """
-        if start_d == '' or end_d == '':
-            error_msg = "Start%20and%20End%20date%20cannot%20be%20empty!/alert"
+        error_msg = ''
+
+        # check if stat date is empty
+        if start_d == '':
+            error_msg = "Start%20date%20cannot%20be%20empty!/alert"
+
         else:
-            error_msg = "Incorrect%20dates!/alert"
+            # check if start-date in formatted correctly
+            try:
+                datetime.strptime(
+                    start_d,
+                    '%Y-%m-%d'
+                )
+            except ValueError:
+                error_msg = "Incorrect%20dates!/alert"
 
         url = testing_urls.export_data_url
-
         response = self.client.post(
-            testing_urls.export_data_url,
+            url,
             {
                 'start-date': start_d,
                 'end-date': end_d
             }
         )
-        expected_url = url + error_msg
-        self.assertRedirects(
-            response,
-            expected_url,
-            status_code=302,
-            target_status_code=200
-        )
+        if error_msg:
+            expected_url = url + error_msg
+            self.assertRedirects(
+                response,
+                expected_url,
+                status_code=302,
+                target_status_code=200
+            )
+        else:
+            self._assert_file_created_downloaded()
 
     def setUp(self):
         """Additional setup for TestApproveHoursRandomDates class."""
@@ -218,4 +231,35 @@ class TestExportApprovedHours(SetupAdditionalTimeRecords, TestCase):
         self._assert_date_input(
             (datetime.now(tz=pytz.utc) - timedelta(days=10)).strftime("%Y-%m-%d"),
             '',
+        )
+
+    def test_importing_empty_sheet(self):
+        """
+        Test error when export for selected dates is empty.
+
+        Expected red alert msg 'The query is empty, please, try another set of
+        dates.'
+        """
+        date_start_str = (
+            datetime.now(tz=pytz.utc) - timedelta(days=100)
+        ).strftime("%Y-%m-%d")
+        date_end_str = (
+            datetime.now(tz=pytz.utc) - timedelta(days=90)
+        ).strftime("%Y-%m-%d")
+
+        url = testing_urls.export_data_url
+        error_msg = 'The%20query%20is%20empty,%20please,%20try%20another%20set%20of%20dates./alert'
+        expected_url = url + error_msg
+        response = self.client.post(
+            url,
+            {
+                'start-date': date_start_str,
+                'end-date': date_end_str
+            }
+        )
+        self.assertRedirects(
+            response,
+            expected_url,
+            status_code=302,
+            target_status_code=200
         )

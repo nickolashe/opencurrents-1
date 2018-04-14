@@ -894,9 +894,9 @@ class PublicRecordsForm(forms.Form):
     record_type = forms.ChoiceField(choices=record_types)
     period = forms.ChoiceField(choices=periods, required=False)
 
-class PopUpAnswer(forms.Form):
-    answer = forms.CharField(max_length=3,required=False)
 
+class PopUpAnswer(forms.Form):
+    answer = forms.CharField(max_length=3, required=False)
 
 
 # class HoursDetailsForm(forms.Form):
@@ -918,3 +918,25 @@ class PopUpAnswer(forms.Form):
 #         max_length=10,
 #         required=False
 #         )
+
+
+class ExportData(forms.Form):
+    """Export data to XLS form."""
+
+    time_start = forms.CharField(
+        label='Start date',
+        widget=forms.TextInput(attrs={
+            'id': 'start-date',
+            'name': '',
+            'placeholder': 'yyyy-mm-dd'
+        })
+    )
+
+    time_end = forms.CharField(
+        label='End date',
+        widget=forms.TextInput(attrs={
+            'id': 'end-date',
+            'name': '',
+            'placeholder': 'yyyy-mm-dd'
+        })
+    )

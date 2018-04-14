@@ -866,12 +866,24 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
         tz = OrgUserInfo(self.userid).get_org().timezone
         now = datetime.now(tz=pytz.timezone(tz))
         now_date = now.date()
+        incorrect_dates = False
 
-        if post_data['start-date'] != u'' and post_data['end-date'] != u'':
+        if post_data['start-date'] != u'':
+            # validate end-date input
+            if post_data['end-date'] != u'':
+                try:
+                    time_end = pytz.timezone(tz).localize(
+                        datetime.strptime(
+                            post_data['end-date'],
+                            '%Y-%m-%d'
+                        )
+                    ) + timedelta(seconds=59, minutes=59, hours=23,)
+                except ValueError:
+                    time_end = now
+            else:
+                time_end = now
 
-            incorrect_dates = False
-            end_date_not_ok = False
-
+            # validate start-date input
             try:
                 time_start = pytz.timezone(tz).localize(
                     datetime.strptime(
@@ -879,25 +891,20 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
                         '%Y-%m-%d'
                     )
                 )
-                time_end = pytz.timezone(tz).localize(
-                    datetime.strptime(
-                        post_data['end-date'],
-                        '%Y-%m-%d'
-                    )
-                ) + timedelta(seconds=59, minutes=59, hours=23,)
 
-                if time_end < time_start or time_end.date() > now_date or time_start.date() > now_date:
-                    end_date_not_ok = True
-
+                # validating time_start (must be in the past)
+                if time_start > time_end or time_start.date() > now_date:
+                    incorrect_dates = True
             except ValueError:
-                incorrect_dates = True
-
-            if incorrect_dates or end_date_not_ok:
                 return redirect(
                     'openCurrents:export-data',
                     'Incorrect dates!',
                     'alert'
                 )
+
+            # make time_end now with org timezone if time_end in the future
+            if time_end.date() > now_date:
+                time_end = now_date
 
             user_timelog_record = UserTimeLog.objects.filter(
                 event__project__org=self.org
@@ -908,6 +915,13 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
             ).filter(
                 is_verified=True
             ).order_by('datetime_start')
+
+            if len(user_timelog_record) == 0:
+                return redirect(
+                    'openCurrents:export-data',
+                    'The query is empty, please, try another set of dates.',
+                    'alert'
+                )
 
             file_name = "timelog_report_{}_{}.xls".format(
                 post_data['start-date'],
@@ -1013,7 +1027,7 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
         else:
             return redirect(
                 'openCurrents:export-data',
-                'Start and End date cannot be empty!',
+                'Start date cannot be empty!',
                 'alert'
             )
 
