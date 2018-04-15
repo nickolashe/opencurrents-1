@@ -10,11 +10,25 @@
     {{ block.super }}
   {% else %}
     <div class="status-highlight row full-width">
-      <div class="small-12 column">
-        <a href="{% url 'openCurrents:redeem-currents' master_offer.id %}"
-        class="white-link">
-          Redeem your $40 credit for Volunteer Appreciation Month!
-        </a>
+      <div class="small-12 column white">
+        {% if balance_available > 0 %}
+          <!-- if dollar_credit_available -->
+            You have $<!-- dollar_credit_available--> credit in Currents.
+          <!-- else -->
+            You've got Currents!
+            <a href="{% url 'openCurrents:redeem-currents' master_offer.id %}"
+            class="white-link">
+              Redeem now
+            </a>
+          <!-- endif -->
+        {% else %}
+          Let's create Currents!
+          <a class="earn-currents-popup_open white-link">
+            Volunteer now
+          </a>
+        {% endif %}
+
+
       </div>
     </div>
   {% endif %}

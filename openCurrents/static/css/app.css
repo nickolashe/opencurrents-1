@@ -575,12 +575,13 @@ label {
 
 .white-link {
   color: #ffffff;
-  text-decoration: none;
+  text-decoration: underline;
+  font-weight: bold;
 }
 
 .white-link:hover {
-  color: #ffffff;
   text-decoration: underline;
+  color: #ffffff;
 }
 
 .blue {
