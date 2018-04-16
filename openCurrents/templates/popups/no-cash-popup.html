@@ -11,7 +11,8 @@
     the business verifies your proof of purchase at the end of the month.</p>
   <p>To see offers from businesses in the community, please visit the
     <a href="{% url 'openCurrents:marketplace' %}">Marketplace</a>.</p>
-  <a class="no-cash-popup_close button round">
+  <a onClick="ga(‘send’, ‘event’, 'Redemption', 'CannotCashOut');"
+  class="no-cash-popup_close button round">
     Got it
   </a>
 {% endblock content %}

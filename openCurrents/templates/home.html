@@ -62,7 +62,8 @@
 
       <div class="row center collapse three-margin-top">
         <div class="small-11 medium-6 small-centered columns">
-          <a href="#signup" class="three-qtr-margin-left button orange fit-right">
+          <a href="{% url 'openCurrents:signup' %}"
+          class="three-qtr-margin-left button orange fit-right">
             <strong>Get started</strong>
           </a>
           <span class="input-sizer">
@@ -72,7 +73,8 @@
       </div>
 
       <div class="row center one-margin-top">
-        <a class="play-intro_open button round small clear">
+        <a onClick="ga(‘send’, ‘event’, 'Redemption', 'OpenVideo');"
+        class="play-intro_open button round small clear">
           Play video
         </a>
         <a
