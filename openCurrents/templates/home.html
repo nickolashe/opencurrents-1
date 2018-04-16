@@ -62,7 +62,8 @@
 
       <div class="row center collapse three-margin-top">
         <div class="small-11 medium-6 small-centered columns">
-          <a href="{% url 'openCurrents:signup' %}"
+          <a onClick="ga(‘send’, ‘event’, 'NewUser', 'GetStartedSignup');"
+          href="{% url 'openCurrents:signup' %}"
           class="three-qtr-margin-left button orange fit-right">
             <strong>Get started</strong>
           </a>
@@ -73,7 +74,7 @@
       </div>
 
       <div class="row center one-margin-top">
-        <a onClick="ga(‘send’, ‘event’, 'Redemption', 'OpenVideo');"
+        <a onClick="ga(‘send’, ‘event’, 'NewUser', 'OpenVideo');"
         class="play-intro_open button round small clear">
           Play video
         </a>
@@ -469,7 +470,8 @@
 
       <div class="row center half-margin-top">
         <p id="incomplete-form" class="hidden">Hi! Please add your full name and email to continue.</p>
-        <input type="submit" class="button large round" value="Create account"/>
+        <input onClick="ga(‘send’, ‘event’, 'NewUser', 'JoinOcSignup');"
+        type="submit" class="button large round" value="Create account"/>
         <p class="grey">Existing member? <a href="{% url 'openCurrents:login' %}">Log in</a></p>
       </div>
     </form>
