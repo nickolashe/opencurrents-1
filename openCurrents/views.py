@@ -2862,10 +2862,6 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         self.event_create_id = None
         test_mode = self.post_data.get('test_mode')
 
-        print "\nHERE"
-        print self.post_data
-        print "HERE\n"
-
         register_vols = self._register_volunteers()
         num_vols = register_vols[0]
         k = register_vols[1]

@@ -1572,6 +1572,8 @@ class FutureEventAddition(SetupTest, TestCase):
 class PastEventCreation(SetupTest, TestCase):
     """Test cases for past events creation."""
 
+    new_user_email = 'test_user@test.aa'
+
     def test_create_past_event_redirection(self):
         """
         Create past event redirection.
@@ -1628,17 +1630,24 @@ class PastEventCreation(SetupTest, TestCase):
         response = self.client.post(
             add_attendees_past_event_ulr,
             {
-                'bulk-vol': [''],
-                'vol-email-1': ['test_user@test.aa'],
-                'vol-name-1': ['test_user'],
-                'count-vol': ['1']
+                'bulk-vol': '',
+                'vol-email-1': self.new_user_email,
+                'vol-name-1': 'test_user',
+                'count-vol': '1'
             }
         )
-
         expected_url = '/org-admin/1/'
         self.assertRedirects(
             response,
             expected_url,
             status_code=302,
             target_status_code=200
+        )
+
+        # check if email WASN'T sent to user
+        self.assertNotIn('invitation_email', self.client.session.keys())
+
+        self.assertEqual(
+            len(UserEventRegistration.objects.filter(user__email=self.new_user_email)),
+            1
         )
