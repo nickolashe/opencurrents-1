@@ -2,6 +2,7 @@ from django.db import connection
 
 from django.test import Client, TestCase, TransactionTestCase
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 
 from datetime import datetime, timedelta
 from django.utils import timezone
@@ -38,6 +39,7 @@ from openCurrents.tests.interfaces.common import (
     _create_org
 )
 
+from openCurrents import views, urls
 
 from openCurrents.interfaces.orgadmin import OrgAdmin
 from openCurrents.interfaces.ledger import OcLedger
@@ -133,7 +135,7 @@ class SetupTest(object):
     def setUp(self):
 
         future_date = timezone.now() + timedelta(days=1)
-        past_date = timezone.now() - timedelta(days=1)
+        self.past_date = timezone.now() - timedelta(days=1)
         biz_orgs_list = []
 
         npf_orgs_list = ['NPF_org_1']
@@ -181,7 +183,7 @@ class SetupTest(object):
         self.event_current = _create_event(
                             self.project_1,
                             self.npf_admin.id,
-                            past_date,
+                            self.past_date,
                             future_date,
                             description="Current Event",
                             is_public=True,
@@ -190,12 +192,12 @@ class SetupTest(object):
                         )
 
         # creating a past event (event duration: 24 hrs)
-        past_date_2 = past_date - timedelta(days=1)
+        past_date_2 = self.past_date - timedelta(days=1)
         self.event_past = _create_event(
                             self.project_1,
                             self.npf_admin.id,
                             past_date_2,
-                            past_date,
+                            self.past_date,
                             description="Past Event",
                             is_public=True,
                             event_type="GR",
@@ -1464,3 +1466,78 @@ class FutureEventAddition(SetupTest, TestCase):
 
         # checking ledger records
         self.assertEqual(0, len(Ledger.objects.all()))
+
+
+class PastEventCreation(SetupTest, TestCase):
+    """Test cases for past events creation."""
+
+    def test_create_past_event_redirection(self):
+        """
+        Create past event redirection.
+
+        Expected:
+        - past event created
+        - admin redirected to 'invite-volunteers-past' page
+        - added users don't get emails after adding to the event
+        """
+        self.client.login(username=self.npf_admin.username, password='password')
+
+        datetime_start = self.past_date - timedelta(days=1)
+        datetime_end = self.past_date
+
+        create_past_event_ulr = reverse(
+            'create-event',
+            urlconf=urls,
+            kwargs={'org_id': self.org.id}
+        )
+
+        response = self.client.post(
+            create_past_event_ulr,
+            {
+                'event_privacy': '1',
+                'event_description': 'test event description',
+                'project_name': 'test event',
+                'event-location': 'test location',
+                'event_starttime': '7:00am',
+                'event_endtime': '9:00am',
+                'datetime_end': datetime_end,
+                'event_date': '2018-04-09',
+                'event_coordinator': self.npf_admin.id,
+                'datetime_start': datetime_start
+            }
+        )
+
+        last_event_id = Event.objects.order_by('-date_created').first().id
+        expected_url = '/invite-volunteers-past/%5B' + str(last_event_id) + '%5D/'
+
+        self.assertEqual(len(Event.objects.all()), 4)
+
+        self.assertRedirects(
+            response,
+            expected_url,
+            status_code=302,
+            target_status_code=200
+        )
+
+        add_attendees_past_event_ulr = reverse(
+            'invite-volunteers-past',
+            urlconf=urls,
+            kwargs={'event_ids': last_event_id}
+        )
+        response = self.client.post(
+            add_attendees_past_event_ulr,
+            {
+                'bulk-vol': [''],
+                'vol-email-1': ['test_user@test.aa'],
+                'vol-name-1': ['test_user'],
+                'count-vol': ['1']
+            }
+        )
+
+        expected_url = '/org-admin/1/'
+        self.assertRedirects(
+            response,
+            expected_url,
+            status_code=302,
+            target_status_code=200
+        )
