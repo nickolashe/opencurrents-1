@@ -893,11 +893,15 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, FormView):
                         '%Y-%m-%d'
                     )
                 )
+            except ValueError:
+                incorrect_dates = True
 
-                # validating time_start (must be in the past)
+            # validate start date is less than current date
+            if not incorrect_dates:
                 if time_start > time_end or time_start.date() > now_date:
                     incorrect_dates = True
-            except ValueError:
+
+            if incorrect_dates:
                 return redirect(
                     'openCurrents:export-data',
                     'Incorrect dates!',

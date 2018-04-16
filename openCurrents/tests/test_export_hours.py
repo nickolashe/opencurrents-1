@@ -58,8 +58,8 @@ class TestExportApprovedHours(SetupAdditionalTimeRecords, TestCase):
         response = self.client.post(
             testing_urls.export_data_url,
             {
-                'start-date': earliest_mon_date.strftime("%Y-%m-%d"),
-                'end-date': latest_date.strftime("%Y-%m-%d")
+                'date_start': earliest_mon_date.strftime("%Y-%m-%d"),
+                'date_end': latest_date.strftime("%Y-%m-%d")
             }
         )
 
@@ -84,7 +84,7 @@ class TestExportApprovedHours(SetupAdditionalTimeRecords, TestCase):
             error_msg = "Start%20date%20cannot%20be%20empty!/alert"
 
         else:
-            # check if start-date in formatted correctly
+            # check if date_start in formatted correctly
             try:
                 datetime.strptime(
                     start_d,
@@ -97,8 +97,8 @@ class TestExportApprovedHours(SetupAdditionalTimeRecords, TestCase):
         response = self.client.post(
             url,
             {
-                'start-date': start_d,
-                'end-date': end_d
+                'date_start': start_d,
+                'date_end': end_d
             }
         )
         if error_msg:
@@ -253,8 +253,8 @@ class TestExportApprovedHours(SetupAdditionalTimeRecords, TestCase):
         response = self.client.post(
             url,
             {
-                'start-date': date_start_str,
-                'end-date': date_end_str
+                'date_start': date_start_str,
+                'date_end': date_end_str
             }
         )
         self.assertRedirects(
