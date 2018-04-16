@@ -308,7 +308,11 @@ class OrgAdminPermissionMixin(AdminPermissionMixin):
     def dispatch(self, request, *args, **kwargs):
         """Process request and args and return HTTP response."""
         userid = self.request.user.id
-        userorgs = OrgUserInfo(userid)
+        try:
+            userorgs = OrgUserInfo(userid)
+        except InvalidUserException:
+            return redirect('openCurrents:login')
+
         org = userorgs.get_org()
 
         # check if user is an admin of an org
