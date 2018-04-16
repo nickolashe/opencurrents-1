@@ -920,23 +920,30 @@ class PopUpAnswer(forms.Form):
 #         )
 
 
-class ExportData(forms.Form):
+class ExportDataForm(forms.Form):
     """Export data to XLS form."""
 
-    time_start = forms.CharField(
+    year_start = datetime.now().date().replace(month=1, day=1)
+    year_start_s = datetime.strftime(
+        year_start,
+        '%Y-%m-%d'
+    )
+
+    date_start = forms.CharField(
         label='Start date',
         widget=forms.TextInput(attrs={
             'id': 'start-date',
-            'name': '',
-            'placeholder': 'yyyy-mm-dd'
+            'name': 'start-date',
+            'placeholder': 'yyyy-mm-dd',
+            'value': year_start_s
         })
     )
 
-    time_end = forms.CharField(
+    date_end = forms.CharField(
         label='End date',
         widget=forms.TextInput(attrs={
             'id': 'end-date',
-            'name': '',
+            'name': 'end-date',
             'placeholder': 'yyyy-mm-dd'
         })
     )

@@ -58,6 +58,7 @@ from openCurrents.forms import (
     UserSignupForm,
     UserLoginForm,
     EmailVerificationForm,
+    ExportDataForm,
     PasswordResetForm,
     PasswordResetRequestForm,
     OrgSignupForm,
@@ -858,7 +859,8 @@ class EditHoursView(TemplateView):
     template_name = 'edit-hours.html'
 
 
-class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
+class ExportDataView(LoginRequiredMixin, SessionContextView, FormView):
+    form_class = ExportDataForm
     template_name = 'export-data.html'
 
     def post(self, request, **kwargs):
@@ -868,13 +870,13 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
         now_date = now.date()
         incorrect_dates = False
 
-        if post_data['start-date'] != u'':
+        if post_data['date_start'] != u'':
             # validate end-date input
-            if post_data['end-date'] != u'':
+            if post_data['date_end'] != u'':
                 try:
                     time_end = pytz.timezone(tz).localize(
                         datetime.strptime(
-                            post_data['end-date'],
+                            post_data['date_end'],
                             '%Y-%m-%d'
                         )
                     ) + timedelta(seconds=59, minutes=59, hours=23,)
@@ -887,7 +889,7 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
             try:
                 time_start = pytz.timezone(tz).localize(
                     datetime.strptime(
-                        post_data['start-date'],
+                        post_data['date_start'],
                         '%Y-%m-%d'
                     )
                 )
@@ -924,8 +926,8 @@ class ExportDataView(LoginRequiredMixin, SessionContextView, TemplateView):
                 )
 
             file_name = "timelog_report_{}_{}.xls".format(
-                post_data['start-date'],
-                post_data['end-date']
+                post_data['date_start'],
+                post_data['date_end']
             )
 
             # writing to XLS file
