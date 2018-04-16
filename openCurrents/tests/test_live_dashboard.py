@@ -1647,7 +1647,14 @@ class PastEventCreation(SetupTest, TestCase):
         # check if email WASN'T sent to user
         self.assertNotIn('invitation_email', self.client.session.keys())
 
+        # check if user is registered to an event
         self.assertEqual(
-            len(UserEventRegistration.objects.filter(user__email=self.new_user_email)),
+            len(
+                UserEventRegistration.objects.filter(
+                    user__email=self.new_user_email
+                ).filter(
+                    event__pk=last_event_id
+                )
+            ),
             1
         )
