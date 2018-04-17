@@ -1,5 +1,6 @@
 {% extends "layouts/base.html" %}
 {% load staticfiles %}
+{% load tags %}
 
 {% block head %}
   <script type="text/javascript" src="{% static 'js/jquery-ui-datepicker.js' %}"></script>
@@ -20,6 +21,23 @@
 {% block content %}
   <form method="post">
   {% csrf_token %}
+
+  <!-- need to factor out in a block -->
+  {% if form.errors %}
+    <div class="row">
+      {% for field, error in form.errors.iteritems %}
+        <div class="center alert">
+          {% if field != '__all__' %}
+            {{ field|addstr:': '}} {{ error }}
+          {% else %}
+            {{ error }}
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+  <!-- need to factor out in a block -->
+
     <div class="row one-margin-bottom">
       <!-- <div class="small-8 small-centered columns">
         <div class="left small-12 medium-4 columns">

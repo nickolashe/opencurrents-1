@@ -859,274 +859,147 @@ class EditHoursView(TemplateView):
     template_name = 'edit-hours.html'
 
 
-class ExportDataView(LoginRequiredMixin, SessionContextView, FormView):
+class ExportDataView(OrgAdminPermissionMixin, OrgSessionContextView, FormView):
     form_class = ExportDataForm
     template_name = 'export-data.html'
 
-    def post(self, request, **kwargs):
-        post_data = self.request.POST
-        tz = OrgUserInfo(self.userid).get_org().timezone
-        now = datetime.now(tz=pytz.timezone(tz))
-        now_date = now.date()
-        incorrect_dates = False
+    def get_context_data(self, **kwargs):
+        context = super(ExportDataView, self).get_context_data(**kwargs)
+        self.tz_org = self.org.timezone
+        start_dt = datetime.now(pytz.timezone(self.tz_org)) - timedelta(days=30)
+        context['form'].fields['date_start'].widget.attrs['value'] = start_dt.strftime('%Y-%m-%d')
 
-        if post_data['date_start'] != u'':
-            # validate end-date input
-            if post_data['date_end'] != u'':
-                try:
-                    time_end = pytz.timezone(tz).localize(
-                        datetime.strptime(
-                            post_data['date_end'],
-                            '%Y-%m-%d'
-                        )
-                    ) + timedelta(seconds=59, minutes=59, hours=23,)
-                except ValueError:
-                    time_end = now
-            else:
-                time_end = now
+        return context
 
-            # validate start-date input
-            try:
-                time_start = pytz.timezone(tz).localize(
-                    datetime.strptime(
-                        post_data['date_start'],
-                        '%Y-%m-%d'
-                    )
-                )
-            except ValueError:
-                incorrect_dates = True
+    def form_valid(self, form):
+        data = form.cleaned_data
 
-            # validate start date is less than current date
-            if not incorrect_dates:
-                if time_start > time_end or time_start.date() > now_date:
-                    incorrect_dates = True
+        user_timelog_record = UserTimeLog.objects.filter(
+            event__project__org=self.org
+        ).filter(
+            datetime_start__gte=data['date_start']
+        ).filter(
+            datetime_start__lte=data['date_end']
+        ).filter(
+            is_verified=True
+        ).order_by('datetime_start')
 
-            if incorrect_dates:
-                return redirect(
-                    'openCurrents:export-data',
-                    'Incorrect dates!',
-                    'alert'
-                )
-
-            # make time_end now with org timezone if time_end in the future
-            if time_end.date() > now_date:
-                time_end = now_date
-
-            user_timelog_record = UserTimeLog.objects.filter(
-                event__project__org=self.org
-            ).filter(
-                datetime_start__gte=time_start
-            ).filter(
-                datetime_start__lte=time_end
-            ).filter(
-                is_verified=True
-            ).order_by('datetime_start')
-
-            if len(user_timelog_record) == 0:
-                return redirect(
-                    'openCurrents:export-data',
-                    'The query is empty, please, try another set of dates.',
-                    'alert'
-                )
-
-            file_name = "timelog_report_{}_{}.xls".format(
-                post_data['date_start'],
-                post_data['date_end']
-            )
-
-            # writing to XLS file
-            response = HttpResponse(content_type='application/ms-excel')
-            response['Content-Disposition'] = 'attachment; filename="{}"'.format(file_name)
-            wb = xlwt.Workbook(encoding='utf-8')
-            ws = wb.add_sheet('Time logs', cell_overwrite_ok=True)
-
-            # Sheet header, first row
-            row_num = 0
-            font_style = xlwt.XFStyle()
-            font_style.font.bold = True
-            columns = [
-                '#',
-                'Event',
-                'Description',
-                'Location',
-                'Volunteer Name',
-                'Volunteer Last name',
-                'Volunteer Email',
-                'Date and Time Start',
-                'Duration, hours'
-            ]
-            for column in range(len(columns)):
-                ws.write(row_num, column, columns[column], font_style)
-
-            # Sheet body, remaining rows
-            font_style = xlwt.XFStyle()
-            for record in user_timelog_record:
-
-                row_num += 1
-                record_event = record.event
-
-                duration = common.diffInHours(
-                    record_event.datetime_start.astimezone(pytz.timezone(tz)),
-                    record_event.datetime_end.astimezone(pytz.timezone(tz))
-                )
-
-                if record_event.event_type == 'MN':
-                    event_name = 'Manual'
-                    record_description = record_event.description
-                    event_location = ''
-                else:
-                    event_name = record_event.project.name
-                    record_description = ''
-                    event_location = record_event.location
-
-                row_data = [
-                    row_num,
-                    event_name,
-                    record_description,
-                    event_location,
-                    record.user.first_name.encode('utf-8').strip(),
-                    record.user.last_name.encode('utf-8').strip(),
-                    record.user.email.encode('utf-8').strip(),
-                    record.datetime_start.astimezone(pytz.timezone(tz)).strftime('%Y-%m-%d %H:%M'),
-                    duration
-                ]
-                for col in range(len(row_data)):
-                    ws.write(row_num, col, row_data[col], font_style)
-
-            wb.save(response)
-            return response
-
-            # # writing to CSV file
-            # response = HttpResponse(content_type='text/csv')
-            # response['Content-Disposition'] = 'attachment; filename={}'.format(
-            #     file_name
-            # )
-            # writer = csv.writer(response)
-            # writer.writerow([
-            #     '#',
-            #     'Event',
-            #     'Volunteer',
-            #     'Date and Time Start',
-            #     'Duration, hours',
-            # ])
-            # i = 0
-            # for record in user_timelog_record:
-            #     duration = common.diffInHours(
-            #         record.datetime_start, record.datetime_end
-            #     )
-            #     volunteer = "{} {} <{}>".format(
-            #         record.user.first_name.encode('utf-8').strip(),
-            #         record.user.last_name.encode('utf-8').strip(),
-            #         record.user.email.encode('utf-8').strip()
-            #     )
-            #     writer.writerow([
-            #         i,
-            #         record.event,
-            #         volunteer,
-            #         record.datetime_start.strftime('%Y-%m-%d %H:%M'),
-            #         duration
-            #     ])
-            #     i += 1
-
-            # return response  # redirect('openCurrents:export-data',)
-
-        else:
+        if len(user_timelog_record) == 0:
             return redirect(
                 'openCurrents:export-data',
-                'Start date cannot be empty!',
+                'No records found for the selected dates',
                 'alert'
             )
 
-    # def post(self, request):
-    #     post_data = self.request.POST
-    #     k_dict = OrderedDict([
-    #         #'admin-full-name',
-    #         ('volunteer-first-name',0),
-    #         ('volunteer-last-name',1),
-    #         ('volunteer-email',2),
-    #         ('duration',3),
-    #         ('volunteer-login-time',4),
-    #         ('volunteer-logout-time',5),
-    #         ('event-date',6),
-    #         ('location',7),
-    #         ('event-name',8)
-    #     ])
-    #     tz = OrgUserInfo(self.request.user.id).get_org().timezone
-    #     vol_personal_info = User.objects.all()
-    #     if post_data['start-date'] != u'':
-    #         event_info = Event.objects.filter(datetime_start__gte=post_data['start-date']).filter(datetime_end__lte=post_data['end-date'])
-    #     else:
-    #         event_info = Event.objects.filter(datetime_end__lte=post_data['end-date'])
-    #     rem_index = []
-    #     for i in k_dict.keys():
-    #         #keep track of deselected columns by users in a list
-    #         if i == 'volunteer-login-time' or i == 'volunteer-logout-time':
-    #             if post_data.get('start-time')==None:
-    #                 try:
-    #                     rem_index.append(k_dict['volunteer-login-time'])
-    #                     del k_dict['volunteer-login-time']
-    #                     rem_index.append(k_dict['volunteer-logout-time'])
-    #                     del k_dict['volunteer-logout-time']
-    #                 except:
-    #                     continue
-    #         else:
-    #             if post_data.get(i)==None or post_data.get(i)=='':
-    #                 rem_index.append(k_dict[i])
-    #                 del k_dict[i]
+        file_name = "timelog_report_{}_{}.xls".format(
+            data['date_start'].strftime('%Y-%m-%d'),
+            data['date_end'].strftime('%Y-%m-%d')
+        )
 
-    #     response = HttpResponse(content_type='text/csv')
-    #     #print(datetime.now())
-    #     response['Content-Disposition'] = 'attachment; filename="volunteer-data.csv"'
+        # writing to XLS file
+        response = HttpResponse(content_type='application/ms-excel')
+        response['Content-Disposition'] = 'attachment; filename="{}"'.format(file_name)
+        wb = xlwt.Workbook(encoding='utf-8')
+        ws = wb.add_sheet('Time logs', cell_overwrite_ok=True)
 
-    #     writer = csv.writer(response)
-    #     writer.writerow(k_dict.keys())
-    #     for i in vol_personal_info:
-    #         usertimelog_info = UserTimeLog.objects.filter(user=i,event__in=event_info).filter(is_verified=True)
-    #         for j in usertimelog_info:
-    #             # Loop across all the users registered
-    #             try:
-    #                 datetime_duration = j.event.datetime_end-j.event.datetime_start
-    #             except:
-    #                 datetime_duration = '00:00:00'
-    #             if post_data['start-date'] != u'':
-    #                 #if the user fill the start-time this condition is executed
-    #                 s_dt_db = j.event.datetime_start
-    #                 logger.info(s_dt_db.tzinfo)
-    #                 s_dt_ui = post_data['start-date']
-    #                 e_dt_db = j.event.datetime_end
-    #                 e_dt_ui = post_data['end-date']
-    #                 if ( s_dt_db >= pytz.timezone(tz).localize(datetime.strptime(s_dt_ui, '%Y-%m-%d')) ) \
-    #                 and ( e_dt_db <= pytz.timezone(tz).localize(datetime.strptime(e_dt_ui, '%Y-%m-%d')) ):
-    #                     cleaned_list = [i.first_name, i.last_name, i.email, datetime_duration, j.event.datetime_start,\
-    #                         j.event.datetime_end, j.event.datetime_start.date(), j.event.location, j.event.project.name]
-    #                     for k in rem_index:
-    #                         #delete the columns which were deselected by the user
-    #                         del cleaned_list[k]
-    #                     cleaned_list = map(str, cleaned_list)
-    #                     reader = csv.reader(response)
-    #                     if self.user_per_event(reader, cleaned_list):
-    #                         writer.writerow(cleaned_list)#write to the CSV file
-    #             else:
-    #                 #if the user input in start-time is empty
-    #                 if j.event.datetime_end <= pytz.timezone(tz).localize(datetime.strptime(post_data['end-date'], '%Y-%m-%d')):
-    #                     cleaned_list = [i.first_name, i.last_name, i.email, datetime_duration, j.event.datetime_start,\
-    #                         j.event.datetime_end, j.event.datetime_start.date(), j.event.location, j.event.project.name]
-    #                     for k in rem_index:
-    #                         #delete the columns which were deselected by the user
-    #                         del cleaned_list[k]
-    #                     cleaned_list = map(str, cleaned_list)
-    #                     reader = csv.reader(response)
-    #                     if self.user_per_event(reader, cleaned_list):
-    #                         writer.writerow(cleaned_list)#write to the CSV file
-    #     return response#redirect('openCurrents:export-data')#
+        # Sheet header, first row
+        row_num = 0
+        font_style = xlwt.XFStyle()
+        font_style.font.bold = True
+        columns = [
+            '#',
+            'Event',
+            'Description',
+            'Location',
+            'Volunteer Name',
+            'Volunteer Last name',
+            'Volunteer Email',
+            'Date and Time Start',
+            'Duration, hours'
+        ]
+        for column in range(len(columns)):
+            ws.write(row_num, column, columns[column], font_style)
 
-    # def user_per_event(self, csvreader, cleaned_list):
-    #     #returns 0 if the record is duplicate else return 1
-    #     record_status = 1
-    #     for row in csvreader:
-    #         if cleaned_list == row:
-    #             record_status = 0
-    #     return record_status
+        # Sheet body, remaining rows
+        font_style = xlwt.XFStyle()
+        for record in user_timelog_record:
+
+            row_num += 1
+            record_event = record.event
+
+            duration = common.diffInHours(
+                record_event.datetime_start.astimezone(pytz.timezone(self.org.timezone)),
+                record_event.datetime_end.astimezone(pytz.timezone(self.org.timezone))
+            )
+
+            if record_event.event_type == 'MN':
+                event_name = 'Manual'
+                record_description = record_event.description
+                event_location = ''
+            else:
+                event_name = record_event.project.name
+                record_description = ''
+                event_location = record_event.location
+
+            row_data = [
+                row_num,
+                event_name,
+                record_description,
+                event_location,
+                record.user.first_name.encode('utf-8').strip(),
+                record.user.last_name.encode('utf-8').strip(),
+                record.user.email.encode('utf-8').strip(),
+                record.datetime_start.astimezone(pytz.timezone(self.org.timezone)).strftime('%Y-%m-%d %H:%M'),
+                duration
+            ]
+            for col in range(len(row_data)):
+                ws.write(row_num, col, row_data[col], font_style)
+
+        wb.save(response)
+        return response
+
+        # # writing to CSV file
+        # response = HttpResponse(content_type='text/csv')
+        # response['Content-Disposition'] = 'attachment; filename={}'.format(
+        #     file_name
+        # )
+        # writer = csv.writer(response)
+        # writer.writerow([
+        #     '#',
+        #     'Event',
+        #     'Volunteer',
+        #     'Date and Time Start',
+        #     'Duration, hours',
+        # ])
+        # i = 0
+        # for record in user_timelog_record:
+        #     duration = common.diffInHours(
+        #         record.datetime_start, record.datetime_end
+        #     )
+        #     volunteer = "{} {} <{}>".format(
+        #         record.user.first_name.encode('utf-8').strip(),
+        #         record.user.last_name.encode('utf-8').strip(),
+        #         record.user.email.encode('utf-8').strip()
+        #     )
+        #     writer.writerow([
+        #         i,
+        #         record.event,
+        #         volunteer,
+        #         record.datetime_start.strftime('%Y-%m-%d %H:%M'),
+        #         duration
+        #     ])
+        #     i += 1
+
+        # return response  # redirect('openCurrents:export-data',)
+
+    def get_form_kwargs(self):
+        '''
+        Passes org timezone down to the form.
+        '''
+        kwargs = super(ExportDataView, self).get_form_kwargs()
+        kwargs.update({'tz_org': self.org.timezone})
+
+        return kwargs
 
 
 class FindOrgsView(TemplateView):

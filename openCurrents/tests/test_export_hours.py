@@ -248,8 +248,10 @@ class TestExportApprovedHours(SetupAdditionalTimeRecords, TestCase):
         ).strftime("%Y-%m-%d")
 
         url = testing_urls.export_data_url
-        error_msg = 'The%20query%20is%20empty,%20please,%20try%20another%20set%20of%20dates./alert'
-        expected_url = url + error_msg
+        error_msg = '%20'.join([
+            'No', 'records', 'found', 'for', 'the', 'selected', 'dates'
+        ])
+        expected_url = url + error_msg + '/alert'
         response = self.client.post(
             url,
             {

@@ -921,13 +921,18 @@ class PopUpAnswer(forms.Form):
 
 
 class ExportDataForm(forms.Form):
-    """Export data to XLS form."""
+    """
+    Export data to XLS form
+        - define date_start and date_end form fields
+        - validate date_start such that its a valid date
+        - validate date_end such that its either empty or a valid date;
+            empty field defaults to now (including today)
+    """
+    def __init__(self, *args, **kwargs):
+        self.tz_org = kwargs.pop('tz_org')
+        super(ExportDataForm, self).__init__(*args, **kwargs)
 
-    year_start = datetime.now().date().replace(month=1, day=1)
-    year_start_s = datetime.strftime(
-        year_start,
-        '%Y-%m-%d'
-    )
+    # start_dt = datetime.now(self.tz_org) - timedelta(months=1)
 
     date_start = forms.CharField(
         label='Start date',
@@ -935,7 +940,7 @@ class ExportDataForm(forms.Form):
             'id': 'start-date',
             'name': 'start-date',
             'placeholder': 'yyyy-mm-dd',
-            'value': year_start_s
+            # 'value': start_dt.strftime('%Y-%m-%d')
         })
     )
 
@@ -947,3 +952,36 @@ class ExportDataForm(forms.Form):
             'placeholder': 'yyyy-mm-dd'
         })
     )
+
+    def clean_date_start(self):
+        date_start = self.cleaned_data['date_start']
+
+        try:
+            date_start = pytz.timezone(self.tz_org).localize(
+                datetime.strptime(date_start, '%Y-%m-%d')
+            )
+        except Exception as e:
+            raise ValidationError(_('Invalid start time'))
+
+        return date_start
+
+    def clean_date_end(self):
+        date_end = self.cleaned_data['date_end']
+        date_start_tomorrow = datetime.now(pytz.timezone(self.tz_org)).date()
+        date_start_tomorrow += timedelta(days=1)
+
+        if not date_end:
+            return date_start_tomorrow
+
+        try:
+            date_end = pytz.timezone(self.tz_org).localize(
+                datetime.strptime(date_end, '%Y-%m-%d')
+            )
+        except Exception as e:
+            raise ValidationError(_('Invalid end time'))
+
+        # cut-off at tomorrow if in the future
+        if date_end.date() > date_start_tomorrow:
+            date_end = date_start_tomorrow
+
+        return date_end
