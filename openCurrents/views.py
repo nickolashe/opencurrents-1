@@ -886,14 +886,6 @@ class ExportDataView(OrgAdminPermissionMixin, OrgSessionContextView, FormView):
             is_verified=True
         ).order_by('datetime_start')
 
-        print
-        print '========================================='
-        print 'Looking for entries from {} to {}'.format(data['date_start'], data['date_end'] + timedelta(hours=23, minutes=59, seconds=59))
-        for i in user_timelog_record:
-            print i.datetime_start, i.datetime_end, i.event.project.org
-        print '========================================='
-        print
-
         if len(user_timelog_record) == 0:
             return redirect(
                 'openCurrents:export-data',

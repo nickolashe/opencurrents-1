@@ -53,21 +53,20 @@ class TestExportApprovedHours(SetupAdditionalTimeRecords, TestCase):
         ).order_by(
             'datetime_start'
         ).first()
+
         first_rec_date = first_entry_date.datetime_start.replace(
             hour=00,
             minute=00,
-            second=00
-        )
-        latest_rec_date = datetime.now(tz=self.tz).replace(
-            hour=23,
-            minute=59,
-            second=59
-        )
+            second=00,
+        ).astimezone(self.tz)
 
-        print "\nHERE"
-        print 'earliest date: ', first_rec_date
-        print 'latest date: ', latest_rec_date
-        print "HERE\n"
+        latest_rec_date = self.tz.localize(
+            datetime.now().replace(
+                hour=23,
+                minute=59,
+                second=59
+            )
+        )
 
         file_name = "timelog_report_{}_{}.xls".format(
             first_rec_date.strftime("%Y-%m-%d"),
@@ -220,12 +219,6 @@ class TestExportApprovedHours(SetupAdditionalTimeRecords, TestCase):
         """
         response = self._assert_file_created_downloaded()
 
-        print "\nHERE test_export_and_content"
-        for i in UserTimeLog.objects.filter(event__project__org=self.org_npf).order_by('datetime_start'):
-            print i.datetime_start, i.datetime_end, i.event.project.org
-
-        print "HERE\n"
-
         # reading file
         with io.BytesIO(response.content) as file:
             workbook = xlrd.open_workbook(file_contents=response.content)
@@ -338,13 +331,6 @@ class TestExportApprovedHours(SetupAdditionalTimeRecords, TestCase):
             is_verified=True,
             action_type='app',
         )
-
-        print "\nHERE"
-        print "creating event at {}".format(time_now - timedelta(hours=1))
-        print
-        for i in UserTimeLog.objects.filter(event__project__org=self.org_npf).order_by('datetime_start'):
-            print i.datetime_start, i.datetime_end, i.event.project.org
-        print "HERE\n"
 
         response = self._assert_file_created_downloaded()
 
