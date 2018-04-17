@@ -119,11 +119,11 @@ PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
 
 if os.getenv('GAE_INSTANCE') or os.getenv('GOOGLE_CLOUD_PROXY'):
- # Production
- STATIC_URL = 'https://storage.googleapis.com/opencurrents-194003.appspot.com/static/'
+    # Production
+    STATIC_URL = 'https://storage.googleapis.com/opencurrents-194003.appspot.com/static/'
 else :
- # Development
- STATIC_URL = '/static/'
+    # Development
+    STATIC_URL = '/static/'
 
 # django-storages
 DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'

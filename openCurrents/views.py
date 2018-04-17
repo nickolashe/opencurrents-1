@@ -1282,11 +1282,9 @@ class SignupView(FormView):
 
     def get(self, request, *args, **kwargs):
         context = dict()
-        # user_email = kwargs.get('user_email')
+        context = {'form': UserSignupForm()}
+
         user_email = request.GET.get('user_email')
-
-        context['form'] = UserSignupForm()
-
         if user_email:
             context['form'].fields['user_email'].widget.attrs['value'] = user_email
 
@@ -4860,7 +4858,7 @@ def get_user_master_offer_remaining(request):
 
 def process_home(request):
     form = UserEmailForm(request.POST)
-    logger.info(form)
+
     if form.is_valid():
         return redirect(
             '?'.join([
