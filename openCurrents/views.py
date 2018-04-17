@@ -55,6 +55,7 @@ from openCurrents.models import (
 )
 
 from openCurrents.forms import (
+    UserEmailForm,
     UserSignupForm,
     UserLoginForm,
     EmailVerificationForm,
@@ -1275,8 +1276,24 @@ class SendCurrentsView(TemplateView):
     template_name = 'send-currents.html'
 
 
-class SignupView(TemplateView):
+class SignupView(FormView):
     template_name = 'signup.html'
+    form_class = UserSignupForm
+
+    def get(self, request, *args, **kwargs):
+        context = dict()
+        # user_email = kwargs.get('user_email')
+        user_email = request.GET.get('user_email')
+
+        context['form'] = UserSignupForm()
+
+        if user_email:
+            context['form'].fields['user_email'].widget.attrs['value'] = user_email
+
+        return render(request, self.template_name, context)
+
+    def form_valid(self, data):
+        return process_signup(self.request)
 
 
 class OrgApprovalView(TemplateView):
@@ -4839,6 +4856,21 @@ def get_user_master_offer_remaining(request):
         balance,
         status=200
     )
+
+
+def process_home(request):
+    form = UserEmailForm(request.POST)
+    logger.info(form)
+    if form.is_valid():
+        return redirect(
+            '?'.join([
+                reverse('openCurrents:signup'),
+                'user_email={}'.format(form.cleaned_data['user_email'])
+            ])
+        )
+
+    else:
+        return redirect('openCurrents:signup')
 
 
 def sendContactEmail(template_name, template_content, merge_vars, admin_email, user_email):
