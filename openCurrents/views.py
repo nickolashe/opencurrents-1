@@ -874,15 +874,25 @@ class ExportDataView(OrgAdminPermissionMixin, OrgSessionContextView, FormView):
     def form_valid(self, form):
         data = form.cleaned_data
 
+        tz = self.org.timezone
+
         user_timelog_record = UserTimeLog.objects.filter(
             event__project__org=self.org
         ).filter(
             datetime_start__gte=data['date_start']
         ).filter(
-            datetime_start__lte=data['date_end']
+            datetime_start__lte=data['date_end'] + timedelta(hours=23, minutes=59, seconds=59)
         ).filter(
             is_verified=True
         ).order_by('datetime_start')
+
+        print
+        print '========================================='
+        print 'Looking for entries from {} to {}'.format(data['date_start'], data['date_end'] + timedelta(hours=23, minutes=59, seconds=59))
+        for i in user_timelog_record:
+            print i.datetime_start, i.datetime_end, i.event.project.org
+        print '========================================='
+        print
 
         if len(user_timelog_record) == 0:
             return redirect(

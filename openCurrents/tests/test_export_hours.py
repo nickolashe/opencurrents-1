@@ -48,18 +48,37 @@ class TestExportApprovedHours(SetupAdditionalTimeRecords, TestCase):
 
     def _assert_file_created_downloaded(self):
         """Define dates, generate file, assert file downloaded."""
-        earliest_mon_date = self._get_earliest_monday()
-        latest_date = datetime.now(tz=pytz.utc)
+        first_entry_date = UserTimeLog.objects.filter(
+            event__project__org=self.org_npf
+        ).order_by(
+            'datetime_start'
+        ).first()
+        first_rec_date = first_entry_date.datetime_start.replace(
+            hour=00,
+            minute=00,
+            second=00
+        )
+        latest_rec_date = datetime.now(tz=self.tz).replace(
+            hour=23,
+            minute=59,
+            second=59
+        )
+
+        print "\nHERE"
+        print 'earliest date: ', first_rec_date
+        print 'latest date: ', latest_rec_date
+        print "HERE\n"
+
         file_name = "timelog_report_{}_{}.xls".format(
-            earliest_mon_date.strftime("%Y-%m-%d"),
-            latest_date.strftime("%Y-%m-%d")
+            first_rec_date.strftime("%Y-%m-%d"),
+            latest_rec_date.strftime("%Y-%m-%d")
         )
 
         response = self.client.post(
             testing_urls.export_data_url,
             {
-                'date_start': earliest_mon_date.strftime("%Y-%m-%d"),
-                'date_end': latest_date.strftime("%Y-%m-%d")
+                'date_start': first_rec_date.strftime("%Y-%m-%d"),
+                'date_end': latest_rec_date.strftime("%Y-%m-%d")
             }
         )
 
@@ -77,21 +96,32 @@ class TestExportApprovedHours(SetupAdditionalTimeRecords, TestCase):
 
         Takes str() start_d, end_d and evaluates
         """
-        error_msg = ''
+        error_start_d = error_end_d = ''
 
-        # check if stat date is empty
-        if start_d == '':
-            error_msg = "Start%20date%20cannot%20be%20empty!/alert"
-
-        else:
-            # check if date_start in formatted correctly
+        # check if start date is empty
+        if start_d != '':
+            # check if date_start is formatted correctly
             try:
                 datetime.strptime(
                     start_d,
                     '%Y-%m-%d'
                 )
             except ValueError:
-                error_msg = "Incorrect%20dates!/alert"
+                error_start_d = 'Invalid start time'
+        else:
+            error_start_d = 'This field is required.'
+
+        # check if end date is empty and formatted correctly
+        if end_d != '':
+            try:
+                datetime.strptime(
+                    end_d,
+                    '%Y-%m-%d'
+                )
+            except ValueError:
+                error_end_d = 'Invalid end time'
+        else:
+            error_end_d = 'This field is required.'
 
         url = testing_urls.export_data_url
         response = self.client.post(
@@ -101,14 +131,20 @@ class TestExportApprovedHours(SetupAdditionalTimeRecords, TestCase):
                 'date_end': end_d
             }
         )
-        if error_msg:
-            expected_url = url + error_msg
-            self.assertRedirects(
-                response,
-                expected_url,
-                status_code=302,
-                target_status_code=200
-            )
+        if error_start_d or error_end_d:
+            expected_url = url
+            self.assertEquals(response.status_code, 200)
+            if error_start_d:
+                self.assertIn(
+                    error_start_d,
+                    response.context['form'].errors['date_start']
+                )
+            elif error_end_d:
+                self.assertIn(
+                    error_end_d,
+                    response.context['form'].errors['date_end']
+                )
+
         else:
             self._assert_file_created_downloaded()
 
@@ -117,18 +153,28 @@ class TestExportApprovedHours(SetupAdditionalTimeRecords, TestCase):
         # generating time records
         super(TestExportApprovedHours, self).setUp()
 
-        def _gen_time():
-            datetime_start = datetime.now(tz=pytz.utc) - \
-                timedelta(days=random.randint(1, 60)) + \
+        self.tz = pytz.timezone(self.org_npf.timezone)
+
+        self.counter = 40  # number of generated records
+        self.range_end = 60
+        self.dates_with_records = random.choice(
+            range(1, self.range_end),
+            self.counter,
+            replace=False
+        )
+
+        def _gen_time(i):
+
+            datetime_start = datetime.now(tz=self.tz) - \
+                timedelta(days=i) + \
                 timedelta(hours=random.randint(12, 24))
             datetime_end = datetime_start + \
                 timedelta(hours=random.randint(1, 4))
 
             return datetime_start, datetime_end
 
-        self.counter = 10  # number of generated records
-        for i in range(self.counter):
-            time = _gen_time()
+        for i in self.dates_with_records:
+            time = _gen_time(i)
             manual_records_org1 = _setup_volunteer_hours(
                 self.volunteer_1,
                 self.npf_admin,
@@ -174,6 +220,12 @@ class TestExportApprovedHours(SetupAdditionalTimeRecords, TestCase):
         """
         response = self._assert_file_created_downloaded()
 
+        print "\nHERE test_export_and_content"
+        for i in UserTimeLog.objects.filter(event__project__org=self.org_npf).order_by('datetime_start'):
+            print i.datetime_start, i.datetime_end, i.event.project.org
+
+        print "HERE\n"
+
         # reading file
         with io.BytesIO(response.content) as file:
             workbook = xlrd.open_workbook(file_contents=response.content)
@@ -192,25 +244,25 @@ class TestExportApprovedHours(SetupAdditionalTimeRecords, TestCase):
         # badly formatted start date
         self._assert_date_input(
             '20118-112-343',
-            datetime.now(tz=pytz.utc).strftime("%Y-%m-%d")
+            datetime.now(tz=self.tz).strftime("%Y-%m-%d")
         )
 
         # badly formatted end date
         self._assert_date_input(
-            (datetime.now(tz=pytz.utc) - timedelta(days=10)).strftime("%Y-%m-%d"),
+            (datetime.now(tz=self.tz) - timedelta(days=10)).strftime("%Y-%m-%d"),
             '20118-112-343'
         )
 
         # start date in the future
         self._assert_date_input(
-            (datetime.now(tz=pytz.utc) + timedelta(days=10)).strftime("%Y-%m-%d"),
-            datetime.now(tz=pytz.utc).strftime("%Y-%m-%d")
+            (datetime.now(tz=self.tz) + timedelta(days=10)).strftime("%Y-%m-%d"),
+            datetime.now(tz=self.tz).strftime("%Y-%m-%d")
         )
 
         # end date in the future
         self._assert_date_input(
-            datetime.now(tz=pytz.utc).strftime("%Y-%m-%d"),
-            (datetime.now(tz=pytz.utc) + timedelta(days=10)).strftime("%Y-%m-%d")
+            datetime.now(tz=self.tz).strftime("%Y-%m-%d"),
+            (datetime.now(tz=self.tz) + timedelta(days=10)).strftime("%Y-%m-%d")
         )
 
     def test_empty_dates_input(self):
@@ -224,12 +276,12 @@ class TestExportApprovedHours(SetupAdditionalTimeRecords, TestCase):
         # empty start date
         self._assert_date_input(
             '',
-            datetime.now(tz=pytz.utc).strftime("%Y-%m-%d")
+            datetime.now(tz=self.tz).strftime("%Y-%m-%d")
         )
 
         # empty end date
         self._assert_date_input(
-            (datetime.now(tz=pytz.utc) - timedelta(days=10)).strftime("%Y-%m-%d"),
+            (datetime.now(tz=self.tz) - timedelta(days=10)).strftime("%Y-%m-%d"),
             '',
         )
 
@@ -241,10 +293,10 @@ class TestExportApprovedHours(SetupAdditionalTimeRecords, TestCase):
         dates.'
         """
         date_start_str = (
-            datetime.now(tz=pytz.utc) - timedelta(days=100)
+            datetime.now(tz=self.tz) - timedelta(days=100)
         ).strftime("%Y-%m-%d")
         date_end_str = (
-            datetime.now(tz=pytz.utc) - timedelta(days=90)
+            datetime.now(tz=self.tz) - timedelta(days=90)
         ).strftime("%Y-%m-%d")
 
         url = testing_urls.export_data_url
@@ -265,3 +317,42 @@ class TestExportApprovedHours(SetupAdditionalTimeRecords, TestCase):
             status_code=302,
             target_status_code=200
         )
+
+    def test_export_today(self):
+        """
+        Creage additional entry for today and export.
+
+        Expected to see today's enty in exported file (number of expected
+        rows should be equal self.counter * 2 + 1 heaader row + 1 extra entry
+        created in this test)
+        """
+        time_now = datetime.now(tz=self.tz)
+
+        manual_record_today = _setup_volunteer_hours(
+            self.volunteer_1,
+            self.npf_admin,
+            self.org_npf,
+            self.project,
+            time_now - timedelta(hours=1),
+            time_now,
+            is_verified=True,
+            action_type='app',
+        )
+
+        print "\nHERE"
+        print "creating event at {}".format(time_now - timedelta(hours=1))
+        print
+        for i in UserTimeLog.objects.filter(event__project__org=self.org_npf).order_by('datetime_start'):
+            print i.datetime_start, i.datetime_end, i.event.project.org
+        print "HERE\n"
+
+        response = self._assert_file_created_downloaded()
+
+        # reading file
+        with io.BytesIO(response.content) as file:
+            workbook = xlrd.open_workbook(file_contents=response.content)
+            worksheet = workbook.sheet_by_name('Time logs')
+
+            # adding 2 lines to expected number of rows - one for heading and
+            # one for additional record
+            self.assertEquals(worksheet.nrows, self.counter * 2 + 2)
