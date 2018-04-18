@@ -59,6 +59,7 @@ from openCurrents.forms import (
     UserSignupForm,
     UserLoginForm,
     EmailVerificationForm,
+    ExportDataForm,
     PasswordResetForm,
     PasswordResetRequestForm,
     OrgSignupForm,
@@ -87,6 +88,8 @@ import socket
 import re
 import uuid
 import decimal
+import csv
+import xlwt
 
 
 logging.basicConfig(level=logging.DEBUG, filename='log/views.log')
@@ -845,7 +848,8 @@ class ApproveHoursView(OrgAdminPermissionMixin, OrgSessionContextView, ListView)
         )
 
     def get_hours_rounded(self, datetime_start, datetime_end):
-        return math.ceil((datetime_end - datetime_start).total_seconds() / 3600 * 4) / 4
+        return math.ceil(
+            (datetime_end - datetime_start).total_seconds() / 3600 * 4) / 4
 
 
 class CausesView(TemplateView):
@@ -860,8 +864,149 @@ class EditHoursView(TemplateView):
     template_name = 'edit-hours.html'
 
 
-class ExportDataView(TemplateView):
+class ExportDataView(OrgAdminPermissionMixin, OrgSessionContextView, FormView):
+    form_class = ExportDataForm
     template_name = 'export-data.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ExportDataView, self).get_context_data(**kwargs)
+        self.tz_org = self.org.timezone
+        start_dt = datetime.now(pytz.timezone(self.tz_org)) - timedelta(days=30)
+        context['form'].fields['date_start'].widget.attrs['value'] = start_dt.strftime('%Y-%m-%d')
+
+        return context
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+
+        tz = self.org.timezone
+
+        user_timelog_record = UserTimeLog.objects.filter(
+            event__project__org=self.org
+        ).filter(
+            datetime_start__gte=data['date_start']
+        ).filter(
+            datetime_start__lte=data['date_end'] + timedelta(hours=23, minutes=59, seconds=59)
+        ).filter(
+            is_verified=True
+        ).order_by('datetime_start')
+
+        if len(user_timelog_record) == 0:
+            return redirect(
+                'openCurrents:export-data',
+                'No records found for the selected dates',
+                'alert'
+            )
+
+        file_name = "timelog_report_{}_{}.xls".format(
+            data['date_start'].strftime('%Y-%m-%d'),
+            data['date_end'].strftime('%Y-%m-%d')
+        )
+
+        # writing to XLS file
+        response = HttpResponse(content_type='application/ms-excel')
+        response['Content-Disposition'] = 'attachment; filename="{}"'.format(file_name)
+        wb = xlwt.Workbook(encoding='utf-8')
+        ws = wb.add_sheet('Time logs', cell_overwrite_ok=True)
+
+        # Sheet header, first row
+        row_num = 0
+        font_style = xlwt.XFStyle()
+        font_style.font.bold = True
+        columns = [
+            '#',
+            'Event',
+            'Description',
+            'Location',
+            'Volunteer Name',
+            'Volunteer Last name',
+            'Volunteer Email',
+            'Date and Time Start',
+            'Duration, hours'
+        ]
+        for column in range(len(columns)):
+            ws.write(row_num, column, columns[column], font_style)
+
+        # Sheet body, remaining rows
+        font_style = xlwt.XFStyle()
+        for record in user_timelog_record:
+
+            row_num += 1
+            record_event = record.event
+
+            duration = common.diffInHours(
+                record_event.datetime_start.astimezone(pytz.timezone(self.org.timezone)),
+                record_event.datetime_end.astimezone(pytz.timezone(self.org.timezone))
+            )
+
+            if record_event.event_type == 'MN':
+                event_name = 'Manual'
+                record_description = record_event.description
+                event_location = ''
+            else:
+                event_name = record_event.project.name
+                record_description = ''
+                event_location = record_event.location
+
+            row_data = [
+                row_num,
+                event_name,
+                record_description,
+                event_location,
+                record.user.first_name.encode('utf-8').strip(),
+                record.user.last_name.encode('utf-8').strip(),
+                record.user.email.encode('utf-8').strip(),
+                record.datetime_start.astimezone(pytz.timezone(self.org.timezone)).strftime('%Y-%m-%d %H:%M'),
+                duration
+            ]
+            for col in range(len(row_data)):
+                ws.write(row_num, col, row_data[col], font_style)
+
+        wb.save(response)
+        return response
+
+        # # writing to CSV file
+        # response = HttpResponse(content_type='text/csv')
+        # response['Content-Disposition'] = 'attachment; filename={}'.format(
+        #     file_name
+        # )
+        # writer = csv.writer(response)
+        # writer.writerow([
+        #     '#',
+        #     'Event',
+        #     'Volunteer',
+        #     'Date and Time Start',
+        #     'Duration, hours',
+        # ])
+        # i = 0
+        # for record in user_timelog_record:
+        #     duration = common.diffInHours(
+        #         record.datetime_start, record.datetime_end
+        #     )
+        #     volunteer = "{} {} <{}>".format(
+        #         record.user.first_name.encode('utf-8').strip(),
+        #         record.user.last_name.encode('utf-8').strip(),
+        #         record.user.email.encode('utf-8').strip()
+        #     )
+        #     writer.writerow([
+        #         i,
+        #         record.event,
+        #         volunteer,
+        #         record.datetime_start.strftime('%Y-%m-%d %H:%M'),
+        #         duration
+        #     ])
+        #     i += 1
+
+        # return response  # redirect('openCurrents:export-data',)
+
+    def get_form_kwargs(self):
+        '''
+        Passes org timezone down to the form.
+        '''
+        kwargs = super(ExportDataView, self).get_form_kwargs()
+        kwargs.update({'tz_org': self.org.timezone})
+
+        return kwargs
 
 
 class FindOrgsView(TemplateView):

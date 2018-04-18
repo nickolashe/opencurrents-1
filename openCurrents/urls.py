@@ -61,6 +61,7 @@ urlpatterns = [
     url(r'^edit-hours/$', views.EditHoursView.as_view(), name='edit-hours'),
     url(r'^edit-offer/(?P<offer_id>\d+)/$', views.OfferEditView.as_view(), name='edit-offer'),
     url(r'^export-data/$', views.ExportDataView.as_view(), name='export-data'),
+    url(r'^export-data/(?P<status_msg>.*)/(?P<msg_type>.*)$', views.ExportDataView.as_view(), name='export-data'),
     url(r'^faq/$', views.FaqView.as_view(), name='faq'),
     url(r'^find-orgs/$', views.FindOrgsView.as_view(), name='find-orgs'),
     url(r'^hours-approved/$', views.HoursApprovedView.as_view(), name='hours-approved'),
