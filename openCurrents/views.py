@@ -1198,36 +1198,16 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         }
         glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
-        # sending email to bizdev
-        email_biz_name = data['biz_name'] if data['biz_name'] else self.offer.org.name
-
+        # send bizdev notification
         try:
+            email_biz_name = data['biz_name'] if data['biz_name'] else self.offer.org.name
             email_vars_transactional = [
-
-                {
-                    'name': 'FNAME',
-                    'content': self.request.user.first_name
-                },
-                {
-                    'name': 'LNAME',
-                    'content': self.request.user.last_name
-                },
-                {
-                    'name': 'EMAIL',
-                    'content': self.request.user.email
-                },
-                {
-                    'name': 'BIZ_NAME',
-                    'content': email_biz_name
-                },
-                {
-                    'name': 'ITEM_NAME',
-                    'content': self.offer.item
-                },
-                {
-                    'name': 'REDEEMED_CURRENTS',
-                    'content': data['redeem_currents_amount']
-                }
+                {'name': 'FNAME', 'content': self.user.first_name},
+                {'name': 'LNAME', 'content': self.user.last_name},
+                {'name': 'EMAIL', 'content': self.user.email},
+                {'name': 'BIZ_NAME', 'content': email_biz_name},
+                {'name': 'ITEM_NAME', 'content': self.offer.item},
+                {'name': 'REDEEMED_CURRENTS', 'content': data['redeem_currents_amount']}
             ]
 
             sendTransactionalEmail(
@@ -1236,7 +1216,6 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
                 email_vars_transactional,
                 'bizdev@opencurrents.com',
             )
-
         except Exception as e:
                 logger.error(
                     'unable to send transactional email: %s (%s)',
