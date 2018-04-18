@@ -262,7 +262,7 @@ class Event(models.Model):
     def save(self, *args, **kwargs):
         # looking for an URL in self.description:
 
-        text = str(self.description)
+        text = unicode(self.description)
         pat = r'(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'\".,<>?]))'
 
         found = re.findall(pat, text)
