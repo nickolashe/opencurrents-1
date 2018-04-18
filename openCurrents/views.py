@@ -302,7 +302,11 @@ class AdminPermissionMixin(LoginRequiredMixin):
 class OrgAdminPermissionMixin(AdminPermissionMixin):
     def dispatch(self, request, *args, **kwargs):
         userid = self.request.user.id
-        userorgs = OrgUserInfo(userid)
+        try:
+            userorgs = OrgUserInfo(userid)
+        except InvalidUserException:
+            return redirect('openCurrents:login')
+
         org = userorgs.get_org()
 
         # check if user is an admin of an org
@@ -1985,6 +1989,9 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
         context['biz_currents_total'] = OcCommunity().get_biz_currents_total()
 
         context['master_offer'] = Offer.objects.filter(is_master=True).first()
+
+        context['has_bonus'] = OcLedger().has_bonus(self.user.userentity)
+        context['bonus_amount'] = common._SIGNUP_BONUS
 
         return context
 
@@ -3848,7 +3855,6 @@ def process_signup(
 
     # validate form data
     if form.is_valid():
-
         user_firstname = form.cleaned_data['user_firstname']
         user_lastname = form.cleaned_data['user_lastname']
         user_email = form.cleaned_data['user_email']
@@ -3904,7 +3910,7 @@ def process_signup(
                     msg_type='alert'
                 )
 
-        # user org
+        # user org association requested
         if org_name:
             org = None
             try:
@@ -3945,30 +3951,16 @@ def process_signup(
 
             if not mock_emails:
                 try:
+                    # send bizdev notification
                     sendTransactionalEmail(
                         'new-org-registered',
                         None,
                         [
-                            {
-                                'name': 'FNAME',
-                                'content': user_firstname
-                            },
-                            {
-                                'name': 'LNAME',
-                                'content': user_lastname
-                            },
-                            {
-                                'name': 'EMAIL',
-                                'content': user_email
-                            },
-                            {
-                                'name': 'ORG_NAME',
-                                'content': org_name
-                            },
-                            {
-                                'name': 'ORG_STATUS',
-                                'content': org_status
-                            }
+                            {'name': 'FNAME', 'content': user_firstname},
+                            {'name': 'LNAME', 'content': user_lastname},
+                            {'name': 'EMAIL', 'content': user_email},
+                            {'name': 'ORG_NAME','content': org_name},
+                            {'name': 'ORG_STATUS', 'content': org_status}
                         ],
                         'bizdev@opencurrents.com'
                     )
@@ -3997,7 +3989,7 @@ def process_signup(
 
                 token_record.save()
 
-                # registering user to an event
+                # user event registration
                 if request.session and 'next' in request.session and request.session['next'] and 'event-detail' in request.session['next']:
                     try:
                         user = User.objects.get(email=user_email)
@@ -4019,7 +4011,7 @@ def process_signup(
                             # cleaning session
                             request.session.pop('next')
 
-                        except:
+                        except Event.DoesNotExist:
                             user = None
                             logger.debug("Couldn't find event with ID {}".format(event_id))
 
@@ -4037,47 +4029,27 @@ def process_signup(
                                 event_coord_fname = " "
                                 event_coord_lname = " "
 
+                            dt_date = event.datetime_start.astimezone(
+                                pytz.timezone(tz)
+                            ).strftime('%b %d, %Y')
+                            dt_start = event.datetime_start.astimezone(
+                                pytz.timezone(tz)
+                            ).strftime('%-I:%M %p')
+                            dt_end = event.datetime_end.astimezone(
+                                pytz.timezone(tz)
+                            ).strftime('%-I:%M %p')
+
                             merge_var_list = [
-                                {
-                                    'name': 'EVENT_NAME',
-                                    'content': event.project.name
-                                },
-                                {
-                                    'name': 'DATE',
-                                    'content': event.datetime_start.astimezone(pytz.timezone(tz)).strftime('%b %d, %Y')
-                                },
-                                {
-                                    'name': 'START_TIME',
-                                    'content': event.datetime_start.astimezone(pytz.timezone(tz)).strftime('%-I:%M %p')
-                                },
-                                {
-                                    'name': 'END_TIME',
-                                    'content': event.datetime_end.astimezone(pytz.timezone(tz)).strftime('%-I:%M %p')
-                                },
-                                {
-                                    'name': 'LOCATION',
-                                    'content': event.location
-                                },
-                                {
-                                    'name': 'DESCRIPTION',
-                                    'content': event.description
-                                },
-                                {
-                                    'name': 'EVENT_ID',
-                                    'content': event.id
-                                },
-                                {
-                                    'name': 'ORG_NAME',
-                                    'content': event.project.org.name
-                                },
-                                {
-                                    'name': 'ADMIN_FIRSTNAME',
-                                    'content': event_coord_fname
-                                },
-                                {
-                                    'name': 'ADMIN_LASTNAME',
-                                    'content': event_coord_lname
-                                }
+                                {'name': 'EVENT_ID', 'content': event.id},
+                                {'name': 'EVENT_NAME', 'content': event.project.name},
+                                {'name': 'DATE', 'content': dt_date},
+                                {'name': 'START_TIME', 'content': dt_start},
+                                {'name': 'END_TIME', 'content': dt_end},
+                                {'name': 'LOCATION', 'content': event.location},
+                                {'name': 'DESCRIPTION', 'content': event.description},
+                                {'name': 'ORG_NAME', 'content': event.project.org.name},
+                                {'name': 'ADMIN_FIRSTNAME', 'content': event_coord_fname},
+                                {'name': 'ADMIN_LASTNAME', 'content': event_coord_lname}
                             ]
 
                             try:
@@ -4096,20 +4068,11 @@ def process_signup(
                                 )
 
                 if not mock_emails:
-                    # send verification email
+                    # send verification email to user
                     verify_email_vars = [
-                        {
-                            'name': 'FIRSTNAME',
-                            'content': user_firstname
-                        },
-                        {
-                            'name': 'EMAIL',
-                            'content': user_email
-                        },
-                        {
-                            'name': 'TOKEN',
-                            'content': str(token)
-                        }
+                        {'name': 'FIRSTNAME', 'content': user_firstname},
+                        {'name': 'EMAIL', 'content': user_email},
+                        {'name': 'TOKEN', 'content': str(token)}
                     ]
 
                     try:
@@ -4131,25 +4094,17 @@ def process_signup(
                 admin_org = OrgUserInfo(org_admin_id).get_org()
 
                 if not isExisting and not mock_emails:
-                    # send invite email
+                    # send invite email (to invite user to the platform)
                     try:
+                        invite_vol_vars = [
+                            {'name': 'ADMIN_FIRSTNAME', 'content': admin_user.first_name},
+                            {'name': 'ADMIN_LASTNAME', 'content': admin_user.last_name},
+                            {'name': 'ORG_NAME', 'content': admin_org.name}
+                        ]
                         sendTransactionalEmail(
                             'invite-volunteer',
                             None,
-                            [
-                                {
-                                    'name': 'ADMIN_FIRSTNAME',
-                                    'content': admin_user.first_name
-                                },
-                                {
-                                    'name': 'ADMIN_LASTNAME',
-                                    'content': admin_user.last_name
-                                },
-                                {
-                                    'name': 'ORG_NAME',
-                                    'content': admin_org.name
-                                }
-                            ],
+                            invite_vol_vars,
                             user_email
                         )
                     except Exception as e:
@@ -4167,7 +4122,6 @@ def process_signup(
             return HttpResponse(user.id, status=201)
         else:
             if org_name:
-
                 logger.debug('Processing organization...')
 
                 glogger_struct = {
@@ -4496,11 +4450,11 @@ def process_email_confirmation(request, user_email):
                 status_msg=error_msg % user_email
             )
 
-        if user.has_usable_password():
-            logger.warning('user %s has already been verified', user_email)
-            oc_auth = OcAuth(user.id)
-            redirection = common.where_to_redirect(oc_auth)
-            return redirect(redirection)
+        # if user.has_usable_password():
+        #     logger.debug('user %s has already been verified', user_email)
+        #     oc_auth = OcAuth(user.id)
+        #     redirection = common.where_to_redirect(oc_auth)
+        #     return redirect(redirection)
 
         # second, make sure the verification token and user email match
         token_record = None
@@ -4542,6 +4496,22 @@ def process_email_confirmation(request, user_email):
 
         user_settings.save()
 
+        # assign bonus
+        try:
+            org_oc = Org.objects.get(name='openCurrents')
+            OcLedger().issue_currents(
+                org_oc.orgentity.id,
+                user.userentity.id,
+                action=None,
+                amount=common._SIGNUP_BONUS,
+                is_bonus=True
+            )
+        except Exception as e:
+            logger.debug(
+                'failed to issue bonus currents: %s',
+                {'user': user.username, 'error': e, 'message': e.message}
+            )
+
         logger.debug('user %s verified', user.email)
 
         glogger_struct = {
@@ -4553,21 +4523,12 @@ def process_email_confirmation(request, user_email):
 
         # send verification email
         confirm_email_vars = [
-            {
-                'name': 'FIRSTNAME',
-                'content': user.first_name
-            },
-            {
-                'name': 'REFERRER',
-                'content': user.username
-            }
+            {'name': 'FIRSTNAME', 'content': user.first_name},
+            {'name': 'REFERRER', 'content': user.username}
         ]
 
         # define NPF email variable
-        npf_var = {
-            'name': 'NPF',
-            'content': False
-        }
+        npf_var = {'name': 'NPF', 'content': False}
 
         org_user = OrgUserInfo(user.id)
         is_org_user = org_user.get_orguser()
@@ -4576,6 +4537,7 @@ def process_email_confirmation(request, user_email):
 
         confirm_email_vars.append(npf_var)
         try:
+            # send "you are in" email
             sendTransactionalEmail(
                 'email-confirmed',
                 None,
