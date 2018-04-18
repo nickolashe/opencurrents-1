@@ -66,7 +66,7 @@ class OcLedger(object):
         entity_to = self._get_entity(entity_id_to, entity_type_to)
 
         # check for previous bonus
-        if is_bonus and self._has_bonus(entity_to):
+        if is_bonus and self.has_bonus(entity_to):
             raise DuplicateBonusException()
 
         ledger_rec = Ledger(
@@ -194,7 +194,7 @@ class OcLedger(object):
         else:
             raise UnsupportedAggregate()
 
-    def _has_bonus(self, entity):
+    def has_bonus(self, entity):
         return Ledger.objects.filter(
             entity_to=entity
         ).filter(

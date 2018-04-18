@@ -1986,6 +1986,9 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
 
         context['master_offer'] = Offer.objects.filter(is_master=True).first()
 
+        context['has_bonus'] = OcLedger().has_bonus(self.user.userentity)
+        context['bonus_amount'] = common._SIGNUP_BONUS
+
         return context
 
     def post(self, request, *args, **kwargs):

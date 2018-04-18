@@ -12,22 +12,25 @@
     <div class="status-highlight row full-width">
       <div class="small-12 column white">
         {% if balance_available > 0 %}
-          <!-- if dollar_credit_available -->
-            You have $<!-- dollar_credit_available--> credit in Currents.
-          <!-- else -->
-            You've got Currents!
-            <a href="{% url 'openCurrents:redeem-currents' master_offer.id %}"
-            class="white-link">
-              Redeem now
-            </a>
-          <!-- endif -->
+          {% if has_bonus and balance_available == bonus_amount %}
+            You have ${{ balance_available|current_to_usd:"no_fee"|round_number:0 }} credit in Currents.
+          {% else %}
+            You've got Currents.
+          {% endif %}
+
+          <a
+            href="{% url 'openCurrents:redeem-currents' master_offer.id %}"
+            class="white-link"
+          >
+            Redeem now
+          </a>
+
         {% else %}
           Let's create Currents!
           <a class="earn-currents-popup_open white-link">
             Volunteer now
           </a>
         {% endif %}
-
 
       </div>
     </div>
