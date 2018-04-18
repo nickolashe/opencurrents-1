@@ -129,33 +129,33 @@ def validate_password_strength(new_password, new_password_confirm):
         if new_password and new_password_confirm and new_password != new_password_confirm:
             raise ValidationError(_('Passwords don\'t match. Please check again.'))
 
-        #check for minimum length
+        # #check for minimum length
         if len(new_password) < min_length:
             raise ValidationError(_('Please make sure that the password has at least {0} characters '
                                     'long.').format(min_length))
 
-        # check for digit
-        if not any(char.isdigit() for char in new_password):
-            raise ValidationError(_('Please make sure that the password contains at least 1 digit.'))
+        # # check for digit
+        # if not any(char.isdigit() for char in new_password):
+        #     raise ValidationError(_('Please make sure that the password contains at least 1 digit.'))
 
-        # check for letter
-        if not any(char.isalpha() for char in new_password):
-            raise ValidationError(_('Please make sure that the password contains at least 1 letter.'))
+        # # check for letter
+        # if not any(char.isalpha() for char in new_password):
+        #     raise ValidationError(_('Please make sure that the password contains at least 1 letter.'))
 
-        #check for special character
-        specialChars = set(string.punctuation.replace("_", ""))
-        if not any(char in specialChars for char in new_password):
-            raise ValidationError(_('Please make sure that the password contains at least 1 special character.'))
+        # #check for special character
+        # specialChars = set(string.punctuation.replace("_", ""))
+        # if not any(char in specialChars for char in new_password):
+        #     raise ValidationError(_('Please make sure that the password contains at least 1 special character.'))
 
-        #check for atleast 1 uppercase chanracter
-        if not any(char.isupper() for char in new_password):
-            raise ValidationError(_('Please make sure that the password contains at least 1 uppercase character.'))
+        # #check for atleast 1 uppercase chanracter
+        # if not any(char.isupper() for char in new_password):
+        #     raise ValidationError(_('Please make sure that the password contains at least 1 uppercase character.'))
 
 class EmailVerificationForm(forms.Form):
     user_password = forms.CharField(min_length=8)
     user_password_confirm = forms.CharField(min_length=8)
     verification_token = forms.UUIDField()
-    monthly_updates = forms.BooleanField(initial=False,required=False)
+    monthly_updates = forms.BooleanField(initial=False, required=False)
 
     def clean(self):
         cleaned_data = super(EmailVerificationForm, self).clean()
@@ -513,7 +513,7 @@ class TimeTrackerForm(forms.Form):
         widget=forms.TextInput(attrs={
             'id': 'end-time',
             'name':'',
-            'value': '12:00:00'
+            'value': '13:00:00'
         })
     )
     new_org = forms.CharField(
@@ -639,7 +639,7 @@ class BizDetailsForm(forms.Form):
     address = forms.CharField(
         widget=forms.TextInput(attrs={
             'placeholder': 'Address',
-            'class': 'center',
+            'class': 'center location',
         }),
         required=False
     )
@@ -713,12 +713,20 @@ class OfferCreateForm(forms.Form):
     )
 
     offer_limit_value = forms.IntegerField(
-        widget=forms.NumberInput(attrs={
-           'placeholder': 100
-        }),
+        widget=forms.NumberInput(attrs={'placeholder': 100}),
         initial=100,
         required=False
     )
+
+    def clean_offer_current_share(self):
+        offer_current_share = self.cleaned_data['offer_current_share']
+
+        if offer_current_share < 5:
+            raise ValidationError(_(
+                'We require a minimum share of 5%'
+            ))
+
+        return int(offer_current_share)
 
     def clean_offer_item(self):
         offer_item = self.cleaned_data['offer_item']
@@ -738,7 +746,14 @@ class OfferCreateForm(forms.Form):
         return offer_item
 
     def clean_offer_limit_choice(self):
-        return int(self.cleaned_data['offer_limit_choice'])
+        offer_limit_choice = self.cleaned_data['offer_limit_choice']
+
+        if offer_limit_choice <= 0:
+            raise ValidationError(_(
+                'Monthly transaction limit must be greater than 0'
+            ))
+
+        return int(offer_limit_choice)
 
     def clean(self):
         cleaned_data = super(OfferCreateForm, self).clean()
@@ -817,7 +832,7 @@ class RedeemCurrentsForm(forms.Form):
         })
     )
 
-    redeem_price = forms.IntegerField(
+    redeem_price = forms.DecimalField(
         widget=forms.NumberInput(),
         required=False
     )
@@ -866,8 +881,8 @@ class RedeemCurrentsForm(forms.Form):
 
 class PublicRecordsForm(forms.Form):
     periods = (
-        ('month', 'Last 30 days'),
         ('all-time', 'All-time'),
+        ('month', 'Last 30 days'),
     )
 
     record_types = (
@@ -877,7 +892,7 @@ class PublicRecordsForm(forms.Form):
     )
 
     record_type = forms.ChoiceField(choices=record_types)
-    period = forms.ChoiceField(choices=periods)
+    period = forms.ChoiceField(choices=periods, required=False)
 
 class PopUpAnswer(forms.Form):
     answer = forms.CharField(max_length=3,required=False)

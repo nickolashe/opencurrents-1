@@ -79,7 +79,15 @@ class SetUpTests(object):
 
             # creating an NPF admin
             if create_admins:
+<<<<<<< HEAD
                 _create_test_user('npf_admin_{}'.format(str(org_i)), org=org, is_org_admin=True)
+=======
+                _create_test_user(
+                    'npf_admin_{}'.format(str(org_i)),
+                    org=org,
+                    is_org_admin=True
+                )
+>>>>>>> develop
 
         # creating BIZ org
         biz_org_i = 0
@@ -90,7 +98,15 @@ class SetUpTests(object):
 
             # creating an NPF admin
             if create_admins:
+<<<<<<< HEAD
                 _create_test_user('biz_admin_{}'.format(str(biz_org_i)), org=org, is_org_admin=True)
+=======
+                _create_test_user(
+                    'biz_admin_{}'.format(str(biz_org_i)),
+                    org=org,
+                    is_org_admin=True
+                )
+>>>>>>> develop
 
         # creating existing volunteers
         for volunteer in volunteers_list:
@@ -135,6 +151,10 @@ class SetUpTests(object):
         """Return list of projects."""
         return [proj for proj in Project.objects.filter(org=org)]
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> develop
 def _create_org(org_name, org_status):
     """
     Create users and maps them to the org if needed.
@@ -148,7 +168,16 @@ def _create_org(org_name, org_status):
     return new_org
 
 
+<<<<<<< HEAD
 def _create_test_user(user_name, password='password', org=None, is_org_admin=False):
+=======
+def _create_test_user(
+    user_name,
+    password='password',
+    org=None,
+    is_org_admin=False
+):
+>>>>>>> develop
     """
     Create users and maps them to the org if needed.
 
@@ -198,6 +227,7 @@ def _create_project(org, project_name):
 
 
 def _create_event(
+<<<<<<< HEAD
         project,
         creator_id,
         datetime_start,
@@ -209,6 +239,22 @@ def _create_event(
         coordinator=None
 ):
     """Create an event with given parameters."""
+=======
+    project,
+    creator_id,
+    datetime_start,
+    datetime_end,
+    description="Test Event",
+    location="test_location",
+    is_public=False,
+    event_type="MN",
+    coordinator=None
+):
+    """
+    creates an event with given parameters
+    """
+
+>>>>>>> develop
     event = Event(
         project=project,
         description=description,
@@ -259,11 +305,21 @@ def _create_offer(
 
 
 def _setup_user_event_registration(
+<<<<<<< HEAD
         user,
         event,
         is_confirmed=False
 ):
     """Create a user event registration with given parameters."""
+=======
+    user,
+    event,
+    is_confirmed=False
+):
+    """
+    creates a user event registration with given parameters
+    """
+>>>>>>> develop
     user_event_registration = UserEventRegistration(
         user=user,
         event=event,
@@ -273,8 +329,21 @@ def _setup_user_event_registration(
     return user_event_registration
 
 
-def _setup_volunteer_hours(volunteer, npf_admin, org, project, datetime_start, datetime_end, description="Manually tracked time ", event_type="MN", is_verified = False, action_type = 'req'):
+def _setup_volunteer_hours(
+    volunteer,
+    npf_admin,
+    org,
+    project,
+    datetime_start,
+    datetime_end,
+    description="Manually tracked time ",
+    event_type="MN",
+    is_verified=False,
+    action_type='req'
+):
     """
+    Set up volunteers manually recprded hours.
+
     function takes:
         volunteer = User objects
         npf_admin = npf admin object
@@ -290,7 +359,7 @@ def _setup_volunteer_hours(volunteer, npf_admin, org, project, datetime_start, d
     """
     event = Event.objects.create(
         project=project,
-        is_public = True,
+        is_public=True,
         description="finished event",
         location="test_location",
         coordinator=npf_admin,
@@ -313,19 +382,23 @@ def _setup_volunteer_hours(volunteer, npf_admin, org, project, datetime_start, d
         action_type=action_type
     )
 
+    return volunteer_timelog, actiontimelog, event
+
+
 def _setup_transactions(
-        biz_org,
-        biz_admin,
-        transaction_currents_amount,
-        transaction_price_reported,
-        price_actual = None,
-        pop_type = 'rec',
-        offer_item_name="Test Item",
-        currents_share=40,
-        action_type='req'
-    ):
+    biz_org,
+    biz_admin,
+    transaction_currents_amount,
+    transaction_price_reported,
+    price_actual=None,
+    pop_type='rec',
+    offer_item_name="Test Item",
+    currents_share=40,
+    action_type='req'
+):
     """
-    creates pending or approved transactions
+    Create pending or approved transactions.
+
     biz_org - biz org instance;
     biz_admin - biz admin user instance;
     transaction_currents_amount - int or float;
@@ -334,7 +407,6 @@ def _setup_transactions(
     currents_share - int or float;
     action_type - string. Possible values: 'req', 'app', 'red', 'dec'
     """
-
     offer_item = Item(name=offer_item_name)
     offer_item.save()
 
@@ -344,7 +416,6 @@ def _setup_transactions(
         currents_share=currents_share
     )
     offer.save()
-
 
     if price_actual is None:
         price_actual = transaction_price_reported
@@ -358,7 +429,6 @@ def _setup_transactions(
     )
     transaction.save()
 
-
     action = TransactionAction(
         transaction=transaction,
         action_type=action_type
@@ -367,6 +437,7 @@ def _setup_transactions(
 
 
 def _setup_ledger_entry(
+<<<<<<< HEAD
         entity_from,
         entity_to,
         currency='cur',
@@ -375,6 +446,17 @@ def _setup_ledger_entry(
         action=None,
         transaction=None
 ):
+=======
+    entity_from,
+    entity_to,
+    currency='cur',
+    amount=100.30,
+    is_issued=False,
+    action=None,
+    transaction=None
+):
+
+>>>>>>> develop
     """
     USE IT UNTILL WE HAVE ledger.OcLedger.add_fiat implemented.
 

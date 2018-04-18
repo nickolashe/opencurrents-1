@@ -1,0 +1,15 @@
+# [START runtime]
+runtime: python
+env: flex
+entrypoint: gunicorn -b :$PORT oc.wsgi
+
+beta_settings:
+    cloud_sql_instances: opencurrents-194003:us-central1:oc-pg
+
+# handlers:
+# - url: https://storage.googleapis.com/opencurrents-194003.appspot.com/static/
+#   static_dir: oc/staticfiles/
+
+runtime_config:
+ python_version: 2
+# [END runtime]

@@ -1,0 +1,72 @@
+{% extends "layouts/base.html" %}
+
+{% load staticfiles %}
+{% load tags %}
+
+{% block name %}
+  Edit business details
+{% endblock name %}
+
+
+{% block head %}
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAGfdpv-Vg_rskfib8jzp-a6VI92QuC2I0&v=3.exp&types=address&libraries=places"></script>
+{% endblock head %}
+
+{% block heading %}
+  <div class="row center">
+    <h3 class="title-sub">
+      {% block title %}
+        Business details
+      {% endblock title %}
+    </h3>
+
+    <p>Let customers know how to reach you:</p>
+  </div>
+{% endblock heading %}
+
+{% block content %}
+  <form class="" method="post">
+  {% csrf_token %}
+
+    <div class="row">
+      <div class="medium-8 small-centered columns">
+        <div class="row">
+          <div class="columns">
+            {{ form.website }}
+          </div>
+
+          <div class="medium-6 columns">
+            {{ form.phone }}
+          </div>
+
+          <div class="medium-6 columns">
+            {{ form.email }}
+          </div>
+
+          <div class="columns">
+            {{ form.address }}
+          </div>
+
+          <div class="columns">
+            {{ form.intro }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row three-halves-margin-top">
+      <button type="submit" class="button round small">
+        Save
+      </button>
+    </div>
+  </form>
+{% endblock content %}
+
+{% block js %}
+
+  {% include "scripts/location-dropdown.html" %}
+
+  <script type="text/javascript">
+      initAutoComplete();
+  </script>
+{% endblock js %}

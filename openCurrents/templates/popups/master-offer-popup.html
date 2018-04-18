@@ -7,6 +7,15 @@
 
 
 {% block content %}
+
+    {% if form.errors %}
+        <div class="row">
+            {% for field, error in form.errors.iteritems %}
+                <div class="center alert"> {{ error }} </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
   <p id="no-biz-alert" class="alert hidden">
     Please include the name of business you are using Currents with.
   </p>

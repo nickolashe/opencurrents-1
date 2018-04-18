@@ -1,3 +1,4 @@
+"""Unit testing signup."""
 from django.test import Client, TestCase, TransactionTestCase
 from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
@@ -12,11 +13,12 @@ import uuid
 
 from datetime import datetime, timedelta
 
+
 class TestSignup(TransactionTestCase):
+    """Main test class."""
+
     def setUp(self):
-        '''
-        set up test fixtures
-        '''
+        """Set up test fixtures."""
         _TEST_UUID = uuid.uuid4()
 
         # urls tested
@@ -72,9 +74,7 @@ class TestSignup(TransactionTestCase):
         self.test_org_name = 'test_org_%s' % _TEST_UUID
 
     def tearDown(self):
-        '''
-        clean up test fixtures
-        '''
+        """Clear up test fixtures."""
         self.userReg.delete()
         self.userOrg.delete()
         self.userBiz.delete()
@@ -388,15 +388,19 @@ class TestSignup(TransactionTestCase):
         self._assert_org_user(self.test_org_name, self.test_email, True)
         self._assert_group(self.test_org_name, True)
 
-        url_login = reverse(
-            'check-email',
+        # url_login = reverse(
+        #     'check-email',
+        #     urlconf=urls,
+        #     kwargs={
+        #         'user_email': self.test_email,
+        #         'orgid': org.id
+        #     }
+        # )
+        url_redirect = reverse(
+            'offer',
             urlconf=urls,
-            kwargs={
-                'user_email': self.test_email,
-                'orgid': org.id
-            }
         )
-        self.assertRedirects(response, url_login)
+        self.assertRedirects(response, url_redirect)
 
     def test_signup_user_org_existing(self):
         '''
@@ -422,7 +426,7 @@ class TestSignup(TransactionTestCase):
             }
         )
 
-        self._assert_user(self.test_email, False) # we don't create a user if org exists
+        self._assert_user(self.test_email, False)  # we don't create a user if org exists
         self._assert_token_valid(self.test_email, False)
         self._assert_org_user(self.orgTest.name, self.test_email, False)
 

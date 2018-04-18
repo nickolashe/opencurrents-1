@@ -4,16 +4,17 @@ from decimal import Decimal
 from django.contrib.auth.models import User
 from django.db.models import Max
 
-from openCurrents.models import \
-    OrgUser, \
-    UserEntity, \
-    UserEventRegistration, \
-    UserSettings, \
-    UserTimeLog, \
-    AdminActionUserTime, \
-    Offer, \
-    Transaction, \
+from openCurrents.models import (
+    OrgUser,
+    UserEntity,
+    UserEventRegistration,
+    UserSettings,
+    UserTimeLog,
+    AdminActionUserTime,
+    Offer,
+    Transaction,
     TransactionAction
+)
 
 from openCurrents.interfaces import common
 from openCurrents.interfaces import convert
@@ -193,8 +194,8 @@ class OcUser(object):
     def get_balance_pending_usd(self):
         '''
         pending usd balance is composed of:
-            - requested and accepted redemptions
-            - redemptions in status redeemed do not count
+            - requested redemptions
+            - redemptions in status redeemed and accepted do not count
         '''
         redemption_reqs = Transaction.objects.filter(
             user__id=self.userid
@@ -207,7 +208,7 @@ class OcUser(object):
                 req.last_action_created for req in redemption_reqs
             ]
         ).filter(
-            action_type__in=['req', 'app']
+            action_type__in=['req']
         )
 
         total_redemptions = common._get_redemption_total(
@@ -233,7 +234,7 @@ class OcUser(object):
             date_created__in=[
                 tr.last_action_created for tr in transactions
             ]
-        )
+        ).order_by('-date_created')
 
         return transaction_actions
 
