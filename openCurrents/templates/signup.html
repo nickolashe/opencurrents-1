@@ -1,93 +1,55 @@
+{% extends "layouts/base.html" %}
 {% load staticfiles %}
 
-<!DOCTYPE html>
-<html>
-  <head>
-    {% include "partials/head.html" %}
-  </head>
+{% block title %}
+  {% block name %}
+    Join openCurrents
+  {% endblock name %}
+{% endblock title %}
 
-  <body>
-    {% include "partials/header.html" %}
+{% block status %}
+  {% if status_msg %}
+    {{ block.super }}
+  {% else %}
+    <div class="status-highlight row full-width">
+      <div class="small-12 column">
+        Create your account to get $40 credit
+      </div>
+    </div>
+  {% endif %}
+{% endblock status %}
 
-    <div id="container" class="js-close-any" canvas="container">
-      <div id="wrapper">
-        <div class="row">
-            <h3 class="title">Join openCurrents</h3>
+{% block content %}
+  <!--form method="post" action="{% url 'openCurrents:process_signup' %}"-->
+  <form method="post" action="">
+    {% csrf_token %}
+    <div class="row">
+      <div class="small-12 medium-7 small-centered columns">
+        <div class="input-left small-6 columns">
+          <!--input type="text" name="user_firstname" class="lead center"
+          placeholder="First name" /-->
+          {{ form.user_firstname }}
         </div>
 
-        {% if status_msg %}
-          <div class="alert row">
-            {{status_msg}}
-          </div>
-        {% endif %}
+        <div class="input-right small-6 columns">
+          <!--input type="text" name="user_lastname" class="lead center"
+          placeholder="Last name" /-->
+          {{ form.user_lastname }}
+        </div>
 
-        <form method="post" action="{% url 'openCurrents:process_signup' %}">
-          {% csrf_token %}
-          <div class="row one-margin-top">
-            <div class="small-12 medium-8 small-centered columns">
-              <div class="input-left small-6 columns">
-                <input type="text" name="user_firstname" class="lead center" placeholder="First name" />
-              </div>
-
-              <div class="input-right small-6 columns">
-                <input type="text" name="user_lastname" class="lead center" placeholder="Last name" />
-              </div>
-              <div class="small-12 columns">
-                <input type="email" name="user_email" class="lead center" placeholder="Email address" />
-              </div>
-            </div>
-          </div>
-          <div class="row center one-margin-top">
-            <input type="submit" class="button large round" value="Create account">
-          </div>
-        </form>
-
-        <div id="push"></div>
-
+        <div class="small-12 columns">
+          <!-- input type="email" name="user_email" class="lead center"
+          placeholder="Email address" /-->
+          {{ form.user_email }}
+        </div>
       </div>
-
-      {% include 'partials/footer.html' %}
-
-    <!--container div -->
+    </div>
+    <div class="row center one-margin-top">
+      <input type="submit" class="button large round" value="Create account">
     </div>
 
-    <div id="bottom-stripe" class="full-width"></div>
-
-    <div off-canvas="menu right shift" id="menu">
-      {% include 'partials/menu.html' %}
+    <div class="row grey">
+      Existing member? <a href="{% url 'openCurrents:login' %}">Log in</a>
     </div>
-
-    <script>
-      ( function ( $ ) {
-        // Initialize Slidebars
-        var controller = new slidebars();
-        controller.init();
-      } ) ( jQuery );
-    </script>
-
-    <script>
-      // Initialize Slidebars
-      var controller = new slidebars();
-      controller.init();
-
-      // Toggle Slidebars
-      $( '.toggle-menu' ).on( 'click', function ( event ) {
-        // Stop default action and bubbling
-        event.stopPropagation();
-        event.preventDefault();
-
-        // Toggle the Slidebar with id 'id-1'
-        controller.toggle( 'menu' );
-
-        // Close any
-        $( document ).on( 'click', '.js-close-any', function ( event ) {
-          if ( controller.getActiveSlidebar() ) {
-            event.preventDefault();
-            event.stopPropagation();
-            controller.close();
-          }
-        } );
-      } );
-    </script>
-  </body>
-</html>
+  </form>
+{% endblock content %}

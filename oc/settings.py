@@ -24,7 +24,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'k)2cm1xy=m9zwyvqj9xw@0pe(fnzlmtq&x6xzk@@em2$590_wg'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -110,23 +110,28 @@ USE_L10N = True
 USE_TZ = True
 
 # sessions and auto-logout
-SESSION_COOKIE_AGE = 3600  # in seconds
-AUTO_LOGOUT_DELAY = 60  # in minutes
+AUTO_LOGOUT_DELAY = 3 * 60  # in minutes
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
-# STATIC_URL = '/static/'
-STATIC_URL = 'https://storage.googleapis.com/opencurrents-194003.appspot.com/static/'
-
-# django-storages
-DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
-GS_BUCKET_NAME = 'opencurrents-194003.appspot.com'
-GS_PROJECT_ID = 'opencurrents-194003'
-
 MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'mediafiles')
-MEDIA_URL = 'https://storage.googleapis.com/opencurrents-194003.appspot.com/media/'
+
+if os.getenv('GAE_INSTANCE') or os.getenv('GOOGLE_CLOUD_PROXY'):
+    # Production
+    STATIC_URL = 'https://storage.googleapis.com/opencurrents-194003.appspot.com/static/'
+    MEDIA_URL = 'https://storage.googleapis.com/opencurrents-194003.appspot.com/media/'
+
+    # django-storages
+    DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+    GS_BUCKET_NAME = 'opencurrents-194003.appspot.com'
+    GS_PROJECT_ID = 'opencurrents-194003'
+
+else:
+    # Development
+    STATIC_URL = '/static/'
+    MEDIA_URL = '/media/'
 
 APPEND_SLASH = True
 
@@ -137,23 +142,14 @@ STATICFILES_DIRS = (
 
 LOGIN_URL = 'openCurrents:login'
 
-# Check to see if MySQLdb is available; if not, have pymysql masquerade as
-# MySQLdb. This is a convenience feature for developers who cannot install
-# MySQLdb locally; when running in production on Google App Engine Standard
-# Environment, MySQLdb will be used.
-# try:
-#     import MySQLdb  # noqa: F401
-# except ImportError:
-#     import pymysql
-#     pymysql.install_as_MySQLdb()
-
 # [START dbconfig]
-# (flexible)
-if os.getenv('OC_HEROKU'):
+if os.getenv('OC_HEROKU_DEV'):
     # Update database configuration with $DATABASE_URL.
     db_from_env = dj_database_url.config(conn_max_age=500)
-    DATABASES['default'].update(db_from_env)
-else:
+    DATABASES = {
+        'default': db_from_env
+    }
+elif os.getenv('GAE_INSTANCE') or os.getenv('GOOGLE_CLOUD_PROXY'):
     DATABASES = {
         'default': {
             # If you are using Cloud SQL for MySQL rather than PostgreSQL, set
@@ -178,16 +174,17 @@ else:
     elif os.getenv('GOOGLE_CLOUD_PROXY'):
         # when using CloudSQL proxy to forward connections to remote db
         DATABASES['default']['HOST'] = '127.0.0.1'
-    else:
-        # local db (sqlite)
-        # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-            }
+
+# local db (sqlite)
+else:
+    # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         }
-    # [END dbconfig]
+    }
+# [END dbconfig]
 
 # do not send emails from local servers
 SENDEMAILS = os.getenv('OC_SEND_EMAILS')

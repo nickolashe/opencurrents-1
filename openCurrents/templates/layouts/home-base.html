@@ -7,7 +7,7 @@
 
     {% block head %}
       <link href="{% static "css/home.css" %}" rel="stylesheet" type="text/css">
-      <link href="https://fonts.googleapis.com/css?family=Alegreya+Sans+SC:300"
+      <link href="https://fonts.googleapis.com/css?family=Alegreya+Sans+SC:300|Montserrat:700"
       rel="stylesheet">
     {% endblock head %}
 
@@ -38,18 +38,13 @@
             <a href="{% url 'openCurrents:business' %}" class="three-halves-margin-right">For businesses</a>
             <a href="{% url 'openCurrents:our-story' %}" class="three-halves-margin-right">Our story</a>
             <a href="{% url 'openCurrents:faq' %}" class="three-halves-margin-right">FAQ</a>
-            {% if request.user.is_authenticated %}
-                {% if not org_admin and  not biz_admin%}
-                    <a class="two-margin-right" href="{% url 'openCurrents:profile' %}">Profile</a>
-                {% elif org_admin %}
-                    <a class="two-margin-right" href="{% url 'openCurrents:org-admin' %}"> Your nonprofit </a>
-                {% elif biz_admin %}
-                    <a class="two-margin-right" href="{% url 'openCurrents:biz-admin' %}"> Your business </a>
-                {% endif %}
-            {% else %}
-                <a class="two-margin-right" href="{% url 'openCurrents:login' %}">Log in</a>
-            {% endif %}
           {% endblock large-links %}
+
+          <a class="two-margin-right"
+            {% include "partials/login-logic.html" %}
+            >
+            Log in
+          </a>
         </div>
 
         <div class="hide-for-large small-2 relative columns right end">

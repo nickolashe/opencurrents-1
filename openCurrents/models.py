@@ -46,9 +46,9 @@ class Org(models.Model):
     @property
     def no_info(self):
         no_info = True
-        fields = [self.website, self.phone, self.email, self.address, self.intro ]
+        fields = [self.website, self.phone, self.email, self.address, self.intro]
 
-        if any (f != '' for f in fields):
+        if any(f != '' for f in fields):
             no_info = False
 
         return no_info
@@ -154,6 +154,7 @@ class Ledger(models.Model):
     )
     amount = models.DecimalField(max_digits=12, decimal_places=2)
     is_issued = models.BooleanField(default=False)
+    is_bonus = models.BooleanField(default=False)
 
     # related actions
     # TODO:

@@ -4,8 +4,6 @@ from django.contrib.auth.models import User
 from datetime import datetime, timedelta
 from django.utils import timezone
 
-# from openCurrents import views, urls
-
 from openCurrents.models import \
     Org, \
     Entity, \
@@ -33,8 +31,10 @@ from openCurrents.tests.interfaces.common import \
     _create_project, \
     _setup_volunteer_hours, \
     _create_event, \
-    _setup_user_event_registration
-
+    _setup_user_event_registration, \
+    _create_org, \
+    _create_offer, \
+    _SHARE
 
 from openCurrents.interfaces.orgadmin import OrgAdmin
 from openCurrents.interfaces.ledger import OcLedger
@@ -86,6 +86,16 @@ class NpfAdminView(TestCase):
         # creating NPF org
         org = OcOrg().setup_org(name="NPF_org_1", status="npf")
         self.org_id = org_id = org.id
+
+        # create BIZ org
+        biz_org = _create_org("BIZ_org_1", 'biz')
+
+        # create master offer
+        _create_offer(
+            biz_org,
+            currents_share=_SHARE * 100,
+            is_master=True
+        )
 
         # creating users
         # admins
