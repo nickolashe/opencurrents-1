@@ -123,6 +123,13 @@ class SetupTest(object):
         self.offer = _create_offer(
             self.org_biz, currents_share=self._SHARE * 100)
 
+        # creating master offer
+        self.offer = _create_offer(
+            self.org_biz,
+            currents_share=self._SHARE * 100,
+            is_master=True
+        )
+
         # getting item
         self.purchased_item = Item.objects.filter(offer__id=self.offer.id)[0]
 

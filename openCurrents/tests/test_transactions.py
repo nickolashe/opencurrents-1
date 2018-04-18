@@ -3,6 +3,7 @@ import re
 import pytz
 import os
 
+from django.conf import settings
 from datetime import datetime
 from django.test import TestCase
 from django.utils import timezone
@@ -22,8 +23,6 @@ from openCurrents.tests.interfaces.transactions_setup import SetupTest
 from openCurrents.tests.interfaces.common import (
     _setup_ledger_entry,
 )
-
-from unittest import skip
 
 
 class FullRedemption(SetupTest, TestCase):
@@ -177,7 +176,6 @@ approval%20by%20{}/'.format(self.org_biz.name),
         )
         self.assertIn(redeemed_offer_text, processed_content)
 
-    @skip('for now')
     def test_redemption_img_upload(self):
         """Test redemption img upload by a volunteer."""
         # logging in as biz admin to check initial state of pending currents
@@ -194,7 +192,7 @@ approval%20by%20{}/'.format(self.org_biz.name),
         redeem_currents_amount = redeem_price * self._SHARE / _USDCUR
 
         with open(self.receipt_path + self.receipt_name) as f:
-            self.client.post('/redeem-currents/1/', {
+            response = self.client.post('/redeem-currents/1/', {
                 'redeem_currents_amount': redeem_currents_amount,
                 'redeem_receipt': f,
                 'redeem_price': redeem_price,
@@ -203,7 +201,7 @@ approval%20by%20{}/'.format(self.org_biz.name),
             })
 
         # check if the file was created
-        uploaded_receipt_path = 'oc/mediafiles/images/redeem/{}/{}/{}/{}'.\
+        uploaded_receipt_path = '/images/redeem/{}/{}/{}/{}'.\
             format(
                 timezone.now().strftime("%Y"),
                 timezone.now().strftime("%m"),

@@ -128,7 +128,7 @@ if os.getenv('GAE_INSTANCE') or os.getenv('GOOGLE_CLOUD_PROXY'):
     GS_BUCKET_NAME = 'opencurrents-194003.appspot.com'
     GS_PROJECT_ID = 'opencurrents-194003'
 
-else :
+else:
     # Development
     STATIC_URL = '/static/'
     MEDIA_URL = '/media/'

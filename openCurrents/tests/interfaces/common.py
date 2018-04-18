@@ -532,6 +532,13 @@ class SetupAdditionalTimeRecords():
         self.user_enitity_id_vol_1 = UserEntity.objects.get(
             user=self.volunteer_1).id
 
+        # creating master offer
+        # self.offer = _create_offer(
+        #     self.org_biz,
+        #     currents_share=self._SHARE * 100,
+        #     is_master=True
+        # )
+
         # setting up client
         self.client = Client()
         self.client.login(username=self.npf_admin.username, password='password')
