@@ -21,7 +21,7 @@
 
 {% block content %}
   <!--form method="post" action="{% url 'openCurrents:process_signup' %}"-->
-  <form method="post" action="">  
+  <form method="post" action="">
     {% csrf_token %}
     <div class="row one-margin-top">
       <div class="small-12 medium-8 small-centered columns">
@@ -46,6 +46,10 @@
     </div>
     <div class="row center one-margin-top">
       <input type="submit" class="button large round" value="Create account">
+    </div>
+
+    <div class="row grey">
+      Existing member? <a href="{% url 'openCurrents:login' %}">Log in</a>
     </div>
   </form>
 {% endblock content %}
