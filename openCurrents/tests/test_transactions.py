@@ -1,4 +1,5 @@
 """Unit test: transactions."""
+import glob
 import re
 import pytz
 import os
@@ -17,6 +18,7 @@ from openCurrents.interfaces.convert import (
 from openCurrents.models import(
     Transaction,
     TransactionAction,
+    Offer
 )
 
 # from openCurrents.tests.interfaces.transactions_setup import SetupTest
@@ -194,38 +196,38 @@ approval%20by%20{}/'.format(self.org_biz.name),
         redeem_currents_amount = redeem_price * _SHARE / _USDCUR
 
         with open(self.receipt_path + self.receipt_name) as f:
-            response = self.client.post('/redeem-currents/1/', {
-                'redeem_currents_amount': redeem_currents_amount,
-                'redeem_receipt': f,
-                'redeem_price': redeem_price,
-                'redeem_no_proof': '',
-                'biz_name': ''
-            })
+            response = self.client.post(
+                '/redeem-currents/{}/'.format(self.offer.id),
+                {
+                    'redeem_currents_amount': redeem_currents_amount,
+                    'redeem_receipt': f,
+                    'redeem_price': redeem_price,
+                    'redeem_no_proof': '',
+                    'biz_name': ''
+                }
+            )
 
         ext = self.receipt_name.split('.')[-1]
-        updated_file_name = 'org_{}.offer_{}.user_{}.price_reported_{}.date_{}.time_{}.{}'.format(
+        updated_file_name = 'oc/mediafiles/receipts/{}/{}/org_{}.offer_{}.user_{}.price_reported_{}.date_{}.time_{}{}.{}'.format(
+            timezone.now().strftime("%Y"),
+            timezone.now().strftime("%m"),
             self.offer.org.name,
             self.offer.id,
             self.volunteer_1.id,
             redeem_price,
             datetime.now().strftime('%d'),
-            datetime.now().strftime('%H-%M-%S.%f'),
+            datetime.now().strftime('%H-%M-'),
+            "*",
             ext
         )
 
-        # check if the file was created
-        uploaded_receipt_path = 'oc/mediafiles/receipts/{}/{}/{}'.\
-            format(
-                timezone.now().strftime("%Y"),
-                timezone.now().strftime("%m"),
-                # timezone.now().strftime("%d"),
-                updated_file_name)
+        uploaded_file = glob.glob(updated_file_name)[0]
 
-        self.assertTrue(os.path.isfile(uploaded_receipt_path))
+        self.assertTrue(os.path.isfile(uploaded_file))
 
         # cleaning uploaded file after test
         try:
-            os.remove(uploaded_receipt_path)
+            os.remove(uploaded_file)
         except OSError:
             print "Uploaded testing receipt wasn't deleted!"
 

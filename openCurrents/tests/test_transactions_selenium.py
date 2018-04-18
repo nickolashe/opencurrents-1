@@ -1,11 +1,12 @@
 """test_transactions_selenium."""
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from openCurrents.tests.interfaces.transactions_setup import SetupTest
 
 from openCurrents.tests.interfaces.common import (
     _create_offer,
     _setup_ledger_entry,
-    _selenium_wait_for
+    _selenium_wait_for,
+    SetupAdditionalTimeRecords,
+    _SHARE
 )
 
 from openCurrents.interfaces.ocuser import(
@@ -18,7 +19,7 @@ from seleniumlogin import force_login
 import unittest
 
 
-class PartialRedemptionSelenium(SetupTest, StaticLiveServerTestCase):
+class PartialRedemptionSelenium(SetupAdditionalTimeRecords, StaticLiveServerTestCase):
     """Test currents full redemption process."""
 
     def setUp(self):
@@ -39,7 +40,7 @@ class PartialRedemptionSelenium(SetupTest, StaticLiveServerTestCase):
         self.offer = _create_offer(
             self.org_biz,
             offer_item_name='Test Item Master',
-            currents_share=self._SHARE * 100,
+            currents_share=_SHARE * 100,
             is_master=True)
 
     def tearDown(self):
