@@ -77,7 +77,8 @@ class UserEmailForm(forms.Form):
     user_email = forms.EmailField(
         widget=forms.EmailInput(attrs={
             'id': 'new-email',
-            'placeholder': 'Email'
+            'placeholder': 'Email address',
+            'class': 'lead center'
         })
     )
 
@@ -89,14 +90,16 @@ class UserSignupForm(UserEmailForm):
     user_firstname = forms.CharField(
         widget=forms.TextInput(attrs={
             'id': 'new-firstname',
-            'placeholder': 'Firstname'
+            'placeholder': 'First name',
+            'class': 'lead center'
         })
     )
 
     user_lastname = forms.CharField(
         widget=forms.TextInput(attrs={
             'id': 'new-lastname',
-            'placeholder': 'Lastname'
+            'placeholder': 'Last name',
+            'class': 'lead center'
         })
     )
 

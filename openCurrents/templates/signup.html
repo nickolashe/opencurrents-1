@@ -23,7 +23,7 @@
   <!--form method="post" action="{% url 'openCurrents:process_signup' %}"-->
   <form method="post" action="">
     {% csrf_token %}
-    <div class="row one-margin-top">
+    <div class="row">
       <div class="small-12 medium-8 small-centered columns">
         <div class="input-left small-6 columns">
           <!--input type="text" name="user_firstname" class="lead center"
@@ -48,8 +48,8 @@
       <input type="submit" class="button large round" value="Create account">
     </div>
 
-    <div class="row grey">
-      Existing member? <a href="{% url 'openCurrents:login' %}">Log in</a>
+    <div class="row">
+      <a href="{% url 'openCurrents:login' %}">I already have an account</a>
     </div>
   </form>
 {% endblock content %}
