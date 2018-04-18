@@ -2099,8 +2099,8 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
         context['hours_by_org'] = self.ocuser.get_hours_approved(**{'by_org': True})
 
         # user timezone
-        # context['timezone'] = self.request.user.account.timezone
-        context['timezone'] = 'America/Chicago'
+        #context['timezone'] = self.request.user.account.timezone
+        context['timezone'] = self.request.user.usersettings.timezone
 
         # getting issued currents
         context['currents_amount_total'] = OcCommunity().get_amount_currents_total()

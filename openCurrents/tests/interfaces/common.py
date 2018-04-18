@@ -1,50 +1,37 @@
-"""Selection of common classess and methods for the unit tests."""
-
+"""Common classes and methods for unit tests."""
 from django.contrib.auth.models import User
-
-from datetime import datetime, timedelta
-from django.utils import timezone
 
 from openCurrents.models import \
     AdminActionUserTime, \
-    Entity, \
     Item, \
     Ledger, \
     Offer, \
     Org, \
-    OrgEntity, \
     OrgUser, \
     Project, \
     Event, \
     Transaction, \
     TransactionAction, \
-    UserEntity, \
     UserEventRegistration, \
-    UserTimeLog
-
-from openCurrents.interfaces.ocuser import \
-    OcUser, \
-    InvalidUserException, \
-    UserExistsException
+    UserTimeLog, \
+    UserEntity
 
 from openCurrents.interfaces.orgs import (
     OrgUserInfo,
     OcOrg
 )
-
-from openCurrents.interfaces.auth import (
-    OcAuth
+from openCurrents.interfaces.ocuser import (
+    OcUser
 )
-
 from openCurrents.interfaces.orgadmin import OrgAdmin
+from openCurrents.interfaces.auth import (OcAuth)
 
-from openCurrents.interfaces.common import diffInHours
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from selenium import webdriver
+from selenium.common.exceptions import WebDriverException
 
-import pytz
-import uuid
-import random
-import string
-import re
+import time
+
 
 from django.test import Client
 
@@ -53,10 +40,12 @@ from django.test import Client
 # _create_test_user
 # _create_project
 # _create_event
+# _create_offer
 # _setup_user_event_registration
 # _setup_volunteer_hours
 # _setup_transactions
 # _setup_ledger_entry
+# _selenium_wait_for
 
 
 class SetUpTests(object):
@@ -123,7 +112,6 @@ class SetUpTests(object):
         for user in User.objects.all():
             if not OcAuth(user.id).is_admin():
                 volunteers.append(user)
-
         return volunteers
 
     def get_all_npf_admins(self):
@@ -133,7 +121,6 @@ class SetUpTests(object):
             u = OcAuth(user.id)
             if u.is_admin_org():
                 npf_admins.append(user.user)
-
         return npf_admins
 
     def get_all_biz_admins(self):
@@ -237,7 +224,9 @@ def _create_event(
     event_type="MN",
     coordinator=None
 ):
-    """Create an event with given parameters."""
+    """
+    creates an event with given parameters
+    """
     event = Event(
         project=project,
         description=description,
@@ -250,6 +239,41 @@ def _create_event(
     )
     event.save()
     return event
+
+
+def _create_offer(
+        org,
+        offer_item_name='Test Item',
+        offer_limit=None,
+        currents_share=25,
+        is_master=False
+):
+    """
+    Create offer.
+
+    takes
+    org - biz Org instance
+    item_name - string
+    offer_limit - None or Int
+    currents_share - int
+    creates Item and Offer, returns Offer object
+    """
+    offer_item = Item(name=offer_item_name)
+    offer_item.save()
+
+    offer = Offer(
+        org=org,
+        item=offer_item,
+        currents_share=currents_share,
+        is_master=is_master
+    )
+
+    if offer_limit:
+        offer.limit = offer_limit
+
+    offer.save()
+
+    return offer
 
 
 def _setup_user_event_registration(
@@ -403,10 +427,21 @@ def _setup_ledger_entry(
         action=action,
         transaction=transaction
     )
-
     ledger_rec.save()
 
-    return
+    return ledger_rec
+
+
+def _selenium_wait_for(fn):
+    """Wait for ement on the page for 5 seconds."""
+    start_time = time.time()
+    while True:
+        try:
+            return fn()
+        except (AssertionError, WebDriverException) as e:
+            if time.time() - start_time > 10:
+                raise e
+            time.sleep(0.5)
 
 
 class SetupAdditionalTimeRecords():
