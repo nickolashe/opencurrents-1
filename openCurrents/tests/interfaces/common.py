@@ -13,17 +13,17 @@ from openCurrents.models import \
     Transaction, \
     TransactionAction, \
     UserEventRegistration, \
-    UserTimeLog
+    UserTimeLog, \
+    UserEntity
 
 from openCurrents.interfaces.orgs import (
     OrgUserInfo,
     OcOrg
 )
-
 from openCurrents.interfaces.ocuser import (
     OcUser
 )
-
+from openCurrents.interfaces.orgadmin import OrgAdmin
 from openCurrents.interfaces.auth import (OcAuth)
 
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
