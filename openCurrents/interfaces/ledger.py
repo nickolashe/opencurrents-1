@@ -65,7 +65,7 @@ class OcLedger(object):
 
         entity_to = self._get_entity(entity_id_to, entity_type_to)
 
-        # check for previous bonus
+        # check for previously issued bonus
         if is_bonus and self.has_bonus(entity_to):
             raise DuplicateBonusException()
 
@@ -201,6 +201,11 @@ class OcLedger(object):
             is_bonus=True
         ).exists()
 
+    def has_transactions(self, entity):
+        return Ledger.objects.filter(
+            entity_to=entity
+        ).exists()
+
 
 class InvalidEntityException(Exception):
     def __init__(self):
@@ -220,6 +225,13 @@ class DuplicateBonusException(Exception):
     def __init__(self):
         super(DuplicateBonusException, self).__init__(
             'Entity has already been issued bonus'
+        )
+
+
+class NoBonusException(Exception):
+    def __init__(self):
+        super(NoBonusException, self).__init__(
+            'Entity already has currents - no bonus'
         )
 
 
