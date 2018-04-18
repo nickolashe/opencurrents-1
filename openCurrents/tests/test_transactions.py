@@ -19,13 +19,15 @@ from openCurrents.models import(
     TransactionAction,
 )
 
-from openCurrents.tests.interfaces.transactions_setup import SetupTest
+# from openCurrents.tests.interfaces.transactions_setup import SetupTest
 from openCurrents.tests.interfaces.common import (
     _setup_ledger_entry,
+    SetupAdditionalTimeRecords,
+    _SHARE
 )
 
 
-class FullRedemption(SetupTest, TestCase):
+class FullRedemption(SetupAdditionalTimeRecords, TestCase):
     """Test currents full redemption process."""
 
     def setUp(self):
@@ -76,9 +78,9 @@ class FullRedemption(SetupTest, TestCase):
 
         # setting variables
         redeem_price = 20
-        redeem_currents_amount = redeem_price * self._SHARE / _USDCUR
-        redeemed_usd_amount = redeem_price * self._SHARE - \
-            redeem_price * self._SHARE * _TR_FEE
+        redeem_currents_amount = redeem_price * _SHARE / _USDCUR
+        redeemed_usd_amount = redeem_price * _SHARE - \
+            redeem_price * _SHARE * _TR_FEE
         uzer_tz = pytz.timezone(self.volunteer_1.usersettings.timezone)
 
         # today date, eg Jan 15, 2018
@@ -189,7 +191,7 @@ approval%20by%20{}/'.format(self.org_biz.name),
 
         # setting variables
         redeem_price = 20
-        redeem_currents_amount = redeem_price * self._SHARE / _USDCUR
+        redeem_currents_amount = redeem_price * _SHARE / _USDCUR
 
         with open(self.receipt_path + self.receipt_name) as f:
             response = self.client.post('/redeem-currents/1/', {
@@ -200,13 +202,25 @@ approval%20by%20{}/'.format(self.org_biz.name),
                 'biz_name': ''
             })
 
+        ext = self.receipt_name.split('.')[-1]
+        updated_file_name = 'org_{}.offer_{}.user_{}.price_reported_{}.date_{}.time_{}.{}'.format(
+            self.offer.org.name,
+            self.offer.id,
+            self.volunteer_1.id,
+            redeem_price,
+            datetime.now().strftime('%d'),
+            datetime.now().strftime('%H-%M-%S.%f'),
+            ext
+        )
+
         # check if the file was created
-        uploaded_receipt_path = '/images/redeem/{}/{}/{}/{}'.\
+        uploaded_receipt_path = 'oc/mediafiles/receipts/{}/{}/{}'.\
             format(
                 timezone.now().strftime("%Y"),
                 timezone.now().strftime("%m"),
-                timezone.now().strftime("%d"),
-                self.receipt_name)
+                # timezone.now().strftime("%d"),
+                updated_file_name)
+
         self.assertTrue(os.path.isfile(uploaded_receipt_path))
 
         # cleaning uploaded file after test
