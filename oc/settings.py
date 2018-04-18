@@ -117,21 +117,22 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
+MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'mediafiles')
 
 if os.getenv('GAE_INSTANCE') or os.getenv('GOOGLE_CLOUD_PROXY'):
     # Production
     STATIC_URL = 'https://storage.googleapis.com/opencurrents-194003.appspot.com/static/'
+    MEDIA_URL = 'https://storage.googleapis.com/opencurrents-194003.appspot.com/media/'
+
+    # django-storages
+    DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+    GS_BUCKET_NAME = 'opencurrents-194003.appspot.com'
+    GS_PROJECT_ID = 'opencurrents-194003'
+
 else :
     # Development
     STATIC_URL = '/static/'
-
-# django-storages
-DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
-GS_BUCKET_NAME = 'opencurrents-194003.appspot.com'
-GS_PROJECT_ID = 'opencurrents-194003'
-
-MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'mediafiles')
-MEDIA_URL = 'https://storage.googleapis.com/opencurrents-194003.appspot.com/media/'
+    MEDIA_URL = '/media/'
 
 APPEND_SLASH = True
 
