@@ -59,20 +59,15 @@ class OcLedger(object):
         # check for sufficient funds
         balance_from = self.get_balance(entity_from.id, entity_type_from)
 
+        # check for sufficient balance
         if not is_issued and balance_from < amount:
             raise InsufficientFundsException()
 
         entity_to = self._get_entity(entity_id_to, entity_type_to)
 
-        if is_bonus:
-            existing = Ledger.objects.filter(
-                entity_to=entity_to
-            ).filter(
-                is_bonus=True
-            )
-
-            if existing:
-                raise DuplicateBonusException()
+        # check for previous bonus
+        if is_bonus and self._has_bonus(entity_to):
+            raise DuplicateBonusException()
 
         ledger_rec = Ledger(
             entity_from=entity_from,
@@ -198,6 +193,13 @@ class OcLedger(object):
             return queryset
         else:
             raise UnsupportedAggregate()
+
+    def _has_bonus(self, entity):
+        return Ledger.objects.filter(
+            entity_to=entity
+        ).filter(
+            is_bonus=True
+        ).exists()
 
 
 class InvalidEntityException(Exception):
