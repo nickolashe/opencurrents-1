@@ -79,15 +79,11 @@ class SetUpTests(object):
 
             # creating an NPF admin
             if create_admins:
-<<<<<<< HEAD
-                _create_test_user('npf_admin_{}'.format(str(org_i)), org=org, is_org_admin=True)
-=======
                 _create_test_user(
                     'npf_admin_{}'.format(str(org_i)),
                     org=org,
                     is_org_admin=True
                 )
->>>>>>> develop
 
         # creating BIZ org
         biz_org_i = 0
@@ -98,15 +94,11 @@ class SetUpTests(object):
 
             # creating an NPF admin
             if create_admins:
-<<<<<<< HEAD
-                _create_test_user('biz_admin_{}'.format(str(biz_org_i)), org=org, is_org_admin=True)
-=======
                 _create_test_user(
                     'biz_admin_{}'.format(str(biz_org_i)),
                     org=org,
                     is_org_admin=True
                 )
->>>>>>> develop
 
         # creating existing volunteers
         for volunteer in volunteers_list:
@@ -151,10 +143,7 @@ class SetUpTests(object):
         """Return list of projects."""
         return [proj for proj in Project.objects.filter(org=org)]
 
-<<<<<<< HEAD
-=======
 
->>>>>>> develop
 def _create_org(org_name, org_status):
     """
     Create users and maps them to the org if needed.
@@ -168,16 +157,12 @@ def _create_org(org_name, org_status):
     return new_org
 
 
-<<<<<<< HEAD
-def _create_test_user(user_name, password='password', org=None, is_org_admin=False):
-=======
 def _create_test_user(
     user_name,
     password='password',
     org=None,
     is_org_admin=False
 ):
->>>>>>> develop
     """
     Create users and maps them to the org if needed.
 
@@ -227,19 +212,6 @@ def _create_project(org, project_name):
 
 
 def _create_event(
-<<<<<<< HEAD
-        project,
-        creator_id,
-        datetime_start,
-        datetime_end,
-        description="Test Event",
-        location="test_location",
-        is_public=False,
-        event_type="MN",
-        coordinator=None
-):
-    """Create an event with given parameters."""
-=======
     project,
     creator_id,
     datetime_start,
@@ -253,8 +225,6 @@ def _create_event(
     """
     creates an event with given parameters
     """
-
->>>>>>> develop
     event = Event(
         project=project,
         description=description,
@@ -305,13 +275,6 @@ def _create_offer(
 
 
 def _setup_user_event_registration(
-<<<<<<< HEAD
-        user,
-        event,
-        is_confirmed=False
-):
-    """Create a user event registration with given parameters."""
-=======
     user,
     event,
     is_confirmed=False
@@ -319,7 +282,6 @@ def _setup_user_event_registration(
     """
     creates a user event registration with given parameters
     """
->>>>>>> develop
     user_event_registration = UserEventRegistration(
         user=user,
         event=event,
@@ -437,16 +399,6 @@ def _setup_transactions(
 
 
 def _setup_ledger_entry(
-<<<<<<< HEAD
-        entity_from,
-        entity_to,
-        currency='cur',
-        amount=100.30,
-        is_issued=False,
-        action=None,
-        transaction=None
-):
-=======
     entity_from,
     entity_to,
     currency='cur',
@@ -455,8 +407,6 @@ def _setup_ledger_entry(
     action=None,
     transaction=None
 ):
-
->>>>>>> develop
     """
     USE IT UNTILL WE HAVE ledger.OcLedger.add_fiat implemented.
 
