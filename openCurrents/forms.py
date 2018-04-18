@@ -78,7 +78,7 @@ class UserEmailForm(forms.Form):
         widget=forms.EmailInput(attrs={
             'id': 'new-email',
             'placeholder': 'Email address',
-            'class': 'lead center'
+            'class': 'center'
         })
     )
 
@@ -91,7 +91,7 @@ class UserSignupForm(UserEmailForm):
         widget=forms.TextInput(attrs={
             'id': 'new-firstname',
             'placeholder': 'First name',
-            'class': 'lead center'
+            'class': 'center'
         })
     )
 
@@ -99,7 +99,7 @@ class UserSignupForm(UserEmailForm):
         widget=forms.TextInput(attrs={
             'id': 'new-lastname',
             'placeholder': 'Last name',
-            'class': 'lead center'
+            'class': 'center'
         })
     )
 
