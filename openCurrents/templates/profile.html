@@ -107,23 +107,23 @@
       <h6>Featured businesses</h6>
       <div class="row">
         <div class="small-6 medium-3 columns">
-          <a href="{% url 'openCurrents:redeem-currents' master_offer.id %}">
+          <a href="{% url 'openCurrents:redeem-currents' master_offer.id %}?biz_name=Whole Foods">
             <img class="biz-logos" src="{% static 'img/whole-foods.png' %}"/>
           </a>
         </div>
         <div class="small-6 medium-3 columns">
-          <a href="{% url 'openCurrents:redeem-currents' master_offer.id %}">
+          <a href="{% url 'openCurrents:redeem-currents' master_offer.id %}?biz_name=Amazon">
             <img class="biz-logos" src="{% static 'img/amazon.png' %}"/>
           </a>
         </div>
         <div class="small-6 medium-3 columns">
-          <a href="{% url 'openCurrents:redeem-currents' master_offer.id %}">
+          <a href="{% url 'openCurrents:redeem-currents' master_offer.id %}?biz_name=HEB">
             <img class="biz-logos" src="{% static 'img/heb.png' %}"/>
           </a>
         </div>
         <div class="small-6 medium-3 columns">
           <a href="{% url 'openCurrents:redeem-currents' master_offer.id %}">
-            <img class="biz-logos" src="{% static 'img/central-market.png' %}"/>
+            <img class="biz-logos" src="{% static 'img/central-market.png' %}?biz_name=Central Market"/>
           </a>
         </div>
       </div>
