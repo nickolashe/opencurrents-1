@@ -77,7 +77,8 @@ class UserEmailForm(forms.Form):
     user_email = forms.EmailField(
         widget=forms.EmailInput(attrs={
             'id': 'new-email',
-            'placeholder': 'Email'
+            'placeholder': 'Email address',
+            'class': 'center'
         })
     )
 
@@ -89,14 +90,16 @@ class UserSignupForm(UserEmailForm):
     user_firstname = forms.CharField(
         widget=forms.TextInput(attrs={
             'id': 'new-firstname',
-            'placeholder': 'Firstname'
+            'placeholder': 'First name',
+            'class': 'center'
         })
     )
 
     user_lastname = forms.CharField(
         widget=forms.TextInput(attrs={
             'id': 'new-lastname',
-            'placeholder': 'Lastname'
+            'placeholder': 'Last name',
+            'class': 'center'
         })
     )
 
@@ -850,6 +853,15 @@ class RedeemCurrentsForm(forms.Form):
         widget=forms.TextInput(attrs={
             'id': 'id_biz_name',
             'class': 'center hidden',
+        })
+    )
+
+    biz_name_input = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'id': 'biz_name_input',
+            'class': 'center',
+            'placeholder': 'What business are you using Currents with?'
         })
     )
 

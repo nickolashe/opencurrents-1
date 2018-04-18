@@ -17,7 +17,6 @@ from openCurrents.models import \
 
 # INTERFACES
 from openCurrents.interfaces.ledger import OcLedger
-from openCurrents.interfaces.orgadmin import OrgAdmin
 from openCurrents.interfaces.common import diffInHours
 from openCurrents.interfaces.ocuser import OcUser
 from openCurrents.interfaces.orgs import \

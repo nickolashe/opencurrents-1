@@ -144,7 +144,7 @@ class TestNewUserEventRegistration(SetupTests, TestCase):
 
         response = self.client.get('/login/?next=/event-detail/1/')
         self.assertEqual(response.status_code, 200)
-        self.assertIn('<a href="/#6">Join openCurrents</a>', response.content)
+        self.assertIn('<a href="/signup/">Join openCurrents</a>', response.content)
 
         response = self.client.post(
             self.url_signup,
