@@ -90,7 +90,7 @@
         Pending: ${{ balance_pending_usd|round_number:2 }}
       </p>
 
-      <a onClick="ga(‘send’, ‘event’, 'Redemption', 'AttemptCashOut');" class="
+      <a onClick="ga('send', 'event', 'Redemption', 'AttemptCashOut');" class="
         {% if balance_available_usd|str_to_num > 0 %}
           cash-out-popup_open
         {% else %}

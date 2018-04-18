@@ -146,6 +146,10 @@ h1, h2, h3 {
   color: #1f4795;
 }
 
+#home #user_email {
+  height: 2.875rem;
+}
+
 .home-input {
   background-color: transparent;
   border-color: #ffffff;
