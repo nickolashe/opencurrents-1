@@ -54,10 +54,10 @@ from openCurrents.tests.interfaces.common import (
 import pytz
 import uuid
 import random
-import string
 import re
-from decimal import Decimal
+import string
 
+from decimal import Decimal
 from unittest import skip
 
 
@@ -726,6 +726,7 @@ class TestUserProfileCommunityActivity(TestCase):
         # setting up client
         self.client = Client()
 
+    @skip('not displayed on profile')
     def test_community_activity(self):
         """Test general data on profile page."""
         oc_user = User.objects.get(username="volunteer_1")

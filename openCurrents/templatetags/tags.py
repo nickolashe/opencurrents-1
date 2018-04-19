@@ -27,6 +27,10 @@ def time(val, tz='UTC'):
     return val.astimezone(pytz.timezone(tz)).strftime('%-I:%M %p')
 
 @register.filter
+def datetime_cal(val, tz='UTC'):
+    return val.astimezone(pytz.timezone(tz)).strftime('%Y-%m-%d %H:%M:%S')
+
+@register.filter
 def approve_date(val, tz='UTC'):
     strp_time = datetime.strptime(val, '%A, %m/%d')
     local_tz = pytz.timezone(tz)
