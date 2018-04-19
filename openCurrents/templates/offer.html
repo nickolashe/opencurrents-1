@@ -232,8 +232,9 @@
         <div class="small-12 medium-8 small-centered columns">
           <h5 class="one-margin-bottom center">Confirm offer details</h5>
           <p>As an authorized representative of {{ orgname }}, I agree to accept
-            Currents <span id="limit-yes-text"></span>as partial payment for the
-            following products and services:</p>
+            Currents <span id="limit-yes-text" class="hidden">for up to
+            <span id="limit-amount-text">100</span> transactions per month</span>
+            as partial payment for the following products and services:</p>
 
           <ul>
             <li>
@@ -356,22 +357,29 @@
       // });
 
       // Change text on Confirm page based on inputs
-
-      $('#wrapper').on('input',function(){
-        var share = $('#id_offer_current_share').val();
-        var item = $('#id_offer_item').val();
-        var limit = $('#id_offer_limit_value').val();
+      function setText() {
+        let share = $('#id_offer_current_share').val();
+        let item = $('#id_offer_item').val();
+        let limit = $('#id_offer_limit_value').val();
 
         $('#currents-share-text').text(share);
         $('#item-text').text(item);
         $('#limit-amount-text').text(limit);
+      };
+
+      $('#wrapper').on('input', function(){
+        setText();
       });
 
-      // Display limit dropdown if "Set limit" is checked
       $(document).ready(function(){
+        // Display limit dropdown if "Set limit" is checked
         if ($('#id_offer_limit_choice_1').is(':checked')) {
           $('#monthly-limit-div').removeClass('hidden');
+          $('#limit-yes-text').show();
         }
+
+        // Set variables on page load in case of error message
+        setText();
       });
 
       // Show/hide monthly limit input
@@ -379,12 +387,12 @@
         var limit = $('#id_offer_limit_value').val();
 
         $('#monthly-limit-div').slideDown();
-        $('#limit-yes-text').html('for up to <span id="limit-amount-text">100</span> transactions per month ');
+        $('#limit-yes-text').show();
       });
 
       $('#id_offer_limit_choice_0').click(function(){
         $('#monthly-limit-div').slideUp();
-        $('#limit-yes-text').text('');
+        $('#limit-yes-text').hide();
       });
 
       // Slide left on 'Next'

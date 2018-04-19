@@ -18,7 +18,9 @@
   FAQ
 </a>
 
-<a class="list-group-item" href="{% url 'openCurrents:login' %}">
+<a class="list-group-item"
+  {% include "partials/login-logic.html" %}
+  >
   <i class="half-margin-right fa-fw fa fa-sign-in"></i>
   Log in
 </a>

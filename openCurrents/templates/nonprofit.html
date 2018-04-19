@@ -18,7 +18,6 @@
   <a href="{% url 'openCurrents:business' %}" class="three-halves-margin-right">For businesses</a>
   <a href="{% url 'openCurrents:our-story' %}" class="three-halves-margin-right">Our story</a>
   <a href="{% url 'openCurrents:faq' %}" class="three-halves-margin-right">FAQ</a>
-  <a class="two-margin-right" href="{% url 'openCurrents:login' %}">Log in</a>
 {% endblock large-links %}
 
 
@@ -50,7 +49,7 @@
 
       <div class="row center three-halves-margin-top two-margin-bottom">
         <div class="small-12 medium-6 large-4 small-centered columns">
-          <a href="#4" class="button round clear large">
+          <a href="#signup" class="button round clear large">
             Join the community
           </a>
 
@@ -172,22 +171,22 @@
       <div class="row center three-halves-margin-top two-margin-bottom">
         <!-- <a class="signup-box_open clear button round large secondary">Our story</a> -->
 
-        <a href="#4" class="home-link white"><p class="no-margin-bottom">Join the community</p><i class="two-margin-bottom fa fa-lg fa-angle-down"></i></a>
+        <a href="#signup" class="home-link white"><p class="no-margin-bottom">Join the community</p><i class="two-margin-bottom fa fa-lg fa-angle-down"></i></a>
       </div>
     </div>
 
     <div id="intro-4">
-      <div id="4" class="header-spacer"></div>
+      <div id="signup" class="header-spacer"></div>
 
       <div class="row collapse center">
         <div class="small-11 medium-6 small-centered columns">
           <h3 class="title-sub">Apply as a nonprofit</h3>
           <div class="one-margin-top">
-            <a href="{% url 'openCurrents:root' %}#6"
+            <a href="{% url 'openCurrents:root' %}#signup"
             class="tag button round tiny secondary">
               Register as individual
             </a>
-            <a href="{% url 'openCurrents:business' %}#5"
+            <a href="{% url 'openCurrents:business' %}#signup"
             class="tag button round tiny secondary">
               Register a business
             </a>
@@ -242,11 +241,11 @@
     <div class="row center">
       <h2 class="one-margin-top">Apply as a nonprofit</h2>
       <div class="one-margin-top">
-        <a href="{% url 'openCurrents:root' %}#6"
+        <a href="{% url 'openCurrents:root' %}#signup"
         class="tag button round tiny secondary">
           Register as individual
         </a>
-        <a href="{% url 'openCurrents:business' %}#5"
+        <a href="{% url 'openCurrents:business' %}#signup"
         class="tag button round tiny secondary">
           Register a business
         </a>

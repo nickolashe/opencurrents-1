@@ -61,6 +61,7 @@ urlpatterns = [
     url(r'^edit-hours/$', views.EditHoursView.as_view(), name='edit-hours'),
     url(r'^edit-offer/(?P<offer_id>\d+)/$', views.OfferEditView.as_view(), name='edit-offer'),
     url(r'^export-data/$', views.ExportDataView.as_view(), name='export-data'),
+    url(r'^export-data/(?P<status_msg>.*)/(?P<msg_type>.*)$', views.ExportDataView.as_view(), name='export-data'),
     url(r'^faq/$', views.FaqView.as_view(), name='faq'),
     url(r'^find-orgs/$', views.FindOrgsView.as_view(), name='find-orgs'),
     url(r'^hours-approved/$', views.HoursApprovedView.as_view(), name='hours-approved'),
@@ -160,6 +161,7 @@ urlpatterns = [
     url(r'^process_email_confirmation/(?P<user_email>[\w\.@\+\-]+)/$',
         views.process_email_confirmation, name='process_email_confirmation'),
     url(r'^process_org_signup/$', views.process_org_signup, name='process_org_signup'),
+    url(r'^process_home/$', views.process_home, name='process_home'),
 ]
 
 #handler404 = 'openCurrents.views.return_404'
