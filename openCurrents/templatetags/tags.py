@@ -22,6 +22,10 @@ def time(val, tz='UTC'):
     return val.astimezone(pytz.timezone(tz)).strftime('%-I:%M %p')
 
 @register.filter
+def datetime_cal(val, tz='UTC'):
+    return val.astimezone(pytz.timezone(tz)).strftime('%Y-%m-%d %H:%M:%S')
+
+@register.filter
 def keyvalue(d, key):
     return d[key]
 
