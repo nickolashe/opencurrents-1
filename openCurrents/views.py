@@ -2103,14 +2103,14 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
         context['timezone'] = self.request.user.usersettings.timezone
 
         # getting issued currents
-        context['currents_amount_total'] = OcCommunity().get_amount_currents_total()
+        # context['currents_amount_total'] = OcCommunity().get_amount_currents_total()
 
         # getting active volunteers, do not set quantity to None to get all active volunteers;
         # otherwise set to desired number of volunteers to be displayed
-        context['active_volunteers_total'] = OcCommunity().get_active_volunteers_total()
+        # context['active_volunteers_total'] = OcCommunity().get_active_volunteers_total()
 
         # getting currents total (accepted + pending)
-        context['biz_currents_total'] = OcCommunity().get_biz_currents_total()
+        # context['biz_currents_total'] = OcCommunity().get_biz_currents_total()
 
         context['master_offer'] = Offer.objects.filter(is_master=True).first()
 
