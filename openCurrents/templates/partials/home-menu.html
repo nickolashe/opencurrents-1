@@ -8,17 +8,19 @@
   For businesses
 </a>
 
-<a class="list-group-item" href="{% url 'openCurrents:volunteer' %}">
-  <i class="half-margin-right fa-fw fa fa-users"></i>
-  For volunteers
-</a>
-
 <a class="list-group-item" href="{% url 'openCurrents:our-story' %}">
   <i class="half-margin-right fa-fw fa fa-book"></i>
   Our story
 </a>
 
-<a class="list-group-item" href="{% url 'openCurrents:login' %}">
+<a class="list-group-item" href="{% url 'openCurrents:faq' %}">
+  <i class="half-margin-right fa-fw fa fa-users"></i>
+  FAQ
+</a>
+
+<a class="list-group-item"
+  {% include "partials/login-logic.html" %}
+  >
   <i class="half-margin-right fa-fw fa fa-sign-in"></i>
   Log in
 </a>

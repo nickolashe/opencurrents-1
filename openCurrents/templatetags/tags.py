@@ -1,7 +1,12 @@
 from django import template
 
+from datetime import date, datetime
+
+import json
 import logging
 import pytz
+
+from openCurrents.interfaces import convert
 
 logging.basicConfig(level=logging.DEBUG, filename="log/views.log")
 logger = logging.getLogger(__name__)
@@ -24,6 +29,13 @@ def time(val, tz='UTC'):
 @register.filter
 def datetime_cal(val, tz='UTC'):
     return val.astimezone(pytz.timezone(tz)).strftime('%Y-%m-%d %H:%M:%S')
+
+@register.filter
+def approve_date(val, tz='UTC'):
+    strp_time = datetime.strptime(val, '%A, %m/%d')
+    local_tz = pytz.timezone(tz)
+    # return strp_time.astimezone(pytz.timezone(tz)).strftime('%A, %d/%m')
+    return pytz.timezone(tz).localize(strp_time, is_dst=None).strftime('%A, %m/%d')
 
 @register.filter
 def keyvalue(d, key):
@@ -52,14 +64,16 @@ def percent_to_price(arg1):
 
 @register.filter
 def usd_to_current(arg1):
-	return float(arg1) * 0.1
+	return float(arg1) / float(convert._USDCUR)
 
 @register.filter
 def current_to_usd(arg1, arg2):
+    res = float(arg1) * float(convert._USDCUR)
+
     if arg2 == 'with_fee':
-        return float(arg1) * 9
-    else:
-		return float(arg1) * 10
+        res *= (1 - convert._TR_FEE)
+
+    return res
 
 @register.filter
 def mult(arg1, arg2):
@@ -84,3 +98,12 @@ def less(arg1, arg2):
 @register.filter
 def fullname(firstname, lastname):
     return ' '.join([firstname, lastname])
+
+@register.filter('round_number')
+def round_number(value, decimals):
+    s = "%."+ str(decimals) +"f"
+    return s % round(value, decimals)
+
+@register.filter
+def jsonify_list_id(value):
+    return json.dumps([value])

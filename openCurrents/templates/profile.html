@@ -4,6 +4,39 @@
 {% load tags %}
 {% load staticfiles %}
 
+
+{% block status %}
+  {% if status_msg %}
+    {{ block.super }}
+  {% else %}
+    <div class="status-highlight row full-width">
+      <div class="small-12 column white">
+        {% if balance_available > 0 %}
+          {% if has_bonus and balance_available == bonus_amount %}
+            You have ${{ balance_available|current_to_usd:"no_fee"|round_number:0 }} credit in Currents.
+          {% else %}
+            You've got Currents.
+          {% endif %}
+
+          <a
+            href="{% url 'openCurrents:redeem-currents' master_offer.id %}"
+            class="white-link"
+          >
+            Redeem now
+          </a>
+
+        {% else %}
+          Let's create Currents!
+          <a class="earn-currents-popup_open white-link">
+            Volunteer now
+          </a>
+        {% endif %}
+
+      </div>
+    </div>
+  {% endif %}
+{% endblock status %}
+
 {% block heading %}
   <div class="row">
     <div class="small-12 small-centered columns">
@@ -39,11 +72,11 @@
       </h6>
       <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
       <h6 class="inline-block no-margin-bottom">
-        {{ balance_available }}
+        {{ balance_available|round_number:3 }}
       </h6>
       <p class="grey half-margin-bottom">Pending:
         <img class="med-text-symbol" src="{% static 'img/symbol.svg' %}"/>
-        {{ balance_pending }}
+        {{ balance_pending|round_number:3 }}
       </p>
       <p class="no-margin-bottom">
         <a href="{% url 'openCurrents:marketplace' %}" class="button round secondary tiny">
@@ -54,13 +87,13 @@
 
     <div class="small-12 medium-6 columns">
       <h6 class="qtr-margin-bottom">
-        Dollars available: ${{ balance_available_usd }}
+        Dollars available: ${{ balance_available_usd|round_number:2 }}
       </h6>
       <p class="grey half-margin-bottom">
-        Pending: ${{ balance_pending_usd }}
+        Pending: ${{ balance_pending_usd|round_number:2 }}
       </p>
 
-      <a class="
+      <a onClick="ga('send', 'event', 'Redemption', 'AttemptCashOut');" class="
         {% if balance_available_usd|str_to_num > 0 %}
           cash-out-popup_open
         {% else %}
@@ -69,6 +102,34 @@
          button round secondary tiny">
         Cash out
       </a>
+    </div>
+  </div>
+
+  <div class="row collapse left three-halves-margin-top">
+    <div class="small-11 medium-10 small-centered columns">
+      <h6>Featured businesses</h6>
+      <div class="row">
+        <div class="small-6 medium-3 columns">
+          <a href="{% url 'openCurrents:redeem-currents' master_offer.id %}?biz_name=Whole Foods">
+            <img class="biz-logos" src="{% static 'img/whole-foods.png' %}"/>
+          </a>
+        </div>
+        <div class="small-6 medium-3 columns">
+          <a href="{% url 'openCurrents:redeem-currents' master_offer.id %}?biz_name=Amazon">
+            <img class="biz-logos" src="{% static 'img/amazon.png' %}"/>
+          </a>
+        </div>
+        <div class="small-6 medium-3 columns">
+          <a href="{% url 'openCurrents:redeem-currents' master_offer.id %}?biz_name=HEB">
+            <img class="biz-logos" src="{% static 'img/heb.png' %}"/>
+          </a>
+        </div>
+        <div class="small-6 medium-3 columns">
+          <a href="{% url 'openCurrents:redeem-currents' master_offer.id %}?biz_name=Central Market">
+            <img class="biz-logos" src="{% static 'img/central-market.png' %}"/>
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -108,21 +169,6 @@
           </a>
         </p>
       {% endif %}
-    </div>
-  </div>
-
-  <div class="row collapse one-margin-top left">
-    <div class="small-11 medium-10 small-centered columns">
-      <h6 class="half-margin-bottom">Community activity</h6>
-      <a href="{% url 'openCurrents:public-record' %}?record_type=top-org&period=month" class="button tiny round secondary">
-        Currents issued: {% if currents_amount_total %}{{ currents_amount_total }}{% else %}0{% endif %}
-      </a>
-      <a href="{% url 'openCurrents:public-record' %}?record_type=top-vol&period=month" class="button tiny round secondary">
-        Active volunteers: {% if active_volunteers_total %}{{ active_volunteers_total }}{% else %}0{% endif %}
-      </a>
-      <a href="{% url 'openCurrents:public-record' %}?record_type=top-biz&period=month" class="button tiny round secondary">
-        Currents accepted: {% if currents_accepted %}{{ currents_accepted }}{% else %}0{% endif %}
-      </a>
     </div>
   </div>
 
@@ -311,7 +357,7 @@
       });
 
     {# Turning on/off welcome popup #}
-    {% if user.usersettings_set.all.0.popup_reaction  == None %}
+    {% if user.usersettings.popup_reaction  == None %}
 
       $('#welcome-popup').popup({
         vertical: 'top',
@@ -337,15 +383,4 @@
     });
   </script>
 
-  <script type="text/javascript">
-
-    if ({{ app_hr }}){
-      $('#approve-hours-popup').popup({
-        vertical: 'top',
-        transition: 'all 0.75s',
-        scrolllock: true,
-        autoopen: true,
-      });
-    }
-  </script>
 {% endblock js %}

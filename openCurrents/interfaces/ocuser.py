@@ -4,15 +4,17 @@ from decimal import Decimal
 from django.contrib.auth.models import User
 from django.db.models import Max
 
-from openCurrents.models import \
-    UserEntity, \
-    UserEventRegistration, \
-    UserSettings, \
-    UserTimeLog, \
-    AdminActionUserTime, \
-    Offer, \
-    Transaction, \
+from openCurrents.models import (
+    OrgUser,
+    UserEntity,
+    UserEventRegistration,
+    UserSettings,
+    UserTimeLog,
+    AdminActionUserTime,
+    Offer,
+    Transaction,
     TransactionAction
+)
 
 from openCurrents.interfaces import common
 from openCurrents.interfaces import convert
@@ -61,6 +63,13 @@ class OcUser(object):
     def get_user(self):
         if self.user:
             return self.user
+        else:
+            raise InvalidUserException
+
+    def get_org(self):
+        if self.user:
+            orgusers = OrgUser.objects.filter(user__id=self.userid)
+            return orgusers[0].org if orgusers else None
         else:
             raise InvalidUserException
 
@@ -185,8 +194,8 @@ class OcUser(object):
     def get_balance_pending_usd(self):
         '''
         pending usd balance is composed of:
-            - requested and accepted redemptions
-            - redemptions in status redeemed do not count
+            - requested redemptions
+            - redemptions in status redeemed and accepted do not count
         '''
         redemption_reqs = Transaction.objects.filter(
             user__id=self.userid
@@ -199,7 +208,7 @@ class OcUser(object):
                 req.last_action_created for req in redemption_reqs
             ]
         ).filter(
-            action_type__in=['req', 'app']
+            action_type__in=['req']
         )
 
         total_redemptions = common._get_redemption_total(
@@ -208,22 +217,6 @@ class OcUser(object):
         )
 
         return round(total_redemptions, 2)
-
-    def _get_unique_hour_total(self, records, from_admin_actions=False):
-        event_user = set()
-        balance = 0
-
-        for rec in records:
-            if from_admin_actions:
-                timelog = rec.usertimelog
-            else:
-                timelog = rec
-
-            if not timelog.event.id in event_user:
-                event_user.add(timelog.event.id)
-                balance += (timelog.event.datetime_end - timelog.event.datetime_start).total_seconds() / 3600
-
-        return balance
 
     def get_offers_redeemed(self, fees=True):
         if not self.userid:
@@ -241,7 +234,7 @@ class OcUser(object):
             date_created__in=[
                 tr.last_action_created for tr in transactions
             ]
-        )
+        ).order_by('-date_created')
 
         return transaction_actions
 
@@ -250,7 +243,7 @@ class OcUser(object):
         get all offers in the marketplace
             - annotated by number of redeemed for given timeframe
         '''
-        offers_all = Offer.objects.all().order_by('-date_updated')
+        offers_all = Offer.objects.filter(is_master=False).order_by('-date_updated')
 
         for offer in offers_all:
             # logger.debug('%d: %d', offer.id, num_redeemed)
@@ -275,6 +268,42 @@ class OcUser(object):
 
         return num_redeemed
 
+    def get_master_offer_remaining(self):
+        '''
+        return cumulative user's redemption amount towards the master offer
+        '''
+        master_offer = None
+        try:
+            master_offer = Offer.objects.get(is_master=True)
+        except Offer.DoesNotExist:
+            logger.info('No existent master offer')
+            return 0
+
+        transactions = Transaction.objects.filter(
+            user=self.user,
+            offer=master_offer
+        ).annotate(
+            last_action_created=Max('transactionaction__date_created')
+        )
+
+        # latest transaction status
+        transaction_actions = TransactionAction.objects.filter(
+            date_created__in=[
+                tr.last_action_created for tr in transactions
+            ]
+        )
+
+        remaining = 2 - common._get_redemption_total(transaction_actions)
+
+        if remaining < 0:
+            logger.warning(
+                'user %s has redeemed above master offer limit',
+                self.user.username
+            )
+            remaining = 0
+
+        return remaining
+
     def get_hours_requested(self, **kwargs):
         usertimelogs = self._get_usertimelogs()
         admin_actions = self._get_adminactions_for_usertimelogs(usertimelogs)
@@ -296,27 +325,6 @@ class OcUser(object):
 
         return admin_actions
 
-    def _split_by_org(self, actions):
-        hours_by_org = {}
-        temp_orgs_set = set()
-
-        for action in actions:
-            event = action.usertimelog.event
-            org = event.project.org
-            approved_hours = common.diffInHours(
-                event.datetime_start,
-                event.datetime_end
-            )
-
-            if approved_hours > 0:
-                if not org in temp_orgs_set:
-                    temp_orgs_set.add(org)
-                    hours_by_org[org] = approved_hours
-                else:
-                    hours_by_org[org] += approved_hours
-
-        return hours_by_org
-
     def get_top_received_users(self, period, quantity=10):
         result = list()
         users = User.objects.filter(userentity__isnull=False)
@@ -325,7 +333,7 @@ class OcUser(object):
             earned_cur_amount = OcLedger().get_earned_cur_amount(user.id, period)['total']
 
             # only include active volunteers
-            if earned_cur_amount > 0:
+            if earned_cur_amount > 0 and user.has_usable_password():
                 if user.first_name and user.last_name:
                     name = ' '.join([user.first_name, user.last_name])
                 else:
@@ -365,6 +373,44 @@ class OcUser(object):
         )
 
         return admin_actions
+
+    def _get_unique_hour_total(self, records, from_admin_actions=False):
+        event_user = set()
+        balance = 0
+
+        for rec in records:
+            if from_admin_actions:
+                timelog = rec.usertimelog
+            else:
+                timelog = rec
+
+            event = timelog.event
+            if not event.id in event_user:
+                event_user.add(event.id)
+                balance += (event.datetime_end - event.datetime_start).total_seconds() / 3600
+
+        return balance
+
+    def _split_by_org(self, actions):
+        hours_by_org = {}
+        temp_orgs_set = set()
+
+        for action in actions:
+            event = action.usertimelog.event
+            org = event.project.org
+            approved_hours = common.diffInHours(
+                event.datetime_start,
+                event.datetime_end
+            )
+
+            if approved_hours > 0:
+                if not org in temp_orgs_set:
+                    temp_orgs_set.add(org)
+                    hours_by_org[org] = approved_hours
+                else:
+                    hours_by_org[org] += approved_hours
+
+        return hours_by_org
 
 
 class UserExistsException(Exception):

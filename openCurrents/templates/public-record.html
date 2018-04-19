@@ -6,7 +6,7 @@
 {% block heading %}
   <div class="row">
     <h3 class="title-sub">
-      {% block title %} Public record {% endblock title %}
+      {% block title %} Leaderboard {% endblock title %}
     </h3>
   </div>
 {% endblock heading %}
@@ -185,7 +185,7 @@
 
       else if ($("#id_record_type").val() === "top-biz") {
         $('#record-name').text('Business');
-        $('#record-label').text('accepted');
+        $('#record-label').text('redeemed');
       }
 
       $('#start-range').datepicker({

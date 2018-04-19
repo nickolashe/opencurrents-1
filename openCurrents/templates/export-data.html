@@ -1,5 +1,6 @@
 {% extends "layouts/base.html" %}
 {% load staticfiles %}
+{% load tags %}
 
 {% block head %}
   <script type="text/javascript" src="{% static 'js/jquery-ui-datepicker.js' %}"></script>
@@ -9,72 +10,100 @@
 {% block heading %}
   <div class="row">
     <h3 class="title-sub">
-      {% block title %} Export volunteer data {% endblock title %}
+      {% block name %}
+        {% block title %} Export volunteer data {% endblock title %}
+      {% endblock name %}
     </h3>
-    <p>Choose fields to include in the export:</p>
+    <!-- <p>Choose fields to include in the export:</p> -->
   </div>
 {% endblock heading %}
 
 {% block content %}
-  <div class="row one-margin-bottom">
-    <div class="small-8 small-centered columns">
-      
-      <div class="left small-12 medium-4 columns">
-        <label><input type="checkbox" name="first-name" checked/>First name</label>
-        <label><input type="checkbox" name="last-name" checked/>Last name</label>
-        <label><input type="checkbox" name="email" checked/>Email</label>
-      </div>
+  <form method="post">
+  {% csrf_token %}
 
-      <div class="left small-12 medium-4 columns">
-        <label><input type="checkbox" name="date" checked/>Event date</label>
-        <label><input type="checkbox" name="start-time" checked/>Start time</label>
-        <label><input type="checkbox" name="end-time" checked/>End time</label>
-      </div>
+  <!-- need to factor out in a block -->
+  {% if form.errors %}
+    <div class="row">
+      {% for field, error in form.errors.iteritems %}
+        <div class="center alert">
+          {% if field != '__all__' %}
+            {{ field|addstr:': '}} {{ error }}
+          {% else %}
+            {{ error }}
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+  <!-- need to factor out in a block -->
 
-      <div class="left small-12 medium-4 columns">
-        <label><input type="checkbox" name="date" checked/>Event name</label>
-        <label><input type="checkbox" name="location" checked/>Event location</label>
-        <label><input type="checkbox" name="admin-full-name" checked/>Admin name</label>
+    <div class="row one-margin-bottom">
+      <!-- <div class="small-8 small-centered columns">
+        <div class="left small-12 medium-4 columns">
+          <input type="checkbox" id="first-name" name="first-name" class="custom-checkbox" checked/>
+            <label for="first-name">First name</label>
+          <input type="checkbox" id="last-name" name="last-name" class="custom-checkbox" checked/>
+            <label for="last-name">Last name</label>
+          <input type="checkbox" id="email" name="email" class="custom-checkbox" checked/>
+            <label for="email">Email</label>
+        </div>
+
+        <div class="left small-12 medium-4 columns">
+          <input type="checkbox" id="date" name="date" class="custom-checkbox" checked/>
+            <label for="date">Event date</label>
+          <input type="checkbox" id="start-time" name="start-time" class="custom-checkbox" checked/>
+            <label for="start-time">Start time</label>
+          <input type="checkbox" id="end-time" name="end-time" class="custom-checkbox" checked/>
+            <label for="end-time">End time</label>
+        </div>
+
+        <div class="left small-12 medium-4 columns">
+          <input type="checkbox" id="event-name" name="event-name" class="custom-checkbox" checked/>
+            <label for="event-name">Event name</label>
+          <input type="checkbox" id="location" name="location" class="custom-checkbox" checked/>
+            <label for="location">Event location</label>
+          <input type="checkbox" id="admin-name" name="admin-name" class="custom-checkbox" checked/>
+            <label for="admin-name">Admin name</label>
+        </div>
+      </div>
+    </div> -->
+
+    <div class="row">
+      <div class="medium-8 small-centered columns">
+        <p>Set the date range for which you would like to export data:</p>
+
+        <div class="left small-6 columns">
+          <label>Start date</label>
+          {{form.date_start}}
+        </div>
+
+        <div class="left small-6 columns">
+          <label>End date</label>
+          {{form.date_end}}
+        </div>
       </div>
     </div>
-  </div>
 
-  <div class="row">
-    <div class="medium-8 small-centered columns">
-      <p>Set the date range for which you would like to export data (leave start date blank to export all data available for your organization):</p>
+    <div class="row one-margin-top">
+      <input type="submit" class="button round small" value="Export data" />
 
-      <div class="left small-6 columns">
-        <label>Start date</label>
-        <input type="text" id="start-date" name="start-date" placeholder="yyyy-mm-dd"/>
-      </div>
-
-      <div class="left small-6 columns">
-        <label>End date</label>
-        <input type="text" id="end-date" name="end-date" placeholder="yyyy-mm-dd"/>
-      </div>
+      <a href="{% url 'openCurrents:org-admin' %}" class="button round small secondary">
+        Back to org profile
+      </a>
     </div>
-  </div>
-
-  <div class="row three-halves-margin-top">
-    <a class="button round">Export</a>
-  </div>
+  </form>
 {% endblock content %}
-  
+
 {% block js %}
   <script type="text/javascript">
     $(document).ready(function(){
-      $('#').popup({
-        vertical: 'top',
-        transition: 'all 0.75s',
-        scrolllock: true,
-      });
-
-      $('#start-date').datepicker({ 
+      $('#start-date').datepicker({
         dateFormat: 'yy-mm-dd',
         maxDate: 0,
-      })
+      });
 
-      $('#end-date').datepicker({ 
+      $('#end-date').datepicker({
         dateFormat: 'yy-mm-dd',
         maxDate: 0,
       }).datepicker("setDate", new Date());

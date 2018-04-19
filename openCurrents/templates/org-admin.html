@@ -46,7 +46,7 @@
 
 {% block button-left %}
   <a href="{% url 'openCurrents:create-event' orgid %}"
-    {% if has_hours_requested %} class="button secondary tiny round"
+    {% if hours_requested %} class="button secondary tiny round"
     {% else %} class="button tiny round"
     {% endif %}>
     Create event
@@ -56,14 +56,14 @@
 
 {% block heading-right %}
   <h6 class="qtr-margin-top no-margin-bottom">
-    Org hours tracked: {{ issued_by_all }}
+    Org hours tracked: {{ issued_by_all|round_number:3 }}
   </h6>
   <h6 class="half-margin-bottom">
-    My hours tracked: {{ issued_by_logged_admin }}
+    My hours tracked: {{ issued_by_logged_admin|round_number:3 }}
   </h6>
 
   <a
-    {% if has_hours_requested %}
+    {% if hours_requested %}
       href="{% url 'openCurrents:approve-hours' %}" class="button round tiny"
     {% else %}
       href="javascript:status()" class="button round tiny secondary"
@@ -85,17 +85,17 @@
       Org hours tracked: {{ issued_by_all }}
     </h6>
     <h6 class="one-margin-bottom">
-      My hours tracked: {{ issued_by_logged_admin }}
+      My hours tracked: {{ issued_by_logged_admin|round_number:3 }}
     </h6>
 
     <a href="{% url 'openCurrents:create-event' orgid %}"
-      {% if has_hours_requested %} class="button secondary tiny round"
+      {% if hours_requested %} class="button secondary tiny round"
       {% else %} class="button tiny round"
       {% endif %}>
       Create event
     </a>
     <a
-      {% if has_hours_requested %}
+      {% if hours_requested %}
         href="{% url 'openCurrents:approve-hours' %}" class="button round tiny"
       {% else %}
         href="javascript:status()" class="button round tiny secondary"
@@ -153,7 +153,7 @@
             <ul class="mini-menu">
               <a href="{% url 'openCurrents:event-detail' event.id %}"><li>View event details</li></a>
               <a href="{% url 'openCurrents:invite-volunteers' event.id %}"><li>Invite volunteers</li></a>
-              <!-- <a href="{% url 'openCurrents:edit-event' event.id %}"><li>Edit event</li></a> -->
+              <a href="{% url 'openCurrents:edit-event' event.id %}"><li>Edit event</li></a>
               <a href="{% url 'openCurrents:live-dashboard' event.id %}"><li>Preview live check-in</li></a>
             </ul>
           </div>
@@ -171,24 +171,21 @@
   <div class="left row one-margin-top full-width collapse">
     <div class="small-11 medium-10 small-centered columns">
         <h6 class="half-margin-bottom">Hours approved</h6>
-        {% for admin in org_admins %}
-             {% for i in issued_by_admin %}
-                {% if i|keyvalue:admin.user.id != None %}
-                    <a href="{% url 'openCurrents:hours-detail' %}?is_admin=1&amp;user_id={{admin.user.id}}&amp;type=approved"
-                    class="button round tiny secondary">
-                      {{ admin.user.first_name }} {{ admin.user.last_name }}:
-                      {{i|keyvalue:admin.user.id}}
-                    </a>
-                {% endif %}
-            {% empty %}
-              <p>
+        {% for admin, total in issued_by_admin.iteritems %}
+          <a
+            href="{% url 'openCurrents:hours-detail' %}?is_admin=1&amp;user_id={{admin.id}}&amp;type=approved"
+            class="button round tiny secondary"
+          >
+            {{ admin.first_name|fullname:admin.last_name }}: {{total|round_number:3}}
+          </a>
+        {% empty %}
+            <p>
                 No hours have been approved.
                 <a href="{% url 'openCurrents:invite-volunteers' %}">
                   Invite volunteers
                 </a>
                 to track hours!
-              </p>
-            {% endfor %}
+            </p>
         {% endfor %}
     </div>
   </div>
@@ -200,21 +197,19 @@
 -->
   <div class="left row one-margin-top full-width collapse">
     <div class="small-11 medium-10 small-centered columns">
-      <h6 class="half-margin-bottom">Hours pending</h6>
-      {% for admin in org_admins %}
-        {% for i in hours_pending_by_admin %}
-          {% if i|keyvalue:admin.user.id != None %}
-            <a href="{% url 'openCurrents:hours-detail' %}?is_admin=1&amp;user_id={{admin.user.id}}&amp;type=pending"
-            class="button round tiny secondary">
-              {{ admin.user.first_name }} {{ admin.user.last_name }}:
-              {{i|keyvalue:admin.user.id}}
-            </a>
-          {% endif %}
-        {% empty %}
-          <p>
-            No hours are currently pending approval.
-          </p>
-        {% endfor %}
+      <h6 class="half-margin-bottom">Hours pending approval</h6>
+
+      {% for admin, total in hours_pending_by_admin.iteritems %}
+          <a
+            href="{% url 'openCurrents:hours-detail' %}?is_admin=1&amp;user_id={{admin.id}}&amp;type=pending"
+            class="button round tiny secondary"
+          >
+            {{ admin.first_name|fullname:admin.last_name }}: {{total|round_number:3}}
+          </a>
+      {% empty %}
+        <p>
+          No hours are currently pending approval.
+        </p>
       {% endfor %}
     </div>
   </div>
@@ -243,6 +238,10 @@
             </div>
           </div>
         {% endfor %}
+
+        <p><a href="{% url 'openCurrents:past-events' %}">
+          View all past events
+        </a></p>
       </div>
     </div>
   {% endif %}
@@ -272,14 +271,6 @@
       </div>
     </div>
   </div>
-
-  <div class="delete-event-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
-    <div class="row center">
-      <h3 class="popup-title">Are you sure?</h3>
-      <input type='submit' name='del-button' class="button round alert" value="Yes - Delete event">
-      <a class="button round secondary">Cancel</a>
-    </div>
-  </div>
 {% endblock popups %}
 
 {% block js %}
@@ -289,6 +280,18 @@
   <script>
     function status(){
       $('#status_msg').html("There are no hours that need your approval.");
+    }
+  </script>
+
+  <script type="text/javascript">
+
+    if ({{ app_hr }}){
+      $('#approve-hours-popup').popup({
+        vertical: 'top',
+        transition: 'all 0.75s',
+        scrolllock: true,
+        autoopen: true,
+      });
     }
   </script>
 {% endblock js %}

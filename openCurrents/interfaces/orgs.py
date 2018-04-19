@@ -1,10 +1,9 @@
 from collections import OrderedDict
 from django.contrib.auth.models import Group
-from openCurrents.models import \
-    Org, \
-    OrgUser, \
-    OrgEntity
+from django.db.models import Q
 
+from openCurrents.models import Org, OrgUser, OrgEntity
+from openCurrents.interfaces.bizadmin import BizAdmin
 from openCurrents.interfaces.ocuser import OcUser
 from openCurrents.interfaces.ledger import OcLedger
 
@@ -100,7 +99,19 @@ class OcOrg(object):
         if self.orgid:
             try:
                 self.org = Org.objects.get(id=self.orgid)
+
+                org_admin_group_name = '_'.join(['admin', str(orgid)])
+                self.org_admin_group = None
+                try:
+                    self.org_admin_group = Group.objects.get(
+                        name=org_admin_group_name
+                    )
+                except Exception as e:
+                    logger.warning('org %d without admin group', orgid)
+                    raise
+
             except Exception as e:
+                logger.info('org %d is invalid', orgid)
                 raise InvalidOrgException
 
     def get_org_name(self):
@@ -138,20 +149,55 @@ class OcOrg(object):
             result.append({'name': org.name, 'total': issued_cur_amount})
 
         result.sort(key=lambda org_dict: org_dict['total'], reverse=True)
-        return result[:quantity]
 
-    def get_top_accepted_bizs(self, period, quantity=10):
+        if isinstance(quantity, int):
+            result = result[:quantity]
+
+        return result
+
+    def get_top_bizs(self, period, quantity=10, accepted_only=True):
         result = list()
-        bizs = Org.objects.filter(status='biz')
+        bizs = Org.objects.filter(Q(status='biz') | Q(name='openCurrents'))
 
         for biz in bizs:
+            total_cur_amount = 0
+
+            if not accepted_only:
+                # pending currents
+                try:
+                    biz_org = OcOrg(biz.id)
+                except InvalidOrgException:
+                    logger.warning(
+                        'can\'t instantiate org interface for biz org %s',
+                        biz.name
+                    )
+                    continue
+
+                biz_admins = biz_org.get_admins()
+                if biz_admins:
+                    biz_admin = biz_admins.first()
+                    total_cur_amount = BizAdmin(biz_admin.id).get_balance_pending()
+
+            # accepted currents
             accepted_cur_amount = OcLedger().get_accepted_cur_amount(biz.id, period)['total']
             if not accepted_cur_amount:
                 accepted_cur_amount = 0
-            result.append({'name': biz.name, 'total': accepted_cur_amount})
+
+            total_cur_amount += accepted_cur_amount
+            result.append({'name': biz.name, 'total': total_cur_amount})
 
         result.sort(key=lambda biz_dict: biz_dict['total'], reverse=True)
-        return result[:quantity]
+
+        if isinstance(quantity, int):
+            result = result[:quantity]
+
+        return result
+
+    def get_admins(self):
+        if self.org_admin_group:
+            return self.org_admin_group.user_set.all()
+        else:
+            return None
 
 
 class InvalidOrgException(Exception):

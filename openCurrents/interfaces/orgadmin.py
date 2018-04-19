@@ -2,11 +2,12 @@ from datetime import datetime
 
 from django.db.models import Max
 
-from openCurrents.models import \
-	Project, \
-    Event, \
-    AdminActionUserTime, \
+from openCurrents.models import (
+	Project,
+    Event,
+    AdminActionUserTime,
     UserTimeLog
+)
 
 from openCurrents.interfaces import common
 from openCurrents.interfaces import convert
@@ -91,6 +92,9 @@ class OrgAdmin(object):
         return usertimelogs
 
     def _get_adminactions_for_usertimelogs(self, usertimelogs, action_type='req'):
+        if not usertimelogs:
+            return []
+
         # admin-specific requests
         admin_actions = AdminActionUserTime.objects.filter(
             user_id=self.userid

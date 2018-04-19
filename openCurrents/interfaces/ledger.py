@@ -2,13 +2,14 @@ from datetime import datetime, timedelta
 from itertools import chain
 
 from django.db.models import Q, Sum
-from openCurrents.models import \
-    Entity, \
-    UserEntity, \
-    OrgEntity, \
-    Ledger, \
-    AdminActionUserTime, \
+from openCurrents.models import (
+    Entity,
+    UserEntity,
+    OrgEntity,
+    Ledger,
+    AdminActionUserTime,
     TransactionAction
+)
 
 import logging
 import pytz
@@ -50,22 +51,30 @@ class OcLedger(object):
             entity_id_to,
             action,
             amount,
-            is_issued=False
+            is_issued=False,
+            is_bonus=False
     ):
         entity_from = self._get_entity(entity_id_from, entity_type_from)
 
         # check for sufficient funds
         balance_from = self.get_balance(entity_from.id, entity_type_from)
 
+        # check for sufficient balance
         if not is_issued and balance_from < amount:
             raise InsufficientFundsException()
 
         entity_to = self._get_entity(entity_id_to, entity_type_to)
+
+        # check for previously issued bonus
+        if is_bonus and self.has_bonus(entity_to):
+            raise DuplicateBonusException()
+
         ledger_rec = Ledger(
             entity_from=entity_from,
             entity_to=entity_to,
             amount=amount,
-            is_issued=is_issued
+            is_issued=is_issued,
+            is_bonus=is_bonus
         )
 
         # TODO: refactor using a joint table for actions
@@ -73,7 +82,7 @@ class OcLedger(object):
             ledger_rec.action = action
         elif isinstance(action, TransactionAction):
             ledger_rec.transaction = action
-        #logger.info(ledger_rec)
+        # logger.info(ledger_rec)
 
         ledger_rec.save()
 
@@ -83,6 +92,7 @@ class OcLedger(object):
             entity_id_to,
             action,
             amount,
+            is_bonus=False,
             entity_type_to='user',
             entity_type_from='org',
     ):
@@ -93,7 +103,8 @@ class OcLedger(object):
             entity_id_to,
             action,
             amount,
-            is_issued=True
+            is_issued=True,
+            is_bonus=is_bonus
         )
 
     def add_fiat(self, id_to, type='usd'):
@@ -183,13 +194,49 @@ class OcLedger(object):
         else:
             raise UnsupportedAggregate()
 
+    def has_bonus(self, entity):
+        return Ledger.objects.filter(
+            entity_to=entity
+        ).filter(
+            is_bonus=True
+        ).exists()
+
+    def has_transactions(self, entity):
+        return Ledger.objects.filter(
+            entity_to=entity
+        ).exists()
+
 
 class InvalidEntityException(Exception):
-    pass
+    def __init__(self):
+        super(InvalidEntityException, self).__init__(
+            'Invalid entity type: user or org types supported'
+        )
 
 
 class InsufficientFundsException(Exception):
-    pass
+    def __init__(self):
+        super(InsufficientFundsException, self).__init__(
+            'Pay has insufficient funds'
+        )
+
+
+class DuplicateBonusException(Exception):
+    def __init__(self):
+        super(DuplicateBonusException, self).__init__(
+            'Entity has already been issued bonus'
+        )
+
+
+class NoBonusException(Exception):
+    def __init__(self):
+        super(NoBonusException, self).__init__(
+            'Entity already has currents - no bonus'
+        )
+
 
 class UnsupportedAggregate(Exception):
-    pass
+    def __init__(self):
+        super(UnsupportedAggregate, self).__init__(
+            'Invalid public record aggregation period'
+        )

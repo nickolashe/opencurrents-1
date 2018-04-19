@@ -55,13 +55,11 @@
 
           <div class="small-6 medium-4 columns">
             <label>{{ form.time_start.label }}</label>
-            <!--<input type="text" id="start-time" name="" value="12:00:00"/>-->
             {{ form.time_start }}
           </div>
 
           <div class="small-6 medium-4 columns">
             <label>{{ form.time_end.label }}</label>
-            <!--<input type="text" id="end-time" name="" value="12:00:00"/>-->
             {{ form.time_end }}
           </div>
         </div>
@@ -104,7 +102,6 @@
             Return to existing nonprofits
           </a>
         </p>
-
       </div>
     </div>
   </form>
@@ -113,15 +110,21 @@
 {% block js %}
   <script type="text/javascript">
     $(document).ready(function(){
-      $('#id_admin_choice').append(`<option disabled selected hidden>Select coordinator</option>`)
+      $('#id_admin_choice').append(`<option disabled selected hidden>Select coordinator</option>`);
 
       $("#volunteer-date").mask("9999-99-99");
+
+      {% if date_start %}
+        var d_st = "{{date_start}}";
+      {% else %}
+        var d_st = new Date()
+      {% endif %}
 
       $('#volunteer-date').datepicker({
         dateFormat: 'yy-mm-dd',
         minDate: -13,
         maxDate: 0,
-      }).datepicker("setDate", new Date());
+      }).datepicker("setDate", d_st );
 
       $('#start-time, #end-time').timepicker({
         step: 15,
@@ -216,8 +219,9 @@
       )
     {% if org_stat_id %}
       $("#id_org_choice").trigger('change');
-      if ("{{admin_name}}"){
-        $('#id_admin_choice').val("{{admin_name}}")//.val("karthikbm01@gmail.com")
+      if ("{{admin_id}}"){
+        console.log('admin name change: {{admin_id}}');
+        $('#id_admin_choice').val("{{admin_id}}");
       }
       else{
 
