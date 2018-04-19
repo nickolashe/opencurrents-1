@@ -1,17 +1,42 @@
 {% extends "layouts/popup.html" %}
+{% load staticfiles %}
 
 {% block title %}
   No Available Dollars
 {% endblock title %}
 
 {% block content %}
-  <p>You will need Available Dollars to cash out to your bank
-    account or donate to a nonprofit of your choice. If you have redeemed an
-    offer and have pending dollars in your account, you'll need to wait until
-    the business verifies your proof of purchase at the end of the month.</p>
-  <p>To see offers from businesses in the community, please visit the
-    <a href="{% url 'openCurrents:marketplace' %}">Marketplace</a>.</p>
-  <a class="no-cash-popup_close button round">
+  {% if balance_pending_usd > 0 %}
+    <p>
+      You will need Available Dollars to cash out. Pending dollars become
+      available when your proof of purchase is verified.
+    </p>
+  {% else %}
+    <p>
+      You need to redeem an offer with a business in the community in order to
+      get dollars to your account. To see offers from participating
+      businesses,
+      <a class="no-wrap" href="{% url 'openCurrents:marketplace' %}">
+        visit the Marketplace</a>.
+    </p>
+  {% endif %}
+
+  <p>
+    If you have not yet earned Currents by volunteering, you'll need to do
+    so before you can cash out.
+    <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}">
+    1 = $20.
+    <a href="{% url 'openCurrents:volunteer-opportunities' %}">
+      Find a volunteer opportunity
+    </a>
+  </p>
+
+  <p>
+
+  </p>
+
+  <a onClick="ga('send', 'event', 'Redemption', 'CannotCashOut');"
+  class="no-cash-popup_close button round">
     Got it
   </a>
 {% endblock content %}

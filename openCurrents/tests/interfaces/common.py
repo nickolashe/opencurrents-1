@@ -1,58 +1,58 @@
+"""Common classes and methods for unit tests."""
 from django.contrib.auth.models import User
-
-from datetime import datetime, timedelta
-from django.utils import timezone
 
 from openCurrents.models import \
     AdminActionUserTime, \
-    Entity, \
     Item, \
     Ledger, \
     Offer, \
     Org, \
-    OrgEntity, \
     OrgUser, \
     Project, \
     Event, \
     Transaction, \
     TransactionAction, \
-    UserEntity, \
     UserEventRegistration, \
-    UserTimeLog
-
-from openCurrents.interfaces.ocuser import \
-    OcUser, \
-    InvalidUserException, \
-    UserExistsException
+    UserTimeLog, \
+    UserEntity
 
 from openCurrents.interfaces.orgs import (
     OrgUserInfo,
     OcOrg
 )
-
-from openCurrents.interfaces.auth import (
-    OcAuth
+from openCurrents.interfaces.ocuser import (
+    OcUser
+)
+from openCurrents.interfaces.orgadmin import OrgAdmin
+from openCurrents.interfaces.auth import (OcAuth)
+from openCurrents.interfaces.convert import (
+    _TR_FEE,
+    _USDCUR
 )
 
-from openCurrents.interfaces.orgadmin import OrgAdmin
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from selenium import webdriver
+from selenium.common.exceptions import WebDriverException
 
-from openCurrents.interfaces.common import diffInHours
+import time
+from datetime import datetime, timedelta
 
-import pytz
-import uuid
-import random
-import string
-import re
+
+from django.test import Client
 
 # ====== CONTENT =======
 # _create_org
 # _create_test_user
 # _create_project
 # _create_event
+# _create_offer
 # _setup_user_event_registration
 # _setup_volunteer_hours
 # _setup_transactions
 # _setup_ledger_entry
+# _selenium_wait_for
+
+_SHARE = .25
 
 
 class SetUpTests(object):
@@ -101,7 +101,7 @@ class SetUpTests(object):
             biz_org_i += 1
             org = _create_org(biz_org, "biz")
 
-            # creating an NPF admin
+            # creating an BIZ admin
             if create_admins:
                 _create_test_user(
                     'biz_admin_{}'.format(str(biz_org_i)),
@@ -113,13 +113,20 @@ class SetUpTests(object):
         for volunteer in volunteers_list:
             _create_test_user(volunteer)
 
+        # creating master offer
+        if len(biz_orgs_list) > 0:
+            _create_offer(
+                self.get_all_biz_orgs()[0],
+                currents_share=_SHARE * 100,
+                is_master=True
+            )
+
     def get_all_volunteers(self):
         """Return list of volunteers."""
         volunteers = []
         for user in User.objects.all():
             if not OcAuth(user.id).is_admin():
                 volunteers.append(user)
-
         return volunteers
 
     def get_all_npf_admins(self):
@@ -129,7 +136,6 @@ class SetUpTests(object):
             u = OcAuth(user.id)
             if u.is_admin_org():
                 npf_admins.append(user.user)
-
         return npf_admins
 
     def get_all_biz_admins(self):
@@ -157,12 +163,12 @@ class SetUpTests(object):
 
 def _create_org(org_name, org_status):
     """
-    Creates users and maps them to the org if needed.
+    Create users and maps them to the org if needed.
+
     Takes:
         org_name - string
         org_status - string ('npf', 'biz')
     """
-
     new_org = OcOrg().setup_org(name=org_name, status=org_status)
 
     return new_org
@@ -175,7 +181,8 @@ def _create_test_user(
     is_org_admin=False
 ):
     """
-    Creates users and maps them to the org if needed.
+    Create users and maps them to the org if needed.
+
     Takes:
         user_name - string
 
@@ -185,7 +192,6 @@ def _create_test_user(
 
         is_org_admin - if True, the user will be made an org admin, if org is provided.
     """
-
     test_user = OcUser().setup_user(
         username=user_name,
         email=user_name + '@email.cc',
@@ -209,10 +215,11 @@ def _create_test_user(
 
 def _create_project(org, project_name):
     """
+    Create project.
+
     org - Org object
     project_name - string
     """
-
     project = Project(
         org=org,
         name=project_name
@@ -232,10 +239,7 @@ def _create_event(
     event_type="MN",
     coordinator=None
 ):
-    """
-    creates an event with given parameters
-    """
-
+    """Create an event with given parameters."""
     event = Event(
         project=project,
         description=description,
@@ -250,14 +254,47 @@ def _create_event(
     return event
 
 
+def _create_offer(
+        org,
+        offer_item_name='Test Item',
+        offer_limit=None,
+        currents_share=25,
+        is_master=False
+):
+    """
+    Create offer.
+
+    takes
+    org - biz Org instance
+    item_name - string
+    offer_limit - None or Int
+    currents_share - int
+    creates Item and Offer, returns Offer object
+    """
+    offer_item = Item(name=offer_item_name)
+    offer_item.save()
+
+    offer = Offer(
+        org=org,
+        item=offer_item,
+        currents_share=currents_share,
+        is_master=is_master
+    )
+
+    if offer_limit:
+        offer.limit = offer_limit
+
+    offer.save()
+
+    return offer
+
+
 def _setup_user_event_registration(
     user,
     event,
     is_confirmed=False
 ):
-    """
-    creates a user event registration with given parameters
-    """
+    """Create a user event registration with given parameters."""
     user_event_registration = UserEventRegistration(
         user=user,
         event=event,
@@ -383,9 +420,8 @@ def _setup_ledger_entry(
     action=None,
     transaction=None
 ):
-
     """
-    USE IT UNTILL WE HAVE ledger.OcLedger.add_fiat implemented
+    USE IT UNTILL WE HAVE ledger.OcLedger.add_fiat implemented.
 
     entity_from -   Entity objects (eg User and Org)
     entity_to -     Entity objects (eg User and Org)
@@ -395,7 +431,6 @@ def _setup_ledger_entry(
     action -        AdminActionUserTime instance
     transaction -   TransactionAction instance
     """
-
     ledger_rec = Ledger(
         entity_from=entity_from,
         entity_to=entity_to,
@@ -405,7 +440,171 @@ def _setup_ledger_entry(
         action=action,
         transaction=transaction
     )
-
     ledger_rec.save()
 
-    return
+    return ledger_rec
+
+
+def _selenium_wait_for(fn):
+    """Wait for ement on the page for 5 seconds."""
+    start_time = time.time()
+    while True:
+        try:
+            return fn()
+        except (AssertionError, WebDriverException) as e:
+            if time.time() - start_time > 10:
+                raise e
+            time.sleep(0.5)
+
+
+class SetupAdditionalTimeRecords():
+    """SetUp class for TestApproveHoursRandomDates and TestApproveHoursCornerCases."""
+
+    # [test_transacion helpers begin]
+
+    def assert_redeemed_amount_usd(
+        self,
+        user,
+        sum_payed,
+        share=_SHARE,  # default biz org share
+        tr_fee=_TR_FEE,  # transaction fee currently 15%
+        usdcur=_USDCUR  # exchange rate usd per 1 curr
+    ):
+        """Assert the amount of pending dollars after a transaction."""
+        accepted_sum = sum_payed * share
+        expected_usd = accepted_sum - accepted_sum * tr_fee
+
+        usd_pending = OcUser(user.id).get_balance_pending_usd()
+
+        self.assertEqual(usd_pending, expected_usd)
+
+    def biz_pending_currents_assertion(
+        self,
+        biz_admin,  # User, biz admin
+        expected_pending_current,  # integer
+    ):
+        """Assert biz pending currents."""
+        self.client.login(
+            username=biz_admin.username, password='password')
+        response = self.client.get('/biz-admin/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.context['currents_pending'], expected_pending_current)
+
+        return response
+
+    def volunteer_currents_assert(
+        self,
+        user,  # User, volunteer
+        currents_amount,  # integer
+    ):
+        """Assert volunteer currents."""
+        self.client.login(username=user.username,
+                          password='password')
+        response_balance = self.client.get('/get_user_balance_available/')
+        self.assertEqual(response_balance.status_code, 200)
+
+        # checking initial user CURRENTS balance
+        self.assertEqual(response_balance.content, str(currents_amount))
+
+    # [test_transacion helpers End]
+
+    def _get_earliest_monday(self):
+        """Get earliest monday for approve-hours page."""
+        try:
+            earliest_request_date = self.org_admin.get_hours_requested().\
+                order_by('usertimelog__datetime_start').first().\
+                usertimelog.datetime_start
+        except:
+            earliest_request_date = self.org_admin.get_hours_approved().\
+                order_by('usertimelog__datetime_start').first().\
+                usertimelog.datetime_start
+
+        earliest_monday = earliest_request_date - timedelta(
+            days=(earliest_request_date.weekday()))
+        earliest_monday = earliest_monday.replace(hour=00, minute=00, second=00)
+
+        return earliest_monday
+
+    def _current_week_records(self, earliest_monday):
+        current_week_sunday = earliest_monday + timedelta(days=6)
+        current_week_sunday = current_week_sunday.replace(
+            hour=23, minute=59, second=59
+        )
+        admin_actions_requested = self.org_admin.get_hours_requested().\
+            order_by('usertimelog__datetime_start')
+
+        current_week_records = []
+        for rec in admin_actions_requested:
+            if earliest_monday <= rec.usertimelog.datetime_start <= current_week_sunday:
+                current_week_records.append(rec)
+
+        return current_week_records
+
+    def _compare_shown_records(self, current_week_records, response):
+        records_num = len(current_week_records)
+
+        # asserting num of displayed records and num of real records in DB
+        num_of_recs_in_context_week = 0
+        for i in response.context[0]['week'][0].items()[0][1].items()[0][1].items()[2:]:
+            num_of_recs_in_context_week += len(i[1]) - 1
+
+        self.assertEqual(
+            records_num,
+            num_of_recs_in_context_week
+        )
+        return records_num
+
+    def setUp(self):
+        """Set testing environment."""
+        biz_orgs_list = ['BIZ_org_1']
+        npf_orgs_list = ['NPF_org_1', 'NPF_org_2']
+        volunteers_list = ['volunteer_1']
+
+        test_setup = SetUpTests()
+        test_setup.generic_setup(npf_orgs_list, biz_orgs_list, volunteers_list)
+
+        # setting orgs
+        self.org_npf = test_setup.get_all_npf_orgs()[0]
+        self.org_npf2 = test_setup.get_all_npf_orgs()[1]
+        self.org_biz = test_setup.get_all_biz_orgs()[0]
+
+        # set up project
+        self.project = test_setup.get_all_projects(self.org_npf)[0]
+        self.project2 = test_setup.get_all_projects(self.org_npf2)[0]
+
+        # creating BIZ admin
+        all_admins = test_setup.get_all_biz_admins()
+        self.biz_admin = all_admins[0]
+
+        # creating npf admins
+        all_admins = test_setup.get_all_npf_admins()
+        self.npf_admin = all_admins[0]
+        self.npf_admin2 = all_admins[1]
+        self.org_admin = OrgAdmin(self.npf_admin.id)
+
+        # assigning existing volunteers to variables
+        all_volunteers = test_setup.get_all_volunteers()
+
+        self.volunteer_1 = all_volunteers[0]
+
+        # oc instances
+        self.oc_npf_adm = OcUser(self.npf_admin.id)
+        # self.org_biz_adm = BizAdmin(self.biz_admin.id)
+        self.oc_vol_1 = OcUser(self.volunteer_1.id)
+
+        # user entities
+        self.vol_1_entity = UserEntity.objects.get(user=self.volunteer_1)
+        self.user_enitity_id_vol_1 = UserEntity.objects.get(
+            user=self.volunteer_1).id
+
+        # creating an offer
+        self.offer = _create_offer(
+            self.org_biz, currents_share=_SHARE * 100)
+
+        # getting item
+        self.purchased_item = Item.objects.filter(offer__id=self.offer.id)[0]
+
+        # setting up client
+        self.client = Client()
+        self.client.login(username=self.npf_admin.username, password='password')
