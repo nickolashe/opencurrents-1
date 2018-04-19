@@ -39,8 +39,8 @@
       </strong>
       on {{ event.datetime_start|day }}. Enjoy the event!
     </p>
-    {{ request.user.date_joined }}
-    {% with timezone=event.project.org.timezone %}
+
+    {% with timezone=request.user.usersettings.timezone %}
       <span class="addtocalendar one-margin-bottom">
         <var class="atc_event">
           <var class="atc_date_start">
