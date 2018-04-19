@@ -365,43 +365,6 @@ class NpfAdminView(TestCase):
             action_type='req'
         )
 
-    def _check_url_parser(self, event_id, url, crete_new=False):
-        """
-        Assert string 'url' exist is in the response.content when edit an event.
-
-        This method asserts forward (upon saving) and backward (upon loading
-        EditEventForm) href HTML tags substitution in description field of an
-        Event with id 'event_id' (integer).
-        crete_new - defines wether we create new Event or editing existing one.
-        """
-        event_detail_url = testing_urls.event_detail_or_edit_url(event_id)
-        edit_event_url = testing_urls.event_detail_or_edit_url(
-            event_id,
-            edit=True
-        )
-
-        if not crete_new:
-
-            event_date = event.event_date
-
-            response = self.client.get(
-                event_detail_url
-            )
-
-            # check there is no url in description
-            self.assertNotIn('href="{}"'.format(url), response.content)
-
-
-
-        # post to edit event
-        post_response = self.client.post(
-            edit_event_url,
-            {
-                'event_date': event_date,
-                'event_description': url,
-            }
-        )
-
         # check there is no url in description
         self.assertIn('href="{}"'.format(url), response.content)
 
