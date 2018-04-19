@@ -2372,7 +2372,6 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
 
         event = Event(
             project=self.project,
-            description=form_data['event_description'],
             location=location,
             is_public=form_data['event_privacy'],
             datetime_start=form_data['datetime_start'],
@@ -2380,6 +2379,12 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
             coordinator=coord_user,
             creator_id=self.userid
         )
+
+        # parsing URLs in event
+        event.description = common.event_description_url_parser(
+            form_data['event_description']
+        )
+
         event.save()
 
         if (coord_user.id != self.userid):
@@ -2676,6 +2681,11 @@ class EditEventView(CreateEventView):
             self.event.datetime_start = data['datetime_start']
             self.event.datetime_end = data['datetime_end']
             self.event.is_public = data['event_privacy']
+
+            # parsing URLs in event
+            self.event.description = common.event_description_url_parser(
+                data['event_description']
+            )
 
             self.event.save()
 

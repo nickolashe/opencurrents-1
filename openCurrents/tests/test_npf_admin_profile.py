@@ -17,6 +17,8 @@ from openCurrents.models import \
     Ledger, \
     UserEventRegistration
 
+from openCurrents.tests.interfaces import testing_urls
+
 from openCurrents.interfaces.ocuser import \
     OcUser, \
     InvalidUserException, \
@@ -363,31 +365,60 @@ class NpfAdminView(TestCase):
             action_type='req'
         )
 
-    def _check_url_parser(self, event_id, url):
+    def _check_url_parser(self, event_id, url, crete_new=False):
         """
         Assert string 'url' exist is in the response.content when edit an event.
 
         This method asserts forward (upon saving) and backward (upon loading
         EditEventForm) href HTML tags substitution in description field of an
         Event with id 'event_id' (integer).
+        crete_new - defines wether we create new Event or editing existing one.
         """
-        # update event description field
-        upcoming_event_obj = Event.objects.get(pk=event_id)
-        upcoming_event_obj.description = url
-        upcoming_event_obj.save()
+        event_detail_url = testing_urls.event_detail_or_edit_url(event_id)
+        edit_event_url = testing_urls.event_detail_or_edit_url(
+            event_id,
+            edit=True
+        )
+
+        if not crete_new:
+
+            event_date = event.event_date
+
+            response = self.client.get(
+                event_detail_url
+            )
+
+            # check there is no url in description
+            self.assertNotIn('href="{}"'.format(url), response.content)
+
+
+
+        # post to edit event
+        post_response = self.client.post(
+            edit_event_url,
+            {
+                'event_date': event_date,
+                'event_description': url,
+            }
+        )
+
+        # check there is no url in description
+        self.assertIn('href="{}"'.format(url), response.content)
+
+        # upcoming_event_obj.save()
 
         # check if URLs are shown on event-detail page
-        response = self.client.get('/event-detail/%d/' % event_id)
-        processed_content = re.sub(r'\s+', ' ', response.content)
+        # response = self.client.get('/event-detail/%d/' % event_id)
+        # processed_content = re.sub(r'\s+', ' ', response.content)
 
-        if ('http' not in url) and ('https' not in url):
-            self.assertIn('href="http://%s"' % url, processed_content)
-        else:
-            self.assertIn('href="%s"' % url, processed_content)
+        # if ('http' not in url) and ('https' not in url):
+        #     self.assertIn('href="http://%s"' % url, processed_content)
+        # else:
+        #     self.assertIn('href="%s"' % url, processed_content)
 
-        # check if there is no HTML tags in edit event form description field
-        response = self.client.get('/edit-event/%d/' % event_id)
-        self.assertNotIn('href=', response.context['form']['event_description'])
+        # # check if there is no HTML tags in edit event form description field
+        # response = self.client.get('/edit-event/%d/' % event_id)
+        # self.assertNotIn('href=', response.context['form']['event_description'])
 
     def setUp(self):
         # setting up objects
@@ -563,13 +594,57 @@ class NpfAdminView(TestCase):
 
     def test_upcoming_event_description_parser(self):
         """Test parser in event description field when editing event."""
-        upcoming_event_id = self.future_event.pk
 
-        # adding url with WWW to upcoming event
-        self._check_url_parser(upcoming_event_id, 'www.testurl.com')
+        response = self.client.get('/org-admin/')
 
-        # adding url with http to upcoming event
-        self._check_url_parser(upcoming_event_id, 'http://www.testurl.com')
+        future_date = timezone.now() + timedelta(days=2)
+        future_date2 = future_date + timedelta(days=3)
 
-        # adding url with https to upcoming event
-        self._check_url_parser(upcoming_event_id, 'https://www.testurl.com')
+        urls_to_parse = ['www.thefirsturl.com', 'http://www.thefirsturl.com', 'https://www.thefirsturl.com', 'www.thefirsturl.com/somepage.html']
+        # urls_to_parse = ['www.testurl.com']
+        event_description = " some text ".join(urls_to_parse)
+
+        # creating new event with urls in description
+        post_response = self.client.post(
+            testing_urls.create_event_url(self.org_id),
+            {
+                'event_privacy': '1',
+                'event_description': event_description,
+                'project_name': 'Parsing URLs',
+                'event_coordinator': self.org_user_1.id,
+                'event-location': 'parsing_location',
+                'event_date': future_date2.strftime('%Y-%m-%d'),
+                'event_starttime': '7:00am',
+                'event_endtime': '9:00am',
+                'datetime_start': future_date,
+                'datetime_end': future_date2
+            }
+        )
+
+        new_event = Event.objects.filter(project__name__icontains='Parsing URLs')[0]
+        new_event_detail_url = testing_urls.event_detail_or_edit_url(new_event.id)
+        new_edit_event_url = testing_urls.event_detail_or_edit_url(
+            new_event.id,
+            edit=True
+        )
+
+        # checking URLs after event creation
+        response = self.client.get(
+            new_event_detail_url
+        )
+        for url in urls_to_parse:
+            if ('http' not in url) and ('https' not in url):
+                self.assertIn('href="http://%s"' % url, response.content)
+            else:
+                self.assertIn('href="%s"' % url, response.content)
+
+        # edit event and assess there is no HTML code for urls
+        response = self.client.get(
+            new_edit_event_url
+        )
+
+        for url in urls_to_parse:
+            self.assertNotIn(
+                'href="%s"' % url,
+                response.context['form']['event_description']
+            )

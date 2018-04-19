@@ -261,20 +261,7 @@ class Event(models.Model):
         ordering = ['datetime_start']
 
     def save(self, *args, **kwargs):
-        # looking for an URL in self.description:
 
-        text = str(self.description)
-        pat = r'(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'\".,<>?]))'
-
-        found = re.findall(pat, text)
-
-        for f in found:
-            text = re.sub(re.escape(str(f[0])), '<a href="{0}" target="_blank">{0}</a>'.format(f[0]), text)
-
-        # adding http:// to www
-        text = re.sub('href="www.', 'href="http://www.', text)
-
-        self.description = text
         super(Event, self).save(*args, **kwargs)
 
     def __unicode__(self):
