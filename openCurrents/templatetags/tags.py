@@ -27,6 +27,10 @@ def time(val, tz='UTC'):
     return val.astimezone(pytz.timezone(tz)).strftime('%-I:%M %p')
 
 @register.filter
+def datetime_cal(val, tz='UTC'):
+    return val.astimezone(pytz.timezone(tz)).strftime('%Y-%m-%d %H:%M:%S')
+
+@register.filter
 def approve_date(val, tz='UTC'):
     strp_time = datetime.strptime(val, '%A, %m/%d')
     local_tz = pytz.timezone(tz)
@@ -67,7 +71,9 @@ def current_to_usd(arg1, arg2):
     res = float(arg1) * float(convert._USDCUR)
 
     if arg2 == 'with_fee':
-        return res * (1 - convert._TR_FEE)
+        res *= (1 - convert._TR_FEE)
+
+    return res
 
 @register.filter
 def mult(arg1, arg2):

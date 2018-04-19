@@ -46,16 +46,18 @@ from openCurrents.tests.interfaces.common import (
     _setup_user_event_registration,
     _setup_transactions,
     _setup_ledger_entry,
-    _create_org
+    _create_org,
+    _create_offer,
+    _SHARE
 )
 
 import pytz
 import uuid
 import random
-import string
 import re
-from decimal import Decimal
+import string
 
+from decimal import Decimal
 from unittest import skip
 
 
@@ -64,6 +66,7 @@ class TestUserPopup(TestCase):
     def setUp(self):
         # creating org
         org = _create_org("NPF_org_1", "npf")
+        self.biz_org = _create_org("BIZ_org_1", 'biz')
 
         # creating a volunteer that sees the popup
         user_name = 'volunteer_default'
@@ -88,6 +91,13 @@ class TestUserPopup(TestCase):
         oc_user_settings = UserSettings.objects.get(user=oc_user)
         oc_user_settings.popup_reaction = True
         oc_user_settings.save()
+
+        # create master offer
+        _create_offer(
+            self.biz_org,
+            currents_share=_SHARE * 100,
+            is_master=True
+        )
 
         # setting up client
         self.client = Client()
@@ -319,6 +329,13 @@ class TestUserProfileView(TestCase):
         _setup_transactions(biz_org, volunteer_1, 12, 20)  # Pending: $204.0
         _setup_transactions(biz_org, volunteer_1, 12, 20, action_type='app')  # 204.0 +
         _setup_transactions(biz_org, volunteer_1, 12, 20, action_type='red')  # + 204.0 = 408
+
+        # create master offer
+        _create_offer(
+            biz_org,
+            currents_share=_SHARE * 100,
+            is_master=True
+        )
 
         # setting up client
         self.client = Client()
@@ -654,7 +671,7 @@ class TestUserProfileCommunityActivity(TestCase):
         self.datetime_start_1 = past_date
         self.datetime_end_1 = past_date + timedelta(hours=3)
 
-        # setting 1 pending events
+        # setting 1 pending events - should create 3 pending currents
         _setup_volunteer_hours(
             self.volunteer_1,
             self.npf_admin_1,
@@ -664,7 +681,7 @@ class TestUserProfileCommunityActivity(TestCase):
             self.datetime_end_1
         )
 
-        # setting 1 approved events
+        # setting 1 approved events - should create 3 available currents
         _setup_volunteer_hours(
             self.volunteer_1,
             self.npf_admin_1,
@@ -676,7 +693,8 @@ class TestUserProfileCommunityActivity(TestCase):
             action_type='app'
         )
 
-        # issuing currents
+        # issuing currents from npf org to vol1 - should create 20 available
+        # currents in total
         OcLedger().issue_currents(
             entity_id_from=self.org1.orgentity.id,
             entity_id_to=self.vol_1_entity.id,
@@ -684,7 +702,8 @@ class TestUserProfileCommunityActivity(TestCase):
             amount=20,
         )
 
-        # transacting currents
+        # transacting 4 currents from volunteer to biz org - should create 16
+        # available currents in total (20 - 4)
         OcLedger().transact_currents(
             entity_type_from=self.vol_1_entity.entity_type,
             entity_id_from=self.vol_1_entity.id,
@@ -697,23 +716,34 @@ class TestUserProfileCommunityActivity(TestCase):
         # setting up pending transaction
         _setup_transactions(self.biz_org, self.biz_admin_1, 0.436, 10.91)
 
+        # create master offer
+        _create_offer(
+            self.biz_org,
+            currents_share=_SHARE * 100,
+            is_master=True
+        )
+
         # setting up client
         self.client = Client()
 
+    @skip('not displayed on profile')
     def test_community_activity(self):
+        """Test general data on profile page."""
         oc_user = User.objects.get(username="volunteer_1")
         self.client.login(username=oc_user.username, password='password')
 
         response = self.client.get('/profile/')
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn('Currents issued: 20.00', response.content)
+        # self.assertIn('Currents issued: 20.00', response.content)
         self.assertEqual(response.context['currents_amount_total'], 20.000)
+        self.assertEqual(response.context['balance_available'], 16.000)
+        self.assertEqual(response.context['balance_pending'], 3.000)
 
-        self.assertIn('Active volunteers: 1', response.content)
+        # self.assertIn('Active volunteers: 1', response.content)
         self.assertEqual(response.context['active_volunteers_total'], 1)
 
-        self.assertIn('Currents redeemed: 4', response.content)
+        # self.assertIn('Currents redeemed: 4', response.content)
         self.assertEqual(float(response.context['biz_currents_total']), 4.0)
 
     def test_community_activity_click_curr_issued(self):

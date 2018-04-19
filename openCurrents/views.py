@@ -56,9 +56,11 @@ from openCurrents.models import (
 )
 
 from openCurrents.forms import (
+    UserEmailForm,
     UserSignupForm,
     UserLoginForm,
     EmailVerificationForm,
+    ExportDataForm,
     PasswordResetForm,
     PasswordResetRequestForm,
     OrgSignupForm,
@@ -87,6 +89,8 @@ import socket
 import re
 import uuid
 import decimal
+import csv
+import xlwt
 
 
 logging.basicConfig(level=logging.DEBUG, filename='log/views.log')
@@ -863,7 +867,8 @@ class ApproveHoursView(OrgAdminPermissionMixin, OrgSessionContextView, ListView)
         )
 
     def get_hours_rounded(self, datetime_start, datetime_end):
-        return math.ceil((datetime_end - datetime_start).total_seconds() / 3600 * 4) / 4
+        return math.ceil(
+            (datetime_end - datetime_start).total_seconds() / 3600 * 4) / 4
 
 
 class CausesView(TemplateView):
@@ -878,8 +883,149 @@ class EditHoursView(TemplateView):
     template_name = 'edit-hours.html'
 
 
-class ExportDataView(TemplateView):
+class ExportDataView(OrgAdminPermissionMixin, OrgSessionContextView, FormView):
+    form_class = ExportDataForm
     template_name = 'export-data.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ExportDataView, self).get_context_data(**kwargs)
+        self.tz_org = self.org.timezone
+        start_dt = datetime.now(pytz.timezone(self.tz_org)) - timedelta(days=30)
+        context['form'].fields['date_start'].widget.attrs['value'] = start_dt.strftime('%Y-%m-%d')
+
+        return context
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+
+        tz = self.org.timezone
+
+        user_timelog_record = UserTimeLog.objects.filter(
+            event__project__org=self.org
+        ).filter(
+            datetime_start__gte=data['date_start']
+        ).filter(
+            datetime_start__lte=data['date_end'] + timedelta(hours=23, minutes=59, seconds=59)
+        ).filter(
+            is_verified=True
+        ).order_by('datetime_start')
+
+        if len(user_timelog_record) == 0:
+            return redirect(
+                'openCurrents:export-data',
+                'No records found for the selected dates',
+                'alert'
+            )
+
+        file_name = "timelog_report_{}_{}.xls".format(
+            data['date_start'].strftime('%Y-%m-%d'),
+            data['date_end'].strftime('%Y-%m-%d')
+        )
+
+        # writing to XLS file
+        response = HttpResponse(content_type='application/ms-excel')
+        response['Content-Disposition'] = 'attachment; filename="{}"'.format(file_name)
+        wb = xlwt.Workbook(encoding='utf-8')
+        ws = wb.add_sheet('Time logs', cell_overwrite_ok=True)
+
+        # Sheet header, first row
+        row_num = 0
+        font_style = xlwt.XFStyle()
+        font_style.font.bold = True
+        columns = [
+            '#',
+            'Event',
+            'Description',
+            'Location',
+            'Volunteer Name',
+            'Volunteer Last name',
+            'Volunteer Email',
+            'Date and Time Start',
+            'Duration, hours'
+        ]
+        for column in range(len(columns)):
+            ws.write(row_num, column, columns[column], font_style)
+
+        # Sheet body, remaining rows
+        font_style = xlwt.XFStyle()
+        for record in user_timelog_record:
+
+            row_num += 1
+            record_event = record.event
+
+            duration = common.diffInHours(
+                record_event.datetime_start.astimezone(pytz.timezone(self.org.timezone)),
+                record_event.datetime_end.astimezone(pytz.timezone(self.org.timezone))
+            )
+
+            if record_event.event_type == 'MN':
+                event_name = 'Manual'
+                record_description = record_event.description
+                event_location = ''
+            else:
+                event_name = record_event.project.name
+                record_description = ''
+                event_location = record_event.location
+
+            row_data = [
+                row_num,
+                event_name,
+                record_description,
+                event_location,
+                record.user.first_name.encode('utf-8').strip(),
+                record.user.last_name.encode('utf-8').strip(),
+                record.user.email.encode('utf-8').strip(),
+                record.datetime_start.astimezone(pytz.timezone(self.org.timezone)).strftime('%Y-%m-%d %H:%M'),
+                duration
+            ]
+            for col in range(len(row_data)):
+                ws.write(row_num, col, row_data[col], font_style)
+
+        wb.save(response)
+        return response
+
+        # # writing to CSV file
+        # response = HttpResponse(content_type='text/csv')
+        # response['Content-Disposition'] = 'attachment; filename={}'.format(
+        #     file_name
+        # )
+        # writer = csv.writer(response)
+        # writer.writerow([
+        #     '#',
+        #     'Event',
+        #     'Volunteer',
+        #     'Date and Time Start',
+        #     'Duration, hours',
+        # ])
+        # i = 0
+        # for record in user_timelog_record:
+        #     duration = common.diffInHours(
+        #         record.datetime_start, record.datetime_end
+        #     )
+        #     volunteer = "{} {} <{}>".format(
+        #         record.user.first_name.encode('utf-8').strip(),
+        #         record.user.last_name.encode('utf-8').strip(),
+        #         record.user.email.encode('utf-8').strip()
+        #     )
+        #     writer.writerow([
+        #         i,
+        #         record.event,
+        #         volunteer,
+        #         record.datetime_start.strftime('%Y-%m-%d %H:%M'),
+        #         duration
+        #     ])
+        #     i += 1
+
+        # return response  # redirect('openCurrents:export-data',)
+
+    def get_form_kwargs(self):
+        '''
+        Passes org timezone down to the form.
+        '''
+        kwargs = super(ExportDataView, self).get_form_kwargs()
+        kwargs.update({'tz_org': self.org.timezone})
+
+        return kwargs
 
 
 class FindOrgsView(TemplateView):
@@ -1223,36 +1369,16 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         }
         glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
-        # sending email to bizdev
-        email_biz_name = data['biz_name'] if data['biz_name'] else self.offer.org.name
-
+        # send bizdev notification
         try:
+            email_biz_name = data['biz_name'] if data['biz_name'] else self.offer.org.name
             email_vars_transactional = [
-
-                {
-                    'name': 'FNAME',
-                    'content': self.request.user.first_name
-                },
-                {
-                    'name': 'LNAME',
-                    'content': self.request.user.last_name
-                },
-                {
-                    'name': 'EMAIL',
-                    'content': self.request.user.email
-                },
-                {
-                    'name': 'BIZ_NAME',
-                    'content': email_biz_name
-                },
-                {
-                    'name': 'ITEM_NAME',
-                    'content': self.offer.item
-                },
-                {
-                    'name': 'REDEEMED_CURRENTS',
-                    'content': data['redeem_currents_amount']
-                }
+                {'name': 'FNAME', 'content': self.user.first_name},
+                {'name': 'LNAME', 'content': self.user.last_name},
+                {'name': 'EMAIL', 'content': self.user.email},
+                {'name': 'BIZ_NAME', 'content': email_biz_name},
+                {'name': 'ITEM_NAME', 'content': self.offer.item},
+                {'name': 'REDEEMED_CURRENTS', 'content': data['redeem_currents_amount']}
             ]
 
             sendTransactionalEmail(
@@ -1261,7 +1387,6 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
                 email_vars_transactional,
                 'bizdev@opencurrents.com',
             )
-
         except Exception as e:
                 logger.error(
                     'unable to send transactional email: %s (%s)',
@@ -1280,6 +1405,14 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         context['tr_fee'] = int(convert._TR_FEE * 100)
         context['master_offer'] = Offer.objects.filter(is_master=True).first()
         context['master_funds_available'] = self.ocuser.get_master_offer_remaining()
+
+        biz_name = self.request.GET.get('biz_name')
+        if biz_name:
+            context['form'] = RedeemCurrentsForm(
+                offer_id=self.kwargs['offer_id'],
+                user=self.user
+            )
+            context['form'].fields['biz_name_input'].widget.attrs['value'] = biz_name
 
         return context
 
@@ -1304,8 +1437,22 @@ class SendCurrentsView(TemplateView):
     template_name = 'send-currents.html'
 
 
-class SignupView(TemplateView):
+class SignupView(FormView):
     template_name = 'signup.html'
+    form_class = UserSignupForm
+
+    def get(self, request, *args, **kwargs):
+        context = dict()
+        context = {'form': UserSignupForm()}
+
+        user_email = request.GET.get('user_email')
+        if user_email:
+            context['form'].fields['user_email'].widget.attrs['value'] = user_email
+
+        return render(request, self.template_name, context)
+
+    def form_valid(self, data):
+        return process_signup(self.request)
 
 
 class OrgApprovalView(TemplateView):
@@ -1984,18 +2131,23 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
         context['hours_by_org'] = self.ocuser.get_hours_approved(**{'by_org': True})
 
         # user timezone
-        # context['timezone'] = self.request.user.account.timezone
-        context['timezone'] = 'America/Chicago'
+        #context['timezone'] = self.request.user.account.timezone
+        context['timezone'] = self.request.user.usersettings.timezone
 
         # getting issued currents
-        context['currents_amount_total'] = OcCommunity().get_amount_currents_total()
+        # context['currents_amount_total'] = OcCommunity().get_amount_currents_total()
 
         # getting active volunteers, do not set quantity to None to get all active volunteers;
         # otherwise set to desired number of volunteers to be displayed
-        context['active_volunteers_total'] = OcCommunity().get_active_volunteers_total()
+        # context['active_volunteers_total'] = OcCommunity().get_active_volunteers_total()
 
         # getting currents total (accepted + pending)
-        context['biz_currents_total'] = OcCommunity().get_biz_currents_total()
+        # context['biz_currents_total'] = OcCommunity().get_biz_currents_total()
+
+        context['master_offer'] = Offer.objects.filter(is_master=True).first()
+
+        context['has_bonus'] = OcLedger().has_bonus(self.user.userentity)
+        context['bonus_amount'] = common._SIGNUP_BONUS
 
         return context
 
@@ -3914,7 +4066,6 @@ def process_signup(
 
     # validate form data
     if form.is_valid():
-
         user_firstname = form.cleaned_data['user_firstname']
         user_lastname = form.cleaned_data['user_lastname']
         user_email = form.cleaned_data['user_email']
@@ -3970,7 +4121,7 @@ def process_signup(
                     msg_type='alert'
                 )
 
-        # user org
+        # user org association requested
         if org_name:
             org = None
             try:
@@ -4011,30 +4162,16 @@ def process_signup(
 
             if not mock_emails:
                 try:
+                    # send bizdev notification
                     sendTransactionalEmail(
                         'new-org-registered',
                         None,
                         [
-                            {
-                                'name': 'FNAME',
-                                'content': user_firstname
-                            },
-                            {
-                                'name': 'LNAME',
-                                'content': user_lastname
-                            },
-                            {
-                                'name': 'EMAIL',
-                                'content': user_email
-                            },
-                            {
-                                'name': 'ORG_NAME',
-                                'content': org_name
-                            },
-                            {
-                                'name': 'ORG_STATUS',
-                                'content': org_status
-                            }
+                            {'name': 'FNAME', 'content': user_firstname},
+                            {'name': 'LNAME', 'content': user_lastname},
+                            {'name': 'EMAIL', 'content': user_email},
+                            {'name': 'ORG_NAME','content': org_name},
+                            {'name': 'ORG_STATUS', 'content': org_status}
                         ],
                         'bizdev@opencurrents.com'
                     )
@@ -4063,7 +4200,7 @@ def process_signup(
 
                 token_record.save()
 
-                # registering user to an event
+                # user event registration
                 if request.session and 'next' in request.session and request.session['next'] and 'event-detail' in request.session['next']:
                     try:
                         user = User.objects.get(email=user_email)
@@ -4085,7 +4222,7 @@ def process_signup(
                             # cleaning session
                             request.session.pop('next')
 
-                        except:
+                        except Event.DoesNotExist:
                             user = None
                             logger.debug("Couldn't find event with ID {}".format(event_id))
 
@@ -4103,47 +4240,27 @@ def process_signup(
                                 event_coord_fname = " "
                                 event_coord_lname = " "
 
+                            dt_date = event.datetime_start.astimezone(
+                                pytz.timezone(tz)
+                            ).strftime('%b %d, %Y')
+                            dt_start = event.datetime_start.astimezone(
+                                pytz.timezone(tz)
+                            ).strftime('%-I:%M %p')
+                            dt_end = event.datetime_end.astimezone(
+                                pytz.timezone(tz)
+                            ).strftime('%-I:%M %p')
+
                             merge_var_list = [
-                                {
-                                    'name': 'EVENT_NAME',
-                                    'content': event.project.name
-                                },
-                                {
-                                    'name': 'DATE',
-                                    'content': event.datetime_start.astimezone(pytz.timezone(tz)).strftime('%b %d, %Y')
-                                },
-                                {
-                                    'name': 'START_TIME',
-                                    'content': event.datetime_start.astimezone(pytz.timezone(tz)).strftime('%-I:%M %p')
-                                },
-                                {
-                                    'name': 'END_TIME',
-                                    'content': event.datetime_end.astimezone(pytz.timezone(tz)).strftime('%-I:%M %p')
-                                },
-                                {
-                                    'name': 'LOCATION',
-                                    'content': event.location
-                                },
-                                {
-                                    'name': 'DESCRIPTION',
-                                    'content': event.description
-                                },
-                                {
-                                    'name': 'EVENT_ID',
-                                    'content': event.id
-                                },
-                                {
-                                    'name': 'ORG_NAME',
-                                    'content': event.project.org.name
-                                },
-                                {
-                                    'name': 'ADMIN_FIRSTNAME',
-                                    'content': event_coord_fname
-                                },
-                                {
-                                    'name': 'ADMIN_LASTNAME',
-                                    'content': event_coord_lname
-                                }
+                                {'name': 'EVENT_ID', 'content': event.id},
+                                {'name': 'EVENT_NAME', 'content': event.project.name},
+                                {'name': 'DATE', 'content': dt_date},
+                                {'name': 'START_TIME', 'content': dt_start},
+                                {'name': 'END_TIME', 'content': dt_end},
+                                {'name': 'LOCATION', 'content': event.location},
+                                {'name': 'DESCRIPTION', 'content': event.description},
+                                {'name': 'ORG_NAME', 'content': event.project.org.name},
+                                {'name': 'ADMIN_FIRSTNAME', 'content': event_coord_fname},
+                                {'name': 'ADMIN_LASTNAME', 'content': event_coord_lname}
                             ]
 
                             try:
@@ -4162,20 +4279,11 @@ def process_signup(
                                 )
 
                 if not mock_emails:
-                    # send verification email
+                    # send verification email to user
                     verify_email_vars = [
-                        {
-                            'name': 'FIRSTNAME',
-                            'content': user_firstname
-                        },
-                        {
-                            'name': 'EMAIL',
-                            'content': user_email
-                        },
-                        {
-                            'name': 'TOKEN',
-                            'content': str(token)
-                        }
+                        {'name': 'FIRSTNAME', 'content': user_firstname},
+                        {'name': 'EMAIL', 'content': user_email},
+                        {'name': 'TOKEN', 'content': str(token)}
                     ]
 
                     try:
@@ -4197,25 +4305,17 @@ def process_signup(
                 admin_org = OrgUserInfo(org_admin_id).get_org()
 
                 if not isExisting and not mock_emails:
-                    # send invite email
+                    # send invite email (to invite user to the platform)
                     try:
+                        invite_vol_vars = [
+                            {'name': 'ADMIN_FIRSTNAME', 'content': admin_user.first_name},
+                            {'name': 'ADMIN_LASTNAME', 'content': admin_user.last_name},
+                            {'name': 'ORG_NAME', 'content': admin_org.name}
+                        ]
                         sendTransactionalEmail(
                             'invite-volunteer',
                             None,
-                            [
-                                {
-                                    'name': 'ADMIN_FIRSTNAME',
-                                    'content': admin_user.first_name
-                                },
-                                {
-                                    'name': 'ADMIN_LASTNAME',
-                                    'content': admin_user.last_name
-                                },
-                                {
-                                    'name': 'ORG_NAME',
-                                    'content': admin_org.name
-                                }
-                            ],
+                            invite_vol_vars,
                             user_email
                         )
                     except Exception as e:
@@ -4233,7 +4333,6 @@ def process_signup(
             return HttpResponse(user.id, status=201)
         else:
             if org_name:
-
                 logger.debug('Processing organization...')
 
                 glogger_struct = {
@@ -4562,11 +4661,11 @@ def process_email_confirmation(request, user_email):
                 status_msg=error_msg % user_email
             )
 
-        if user.has_usable_password():
-            logger.warning('user %s has already been verified', user_email)
-            oc_auth = OcAuth(user.id)
-            redirection = common.where_to_redirect(oc_auth)
-            return redirect(redirection)
+        # if user.has_usable_password():
+        #     logger.debug('user %s has already been verified', user_email)
+        #     oc_auth = OcAuth(user.id)
+        #     redirection = common.where_to_redirect(oc_auth)
+        #     return redirect(redirection)
 
         # second, make sure the verification token and user email match
         token_record = None
@@ -4608,6 +4707,22 @@ def process_email_confirmation(request, user_email):
 
         user_settings.save()
 
+        # assign bonus
+        try:
+            org_oc = Org.objects.get(name='openCurrents')
+            OcLedger().issue_currents(
+                org_oc.orgentity.id,
+                user.userentity.id,
+                action=None,
+                amount=common._SIGNUP_BONUS,
+                is_bonus=True
+            )
+        except Exception as e:
+            logger.debug(
+                'failed to issue bonus currents: %s',
+                {'user': user.username, 'error': e, 'message': e.message}
+            )
+
         logger.debug('user %s verified', user.email)
 
         glogger_struct = {
@@ -4619,21 +4734,12 @@ def process_email_confirmation(request, user_email):
 
         # send verification email
         confirm_email_vars = [
-            {
-                'name': 'FIRSTNAME',
-                'content': user.first_name
-            },
-            {
-                'name': 'REFERRER',
-                'content': user.username
-            }
+            {'name': 'FIRSTNAME', 'content': user.first_name},
+            {'name': 'REFERRER', 'content': user.username}
         ]
 
         # define NPF email variable
-        npf_var = {
-            'name': 'NPF',
-            'content': False
-        }
+        npf_var = {'name': 'NPF', 'content': False}
 
         org_user = OrgUserInfo(user.id)
         is_org_user = org_user.get_orguser()
@@ -4642,6 +4748,7 @@ def process_email_confirmation(request, user_email):
 
         confirm_email_vars.append(npf_var)
         try:
+            # send "you are in" email
             sendTransactionalEmail(
                 'email-confirmed',
                 None,
@@ -4931,6 +5038,21 @@ def get_user_master_offer_remaining(request):
         balance,
         status=200
     )
+
+
+def process_home(request):
+    form = UserEmailForm(request.POST)
+
+    if form.is_valid():
+        return redirect(
+            '?'.join([
+                reverse('openCurrents:signup'),
+                'user_email={}'.format(form.cleaned_data['user_email'])
+            ])
+        )
+
+    else:
+        return redirect('openCurrents:signup')
 
 
 def sendContactEmail(

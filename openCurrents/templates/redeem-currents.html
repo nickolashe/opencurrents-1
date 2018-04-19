@@ -54,7 +54,7 @@
       <div class="row">
         <div class="small-12 medium-8 small-centered columns">
           <h4 class="one-margin-bottom">Upload receipt or proof of purchase</h4>
-          <p class="three-halves-margin-bottom">
+          <!-- <p class="three-halves-margin-bottom">
 
             To exchange Currents for dollars with {{ offer.org.name }},
             you <strong>must</strong> upload your receipt as proof of purchase. Other forms, such
@@ -64,14 +64,17 @@
             <a class="redeem-info-popup_open no-wrap">
               Why do I pay full price?
             </a>
-          </p>
+          </p> -->
 
           <!--  form.redeem_receipt_if_checked -->
 
           <!-- <input type="checkbox" name="receipt-if-checked" id="receipt-if-checked" class="hidden" checked /> -->
-          <div id="master-offer-details" class="hidden grey one-margin-bottom">
+          <div id="offer-details" class="three-halves-margin-bottom">
             Use Currents for up to {{ offer.currents_share }}% of your purchase with
-            <strong><div id="show_biz_name" class="navy"></div></strong>
+            <strong>
+              <div id="master-biz-name" class="navy hidden"></div>
+              <div id="biz-name-db" class="navy">{{ offer.org.name }}</div>
+            </strong>
             {{ form.biz_name }}
           </div>
 
@@ -106,7 +109,7 @@
           <h4 class="">Record price</h4>
 
           <p class="half-margin-bottom">
-            Price of {{ offer.item.name }} before tax:
+            Price of <strong>{{ offer.item.name }}</strong> before tax:
           </p>
 
           <div class="relative inline-block">
@@ -114,11 +117,6 @@
             {{ form.redeem_price }}
             {{ form.redeem_currents_amount }}
           </div>
-
-          <p id="offer-details" class="no-margin-bottom grey">
-            {{ offer.org.name }} accepts Currents for {{ offer.currents_share }}%
-            of this purchase.
-          </p>
 
         </div>
       </div>
@@ -336,11 +334,11 @@
         }
         else {
           $('#master-offer-popup').popup('hide');
-          $('#offer-details').hide();
+          $('#biz-name-db').hide();
+          $('#master-biz-name').show();
           $('#master-offer-limit').show();
-          $('#master-offer-details').show();
           $('#id_biz_name').val($('#biz_name_input').val());
-          $('#show_biz_name').text($('#biz_name_input').val());
+          $('#master-biz-name').text($('#biz_name_input').val());
           $('#master-offer-terms').show();
         }
       });
