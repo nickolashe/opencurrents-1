@@ -365,23 +365,59 @@ class NpfAdminView(TestCase):
             action_type='req'
         )
 
-        # check there is no url in description
-        self.assertIn('href="{}"'.format(url), response.content)
+    def _assert_parsed_urls(self, event_url, urls_to_parse):
+            """Assert urls on event detail and edit page."""
+            if 'edit' not in event_url:
 
-        # upcoming_event_obj.save()
+                # checking URLs after event creation/edition
+                response = self.client.get(
+                    event_url
+                )
+                for url in urls_to_parse:
+                    if ('http' not in url) and ('https' not in url):
+                        self.assertIn('href="http://%s"' % url, response.content)
+                    else:
+                        self.assertIn('href="%s"' % url, response.content)
+            else:
+                # edit event and assess there is no HTML code for urls
+                response = self.client.get(
+                    event_url
+                )
 
-        # check if URLs are shown on event-detail page
-        # response = self.client.get('/event-detail/%d/' % event_id)
-        # processed_content = re.sub(r'\s+', ' ', response.content)
+                for url in urls_to_parse:
+                    self.assertNotIn(
+                        'href="%s"' % url,
+                        response.context['form']['event_description']
+                    )
 
-        # if ('http' not in url) and ('https' not in url):
-        #     self.assertIn('href="http://%s"' % url, processed_content)
-        # else:
-        #     self.assertIn('href="%s"' % url, processed_content)
+    def _post_new_event(
+        self,
+        new_event_create_url,
+        event_description,
+        org_user_1_id,
+        string_time,
+        future_date,
+        future_date2
+    ):
+        # creating new event with urls in description
+        post_response = self.client.post(
+            new_event_create_url,
+            {
+                'event_privacy': '1',
+                'event_description': event_description,
+                'project_name': 'Parsing URLs',
+                'event_coordinator': self.org_user_1.id,
+                'event-location': 'parsing_location',
+                'event_date': future_date2.strftime('%Y-%m-%d'),
+                'event_starttime': '7:00am',
+                'event_endtime': '9:00am',
+                'datetime_start': future_date,
+                'datetime_end': future_date2
+            }
+        )
 
-        # # check if there is no HTML tags in edit event form description field
-        # response = self.client.get('/edit-event/%d/' % event_id)
-        # self.assertNotIn('href=', response.context['form']['event_description'])
+        new_event = Event.objects.filter(project__name__icontains='Parsing URLs')[0]
+        return new_event
 
     def setUp(self):
         # setting up objects
@@ -558,56 +594,48 @@ class NpfAdminView(TestCase):
     def test_upcoming_event_description_parser(self):
         """Test parser in event description field when editing event."""
 
-        response = self.client.get('/org-admin/')
-
         future_date = timezone.now() + timedelta(days=2)
         future_date2 = future_date + timedelta(days=3)
 
+        # creating event description
         urls_to_parse = ['www.thefirsturl.com', 'http://www.thefirsturl.com', 'https://www.thefirsturl.com', 'www.thefirsturl.com/somepage.html']
-        # urls_to_parse = ['www.testurl.com']
         event_description = " some text ".join(urls_to_parse)
 
+        # post call url for event creatoin
+        new_event_create_url = testing_urls.create_event_url(self.org_id)
+
         # creating new event with urls in description
-        post_response = self.client.post(
-            testing_urls.create_event_url(self.org_id),
-            {
-                'event_privacy': '1',
-                'event_description': event_description,
-                'project_name': 'Parsing URLs',
-                'event_coordinator': self.org_user_1.id,
-                'event-location': 'parsing_location',
-                'event_date': future_date2.strftime('%Y-%m-%d'),
-                'event_starttime': '7:00am',
-                'event_endtime': '9:00am',
-                'datetime_start': future_date,
-                'datetime_end': future_date2
-            }
+
+        new_event = self._post_new_event(
+            new_event_create_url,
+            event_description,
+            self.org_user_1.id,
+            future_date2.strftime('%Y-%m-%d'),
+            future_date,
+            future_date2
         )
 
-        new_event = Event.objects.filter(project__name__icontains='Parsing URLs')[0]
         new_event_detail_url = testing_urls.event_detail_or_edit_url(new_event.id)
         new_edit_event_url = testing_urls.event_detail_or_edit_url(
             new_event.id,
             edit=True
         )
 
-        # checking URLs after event creation
-        response = self.client.get(
-            new_event_detail_url
-        )
-        for url in urls_to_parse:
-            if ('http' not in url) and ('https' not in url):
-                self.assertIn('href="http://%s"' % url, response.content)
-            else:
-                self.assertIn('href="%s"' % url, response.content)
+        # asserting parsed urls after event creation
+        self._assert_parsed_urls(new_event_detail_url, urls_to_parse)
 
-        # edit event and assess there is no HTML code for urls
-        response = self.client.get(
-            new_edit_event_url
+        # asserting parsed urls during event edition:
+        self._assert_parsed_urls(new_edit_event_url, urls_to_parse)
+
+        # now saving the event after editing
+        new_event = self._post_new_event(
+            new_edit_event_url,
+            event_description,
+            self.org_user_1.id,
+            future_date2.strftime('%Y-%m-%d'),
+            future_date,
+            future_date2
         )
 
-        for url in urls_to_parse:
-            self.assertNotIn(
-                'href="%s"' % url,
-                response.context['form']['event_description']
-            )
+        # asserting parsed urls after edition:
+        self._assert_parsed_urls(new_event_detail_url, urls_to_parse)
