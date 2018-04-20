@@ -2971,7 +2971,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         if post_data['personal_message'] != '':
             email_template_merge_vars.append({
                 'name': 'PERSONAL_MESSAGE',
-                'content': post_data['personal_message']
+                'content': '<pre>' + post_data['personal_message'] + '</pre>'
             })
 
         try:
