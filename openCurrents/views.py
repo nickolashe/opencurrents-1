@@ -2970,10 +2970,6 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
 
         if post_data['personal_message'] != '':
 
-            # option 1
-            # message_lines = re.sub(r"[~\r\n]+", '<br>', post_data['personal_message'])
-
-            # option 2
             message = '<pre>' + post_data['personal_message'] + '</pre>'
 
             email_template_merge_vars.append({
@@ -3588,10 +3584,6 @@ def event_register(request, pk):
         user = request.user
         message = form.cleaned_data['contact_message']
 
-        # option 1
-        # message = re.sub(r"[~\r\n]+", '<br>', message)
-
-        # option 2
         message = '<pre>' + message + '</pre>'
 
         # check for existing registration
