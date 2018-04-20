@@ -395,7 +395,8 @@ class EditEventForm(CreateEventForm):
         self.fields['event_location'].initial = self.event.location
 
         # cleaning field from HREF tags
-        text = str(self.event.description)
+        text = unicode(self.event.description)
+
         patt1 = r'<a href=[^>]*>'
         patt2 = r'</a>'
         text = re.sub(patt1, "", text)
