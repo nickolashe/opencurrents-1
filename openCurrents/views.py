@@ -3581,6 +3581,13 @@ def event_register(request, pk):
         user = request.user
         message = form.cleaned_data['contact_message']
 
+        # option 1
+        # message_lines = message.split('\n')
+        # message = "<br/>".join(message_lines)
+
+        # option 2
+        message = '<pre>' + message + '</pre>'
+
         # check for existing registration
         is_registered = UserEventRegistration.objects.filter(user__id=user.id, event__id=event.id, is_confirmed=True).exists()
 
