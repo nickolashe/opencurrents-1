@@ -75,7 +75,7 @@ def event_description_url_parser(description):
     url-like text, then replaces it with html code.
     """
     # looking for an URL in self.description:
-    text = str(description)
+    text = unicode(description)
     regexp = re.compile(r'(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'\".,<>?]))')
 
     found = re.findall(regexp, text)
