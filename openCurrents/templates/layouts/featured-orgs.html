@@ -1,0 +1,60 @@
+{% load staticfiles %}
+
+<div class="row center">
+  <div class="small-12 medium-10 small-centered columns">
+    <div class="row">
+      <div class="small-6 medium-3 columns">
+        <a href="
+          {% block url-1 %}
+            {% url 'openCurrents:redeem-currents' master_offer.id %}?biz_name=Whole Foods
+          {% endblock url-1 %}
+        ">
+          <img class="biz-logos" src="
+            {% block img-1 %}
+              {% static 'img/whole-foods.png' %}
+            {% endblock img-1 %}
+          "/>
+        </a>
+      </div>
+      <div class="small-6 medium-3 columns">
+        <a href="
+          {% block url-2 %}
+            {% url 'openCurrents:redeem-currents' master_offer.id %}?biz_name=Amazon
+          {% endblock url-2 %}
+        ">
+          <img class="biz-logos" src="
+            {% block img-2 %}
+              {% static 'img/amazon.png' %}
+            {% endblock img-2 %}
+          "/>
+        </a>
+      </div>
+      <div class="small-6 medium-3 columns">
+        <a href="
+          {% block url-3 %}
+            {% url 'openCurrents:redeem-currents' master_offer.id %}?biz_name=HEB
+          {% endblock url-3 %}
+        ">
+          <img class="biz-logos" src="
+            {% block img-3 %}
+              {% static 'img/heb.png' %}
+            {% endblock img-3 %}
+          "/>
+        </a>
+      </div>
+      <div class="small-6 medium-3 columns">
+        <a href="
+          {% block url-4 %}
+            {% url 'openCurrents:redeem-currents' master_offer.id %}?biz_name=Central Market
+          {% endblock url-4 %}
+        ">
+          <img class="biz-logos" src="
+            {% block img-4 %}
+              {% static 'img/central-market.png' %}
+            {% endblock img-4 %}
+          "/>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

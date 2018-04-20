@@ -23,8 +23,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'k)2cm1xy=m9zwyvqj9xw@0pe(fnzlmtq&x6xzk@@em2$590_wg'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -120,6 +118,7 @@ MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'mediafiles')
 
 if os.getenv('GAE_INSTANCE') or os.getenv('GOOGLE_CLOUD_PROXY'):
     # Production
+    DEBUG = False
     STATIC_URL = 'https://storage.googleapis.com/opencurrents-194003.appspot.com/static/'
     MEDIA_URL = 'https://storage.googleapis.com/opencurrents-194003.appspot.com/media/'
 
@@ -130,8 +129,11 @@ if os.getenv('GAE_INSTANCE') or os.getenv('GOOGLE_CLOUD_PROXY'):
 
 else:
     # Local Development
+    # SECURITY WARNING: don't run with debug turned on in production!
+    DEBUG = True
     STATIC_URL = '/static/'
     MEDIA_URL = '/media/'
+
 
 APPEND_SLASH = True
 
