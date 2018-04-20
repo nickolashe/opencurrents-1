@@ -7,7 +7,6 @@
     -moz-background-size: cover;
     -o-background-size: cover;
     background-size: cover;
-    background-attachment: fixed;
   }
 
   #nonprofit {
@@ -19,7 +18,7 @@
   }
 
   #business {
-    background: url(https://storage.googleapis.com/opencurrents-194003.appspot.com/static/img/market.jpg) no-repeat right center fixed;a
+    background: url(https://storage.googleapis.com/opencurrents-194003.appspot.com/static/img/market.jpg) no-repeat right center fixed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
