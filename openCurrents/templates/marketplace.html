@@ -15,16 +15,17 @@
 
 {% block content %}
   <div class="row">
-    <div class="small-12 medium-9 small-centered columns">
+    <div class="small-12 medium-11 large-9 small-centered columns">
+      <h6 class="">Use up to 2 Currents with these busineses:</h6>
       {% include "partials/featured-bizzes.html" %}
     </div>
   </div>
-  
+
   <div class="row one-margin-bottom center">
     <div class="small-12 medium-10 small-centered columns">
       {% if offers %}
         <h6 class="half-margin-bottom one-margin-top">
-          Check out these offers from openCurrents businesses:
+          Check out these offers from the community:
         </h6>
         {% for offer in offers %}
           {% with num_remaining=offer.limit|less:offer.num_redeemed %}
