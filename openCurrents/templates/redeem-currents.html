@@ -70,11 +70,11 @@
 
           <!-- <input type="checkbox" name="receipt-if-checked" id="receipt-if-checked" class="hidden" checked /> -->
           <div id="offer-details" class="three-halves-margin-bottom">
-            Use Currents for up to {{ offer.currents_share }}% of your purchase with
+            <!-- Use Currents for up to {{ offer.currents_share }}% of your purchase with
             <strong>
               <div id="master-biz-name" class="navy hidden"></div>
               <div id="biz-name-db" class="navy">{{ offer.org.name }}</div>
-            </strong>
+            </strong> -->
             {{ form.biz_name }}
           </div>
 
@@ -133,28 +133,21 @@
           <h4 class="one-margin-bottom">Confirm exchange</h4>
 
           <p>
-            I agree to give
+            Exchange
             <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
-            <span class="currents-total">0.00</span> to {{ offer.org.name }}
-            in exchange for $<span class="dollars-total">0.00</span> minus a
-            {{ tr_fee }}% transaction fee of $<span class="dollars-fee">0.00</span>.
+            <span class="currents-total">0.00</span> for
+            $<span class="dollars-received">0.00</span>.
             <span id="master-offer-limit" class="hidden">
               (You have up to
               <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
-              {{ master_funds_available }}
-              remaining for the special offer.)
+              {{ master_funds_available }} remaining for the special offer.)
             </span>
           </p>
 
           <p>
-            I understand that $<span class="dollars-received">0.00</span> will
-            be added to my account as Pending Dollars, which will become
-            Available Dollars once {{ offer.org.name }} validates the
-            transaction at the end of the month.
-            <span class="currents-total">0.00</span> Currents will be deducted
-            from my account at this time. I can then transfer Available
-            Dollars to my bank account or keep the balance in my
-            openCurrents account.
+            Dollars will become available once {{ offer.org.name }} validates
+            the transaction. I can then transfer Available Dollars to my bank
+            account or donate it back to nonprofits in the community.
           </p>
 
           <p id="master-offer-terms" class="grey hidden">
@@ -195,6 +188,10 @@
     {% include "popups/no-receipt-popup.html" %}
   </div>
 
+  <div id="exchange-info-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
+    {% include "popups/exchange-info-popup.html" %}
+  </div>
+
 {% endblock popups %}
 
 {% block js %}
@@ -230,7 +227,7 @@
 
   <script type="text/javascript">
     $(document).ready(function(){
-      $('#redeem-info-popup').popup({
+      $('#redeem-info-popup, exchange-info-popup').popup({
         vertical: 'top',
         transition: 'all 0.75s',
         scrolllock: true,
