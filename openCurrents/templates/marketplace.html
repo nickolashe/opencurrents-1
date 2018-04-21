@@ -9,33 +9,21 @@
       <h3 class="title-sub">
         {% block title %} Marketplace {% endblock title %}
       </h3>
-      {% if not offers %}
-        <p class="one-margin-top">
-          We are talking with businesses in Austin and around the country about
-          exciting opportunities to use Currents for all kinds of products and
-          services. In the meantime, redeem up to 2 Currents for purchases with
-          any Austin businesses, and we'll cover you - that's up to $40 in your
-          account!
-        </p>
-      {% endif %}
-      <a
-        class="half-margin-top half-margin-bottom button round tiny"
-        href="{% url 'openCurrents:redeem-currents' master_offer.id %}"
-      >
-        Special offer: Redeem Currents with any business in Austin!
-      </a>
     </div>
   </div>
 {% endblock heading %}
 
 {% block content %}
+  <div class="row">
+    <div class="small-12 medium-9 small-centered columns">
+      {% include "partials/featured-bizzes.html" %}
+    </div>
+  </div>
+  
   <div class="row one-margin-bottom center">
     <div class="small-12 medium-10 small-centered columns">
       {% if offers %}
-        <p class="half-margin-bottom">
-          or
-        </p>
-        <h6 class="half-margin-bottom">
+        <h6 class="half-margin-bottom one-margin-top">
           Check out these offers from openCurrents businesses:
         </h6>
         {% for offer in offers %}

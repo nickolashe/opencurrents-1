@@ -19,7 +19,11 @@
           {% endif %}
 
           <a
-            href="{% url 'openCurrents:redeem-currents' master_offer.id %}"
+            {% if master_funds_available > 0 %}
+              href="{% url 'openCurrents:redeem-currents' master_offer.id %}"
+            {% else %}
+              href="{% url 'openCurrents:marketplace' %}"
+            {% endif %}
             class="white-link"
           >
             Redeem now

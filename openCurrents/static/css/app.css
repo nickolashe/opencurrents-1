@@ -154,10 +154,11 @@ h1, h2, h3, h4, h5, h6 {
   background-color: #ffffff;
   border: 1px solid #890045;
   color: #890045;
+  box-shadow: 0 3px #890045
 }
 
 .button.alert:hover, .button.alert:focus {
-  background-color: #890045;
+  background-color: #9c1537;
   color: #ffffff;
 }
 
