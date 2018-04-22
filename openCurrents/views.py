@@ -119,44 +119,58 @@ class DatetimeEncoder(json.JSONEncoder):
 
 
 class SessionContextView(View):
+
+    def _get_session_mixin_data(self):
+        """Return ocuser, org, ocauth."""
+        ocuser = OcUser(self.userid)
+        orguserinfo = OrgUserInfo(self.userid)
+        org = orguserinfo.get_org()
+        ocauth = OcAuth(self.userid)
+
+        return ocuser, org, ocauth
+
+    def _get_data_for_context(self, context, userid):
+        """Generate data for get_context_data method."""
+        context['userid'] = userid
+        orguser = OrgUserInfo(userid)
+        org = orguser.get_org()
+        orgid = orguser.get_org_id()
+        context['org'] = org
+        context['orgid'] = orgid
+        context['org_id'] = orgid
+        context['orgname'] = orguser.get_org_name()
+        context['org_timezone'] = orguser.get_org_timezone()
+        context['is_admin'] = self.ocauth.is_admin()
+        context['is_admin_org'] = self.ocauth.is_admin_org()
+        context['is_admin_biz'] = self.ocauth.is_admin_biz()
+
     def dispatch(self, request, *args, **kwargs):
         if self.request.user.is_authenticated():
-            self.userid = request.user.id
             self.user = request.user
-
-            # oc user
-            self.ocuser = OcUser(self.userid)
-
-            # user org
-            orguserinfo = OrgUserInfo(request.user.id)
-            self.org = orguserinfo.get_org()
-
-            # org auth
-            self.ocauth = OcAuth(self.userid)
+            self.userid = self.user.id
 
         if 'new_biz_registration' not in self.request.session.keys() \
                 and not self.request.user.is_authenticated():
             return redirect('openCurrents:403')
 
         elif 'new_biz_registration' in self.request.session.keys():
-
             logger.debug('registering new biz org...')
-
             self.userid = self.request.session['new_biz_user_id']
             try:
                 self.user = User.objects.get(id=self.userid)
             except:
                 logger.debug('Couldnt find the user by id')
 
-            # oc user
-            self.ocuser = OcUser(self.userid)
+        mixin_data = self._get_session_mixin_data()
 
-            # user org
-            orguserinfo = OrgUserInfo(self.userid)
-            self.org = orguserinfo.get_org()
+        # oc user
+        self.ocuser = mixin_data[0]
 
-            # org auth
-            self.ocauth = OcAuth(self.userid)
+        # user org
+        self.org = mixin_data[1]
+
+        # org auth
+        self.ocauth = mixin_data[2]
 
         return super(SessionContextView, self).dispatch(
             request,
@@ -170,27 +184,8 @@ class SessionContextView(View):
 
         if self.request.user.is_authenticated():
             userid = self.request.user.id
-            context['userid'] = userid
 
-            # user org
-            orguser = OrgUserInfo(userid)
-            org = orguser.get_org()
-            orgid = orguser.get_org_id()
-            context['org'] = org
-            context['orgid'] = orgid
-            context['org_id'] = orgid
-            context['orgname'] = orguser.get_org_name()
-            context['org_timezone'] = orguser.get_org_timezone()
-            context['is_admin'] = self.ocauth.is_admin()
-            context['is_admin_org'] = self.ocauth.is_admin_org()
-            context['is_admin_biz'] = self.ocauth.is_admin_biz()
-
-            # workaround with status message for anything but TemplateView
-            if 'status_msg' in self.kwargs and ('form' not in context or not context['form'].errors):
-                context['status_msg'] = self.kwargs.get('status_msg', '')
-
-            if 'msg_type' in self.kwargs:
-                context['msg_type'] = self.kwargs.get('msg_type', '')
+            self._get_data_for_context(context, userid)
 
         if 'new_biz_registration' not in self.request.session.keys() \
                 and not self.request.user.is_authenticated():
@@ -198,27 +193,14 @@ class SessionContextView(View):
 
         elif 'new_biz_registration' in self.request.session.keys():
             userid = self.request.session['new_biz_user_id']
-            context['userid'] = userid
+            self._get_data_for_context(context, userid)
 
-            # user org
-            orguser = OrgUserInfo(userid)
-            org = orguser.get_org()
-            orgid = orguser.get_org_id()
-            context['org'] = org
-            context['orgid'] = orgid
-            context['org_id'] = orgid
-            context['orgname'] = orguser.get_org_name()
-            context['org_timezone'] = orguser.get_org_timezone()
-            context['is_admin'] = self.ocauth.is_admin()
-            context['is_admin_org'] = self.ocauth.is_admin_org()
-            context['is_admin_biz'] = self.ocauth.is_admin_biz()
+        # workaround with status message for anything but TemplateView
+        if 'status_msg' in self.kwargs and ('form' not in context or not context['form'].errors):
+            context['status_msg'] = self.kwargs.get('status_msg', '')
 
-            # workaround with status message for anything but TemplateView
-            if 'status_msg' in self.kwargs and ('form' not in context or not context['form'].errors):
-                context['status_msg'] = self.kwargs.get('status_msg', '')
-
-            if 'msg_type' in self.kwargs:
-                context['msg_type'] = self.kwargs.get('msg_type', '')
+        if 'msg_type' in self.kwargs:
+            context['msg_type'] = self.kwargs.get('msg_type', '')
 
         return context
 
