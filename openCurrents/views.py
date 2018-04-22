@@ -120,26 +120,21 @@ class DatetimeEncoder(json.JSONEncoder):
 
 class SessionContextView(View):
 
-    def _get_session_mixin_data(self):
-        """Return ocuser, org, ocauth."""
-        ocuser = OcUser(self.userid)
-        orguserinfo = OrgUserInfo(self.userid)
-        org = orguserinfo.get_org()
-        ocauth = OcAuth(self.userid)
-
-        return ocuser, org, ocauth
+    def _set_session_attributes(self):
+        """Sets ocuser, org, orguserinfo, ocauth view attributes."""
+        self.ocuser = OcUser(self.userid)
+        self.ocauth = OcAuth(self.userid)
+        self.orguser = OrgUserInfo(self.userid)
+        self.org = self.orguser.get_org()
 
     def _get_data_for_context(self, context, userid):
         """Generate data for get_context_data method."""
         context['userid'] = userid
-        orguser = OrgUserInfo(userid)
-        org = orguser.get_org()
-        orgid = orguser.get_org_id()
-        context['org'] = org
-        context['orgid'] = orgid
-        context['org_id'] = orgid
-        context['orgname'] = orguser.get_org_name()
-        context['org_timezone'] = orguser.get_org_timezone()
+        context['org'] = self.org
+        context['orgid'] = self.orguser.get_org_id()
+        context['org_id'] = self.orguser.get_org_id()
+        context['orgname'] = self.orguser.get_org_name()
+        context['org_timezone'] = self.orguser.get_org_timezone()
         context['is_admin'] = self.ocauth.is_admin()
         context['is_admin_org'] = self.ocauth.is_admin_org()
         context['is_admin_biz'] = self.ocauth.is_admin_biz()
@@ -161,16 +156,7 @@ class SessionContextView(View):
             except:
                 logger.debug('Couldnt find the user by id')
 
-        mixin_data = self._get_session_mixin_data()
-
-        # oc user
-        self.ocuser = mixin_data[0]
-
-        # user org
-        self.org = mixin_data[1]
-
-        # org auth
-        self.ocauth = mixin_data[2]
+        self._set_session_attributes()
 
         return super(SessionContextView, self).dispatch(
             request,
@@ -179,21 +165,19 @@ class SessionContextView(View):
         )
 
     def get_context_data(self, **kwargs):
-
         context = super(SessionContextView, self).get_context_data(**kwargs)
 
-        if self.request.user.is_authenticated():
+        is_user_authenticated = self.request.user.is_authenticated()
+        if is_user_authenticated:
             userid = self.request.user.id
-
             self._get_data_for_context(context, userid)
-
-        if 'new_biz_registration' not in self.request.session.keys() \
-                and not self.request.user.is_authenticated():
-            return redirect('openCurrents:403')
-
-        elif 'new_biz_registration' in self.request.session.keys():
-            userid = self.request.session['new_biz_user_id']
-            self._get_data_for_context(context, userid)
+        else:
+            session = self.request.session
+            if 'new_biz_registration' in session.keys():
+                userid = self.request.session['new_biz_user_id']
+                self._get_data_for_context(context, userid)
+            else:
+                return redirect('openCurrents:403')
 
         # workaround with status message for anything but TemplateView
         if 'status_msg' in self.kwargs and ('form' not in context or not context['form'].errors):
@@ -2081,7 +2065,7 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
         context['hours_by_org'] = self.ocuser.get_hours_approved(**{'by_org': True})
 
         # user timezone
-        #context['timezone'] = self.request.user.account.timezone
+        # context['timezone'] = self.request.user.account.timezone
         context['timezone'] = self.request.user.usersettings.timezone
 
         # getting issued currents
@@ -4075,7 +4059,7 @@ def process_signup(
                             {'name': 'FNAME', 'content': user_firstname},
                             {'name': 'LNAME', 'content': user_lastname},
                             {'name': 'EMAIL', 'content': user_email},
-                            {'name': 'ORG_NAME','content': org_name},
+                            {'name': 'ORG_NAME', 'content': org_name},
                             {'name': 'ORG_STATUS', 'content': org_status}
                         ],
                         'bizdev@opencurrents.com'
