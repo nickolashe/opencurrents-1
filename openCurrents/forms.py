@@ -1,15 +1,19 @@
 from django import forms
+
+from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
+from django.template.defaultfilters import filesizeformat
 from django.utils.translation import ugettext as _
-from django.forms import ModelForm
 
-from openCurrents.models import Org, \
-    OrgUser, \
-    Offer, \
-    Project, \
+from openCurrents.models import (
+    Org,
+    OrgUser,
+    Offer,
+    Project,
     Event
+)
 
 from openCurrents.interfaces.ocuser import OcUser
 from openCurrents.interfaces.ledger import OcLedger
@@ -892,7 +896,19 @@ class RedeemCurrentsForm(forms.Form):
                 _('Invalid purchase price reported')
             )
 
-        if not (redeem_no_proof or redeem_receipt):
+        if redeem_receipt:
+            content_type = redeem_receipt.content_type.split('/')[0]
+            if content_type in settings.CONTENT_TYPES:
+                if redeem_receipt._size > settings.MAX_UPLOAD_SIZE:
+                    raise ValidationError(
+                        _('Please keep image size under {}. Current size {}').format(
+                            filesizeformat(settings.MAX_UPLOAD_SIZE),
+                            filesizeformat(redeem_receipt._size)
+                        )
+                    )
+            else:
+                raise ValidationError(_('File type is not supported'))
+        elif not redeem_no_proof:
             raise ValidationError(
                 _('Receipt or description of purchase is required')
             )
