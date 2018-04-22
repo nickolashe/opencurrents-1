@@ -1,15 +1,19 @@
 from django import forms
+
+from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
+from django.template.defaultfilters import filesizeformat
 from django.utils.translation import ugettext as _
-from django.forms import ModelForm
 
-from openCurrents.models import Org, \
-    OrgUser, \
-    Offer, \
-    Project, \
+from openCurrents.models import (
+    Org,
+    OrgUser,
+    Offer,
+    Project,
     Event
+)
 
 from openCurrents.interfaces.ocuser import OcUser
 from openCurrents.interfaces.ledger import OcLedger
@@ -346,7 +350,6 @@ class CreateEventForm(forms.Form):
             logger.debug('%s: %s', error_msg, e.message)
             raise ValidationError(_(error_msg))
 
-
         try:
             datetime_end = datetime.strptime(
                 ' '.join([date_start, time_end]),
@@ -387,14 +390,24 @@ class EditEventForm(CreateEventForm):
             pytz.timezone(tz)
         ).date()
         self.fields['event_starttime'].initial = self.event.datetime_start.astimezone(
-        pytz.timezone(tz)
+            pytz.timezone(tz)
         ).time()
         self.fields['event_endtime'].initial = self.event.datetime_end.astimezone(
-        pytz.timezone(tz)
+            pytz.timezone(tz)
         ).time()
         self.fields['event_privacy'].initial = int(self.event.is_public)
         self.fields['event_location'].initial = self.event.location
-        self.fields['event_description'].initial = self.event.description
+
+        # cleaning field from HREF tags
+        text = unicode(self.event.description)
+
+        patt1 = r'<a href=[^>]*>'
+        patt2 = r'</a>'
+        text = re.sub(patt1, "", text)
+        text = re.sub(patt2, "", text)
+        self.fields['event_description'].initial = text
+
+        # self.fields['event_description'].initial = self.event.description
 
         # build the coordinator choices list dynamically
         # set (preselect) initially to existing coordinator
@@ -883,7 +896,19 @@ class RedeemCurrentsForm(forms.Form):
                 _('Invalid purchase price reported')
             )
 
-        if not (redeem_no_proof or redeem_receipt):
+        if redeem_receipt:
+            content_type = redeem_receipt.content_type.split('/')[0]
+            if content_type in settings.CONTENT_TYPES:
+                if redeem_receipt._size > settings.MAX_UPLOAD_SIZE:
+                    raise ValidationError(
+                        _('Please keep image size under {}. Current size {}').format(
+                            filesizeformat(settings.MAX_UPLOAD_SIZE),
+                            filesizeformat(redeem_receipt._size)
+                        )
+                    )
+            else:
+                raise ValidationError(_('File type is not supported'))
+        elif not redeem_no_proof:
             raise ValidationError(
                 _('Receipt or description of purchase is required')
             )
