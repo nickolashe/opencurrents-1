@@ -914,14 +914,15 @@ class ExportDataView(OrgAdminPermissionMixin, OrgSessionContextView, FormView):
         font_style = xlwt.XFStyle()
         font_style.font.bold = True
         columns = [
-            '#',
-            'Event',
+            'Entry',
+            'Type of hour',
             'Description',
             'Location',
+            'Admin',
             'Volunteer Name',
             'Volunteer Last name',
             'Volunteer Email',
-            'Date and Time Start',
+            'Date',
             'Duration, hours'
         ]
         for column in range(len(columns)):
@@ -938,6 +939,10 @@ class ExportDataView(OrgAdminPermissionMixin, OrgSessionContextView, FormView):
                 record_event.datetime_start.astimezone(pytz.timezone(self.org.timezone)),
                 record_event.datetime_end.astimezone(pytz.timezone(self.org.timezone))
             )
+            record_adminaction = record.adminactionusertime_set.all()[0]
+            admin_name = record_adminaction.user.first_name
+            admin_lastname = record_adminaction.user.last_name
+            record_admin = ' '.join([admin_name, admin_lastname])
 
             if record_event.event_type == 'MN':
                 event_name = 'Manual'
@@ -945,7 +950,7 @@ class ExportDataView(OrgAdminPermissionMixin, OrgSessionContextView, FormView):
                 event_location = ''
             else:
                 event_name = record_event.project.name
-                record_description = ''
+                record_description = record_event.project.name
                 event_location = record_event.location
 
             row_data = [
@@ -953,6 +958,7 @@ class ExportDataView(OrgAdminPermissionMixin, OrgSessionContextView, FormView):
                 event_name,
                 record_description,
                 event_location,
+                record_admin,
                 record.user.first_name.encode('utf-8').strip(),
                 record.user.last_name.encode('utf-8').strip(),
                 record.user.email.encode('utf-8').strip(),
