@@ -52,13 +52,12 @@
   background-color: #ffffff;
   color: #ffffff;
   min-height: 100vh;
-  overflow: visible;
+  overflow: scroll;
 }
 
 #home-wrapper {
   height:100%;
   -webkit-overflow-scrolling: touch;
-  background-attachment: scroll;
 }
 
 /* small */
