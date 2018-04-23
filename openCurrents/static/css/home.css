@@ -58,6 +58,7 @@
 #home-wrapper {
   height:100%;
   -webkit-overflow-scrolling: touch;
+  background-attachment: scroll;
 }
 
 /* small */
