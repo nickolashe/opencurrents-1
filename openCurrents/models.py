@@ -11,6 +11,7 @@ from openCurrents.interfaces import convert
 
 import os
 import pytz
+import re
 
 # Notes:
 # *) unverified users are still created as User objects but with unusable password
@@ -258,6 +259,10 @@ class Event(models.Model):
     class Meta:
         get_latest_by = 'datetime_start'
         ordering = ['datetime_start']
+
+    def save(self, *args, **kwargs):
+
+        super(Event, self).save(*args, **kwargs)
 
     def __unicode__(self):
         tz = self.project.org.timezone

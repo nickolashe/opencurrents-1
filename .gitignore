@@ -6,3 +6,4 @@ oc/staticfiles
 oc/mediafiles
 env/
 lib/
+metrics/scripts/*/*.csv
