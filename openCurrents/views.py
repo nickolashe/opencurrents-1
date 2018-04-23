@@ -1,3 +1,4 @@
+"""App views."""
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
@@ -120,6 +121,7 @@ class DatetimeEncoder(json.JSONEncoder):
 
 class SessionContextView(View):
     def dispatch(self, request, *args, **kwargs):
+        """Process request and args and return HTTP response."""
         if self.request.user.is_authenticated():
             self.userid = request.user.id
             self.user = request.user
@@ -165,7 +167,7 @@ class SessionContextView(View):
         )
 
     def get_context_data(self, **kwargs):
-
+        """Get context data."""
         context = super(SessionContextView, self).get_context_data(**kwargs)
 
         if self.request.user.is_authenticated():
@@ -227,6 +229,7 @@ class MessagesContextMixin(object):
     """MessagesContextMixin to display alerts on public pages."""
 
     def get_context_data(self, **kwargs):
+        """Get context data."""
         context = super(MessagesContextMixin, self).get_context_data(**kwargs)
 
         # workaround with status message for anything but TemplateView
@@ -241,6 +244,7 @@ class MessagesContextMixin(object):
 
 class BizSessionContextView(SessionContextView):
     def dispatch(self, request, *args, **kwargs):
+        """Process request and args and return HTTP response."""
         # biz admin user
         if 'new_biz_registration' in self.request.session.keys():
             self.bizadmin = BizAdmin(request.session['new_biz_user_id'])
@@ -254,6 +258,7 @@ class BizSessionContextView(SessionContextView):
 
 class OrgSessionContextView(SessionContextView):
     def dispatch(self, request, *args, **kwargs):
+        """Process request and args and return HTTP response."""
         # biz admin user
         self.orgadmin = OrgAdmin(request.user.id)
 
@@ -264,6 +269,7 @@ class OrgSessionContextView(SessionContextView):
 
 class AdminPermissionMixin(LoginRequiredMixin):
     def dispatch(self, request, *args, **kwargs):
+        """Process request and args and return HTTP response."""
         user = request.user
 
         # check if the user is logged in
@@ -304,6 +310,7 @@ class AdminPermissionMixin(LoginRequiredMixin):
 
 class OrgAdminPermissionMixin(AdminPermissionMixin):
     def dispatch(self, request, *args, **kwargs):
+        """Process request and args and return HTTP response."""
         userid = self.request.user.id
         try:
             userorgs = OrgUserInfo(userid)
@@ -327,6 +334,7 @@ class OrgAdminPermissionMixin(AdminPermissionMixin):
 
 class BizAdminPermissionMixin(AdminPermissionMixin):
     def dispatch(self, request, *args, **kwargs):
+        """Process request and args and return HTTP response."""
         userorgs = OrgUserInfo(self.request.user.id)
         org = userorgs.get_org()
 
@@ -355,6 +363,7 @@ class HomeView(TemplateView):
     template_name = 'home.html'
 
     def dispatch(self, *args, **kwargs):
+        """Process request and args and return HTTP response."""
         try:
             # if there is session set for profile
             if self.request.session['profile']:
@@ -364,6 +373,7 @@ class HomeView(TemplateView):
             return super(HomeView, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
+        """Get context data."""
         context = super(HomeView, self).get_context_data(**kwargs)
         try:
             context['org_admin'] = OcAuth(self.request.user.id).is_admin_org()
@@ -415,7 +425,7 @@ class BizAdminView(BizAdminPermissionMixin, BizSessionContextView, TemplateView)
     }
 
     def get_context_data(self, **kwargs):
-        """Get view context."""
+        """Get context data."""
         context = super(BizAdminView, self).get_context_data(**kwargs)
 
         # offers created by business
@@ -454,6 +464,7 @@ class BizDetailsView(BizSessionContextView, FormView):
     }
 
     def get_context_data(self, **kwargs):
+        """Get context data."""
         context = super(BizDetailsView, self).get_context_data(**kwargs)
 
         for field in context['form'].declared_fields.keys():
@@ -467,6 +478,7 @@ class BizDetailsView(BizSessionContextView, FormView):
         return context
 
     def form_valid(self, form):
+        """Redirect to success url."""
         data = form.cleaned_data
 
         if all(i == '' for i in data.values()):
@@ -535,6 +547,7 @@ class DeleteOfferView(BizAdminPermissionMixin, TemplateView):
     template_name = 'delete-offer.html'
 
     def post(self, request, *args, **kwargs):
+        """Process post request."""
         status_msg = 'Couldn\'t process the offer'
         msg_type = 'alert'
 
@@ -558,6 +571,7 @@ class LoginView(TemplateView):
     template_name = 'login.html'
 
     def get_context_data(self, **kwargs):
+        """Get context data."""
         context = super(LoginView, self).get_context_data(**kwargs)
         context['next'] = self.request.GET.get('next', None)
 
@@ -578,12 +592,14 @@ class ApproveHoursView(OrgAdminPermissionMixin, OrgSessionContextView, ListView)
     }
 
     def get_context_data(self, **kwargs):
+        """Get context data."""
         context = super(ApproveHoursView, self).get_context_data(**kwargs)
         context['timezone'] = 'America/Chicago'
 
         return context
 
     def get_queryset(self, **kwargs):
+        """Get the list of items for this view."""
         userid = self.request.user.id
         orguserinfo = OrgUserInfo(userid)
         orgid = orguserinfo.get_org_id()
@@ -731,10 +747,13 @@ class ApproveHoursView(OrgAdminPermissionMixin, OrgSessionContextView, ListView)
         return requested_actions
 
     def post(self, request, **kwargs):
-        '''
-        Takes request as input which is a comma separated string which is then split to form a list with data like
+        """
+        Process post request.
+
+        Takes request as input which is a comma separated string which is then
+        split to form a list with data like
         ```['a@bc.com:1:7-20-2017','abc@gmail.com:0:7-22-2017',''...]```
-        '''
+        """
         vols_approved = 0
         vols_declined = 0
 
@@ -1026,6 +1045,7 @@ class HoursDetailView(LoginRequiredMixin, SessionContextView, ListView):
     }
 
     def get_queryset(self):
+        """Get the list of items for this view."""
         queryset = []
         self.userid = self.request.GET.get('user_id')
         self.hours_type = self.request.GET.get('type')
@@ -1060,6 +1080,7 @@ class HoursDetailView(LoginRequiredMixin, SessionContextView, ListView):
         return queryset
 
     def get_context_data(self, **kwargs):
+        """Get context data."""
         context = super(HoursDetailView, self).get_context_data(**kwargs)
 
         if self.is_admin == '1':
@@ -1102,6 +1123,7 @@ class PastEventsView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateVie
     template_name = 'past-events.html'
 
     def get_context_data(self, **kwargs):
+        """Get context data."""
         context = super(PastEventsView, self).get_context_data(**kwargs)
         context['timezone'] = self.org.timezone
 
@@ -1164,10 +1186,12 @@ class MarketplaceView(ListView):
     }
 
     def get_queryset(self):
+        """Get the list of items for this view."""
         offers_all = OcUser().get_offers_marketplace()
         return offers_all
 
     def get_context_data(self, **kwargs):
+        """Get context data."""
         context = super(MarketplaceView, self).get_context_data(**kwargs)
         glogger_struct = {
             'msg': 'marketplace accessed',
@@ -1240,6 +1264,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
     }
 
     def dispatch(self, request, *args, **kwargs):
+        """Process request and args and return HTTP response."""
         if request.user.is_authenticated:
             offer_id = kwargs.get('offer_id')
             self.offer = Offer.objects.get(id=offer_id)
@@ -1305,6 +1330,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         return super(RedeemCurrentsView, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
+        """Redirect to success url."""
         data = form.cleaned_data
         # logger.info(data)
 
@@ -1372,6 +1398,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         return redirect('openCurrents:profile', status_msg=status_msg)
 
     def get_context_data(self, **kwargs):
+        """Get context data."""
         context = super(RedeemCurrentsView, self).get_context_data(**kwargs)
         context['offer'] = Offer.objects.get(id=self.kwargs['offer_id'])
         context['cur_rate'] = convert._USDCUR
@@ -1390,9 +1417,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         return context
 
     def get_form_kwargs(self):
-        '''
-        Passes offer id down to the redeem form.
-        '''
+        """Passes offer id down to the redeem form."""
         kwargs = super(RedeemCurrentsView, self).get_form_kwargs()
         kwargs.update({'offer_id': self.kwargs['offer_id']})
         kwargs.update({'user': self.request.user})
@@ -1740,13 +1765,15 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         datetime_start,
         datetime_end
     ):
-        '''
+        """
+        Create event and user time log.
+
         user = user object
         new_npf_user_id = new NPF admin ID
         org = org object
         event_descr = string, eg form_data['description']
         datetime_start, datetime_start = datetime.datetime obj
-        '''
+        """
         project = None
         try:
             project = Project.objects.get(
@@ -1779,19 +1806,20 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         self.create_approval_request(org.id, usertimelog, new_npf_user_id)
 
     def add_to_email_vars(self, email_var_list, new_var_name, new_var_value):
-        '''
-        adds kwargs passed to the email vars
+        """
+        Add kwargs passed to the email vars.
+
         email_var_list - list of dictionaries
         new_var_name - string
         new_var_value - form_data['xxxx_xxxx']
-        '''
+        """
         email_var_list.append({
             'name': new_var_name.upper(),
             'content': new_var_value
         })
 
     def create_approval_request(self, orgid, usertimelog, admin_id):
-        # save admin-specific request for approval of hours
+        """Save admin-specific request for approval of hours."""
         actiontimelog = AdminActionUserTime(
             user_id=admin_id,
             usertimelog=usertimelog,
@@ -1931,6 +1959,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         return user_new
 
     def get_context_data(self, **kwargs):
+        """Get context data."""
         # get the status msg from URL
         context = super(TimeTrackerView, self).get_context_data(**kwargs)
         userid = self.userid
@@ -1977,6 +2006,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
         return context
 
     def form_valid(self, form):
+        """Redirect to success url."""
         # This method is called when valid form data has been POSTed.
         # It should return an HttpResponse.
         data = form.cleaned_data
@@ -2018,7 +2048,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
             )
 
     def form_invalid(self, form):
-
+        """Renders a response, providing the invalid form as context."""
         # data = form.cleaned_data
         data = [
             item
@@ -2059,6 +2089,7 @@ class VolunteersInvitedView(LoginRequiredMixin, SessionContextView, TemplateView
     template_name = 'volunteers-invited.html'
 
     def get_context_data(self, **kwargs):
+        """Get context data."""
         context = super(VolunteersInvitedView, self).get_context_data(**kwargs)
         return context
 
@@ -2070,6 +2101,7 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
     form_class = BizDetailsForm
 
     def get_context_data(self, **kwargs):
+        """Get context data."""
         context = super(ProfileView, self).get_context_data(**kwargs)
         user = self.request.user
         userid = user.id
@@ -2120,6 +2152,7 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
         return context
 
     def post(self, request, *args, **kwargs):
+        """Process post request."""
         balance_available_usd = self.ocuser.get_balance_available_usd()
 
         UserCashOut(user=self.user, balance=balance_available_usd).save()
@@ -2168,12 +2201,14 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
     }
 
     def _sorting_hours(self, admins_dict, user_id):
-        '''
+        """
+        Sort hours for currently logged NPF admin.
+
         Takes the list of dictionaries eg '{admin.user : time_pending_per_admin }' and currently logged in NPF admin user id,
         then finds and add currently logged NPF admin user to the beginning of the sorted by values list of
         dictionaries.
         Returns sorted by values list of dictionaries with hours for currently logged NPF admin as the first element.
-        '''
+        """
 
         final_dict = OrderedDict()
         temp_dict = OrderedDict()
@@ -2198,6 +2233,7 @@ class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView)
         return final_dict
 
     def get_context_data(self, **kwargs):
+        """Get context data."""
         context = super(OrgAdminView, self).get_context_data(**kwargs)
         context['hours_requested'] = self.orgadmin.get_hours_requested()
         context['hours_approved'] = self.orgadmin.get_hours_approved()
@@ -2309,9 +2345,11 @@ class EditProfileView(LoginRequiredMixin, View):
     form_class = PopUpAnswer
 
     def get(self, request, *args, **kwargs):
+        """Process get request."""
         return HttpResponseRedirect('/profile/')
 
     def post(self, request, *args, **kwargs):
+        """Process post request."""
         form = self.form_class(request.POST)
         userid = self.request.user.id
         try:
@@ -2347,6 +2385,7 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
     }
 
     def dispatch(self, request, *args, **kwargs):
+        """Process request and args and return HTTP response."""
         org_id = kwargs.get('org_id')
         self.org = Org.objects.get(id=org_id)
         return super(CreateEventView, self).dispatch(
@@ -2450,22 +2489,21 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
         return event.id
 
     def _get_project_names(self):
-        '''
-        this method fetches existing org's projects in order to
-        provide it to form project name autocomplete
-        '''
+        """Fetch existing org's projects to provide it to form project name autocomplete."""
         projects = Project.objects.filter(org__id=self.org.id)
         project_names = [project.name for project in projects]
 
         return project_names
 
     def form_valid(self, form):
-        '''
+        """
+        Redirect to success url.
+
         method that's triggered when valid form data has posted, i.e.
         data passed validation in form's clean() method
-            - location is handled in an ad-hoc manner because its
-              a (variable length) list
-        '''
+        - location is handled in an ad-hoc manner because its
+        a (variable length) list
+        """
         project_names = self._get_project_names()
 
         # submitted locations have names of the form 'event-location-$n',
@@ -2519,10 +2557,18 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
         else:
             # num_vols parameter is evaluated in OrgAdminView to
             # display a proper message to the admin
-            num_vols = 0
-            return redirect('openCurrents:org-admin', num_vols)
+
+            # old code:
+            # num_vols = 0
+            # return redirect('openCurrents:org-admin', num_vols)
+
+            return redirect(
+                'openCurrents:invite-volunteers-past',
+                json.dumps(event_ids)
+            )
 
     def get_context_data(self, **kwargs):
+        """Get context data."""
         context = super(CreateEventView, self).get_context_data()
 
         project_names = self._get_project_names()
@@ -2531,11 +2577,13 @@ class CreateEventView(OrgAdminPermissionMixin, SessionContextView, FormView):
         return context
 
     def get_form_kwargs(self):
-        '''
+        """
+        Get form kwargs.
+
         pass down to (CreateEventForm) form for its internal use
             - orgid
             - userid
-        '''
+        """
         kwargs = super(CreateEventView, self).get_form_kwargs()
 
         kwargs.update({'org_id': self.org.id})
@@ -2550,6 +2598,7 @@ class EditEventView(CreateEventView):
     form_class = EditEventForm
 
     def dispatch(self, request, *args, **kwargs):
+        """Process request and args and return HTTP response."""
         event_id = kwargs.pop('event_id')
         self.event = Event.objects.get(id=event_id)
         kwargs.update({'org_id': self.event.project.org.id})
@@ -2562,6 +2611,7 @@ class EditEventView(CreateEventView):
             return super(EditEventView, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
+        """Redirect to success url."""
         utc = pytz.UTC
         data = form.cleaned_data
         email_to_list = []
@@ -2697,9 +2747,7 @@ class EditEventView(CreateEventView):
         return self.redirect_url
 
     def get_form_kwargs(self):
-        '''
-        Passes event and user ids down to the form
-        '''
+        """Pass event and user ids down to the form."""
         kwargs = super(EditEventView, self).get_form_kwargs()
         kwargs.update({'event_id': self.event.id})
         kwargs.update({'user_id': self.userid})
@@ -2715,6 +2763,7 @@ class UpcomingEventsView(LoginRequiredMixin, SessionContextView, ListView):
     }
 
     def get_context_data(self, **kwargs):
+        """Get context data."""
         # skip context param determines whether we show skip button or not
         context = super(UpcomingEventsView, self).get_context_data(**kwargs)
         # context['timezone'] = self.request.user.account.timezone
@@ -2729,6 +2778,7 @@ class UpcomingEventsView(LoginRequiredMixin, SessionContextView, ListView):
         return context
 
     def get_queryset(self):
+        """Get the list of items for this view."""
         # show all public events plus private event for orgs the user is admin for
         userid = self.request.user.id
 
@@ -2758,6 +2808,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
     }
 
     def get_context_data(self, **kwargs):
+        """Get context data."""
         # skip context param determines whether we show skip button or not
         context = super(InviteVolunteersView, self).get_context_data(**kwargs)
         userid = self.request.user.id
@@ -2784,9 +2835,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         return context
 
     def email_parser(self, a_string):
-        '''
-        looks for an email address in a string and returns email string if valid
-        '''
+        """Parse string 'a_string' and return email address string if valid"""
         # setting up pattern
         pattern = r'([a-zA-Z0-9_\-\.]+@[a-zA-Z0-9_\-\.]+\.[a-zA-Z]{2,5})'
 
@@ -2805,21 +2854,20 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         else:
             return False
 
-    def post(self, request, *args, **kwargs):
-        userid = self.request.user.id
-        user = User.objects.get(id=userid)
-        post_data = self.request.POST
-        event_create_id = None
-        test_mode = post_data.get('test_mode')
+    def _register_volunteers(self):
+        """
+        Register volunteers to an event w/o sending invitations.
 
+        Returns number of invited volunteers and lists for sending emails.
+        """
         try:
-            event_create_id = kwargs.pop('event_ids')
-            if type(json.loads(event_create_id)) == list:
+            self.event_create_id = self.kwargs.pop('event_ids')
+            if type(json.loads(self.event_create_id)) == list:
                 pass
             else:
-                event_create_id = [int(event_create_id)]
-                event_create_id = unicode(event_create_id)
-            event_create_id = json.loads(event_create_id)
+                self.event_create_id = [int(self.event_create_id)]
+                self.event_create_id = unicode(self.event_create_id)
+            self.event_create_id = json.loads(self.event_create_id)
         except Exception as e:
             logger.error('unable to process events IDs')
 
@@ -2831,13 +2879,13 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
 
         OrgUsers = OrgUserInfo(self.request.user.id)
         if OrgUsers:
-            Organisation = OrgUsers.get_org_name()
+            self.Organisation = OrgUsers.get_org_name()
 
-        if post_data['bulk-vol'].encode('ascii', 'ignore') == '':
-            num_vols = int(post_data['count-vol'])
+        if self.post_data['bulk-vol'].encode('ascii', 'ignore') == '':
+            num_vols = int(self.post_data['count-vol'])
 
         else:
-            bulk_list_raw = re.split(',|\n|\s', post_data['bulk-vol'].lower())
+            bulk_list_raw = re.split(',|\n|\s', self.post_data['bulk-vol'].lower())
             bulk_list = []
             for email_string in bulk_list_raw:
                 email = self.email_parser(email_string)
@@ -2848,8 +2896,8 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         for i in range(num_vols):
 
             # processing individual emails
-            if post_data['bulk-vol'].encode('ascii', 'ignore') == '':
-                email_list = post_data['vol-email-' + str(i + 1)].lower()
+            if self.post_data['bulk-vol'].encode('ascii', 'ignore') == '':
+                email_list = self.post_data['vol-email-' + str(i + 1)].lower()
 
                 if email_list != '':
 
@@ -2858,14 +2906,14 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                     if email_list not in user_list:
                         k.append({
                             'email': email_list,
-                            'name': post_data['vol-name-' + str(i + 1)],
+                            'name': self.post_data['vol-name-' + str(i + 1)],
                             'type': 'to'
                         })
 
                         try:
                             user_new = OcUser().setup_user(
                                 username=email_list,
-                                first_name=post_data['vol-name-' + str(i + 1)],
+                                first_name=self.post_data['vol-name-' + str(i + 1)],
                                 email=email_list,
                             )
                         except UserExistsException:
@@ -2875,32 +2923,32 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                         user_new = User.objects.get(email=email_list)
 
                         # if event-based invitation and user exists  w/o password
-                        if event_create_id and not User.objects.get(email=email_list).has_usable_password():
+                        if self.event_create_id and not User.objects.get(email=email_list).has_usable_password():
                             k.append({
                                 'email': email_list,
-                                'name': post_data['vol-name-' + str(i + 1)],
+                                'name': self.post_data['vol-name-' + str(i + 1)],
                                 'type': 'to'
                             })
 
                         # if event-based invitation and user exists with password
-                        elif event_create_id and User.objects.get(email=email_list).has_usable_password():
+                        elif self.event_create_id and User.objects.get(email=email_list).has_usable_password():
                             k_old.append({
                                 'email': email_list,
-                                'name': post_data['vol-name-' + str(i + 1)],
+                                'name': self.post_data['vol-name-' + str(i + 1)],
                                 'type': 'to'
                             })
 
                         # non-event-based invitation and user exists wo password
-                        elif not event_create_id and not User.objects.get(email=email_list).has_usable_password():
+                        elif not self.event_create_id and not User.objects.get(email=email_list).has_usable_password():
                             k.append({
                                 'email': email_list,
-                                'name': post_data['vol-name-' + str(i + 1)],
+                                'name': self.post_data['vol-name-' + str(i + 1)],
                                 'type': 'to'
                             })
 
-                    if user_new and event_create_id:
+                    if user_new and self.event_create_id:
                         try:
-                            multiple_event_reg = Event.objects.filter(id__in=event_create_id)
+                            multiple_event_reg = Event.objects.filter(id__in=self.event_create_id)
                             for i in multiple_event_reg:
                                 user_event_registration = UserEventRegistration(
                                     user=user_new,
@@ -2914,7 +2962,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                     num_vols -= 1
 
             # processing emails from bulk field
-            elif post_data['bulk-vol'] != '':
+            elif self.post_data['bulk-vol'] != '':
 
                 # setting vars' default values in case we couldn't get all needed data from parsed email
                 first_name = last_name = user_email = None
@@ -2942,20 +2990,20 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                     user_new = User.objects.get(email=user_email)
 
                     # if event-based invitation and user exists w/o password
-                    if event_create_id and not User.objects.get(email=user_email).has_usable_password():
+                    if self.event_create_id and not User.objects.get(email=user_email).has_usable_password():
                         k.append({'email': user_email, 'type': 'to'})
 
                     # if event-based invitation and user exists with password
-                    elif event_create_id and User.objects.get(email=user_email).has_usable_password():
+                    elif self.event_create_id and User.objects.get(email=user_email).has_usable_password():
                         k_old.append({'email': user_email, 'type': 'to'})
 
                     # non-event-based invitation and user exists wo password
-                    elif not event_create_id and not User.objects.get(email=user_email).has_usable_password():
+                    elif not self.event_create_id and not User.objects.get(email=user_email).has_usable_password():
                         k.append({'email': user_email, 'type': 'to'})
 
-                if user_new and event_create_id:
+                if user_new and self.event_create_id:
                     try:
-                        multiple_event_reg = Event.objects.filter(id__in=event_create_id)
+                        multiple_event_reg = Event.objects.filter(id__in=self.event_create_id)
                         for i in multiple_event_reg:
                             user_event_registration = UserEventRegistration(
                                 user=user_new,
@@ -2966,18 +3014,33 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                     except Exception as e:
                         logger.error('unable to register user for event')
 
+        return num_vols, k, k_old
+
+    def post(self, request, *args, **kwargs):
+        """Process post request."""
+        userid = self.request.user.id
+        user = User.objects.get(id=userid)
+        self.post_data = self.request.POST
+        self.event_create_id = None
+        test_mode = self.post_data.get('test_mode')
+
+        register_vols = self._register_volunteers()
+        num_vols = register_vols[0]
+        k = register_vols[1]
+        k_old = register_vols[2]
+
         email_template_merge_vars = []
 
-        if post_data['personal_message'] != '':
+        if self.post_data['personal_message'] != '':
             email_template_merge_vars.append({
                 'name': 'PERSONAL_MESSAGE',
-                'content': post_data['personal_message']
+                'content': self.post_data['personal_message']
             })
 
         try:
             # inviting volunteers (event-based)
-            event = Event.objects.get(id=event_create_id[0])
-            events = Event.objects.filter(id__in=event_create_id)
+            event = Event.objects.get(id=self.event_create_id[0])
+            events = Event.objects.filter(id__in=self.event_create_id)
             loc = [str(i.location).split(',')[0] for i in events]
             tz = event.project.org.timezone
             email_template_merge_vars.extend([
@@ -2995,7 +3058,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                 },
                 {
                     'name': 'ORG_NAME',
-                    'content': Organisation
+                    'content': self.Organisation
                 },
                 {
                     'name': 'EVENT_LOCATION',
@@ -3059,7 +3122,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
                     },
                     {
                         'name': 'ORG_NAME',
-                        'content': Organisation
+                        'content': self.Organisation
                     },
                 ])
 
@@ -3097,6 +3160,24 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         return redirect('openCurrents:org-admin', num_vols)
 
 
+class InviteVolunteersPastView(InviteVolunteersView):
+    """Show Add attendees form when creating an event in the past."""
+
+    template_name = 'invite-volunteers-past.html'
+    glogger_labels = {
+        'handler': 'InviteVolunteersPastView'
+    }
+
+    def post(self, request, *args, **kwargs):
+        """Process post request."""
+        self.post_data = self.request.POST
+
+        register_vols = self._register_volunteers()
+        num_vols = register_vols[0]
+
+        return redirect('openCurrents:org-admin', num_vols)
+
+
 class EventCreatedView(TemplateView):
     template_name = 'event-created.html'
 
@@ -3107,6 +3188,7 @@ class EventDetailView(MessagesContextMixin, DetailView):
     template_name = 'event-detail.html'
 
     def get_context_data(self, **kwargs):
+        """Get context data."""
         context = super(EventDetailView, self).get_context_data(**kwargs)
         context['form'] = EventRegisterForm()
 
@@ -3158,6 +3240,7 @@ class LiveDashboardView(OrgAdminPermissionMixin, SessionContextView, TemplateVie
     }
 
     def dispatch(self, *args, **kwargs):
+        """Process request and args and return HTTP response."""
         try:
             event_id = kwargs.get('event_id')
             event = Event.objects.get(id=event_id)
@@ -3166,6 +3249,7 @@ class LiveDashboardView(OrgAdminPermissionMixin, SessionContextView, TemplateVie
             return redirect('openCurrents:404')
 
     def get_context_data(self, **kwargs):
+        """Get context data."""
         context = super(LiveDashboardView, self).get_context_data(**kwargs)
         context['form'] = UserSignupForm()
 
@@ -3242,6 +3326,7 @@ class RegistrationConfirmedView(LoginRequiredMixin, SessionContextView, DetailVi
     template_name = 'registration-confirmed.html'
 
     def get_context_data(self, **kwargs):
+        """Get context data."""
         context = super(RegistrationConfirmedView, self).get_context_data(**kwargs)
         context['is_coordinator'] = self.object.coordinator == self.user
 
@@ -3260,6 +3345,7 @@ class OfferCreateView(SessionContextView, FormView):
     }
 
     def form_valid(self, form):
+        """Redirect to success url."""
         data = form.cleaned_data
 
         offer_item, was_created = Item.objects.get_or_create(name=data['offer_item'])
@@ -3304,6 +3390,7 @@ class OfferCreateView(SessionContextView, FormView):
             )
 
     def form_invalid(self, form):
+        """Renders a response, providing the invalid form as context."""
         existing_item_err = form.errors.get('offer_item', '')
 
         if existing_item_err:
@@ -3316,6 +3403,7 @@ class OfferCreateView(SessionContextView, FormView):
         return super(OfferCreateView, self).form_invalid(form)
 
     def get_context_data(self, **kwargs):
+        """Get context data."""
         context = super(OfferCreateView, self).get_context_data(**kwargs)
         context['cur_rate'] = convert._USDCUR
         context['tr_fee'] = convert._TR_FEE
@@ -3323,9 +3411,7 @@ class OfferCreateView(SessionContextView, FormView):
         return context
 
     def get_form_kwargs(self):
-        '''
-        Passes orgid down to the offer form.
-        '''
+        """Pass orgid down to the offer form."""
         kwargs = super(OfferCreateView, self).get_form_kwargs()
 
         if 'new_biz_registration' in self.request.session.keys():
@@ -3346,7 +3432,8 @@ class OfferEditView(OfferCreateView):
     form_class = OfferEditForm
 
     def dispatch(self, request, *args, **kwargs):
-        # get existing ofer
+        """Process request and args and return HTTP response."""
+        # get existing offer
         self.offer = Offer.objects.get(pk=kwargs.get('offer_id'))
         logger.info(self.offer)
         return super(OfferEditView, self).dispatch(
@@ -3354,6 +3441,7 @@ class OfferEditView(OfferCreateView):
         )
 
     def form_valid(self, form):
+        """Redirect to success url."""
         data = form.cleaned_data
 
         offer_item, was_created = Item.objects.get_or_create(name=data['offer_item'])
@@ -3383,6 +3471,7 @@ class OfferEditView(OfferCreateView):
         )
 
     def get_context_data(self, **kwargs):
+        """Get context data."""
         context = super(OfferEditView, self).get_context_data()
 
         context['form'].fields['offer_current_share'].widget.attrs['value'] = self.offer.currents_share
@@ -3397,9 +3486,7 @@ class OfferEditView(OfferCreateView):
         return context
 
     def get_form_kwargs(self):
-        '''
-        Passes offer id down to the offer form.
-        '''
+        """Pass offer id down to the offer form."""
         kwargs = super(OfferEditView, self).get_form_kwargs()
         kwargs.update({'offer_id': self.offer.id})
 
@@ -4930,16 +5017,18 @@ def process_org_signup(request):
 
 @login_required
 def process_logout(request):
+    """Log user out."""
     logout(request)
     return redirect('openCurrents:login')
 
 
 @login_required
 def get_user_balance_available(request):
-    '''
-    GET available balance for the logged in user
+    """
+    GET available balance for the logged in user.
+
     TODO: convert to an API call parametrized by user id
-    '''
+    """
     balance = OcUser(request.user.id).get_balance_available()
     return HttpResponse(
         balance,
@@ -4949,10 +5038,11 @@ def get_user_balance_available(request):
 
 @login_required
 def get_user_master_offer_remaining(request):
-    '''
-    GET remaining amount (in currents) that can be applied to the master offer redemption
+    """
+    GET remaining amount (in currents) that can be applied to the master offer redemption.
+
     TODO: convert to an API call parametrized by user id
-    '''
+    """
     balance = OcUser(request.user.id).get_master_offer_remaining()
     return HttpResponse(
         balance,
@@ -4975,8 +5065,14 @@ def process_home(request):
         return redirect('openCurrents:signup')
 
 
-def sendContactEmail(template_name, template_content, merge_vars, admin_email, user_email):
-
+def sendContactEmail(
+    template_name,
+    template_content,
+    merge_vars,
+    admin_email,
+    user_email
+):
+    """Send contact email."""
     if settings.SENDEMAILS:
         mandrill_client = mandrill.Mandrill(config.MANDRILL_API_KEY)
         message = {
@@ -4999,8 +5095,14 @@ def sendContactEmail(template_name, template_content, merge_vars, admin_email, u
         )
 
 
-def sendTransactionalEmail(template_name, template_content, merge_vars, recipient_email, **kwargs):
-
+def sendTransactionalEmail(
+    template_name,
+    template_content,
+    merge_vars,
+    recipient_email,
+    **kwargs
+):
+    """Send transactional email."""
     # adding launch function marker to session for testing purpose
     test_time_tracker_mode = None
     if kwargs:
@@ -5032,8 +5134,15 @@ def sendTransactionalEmail(template_name, template_content, merge_vars, recipien
         logger.debug('test mode: mocking mandrill call')
 
 
-def sendBulkEmail(template_name, template_content, merge_vars, recipient_email, sender_email, **kwargs):
-
+def sendBulkEmail(
+    template_name,
+    template_content,
+    merge_vars,
+    recipient_email,
+    sender_email,
+    **kwargs
+):
+    """Send bulk email."""
     # adding launch function marker to session for testing purpose
     test_mode = None
     if kwargs:
