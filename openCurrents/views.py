@@ -4038,42 +4038,43 @@ def process_signup(
             if endpoint and not verify_email:
                 return HttpResponse(user.id, status=200)
 
-            elif user.has_usable_password() and not endpoint:
-                logger.info('user %s already verified', user_email)
+            if not endpoint:
+                if user.has_usable_password():
+                    logger.info('user %s already verified', user_email)
 
-                # check if user is an org/biz admin
-                oc_user = OcUser(user.id)
-
-                try:
-                    oc_user_org = oc_user.get_org()
-                except InvalidUserException:
-                    oc_user_org = False
-
-                if oc_user_org:
-
-                    if oc_user_org.status == 'biz':
-                        redirection = 'business'
-                    else:
-                        redirection = 'nonprofit'
-
-                    messages.add_message(
-                        request,
-                        messages.WARNING,
-                        mark_safe('{} is associated to {}. Please use a separate email to create another organization, or <a href="javascript:void(Tawk_API.toggle())">contact us</a>  to edit the organization name.'.format(
-                            user_email,
-                            str(oc_user_org.name)
-                        ))
-                    )
-                    return redirect(
-                        reverse('openCurrents:{}'.format(redirection)) + '#signup'
-                    )
-
-                else:
                     return redirect(
                         'openCurrents:login',
                         status_msg='User with this email already exists',
                         msg_type='alert'
                     )
+
+                elif not user.has_usable_password():
+                    # check if user is an org/biz admin
+                    oc_user = OcUser(user.id)
+
+                    try:
+                        oc_user_org = oc_user.get_org()
+                    except InvalidUserException:
+                        oc_user_org = False
+
+                    if oc_user_org:
+
+                        if oc_user_org.status == 'biz':
+                            redirection = 'business'
+                        else:
+                            redirection = 'nonprofit'
+
+                        messages.add_message(
+                            request,
+                            messages.WARNING,
+                            mark_safe('{} is associated to {}. Please use a separate email to create another organization, or <a href="javascript:void(Tawk_API.toggle())">contact us</a>  to edit the organization name.'.format(
+                                user_email,
+                                str(oc_user_org.name)
+                            ))
+                        )
+                        return redirect(
+                            reverse('openCurrents:{}'.format(redirection)) + '#signup'
+                        )
 
         # user org association requested
         if org_name:
