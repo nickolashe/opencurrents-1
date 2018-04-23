@@ -2145,6 +2145,7 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
         # context['biz_currents_total'] = OcCommunity().get_biz_currents_total()
 
         context['master_offer'] = Offer.objects.filter(is_master=True).first()
+        context['master_funds_available'] = self.ocuser.get_master_offer_remaining()
 
         context['has_bonus'] = OcLedger().has_bonus(self.user.userentity)
         context['bonus_amount'] = common._SIGNUP_BONUS

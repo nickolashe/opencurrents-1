@@ -18,7 +18,7 @@
   }
 
   #business {
-    background: url(https://storage.googleapis.com/opencurrents-194003.appspot.com/static/img/market.jpg) no-repeat right center fixed;a
+    background: url(https://storage.googleapis.com/opencurrents-194003.appspot.com/static/img/market.jpg) no-repeat right center fixed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -270,8 +270,15 @@ input.home-input::placeholder {
   border-radius: 4px;
 }
 
-.orange {
+.button.orange {
   background-color: #f5a412;
+  border-color: #f5a412;
+  box-shadow: 0 3px #b37608;
+}
+
+.button.orange:hover {
+  background-color: #d78d09;
+  border-color: #d78d09;
 }
 
 .accordion-title {
@@ -386,8 +393,8 @@ input.home-input::placeholder {
   height: 77px;
   padding: 21px 0;
   border-radius: 99px;
-  border: 1px solid #24b2e7;
-  color: #24b2e7;
+  border: 1px solid #147db6;
+  color: #147db6;
   background-color: #ffffff;
 }
 
