@@ -12,6 +12,7 @@ from openCurrents.interfaces import convert
 import os
 import pytz
 import re
+import logging
 
 # Notes:
 # *) unverified users are still created as User objects but with unusable password
@@ -621,8 +622,13 @@ class TransactionAction(models.Model):
     def save(self, *args, **kwargs):
         super(TransactionAction, self).save(*args, **kwargs)
 
+        from openCurrents.views import sendTransactionalEmail
+        from openCurrents.interfaces.ocuser import OcUser
+
+
         if self.action_type == 'app':
             tr = self.transaction
+            oc_user = OcUser(tr.user.id)
 
             # transact cur from user to org
             Ledger.objects.create(
@@ -633,6 +639,10 @@ class TransactionAction(models.Model):
                 transaction=self
             )
 
+            logging.basicConfig(level=logging.DEBUG, filename='log/views.log')
+            logger = logging.getLogger(__name__)
+            logger.setLevel(logging.DEBUG)
+
             # transact usd from oC to user
             Ledger.objects.create(
                 entity_from=OrgEntity.objects.get(org__name='openCurrents'),
@@ -641,6 +651,35 @@ class TransactionAction(models.Model):
                 amount=convert.cur_to_usd(tr.currents_amount, True),
                 transaction=self
             )
+
+            # sending email to user about transaction approvment
+
+            if not tr.biz_name:
+                bizname = 'N/A'
+            else:
+                bizname = tr.biz_name
+
+            try:
+                email_vars_transactional = [
+                    {'name': 'BIZ_NAME', 'content': bizname},
+                    {'name': 'DOLLARS_REDEEMED', 'content': str(convert.cur_to_usd(tr.currents_amount, True))},
+                    {'name': 'CURRENTS_REDEEMED', 'content': str(tr.currents_amount)},
+                    {'name': 'CURRENTS_AVAILABLE', 'content': str(oc_user.get_balance_available())},
+                    {'name': 'DOLLARS_AVAILABLE', 'content': str(oc_user.get_balance_available_usd())},
+                ]
+
+                sendTransactionalEmail(
+                    'transaction-approved',
+                    None,
+                    email_vars_transactional,
+                    'tevtonez@gmail.com',
+                )
+            except Exception as e:
+                    logger.error(
+                        'unable to send transactional email: %s (%s)',
+                        e.message,
+                        type(e)
+                    )
 
     def __unicode__(self):
         return ' '.join([
