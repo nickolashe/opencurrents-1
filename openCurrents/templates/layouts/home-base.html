@@ -14,48 +14,49 @@
   </head>
 
   <body id="{% block page %}home{% endblock page %}" class="splash" onunload=''>
+    <div id="home-wrapper">
+      {% block header %}
+        <header id="header" class="full-width row collapse js-close-any" canvas>
+          <div class="relative small-8 large-3 small-offset-1 columns">
 
-    {% block header %}
-      <header id="header" class="full-width row collapse js-close-any" canvas>
-        <div class="relative small-8 large-3 small-offset-1 columns">
+            {% block logo %}
+              <a href="{% url 'openCurrents:root' %}">
+                <img id="header-logo" src="{% static 'img/logo.svg' %}" />
+              </a>
+            {% endblock logo %}
 
-          {% block logo %}
-            <a href="{% url 'openCurrents:root' %}">
-              <img id="header-logo" src="{% static 'img/logo.svg' %}" />
-            </a>
-          {% endblock logo %}
-
-          <div class="inline-block relative">
-            <a id="beta-home" class="beta-popup_open">Beta</a>
+            <div class="inline-block relative">
+              <a id="beta-home" class="beta-popup_open">Beta</a>
+            </div>
           </div>
-        </div>
 
-        {% include "popups/beta-popup.html" %}
+          {% include "popups/beta-popup.html" %}
 
-        <div class="show-for-large one-margin-top medium-8 right columns end">
-          {% block large-links %}
-            <a href="{% url 'openCurrents:nonprofit' %}" class="three-halves-margin-right">For nonprofits</a>
-            <a href="{% url 'openCurrents:business' %}" class="three-halves-margin-right">For businesses</a>
-            <a href="{% url 'openCurrents:our-story' %}" class="three-halves-margin-right">Our story</a>
-            <a href="{% url 'openCurrents:faq' %}" class="three-halves-margin-right">FAQ</a>
-          {% endblock large-links %}
+          <div class="show-for-large one-margin-top medium-8 right columns end">
+            {% block large-links %}
+              <a href="{% url 'openCurrents:nonprofit' %}" class="three-halves-margin-right">For nonprofits</a>
+              <a href="{% url 'openCurrents:business' %}" class="three-halves-margin-right">For businesses</a>
+              <a href="{% url 'openCurrents:our-story' %}" class="three-halves-margin-right">Our story</a>
+              <a href="{% url 'openCurrents:faq' %}" class="three-halves-margin-right">FAQ</a>
+            {% endblock large-links %}
 
-          <a class="two-margin-right"
-            {% include "partials/login-logic.html" %}
-            >
-            Log in
-          </a>
-        </div>
+            <a class="two-margin-right"
+              {% include "partials/login-logic.html" %}
+              >
+              Log in
+            </a>
+          </div>
 
-        <div class="hide-for-large small-2 relative columns right end">
-          <a class="toggle-menu">
-            {% include 'partials/tilde-menu.html' %}
-          </a>
-        </div>
-      </header>
-    {% endblock header %}
+          <div class="hide-for-large small-2 relative columns right end">
+            <a class="toggle-menu">
+              {% include 'partials/tilde-menu.html' %}
+            </a>
+          </div>
+        </header>
+      {% endblock header %}
 
-    {% block content %}{% endblock content %}
+      {% block content %}{% endblock content %}
+    </div>
 
     <div off-canvas="menu right shift" id="home-menu">
       {% include 'partials/home-menu.html' %}

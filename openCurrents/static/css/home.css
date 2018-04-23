@@ -3,10 +3,6 @@
 @media screen and (min-width: 42em) {
   #home {
     background: url(https://storage.googleapis.com/opencurrents-194003.appspot.com/static/img/wheelbarrow.jpg) center bottom fixed;
-    -webkit-background-size: cover;
-    -moz-background-size: cover;
-    -o-background-size: cover;
-    background-size: cover;
   }
 
   #nonprofit {
@@ -15,6 +11,7 @@
     -moz-background-size: cover;
     -o-background-size: cover;
     background-size: cover;
+    overflow: visible;
   }
 
   #business {
@@ -23,6 +20,7 @@
     -moz-background-size: cover;
     -o-background-size: cover;
     background-size: cover;
+    overflow: visible;
   }
 
   #our-story {
@@ -31,6 +29,7 @@
     -moz-background-size: cover;
     -o-background-size: cover;
     background-size: cover;
+    overflow: visible;
   }
 
   #faq {
@@ -39,6 +38,7 @@
     -moz-background-size: cover;
     -o-background-size: cover;
     background-size: cover;
+    overflow: visible;
   }
 }
 
@@ -46,12 +46,16 @@
 
 .splash {
   display: block;
-  overflow: visible;
   background-color: #ffffff;
   color: #ffffff;
   min-height: 100vh;
 }
 
+#home-wrapper {
+  height:100%;
+  overflow: scroll;
+  -webkit-overflow-scrolling: touch;
+}
 
 /* small */
 @media (max-width: 41.9375em) {
