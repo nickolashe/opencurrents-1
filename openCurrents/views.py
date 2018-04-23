@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
@@ -12,6 +13,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.utils.safestring import mark_safe
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from django.db.models import F, Q, Max
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.template.context_processors import csrf
@@ -374,6 +376,13 @@ class HomeView(TemplateView):
             context['biz_admin'] = OcAuth(self.request.user.id).is_admin_biz()
         except Exception as e:
             pass
+
+
+        if 'status_msg' in self.kwargs and ('form' not in context or not context['form'].errors):
+            context['status_msg'] = self.kwargs.get('status_msg', '')
+
+        if 'msg_type' in self.kwargs:
+            context['msg_type'] = self.kwargs.get('msg_type', '')
 
         return context
 
@@ -4038,11 +4047,34 @@ def process_signup(
 
             elif user.has_usable_password() and not endpoint:
                 logger.info('user %s already verified', user_email)
-                return redirect(
-                    'openCurrents:login',
-                    status_msg='User with this email already exists',
-                    msg_type='alert'
-                )
+
+                # check if user is an org/biz admin
+                oc_user = OcUser(user.id)
+
+                try:
+                    oc_user_org = oc_user.get_org()
+                except InvalidUserException:
+                    oc_user_org = False
+
+                if oc_user_org:
+                    messages.add_message(
+                        request,
+                        messages.WARNING,
+                        mark_safe('{} is associated to {}. Please use a separate email to create another organization, or <a href="javascript:void(Tawk_API.toggle())">contact us</a>  to edit the organization name.'.format(
+                            user_email,
+                            str(oc_user_org.name)
+                        ))
+                    )
+                    return redirect(
+                        reverse('openCurrents:home') + '#signup'
+                    )
+
+                else:
+                    return redirect(
+                        'openCurrents:login',
+                        status_msg='User with this email already exists',
+                        msg_type='alert'
+                    )
 
         # user org association requested
         if org_name:
