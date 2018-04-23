@@ -1,0 +1,23 @@
+{% load staticfiles %}
+
+<div class="row">
+  <div class="small-12 medium-10 small-centered columns">
+    <div class="row">
+      <div class="small-6 medium-4 columns">
+        <a href="{% url 'openCurrents:event-detail' %}">
+          <img class="biz-logos" src="{% static 'img/red-cross.png' %}">
+        </a>
+      </div>
+      <div class="small-6 medium-4 columns">
+        <a href="{% url 'openCurrents:event-detail' %}">
+          <img class="biz-logos" src="{% static 'img/ms150.png' %}">
+        </a>
+      </div>
+      <div class="small-12 medium-4 columns">
+        <a href="{% url 'openCurrents:event-detail' %}">
+          <img class="biz-logos" src="{% static 'img/earth-day.png' %}">
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
