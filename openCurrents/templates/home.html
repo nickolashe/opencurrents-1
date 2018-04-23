@@ -23,15 +23,6 @@
   <a href="#1">
     <img id="header-logo" src="{% static 'img/logo.svg' %}" />
   </a>
-
-    {% if messages %}
-    <div class="messages-framework">
-        {% for message in messages %}
-        <p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
-        {% endfor %}
-    </div>
-    {% endif %}
-
 {% endblock logo %}
 
 

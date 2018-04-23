@@ -4050,6 +4050,12 @@ def process_signup(
                     oc_user_org = False
 
                 if oc_user_org:
+
+                    if oc_user_org.status == 'biz':
+                        redirection = 'business'
+                    else:
+                        redirection = 'nonprofit'
+
                     messages.add_message(
                         request,
                         messages.WARNING,
@@ -4059,7 +4065,7 @@ def process_signup(
                         ))
                     )
                     return redirect(
-                        reverse('openCurrents:home') + '#signup'
+                        reverse('openCurrents:{}'.format(redirection)) + '#signup'
                     )
 
                 else:
