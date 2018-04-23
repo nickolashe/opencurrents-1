@@ -4024,11 +4024,11 @@ def process_signup(
             user = User.objects.get(username=user_email)
 
             update_name = False
-            if user_firstname:
+            if user_firstname and user.first_name == '':
                 user.first_name = user_firstname
                 update_name = True
 
-            if user_lastname:
+            if user_lastname and user.last_name == '':
                 user.last_name = user_lastname
                 update_name = True
 
