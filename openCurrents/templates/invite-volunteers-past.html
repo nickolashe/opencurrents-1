@@ -1,8 +1,12 @@
 {% extends "invite-volunteers.html" %}
 
 {% block title %}
-  Add volunteers that attended
+  Invite volunteers
 {% endblock title %}
+
+{% block subtitle %}
+  <p>who attended <strong>{{ event_project_name }}</strong></p>
+{% endblock subtitle %}
 
 {% block send_button_name %}
 Submit

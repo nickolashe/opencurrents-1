@@ -8,11 +8,15 @@
         {% block title %} Invite volunteers {% endblock title %}
       </h3>
 
-      {% if event_project_name %}
-        <p>to help with <strong>{{ event_project_name }}</strong></p>
-      {% else %}
-        <p>to join the community and record hours with {{ orgname }}</p>
-      {% endif %}
+      {% block subtitle %}
+        <p>
+          {% if event_project_name %}
+            to help with <strong>{{ event_project_name }}</strong>
+          {% else %}
+            to join the community and record hours with {{ orgname }}
+          {% endif %}
+        </p>
+      {% endblock subtitle %}
 
       <a id="add-bulk-emails" class="button round tiny secondary">
         Add email list
