@@ -535,6 +535,8 @@
 
 
 {% block js %}
+  {{ block.super }}
+  
   <script type="text/javascript">
     var elem = new Foundation.Accordion($("#questions"));
   </script>

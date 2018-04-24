@@ -284,6 +284,8 @@
 
 
 {% block js %}
+  {{ block.super }}
+  
   <script type="text/javascript">
     $('#show-diagram').click(function(){
       $(this).parent().fadeOut(777, function(){

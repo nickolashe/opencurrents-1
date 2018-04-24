@@ -28,6 +28,7 @@
 
 {% block content %}
   <div class="js-close-any" canvas>
+
     <div id="intro-1">
       <div id="1" class="header-spacer"></div>
 
@@ -457,6 +458,8 @@
 
 
 {% block js %}
+  {{ block.super }}
+  
   <script type="text/javascript">
     $('#signup-type-2').click(function(){
       $('#org-signup-name').slideDown();
