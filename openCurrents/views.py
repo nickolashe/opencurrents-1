@@ -933,14 +933,16 @@ class ExportDataView(OrgAdminPermissionMixin, OrgSessionContextView, FormView):
         font_style = xlwt.XFStyle()
         font_style.font.bold = True
         columns = [
-            '#',
-            'Event',
+            'Entry',
+            'Volunteer type',
             'Description',
             'Location',
-            'Volunteer Name',
+            'Admin',
+            'Volunteer First Name',
             'Volunteer Last name',
             'Volunteer Email',
-            'Date and Time Start',
+            'Date',
+            'Time',
             'Duration, hours'
         ]
         for column in range(len(columns)):
@@ -957,14 +959,19 @@ class ExportDataView(OrgAdminPermissionMixin, OrgSessionContextView, FormView):
                 record_event.datetime_start.astimezone(pytz.timezone(self.org.timezone)),
                 record_event.datetime_end.astimezone(pytz.timezone(self.org.timezone))
             )
+            record_adminaction = record.adminactionusertime_set.all()[0]
+            admin_name = record_adminaction.user.first_name
+            admin_lastname = record_adminaction.user.last_name
+            record_admin = ' '.join([admin_name, admin_lastname])
+            record_datetime = record.datetime_start.astimezone(pytz.timezone(self.org.timezone))
 
             if record_event.event_type == 'MN':
                 event_name = 'Manual'
                 record_description = record_event.description
-                event_location = ''
+                event_location = 'N/A'
             else:
                 event_name = record_event.project.name
-                record_description = ''
+                record_description = record_event.project.name
                 event_location = record_event.location
 
             row_data = [
@@ -972,10 +979,12 @@ class ExportDataView(OrgAdminPermissionMixin, OrgSessionContextView, FormView):
                 event_name,
                 record_description,
                 event_location,
+                record_admin,
                 record.user.first_name.encode('utf-8').strip(),
                 record.user.last_name.encode('utf-8').strip(),
                 record.user.email.encode('utf-8').strip(),
-                record.datetime_start.astimezone(pytz.timezone(self.org.timezone)).strftime('%Y-%m-%d %H:%M'),
+                record_datetime.strftime('%Y-%m-%d'),
+                record_datetime.strftime('%H:%M'),
                 duration
             ]
             for col in range(len(row_data)):
@@ -1377,7 +1386,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
                 {'name': 'LNAME', 'content': self.user.last_name},
                 {'name': 'EMAIL', 'content': self.user.email},
                 {'name': 'BIZ_NAME', 'content': email_biz_name},
-                {'name': 'ITEM_NAME', 'content': self.offer.item},
+                {'name': 'ITEM_NAME', 'content': self.offer.item.name},
                 {'name': 'REDEEMED_CURRENTS', 'content': data['redeem_currents_amount']}
             ]
 
