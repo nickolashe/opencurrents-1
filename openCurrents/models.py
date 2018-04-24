@@ -11,6 +11,7 @@ from openCurrents.interfaces import convert
 
 import os
 import pytz
+import re
 
 # Notes:
 # *) unverified users are still created as User objects but with unusable password
@@ -45,9 +46,9 @@ class Org(models.Model):
     @property
     def no_info(self):
         no_info = True
-        fields = [self.website, self.phone, self.email, self.address, self.intro ]
+        fields = [self.website, self.phone, self.email, self.address, self.intro]
 
-        if any (f != '' for f in fields):
+        if any(f != '' for f in fields):
             no_info = False
 
         return no_info
@@ -153,6 +154,7 @@ class Ledger(models.Model):
     )
     amount = models.DecimalField(max_digits=12, decimal_places=2)
     is_issued = models.BooleanField(default=False)
+    is_bonus = models.BooleanField(default=False)
 
     # related actions
     # TODO:
@@ -257,6 +259,10 @@ class Event(models.Model):
     class Meta:
         get_latest_by = 'datetime_start'
         ordering = ['datetime_start']
+
+    def save(self, *args, **kwargs):
+
+        super(Event, self).save(*args, **kwargs)
 
     def __unicode__(self):
         tz = self.project.org.timezone

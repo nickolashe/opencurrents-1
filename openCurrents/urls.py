@@ -61,6 +61,7 @@ urlpatterns = [
     url(r'^edit-hours/$', views.EditHoursView.as_view(), name='edit-hours'),
     url(r'^edit-offer/(?P<offer_id>\d+)/$', views.OfferEditView.as_view(), name='edit-offer'),
     url(r'^export-data/$', views.ExportDataView.as_view(), name='export-data'),
+    url(r'^export-data/(?P<status_msg>.*)/(?P<msg_type>.*)$', views.ExportDataView.as_view(), name='export-data'),
     url(r'^faq/$', views.FaqView.as_view(), name='faq'),
     url(r'^find-orgs/$', views.FindOrgsView.as_view(), name='find-orgs'),
     url(r'^hours-approved/$', views.HoursApprovedView.as_view(), name='hours-approved'),
@@ -114,6 +115,7 @@ urlpatterns = [
     url(r'^create-event/(?P<org_id>\d+)/$', views.CreateEventView.as_view(), name='create-event'),
     url(r'^project-details/$', views.ProjectDetailsView.as_view(), name='project-details'),
     url(r'^invite-volunteers/$', views.InviteVolunteersView.as_view(), name='invite-volunteers'),
+    url(r'^invite-volunteers-past/(?P<event_ids>.+)/$', views.InviteVolunteersPastView.as_view(), name='invite-volunteers-past'),
     url(r'^invite-volunteers/(?P<event_ids>.+)/$', views.InviteVolunteersView.as_view(), name='invite-volunteers'),
     url(r'^volunteers-invited/(?P<vol_no>\d+)/$', views.VolunteersInvitedView.as_view(), name='volunteers-invited'),
     url(r'^event-created/(?P<project>\w+)/(?P<num_events>\d+)/$', views.EventCreatedView.as_view(), name='event-created'),
@@ -127,7 +129,7 @@ urlpatterns = [
     url(r'^registration-confirmed/(?P<pk>\d+)/$',
         views.RegistrationConfirmedView.as_view(), name='registration-confirmed'),
 
-    #temp 403, 404 and 500 views
+    # temp 403, 404 and 500 views
     url(r'^403/$', views.ForbiddenView.as_view(), name='403'),
     url(r'^404/$', views.NotFoundView.as_view(), name='404'),
     url(r'^500/$', views.ErrorView.as_view(), name='500'),
@@ -160,6 +162,7 @@ urlpatterns = [
     url(r'^process_email_confirmation/(?P<user_email>[\w\.@\+\-]+)/$',
         views.process_email_confirmation, name='process_email_confirmation'),
     url(r'^process_org_signup/$', views.process_org_signup, name='process_org_signup'),
+    url(r'^process_home/$', views.process_home, name='process_home'),
 ]
 
 #handler404 = 'openCurrents.views.return_404'

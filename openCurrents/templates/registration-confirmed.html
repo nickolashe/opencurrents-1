@@ -2,6 +2,9 @@
 {% load staticfiles %}
 {% load tags %}
 
+{% block head %}
+  <link href="{% static 'css/add-to-calendar.css' %}" rel="stylesheet" type="text/css">
+{% endblock head %}
 
 {% block title %}
   {% if is_coordinator %}
@@ -10,7 +13,6 @@
     You're all set!
   {% endif %}
 {% endblock title %}
-
 
 {% block content %}
   {% if is_coordinator %}
@@ -38,6 +40,37 @@
       on {{ event.datetime_start|day }}. Enjoy the event!
     </p>
 
+    {% with timezone=request.user.usersettings.timezone %}
+      <span class="addtocalendar one-margin-bottom">
+        <var class="atc_event">
+          <var class="atc_date_start">
+              {{ event.datetime_start|datetime_cal:timezone }}
+          </var>
+          <var class="atc_date_end">
+              {{ event.datetime_end|datetime_cal:timezone }}
+          </var>
+          <var class="atc_timezone">
+              {{ timezone }}
+          </var>
+          <var class="atc_title">
+              {{ event.project.name }}
+          </var>
+          <var class="atc_description">
+              {{ event.description }}
+          </var>
+          <var class="atc_location">
+              {{ event.location }}
+          </var>
+          <var class="atc_organizer">
+              {{ event.coordinator_firstname }}
+          </var>
+          <var class="atc_organizer_email">
+              {{ event.coordinator_email }}
+          </var>
+        </var>
+      </span>
+    {% endwith %}
+
     <div class="row three-halves-margin-top center">
       <div class="small-12 medium-8 small-centered columns">
         <a href="{% url 'openCurrents:profile' %}" class="button round">
@@ -47,3 +80,15 @@
     </div>
   {% endif %}
 {% endblock content %}
+
+{% block js %}
+  <!-- add to calendar -->
+  <script type="text/javascript">(function () {
+    if (window.addtocalendar)if(typeof window.addtocalendar.start == "function")return;
+    if (window.ifaddtocalendar == undefined) { window.ifaddtocalendar = 1;
+        var d = document, s = d.createElement('script'), g = 'getElementsByTagName';
+        s.type = 'text/javascript';s.charset = 'UTF-8';s.async = true;
+        s.src = "{% static 'js/atc.min.js' %}";
+        var h = d[g]('body')[0];h.appendChild(s); }})();
+  </script>
+{% endblock js %}

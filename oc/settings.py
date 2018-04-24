@@ -23,8 +23,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'k)2cm1xy=m9zwyvqj9xw@0pe(fnzlmtq&x6xzk@@em2$590_wg'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -110,23 +108,34 @@ USE_L10N = True
 USE_TZ = True
 
 # sessions and auto-logout
-SESSION_COOKIE_AGE = 3600  # in seconds
-AUTO_LOGOUT_DELAY = 60  # in minutes
+AUTO_LOGOUT_DELAY = 3 * 60  # in minutes
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
-# STATIC_URL = '/static/'
-STATIC_URL = 'https://storage.googleapis.com/opencurrents-194003.appspot.com/static/'
-
-# django-storages
-DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
-GS_BUCKET_NAME = 'opencurrents-194003.appspot.com'
-GS_PROJECT_ID = 'opencurrents-194003'
-
 MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'mediafiles')
-MEDIA_URL = 'https://storage.googleapis.com/opencurrents-194003.appspot.com/media/'
+CONTENT_TYPES = ['image', 'video']
+MAX_UPLOAD_SIZE = 15 * 1024 * 1024
+
+if os.getenv('GAE_INSTANCE') or os.getenv('GOOGLE_CLOUD_PROXY'):
+    # Production
+    DEBUG = False
+    STATIC_URL = 'https://storage.googleapis.com/opencurrents-194003.appspot.com/static/'
+    MEDIA_URL = 'https://storage.googleapis.com/opencurrents-194003.appspot.com/media/'
+
+    # django-storages
+    DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+    GS_BUCKET_NAME = 'opencurrents-194003.appspot.com'
+    GS_PROJECT_ID = 'opencurrents-194003'
+
+else:
+    # Local Development
+    # SECURITY WARNING: don't run with debug turned on in production!
+    DEBUG = True
+    STATIC_URL = '/static/'
+    MEDIA_URL = '/media/'
+
 
 APPEND_SLASH = True
 

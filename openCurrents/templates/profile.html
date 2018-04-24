@@ -4,6 +4,43 @@
 {% load tags %}
 {% load staticfiles %}
 
+
+{% block status %}
+  {% if status_msg %}
+    {{ block.super }}
+  {% else %}
+    <div class="status-highlight row full-width">
+      <div class="small-12 column white">
+        {% if balance_available > 0 %}
+          {% if has_bonus and balance_available == bonus_amount %}
+            You have ${{ balance_available|current_to_usd:"no_fee"|round_number:0 }} credit in Currents.
+          {% else %}
+            You've got Currents.
+          {% endif %}
+
+          <a
+            {% if master_funds_available > 0 %}
+              href="{% url 'openCurrents:redeem-currents' master_offer.id %}"
+            {% else %}
+              href="{% url 'openCurrents:marketplace' %}"
+            {% endif %}
+            class="white-link"
+          >
+            Redeem now
+          </a>
+
+        {% else %}
+          Let's create Currents!
+          <a class="earn-currents-popup_open white-link">
+            Volunteer now
+          </a>
+        {% endif %}
+
+      </div>
+    </div>
+  {% endif %}
+{% endblock status %}
+
 {% block heading %}
   <div class="row">
     <div class="small-12 small-centered columns">
@@ -32,7 +69,7 @@
 {% endblock heading %}
 
 {% block content %}
-  <div class="row">
+  <div class="row one-margin-bottom">
     <div class="small-12 medium-6 columns">
       <h6 class="inline-block qtr-margin-bottom">
         Currents available:
@@ -60,7 +97,7 @@
         Pending: ${{ balance_pending_usd|round_number:2 }}
       </p>
 
-      <a class="
+      <a onClick="ga('send', 'event', 'Redemption', 'AttemptCashOut');" class="
         {% if balance_available_usd|str_to_num > 0 %}
           cash-out-popup_open
         {% else %}
@@ -71,6 +108,8 @@
       </a>
     </div>
   </div>
+
+  {% include "partials/featured-bizzes.html" %}
 
   <div class="row collapse three-halves-margin-top left">
     <div class="small-11 medium-10 small-centered columns">
@@ -108,21 +147,6 @@
           </a>
         </p>
       {% endif %}
-    </div>
-  </div>
-
-  <div class="row collapse one-margin-top left">
-    <div class="small-11 medium-10 small-centered columns">
-      <h6 class="half-margin-bottom">Community activity</h6>
-      <a href="{% url 'openCurrents:public-record' %}?record_type=top-org" class="button tiny round secondary">
-        Currents issued: {% if currents_amount_total %}{{ currents_amount_total|round_number:3 }}{% else %}0{% endif %}
-      </a>
-      <a href="{% url 'openCurrents:public-record' %}?record_type=top-vol" class="button tiny round secondary">
-        Active volunteers: {% if active_volunteers_total %}{{ active_volunteers_total }}{% else %}0{% endif %}
-      </a>
-      <a href="{% url 'openCurrents:public-record' %}?record_type=top-biz" class="button tiny round secondary">
-        Currents redeemed: {{ biz_currents_total|round_number:3 }}
-      </a>
     </div>
   </div>
 
