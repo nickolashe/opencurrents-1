@@ -458,6 +458,8 @@
 
 
 {% block js %}
+  {{ block.super }}
+  
   <script type="text/javascript">
     $('#signup-type-2').click(function(){
       $('#org-signup-name').slideDown();

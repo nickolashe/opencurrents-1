@@ -54,11 +54,15 @@
         </div>
 
         {% if messages %}
-        <div class="messages-framework">
-            {% for message in messages %}
-            <p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
-            {% endfor %}
-        </div>
+          <div class="row center full-width collapse messages-framework">
+            <div class="small-12 medium-8 small-centered columns">
+              {% for message in messages %}
+                <span{% if message.tags %} class="{{ message.tags }} alert"{% endif %}>
+                  {{ message }}
+                </span>
+              {% endfor %}
+            </div>
+          </div>
         {% endif %}
 
       </header>
@@ -74,7 +78,13 @@
 
     <script type="text/javascript" src="{% static "js/home.js" %}"></script>
 
-    {% block js %}{% endblock js %}
+    {% block js %}
+      <script type="text/javascript"`>
+        $(document).ready(function(){
+          $('.header-spacer').height($('.messages-framework').height()+60);
+        });
+      </script>
+    {% endblock js %}
 
     <!--Start of Tawk.to Script-->
     <script type="text/javascript">
