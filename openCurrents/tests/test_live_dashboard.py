@@ -40,6 +40,8 @@ from openCurrents.tests.interfaces.common import (
     _create_org
 )
 
+from openCurrents.tests.interfaces import testing_urls
+
 from openCurrents import views, urls
 
 from openCurrents.interfaces.orgadmin import OrgAdmin
@@ -1573,6 +1575,19 @@ class PastEventCreation(SetupTest, TestCase):
     """Test cases for past events creation."""
 
     new_user_email = 'test_user@test.aa'
+    new_user_email2 = 'test_user2@test.aa'
+
+    def _get_merge_vars_keys_values(self, merge_vars):
+
+        values = []
+        for i in merge_vars:
+            values.extend(i.values())
+        return values
+
+    def _assert_merge_vars(self, merge_vars, values_list):
+        mergedvars_values = self._get_merge_vars_keys_values(merge_vars)
+        for value in values_list:
+            self.assertIn(value, mergedvars_values)
 
     def test_create_past_event_redirection(self):
         """
@@ -1658,3 +1673,155 @@ class PastEventCreation(SetupTest, TestCase):
             ),
             1
         )
+
+    def test_past_event_invitation_opt_in(self):
+        """
+        Invite new user to a past w invite event checkbox checked.
+
+        Expected:
+        - all users are registered to an event
+        - new users get invite-user email
+        - all users are checked-in to the event
+        """
+        self.client.login(username=self.npf_admin.username, password='password')
+
+        event_id = self.event_past.id
+        add_vols_to_past_event_url = testing_urls.add_vols_to_past_event_url(int(event_id))
+
+        response = self.client.get(
+            add_vols_to_past_event_url
+        )
+        self.assertEqual(response.status_code, 200)
+        session = self.client.session
+
+        # check initial state
+        self.assertEqual(len(UserTimeLog.objects.all()), 0)
+        self.assertEqual(len(AdminActionUserTime.objects.all()), 0)
+        self.assertEqual(len(UserEventRegistration.objects.filter(user=self.npf_admin)), 3)
+        self.assertEqual(len(UserEventRegistration.objects.filter(user__email=self.new_user_email)), 0)
+
+        # adding volunteers to the past event
+
+        response = self.client.post(
+            add_vols_to_past_event_url,
+            {
+                'invite-volunteers-past': 'on',
+                'bulk-vol': '',
+                'vol-email-1': self.new_user_email,
+                'vol-name-1': self.new_user_email,
+                'vol-email-2': self.new_user_email2,
+                'vol-name-2': self.new_user_email2,
+                'count-vol': '2',
+                'test_mode': '1',
+            }
+        )
+
+        expected_url = '/org-admin/2/'
+        self.assertRedirects(
+            response,
+            expected_url,
+            status_code=302,
+            target_status_code=200
+        )
+
+        # check post state:
+        # - Admin and new user get currents;
+        # - user is registered to an event;
+        # - user wo password receives an email;
+        # - ledger is created
+        self.assertEqual(len(UserTimeLog.objects.all()), 3)
+        self.assertEqual(len(AdminActionUserTime.objects.all()), 3)
+        self.assertEqual(len(UserEventRegistration.objects.filter(user=self.npf_admin)), 3)  # admin is register already, no changes
+        self.assertEqual(len(UserEventRegistration.objects.filter(user__email=self.new_user_email)), 1)
+        self.assertEqual(len(UserEventRegistration.objects.filter(user__email=self.new_user_email2)), 1)
+        # asserting email vars values
+        expected_list = [
+            self.npf_admin.first_name, 'ADMIN_FIRSTNAME',
+            self.npf_admin.last_name, 'ADMIN_LASTNAME',
+            self.org.name, 'ORG_NAME'
+        ]
+        self._assert_merge_vars(session['merge_vars'], expected_list)
+
+        # assert we pass emails to mandril
+        self.assertEqual(len(self.client.session['recepient']), 2)
+        self.assertIn(self.new_user_email, self.client.session['recepient'][0]['email'])
+        self.assertIn(self.new_user_email2, self.client.session['recepient'][1]['email'])
+
+        new_user_1_entity_id = UserEntity.objects.get(user__email=self.new_user_email).id
+        new_user_2_entity_id = UserEntity.objects.get(user__email=self.new_user_email).id
+        self.assertEqual(24, OcLedger().get_balance(new_user_1_entity_id))
+        self.assertEqual(24, OcLedger().get_balance(new_user_2_entity_id))
+        self.assertEqual(24, OcLedger().get_balance(self.user_enitity_id_npf_adm))
+
+    def test_past_event_invitation_opt_out(self):
+        """
+        Invite new/existing users to a past w invite event checkbox UNchecked.
+
+        Expected:
+        - all users are registered to an event
+        - nobody gets email
+        - all users are checked-in to the event
+        """
+        self.client.login(username=self.npf_admin.username, password='password')
+
+        event_id = self.event_past.id
+        add_vols_to_past_event_url = testing_urls.add_vols_to_past_event_url(int(event_id))
+
+        response = self.client.get(
+            add_vols_to_past_event_url
+        )
+        self.assertEqual(response.status_code, 200)
+        session = self.client.session
+
+        # check initial state
+        self.assertEqual(len(UserTimeLog.objects.all()), 0)
+        self.assertEqual(len(AdminActionUserTime.objects.all()), 0)
+        self.assertEqual(len(UserEventRegistration.objects.filter(user=self.npf_admin)), 3)
+        self.assertEqual(len(UserEventRegistration.objects.filter(user__email=self.new_user_email)), 0)
+
+        # adding volunteers to the past event
+
+        response = self.client.post(
+            add_vols_to_past_event_url,
+            {
+                'bulk-vol': '',
+                'vol-email-1': self.new_user_email,
+                'vol-name-1': self.new_user_email,
+                'vol-email-2': self.new_user_email2,
+                'vol-name-2': self.new_user_email2,
+                'count-vol': '2',
+                'test_mode': '1',
+            }
+        )
+
+        expected_url = '/org-admin/2/'
+        self.assertRedirects(
+            response,
+            expected_url,
+            status_code=302,
+            target_status_code=200
+        )
+
+        # check post state:
+        # - Admin and new user get currents;
+        # - user is registered to an event;
+        # - nobody receives email;
+        # - ledger is created
+        self.assertEqual(len(UserTimeLog.objects.all()), 3)
+        self.assertEqual(len(AdminActionUserTime.objects.all()), 3)
+        self.assertEqual(len(UserEventRegistration.objects.filter(user=self.npf_admin)), 3)  # admin is register already, no changes
+        self.assertEqual(len(UserEventRegistration.objects.filter(user__email=self.new_user_email)), 1)
+        self.assertEqual(len(UserEventRegistration.objects.filter(user__email=self.new_user_email2)), 1)
+
+        # asserting that bulk email function didn't launch
+        self.assertNotIn('bulk', self.client.session)
+        # asserting user not is in recepients
+        self.assertNotIn('recepient', self.client.session)
+        # asserting email vars didn't get to session
+        self.assertNotIn('merge_vars', self.client.session)
+
+        new_user_1_entity_id = UserEntity.objects.get(user__email=self.new_user_email).id
+        new_user_2_entity_id = UserEntity.objects.get(user__email=self.new_user_email).id
+        self.assertEqual(24, OcLedger().get_balance(new_user_1_entity_id))
+        self.assertEqual(24, OcLedger().get_balance(new_user_2_entity_id))
+        self.assertEqual(24, OcLedger().get_balance(self.user_enitity_id_npf_adm))
