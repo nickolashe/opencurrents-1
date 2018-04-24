@@ -3181,11 +3181,149 @@ class InviteVolunteersPastView(InviteVolunteersView):
     def post(self, request, *args, **kwargs):
         """Process post request."""
         self.post_data = self.request.POST
+        user = self.request.user
+        admin_id = user.id
+        admin_org = OrgUserInfo(admin_id).get_org()
+        event = Event.objects.get(id=self.kwargs['event_ids'])
+        event_duration = common.diffInHours(event.datetime_start, event.datetime_end)
 
         register_vols = self._register_volunteers()
-        num_vols = register_vols[0]
+        test_mode = self.post_data.get('test_mode')
+        email_template_merge_vars = []
 
-        return redirect('openCurrents:org-admin', num_vols)
+        # number of new users (wo passwords)
+        volunteers = register_vols[1]
+
+        # checking in users to event
+        vol_users = []
+        for vol in volunteers:
+            try:
+                vol_user = User.objects.get(email=vol['email'])
+                vol_users.append(vol_user)
+            except User.DoesNotExist:
+                logger.warning('invalid user requested')
+
+        for vol_user in vol_users:
+            clogger = logger.getChild(
+                'user %s; event %s' % (admin_id, event.project.name)
+            )
+            glogger_struct = {
+                'msg': 'event user checkin',
+                'admin_email': user.email,
+                'username': vol_user.email,
+                'eventid': event.id,
+                'eventname': event.project.name,
+                'orgname': event.project.org.name,
+                'event_startime': event.datetime_start.strftime('%m/%d/%Y %H:%M:%S')
+            }
+
+            # volunteer checkin
+            try:
+                with transaction.atomic():
+                    usertimelog = UserTimeLog.objects.create(
+                        user=vol_user,
+                        event=event,
+                        is_verified=True,
+                        datetime_start=datetime.now(tz=pytz.UTC)
+                    )
+
+                    # admin action record
+                    adminaction = AdminActionUserTime.objects.create(
+                        user_id=admin_id,
+                        usertimelog=usertimelog,
+                        action_type='app'
+                    )
+
+                    OcLedger().issue_currents(
+                        admin_org.orgentity.id,
+                        vol_user.userentity.id,
+                        adminaction,
+                        event_duration
+                    )
+                    clogger.debug(
+                        '%s: user checkin',
+                        usertimelog.datetime_start.strftime('%m/%d/%Y %H:%M:%S')
+                    )
+                    glogger.log_struct(glogger_struct, labels=self.glogger_labels)
+
+                    status = 201
+            except Exception as e:
+                clogger.debug('%s: user already checked in', e.message)
+
+            # check in admin/coordinator
+            try:
+                with transaction.atomic():
+                    usertimelog = UserTimeLog.objects.create(
+                        user=user,
+                        event=event,
+                        is_verified=True,
+                        datetime_start=datetime.now(tz=pytz.UTC)
+                    )
+
+                    # admin action record
+                    adminaction = AdminActionUserTime.objects.create(
+                        user_id=admin_id,
+                        usertimelog=usertimelog,
+                        action_type='app'
+                    )
+
+                    OcLedger().issue_currents(
+                        admin_org.orgentity.id,
+                        user.userentity.id,
+                        adminaction,
+                        event_duration
+                    )
+                    status = 201
+                    glogger_struct['msg'] = 'event admin checkin'
+                    glogger.log_struct(glogger_struct, labels=self.glogger_labels)
+
+            except Exception as e:
+                clogger.debug(
+                    'event admin %s already checked in',
+                    user.email
+                )
+
+        # sending invitations to the new users if 'Invite volunteer to
+        # openCurrents' checkbox is checked
+        if 'invite-volunteers-past' in self.post_data.keys():
+            try:
+                # inviting volunteers
+                email_template_merge_vars.extend([
+                    {
+                        'name': 'ADMIN_FIRSTNAME',
+                        'content': user.first_name
+                    },
+                    {
+                        'name': 'ADMIN_LASTNAME',
+                        'content': user.last_name
+                    },
+                    {
+                        'name': 'ORG_NAME',
+                        'content': self.Organisation
+                    },
+                ])
+
+                # sending emails to the new users and existing users with no passw
+                if volunteers:
+                    sendBulkEmail(
+                        'invite-volunteer',
+                        None,
+                        email_template_merge_vars,
+                        volunteers,
+                        user.email,
+                        session=self.request.session,
+                        marker='1',
+                        test_mode=test_mode
+                    )
+
+            except Exception as e:
+                logger.error(
+                    'unable to send email: %s (%s)',
+                    e,
+                    type(e)
+                )
+
+        return redirect('openCurrents:org-admin', len(volunteers))
 
 
 class EventCreatedView(TemplateView):
