@@ -1377,7 +1377,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
                 {'name': 'LNAME', 'content': self.user.last_name},
                 {'name': 'EMAIL', 'content': self.user.email},
                 {'name': 'BIZ_NAME', 'content': email_biz_name},
-                {'name': 'ITEM_NAME', 'content': self.offer.item},
+                {'name': 'ITEM_NAME', 'content': self.offer.item.name},
                 {'name': 'REDEEMED_CURRENTS', 'content': data['redeem_currents_amount']}
             ]
 
