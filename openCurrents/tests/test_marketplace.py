@@ -77,11 +77,11 @@ class SetupAll(TestCase):
         )
 
         # creating an offer
-        self.offer = _create_offer(
+        self.offer_master = _create_offer(
             self.biz_org, currents_share=self._SHARE * 100, is_master=True)
 
         # getting item
-        self.purchased_item = Item.objects.filter(offer__id=self.offer.id)[0]
+        self.purchased_item = Item.objects.filter(offer__id=self.offer_master.id)[0]
 
         # setting up client
         self.client = Client()
@@ -99,13 +99,21 @@ class TestMarketplaceNonLogged(SetupAll):
         response = self.client.get('/marketplace/')
         processed_content = re.sub(r'\s+', ' ', response.content)
 
-        # assert user sees public marketplace page
-        self.assertIn(
-            'href="/redeem-currents/1/', response.content
-        )
+        # generic assertions
         self.assertIn(
             '<h3 class="title-sub"> Marketplace </h3>', processed_content
         )
+
+        # assert user sees public marketplace page
+        for biz_name in ['Amazon', 'Central Market', 'HEB', 'Whole Foods']:
+            self.assertIn(
+                '/redeem-currents/{}/?biz_name={}'.format(
+                    self.offer_master.id, biz_name
+                ),
+                response.content
+            )
+
+        # TODO: add other biz's offers and assert for their presence
 
     def test_reedeem_offer_marketplace_nonlogged(self):
         """
