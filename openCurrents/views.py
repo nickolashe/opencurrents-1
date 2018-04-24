@@ -4163,11 +4163,12 @@ def process_signup(
 
                         messages.add_message(
                             request,
-                            messages.WARNING,
+                            messages.ERROR,
                             mark_safe('{} is associated to {}. Please use a separate email to create another organization, or <a href="javascript:void(Tawk_API.toggle())">contact us</a>  to edit the organization name.'.format(
                                 user_email,
                                 str(oc_user_org.name)
-                            ))
+                            )),
+                            extra_tags='alert'
                         )
                         return redirect(
                             reverse('openCurrents:{}'.format(redirection)) + '#signup'
