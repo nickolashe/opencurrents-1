@@ -135,6 +135,15 @@
   }
 }
 
+.messages-framework {
+  background-color: #ffffff;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  position: fixed;
+  top: 60px;
+  z-index: 3;
+}
+
 #intro-1, #intro-2, #intro-3, #intro-4, #intro-5, #intro-6, #intro-7 {
   min-height: 100vh;
 }

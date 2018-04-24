@@ -457,23 +457,16 @@
 
 
 {% block js %}
+  {{ block.super }}
+
   <script type="text/javascript">
-    $('#signup-type-2').click(function(){
-      $('#org-signup-name').slideDown();
-    });
-
-    $('#signup-type-1').click(function(){
-      $('#org-signup-name').slideUp();
-    });
-
-    $('#show-diagram').click(function(){
-      $(this).parent().fadeOut(777, function(){
-        $('.diagram-div').fadeIn(777);
-      });
-      var width = $(window).width();
-          var height = $(window).height();
-          $('#home').resize(width, height);
-    });
+    // $('#signup-type-2').click(function(){
+    //   $('#org-signup-name').slideDown();
+    // });
+    //
+    // $('#signup-type-1').click(function(){
+    //   $('#org-signup-name').slideUp();
+    // });
 
     // small benefits box
     $('.benefit-icon').click(function(){
@@ -527,12 +520,6 @@
             vid.attr('src', src);
         }
       }
-    });
-
-    $('#signup-box, #suggestion-box, #demo-box').popup({
-      vertical: 'top',
-      transition: 'all 0.75s',
-      scrolllock: false,
     });
   </script>
 {% endblock js %}
