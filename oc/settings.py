@@ -115,6 +115,8 @@ PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
 MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'mediafiles')
+CONTENT_TYPES = ['image', 'video']
+MAX_UPLOAD_SIZE = 15 * 1024 * 1024
 
 if os.getenv('GAE_INSTANCE') or os.getenv('GOOGLE_CLOUD_PROXY'):
     # Production
