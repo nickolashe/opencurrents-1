@@ -51,3 +51,18 @@ def create_event_url(org_id):
     )
 
     return create_event_url
+
+
+def add_vols_to_past_event_url(event_ids):
+    """
+    Add volunteers to an event.
+
+    Takes integer event_ids, returns 'invite-volunteers-past/x/' url.
+    """
+    add_vols_to_past_event_url = reverse(
+        'invite-volunteers-past',
+        urlconf=urls,
+        kwargs={'event_ids': event_ids}
+    )
+
+    return add_vols_to_past_event_url
