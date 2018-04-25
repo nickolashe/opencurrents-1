@@ -13,7 +13,6 @@ from openCurrents.models import (
     UserSettings,
     UserEntity,
     UserEventRegistration,
-    User
 )
 
 # INTERFACES
@@ -22,12 +21,15 @@ from openCurrents.interfaces.orgs import (
     OcOrg,
     OrgUserInfo
 )
+from openCurrents.tests.interfaces import testing_urls
 from openCurrents.tests.interfaces.common import (
     SetupAdditionalTimeRecords,
 )
 
 
 class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
+
+    invite_volunteers_url = testing_urls.invite_volunteers_url
 
     def setUp(self):
         """Setup testing env."""
@@ -73,14 +75,14 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
     def test_invite_new_single_no_message(self):
         """Test invitation of a single new volunteer without a personal message (no event)."""
         self.client.login(username=self.npf_admin_1.username, password='password')
-        self.response = self.client.get('/invite-volunteers/')
+        self.response = self.client.get(self.invite_volunteers_url)
         session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
 
         # posting form
         response = self.client.post(
-            "/invite-volunteers/",
+            self.invite_volunteers_url,
             {
                 'vol-name-1': 'test_guest_1',
                 'vol-email-1': 'single_test_guest_1@mail.cc',
@@ -92,7 +94,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         )
 
         # assert if we've been redirected
-        self.assertRedirects(response, '/org-admin/1/', status_code=302)
+        self.assertRedirects(response, testing_urls.org_admin_url + '1', status_code=302)
 
         # asserting that bulk email function has been launched
         self.assertEqual(session['bulk'], '1')
@@ -117,14 +119,14 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
     def test_invite_new_bulk_no_message(self):
         """Test invitation of a bunch of new volunteers without a personal message (no event)."""
         self.client.login(username=self.npf_admin_1.username, password='password')
-        self.response = self.client.get('/invite-volunteers/')
+        self.response = self.client.get(self.invite_volunteers_url)
         session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
 
         # posting form
         self.response = self.client.post(
-            "/invite-volunteers/",
+            self.invite_volunteers_url,
             {
                 'bulk-vol': '<bulk_test_guest_1@e.cc>, test_guest_firstname test_guest_lastname <bulk_test_guest_2@e.cc>, bulk_test_guest_3@e.cc, bulk_test_guest_4@e.cc',
                 'personal_message': '',
@@ -161,14 +163,14 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
     def test_invite_new_single_with_personal_message(self):
         """Test invitation of a single new volunteer with personal message (no event)."""
         self.client.login(username=self.npf_admin_1.username, password='password')
-        self.response = self.client.get('/invite-volunteers/')
+        self.response = self.client.get(self.invite_volunteers_url)
         session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
 
         # posting form
         response = self.client.post(
-            "/invite-volunteers/",
+            self.invite_volunteers_url,
             {
                 'vol-name-1': 'test_guest_1',
                 'vol-email-1': 'single_test_guest_1@mail.cc',
@@ -209,14 +211,14 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         with personal message (no event)
         """
         self.client.login(username=self.npf_admin_1.username, password='password')
-        self.response = self.client.get('/invite-volunteers/')
+        self.response = self.client.get(self.invite_volunteers_url)
         session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
 
         # posting form
         response = self.client.post(
-            "/invite-volunteers/",
+            self.invite_volunteers_url,
             {
                 'bulk-vol': '<bulk_test_guest_1@e.cc>, test_guest_firstname test_guest_lastname <bulk_test_guest_2@e.cc>, bulk_test_guest_3@e.cc, bulk_test_guest_4@e.cc',
                 'personal_message': 'Test msg 2',
@@ -253,7 +255,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
     def test_invite_single_existing_no_message(self):
         """Test invitation of a registered single volunteer without a personal message (no event) - No emails sent."""
         self.client.login(username=self.npf_admin_1.username, password='password')
-        self.response = self.client.get('/invite-volunteers/')
+        self.response = self.client.get(self.invite_volunteers_url)
         session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
@@ -263,7 +265,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
 
         # posting form
         response = self.client.post(
-            "/invite-volunteers/",
+            self.invite_volunteers_url,
             {
                 'vol-name-1': self.volunteer1.username,
                 'vol-email-1': self.volunteer1.email,
@@ -289,7 +291,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
     def test_invite_single_existing_with_message(self):
         """Test invitation of a registered single volunteer with a personal message (no event) - No emails sent."""
         self.client.login(username=self.npf_admin_1.username, password='password')
-        self.response = self.client.get('/invite-volunteers/')
+        self.response = self.client.get(self.invite_volunteers_url)
         session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
@@ -299,7 +301,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
 
         # posting form
         response = self.client.post(
-            "/invite-volunteers/",
+            self.invite_volunteers_url,
             {
                 'vol-name-1': self.volunteer1.username,
                 'vol-email-1': self.volunteer1.email,
@@ -325,7 +327,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
     def test_invite_bulk_existing_with_personal_message(self):
         """Test invitation of a bunch of existing volunteers with personal message (no event) - No emails sent."""
         self.client.login(username=self.npf_admin_1.username, password='password')
-        self.response = self.client.get('/invite-volunteers/')
+        self.response = self.client.get(self.invite_volunteers_url)
         session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
@@ -336,7 +338,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
 
         # posting form
         response = self.client.post(
-            "/invite-volunteers/",
+            self.invite_volunteers_url,
             {
                 'bulk-vol': self.volunteer1.email + ", " + self.volunteer2.email,
                 'personal_message': 'Test msg bulk existing users',
@@ -359,7 +361,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
     def test_invite_bulk_existing_without_personal_message(self):
         """Test invitation of a bunch of existing volunteers with personal message (no event) - No emails sent."""
         self.client.login(username=self.npf_admin_1.username, password='password')
-        self.response = self.client.get('/invite-volunteers/')
+        self.response = self.client.get(self.invite_volunteers_url)
         session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
@@ -370,7 +372,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
 
         # posting form
         response = self.client.post(
-            "/invite-volunteers/",
+            self.invite_volunteers_url,
             {
                 'bulk-vol': self.volunteer1.email + ", " + self.volunteer2.email,
                 'personal_message': '',
@@ -397,14 +399,14 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         - don't send email to the the user W pass
         """
         self.client.login(username=self.npf_admin_1.username, password='password')
-        self.response = self.client.get('/invite-volunteers/')
+        self.response = self.client.get(self.invite_volunteers_url)
         session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
 
         # posting form
         response = self.client.post(
-            "/invite-volunteers/",
+            self.invite_volunteers_url,
             {
                 'bulk-vol': self.volunteer1.email + ", " + self.volunteer2.email + ", " + self.volunteer3.email,
                 'personal_message': 'Test msg 2',
@@ -444,14 +446,14 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         - don't send email to the the user WO pass
         """
         self.client.login(username=self.npf_admin_1.username, password='password')
-        self.response = self.client.get('/invite-volunteers/')
+        self.response = self.client.get(self.invite_volunteers_url)
         session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
 
         # posting form
         response = self.client.post(
-            "/invite-volunteers/",
+            self.invite_volunteers_url,
             {
                 'bulk-vol': self.volunteer1.email + ", " + self.volunteer2.email + ", " + self.volunteer3.email,
                 'personal_message': '',
@@ -491,14 +493,14 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         - send email
         """
         self.client.login(username=self.npf_admin_1.username, password='password')
-        self.response = self.client.get('/invite-volunteers/')
+        self.response = self.client.get(self.invite_volunteers_url)
         session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
 
         # posting form
         response = self.client.post(
-            "/invite-volunteers/",
+            self.invite_volunteers_url,
             {
                 'vol-name-1': self.volunteer3.username,
                 'vol-email-1': self.volunteer3.email,

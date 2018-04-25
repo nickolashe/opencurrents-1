@@ -19,6 +19,12 @@ profile_url = reverse(
 )
 
 
+invite_volunteers_url = reverse(
+    'invite-volunteers',
+    urlconf=urls
+)
+
+
 def _get_url(id, url_string='', param_name_string=''):
     """
     Generate urls with kwargs.
