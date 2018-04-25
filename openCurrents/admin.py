@@ -24,6 +24,20 @@ from openCurrents.models import (
 )
 
 
+class AdminActionUserTimeResource(resources.ModelResource):
+    class Meta:
+        model = AdminActionUserTime
+
+
+class AdminActionUserTimeAdmin(ImportExportModelAdmin):
+    resource_class = AdminActionUserTimeResource
+    search_fields = (
+        'user__email',
+        'usertimelog__user__email',
+        'usertimelog__event__project__org__name'
+    )
+
+
 class LedgerResource(resources.ModelResource):
     class Meta:
         model = Ledger
@@ -56,6 +70,16 @@ class TransactionAdmin(ImportExportModelAdmin):
     )
 
 
+class UserCashOutResource(resources.ModelResource):
+    class Meta:
+        model = UserCashOut
+
+
+class UserCashOutAdmin(ImportExportModelAdmin):
+    resource_class = UserCashOutResource
+    search_fields = ('user__email',)
+
+
 class UserTimeLogResource(resources.ModelResource):
     class Meta:
         model = UserTimeLog
@@ -63,7 +87,13 @@ class UserTimeLogResource(resources.ModelResource):
 
 class UserTimeLogAdmin(ImportExportModelAdmin):
     resource_class = UserTimeLogResource
-    search_fields = ('user__id', 'user__email', 'event__id', 'event__name')
+    search_fields = (
+        'user__id',
+        'user__email',
+        'event__id',
+        'event__project__name',
+        'event__project__org__name'
+    )
 
 
 admin.site.register(Org, OrgAdmin)
@@ -71,11 +101,11 @@ admin.site.register(OrgUser)
 admin.site.register(Token)
 admin.site.register(Project)
 admin.site.register(Event)
-admin.site.register(UserCashOut)
+admin.site.register(UserCashOut, UserCashOutAdmin)
 admin.site.register(UserEventRegistration)
 admin.site.register(UserSettings)
 admin.site.register(UserTimeLog, UserTimeLogAdmin)
-admin.site.register(AdminActionUserTime)
+admin.site.register(AdminActionUserTime, AdminActionUserTimeAdmin)
 admin.site.register(Offer)
 admin.site.register(Transaction, TransactionAdmin)
 admin.site.register(Item)
