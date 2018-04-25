@@ -21,8 +21,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'k)2cm1xy=m9zwyvqj9xw@0pe(fnzlmtq&x6xzk@@em2$590_wg'
-
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
 ALLOWED_HOSTS = ['*']
 
@@ -38,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'openCurrents.apps.OpencurrentsConfig',
     'macros',
-    'django_extensions'
+    'django_extensions',
+    'import_export'
 ]
 
 MIDDLEWARE = [
