@@ -1,25 +1,26 @@
 from django.contrib import admin
 
 # Register your models here.
-from openCurrents.models import \
-    Org, \
-    OrgUser, \
-    Token, \
-    Project, \
-    Event, \
-    UserCashout, \
-    UserEventRegistration, \
-    UserSettings, \
-    UserTimeLog, \
-    AdminActionUserTime, \
-    Offer, \
-    Transaction, \
-    Item, \
-    TransactionAction, \
-    Entity, \
-    UserEntity, \
-    OrgEntity, \
+from openCurrents.models import (
+    Org,
+    OrgUser,
+    Token,
+    Project,
+    Event,
+    UserCashOut,
+    UserEventRegistration,
+    UserSettings,
+    UserTimeLog,
+    AdminActionUserTime,
+    Offer,
+    Transaction,
+    Item,
+    TransactionAction,
+    Entity,
+    UserEntity,
+    OrgEntity,
     Ledger
+)
 
 admin.site.register(Org)
 admin.site.register(OrgUser)
