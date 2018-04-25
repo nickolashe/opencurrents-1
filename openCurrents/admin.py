@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib import messages
+from django.core.exceptions import ValidationError
 
 # Register your models here.
 from openCurrents.models import \
@@ -21,6 +22,8 @@ from openCurrents.models import \
     OrgEntity, \
     Ledger
 
+from django import forms
+
 admin.site.register(Org)
 admin.site.register(OrgUser)
 admin.site.register(Token)
@@ -40,18 +43,32 @@ admin.site.register(OrgEntity)
 admin.site.register(Ledger)
 
 
+class TransactionActionAdminForm(forms.ModelForm):
+    class Meta:
+        model = TransactionAction
+        fields = '__all__'
+
+    def clean(self):
+        cleaned_data = super(TransactionActionAdminForm, self).clean()
+        tr = cleaned_data['transaction']
+
+        transaction_num = len(
+            TransactionAction.objects.filter(transaction=tr)
+        )
+
+        # validating if admin created a new transaction instead of
+        # editing existing one
+        if transaction_num > 0:
+
+            error_msg = 'Missing TransactionAction type=pending. Please add \
+TransactionAction instead of changing existing one!'
+
+            raise ValidationError(error_msg)
+
+        else:
+            return self.cleaned_data
+
+
 @admin.register(TransactionAction)
 class TransactionActionAdmin(admin.ModelAdmin):
-
-    def save_model(self, request, obj, form, change):
-        # get model instance
-        tr_action = form.instance
-
-        # notify admin if he tries change status to 'pending'
-        if tr_action.action_type == 'req':
-            messages.add_message(
-                request, messages.ERROR,
-                'Missing TransactionAction type=pending. Please add \
-TransactionAction instead of changing existing one.!'
-            )
-        super(TransactionActionAdmin, self).save_model(request, obj, form, change)
+    form = TransactionActionAdminForm

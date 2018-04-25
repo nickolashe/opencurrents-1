@@ -17,6 +17,10 @@ import logging
 # Notes:
 # *) unverified users are still created as User objects but with unusable password
 
+logging.basicConfig(level=logging.DEBUG, filename='log/models.log')
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
 
 # org model
 class Org(models.Model):
@@ -625,10 +629,13 @@ class TransactionAction(models.Model):
         from openCurrents.views import sendTransactionalEmail
         from openCurrents.interfaces.ocuser import OcUser
 
+        # check if the transaction action for selected transaction exists
+        tr = self.transaction
 
         if self.action_type == 'app':
-            tr = self.transaction
             oc_user = OcUser(tr.user.id)
+
+            usd_amount = convert.cur_to_usd(tr.currents_amount, True)
 
             # transact cur from user to org
             Ledger.objects.create(
@@ -639,47 +646,57 @@ class TransactionAction(models.Model):
                 transaction=self
             )
 
-            logging.basicConfig(level=logging.DEBUG, filename='log/views.log')
-            logger = logging.getLogger(__name__)
-            logger.setLevel(logging.DEBUG)
-
             # transact usd from oC to user
             Ledger.objects.create(
-                entity_from=OrgEntity.objects.get(org__name='openCurrents'),
+                entity_from=OrgEntity.objects.get(org__name='goodvibes'),
                 entity_to=tr.user.userentity,
                 currency='usd',
-                amount=convert.cur_to_usd(tr.currents_amount, True),
+                amount=usd_amount,
                 transaction=self
             )
 
             # sending email to user about transaction approvment
-
-            if not tr.biz_name:
-                bizname = 'N/A'
-            else:
-                bizname = tr.biz_name
+            bizname = tr.biz_name if tr.biz_name else tr.offer.org.name
 
             try:
                 email_vars_transactional = [
-                    {'name': 'BIZ_NAME', 'content': bizname},
-                    {'name': 'DOLLARS_REDEEMED', 'content': str(convert.cur_to_usd(tr.currents_amount, True))},
-                    {'name': 'CURRENTS_REDEEMED', 'content': str(tr.currents_amount)},
-                    {'name': 'CURRENTS_AVAILABLE', 'content': str(oc_user.get_balance_available())},
-                    {'name': 'DOLLARS_AVAILABLE', 'content': str(oc_user.get_balance_available_usd())},
+                    {
+                        'name': 'BIZ_NAME',
+                        'content': bizname
+                    },
+                    {
+                        'name': 'DOLLARS_REDEEMED',
+                        'content': usd_amount
+                    },
+                    {
+                        'name': 'CURRENTS_REDEEMED',
+                        'content': str(tr.currents_amount)
+                    },
+                    {
+                        'name': 'CURRENTS_AVAILABLE',
+                        'content': oc_user.get_balance_available()
+                    },
+                    {
+                        'name': 'DOLLARS_AVAILABLE',
+                        'content': oc_user.get_balance_available_usd()
+                    },
                 ]
 
                 sendTransactionalEmail(
                     'transaction-approved',
                     None,
                     email_vars_transactional,
-                    'tevtonez@gmail.com',
+                    tr.user,
                 )
             except Exception as e:
-                    logger.error(
-                        'unable to send transactional email: %s (%s)',
-                        e.message,
-                        type(e)
-                    )
+                logger.error(
+                    'unable to send transactional email: %s',
+                    {
+                        'message': e.message,
+                        'error': e,
+                        'template_name': 'transaction-approved'
+                    }
+                )
 
     def __unicode__(self):
         return ' '.join([
