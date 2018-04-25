@@ -4070,11 +4070,23 @@ def process_signup(
         isExisting = False
         try:
             if org_name and Org.objects.filter(name=org_name).exists():
-                return redirect(
-                    'openCurrents:login',
-                    status_msg='Organization named %s already exists!' % org_name,
-                    msg_type='alert'
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    mark_safe('Organization named {} already exists!'.format(
+                        org_name,
+                    )),
+                    extra_tags='alert'
                 )
+                return redirect(
+                    reverse('openCurrents:home') + '#signup'
+                )
+
+                # return redirect(
+                #     'openCurrents:login',
+                #     status_msg='Organization named %s already exists!' % org_name,
+                #     msg_type='alert'
+                # )
             else:
                 user = OcUser().setup_user(
                     username=user_email,
