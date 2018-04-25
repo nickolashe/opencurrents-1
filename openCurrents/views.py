@@ -120,45 +120,43 @@ class DatetimeEncoder(json.JSONEncoder):
 
 
 class SessionContextView(View):
+    def _set_session_attributes(self):
+        """Sets ocuser, org, orguserinfo, ocauth view attributes."""
+        self.ocuser = OcUser(self.userid)
+        self.ocauth = OcAuth(self.userid)
+        self.orguser = OrgUserInfo(self.userid)
+        self.org = self.orguser.get_org()
+
+    def _get_data_for_context(self, context, userid):
+        """Generate data for get_context_data method."""
+        context['userid'] = userid
+        context['org'] = self.org
+        context['orgid'] = self.orguser.get_org_id()
+        context['org_id'] = self.orguser.get_org_id()
+        context['orgname'] = self.orguser.get_org_name()
+        context['org_timezone'] = self.orguser.get_org_timezone()
+        context['is_admin'] = self.ocauth.is_admin()
+        context['is_admin_org'] = self.ocauth.is_admin_org()
+        context['is_admin_biz'] = self.ocauth.is_admin_biz()
+
     def dispatch(self, request, *args, **kwargs):
-        """Process request and args and return HTTP response."""
         if self.request.user.is_authenticated():
-            self.userid = request.user.id
             self.user = request.user
-
-            # oc user
-            self.ocuser = OcUser(self.userid)
-
-            # user org
-            orguserinfo = OrgUserInfo(request.user.id)
-            self.org = orguserinfo.get_org()
-
-            # org auth
-            self.ocauth = OcAuth(self.userid)
+            self.userid = self.user.id
 
         if 'new_biz_registration' not in self.request.session.keys() \
                 and not self.request.user.is_authenticated():
             return redirect('openCurrents:403')
 
         elif 'new_biz_registration' in self.request.session.keys():
-
             logger.debug('registering new biz org...')
-
             self.userid = self.request.session['new_biz_user_id']
             try:
                 self.user = User.objects.get(id=self.userid)
             except:
                 logger.debug('Couldnt find the user by id')
 
-            # oc user
-            self.ocuser = OcUser(self.userid)
-
-            # user org
-            orguserinfo = OrgUserInfo(self.userid)
-            self.org = orguserinfo.get_org()
-
-            # org auth
-            self.ocauth = OcAuth(self.userid)
+        self._set_session_attributes()
 
         return super(SessionContextView, self).dispatch(
             request,
@@ -170,57 +168,24 @@ class SessionContextView(View):
         """Get context data."""
         context = super(SessionContextView, self).get_context_data(**kwargs)
 
-        if self.request.user.is_authenticated():
+        is_user_authenticated = self.request.user.is_authenticated()
+        if is_user_authenticated:
             userid = self.request.user.id
-            context['userid'] = userid
+            self._get_data_for_context(context, userid)
+        else:
+            session = self.request.session
+            if 'new_biz_registration' in session.keys():
+                userid = self.request.session['new_biz_user_id']
+                self._get_data_for_context(context, userid)
+            else:
+                return redirect('openCurrents:403')
 
-            # user org
-            orguser = OrgUserInfo(userid)
-            org = orguser.get_org()
-            orgid = orguser.get_org_id()
-            context['org'] = org
-            context['orgid'] = orgid
-            context['org_id'] = orgid
-            context['orgname'] = orguser.get_org_name()
-            context['org_timezone'] = orguser.get_org_timezone()
-            context['is_admin'] = self.ocauth.is_admin()
-            context['is_admin_org'] = self.ocauth.is_admin_org()
-            context['is_admin_biz'] = self.ocauth.is_admin_biz()
+        # workaround with status message for anything but TemplateView
+        if 'status_msg' in self.kwargs and ('form' not in context or not context['form'].errors):
+            context['status_msg'] = self.kwargs.get('status_msg', '')
 
-            # workaround with status message for anything but TemplateView
-            if 'status_msg' in self.kwargs and ('form' not in context or not context['form'].errors):
-                context['status_msg'] = self.kwargs.get('status_msg', '')
-
-            if 'msg_type' in self.kwargs:
-                context['msg_type'] = self.kwargs.get('msg_type', '')
-
-        if 'new_biz_registration' not in self.request.session.keys() \
-                and not self.request.user.is_authenticated():
-            return redirect('openCurrents:403')
-
-        elif 'new_biz_registration' in self.request.session.keys():
-            userid = self.request.session['new_biz_user_id']
-            context['userid'] = userid
-
-            # user org
-            orguser = OrgUserInfo(userid)
-            org = orguser.get_org()
-            orgid = orguser.get_org_id()
-            context['org'] = org
-            context['orgid'] = orgid
-            context['org_id'] = orgid
-            context['orgname'] = orguser.get_org_name()
-            context['org_timezone'] = orguser.get_org_timezone()
-            context['is_admin'] = self.ocauth.is_admin()
-            context['is_admin_org'] = self.ocauth.is_admin_org()
-            context['is_admin_biz'] = self.ocauth.is_admin_biz()
-
-            # workaround with status message for anything but TemplateView
-            if 'status_msg' in self.kwargs and ('form' not in context or not context['form'].errors):
-                context['status_msg'] = self.kwargs.get('status_msg', '')
-
-            if 'msg_type' in self.kwargs:
-                context['msg_type'] = self.kwargs.get('msg_type', '')
+        if 'msg_type' in self.kwargs:
+            context['msg_type'] = self.kwargs.get('msg_type', '')
 
         return context
 
@@ -1387,7 +1352,8 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
                 {'name': 'EMAIL', 'content': self.user.email},
                 {'name': 'BIZ_NAME', 'content': email_biz_name},
                 {'name': 'ITEM_NAME', 'content': self.offer.item.name},
-                {'name': 'REDEEMED_CURRENTS', 'content': data['redeem_currents_amount']}
+                {'name': 'REDEEMED_CURRENTS', 'content': data['redeem_currents_amount']},
+                {'name': 'DOLLAR_PRICE', 'content': str(data['redeem_price'])}
             ]
 
             sendTransactionalEmail(
@@ -2140,7 +2106,7 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
         context['hours_by_org'] = self.ocuser.get_hours_approved(**{'by_org': True})
 
         # user timezone
-        #context['timezone'] = self.request.user.account.timezone
+        # context['timezone'] = self.request.user.account.timezone
         context['timezone'] = self.request.user.usersettings.timezone
 
         # getting issued currents
@@ -2158,6 +2124,8 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
 
         context['has_bonus'] = OcLedger().has_bonus(self.user.userentity)
         context['bonus_amount'] = common._SIGNUP_BONUS
+
+        context['has_volunteered'] = context['hours_by_org']
 
         return context
 
@@ -4190,7 +4158,7 @@ def process_signup(
                             {'name': 'FNAME', 'content': user_firstname},
                             {'name': 'LNAME', 'content': user_lastname},
                             {'name': 'EMAIL', 'content': user_email},
-                            {'name': 'ORG_NAME','content': org_name},
+                            {'name': 'ORG_NAME', 'content': org_name},
                             {'name': 'ORG_STATUS', 'content': org_status}
                         ],
                         'bizdev@opencurrents.com'
