@@ -87,7 +87,15 @@ class OrgUser(models.Model):
 
 
 class Entity(models.Model):
-    pass
+    def __unicode__(self):
+        try:
+            entity = OrgEntity.objects.get(id=self.id)
+            name_from = entity.org.name
+        except:
+            entity = UserEntity.objects.get(id=self.id)
+            name_from = entity.user.username
+
+        return name_from
 
 
 class UserEntity(Entity):
