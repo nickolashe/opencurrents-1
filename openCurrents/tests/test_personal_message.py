@@ -22,23 +22,12 @@ from openCurrents.interfaces.orgs import (
     OcOrg,
     OrgUserInfo
 )
+from openCurrents.tests.interfaces.common import (
+    SetupAdditionalTimeRecords,
+)
 
 
-class TestIvniteVolunteersNoEvent(TestCase):
-
-    def _get_merge_vars_keys_values(self, merge_vars):
-
-        values=[]
-        for i in merge_vars:
-            values.extend(i.values())
-        return values
-
-
-    def _assert_merge_vars(self, merge_vars, values_list):
-        mergedvars_values=self._get_merge_vars_keys_values(merge_vars)
-        for value in values_list:
-            self.assertIn(value, mergedvars_values)
-
+class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
 
     def setUp(self):
 
@@ -554,22 +543,7 @@ class TestIvniteVolunteersNoEvent(TestCase):
         self.assertIn('test_user_3', self.client.session['recepient'][0]['email'])
 
 
-class TestIvniteVolunteersToEvent(TestCase):
-
-
-    def _get_merge_vars_keys_values(self, merge_vars):
-
-        values=[]
-        for i in merge_vars:
-            values.extend(i.values())
-        return values
-
-
-    def _assert_merge_vars(self, merge_vars, values_list):
-        mergedvars_values=self._get_merge_vars_keys_values(merge_vars)
-        for value in values_list:
-            self.assertIn(value, mergedvars_values)
-
+class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
 
     def setUp(self):
 
