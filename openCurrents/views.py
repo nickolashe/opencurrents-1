@@ -4081,12 +4081,6 @@ def process_signup(
                 return redirect(
                     reverse('openCurrents:home') + '#signup'
                 )
-
-                # return redirect(
-                #     'openCurrents:login',
-                #     status_msg='Organization named %s already exists!' % org_name,
-                #     msg_type='alert'
-                # )
             else:
                 user = OcUser().setup_user(
                     username=user_email,
