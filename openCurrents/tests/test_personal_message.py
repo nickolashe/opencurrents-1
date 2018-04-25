@@ -96,7 +96,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertRedirects(response, '/org-admin/1/', status_code=302)
 
         # asserting that bulk email function has been launched
-        self.assertEqual(self.client.session['bulk'], '1')
+        self.assertEqual(session['bulk'], '1')
 
         # assert a user was created
         self.assertTrue(User.objects.get(username='single_test_guest_1@mail.cc'), 'single_test_guest_1@mail.cc')
@@ -112,8 +112,8 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         self._assert_merge_vars(session['merge_vars'],expected_list)
 
         # assert we pass emails to mandril
-        self.assertEqual(len(self.client.session['recepient']), 1)
-        self.assertIn('single_test_guest_1@mail.cc', self.client.session['recepient'][0]['email'])
+        self.assertEqual(len(session['recepient']), 1)
+        self.assertIn('single_test_guest_1@mail.cc', session['recepient'][0]['email'])
 
 
     def test_invite_new_bulk_no_message(self):
@@ -138,7 +138,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertRedirects(self.response, '/org-admin/4/', status_code=302)
 
         # asserting that bulk email function has been launched
-        self.assertEqual(self.client.session['bulk'], '1')
+        self.assertEqual(session['bulk'], '1')
 
         # assert new users were created
         self.assertEqual(len(User.objects.filter(username__contains='bulk_test_guest_')), 4)
@@ -154,11 +154,11 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         self._assert_merge_vars(session['merge_vars'],expected_list)
 
         # assert we pass emails to mandril
-        self.assertEqual(len(self.client.session['recepient']), 4)
-        self.assertIn('bulk_test_guest_1@e.cc', self.client.session['recepient'][0]['email'])
-        self.assertIn('bulk_test_guest_2@e.cc', self.client.session['recepient'][1]['email'])
-        self.assertIn('bulk_test_guest_3@e.cc', self.client.session['recepient'][2]['email'])
-        self.assertIn('bulk_test_guest_4@e.cc', self.client.session['recepient'][3]['email'])
+        self.assertEqual(len(session['recepient']), 4)
+        self.assertIn('bulk_test_guest_1@e.cc', session['recepient'][0]['email'])
+        self.assertIn('bulk_test_guest_2@e.cc', session['recepient'][1]['email'])
+        self.assertIn('bulk_test_guest_3@e.cc', session['recepient'][2]['email'])
+        self.assertIn('bulk_test_guest_4@e.cc', session['recepient'][3]['email'])
 
 
 
@@ -188,7 +188,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertRedirects(response, '/org-admin/1/', status_code=302)
 
         # asserting that bulk email function has been launched
-        self.assertEqual(self.client.session['bulk'], '1')
+        self.assertEqual(session['bulk'], '1')
 
         # assert a user was created
         self.assertTrue(User.objects.get(username='single_test_guest_1@mail.cc'), 'single_test_guest_1@mail.cc')
@@ -204,8 +204,8 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         self._assert_merge_vars(session['merge_vars'],expected_list)
 
         # assert we pass emails to mandril
-        self.assertEqual(len(self.client.session['recepient']), 1)
-        self.assertIn('single_test_guest_1@mail.cc', self.client.session['recepient'][0]['email'])
+        self.assertEqual(len(session['recepient']), 1)
+        self.assertIn('single_test_guest_1@mail.cc', session['recepient'][0]['email'])
 
 
     def test_invite_new_bulk_with_personal_message(self):
@@ -231,7 +231,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertRedirects(response, '/org-admin/4/', status_code=302)
 
         # asserting that bulk email function has been launched
-        self.assertEqual(self.client.session['bulk'], '1')
+        self.assertEqual(session['bulk'], '1')
 
         # assert new users were created
         self.assertEqual(len(User.objects.filter(username__contains='bulk_test_guest_')), 4)
@@ -247,11 +247,11 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         self._assert_merge_vars(session['merge_vars'],expected_list)
 
         # assert we pass emails to mandril
-        self.assertEqual(len(self.client.session['recepient']), 4)
-        self.assertIn('bulk_test_guest_1@e.cc', self.client.session['recepient'][0]['email'])
-        self.assertIn('bulk_test_guest_2@e.cc', self.client.session['recepient'][1]['email'])
-        self.assertIn('bulk_test_guest_3@e.cc', self.client.session['recepient'][2]['email'])
-        self.assertIn('bulk_test_guest_4@e.cc', self.client.session['recepient'][3]['email'])
+        self.assertEqual(len(session['recepient']), 4)
+        self.assertIn('bulk_test_guest_1@e.cc', session['recepient'][0]['email'])
+        self.assertIn('bulk_test_guest_2@e.cc', session['recepient'][1]['email'])
+        self.assertIn('bulk_test_guest_3@e.cc', session['recepient'][2]['email'])
+        self.assertIn('bulk_test_guest_4@e.cc', session['recepient'][3]['email'])
 
 
 
@@ -283,13 +283,13 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertRedirects(response, '/org-admin/1/', status_code=302)
 
         # asserting that bulk email function didn't launch
-        self.assertNotIn('bulk', self.client.session)
+        self.assertNotIn('bulk', session)
 
         #asserting user not is in recepients
-        self.assertNotIn('recepient', self.client.session)
+        self.assertNotIn('recepient', session)
 
         # asserting email vars didn't get to session
-        self.assertNotIn('merge_vars', self.client.session)
+        self.assertNotIn('merge_vars', session)
 
 
     def test_invite_single_existing_with_message(self):
@@ -320,13 +320,13 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertRedirects(response, '/org-admin/1/', status_code=302)
 
         # asserting that bulk email function didn't launch
-        self.assertNotIn('bulk', self.client.session)
+        self.assertNotIn('bulk', session)
 
         #asserting user is not in recepients
-        self.assertNotIn('recepient', self.client.session)
+        self.assertNotIn('recepient', session)
 
         # asserting email vars didn't get to session
-        self.assertNotIn('merge_vars', self.client.session)
+        self.assertNotIn('merge_vars', session)
 
 
     def test_invite_bulk_existing_with_personal_message(self):
@@ -355,13 +355,13 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertRedirects(response, '/org-admin/2/', status_code=302)
 
         # asserting that bulk email function didn't launch
-        self.assertNotIn('bulk', self.client.session)
+        self.assertNotIn('bulk', session)
 
         #asserting user is not in recepients
-        self.assertNotIn('recepient', self.client.session)
+        self.assertNotIn('recepient', session)
 
         # asserting email vars didn't get to session
-        self.assertNotIn('merge_vars', self.client.session)
+        self.assertNotIn('merge_vars', session)
 
 
     def test_invite_bulk_existing_without_personal_message(self):
@@ -390,13 +390,13 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertRedirects(response, '/org-admin/2/', status_code=302)
 
         # asserting that bulk email function didn't launch
-        self.assertNotIn('bulk', self.client.session)
+        self.assertNotIn('bulk', session)
 
         #asserting user not is in recepients
-        self.assertNotIn('recepient', self.client.session)
+        self.assertNotIn('recepient', session)
 
         # asserting email vars didn't get to session
-        self.assertNotIn('merge_vars', self.client.session)
+        self.assertNotIn('merge_vars', session)
 
 
     def test_invite_wo_password_bulk_with_personal_message(self):
@@ -423,7 +423,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertRedirects(response, '/org-admin/3/', status_code=302)
 
         # asserting that bulk email function has been launched
-        self.assertEqual(self.client.session['bulk'], '1')
+        self.assertEqual(session['bulk'], '1')
 
         # assert new users were created
         self.assertEqual(len(User.objects.filter(username__contains='test_user_3')), 1)
@@ -440,10 +440,10 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         self._assert_merge_vars(session['merge_vars'],expected_list)
 
         # assert we pass emails to mandril
-        self.assertEqual(len(self.client.session['recepient']), 1)
-        self.assertNotIn('test_user_1', self.client.session['recepient'][0]['email'])
-        self.assertNotIn('test_user_2', self.client.session['recepient'][0]['email'])
-        self.assertIn('test_user_3', self.client.session['recepient'][0]['email'])
+        self.assertEqual(len(session['recepient']), 1)
+        self.assertNotIn('test_user_1', session['recepient'][0]['email'])
+        self.assertNotIn('test_user_2', session['recepient'][0]['email'])
+        self.assertIn('test_user_3', session['recepient'][0]['email'])
 
 
 
@@ -471,7 +471,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertRedirects(response, '/org-admin/3/', status_code=302)
 
         # asserting that bulk email function has been launched
-        self.assertEqual(self.client.session['bulk'], '1')
+        self.assertEqual(session['bulk'], '1')
 
         # assert additional user wasn't created
         self.assertEqual(len(User.objects.filter(username__contains='test_user_3')), 1)
@@ -488,10 +488,10 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         self._assert_merge_vars(session['merge_vars'],expected_list)
 
         # assert we pass emails to mandril
-        self.assertEqual(len(self.client.session['recepient']), 1)
-        self.assertNotIn('test_user_1', self.client.session['recepient'][0]['email'])
-        self.assertNotIn('test_user_2', self.client.session['recepient'][0]['email'])
-        self.assertIn('test_user_3', self.client.session['recepient'][0]['email'])
+        self.assertEqual(len(session['recepient']), 1)
+        self.assertNotIn('test_user_1', session['recepient'][0]['email'])
+        self.assertNotIn('test_user_2', session['recepient'][0]['email'])
+        self.assertIn('test_user_3', session['recepient'][0]['email'])
 
 
     def test_invite_existing_wo_pass_single_no_message(self):
@@ -520,7 +520,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertRedirects(response, '/org-admin/1/', status_code=302)
 
         # asserting that bulk email function has been launched
-        self.assertEqual(self.client.session['bulk'], '1')
+        self.assertEqual(session['bulk'], '1')
 
         # assert additional user wasn't created
         self.assertEqual(len(User.objects.filter(username__contains='test_user_3')), 1)
@@ -537,10 +537,10 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         self._assert_merge_vars(session['merge_vars'],expected_list)
 
         # assert we pass emails to mandril
-        self.assertEqual(len(self.client.session['recepient']), 1)
-        self.assertNotIn('test_user_1', self.client.session['recepient'][0]['email'])
-        self.assertNotIn('test_user_2', self.client.session['recepient'][0]['email'])
-        self.assertIn('test_user_3', self.client.session['recepient'][0]['email'])
+        self.assertEqual(len(session['recepient']), 1)
+        self.assertNotIn('test_user_1', session['recepient'][0]['email'])
+        self.assertNotIn('test_user_2', session['recepient'][0]['email'])
+        self.assertIn('test_user_3', session['recepient'][0]['email'])
 
 
 class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
@@ -642,7 +642,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertRedirects(response, '/org-admin/1/', status_code=302)
 
         # asserting that bulk email function has been launched
-        self.assertEqual(self.client.session['bulk'], '1')
+        self.assertEqual(session['bulk'], '1')
 
         # assert a user was created
         self.assertTrue(User.objects.get(username='single_test_guest_1@mail.cc'), 'single_test_guest_1@mail.cc')
@@ -658,8 +658,8 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         self._assert_merge_vars(session['merge_vars'],expected_list)
 
         # assert we pass emails to mandril
-        self.assertEqual(len(self.client.session['recepient']), 1)
-        self.assertIn('single_test_guest_1', self.client.session['recepient'][0]['email'])
+        self.assertEqual(len(session['recepient']), 1)
+        self.assertIn('single_test_guest_1', session['recepient'][0]['email'])
 
         # asserting user has been registered to event
         u = User.objects.get(email='single_test_guest_1@mail.cc')
@@ -688,7 +688,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertRedirects(self.response, '/org-admin/4/', status_code=302)
 
         # asserting that bulk email function has been launched
-        self.assertEqual(self.client.session['bulk'], '1')
+        self.assertEqual(session['bulk'], '1')
 
         # assert new users were created
         self.assertEqual(len(User.objects.filter(username__contains='bulk_test_guest_')), 4)
@@ -704,12 +704,12 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         self._assert_merge_vars(session['merge_vars'],expected_list)
 
         # assert we pass emails to mandril
-        self.assertEqual(len(self.client.session['recepient']), 4)
-        self.assertEqual(len(self.client.session['recepient']), 4)
-        self.assertIn('bulk_test_guest_1@e.cc', self.client.session['recepient'][0]['email'])
-        self.assertIn('bulk_test_guest_2@e.cc', self.client.session['recepient'][1]['email'])
-        self.assertIn('bulk_test_guest_3@e.cc', self.client.session['recepient'][2]['email'])
-        self.assertIn('bulk_test_guest_4@e.cc', self.client.session['recepient'][3]['email'])
+        self.assertEqual(len(session['recepient']), 4)
+        self.assertEqual(len(session['recepient']), 4)
+        self.assertIn('bulk_test_guest_1@e.cc', session['recepient'][0]['email'])
+        self.assertIn('bulk_test_guest_2@e.cc', session['recepient'][1]['email'])
+        self.assertIn('bulk_test_guest_3@e.cc', session['recepient'][2]['email'])
+        self.assertIn('bulk_test_guest_4@e.cc', session['recepient'][3]['email'])
 
         # asserting user has been registered to event
         self.assertEqual(len(UserEventRegistration.objects.filter(user__username__contains='bulk_test_guest_')), 4)
@@ -741,7 +741,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertRedirects(response, '/org-admin/1/', status_code=302)
 
         # asserting that bulk email function has been launched
-        self.assertEqual(self.client.session['bulk'], '1')
+        self.assertEqual(session['bulk'], '1')
 
         # assert a user was created
         self.assertTrue(User.objects.get(username='single_test_guest_1@mail.cc'), 'single_test_guest_1@mail.cc')
@@ -757,8 +757,8 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         self._assert_merge_vars(session['merge_vars'],expected_list)
 
         # assert we pass emails to mandril
-        self.assertEqual(len(self.client.session['recepient']), 1)
-        self.assertIn('single_test_guest_1', self.client.session['recepient'][0]['email'])
+        self.assertEqual(len(session['recepient']), 1)
+        self.assertIn('single_test_guest_1', session['recepient'][0]['email'])
 
         # asserting user has been registered to event
         u = User.objects.get(email='single_test_guest_1@mail.cc')
@@ -787,7 +787,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertRedirects(response, '/org-admin/4/', status_code=302)
 
         # asserting that bulk email function has been launched
-        self.assertEqual(self.client.session['bulk'], '1')
+        self.assertEqual(session['bulk'], '1')
 
         # assert new users were created
         self.assertEqual(len(User.objects.filter(username__contains='bulk_test_guest_')), 4)
@@ -803,11 +803,11 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         self._assert_merge_vars(session['merge_vars'],expected_list)
 
         # assert we pass emails to mandril
-        self.assertEqual(len(self.client.session['recepient']), 4)
-        self.assertIn('bulk_test_guest_1@e.cc', self.client.session['recepient'][0]['email'])
-        self.assertIn('bulk_test_guest_2@e.cc', self.client.session['recepient'][1]['email'])
-        self.assertIn('bulk_test_guest_3@e.cc', self.client.session['recepient'][2]['email'])
-        self.assertIn('bulk_test_guest_4@e.cc', self.client.session['recepient'][3]['email'])
+        self.assertEqual(len(session['recepient']), 4)
+        self.assertIn('bulk_test_guest_1@e.cc', session['recepient'][0]['email'])
+        self.assertIn('bulk_test_guest_2@e.cc', session['recepient'][1]['email'])
+        self.assertIn('bulk_test_guest_3@e.cc', session['recepient'][2]['email'])
+        self.assertIn('bulk_test_guest_4@e.cc', session['recepient'][3]['email'])
 
         # asserting user has been registered to event
         self.assertEqual(len(UserEventRegistration.objects.filter(user__username__contains='bulk_test_guest_')), 4)
@@ -841,11 +841,11 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertRedirects(response, '/org-admin/1/', status_code=302)
 
         # asserting that bulk email function has been launched
-        self.assertEqual(self.client.session['bulk'], '1')
+        self.assertEqual(session['bulk'], '1')
 
         #asserting user is in recepients
-        self.assertTrue(self.client.session['recepient'][0]['email'], self.volunteer1.email)
-        self.assertTrue(self.client.session['recepient'][0]['name'], self.volunteer1.username)
+        self.assertTrue(session['recepient'][0]['email'], self.volunteer1.email)
+        self.assertTrue(session['recepient'][0]['name'], self.volunteer1.username)
 
         # asserting email vars values
         expected_list = ['first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'test_project_1', 'EVENT_TITLE', 'NPF_org_1', 'ORG_NAME', 'test_location_1', 'EVENT_LOCATION']
@@ -856,7 +856,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         self._assert_merge_vars(session['merge_vars'],expected_list)
 
         # assert we pass emails to mandril
-        self.assertEqual(len(self.client.session['recepient']), 1)
+        self.assertEqual(len(session['recepient']), 1)
 
         # asserting user has been registered to event
         self.assertEqual(len(UserEventRegistration.objects.filter(user=self.volunteer1)), 1)
@@ -892,18 +892,18 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertRedirects(response, '/org-admin/1/', status_code=302)
 
         # asserting that bulk email function has been launched
-        self.assertEqual(self.client.session['bulk'], '1')
+        self.assertEqual(session['bulk'], '1')
 
         #asserting user is in recepients
-        self.assertTrue(self.client.session['recepient'][0]['email'], self.volunteer1.email)
-        self.assertTrue(self.client.session['recepient'][0]['name'], self.volunteer1.username)
+        self.assertTrue(session['recepient'][0]['email'], self.volunteer1.email)
+        self.assertTrue(session['recepient'][0]['name'], self.volunteer1.username)
 
         # asserting email vars values
         expected_list = ['Test msg single existing', 'PERSONAL_MESSAGE', 'first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'test_project_1', 'EVENT_TITLE', 'NPF_org_1', 'ORG_NAME', 'test_location_1', 'EVENT_LOCATION']
         self._assert_merge_vars(session['merge_vars'],expected_list)
 
         # assert we pass emails to mandril
-        self.assertEqual(len(self.client.session['recepient']), 1)
+        self.assertEqual(len(session['recepient']), 1)
 
         # asserting user has been registered to event
         self.assertEqual(len(UserEventRegistration.objects.filter(user=self.volunteer3)), 1)
@@ -939,18 +939,18 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertRedirects(response, '/org-admin/1/', status_code=302)
 
         # asserting that bulk email function has been launched
-        self.assertEqual(self.client.session['bulk'], '1')
+        self.assertEqual(session['bulk'], '1')
 
         #asserting user is in recepients
-        self.assertTrue(self.client.session['recepient'][0]['email'], self.volunteer3.email)
-        self.assertTrue(self.client.session['recepient'][0]['name'], self.volunteer3.username)
+        self.assertTrue(session['recepient'][0]['email'], self.volunteer3.email)
+        self.assertTrue(session['recepient'][0]['name'], self.volunteer3.username)
 
         # asserting email vars values
         expected_list = ['first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'test_project_1', 'EVENT_TITLE', 'NPF_org_1', 'ORG_NAME', 'test_location_1', 'EVENT_LOCATION']
         self._assert_merge_vars(session['merge_vars'],expected_list)
 
         # assert we pass emails to mandril
-        self.assertEqual(len(self.client.session['recepient']), 1)
+        self.assertEqual(len(session['recepient']), 1)
 
         # asserting user has been registered to event
         self.assertEqual(len(UserEventRegistration.objects.filter(user=self.volunteer3)), 1)
@@ -985,18 +985,18 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertRedirects(response, '/org-admin/1/', status_code=302)
 
         # asserting that bulk email function has been launched
-        self.assertEqual(self.client.session['bulk'], '1')
+        self.assertEqual(session['bulk'], '1')
 
         #asserting user is in recepients
-        self.assertTrue(self.client.session['recepient'][0]['email'], self.volunteer1.email)
-        self.assertTrue(self.client.session['recepient'][0]['name'], self.volunteer1.username)
+        self.assertTrue(session['recepient'][0]['email'], self.volunteer1.email)
+        self.assertTrue(session['recepient'][0]['name'], self.volunteer1.username)
 
         # asserting email vars values
         expected_list = ['Test msg single existing', 'PERSONAL_MESSAGE', 'first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'test_project_1', 'EVENT_TITLE', 'NPF_org_1', 'ORG_NAME', 'test_location_1', 'EVENT_LOCATION']
         self._assert_merge_vars(session['merge_vars'],expected_list)
 
         # assert we pass emails to mandril
-        self.assertEqual(len(self.client.session['recepient']), 1)
+        self.assertEqual(len(session['recepient']), 1)
 
         # asserting user has been registered to event
         self.assertEqual(len(UserEventRegistration.objects.filter(user=self.volunteer1)), 1)
@@ -1028,18 +1028,18 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertRedirects(response, '/org-admin/2/', status_code=302)
 
         # asserting that bulk email function has been launched
-        self.assertEqual(self.client.session['bulk'], '1')
+        self.assertEqual(session['bulk'], '1')
 
         #asserting both users are in recepients
-        self.assertTrue(self.client.session['recepient'][0]['email'], self.volunteer1.email)
-        self.assertTrue(self.client.session['recepient'][1]['email'], self.volunteer2.email)
+        self.assertTrue(session['recepient'][0]['email'], self.volunteer1.email)
+        self.assertTrue(session['recepient'][1]['email'], self.volunteer2.email)
 
         # asserting email vars values
         expected_list = ['Test msg bulk existing users', 'PERSONAL_MESSAGE', 'first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'test_project_1', 'EVENT_TITLE', 'NPF_org_1', 'ORG_NAME', 'test_location_1', 'EVENT_LOCATION']
         self._assert_merge_vars(session['merge_vars'],expected_list)
 
         # assert we pass emails to mandril
-        self.assertEqual(len(self.client.session['recepient']), 2)
+        self.assertEqual(len(session['recepient']), 2)
 
         # asserting user has been registered to event
         self.assertEqual(len(UserEventRegistration.objects.filter(user=self.volunteer1)), 1)
@@ -1072,18 +1072,18 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertRedirects(response, '/org-admin/2/', status_code=302)
 
         # asserting that bulk email function has been launched
-        self.assertEqual(self.client.session['bulk'], '1')
+        self.assertEqual(session['bulk'], '1')
 
         #asserting both users are in recepients
-        self.assertTrue(self.client.session['recepient'][0]['email'], self.volunteer1.email)
-        self.assertTrue(self.client.session['recepient'][1]['email'], self.volunteer2.email)
+        self.assertTrue(session['recepient'][0]['email'], self.volunteer1.email)
+        self.assertTrue(session['recepient'][1]['email'], self.volunteer2.email)
 
         # asserting email vars values
         expected_list = ['first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'test_project_1', 'EVENT_TITLE', 'NPF_org_1', 'ORG_NAME', 'test_location_1', 'EVENT_LOCATION']
         self._assert_merge_vars(session['merge_vars'],expected_list)
 
         # assert we pass emails to mandril
-        self.assertEqual(len(self.client.session['recepient']), 2)
+        self.assertEqual(len(session['recepient']), 2)
 
         # asserting user has been registered to event
         self.assertEqual(len(UserEventRegistration.objects.filter(user=self.volunteer1)), 1)
@@ -1114,7 +1114,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertRedirects(self.response, '/org-admin/2/', status_code=302)
 
         # asserting that bulk email function has been launched
-        self.assertEqual(self.client.session['bulk'], '1')
+        self.assertEqual(session['bulk'], '1')
 
         # assert new users weren't created (equals 4 because of 2 volunteers with usable passwrds)
         self.assertEqual(len(User.objects.filter(username__contains='test_user_')), 4)
@@ -1130,7 +1130,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         self._assert_merge_vars(session['merge_vars'],expected_list)
 
         # assert we pass emails to mandril
-        self.assertEqual(len(self.client.session['recepient']), 2)
+        self.assertEqual(len(session['recepient']), 2)
 
         # asserting user has been registered to event
         self.assertEqual(len(UserEventRegistration.objects.filter(user=self.volunteer3)), 1)
@@ -1163,7 +1163,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertRedirects(response, '/org-admin/2/', status_code=302)
 
         # asserting that bulk email function has been launched
-        self.assertEqual(self.client.session['bulk'], '1')
+        self.assertEqual(session['bulk'], '1')
 
         # assert new users weren't created (equals 4 because of 2 volunteers with usable passwrds)
         self.assertEqual(len(User.objects.filter(username__contains='test_user_')), 4)
@@ -1175,15 +1175,15 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertEqual(len(UserEntity.objects.filter(user__username__contains='test_user_')), 4)
 
         #asserting both users are in recepients
-        self.assertTrue(self.client.session['recepient'][0]['email'], self.volunteer3.email)
-        self.assertTrue(self.client.session['recepient'][1]['email'], self.volunteer4.email)
+        self.assertTrue(session['recepient'][0]['email'], self.volunteer3.email)
+        self.assertTrue(session['recepient'][1]['email'], self.volunteer4.email)
 
         # asserting email vars values
         expected_list = ['Test msg bulk existing users', 'PERSONAL_MESSAGE', 'first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'test_project_1', 'EVENT_TITLE', 'NPF_org_1', 'ORG_NAME', 'test_location_1', 'EVENT_LOCATION']
         self._assert_merge_vars(session['merge_vars'],expected_list)
 
         # assert we pass emails to mandril
-        self.assertEqual(len(self.client.session['recepient']), 2)
+        self.assertEqual(len(session['recepient']), 2)
 
         # asserting user has been registered to event
         self.assertEqual(len(UserEventRegistration.objects.filter(user=self.volunteer3)), 1)
