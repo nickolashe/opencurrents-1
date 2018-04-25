@@ -15,7 +15,6 @@
     -moz-background-size: cover;
     -o-background-size: cover;
     background-size: cover;
-    overflow: visible;
   }
 
   #business {
@@ -24,7 +23,6 @@
     -moz-background-size: cover;
     -o-background-size: cover;
     background-size: cover;
-    overflow: visible;
   }
 
   #our-story {
@@ -33,7 +31,6 @@
     -moz-background-size: cover;
     -o-background-size: cover;
     background-size: cover;
-    overflow: visible;
   }
 
   #faq {
@@ -52,7 +49,6 @@
   background-color: #ffffff;
   color: #ffffff;
   min-height: 100vh;
-  height: 100%;
   overflow: visible;
 }
 
