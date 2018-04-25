@@ -7,6 +7,7 @@ from openCurrents.models import \
     Token, \
     Project, \
     Event, \
+    UserCashout, \
     UserEventRegistration, \
     UserSettings, \
     UserTimeLog, \
