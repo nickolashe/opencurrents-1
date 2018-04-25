@@ -171,12 +171,14 @@ class Ledger(models.Model):
     action = models.ForeignKey(
         'AdminActionUserTime',
         on_delete=models.CASCADE,
-        null=True
+        null=True,
+        blank=True
     )
     transaction = models.ForeignKey(
         'TransactionAction',
         on_delete=models.CASCADE,
-        null=True
+        null=True,
+        blank=True        
     )
 
     # created / updated timestamps
