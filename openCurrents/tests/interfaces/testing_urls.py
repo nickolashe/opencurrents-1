@@ -18,7 +18,6 @@ profile_url = reverse(
     urlconf=urls
 )
 
-
 invite_volunteers_url = reverse(
     'invite-volunteers',
     urlconf=urls

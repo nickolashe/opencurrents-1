@@ -26,10 +26,11 @@ from openCurrents.tests.interfaces.common import (
     SetupAdditionalTimeRecords,
 )
 
+invite_volunteers_url = testing_urls.invite_volunteers_url
+org_admin_url = testing_urls.org_admin_url
+
 
 class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
-
-    invite_volunteers_url = testing_urls.invite_volunteers_url
 
     def setUp(self):
         """Setup testing env."""
@@ -75,14 +76,14 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
     def test_invite_new_single_no_message(self):
         """Test invitation of a single new volunteer without a personal message (no event)."""
         self.client.login(username=self.npf_admin_1.username, password='password')
-        self.response = self.client.get(self.invite_volunteers_url)
+        self.response = self.client.get(invite_volunteers_url)
         session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
 
         # posting form
         response = self.client.post(
-            self.invite_volunteers_url,
+            invite_volunteers_url,
             {
                 'vol-name-1': 'test_guest_1',
                 'vol-email-1': 'single_test_guest_1@mail.cc',
@@ -94,7 +95,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         )
 
         # assert if we've been redirected
-        self.assertRedirects(response, testing_urls.org_admin_url + '1', status_code=302)
+        self.assertRedirects(response, org_admin_url + '1/', status_code=302)
 
         # asserting that bulk email function has been launched
         self.assertEqual(session['bulk'], '1')
@@ -109,7 +110,11 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertTrue(UserEntity.objects.get(user__username='single_test_guest_1@mail.cc'), 'single_test_guest_1@mail.cc')
 
         # asserting email vars values
-        expected_list = ['first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'NPF_org_1', 'ORG_NAME']
+        expected_list = [
+            'first_npf_admin_1', 'ADMIN_FIRSTNAME',
+            'last_npf_admin_1', 'ADMIN_LASTNAME',
+            'NPF_org_1', 'ORG_NAME'
+        ]
         self._assert_merge_vars(session['merge_vars'], expected_list)
 
         # assert we pass emails to mandril
@@ -119,14 +124,14 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
     def test_invite_new_bulk_no_message(self):
         """Test invitation of a bunch of new volunteers without a personal message (no event)."""
         self.client.login(username=self.npf_admin_1.username, password='password')
-        self.response = self.client.get(self.invite_volunteers_url)
+        self.response = self.client.get(invite_volunteers_url)
         session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
 
         # posting form
         self.response = self.client.post(
-            self.invite_volunteers_url,
+            invite_volunteers_url,
             {
                 'bulk-vol': '<bulk_test_guest_1@e.cc>, test_guest_firstname test_guest_lastname <bulk_test_guest_2@e.cc>, bulk_test_guest_3@e.cc, bulk_test_guest_4@e.cc',
                 'personal_message': '',
@@ -135,7 +140,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         )
 
         # assert if we've been redirected
-        self.assertRedirects(self.response, '/org-admin/4/', status_code=302)
+        self.assertRedirects(self.response, org_admin_url + '4/', status_code=302)
 
         # asserting that bulk email function has been launched
         self.assertEqual(session['bulk'], '1')
@@ -150,7 +155,11 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertEqual(len(UserEntity.objects.filter(user__username__contains='bulk_test_guest_')), 4)
 
         # asserting email vars values
-        expected_list = ['first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'NPF_org_1', 'ORG_NAME']
+        expected_list = [
+            'first_npf_admin_1', 'ADMIN_FIRSTNAME',
+            'last_npf_admin_1', 'ADMIN_LASTNAME',
+            'NPF_org_1', 'ORG_NAME'
+        ]
         self._assert_merge_vars(session['merge_vars'], expected_list)
 
         # assert we pass emails to mandril
@@ -163,14 +172,14 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
     def test_invite_new_single_with_personal_message(self):
         """Test invitation of a single new volunteer with personal message (no event)."""
         self.client.login(username=self.npf_admin_1.username, password='password')
-        self.response = self.client.get(self.invite_volunteers_url)
+        self.response = self.client.get(invite_volunteers_url)
         session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
 
         # posting form
         response = self.client.post(
-            self.invite_volunteers_url,
+            invite_volunteers_url,
             {
                 'vol-name-1': 'test_guest_1',
                 'vol-email-1': 'single_test_guest_1@mail.cc',
@@ -182,7 +191,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         )
 
         # assert if we've been redirected
-        self.assertRedirects(response, '/org-admin/1/', status_code=302)
+        self.assertRedirects(response, org_admin_url + '1/', status_code=302)
 
         # asserting that bulk email function has been launched
         self.assertEqual(session['bulk'], '1')
@@ -197,7 +206,12 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertTrue(UserEntity.objects.get(user__username='single_test_guest_1@mail.cc'), 'single_test_guest_1@mail.cc')
 
         # asserting email vars values
-        expected_list = ['Test msg', 'PERSONAL_MESSAGE', 'first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'NPF_org_1', 'ORG_NAME']
+        expected_list = [
+            'Test msg', 'PERSONAL_MESSAGE',
+            'first_npf_admin_1', 'ADMIN_FIRSTNAME',
+            'last_npf_admin_1', 'ADMIN_LASTNAME',
+            'NPF_org_1', 'ORG_NAME'
+        ]
         self._assert_merge_vars(session['merge_vars'], expected_list)
 
         # assert we pass emails to mandril
@@ -211,14 +225,14 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         with personal message (no event)
         """
         self.client.login(username=self.npf_admin_1.username, password='password')
-        self.response = self.client.get(self.invite_volunteers_url)
+        self.response = self.client.get(invite_volunteers_url)
         session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
 
         # posting form
         response = self.client.post(
-            self.invite_volunteers_url,
+            invite_volunteers_url,
             {
                 'bulk-vol': '<bulk_test_guest_1@e.cc>, test_guest_firstname test_guest_lastname <bulk_test_guest_2@e.cc>, bulk_test_guest_3@e.cc, bulk_test_guest_4@e.cc',
                 'personal_message': 'Test msg 2',
@@ -227,7 +241,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         )
 
         # assert if we've been redirected
-        self.assertRedirects(response, '/org-admin/4/', status_code=302)
+        self.assertRedirects(response, org_admin_url + '4/', status_code=302)
 
         # asserting that bulk email function has been launched
         self.assertEqual(session['bulk'], '1')
@@ -242,7 +256,12 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertEqual(len(UserEntity.objects.filter(user__username__contains='bulk_test_guest_')), 4)
 
         # asserting email vars values
-        expected_list = ['Test msg 2', 'PERSONAL_MESSAGE', 'first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'NPF_org_1', 'ORG_NAME']
+        expected_list = [
+            'Test msg 2', 'PERSONAL_MESSAGE',
+            'first_npf_admin_1', 'ADMIN_FIRSTNAME',
+            'last_npf_admin_1', 'ADMIN_LASTNAME',
+            'NPF_org_1', 'ORG_NAME'
+        ]
         self._assert_merge_vars(session['merge_vars'], expected_list)
 
         # assert we pass emails to mandril
@@ -255,7 +274,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
     def test_invite_single_existing_no_message(self):
         """Test invitation of a registered single volunteer without a personal message (no event) - No emails sent."""
         self.client.login(username=self.npf_admin_1.username, password='password')
-        self.response = self.client.get(self.invite_volunteers_url)
+        self.response = self.client.get(invite_volunteers_url)
         session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
@@ -265,7 +284,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
 
         # posting form
         response = self.client.post(
-            self.invite_volunteers_url,
+            invite_volunteers_url,
             {
                 'vol-name-1': self.volunteer1.username,
                 'vol-email-1': self.volunteer1.email,
@@ -277,7 +296,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         )
 
         # assert if we've been redirected
-        self.assertRedirects(response, '/org-admin/1/', status_code=302)
+        self.assertRedirects(response, org_admin_url + '1/', status_code=302)
 
         # asserting that bulk email function didn't launch
         self.assertNotIn('bulk', session)
@@ -291,7 +310,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
     def test_invite_single_existing_with_message(self):
         """Test invitation of a registered single volunteer with a personal message (no event) - No emails sent."""
         self.client.login(username=self.npf_admin_1.username, password='password')
-        self.response = self.client.get(self.invite_volunteers_url)
+        self.response = self.client.get(invite_volunteers_url)
         session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
@@ -301,7 +320,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
 
         # posting form
         response = self.client.post(
-            self.invite_volunteers_url,
+            invite_volunteers_url,
             {
                 'vol-name-1': self.volunteer1.username,
                 'vol-email-1': self.volunteer1.email,
@@ -313,7 +332,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         )
 
         # assert if we've been redirected
-        self.assertRedirects(response, '/org-admin/1/', status_code=302)
+        self.assertRedirects(response, org_admin_url + '1/', status_code=302)
 
         # asserting that bulk email function didn't launch
         self.assertNotIn('bulk', session)
@@ -327,7 +346,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
     def test_invite_bulk_existing_with_personal_message(self):
         """Test invitation of a bunch of existing volunteers with personal message (no event) - No emails sent."""
         self.client.login(username=self.npf_admin_1.username, password='password')
-        self.response = self.client.get(self.invite_volunteers_url)
+        self.response = self.client.get(invite_volunteers_url)
         session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
@@ -338,7 +357,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
 
         # posting form
         response = self.client.post(
-            self.invite_volunteers_url,
+            invite_volunteers_url,
             {
                 'bulk-vol': self.volunteer1.email + ", " + self.volunteer2.email,
                 'personal_message': 'Test msg bulk existing users',
@@ -347,7 +366,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         )
 
         # assert if we've been redirected
-        self.assertRedirects(response, '/org-admin/2/', status_code=302)
+        self.assertRedirects(response, org_admin_url + '2/', status_code=302)
 
         # asserting that bulk email function didn't launch
         self.assertNotIn('bulk', session)
@@ -361,7 +380,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
     def test_invite_bulk_existing_without_personal_message(self):
         """Test invitation of a bunch of existing volunteers with personal message (no event) - No emails sent."""
         self.client.login(username=self.npf_admin_1.username, password='password')
-        self.response = self.client.get(self.invite_volunteers_url)
+        self.response = self.client.get(invite_volunteers_url)
         session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
@@ -372,7 +391,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
 
         # posting form
         response = self.client.post(
-            self.invite_volunteers_url,
+            invite_volunteers_url,
             {
                 'bulk-vol': self.volunteer1.email + ", " + self.volunteer2.email,
                 'personal_message': '',
@@ -381,7 +400,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         )
 
         # assert if we've been redirected
-        self.assertRedirects(response, '/org-admin/2/', status_code=302)
+        self.assertRedirects(response, org_admin_url + '2/', status_code=302)
 
         # asserting that bulk email function didn't launch
         self.assertNotIn('bulk', session)
@@ -399,14 +418,14 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         - don't send email to the the user W pass
         """
         self.client.login(username=self.npf_admin_1.username, password='password')
-        self.response = self.client.get(self.invite_volunteers_url)
+        self.response = self.client.get(invite_volunteers_url)
         session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
 
         # posting form
         response = self.client.post(
-            self.invite_volunteers_url,
+            invite_volunteers_url,
             {
                 'bulk-vol': self.volunteer1.email + ", " + self.volunteer2.email + ", " + self.volunteer3.email,
                 'personal_message': 'Test msg 2',
@@ -415,7 +434,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         )
 
         # assert if we've been redirected
-        self.assertRedirects(response, '/org-admin/3/', status_code=302)
+        self.assertRedirects(response, org_admin_url + '3/', status_code=302)
 
         # asserting that bulk email function has been launched
         self.assertEqual(session['bulk'], '1')
@@ -430,7 +449,12 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertEqual(len(UserEntity.objects.filter(user__username__contains='test_user_3')), 1)
 
         # asserting email vars values
-        expected_list = ['Test msg 2', 'PERSONAL_MESSAGE', 'first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'NPF_org_1', 'ORG_NAME']
+        expected_list = [
+            'Test msg 2', 'PERSONAL_MESSAGE',
+            'first_npf_admin_1', 'ADMIN_FIRSTNAME',
+            'last_npf_admin_1', 'ADMIN_LASTNAME',
+            'NPF_org_1', 'ORG_NAME'
+        ]
         self._assert_merge_vars(session['merge_vars'], expected_list)
 
         # assert we pass emails to mandril
@@ -446,14 +470,14 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         - don't send email to the the user WO pass
         """
         self.client.login(username=self.npf_admin_1.username, password='password')
-        self.response = self.client.get(self.invite_volunteers_url)
+        self.response = self.client.get(invite_volunteers_url)
         session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
 
         # posting form
         response = self.client.post(
-            self.invite_volunteers_url,
+            invite_volunteers_url,
             {
                 'bulk-vol': self.volunteer1.email + ", " + self.volunteer2.email + ", " + self.volunteer3.email,
                 'personal_message': '',
@@ -462,7 +486,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         )
 
         # assert if we've been redirected
-        self.assertRedirects(response, '/org-admin/3/', status_code=302)
+        self.assertRedirects(response, org_admin_url + '3/', status_code=302)
 
         # asserting that bulk email function has been launched
         self.assertEqual(session['bulk'], '1')
@@ -477,7 +501,11 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertEqual(len(UserEntity.objects.filter(user__username__contains='test_user_3')), 1)
 
         # asserting email vars values
-        expected_list = ['first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'NPF_org_1', 'ORG_NAME']
+        expected_list = [
+            'first_npf_admin_1', 'ADMIN_FIRSTNAME',
+            'last_npf_admin_1', 'ADMIN_LASTNAME',
+            'NPF_org_1', 'ORG_NAME'
+        ]
         self._assert_merge_vars(session['merge_vars'], expected_list)
 
         # assert we pass emails to mandril
@@ -493,14 +521,14 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         - send email
         """
         self.client.login(username=self.npf_admin_1.username, password='password')
-        self.response = self.client.get(self.invite_volunteers_url)
+        self.response = self.client.get(invite_volunteers_url)
         session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
 
         # posting form
         response = self.client.post(
-            self.invite_volunteers_url,
+            invite_volunteers_url,
             {
                 'vol-name-1': self.volunteer3.username,
                 'vol-email-1': self.volunteer3.email,
@@ -512,7 +540,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         )
 
         # assert if we've been redirected
-        self.assertRedirects(response, '/org-admin/1/', status_code=302)
+        self.assertRedirects(response, org_admin_url + '1/', status_code=302)
 
         # asserting that bulk email function has been launched
         self.assertEqual(session['bulk'], '1')
@@ -527,7 +555,11 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertEqual(len(UserEntity.objects.filter(user__username__contains='test_user_3')), 1)
 
         # asserting email vars values
-        expected_list = ['first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'NPF_org_1', 'ORG_NAME']
+        expected_list = [
+            'first_npf_admin_1', 'ADMIN_FIRSTNAME',
+            'last_npf_admin_1', 'ADMIN_LASTNAME',
+            'NPF_org_1', 'ORG_NAME'
+        ]
         self._assert_merge_vars(session['merge_vars'], expected_list)
 
         # assert we pass emails to mandril
@@ -609,7 +641,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
     def test_invite_new_single_no_message(self):
         """Test invitation of a new volunteer without a personal message to future event."""
         self.client.login(username=self.npf_admin_1.username, password='password')
-        self.response = self.client.get('/invite-volunteers/1/')
+        self.response = self.client.get(invite_volunteers_url + '1/')
         session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
@@ -618,7 +650,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
 
         # posting form
         response = self.client.post(
-            "/invite-volunteers/1/",
+            invite_volunteers_url + '1/',
             {
                 'vol-name-1': 'test_guest_1',
                 'vol-email-1': 'single_test_guest_1@mail.cc',
@@ -630,7 +662,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         )
 
         # assert if we've been redirected
-        self.assertRedirects(response, '/org-admin/1/', status_code=302)
+        self.assertRedirects(response, org_admin_url + '1/', status_code=302)
 
         # asserting that bulk email function has been launched
         self.assertEqual(session['bulk'], '1')
@@ -645,7 +677,13 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertTrue(UserEntity.objects.get(user__username='single_test_guest_1@mail.cc'), 'single_test_guest_1@mail.cc')
 
         # asserting email vars values
-        expected_list = ['first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'test_project_1', 'EVENT_TITLE', 'NPF_org_1', 'ORG_NAME', 'test_location_1', 'EVENT_LOCATION']
+        expected_list = [
+            'first_npf_admin_1', 'ADMIN_FIRSTNAME',
+            'last_npf_admin_1', 'ADMIN_LASTNAME',
+            'test_project_1', 'EVENT_TITLE',
+            'NPF_org_1', 'ORG_NAME',
+            'test_location_1', 'EVENT_LOCATION'
+        ]
         self._assert_merge_vars(session['merge_vars'], expected_list)
 
         # assert we pass emails to mandril
@@ -659,14 +697,14 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
     def test_invite_new_bulk_no_message(self):
         """Test invitation of a bunch of new volunteers without a personal message to future event."""
         self.client.login(username=self.npf_admin_1.username, password='password')
-        self.response = self.client.get('/invite-volunteers/1/')
+        self.response = self.client.get(invite_volunteers_url + '1/')
         session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
 
         # posting form
         self.response = self.client.post(
-            "/invite-volunteers/1/",
+            invite_volunteers_url + '1/',
             {
                 'bulk-vol': 'bulk_test_guest_1@e.cc, bulk_test_guest_2@e.cc, bulk_test_guest_3@e.cc, bulk_test_guest_4@e.cc',
                 'personal_message': '',
@@ -675,7 +713,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         )
 
         # assert if we've been redirected
-        self.assertRedirects(self.response, '/org-admin/4/', status_code=302)
+        self.assertRedirects(self.response, org_admin_url + '4/', status_code=302)
 
         # asserting that bulk email function has been launched
         self.assertEqual(session['bulk'], '1')
@@ -690,7 +728,13 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertEqual(len(UserEntity.objects.filter(user__username__contains='bulk_test_guest_')), 4)
 
         # asserting email vars values
-        expected_list = ['first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'test_project_1', 'EVENT_TITLE', 'NPF_org_1', 'ORG_NAME', 'test_location_1', 'EVENT_LOCATION']
+        expected_list = [
+            'first_npf_admin_1', 'ADMIN_FIRSTNAME',
+            'last_npf_admin_1', 'ADMIN_LASTNAME',
+            'test_project_1', 'EVENT_TITLE',
+            'NPF_org_1', 'ORG_NAME',
+            'test_location_1', 'EVENT_LOCATION'
+        ]
         self._assert_merge_vars(session['merge_vars'], expected_list)
 
         # assert we pass emails to mandril
@@ -721,14 +765,14 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         with personal message to future event
         """
         self.client.login(username=self.npf_admin_1.username, password='password')
-        self.response = self.client.get('/invite-volunteers/1/')
+        self.response = self.client.get(invite_volunteers_url + '1/')
         session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
 
         # posting form
         response = self.client.post(
-            "/invite-volunteers/1/",
+            invite_volunteers_url + '1/',
             {
                 'vol-name-1': 'test_guest_1',
                 'vol-email-1': 'single_test_guest_1@mail.cc',
@@ -740,7 +784,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         )
 
         # assert if we've been redirected
-        self.assertRedirects(response, '/org-admin/1/', status_code=302)
+        self.assertRedirects(response, org_admin_url + '1/', status_code=302)
 
         # asserting that bulk email function has been launched
         self.assertEqual(session['bulk'], '1')
@@ -789,14 +833,14 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         without a personal message to future event
         """
         self.client.login(username=self.npf_admin_1.username, password='password')
-        self.response = self.client.get('/invite-volunteers/1/')
+        self.response = self.client.get(invite_volunteers_url + '1/')
         session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
 
         # posting form
         response = self.client.post(
-            "/invite-volunteers/1/",
+            invite_volunteers_url + '1/',
             {
                 'bulk-vol': 'bulk_test_guest_1@e.cc, bulk_test_guest_2@e.cc, bulk_test_guest_3@e.cc, bulk_test_guest_4@e.cc',
                 'personal_message': 'Test msg 2',
@@ -805,7 +849,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         )
 
         # assert if we've been redirected
-        self.assertRedirects(response, '/org-admin/4/', status_code=302)
+        self.assertRedirects(response, org_admin_url + '4/', status_code=302)
 
         # asserting that bulk email function has been launched
         self.assertEqual(session['bulk'], '1')
@@ -826,7 +870,14 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         )
 
         # asserting email vars values
-        expected_list = ['Test msg 2', 'PERSONAL_MESSAGE', 'first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'test_project_1', 'EVENT_TITLE', 'NPF_org_1', 'ORG_NAME', 'test_location_1', 'EVENT_LOCATION']
+        expected_list = [
+            'Test msg 2', 'PERSONAL_MESSAGE',
+            'first_npf_admin_1', 'ADMIN_FIRSTNAME',
+            'last_npf_admin_1', 'ADMIN_LASTNAME',
+            'test_project_1', 'EVENT_TITLE',
+            'NPF_org_1', 'ORG_NAME',
+            'test_location_1', 'EVENT_LOCATION'
+        ]
         self._assert_merge_vars(session['merge_vars'], expected_list)
 
         # assert we pass emails to mandril
@@ -846,7 +897,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         without a personal message to future event
         """
         self.client.login(username=self.npf_admin_1.username, password='password')
-        self.response = self.client.get('/invite-volunteers/1/')
+        self.response = self.client.get(invite_volunteers_url + '1/')
         session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
@@ -859,7 +910,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
 
         # posting form
         response = self.client.post(
-            "/invite-volunteers/1/",
+            invite_volunteers_url + '1/',
             {
                 'vol-name-1': self.volunteer1.username,
                 'vol-email-1': self.volunteer1.email,
@@ -871,7 +922,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         )
 
         # assert if we've been redirected
-        self.assertRedirects(response, '/org-admin/1/', status_code=302)
+        self.assertRedirects(response, org_admin_url + '1/', status_code=302)
 
         # asserting that bulk email function has been launched
         self.assertEqual(session['bulk'], '1')
@@ -922,7 +973,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         Expected: users wo pass invited to event should receive email
         """
         self.client.login(username=self.npf_admin_1.username, password='password')
-        self.response = self.client.get('/invite-volunteers/1/')
+        self.response = self.client.get(invite_volunteers_url + '1/')
         session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
@@ -935,7 +986,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
 
         # posting form
         response = self.client.post(
-            "/invite-volunteers/1/",
+            invite_volunteers_url + '1/',
             {
                 'vol-name-1': self.volunteer3.username,
                 'vol-email-1': self.volunteer3.email,
@@ -947,7 +998,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         )
 
         # assert if we've been redirected
-        self.assertRedirects(response, '/org-admin/1/', status_code=302)
+        self.assertRedirects(response, org_admin_url + '1/', status_code=302)
 
         # asserting that bulk email function has been launched
         self.assertEqual(session['bulk'], '1')
@@ -989,7 +1040,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         Expected: users wo pass invited to event should receive email
         """
         self.client.login(username=self.npf_admin_1.username, password='password')
-        self.response = self.client.get('/invite-volunteers/1/')
+        self.response = self.client.get(invite_volunteers_url + '1/')
         session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
@@ -1002,7 +1053,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
 
         # posting form
         response = self.client.post(
-            "/invite-volunteers/1/",
+            invite_volunteers_url + '1/',
             {
                 'vol-name-1': self.volunteer3.username,
                 'vol-email-1': self.volunteer3.email,
@@ -1014,7 +1065,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         )
 
         # assert if we've been redirected
-        self.assertRedirects(response, '/org-admin/1/', status_code=302)
+        self.assertRedirects(response, org_admin_url + '1/', status_code=302)
 
         # asserting that bulk email function has been launched
         self.assertEqual(session['bulk'], '1')
@@ -1048,7 +1099,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         with a personal message to future event
         """
         self.client.login(username=self.npf_admin_1.username, password='password')
-        self.response = self.client.get('/invite-volunteers/1/')
+        self.response = self.client.get(invite_volunteers_url + '1/')
         session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
@@ -1061,7 +1112,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
 
         # posting form
         response = self.client.post(
-            "/invite-volunteers/1/",
+            invite_volunteers_url + '1/',
             {
                 'vol-name-1': self.volunteer1.username,
                 'vol-email-1': self.volunteer1.email,
@@ -1073,7 +1124,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         )
 
         # assert if we've been redirected
-        self.assertRedirects(response, '/org-admin/1/', status_code=302)
+        self.assertRedirects(response, org_admin_url + '1/', status_code=302)
 
         # asserting that bulk email function has been launched
         self.assertEqual(session['bulk'], '1')
@@ -1112,7 +1163,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         with personal message to future event
         """
         self.client.login(username=self.npf_admin_1.username, password='password')
-        self.response = self.client.get('/invite-volunteers/1/')
+        self.response = self.client.get(invite_volunteers_url + '1/')
         session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
@@ -1129,7 +1180,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
 
         # posting form
         response = self.client.post(
-            "/invite-volunteers/1/",
+            invite_volunteers_url + '1/',
             {
                 'bulk-vol': self.volunteer1.email + ", " + self.volunteer2.email,
                 'personal_message': 'Test msg bulk existing users',
@@ -1138,7 +1189,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         )
 
         # assert if we've been redirected
-        self.assertRedirects(response, '/org-admin/2/', status_code=302)
+        self.assertRedirects(response, org_admin_url + '2/', status_code=302)
 
         # asserting that bulk email function has been launched
         self.assertEqual(session['bulk'], '1')
@@ -1179,7 +1230,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         with personal message to future event
         """
         self.client.login(username=self.npf_admin_1.username, password='password')
-        self.response = self.client.get('/invite-volunteers/1/')
+        self.response = self.client.get(invite_volunteers_url + '1/')
         session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
@@ -1196,7 +1247,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
 
         # posting form
         response = self.client.post(
-            "/invite-volunteers/1/",
+            invite_volunteers_url + '1/',
             {
                 'bulk-vol': self.volunteer1.email + ", " + self.volunteer2.email,
                 'personal_message': '',
@@ -1205,7 +1256,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         )
 
         # assert if we've been redirected
-        self.assertRedirects(response, '/org-admin/2/', status_code=302)
+        self.assertRedirects(response, org_admin_url + '2/', status_code=302)
 
         # asserting that bulk email function has been launched
         self.assertEqual(session['bulk'], '1')
@@ -1248,14 +1299,14 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         Expected: users wo pass invited to event should receive email
         """
         self.client.login(username=self.npf_admin_1.username, password='password')
-        self.response = self.client.get('/invite-volunteers/1/')
+        self.response = self.client.get(invite_volunteers_url + '1/')
         session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
 
         # posting form
         self.response = self.client.post(
-            "/invite-volunteers/1/",
+            invite_volunteers_url + '1/',
             {
                 'bulk-vol': self.volunteer3.email + ", " + self.volunteer4.email,
                 'personal_message': '',
@@ -1264,7 +1315,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         )
 
         # assert if we've been redirected
-        self.assertRedirects(self.response, '/org-admin/2/', status_code=302)
+        self.assertRedirects(self.response, org_admin_url + '2/', status_code=302)
 
         # asserting that bulk email function has been launched
         self.assertEqual(session['bulk'], '1')
@@ -1314,7 +1365,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         with personal message to future event
         """
         self.client.login(username=self.npf_admin_1.username, password='password')
-        self.response = self.client.get('/invite-volunteers/1/')
+        self.response = self.client.get(invite_volunteers_url + '1/')
         session = self.client.session
 
         self.assertEqual(self.response.status_code, 200)
@@ -1331,7 +1382,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
 
         # posting form
         response = self.client.post(
-            "/invite-volunteers/1/",
+            invite_volunteers_url + '1/',
             {
                 'bulk-vol': self.volunteer3.email + ", " + self.volunteer4.email,
                 'personal_message': 'Test msg bulk existing users',
@@ -1340,7 +1391,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         )
 
         # assert if we've been redirected
-        self.assertRedirects(response, '/org-admin/2/', status_code=302)
+        self.assertRedirects(response, org_admin_url + '2/', status_code=302)
 
         # asserting that bulk email function has been launched
         self.assertEqual(session['bulk'], '1')
