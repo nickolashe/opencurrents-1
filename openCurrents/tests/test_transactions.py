@@ -22,6 +22,7 @@ from openCurrents.models import(
 )
 
 # from openCurrents.tests.interfaces.transactions_setup import SetupTest
+from openCurrents.tests.interfaces import testing_urls
 from openCurrents.tests.interfaces.common import (
     _setup_ledger_entry,
     SetupAdditionalTimeRecords,
@@ -31,6 +32,8 @@ from openCurrents.tests.interfaces.common import (
 
 class FullRedemption(SetupAdditionalTimeRecords, TestCase):
     """Test currents full redemption process."""
+
+    redeem_price = 20
 
     def setUp(self):
         """Setting up testing environment."""
@@ -79,22 +82,24 @@ class FullRedemption(SetupAdditionalTimeRecords, TestCase):
         self.volunteer_currents_assert(self.volunteer_1, self.initial_currents)
 
         # setting variables
-        redeem_price = 20
-        redeem_currents_amount = redeem_price * _SHARE / _USDCUR
-        redeemed_usd_amount = redeem_price * _SHARE - \
-            redeem_price * _SHARE * _TR_FEE
+        redeem_currents_amount = self.redeem_price * _SHARE / _USDCUR
+        redeemed_usd_amount = self.redeem_price * _SHARE - \
+            self.redeem_price * _SHARE * _TR_FEE
         uzer_tz = pytz.timezone(self.volunteer_1.usersettings.timezone)
 
         # today date, eg Jan 15, 2018
         today_date = datetime.now(uzer_tz).strftime("%b %d, %Y")
-
-        post_response = self.client.post('/redeem-currents/1/', {
-            'redeem_currents_amount': redeem_currents_amount,
-            'redeem_receipt': None,
-            'redeem_price': redeem_price,
-            'redeem_no_proof': 'test message',
-            'biz_name': ''
-        })
+        redeem_currents_url = testing_urls.redeem_currents_url(1)
+        post_response = self.client.post(
+            redeem_currents_url,
+            {
+                'redeem_currents_amount': redeem_currents_amount,
+                'redeem_receipt': None,
+                'redeem_price': self.redeem_price,
+                'redeem_no_proof': 'test message',
+                'biz_name': ''
+            }
+        )
 
         # Message displayed 'You have submitted an offer for approval
         # by {{ orgname ]}. Hooray!"
@@ -125,7 +130,9 @@ approval%20by%20{}/'.format(self.org_biz.name),
         # Transaction summary is displayed in /profile:
         # {{ redemption_date }} - You requested {{ commissioned_amount_usd }}
         # for {{ current_share_amount }} from {{ orgname }}
-        response = self.client.get('/profile/')
+        response = self.client.get(
+            testing_urls.profile_url
+        )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.context['offers_redeemed'][0],
@@ -171,7 +178,7 @@ approval%20by%20{}/'.format(self.org_biz.name),
             self.volunteer_1.first_name,
             self.volunteer_1.last_name,
             self.purchased_item.name,
-            redeem_price,
+            self.redeem_price,
             redeemed_usd_amount,
         )
         self.assertIn(redeemed_offer_text, processed_content)
@@ -188,20 +195,18 @@ approval%20by%20{}/'.format(self.org_biz.name),
         # logging in as a volunteer 1
         self.client.login(username=self.volunteer_1.username,
                           password='password')
-        response = self.client.get('/redeem-currents/1/')
+        response = self.client.get(testing_urls.redeem_currents_url(1))
         self.assertEqual(response.status_code, 200)
 
-        # setting variables
-        redeem_price = 20
-        redeem_currents_amount = redeem_price * _SHARE / _USDCUR
+        redeem_currents_amount = self.redeem_price * _SHARE / _USDCUR
 
         with open(self.receipt_path + self.receipt_name) as f:
             response = self.client.post(
-                '/redeem-currents/{}/'.format(self.offer.id),
+                testing_urls.redeem_currents_url(self.offer.id),
                 {
                     'redeem_currents_amount': redeem_currents_amount,
                     'redeem_receipt': f,
-                    'redeem_price': redeem_price,
+                    'redeem_price': self.redeem_price,
                     'redeem_no_proof': '',
                     'biz_name': ''
                 }
@@ -214,7 +219,7 @@ approval%20by%20{}/'.format(self.org_biz.name),
             self.offer.org.name,
             self.offer.id,
             self.volunteer_1.id,
-            redeem_price,
+            self.redeem_price,
             datetime.now().strftime('%d'),
             datetime.now().strftime('%H-%M-'),
             "*",
@@ -244,3 +249,43 @@ approval%20by%20{}/'.format(self.org_biz.name),
         self.assertEqual(transacton[0].pop_type, 'rec')
 
         self.assert_redeemed_amount_usd(self.volunteer_1, 20)
+
+    def test_redeemption_bizorg_email(self):
+        """Test bizorg receives transactional email about recent redemption."""
+        # logging in as a volunteer 1
+        self.client.login(username=self.volunteer_1.username,
+                          password='password')
+        session = self.client.session
+
+        redeem_currents_url = testing_urls.redeem_currents_url(1)
+        response = self.client.get(redeem_currents_url)
+        self.assertEqual(response.status_code, 200)
+
+        redeem_currents_amount = self.redeem_price * _SHARE / _USDCUR
+
+        post_response = self.client.post(
+            redeem_currents_url,
+            {
+                'redeem_currents_amount': redeem_currents_amount,
+                'redeem_receipt': None,
+                'redeem_price': self.redeem_price,
+                'redeem_no_proof': 'test message',
+                'biz_name': '',
+                'test_time_tracker_mode': '1'  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+            }
+        )
+        expected_list = [
+            self.volunteer_1.first_name, 'FNAME',
+            self.volunteer_1.last_name, 'LNAME',
+            self.volunteer_1.email, 'EMAIL',
+            self.offer.org.name, 'BIZ_NAME',
+            self.purchased_item.name, 'ITEM_NAME',
+            redeem_currents_amount, 'REDEEMED_CURRENTS',
+            str(self.redeem_price), 'DOLLAR_PRICE',
+        ]
+        # check if email was launched
+        self.assertEqual(session['transactional'], str(1))
+        # and contains needed information
+
+        self.assertIn('bizdev@opencurrents.com', session['recepient'])
+        self._assert_merge_vars(session['merge_vars'], expected_list)

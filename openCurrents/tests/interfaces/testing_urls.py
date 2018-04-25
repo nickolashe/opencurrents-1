@@ -13,6 +13,26 @@ export_data_url = reverse(
     urlconf=urls
 )
 
+profile_url = reverse(
+    'profile',
+    urlconf=urls
+)
+
+
+def _get_url(id, url_string='', param_name_string=''):
+    """
+    Generate urls with kwargs.
+
+    Takes string url_string and param_string, integer id and returns url.
+    """
+    url = reverse(
+        url_string,
+        urlconf=urls,
+        kwargs={param_name_string: id}
+    )
+
+    return url
+
 
 def event_detail_or_edit_url(event_id, edit=False):
     """
@@ -22,20 +42,18 @@ def event_detail_or_edit_url(event_id, edit=False):
     or returns 'edit-event/x/' url if detail=False
     """
     if not edit:
-        event_url = reverse(
-            'event-detail',
-            urlconf=urls,
-            kwargs={'pk': event_id}
+        url = _get_url(
+            event_id,
+            url_string='event-detail',
+            param_name_string='pk'
         )
-
     else:
-        event_url = reverse(
-            'edit-event',
-            urlconf=urls,
-            kwargs={'event_id': event_id}
+        url = _get_url(
+            event_id,
+            url_string='edit-event',
+            param_name_string='event_id'
         )
-
-    return event_url
+    return url
 
 
 def create_event_url(org_id):
@@ -44,13 +62,12 @@ def create_event_url(org_id):
 
     Takes integer org_id, returns 'create-event/x/' url.
     """
-    create_event_url = reverse(
-        'create-event',
-        urlconf=urls,
-        kwargs={'org_id': org_id}
+    url = _get_url(
+        org_id,
+        url_string='create-event',
+        param_name_string='org_id'
     )
-
-    return create_event_url
+    return url
 
 
 def add_vols_to_past_event_url(event_ids):
@@ -59,10 +76,23 @@ def add_vols_to_past_event_url(event_ids):
 
     Takes integer event_ids, returns 'invite-volunteers-past/x/' url.
     """
-    add_vols_to_past_event_url = reverse(
-        'invite-volunteers-past',
-        urlconf=urls,
-        kwargs={'event_ids': event_ids}
+    url = _get_url(
+        event_ids,
+        url_string='invite-volunteers-past',
+        param_name_string='event_ids'
     )
+    return url
 
-    return add_vols_to_past_event_url
+
+def redeem_currents_url(offer_id):
+    """
+    Add volunteers to an event.
+
+    Takes integer offer_id, returns 'invite-volunteers-past/x/' url.
+    """
+    url = _get_url(
+        offer_id,
+        url_string='redeem-currents',
+        param_name_string='offer_id'
+    )
+    return url

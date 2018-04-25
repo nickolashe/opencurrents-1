@@ -38,7 +38,7 @@ import time
 from datetime import datetime, timedelta
 
 
-from django.test import Client
+from django.test import Client, TestCase
 
 # ====== CONTENT =======
 # _create_org
@@ -462,6 +462,25 @@ class SetupAdditionalTimeRecords():
 
     # [test_transacion helpers begin]
 
+    def _get_merge_vars_keys_values(self, merge_vars):
+            values = []
+            for i in merge_vars:
+                values.extend(i.values())
+            return values
+
+    def _assert_merge_vars(self, merge_vars, values_list):
+        """
+        Assert email vars in email.
+
+        - value_list is a list with email var names and values
+        eg values_list = ['VAR_1', 'var_1_value', VAR_2, var_2_value].
+        - merge_vars - is a list of dictionaries
+        eg [{'name': 'ORG_NAME','content': org_name}]
+        """
+        mergedvars_values = self._get_merge_vars_keys_values(merge_vars)
+        for value in values_list:
+            self.assertIn(value, mergedvars_values)
+
     def assert_redeemed_amount_usd(
         self,
         user,
@@ -554,6 +573,8 @@ class SetupAdditionalTimeRecords():
             num_of_recs_in_context_week
         )
         return records_num
+
+    # email_assertions = EmailAssertions()
 
     def setUp(self):
         """Set testing environment."""

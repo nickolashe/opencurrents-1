@@ -1345,6 +1345,11 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
 
         # send bizdev notification
         try:
+            # adding flag to not call Mandrill during unittests
+            test_time_tracker_mode = self.request.POST.get(
+                'test_time_tracker_mode', None
+            )
+
             email_biz_name = data['biz_name'] if data['biz_name'] else self.offer.org.name
             email_vars_transactional = [
                 {'name': 'FNAME', 'content': self.user.first_name},
@@ -1361,6 +1366,10 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
                 None,
                 email_vars_transactional,
                 'bizdev@opencurrents.com',
+                # markers for testing purpose
+                session=self.request.session,
+                marker='1',
+                test_time_tracker_mode=test_time_tracker_mode
             )
         except Exception as e:
                 logger.error(
@@ -5248,7 +5257,8 @@ def sendTransactionalEmail(
             )
     else:
         logger.debug('test mode: mocking mandrill call')
-
+        sess['recepient'] = recipient_email
+        sess['merge_vars'] = merge_vars
 
 def sendBulkEmail(
     template_name,
