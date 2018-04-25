@@ -2125,6 +2125,8 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
         context['has_bonus'] = OcLedger().has_bonus(self.user.userentity)
         context['bonus_amount'] = common._SIGNUP_BONUS
 
+        context['has_volunteered'] = context['hours_by_org']
+
         return context
 
     def post(self, request, *args, **kwargs):
