@@ -4128,12 +4128,6 @@ def process_signup(
                     oc_user_org = False
 
                 if oc_user_org:
-
-                    if oc_user_org.status == 'biz':
-                        redirection = 'business'
-                    else:
-                        redirection = 'nonprofit'
-
                     messages.add_message(
                         request,
                         messages.ERROR,
@@ -4144,7 +4138,7 @@ def process_signup(
                         extra_tags='alert'
                     )
                     return redirect(
-                        reverse('openCurrents:{}'.format(redirection)) + '#signup'
+                        reverse('openCurrents:home') + '#signup'
                     )
 
         # user org association requested
