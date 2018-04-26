@@ -908,10 +908,11 @@ class RedeemCurrentsForm(forms.Form):
                     )
             else:
                 raise ValidationError(_('File type is not supported'))
-        elif not redeem_no_proof:
-            raise ValidationError(
-                _('Receipt or description of purchase is required')
-            )
+        # 4/25/2018 - for upcoming events no requirements for receipts or desc.
+        # elif not redeem_no_proof:
+        #     raise ValidationError(
+        #         _('Receipt or description of purchase is required')
+        #     )
 
         return cleaned_data
 
