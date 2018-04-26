@@ -648,7 +648,7 @@ class TransactionAction(models.Model):
 
             # transact usd from oC to user
             Ledger.objects.create(
-                entity_from=OrgEntity.objects.get(org__name='goodvibes'),
+                entity_from=OrgEntity.objects.get(org__name='openCurrents'),
                 entity_to=tr.user.userentity,
                 currency='usd',
                 amount=usd_amount,
