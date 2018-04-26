@@ -4,12 +4,12 @@
     Profile
   </a>
 
-  <a class="list-group-item" href="{% url 'openCurrents:time-tracker' %}">
-    <i class="half-margin-right fa-fw fa fa-clock-o"></i>
-    Record hours
-  </a>
-
   {% if is_admin_org %}
+    <a class="list-group-item" href="{% url 'openCurrents:org-admin' %}">
+      <i class="half-margin-right fa-fw fa fa-briefcase"></i>
+      Manage organization
+    </a>
+
     <a class="list-group-item" href="{% url 'openCurrents:create-event' orgid %}">
       <i class="half-margin-right fa-fw fa fa-calendar"></i>
       Create an event
@@ -27,11 +27,26 @@
   {% endif %}
 
   {% if is_admin_biz %}
+    <a class="list-group-item" href="{% url 'openCurrents:biz-admin' %}">
+      <i class="half-margin-right fa-fw fa fa-briefcase"></i>
+      Manage business
+    </a>
+
     <a class="list-group-item" href="{% url 'openCurrents:offer' %}">
       <i class="half-margin-right fa-fw fa fa-bullhorn"></i>
       Post an offer
     </a>
   {% endif %}
+
+  <a class="list-group-item" href="{% url 'openCurrents:time-tracker' %}">
+    <i class="half-margin-right fa-fw fa fa-clock-o"></i>
+    Record hours
+  </a>
+
+  <a class="list-group-item" href="{% url 'openCurrents:marketplace' %}">
+    <i class="half-margin-right fa-fw fa fa-shopping-cart"></i>
+    Visit marketplace
+  </a>
 
   <a class="list-group-item" href="{% url 'openCurrents:nominate' %}">
     <i class="half-margin-right fa-fw fa fa-heartbeat"></i>

@@ -36,14 +36,22 @@
 
       <div class="row collapse center">
         <div class="medium-12 small-centered columns">
-          <h1 id="home-tagline" class="white three-halves-margin-bottom">Record and reward</h1>
+          <h1 id="home-tagline" class="white three-halves-margin-bottom">
+            Attract and retain volunteers
+          </h1>
         </div>
       </div>
 
       <div class="row center">
         <div class="medium-8 small-centered columns">
-          <h5 class="white one-margin-bottom">Track volunteer hours with ease. For each hour worked, volunteers earn 1 Current, which they can use for partial payment with participating businesses.</h5>
-          <h5 class="white">Not only is it free, but it will even help you fundraise.</h5>
+          <h5 class="white one-margin-bottom">
+            It's easier than ever to reward your volunteers and keep them coming
+            back. Volunteers earn 1 Current for each hour they work, which they
+            can use for partial payment with participating businesses.
+          </h5>
+          <h5 class="white">
+            Not only is it free, but it will even help you fundraise.
+          </h5>
         </div>
       </div>
 
@@ -236,64 +244,8 @@
 {% endblock content %}
 
 
-{% block popups %}
-  <div id="signup-box" class="modal center small-12 medium-9 large-7 small-centered columns">
-    <div class="row center">
-      <h2 class="one-margin-top">Apply as a nonprofit</h2>
-      <div class="one-margin-top">
-        <a href="{% url 'openCurrents:root' %}#signup"
-        class="tag button round tiny secondary">
-          Register as individual
-        </a>
-        <a href="{% url 'openCurrents:business' %}#signup"
-        class="tag button round tiny secondary">
-          Register a business
-        </a>
-      </div>
-    </div>
-
-    <form method="post" action="{% url 'openCurrents:process_signup' %}">
-      {% csrf_token %}
-      <div class="row three-halves-margin-bottom half-margin-top">
-        <div class="center small-12 medium-9 small-centered columns">
-
-          <div class="input-left small-6 columns">
-            <input type="text" name="user_firstname" placeholder="First name" class="large-text center" tabindex="0" required />
-          </div>
-
-          <div class="input-right small-6 columns">
-            <input type="text" name="user_lastname" placeholder="Last name" class="large-text center" tabindex="0" required />
-          </div>
-          <div class="small-12 columns">
-            <input type="email" name="user_email" placeholder="Email address" class="large-text center" tabindex="0" required />
-          </div>
-          <div class="small-12 columns">
-            <input type="text" name="org_name" placeholder="Organization name" class="large-text center" tabindex="0" />
-          </div>
-          <input class="lead center" type="hidden" name="org_status" value="npf"/>
-        </div>
-      </div>
-
-      <div class="row center half-margin-top">
-        <input type="submit" class="button large round" value="Create account"/>
-        <p class="grey">Existing member? <a href="{% url 'openCurrents:login' %}">Log in</a></p>
-      </div>
-    </form>
-  </div>
-{% endblock popups %}
-
-
 {% block js %}
-  <script type="text/javascript">
-    $('#show-diagram').click(function(){
-      $(this).parent().fadeOut(777, function(){
-        $('.diagram-div').fadeIn(777);
-      });
-      var width = $(window).width();
-          var height = $(window).height();
-          $('#home').resize(width, height);
-    });
-  </script>
+  {{ block.super }}
 
   <script type="text/javascript">
     $(document).ready(function(){
@@ -326,30 +278,6 @@
           $('#benefit-3').fadeIn(444);
         });
         val = 3;
-      });
-    });
-  </script>
-
-  <script type="text/javascript">
-    $(document).ready(function(){
-      $('#play-intro').popup({
-        vertical: 'top',
-        transition: 'all 0.75s',
-        scrolllock: false,
-        onclose: function() {
-          var vid = jQuery('.videoWrapper iframe[src*="youtube"]');
-          if ( vid.length > 0 ){
-            var src = vid.attr('src');
-              vid.attr('src', '');
-              vid.attr('src', src);
-          }
-        }
-      });
-
-      $('#signup-box, #suggestion-box, #demo-box').popup({
-        vertical: 'top',
-        transition: 'all 0.75s',
-        scrolllock: false,
       });
     });
   </script>

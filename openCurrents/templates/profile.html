@@ -99,7 +99,11 @@
 
       <a onClick="ga('send', 'event', 'Redemption', 'AttemptCashOut');" class="
         {% if balance_available_usd|str_to_num > 0 %}
-          cash-out-popup_open
+          {% if has_volunteered %}
+            cash-out-popup_open
+          {% else %}
+            volunteer-for-cash-popup_open
+          {% endif %}
         {% else %}
           no-cash-popup_open
         {% endif %}
@@ -272,6 +276,10 @@
     {% include "popups/no-cash-popup.html" %}
   </div>
 
+  <div id="volunteer-for-cash-popup" class="modal center small-12 medium-9 small-centered columns">
+    {% include "popups/volunteer-for-cash-popup.html" %}
+  </div>
+
   <div id="approve-hours-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
     {% include "popups/approve-hours-popup.html" %}
   </div>
@@ -328,7 +336,7 @@
         var open = false;
       }
 
-      $('#rsvp-popup, #earn-currents-popup, #balance-popup, #no-cash-popup, #cash-out-popup').popup({
+      $('#rsvp-popup, #earn-currents-popup, #balance-popup, #no-cash-popup, #cash-out-popup, #volunteer-for-cash-popup').popup({
         vertical: 'top',
         transition: 'all 0.75s',
         scrolllock: true,
