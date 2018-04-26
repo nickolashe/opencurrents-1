@@ -44,7 +44,7 @@
 
       <div class="row center three-halves-margin-top two-margin-bottom">
         <div class="small-12 medium-6 large-4 small-centered columns">
-          <a href="#signup" class="button round clear large">Join the community</a>
+          <a href="#signup" class="button round large">Join the community</a>
 
           <a href="#3" class="home-link white"><p class="no-margin-bottom">Our mission</p><i class="half-margin-left fa fa-lg fa-angle-down"></i></a>
         </div>
@@ -126,7 +126,7 @@
 
         <div class="row center one-margin-top">
           <div class="medium-6 small-centered columns">
-            <input type="submit" class="button large round clear" value="Create account"/>
+            <input type="submit" class="button large round" value="Create account"/>
             <a href="javascript:void(Tawk_API.toggle())" class="large-text home-link white"><p class="two-margin-bottom">I have a question<i class="half-margin-left fa fa-angle-right"></i></p></a>
           </div>
         </div>
@@ -179,74 +179,4 @@
 
 {% block js %}
   {{ block.super }}
-  
-  <script type="text/javascript">
-    $('#show-diagram').click(function(){
-      $(this).parent().fadeOut(777, function(){
-        $('.diagram-div').fadeIn(777);
-      });
-      var width = $(window).width();
-          var height = $(window).height();
-          $('#home').resize(width, height);
-    });
-  </script>
-
-  <script type="text/javascript">
-    $(document).ready(function(){
-
-      // small benefits box
-      $('.benefit-icon').click(function(){
-        $('.benefits-detail').slideUp();
-        $(this).siblings('.benefits-detail').slideDown();
-      });
-
-      // non-small benefits box
-      var val = 2;
-
-      $('#time-button').click(function(){
-        $('#benefit-'+val+'').fadeOut(777, function(){
-          $('#benefit-1').fadeIn(777);
-        });
-        val = 1;
-      });
-
-      $('#vol-button').click(function(){
-        $('#benefit-'+val+'').fadeOut(777, function(){
-          $('#benefit-2').fadeIn(777);
-        });
-        val = 2;
-      });
-
-      $('#fund-button').click(function(){
-        $('#benefit-'+val+'').fadeOut(777, function(){
-          $('#benefit-3').fadeIn(777);
-        });
-        val = 3;
-      });
-    });
-  </script>
-
-  <script type="text/javascript">
-    $(document).ready(function(){
-      $('#play-intro').popup({
-        vertical: 'top',
-        transition: 'all 0.75s',
-        scrolllock: false,
-        onclose: function() {
-          var vid = jQuery('.videoWrapper iframe[src*="youtube"]');
-          if ( vid.length > 0 ){
-            var src = vid.attr('src');
-              vid.attr('src', '');
-              vid.attr('src', src);
-          }
-        }
-      });
-
-      $('#signup-box, #suggestion-box, #demo-box').popup({
-        vertical: 'top',
-        transition: 'all 0.75s',
-        scrolllock: false,
-      });
-    });
-  </script>
 {% endblock js %}

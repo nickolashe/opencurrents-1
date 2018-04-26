@@ -21,19 +21,16 @@
     </p>
   {% endif %}
 
-  <p>
-    If you have not yet earned Currents by volunteering, you'll need to do
-    so before you can cash out.
-    <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}">
-    1 = $20.
-    <a href="{% url 'openCurrents:volunteer-opportunities' %}">
-      Find a volunteer opportunity
-    </a>
-  </p>
-
-  <p>
-
-  </p>
+  {% if not has_volunteered %}
+    <p>
+      Also, you'll need to volunteer before you can cash out.
+      <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}">
+      1 = $20.
+      <a class="no-wrap" href="{% url 'openCurrents:volunteer-opportunities' %}">
+        Find a volunteer opportunity
+      </a>
+    </p>
+  {% endif %}
 
   <a onClick="ga('send', 'event', 'Redemption', 'CannotCashOut');"
   class="no-cash-popup_close button round">

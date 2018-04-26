@@ -321,10 +321,8 @@
 
 {% block js %}
   {{ block.super }}
-  
-  <script type="text/javascript" src="{% static "js/history.js" %}"></script>
 
-  <script type="text/javascript">
+  <!-- <script type="text/javascript">
     $('#signup-type-2').click(function(){
       $('#org-signup-name').slideDown();
     });
@@ -332,18 +330,7 @@
     $('#signup-type-1').click(function(){
       $('#org-signup-name').slideUp();
     });
-  </script>
-
-  <script type="text/javascript">
-    $('#show-diagram').click(function(){
-      $(this).parent().fadeOut(777, function(){
-        $('.diagram-div').fadeIn(777);
-      });
-      var width = $(window).width();
-          var height = $(window).height();
-          $('#home').resize(width, height);
-    });
-  </script>
+  </script> -->
 
   <script type="text/javascript">
     $(document).ready(function(){
@@ -376,30 +363,6 @@
           $('#benefit-3').fadeIn(555);
         });
         val = 3;
-      });
-    });
-  </script>
-
-  <script type="text/javascript">
-    $(document).ready(function(){
-      $('#play-intro').popup({
-        vertical: 'top',
-        transition: 'all 0.75s',
-        scrolllock: false,
-        onclose: function() {
-          var vid = jQuery('.videoWrapper iframe[src*="youtube"]');
-          if ( vid.length > 0 ){
-            var src = vid.attr('src');
-              vid.attr('src', '');
-              vid.attr('src', src);
-          }
-        }
-      });
-
-      $('#signup-box, #suggestion-box, #demo-box').popup({
-        vertical: 'top',
-        transition: 'all 0.75s',
-        scrolllock: false,
       });
     });
   </script>

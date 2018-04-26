@@ -14,7 +14,6 @@
   </head>
 
   <body id="{% block page %}home{% endblock page %}" class="splash" onunload=''>
-
     {% block header %}
       <header id="header" class="full-width row collapse js-close-any" canvas>
         <div class="relative small-8 large-3 small-offset-1 columns">
@@ -66,6 +65,18 @@
         {% endif %}
 
       </header>
+
+      {% if messages %}
+        <div class="row center full-width collapse messages-framework">
+          <div class="small-12 medium-8 small-centered columns">
+            {% for message in messages %}
+              <span{% if message.tags %} class="{{ message.tags }} alert"{% endif %}>
+                {{ message }}
+              </span>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
     {% endblock header %}
 
     {% block content %}{% endblock content %}
@@ -79,8 +90,8 @@
     <script type="text/javascript" src="{% static "js/home.js" %}"></script>
 
     {% block js %}
-      <script type="text/javascript"`>
-        $(document).ready(function(){
+      <script type="text/javascript">
+        $(document).ready(function() {
           $('.header-spacer').height($('.messages-framework').height()+60);
         });
       </script>
