@@ -1,0 +1,25 @@
+{% extends "layouts/popup.html" %}
+{% load tags %}
+
+{% block title %}
+  Donate cash back
+{% endblock title %}
+
+{% block content %}
+  <p>
+    Select the nonprofit to which you would like to donate your available balance
+    of ${{ balance_available_usd|round_number:2 }}:
+  </p>
+
+  <div class="row one-margin-bottom">
+    <div class="medium-9 small-centered columns">
+      <select name="active_nonprofits">
+        <option>[Active nonprofits]</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="row">
+    <input type="submit" class="button round" value="Confirm donation"/>
+  </div>
+{% endblock content %}
