@@ -134,7 +134,7 @@ approval%20by%20{}/'.format(self.org_biz.name),
         processed_content = re.sub(r'\s+', ' ', response.content)
 
         # My redeemed offers list entry contains last transaction
-        redeemed_offer_text = '{} - You requested ${} for'.format(
+        redeemed_offer_text = '%s - You requested $%.2f for' % (
             today_date,
             redeemed_usd_amount,
         )
@@ -165,8 +165,8 @@ approval%20by%20{}/'.format(self.org_biz.name),
             redeem_currents_amount)
 
         processed_content = re.sub(r'\s+', ' ', response.content)
-        redeemed_offer_text = '{} - {} {} purchased <strong> {} for ${}.00 \
-</strong> and would receive ${} for'.format(
+        redeemed_offer_text = '%s - %s %s purchased <strong> %s for $%.2f \
+</strong> and would receive $%.2f for' % (
             today_date,
             self.volunteer_1.first_name,
             self.volunteer_1.last_name,
