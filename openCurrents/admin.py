@@ -112,39 +112,8 @@ admin.site.register(AdminActionUserTime, AdminActionUserTimeAdmin)
 admin.site.register(Offer)
 admin.site.register(Transaction, TransactionAdmin)
 admin.site.register(Item)
-# admin.site.register(TransactionAction)
+admin.site.register(TransactionAction)
 admin.site.register(Entity)
 admin.site.register(UserEntity)
 admin.site.register(OrgEntity)
 admin.site.register(Ledger, LedgerAdmin)
-
-
-class TransactionActionAdminForm(forms.ModelForm):
-    class Meta:
-        model = TransactionAction
-        fields = '__all__'
-
-    def clean(self):
-        cleaned_data = super(TransactionActionAdminForm, self).clean()
-        tr = cleaned_data['transaction']
-
-        transaction_num = len(
-            TransactionAction.objects.filter(transaction=tr)
-        )
-
-        # validating if admin created a new transaction instead of
-        # editing existing one
-        if transaction_num > 0:
-
-            error_msg = 'Missing TransactionAction type=pending. Please add \
-TransactionAction instead of changing existing one!'
-
-            raise ValidationError(error_msg)
-
-        else:
-            return self.cleaned_data
-
-
-@admin.register(TransactionAction)
-class TransactionActionAdmin(admin.ModelAdmin):
-    form = TransactionActionAdminForm
