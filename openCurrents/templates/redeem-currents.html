@@ -138,19 +138,15 @@
             Exchange
             <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
             <span class="currents-total">0.00</span> for
-            $<span class="dollars-received">0.00</span> with
-            {% if master_offer %}
-              <span id="master-biz-name">{{ forms.biz_name }}</span>
-            {% else %}
-              <span id="offer-biz-name">{{ offer.org.name }}</span>
-            {% endif %}
-            .
+            $<span class="dollars-received">0.00</span> with {{ offer.org.name }}.
             <span id="master-offer-limit" class="hidden">
               (You have up to
               <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
               {{ master_funds_available }} remaining for the special offer.)
             </span>
           </p>
+
+          {{ form.biz_name }}
 
           <p>
             Dollars will become available once {{ offer.org.name }} validates
