@@ -3019,9 +3019,12 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         email_template_merge_vars = []
 
         if self.post_data['personal_message'] != '':
+
+            message = '<pre>' + self.post_data['personal_message'] + '</pre>'
+
             email_template_merge_vars.append({
                 'name': 'PERSONAL_MESSAGE',
-                'content': self.post_data['personal_message']
+                'content': message
             })
 
         try:
@@ -3792,6 +3795,8 @@ def event_register(request, pk):
     if form.is_valid():
         user = request.user
         message = form.cleaned_data['contact_message']
+
+        message = '<pre>' + message + '</pre>'
 
         # check for existing registration
         is_registered = UserEventRegistration.objects.filter(user__id=user.id, event__id=event.id, is_confirmed=True).exists()

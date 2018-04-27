@@ -12,7 +12,7 @@ from openCurrents.models import (
     Event,
     UserSettings,
     UserEntity,
-    UserEventRegistration,
+    UserEventRegistration
 )
 
 # INTERFACES
@@ -138,7 +138,6 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
                 'test_mode': '1'  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
             }
         )
-
         # assert if we've been redirected
         self.assertRedirects(self.response, org_admin_url + '4/', status_code=302)
 
