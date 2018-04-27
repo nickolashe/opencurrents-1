@@ -4725,7 +4725,7 @@ def process_email_confirmation(request, user_email):
         }
         glogger.log_struct(glogger_struct, labels=glogger_labels)
 
-        master_offer_id = Offer.objects.get(is_master=True).id
+        master_offer_id = OcUser(user.id).get_master_offer().id
 
         # send verification email
         confirm_email_vars = [
