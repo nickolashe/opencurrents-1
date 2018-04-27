@@ -18,7 +18,7 @@
   }
 
   #business {
-    background: url(https://storage.googleapis.com/opencurrents-194003.appspot.com/static/img/market.jpg) no-repeat right center fixed;a
+    background: url(https://storage.googleapis.com/opencurrents-194003.appspot.com/static/img/market.jpg) no-repeat right center fixed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -46,12 +46,11 @@
 
 .splash {
   display: block;
-  overflow: visible;
   background-color: #ffffff;
   color: #ffffff;
   min-height: 100vh;
+  overflow: visible;
 }
-
 
 /* small */
 @media (max-width: 41.9375em) {
@@ -130,6 +129,15 @@
     -o-background-size: cover;
     background-size: cover;
   }
+}
+
+.messages-framework {
+  background-color: #ffffff;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  position: fixed;
+  top: 60px;
+  z-index: 3;
 }
 
 #intro-1, #intro-2, #intro-3, #intro-4, #intro-5, #intro-6, #intro-7 {
@@ -239,13 +247,7 @@ input.home-input::placeholder {
   font-weight: normal;
 }
 
-.splash .button.blue-bg:hover {
-  background-color: #169ccd;
-  border-color: #169ccd;
-  color: #fff;
-}
-
-.splash .button.blue-bg:focus {
+.splash .button.blue-bg:hover, .splash .button.blue-bg:focus {
   background-color: #169ccd;
   border-color: #169ccd;
   color: #fff;
@@ -270,8 +272,15 @@ input.home-input::placeholder {
   border-radius: 4px;
 }
 
-.orange {
+.button.orange {
   background-color: #f5a412;
+  border-color: #f5a412;
+  box-shadow: 0 3px #b37608;
+}
+
+.button.orange:hover {
+  background-color: #d78d09;
+  border-color: #d78d09;
 }
 
 .accordion-title {
@@ -386,8 +395,8 @@ input.home-input::placeholder {
   height: 77px;
   padding: 21px 0;
   border-radius: 99px;
-  border: 1px solid #24b2e7;
-  color: #24b2e7;
+  border: 1px solid #147db6;
+  color: #147db6;
   background-color: #ffffff;
 }
 

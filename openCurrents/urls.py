@@ -115,6 +115,7 @@ urlpatterns = [
     url(r'^create-event/(?P<org_id>\d+)/$', views.CreateEventView.as_view(), name='create-event'),
     url(r'^project-details/$', views.ProjectDetailsView.as_view(), name='project-details'),
     url(r'^invite-volunteers/$', views.InviteVolunteersView.as_view(), name='invite-volunteers'),
+    url(r'^invite-volunteers-past/(?P<event_ids>.+)/$', views.InviteVolunteersPastView.as_view(), name='invite-volunteers-past'),
     url(r'^invite-volunteers/(?P<event_ids>.+)/$', views.InviteVolunteersView.as_view(), name='invite-volunteers'),
     url(r'^volunteers-invited/(?P<vol_no>\d+)/$', views.VolunteersInvitedView.as_view(), name='volunteers-invited'),
     url(r'^event-created/(?P<project>\w+)/(?P<num_events>\d+)/$', views.EventCreatedView.as_view(), name='event-created'),
@@ -128,7 +129,7 @@ urlpatterns = [
     url(r'^registration-confirmed/(?P<pk>\d+)/$',
         views.RegistrationConfirmedView.as_view(), name='registration-confirmed'),
 
-    #temp 403, 404 and 500 views
+    # temp 403, 404 and 500 views
     url(r'^403/$', views.ForbiddenView.as_view(), name='403'),
     url(r'^404/$', views.NotFoundView.as_view(), name='404'),
     url(r'^500/$', views.ErrorView.as_view(), name='500'),

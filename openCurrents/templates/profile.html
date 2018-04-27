@@ -18,10 +18,7 @@
             You've got Currents.
           {% endif %}
 
-          <a
-            href="{% url 'openCurrents:redeem-currents' master_offer.id %}"
-            class="white-link"
-          >
+          <a href="{% url 'openCurrents:marketplace' %}" class="white-link">
             Redeem now
           </a>
 
@@ -65,7 +62,7 @@
 {% endblock heading %}
 
 {% block content %}
-  <div class="row">
+  <div class="row one-margin-bottom">
     <div class="small-12 medium-6 columns">
       <h6 class="inline-block qtr-margin-bottom">
         Currents available:
@@ -95,7 +92,11 @@
 
       <a onClick="ga('send', 'event', 'Redemption', 'AttemptCashOut');" class="
         {% if balance_available_usd|str_to_num > 0 %}
-          cash-out-popup_open
+          {% if has_volunteered %}
+            cash-out-popup_open
+          {% else %}
+            volunteer-for-cash-popup_open
+          {% endif %}
         {% else %}
           no-cash-popup_open
         {% endif %}
@@ -105,33 +106,7 @@
     </div>
   </div>
 
-  <div class="row collapse left three-halves-margin-top">
-    <div class="small-11 medium-10 small-centered columns">
-      <h6>Featured businesses</h6>
-      <div class="row">
-        <div class="small-6 medium-3 columns">
-          <a href="{% url 'openCurrents:redeem-currents' master_offer.id %}?biz_name=Whole Foods">
-            <img class="biz-logos" src="{% static 'img/whole-foods.png' %}"/>
-          </a>
-        </div>
-        <div class="small-6 medium-3 columns">
-          <a href="{% url 'openCurrents:redeem-currents' master_offer.id %}?biz_name=Amazon">
-            <img class="biz-logos" src="{% static 'img/amazon.png' %}"/>
-          </a>
-        </div>
-        <div class="small-6 medium-3 columns">
-          <a href="{% url 'openCurrents:redeem-currents' master_offer.id %}?biz_name=HEB">
-            <img class="biz-logos" src="{% static 'img/heb.png' %}"/>
-          </a>
-        </div>
-        <div class="small-6 medium-3 columns">
-          <a href="{% url 'openCurrents:redeem-currents' master_offer.id %}?biz_name=Central Market">
-            <img class="biz-logos" src="{% static 'img/central-market.png' %}"/>
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
+  {% include "partials/featured-bizzes.html" %}
 
   <div class="row collapse three-halves-margin-top left">
     <div class="small-11 medium-10 small-centered columns">
@@ -294,6 +269,10 @@
     {% include "popups/no-cash-popup.html" %}
   </div>
 
+  <div id="volunteer-for-cash-popup" class="modal center small-12 medium-9 small-centered columns">
+    {% include "popups/volunteer-for-cash-popup.html" %}
+  </div>
+
   <div id="approve-hours-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
     {% include "popups/approve-hours-popup.html" %}
   </div>
@@ -350,7 +329,7 @@
         var open = false;
       }
 
-      $('#rsvp-popup, #earn-currents-popup, #balance-popup, #no-cash-popup, #cash-out-popup').popup({
+      $('#rsvp-popup, #earn-currents-popup, #balance-popup, #no-cash-popup, #cash-out-popup, #volunteer-for-cash-popup').popup({
         vertical: 'top',
         transition: 'all 0.75s',
         scrolllock: true,

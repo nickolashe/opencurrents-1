@@ -37,6 +37,7 @@ from openCurrents.interfaces.bizadmin import BizAdmin
 from openCurrents.interfaces.ledger import OcLedger
 from openCurrents.interfaces.common import diffInHours
 from openCurrents.interfaces.community import OcCommunity
+from openCurrents.interfaces.convert import _TR_FEE
 
 from openCurrents.tests.interfaces.common import (
     _create_test_user,
@@ -213,6 +214,9 @@ class TestUserPopup(TestCase):
 class TestUserProfileView(TestCase):
 
     def setUp(self):
+        self.test_curr_per_tr = 12
+        self.curr_to_usd = 20
+
         # dates
         future_date = timezone.now() + timedelta(days=1)
         past_date = timezone.now() - timedelta(days=2)
@@ -326,9 +330,9 @@ class TestUserProfileView(TestCase):
         )
 
         # setting approved and pending dollars
-        _setup_transactions(biz_org, volunteer_1, 12, 20)  # Pending: $204.0
-        _setup_transactions(biz_org, volunteer_1, 12, 20, action_type='app')  # 204.0 +
-        _setup_transactions(biz_org, volunteer_1, 12, 20, action_type='red')  # + 204.0 = 408
+        _setup_transactions(biz_org, volunteer_1, self.test_curr_per_tr, 20)
+        _setup_transactions(biz_org, volunteer_1, self.test_curr_per_tr, 20, action_type='app')
+        _setup_transactions(biz_org, volunteer_1, self.test_curr_per_tr, 20, action_type='red')
 
         # create master offer
         _create_offer(
@@ -439,7 +443,10 @@ class TestUserProfileView(TestCase):
         response = self.client.get('/profile/')
         self.assertEqual(response.status_code, 200)
 
-        self.assertEqual(response.context['balance_available_usd'], 234.30)
+        self.assertEqual(
+            response.context['balance_available_usd'],
+            self.test_curr_per_tr * self.curr_to_usd + 30.3
+        )
 
         # checking transaction action, related transaction and ledger entries
         app_tra_query = TransactionAction.objects.filter(action_type='app')
@@ -450,14 +457,18 @@ class TestUserProfileView(TestCase):
         # check ledger entry: $ from oC to volunteer_1
         self.assertEqual(
             len(Ledger.objects.filter(
-                transaction=app_tra_query[0]).filter(amount=204.0)),
+                transaction=app_tra_query[0]).filter(
+                    amount=self.test_curr_per_tr * self.curr_to_usd
+                )),
             1
         )
 
         # check ledger entry: $ from volunteer_1 to BIZ_org_1
         self.assertEqual(
             len(Ledger.objects.filter(
-                transaction=app_tra_query[0]).filter(amount=12.0)),
+                transaction=app_tra_query[0]).filter(
+                    amount=self.test_curr_per_tr
+                )),
             1
         )
 
@@ -478,7 +489,10 @@ class TestUserProfileView(TestCase):
         response = self.client.get('/profile/')
         self.assertEqual(response.status_code, 200)
 
-        self.assertEqual(response.context['balance_pending_usd'], 204.0)
+        self.assertEqual(
+            response.context['balance_pending_usd'],
+            self.test_curr_per_tr * self.curr_to_usd
+        )
 
     def test_user_offers_redemed(self):
         """

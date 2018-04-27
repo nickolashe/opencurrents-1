@@ -92,7 +92,7 @@ h1, h2, h3, h4, h5, h6 {
 /* Lead text for non-small screens */
 @media screen and (min-width: 42em) {
   .lead {
-    font-size: 125%;
+    font-size: 111%;
     line-height: 1.6;
   }
 }
@@ -101,6 +101,20 @@ h1, h2, h3, h4, h5, h6 {
   margin-left: 0.25rem;
   margin-right: 0.25rem;
   font-size: 1rem;
+  background-color: #24b2e7;
+  transition: border 0.25s ease-in-out, background-color 0.25s ease-in-out;
+  outline: none;
+  position: relative;
+  box-shadow: 0 3px #147db6;
+}
+
+.button:after {
+	content: '';
+	position: absolute;
+	z-index: -1;
+	-webkit-transition: all 0.3s;
+	-moz-transition: all 0.3s;
+	transition: all 0.3s;
 }
 
 .button.large {
@@ -116,12 +130,6 @@ h1, h2, h3, h4, h5, h6 {
   padding-bottom: 0.5rem;
 }
 
-.button {
-  background-color: #24b2e7;
-  transition: border 0.25s ease-in-out, background-color 0.25s ease-in-out;
-  outline: none;
-}
-
 .button:hover, .button:focus {
   color: #ffffff;
   background-color: #169ccd;
@@ -129,9 +137,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .button.secondary {
-  color: #24b2e7;
+  color: #147db6;
   background-color: #ffffff;
-  border: 1px solid #24b2e7;
+  border: 1px solid #147db6;
+  box-shadow: 0 3px #147db6;
   transition: border 0.25s ease-in-out, background-color 0.25s ease-in-out, color 0.25s ease-in-out;
 }
 
@@ -145,10 +154,11 @@ h1, h2, h3, h4, h5, h6 {
   background-color: #ffffff;
   border: 1px solid #890045;
   color: #890045;
+  box-shadow: 0 3px #890045
 }
 
 .button.alert:hover, .button.alert:focus {
-  background-color: #890045;
+  background-color: #9c1537;
   color: #ffffff;
 }
 
@@ -167,13 +177,15 @@ h1, h2, h3, h4, h5, h6 {
   background-color: transparent;
   color: #ffffff;
   border: 1px solid #ffffff;
-  transition: border 0.25s ease-in-out, background-color 0.25s ease-in-out;
+  box-shadow: 0 3px #ccc;
+  transition: border none, background-color 0.25s ease-in-out;
 }
 
 .button.clear:hover, .button.clear:focus {
-  background-color: #147db6;
+  background-color: #169ccd;
   color: #ffffff;
-  border: 1px solid #147db6;
+  border: 1px solid #169ccd;
+  box-shadow: 0 3px #147db6;
 }
 
 .button.disabled, .button[disabled],
@@ -182,6 +194,11 @@ h1, h2, h3, h4, h5, h6 {
   background-color: #555555;
   border-color: #555555;
   color: #ffffff;
+}
+
+.button:active {
+  box-shadow: 0 0 !important;
+	top: 3px;
 }
 
 .button.large {
@@ -1258,14 +1275,25 @@ i:hover ~ .addtocalendar {
 }
 
 .biz-logos {
-  border: 1px solid #cccccc;
+  /* border: 1px solid #cccccc; */
   padding: 7px;
   margin: 0.25rem;
   border-radius: 5px;
+  filter: grayscale(30%);
   transition: filter 0.25s, border-color 0.25s ease-in-out;
   box-shadow:
     inset 0 2px 9px  rgba(255,255,255,0.3),
     inset 0 -2px 6px rgba(0,0,0,0.4);
+}
+
+.biz-logos:hover {
+  filter: grayscale(0%) saturate(111%);
+}
+
+.biz-logos:active {
+   box-shadow:
+    inset 0 2px 9px #999,
+    inset 0 -2px 6px #999;
 }
 
 /* small */

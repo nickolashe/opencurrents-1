@@ -92,7 +92,15 @@ class OrgUser(models.Model):
 
 
 class Entity(models.Model):
-    pass
+    def __unicode__(self):
+        try:
+            entity = OrgEntity.objects.get(id=self.id)
+            name_from = entity.org.name
+        except:
+            entity = UserEntity.objects.get(id=self.id)
+            name_from = entity.user.username
+
+        return name_from
 
 
 class UserEntity(Entity):
@@ -168,12 +176,14 @@ class Ledger(models.Model):
     action = models.ForeignKey(
         'AdminActionUserTime',
         on_delete=models.CASCADE,
-        null=True
+        null=True,
+        blank=True
     )
     transaction = models.ForeignKey(
         'TransactionAction',
         on_delete=models.CASCADE,
-        null=True
+        null=True,
+        blank=True        
     )
 
     # created / updated timestamps
@@ -205,7 +215,8 @@ class Ledger(models.Model):
             'on',
             self.date_created.strftime(
                 '%Y-%m-%d %I-%M %p'
-            )
+            ),
+            'UTC'
         ])
 
 
@@ -305,10 +316,13 @@ class UserEventRegistration(models.Model):
         unique_together = ('user', 'event')
 
     def __unicode__(self):
+        tz = self.event.project.org.timezone
         return ' '.join([
             self.user.username,
             'is registered for',
-            self.event.project.name
+            self.event.project.name,
+            'on',
+            self.date_created.astimezone(pytz.timezone(tz)).strftime('%Y-%m-%d %I-%M %p'),
         ])
 
 
@@ -401,13 +415,15 @@ class AdminActionUserTime(models.Model):
                 self.usertimelog.event.datetime_end
             )
 
+        tz = self.usertimelog.event.project.org.timezone
+
         if self.action_type == 'req':
             return ' '.join([
                 self.usertimelog.user.username,
                 'requested approval of',
                 str(hours),
-                'hr. starting on',
-                self.usertimelog.datetime_start.strftime('%m/%d/%Y %H:%M:%S'),
+                'hours starting on',
+                self.usertimelog.datetime_start.astimezone(pytz.timezone(tz)).strftime('%Y-%m-%d %I-%M %p'),
                 'from',
                 self.usertimelog.event.project.org.name,
                 'admin',
@@ -425,10 +441,10 @@ class AdminActionUserTime(models.Model):
                 self.user.email,
                 act,
                 str(hours),
-                'hr. by',
+                'hours by',
                 self.usertimelog.user.email,
                 'starting on',
-                self.usertimelog.datetime_start.strftime('%m/%d/%Y %H:%M:%S')
+                self.usertimelog.datetime_start.astimezone(pytz.timezone(tz)).strftime('%Y-%m-%d %I-%M %p'),
             ])
 
 
