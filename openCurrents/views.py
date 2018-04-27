@@ -1387,7 +1387,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
                 offer_id=self.kwargs['offer_id'],
                 user=self.user
             )
-            context['form'].fields['biz_name_input'].widget.attrs['value'] = biz_name
+            context['form'].fields['biz_name'].widget.attrs['value'] = biz_name
 
         return context
 
