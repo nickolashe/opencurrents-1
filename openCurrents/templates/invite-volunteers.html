@@ -82,18 +82,18 @@
         {% endblock invite-volunteer-checkbox %}
 
         {% block add_email_block %}
-        <div id="personal-message-div" class="left hidden">
-          <label for="personal-message-text">
-            A message from {{ user.first_name }} {{ user.last_name }} (optional):
-          </label>
-          <textarea name="personal_message" id="personal-message-text"></textarea>
-        </div>
+          <div id="personal-message-div" class="left hidden">
+            <label for="personal-message-text">
+              A message from {{ user.first_name }} {{ user.last_name }} (optional):
+            </label>
+            <textarea name="personal_message" id="personal-message-text"></textarea>
+          </div>
 
-        <p class="three-halves-margin-top no-margin-bottom">
-          <a id="add-personal-message" class="half-margin-bottom button tiny round secondary">
-            Add personal message
-          </a>
-        </p>
+          <p class="three-halves-margin-top no-margin-bottom">
+            <a id="add-personal-message" class="half-margin-bottom button tiny round secondary">
+              Add personal message
+            </a>
+          </p>
         {% endblock add_email_block %}
       </div>
 
@@ -107,11 +107,11 @@
     </div>
 
     {% block preview_email %}
-    <p class="half-margin-bottom">
-      <a class="preview-email-popup_open">
-        Preview email
-      </a>
-    </p>
+      <p class="half-margin-bottom">
+        <a class="preview-email-popup_open">
+          Preview email
+        </a>
+      </p>
     {% endblock preview_email %}
 
 
@@ -128,6 +128,7 @@
     {% include "popups/preview-email-popup.html" %}
   </div>
 {% endblock popups %}
+
 
 {% block js %}
   <script type="text/javascript">
