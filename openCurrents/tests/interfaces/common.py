@@ -34,6 +34,8 @@ from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 
+import random
+import string
 import time
 from datetime import datetime, timedelta
 
@@ -41,6 +43,8 @@ from datetime import datetime, timedelta
 from django.test import Client, TestCase
 
 # ====== CONTENT =======
+# class SetUpTests
+# _get_random_string
 # _create_org
 # _create_test_user
 # _create_project
@@ -159,6 +163,19 @@ class SetUpTests(object):
     def get_all_projects(self, org):
         """Return list of projects."""
         return [proj for proj in Project.objects.filter(org=org)]
+
+
+def _get_random_string():
+    rnd_digits = ''.join([
+        random.choice(list(string.digits))
+        for i in xrange(8)
+    ])
+    rnd_chars = ''.join([
+        random.choice(list(string.letters))
+        for i in xrange(15)
+    ])
+
+    return rnd_digits + rnd_chars
 
 
 def _create_org(org_name, org_status):

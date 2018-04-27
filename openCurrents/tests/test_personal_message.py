@@ -24,10 +24,16 @@ from openCurrents.interfaces.orgs import (
 from openCurrents.tests.interfaces import testing_urls
 from openCurrents.tests.interfaces.common import (
     SetupAdditionalTimeRecords,
+    _get_random_string,
 )
 
 invite_volunteers_url = testing_urls.invite_volunteers_url
 org_admin_url = testing_urls.org_admin_url
+
+
+def _personal_message_wrap(msg):
+    """Take msg string and wrap it into <pre> HTML tag."""
+    return '<pre>' + msg + '</pre>'
 
 
 class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
@@ -177,6 +183,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertEqual(self.response.status_code, 200)
 
         # posting form
+        personal_message = _get_random_string()
         response = self.client.post(
             invite_volunteers_url,
             {
@@ -184,7 +191,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
                 'vol-email-1': 'single_test_guest_1@mail.cc',
                 'bulk-vol': '',
                 'count-vol': '1',
-                'personal_message': 'Test msg',
+                'personal_message': personal_message,
                 'test_mode': '1'  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
             }
         )
@@ -206,7 +213,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
 
         # asserting email vars values
         expected_list = [
-            'Test msg', 'PERSONAL_MESSAGE',
+            _personal_message_wrap(personal_message), 'PERSONAL_MESSAGE',
             'first_npf_admin_1', 'ADMIN_FIRSTNAME',
             'last_npf_admin_1', 'ADMIN_LASTNAME',
             'NPF_org_1', 'ORG_NAME'
@@ -230,11 +237,12 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertEqual(self.response.status_code, 200)
 
         # posting form
+        personal_message = _get_random_string()
         response = self.client.post(
             invite_volunteers_url,
             {
                 'bulk-vol': '<bulk_test_guest_1@e.cc>, test_guest_firstname test_guest_lastname <bulk_test_guest_2@e.cc>, bulk_test_guest_3@e.cc, bulk_test_guest_4@e.cc',
-                'personal_message': 'Test msg 2',
+                'personal_message': personal_message,
                 'test_mode': '1'  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
             }
         )
@@ -256,7 +264,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
 
         # asserting email vars values
         expected_list = [
-            'Test msg 2', 'PERSONAL_MESSAGE',
+            _personal_message_wrap(personal_message), 'PERSONAL_MESSAGE',
             'first_npf_admin_1', 'ADMIN_FIRSTNAME',
             'last_npf_admin_1', 'ADMIN_LASTNAME',
             'NPF_org_1', 'ORG_NAME'
@@ -423,11 +431,12 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertEqual(self.response.status_code, 200)
 
         # posting form
+        personal_message = _get_random_string()
         response = self.client.post(
             invite_volunteers_url,
             {
                 'bulk-vol': self.volunteer1.email + ", " + self.volunteer2.email + ", " + self.volunteer3.email,
-                'personal_message': 'Test msg 2',
+                'personal_message': personal_message,
                 'test_mode': '1'  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
             }
         )
@@ -449,7 +458,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
 
         # asserting email vars values
         expected_list = [
-            'Test msg 2', 'PERSONAL_MESSAGE',
+            _personal_message_wrap(personal_message), 'PERSONAL_MESSAGE',
             'first_npf_admin_1', 'ADMIN_FIRSTNAME',
             'last_npf_admin_1', 'ADMIN_LASTNAME',
             'NPF_org_1', 'ORG_NAME'
@@ -770,6 +779,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertEqual(self.response.status_code, 200)
 
         # posting form
+        personal_message = _get_random_string()
         response = self.client.post(
             invite_volunteers_url + '1/',
             {
@@ -777,7 +787,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
                 'vol-email-1': 'single_test_guest_1@mail.cc',
                 'bulk-vol': '',
                 'count-vol': '1',
-                'personal_message': 'Test msg',
+                'personal_message': personal_message,
                 'test_mode': '1'  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
             }
         )
@@ -808,7 +818,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
 
         # asserting email vars values
         expected_list = [
-            'Test msg', 'PERSONAL_MESSAGE',
+            _personal_message_wrap(personal_message), 'PERSONAL_MESSAGE',
             'first_npf_admin_1', 'ADMIN_FIRSTNAME',
             'last_npf_admin_1', 'ADMIN_LASTNAME',
             'test_project_1', 'EVENT_TITLE',
@@ -838,11 +848,12 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertEqual(self.response.status_code, 200)
 
         # posting form
+        personal_message = _get_random_string()
         response = self.client.post(
             invite_volunteers_url + '1/',
             {
                 'bulk-vol': 'bulk_test_guest_1@e.cc, bulk_test_guest_2@e.cc, bulk_test_guest_3@e.cc, bulk_test_guest_4@e.cc',
-                'personal_message': 'Test msg 2',
+                'personal_message': personal_message,
                 'test_mode': '1'  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
             }
         )
@@ -870,7 +881,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
 
         # asserting email vars values
         expected_list = [
-            'Test msg 2', 'PERSONAL_MESSAGE',
+            _personal_message_wrap(personal_message), 'PERSONAL_MESSAGE',
             'first_npf_admin_1', 'ADMIN_FIRSTNAME',
             'last_npf_admin_1', 'ADMIN_LASTNAME',
             'test_project_1', 'EVENT_TITLE',
@@ -984,6 +995,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         )
 
         # posting form
+        personal_message = _get_random_string()
         response = self.client.post(
             invite_volunteers_url + '1/',
             {
@@ -991,7 +1003,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
                 'vol-email-1': self.volunteer3.email,
                 'bulk-vol': '',
                 'count-vol': '1',
-                'personal_message': 'Test msg single existing',
+                'personal_message': personal_message,
                 'test_mode': '1'  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
             }
         )
@@ -1014,7 +1026,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
 
         # asserting email vars values
         expected_list = [
-            'Test msg single existing', 'PERSONAL_MESSAGE',
+            _personal_message_wrap(personal_message), 'PERSONAL_MESSAGE',
             'first_npf_admin_1', 'ADMIN_FIRSTNAME',
             'last_npf_admin_1', 'ADMIN_LASTNAME',
             'test_project_1', 'EVENT_TITLE',
@@ -1080,7 +1092,13 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         )
 
         # asserting email vars values
-        expected_list = ['first_npf_admin_1', 'ADMIN_FIRSTNAME', 'last_npf_admin_1', 'ADMIN_LASTNAME', 'test_project_1', 'EVENT_TITLE', 'NPF_org_1', 'ORG_NAME', 'test_location_1', 'EVENT_LOCATION']
+        expected_list = [
+            'first_npf_admin_1', 'ADMIN_FIRSTNAME',
+            'last_npf_admin_1', 'ADMIN_LASTNAME',
+            'test_project_1', 'EVENT_TITLE',
+            'NPF_org_1', 'ORG_NAME',
+            'test_location_1', 'EVENT_LOCATION'
+        ]
         self._assert_merge_vars(session['merge_vars'], expected_list)
 
         # assert we pass emails to mandril
@@ -1110,6 +1128,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         )
 
         # posting form
+        personal_message = _get_random_string()
         response = self.client.post(
             invite_volunteers_url + '1/',
             {
@@ -1117,7 +1136,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
                 'vol-email-1': self.volunteer1.email,
                 'bulk-vol': '',
                 'count-vol': '1',
-                'personal_message': 'Test msg single existing',
+                'personal_message': personal_message,
                 'test_mode': '1'  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
             }
         )
@@ -1140,7 +1159,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
 
         # asserting email vars values
         expected_list = [
-            'Test msg single existing', 'PERSONAL_MESSAGE',
+            _personal_message_wrap(personal_message), 'PERSONAL_MESSAGE',
             'first_npf_admin_1', 'ADMIN_FIRSTNAME',
             'last_npf_admin_1', 'ADMIN_LASTNAME',
             'test_project_1', 'EVENT_TITLE',
@@ -1178,11 +1197,12 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         )
 
         # posting form
+        personal_message = _get_random_string()
         response = self.client.post(
             invite_volunteers_url + '1/',
             {
                 'bulk-vol': self.volunteer1.email + ", " + self.volunteer2.email,
-                'personal_message': 'Test msg bulk existing users',
+                'personal_message': personal_message,
                 'test_mode': '1'  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
             }
         )
@@ -1205,7 +1225,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
 
         # asserting email vars values
         expected_list = [
-            'Test msg bulk existing users', 'PERSONAL_MESSAGE',
+            _personal_message_wrap(personal_message), 'PERSONAL_MESSAGE',
             'first_npf_admin_1', 'ADMIN_FIRSTNAME',
             'last_npf_admin_1', 'ADMIN_LASTNAME',
             'test_project_1', 'EVENT_TITLE',
@@ -1380,11 +1400,12 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         )
 
         # posting form
+        personal_message = _get_random_string()
         response = self.client.post(
             invite_volunteers_url + '1/',
             {
                 'bulk-vol': self.volunteer3.email + ", " + self.volunteer4.email,
-                'personal_message': 'Test msg bulk existing users',
+                'personal_message': personal_message,
                 'test_mode': '1'  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
             }
         )
@@ -1416,7 +1437,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
 
         # asserting email vars values
         expected_list = [
-            'Test msg bulk existing users', 'PERSONAL_MESSAGE',
+            _personal_message_wrap(personal_message), 'PERSONAL_MESSAGE',
             'first_npf_admin_1', 'ADMIN_FIRSTNAME',
             'last_npf_admin_1', 'ADMIN_LASTNAME',
             'test_project_1', 'EVENT_TITLE',
