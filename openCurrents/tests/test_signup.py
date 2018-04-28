@@ -2,6 +2,7 @@
 from django.test import Client, TestCase, TransactionTestCase
 from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
+from django.contrib import messages
 
 from openCurrents import views, urls
 from openCurrents.interfaces.ocuser import OcUser
@@ -431,11 +432,15 @@ class TestSignup(TransactionTestCase):
         self._assert_org_user(self.orgTest.name, self.test_email, False)
 
         status_message = 'Organization named %s already exists!' % self.orgTest.name
+        warning_messages = list(response.wsgi_request._messages)
+
+        self.assertEqual(warning_messages[0].message, status_message)
+        self.assertIn('alert', warning_messages[0].tags)
+
         url_nonprofit = reverse(
-            'login',
+            'home',
             urlconf=urls,
-            kwargs={'status_msg': status_message, 'msg_type': 'alert'}
-        )
+        ) + '#signup'
         self.assertRedirects(response, url_nonprofit)
 
     def test_signup_livedashboard_optin(self):
