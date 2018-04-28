@@ -2192,13 +2192,7 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
             # check user's balance and has_volunteered
             if self.ocuser.get_balance_available_usd() > 0 and len(self.ocuser.get_hours_approved()) > 0:
 
-                """
-                Email ('user-cash-out') sent to bizdev@opencurrents.com with vars
-                user first/last name (FNAME, LNAME) user email (EMAIL),
-                available_balance_usd (AVAILABLE_DOLLARS),
-                DONATE=True,
-                ORG_NAME
-                """
+                # Email ('user-cash-out') sent to bizdev@opencurrents.com
                 merge_vars_cashout_donation = merge_vars_cashout
                 merge_vars_cashout_donation.extend(
                     [
@@ -2218,17 +2212,8 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
                     'bizdev@opencurrents.com'
                 )
 
-                """
-                Email ('donation-confirmation') sent to user with
-                user's name (FNAME, LNAME),
-                AVAILABLE_DOLLARS,
-                ORG_NAME,
-                today'sdate (DATE)
-                """
+                # Email ('donation-confirmation') sent to user
                 tz = self.user.usersettings.timezone
-                print "\nHERE"
-                print datetime.now(pytz.timezone(tz))
-                print "HERE\n"
                 merge_vars_donation_confirm = merge_vars_cashout
                 merge_vars_donation_confirm.extend(
                     [
@@ -2242,7 +2227,6 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
                         }
                     ]
                 )
-
                 self._send_cashout_email(
                     'donation-confirmation',
                     merge_vars_donation_confirm,
@@ -2255,7 +2239,6 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
             )
 
         else:
-
             self._send_cashout_email(
                 'user-cash-out',
                 merge_vars_cashout,
