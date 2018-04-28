@@ -16,7 +16,11 @@
     <div class="row one-margin-bottom">
       <div class="medium-9 small-centered columns">
         <select name="active_nonprofits">
-          <option>[Active nonprofits]</option>
+            {% for npf in active_npfs %}
+                <option>{{npf.name}}</option>
+            {% empty %}
+                <option disabled>No active organizations at the moment.</option>
+            {% endfor %}
         </select>
       </div>
     </div>

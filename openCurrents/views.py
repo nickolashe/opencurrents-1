@@ -2075,6 +2075,34 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
     redirect_unauthenticated_users = True
     form_class = BizDetailsForm
 
+    def _send_cashout_email(
+        self,
+        template_name,
+        merge_vars,
+        recipient_email
+    ):
+        """
+        Send emails to provided template with provided email vars.
+
+        - template_name - string with email template name
+        - merge_vars - list of dictionaries and send to mandril.
+        - recipient_email - string contains recipient email
+        """
+
+        try:
+            sendTransactionalEmail(
+                template_name,
+                None,
+                merge_vars,
+                recipient_email
+            )
+        except Exception as e:
+            logger.error(
+                'unable to send transactional email: %s (%s)',
+                e.message,
+                type(e)
+            )
+
     def get_context_data(self, **kwargs):
         """Get context data."""
         context = super(ProfileView, self).get_context_data(**kwargs)
@@ -2126,50 +2154,118 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
         context['bonus_amount'] = common._SIGNUP_BONUS
 
         context['has_volunteered'] = context['hours_by_org']
+        context['active_npfs'] = OcOrg().get_top_issued_npfs('all-time')
 
         return context
 
     def post(self, request, *args, **kwargs):
         """Process post request."""
         balance_available_usd = self.ocuser.get_balance_available_usd()
-
         UserCashOut(user=self.user, balance=balance_available_usd).save()
 
-        try:
-            sendTransactionalEmail(
-                'user-cash-out',
-                None,
-                [
-                    {
-                        'name': 'FNAME',
-                        'content': self.user.first_name
-                    },
-                    {
-                        'name': 'LNAME',
-                        'content': self.user.last_name
-                    },
-                    {
-                        'name': 'EMAIL',
-                        'content': self.user.email
-                    },
-                    {
-                        'name': 'AVAILABLE_DOLLARS',
-                        'content': balance_available_usd
-                    }
-                ],
-                'bizdev@opencurrents.com'
-            )
-        except Exception as e:
-            logger.error(
-                'unable to send transactional email: %s (%s)',
-                e.message,
-                type(e)
+        user_f_name = self.user.first_name
+        user_l_name = self.user.last_name
+        user_email = self.user.email
+
+        merge_vars_cashout = [
+            {
+                'name': 'FNAME',
+                'content': self.user.first_name
+            },
+            {
+                'name': 'LNAME',
+                'content': self.user.last_name
+            },
+            {
+                'name': 'EMAIL',
+                'content': self.user.email
+            },
+            {
+                'name': 'AVAILABLE_DOLLARS',
+                'content': balance_available_usd
+            }
+        ]
+
+        donate_to_npf = self.request.POST.get('active_nonprofits')
+        if donate_to_npf:
+
+            # check user's balance and has_volunteered
+            if self.ocuser.get_balance_available_usd() > 0 and len(self.ocuser.get_hours_approved()) > 0:
+
+                """
+                Email ('user-cash-out') sent to bizdev@opencurrents.com with vars
+                user first/last name (FNAME, LNAME) user email (EMAIL),
+                available_balance_usd (AVAILABLE_DOLLARS),
+                DONATE=True,
+                ORG_NAME
+                """
+                merge_vars_cashout_donation = merge_vars_cashout
+                merge_vars_cashout_donation.extend(
+                    [
+                        {
+                            'name': 'DONATE',
+                            'content': True
+                        },
+                        {
+                            'name': 'ORG_NAME',
+                            'content': donate_to_npf
+                        }
+                    ]
+                )
+                self._send_cashout_email(
+                    'user-cash-out',
+                    merge_vars_cashout_donation,
+                    'bizdev@opencurrents.com'
+                )
+
+                """
+                Email ('donation-confirmation') sent to user with
+                user's name (FNAME, LNAME),
+                AVAILABLE_DOLLARS,
+                ORG_NAME,
+                today'sdate (DATE)
+                """
+                tz = self.user.usersettings.timezone
+                print "\nHERE"
+                print datetime.now(pytz.timezone(tz))
+                print "HERE\n"
+                merge_vars_donation_confirm = merge_vars_cashout
+                merge_vars_donation_confirm.extend(
+                    [
+                        {
+                            'name': 'ORG_NAME',
+                            'content': donate_to_npf
+                        },
+                        {
+                            'name': 'DATE',
+                            'content': datetime.now(pytz.timezone(tz))
+                        }
+                    ]
+                )
+
+                self._send_cashout_email(
+                    'donation-confirmation',
+                    merge_vars_donation_confirm,
+                    self.user.email
+                )
+
+            return redirect(
+                'openCurrents:profile',
+                status_msg='Thank you for your donation to {}! You will receive an email confirmation for your records.'.format(donate_to_npf)
             )
 
-        return redirect(
-            'openCurrents:profile',
-            status_msg='Your balance of $%.2f will clear in the next 48 hours. Look for an email from Dwolla soon.' % balance_available_usd
-        )
+        else:
+
+            self._send_cashout_email(
+                'user-cash-out',
+                merge_vars_cashout,
+                'bizdev@opencurrents.com'
+            )
+
+            return redirect(
+                'openCurrents:profile',
+                status_msg='Your balance of $%.2f will clear in the next 48 hours. Look for an email from Dwolla soon.' % balance_available_usd
+            )
 
 
 class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView):
