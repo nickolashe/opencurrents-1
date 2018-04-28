@@ -2187,10 +2187,11 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
         ]
 
         donate_to_npf = self.request.POST.get('active_nonprofits')
+        # it's a donate submit, if donate_to_npf
         if donate_to_npf:
 
             # check user's balance and has_volunteered
-            if self.ocuser.get_balance_available_usd() > 0 and len(self.ocuser.get_hours_approved()) > 0:
+            if balance_available_usd > 0 and len(self.ocuser.get_hours_approved()) > 0:
 
                 # Email ('user-cash-out') sent to bizdev@opencurrents.com
                 merge_vars_cashout_donation = merge_vars_cashout
@@ -2233,11 +2234,18 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
                     self.user.email
                 )
 
-            return redirect(
-                'openCurrents:profile',
-                status_msg='Thank you for your donation to {}! You will receive an email confirmation for your records.'.format(donate_to_npf)
-            )
+                return redirect(
+                    'openCurrents:profile',
+                    status_msg='Thank you for your donation to {}! You will receive an email confirmation for your records.'.format(donate_to_npf)
+                )
 
+            else:
+                return redirect(
+                    'openCurrents:profile',
+                    status_msg='Having volunteered with one of non-profits on openCurrents is required. See upcoming events.',
+                    msg_type='alert'
+                )
+        # it's a cash out submit
         else:
             self._send_cashout_email(
                 'user-cash-out',
