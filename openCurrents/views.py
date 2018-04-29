@@ -2161,101 +2161,109 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
     def post(self, request, *args, **kwargs):
         """Process post request."""
         balance_available_usd = self.ocuser.get_balance_available_usd()
-        UserCashOut(user=self.user, balance=balance_available_usd).save()
 
-        user_f_name = self.user.first_name
-        user_l_name = self.user.last_name
-        user_email = self.user.email
+        if balance_available_usd > 0:
+            UserCashOut(user=self.user, balance=balance_available_usd).save()
 
-        merge_vars_cashout = [
-            {
-                'name': 'FNAME',
-                'content': self.user.first_name
-            },
-            {
-                'name': 'LNAME',
-                'content': self.user.last_name
-            },
-            {
-                'name': 'EMAIL',
-                'content': self.user.email
-            },
-            {
-                'name': 'AVAILABLE_DOLLARS',
-                'content': balance_available_usd
-            }
-        ]
+            user_f_name = self.user.first_name
+            user_l_name = self.user.last_name
+            user_email = self.user.email
 
-        donate_to_npf = self.request.POST.get('active_nonprofits')
-        # it's a donate submit, if donate_to_npf
-        if donate_to_npf:
+            merge_vars_cashout = [
+                {
+                    'name': 'FNAME',
+                    'content': self.user.first_name
+                },
+                {
+                    'name': 'LNAME',
+                    'content': self.user.last_name
+                },
+                {
+                    'name': 'EMAIL',
+                    'content': self.user.email
+                },
+                {
+                    'name': 'AVAILABLE_DOLLARS',
+                    'content': balance_available_usd
+                }
+            ]
 
-            # check user's balance and has_volunteered
-            if balance_available_usd > 0 and len(self.ocuser.get_hours_approved()) > 0:
+            donate_to_npf = self.request.POST.get('active_nonprofits')
 
-                # Email ('user-cash-out') sent to bizdev@opencurrents.com
-                merge_vars_cashout_donation = merge_vars_cashout
-                merge_vars_cashout_donation.extend(
-                    [
-                        {
-                            'name': 'DONATE',
-                            'content': True
-                        },
-                        {
-                            'name': 'ORG_NAME',
-                            'content': donate_to_npf
-                        }
-                    ]
-                )
+            # it's a donate form submit, if donate_to_npf in POST
+            if donate_to_npf:
+                # check user's balance and has_volunteered
+                if len(self.ocuser.get_hours_approved()) > 0:
+
+                    # Email ('user-cash-out') sent to bizdev@opencurrents.com
+                    merge_vars_cashout_donation = merge_vars_cashout
+                    merge_vars_cashout_donation.extend(
+                        [
+                            {
+                                'name': 'DONATE',
+                                'content': True
+                            },
+                            {
+                                'name': 'ORG_NAME',
+                                'content': donate_to_npf
+                            }
+                        ]
+                    )
+                    self._send_cashout_email(
+                        'user-cash-out',
+                        merge_vars_cashout_donation,
+                        'bizdev@opencurrents.com'
+                    )
+
+                    # Email ('donation-confirmation') sent to user
+                    tz = self.user.usersettings.timezone
+                    merge_vars_donation_confirm = merge_vars_cashout
+                    merge_vars_donation_confirm.extend(
+                        [
+                            {
+                                'name': 'ORG_NAME',
+                                'content': donate_to_npf
+                            },
+                            {
+                                'name': 'DATE',
+                                'content': datetime.now(pytz.timezone(tz))
+                            }
+                        ]
+                    )
+                    self._send_cashout_email(
+                        'donation-confirmation',
+                        merge_vars_donation_confirm,
+                        self.user.email
+                    )
+
+                    return redirect(
+                        'openCurrents:profile',
+                        status_msg='Thank you for your donation to {}! You will receive an email confirmation for your records.'.format(donate_to_npf)
+                    )
+
+                else:
+                    return redirect(
+                        'openCurrents:profile',
+                        status_msg='Having volunteered with one of non-profits on openCurrents is required. See upcoming events.',
+                        msg_type='alert'
+                    )
+            # it's a cash out submit
+            else:
                 self._send_cashout_email(
                     'user-cash-out',
-                    merge_vars_cashout_donation,
+                    merge_vars_cashout,
                     'bizdev@opencurrents.com'
                 )
 
-                # Email ('donation-confirmation') sent to user
-                tz = self.user.usersettings.timezone
-                merge_vars_donation_confirm = merge_vars_cashout
-                merge_vars_donation_confirm.extend(
-                    [
-                        {
-                            'name': 'ORG_NAME',
-                            'content': donate_to_npf
-                        },
-                        {
-                            'name': 'DATE',
-                            'content': datetime.now(pytz.timezone(tz))
-                        }
-                    ]
-                )
-                self._send_cashout_email(
-                    'donation-confirmation',
-                    merge_vars_donation_confirm,
-                    self.user.email
-                )
-
                 return redirect(
                     'openCurrents:profile',
-                    status_msg='Thank you for your donation to {}! You will receive an email confirmation for your records.'.format(donate_to_npf)
+                    status_msg='Your balance of $%.2f will clear in the next 48 hours. Look for an email from Dwolla soon.' % balance_available_usd
                 )
-
-            else:
-                return redirect(
-                    'openCurrents:profile',
-                    status_msg='Having volunteered with one of non-profits on openCurrents is required. See upcoming events.',
-                    msg_type='alert'
-                )
-        # it's a cash out submit
         else:
-            self._send_cashout_email(
-                'user-cash-out',
-                merge_vars_cashout,
-                'bizdev@opencurrents.com'
-            )
-
             return redirect(
                 'openCurrents:profile',
-                status_msg='Your balance of $%.2f will clear in the next 48 hours. Look for an email from Dwolla soon.' % balance_available_usd
+                status_msg='You need to have positive amount of dollars on your balance to be able to cash out or donate',
+                msg_type='alert'
             )
 
 
