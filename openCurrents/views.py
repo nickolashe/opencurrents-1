@@ -3267,6 +3267,13 @@ class InviteVolunteersPastView(InviteVolunteersView):
 
         # sending invitations to the new users if 'Invite volunteer to
         # openCurrents' checkbox is checked
+        if self.post_data['personal_message'] != '':
+            message = '<pre>' + self.post_data['personal_message'] + '</pre>'
+            email_template_merge_vars.append({
+                'name': 'PERSONAL_MESSAGE',
+                'content': message
+            })
+
         if 'invite-volunteers-past' in self.post_data.keys():
             try:
                 # inviting volunteers
