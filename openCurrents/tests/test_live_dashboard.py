@@ -1225,7 +1225,7 @@ class PastEventInviteExisting(SetupTest, TransactionTestCase):
                 'user_email': self.volunteer_3.email,
                 'org_admin_id': self.npf_admin.id,
                 'org_name': '',
-                'org_status': ''
+                'org_status': '',
             }
         )
 
@@ -1645,14 +1645,14 @@ class PastEventCreation(SetupTest, SetupAdditionalTimeRecords, TestCase):
         datetime_start = self.past_date - timedelta(days=1)
         datetime_end = self.past_date
 
-        create_past_event_ulr = reverse(
-            'create-event',
-            urlconf=urls,
-            kwargs={'org_id': self.org.id}
-        )
+        # create_past_event_ulr = reverse(
+        #     'create-event',
+        #     urlconf=urls,
+        #     kwargs={'org_id': self.org.id}
+        # )
 
         response = self.client.post(
-            create_past_event_ulr,
+            testing_urls.create_event_url(self.org.id),
             {
                 'event_privacy': '1',
                 'event_description': 'test event description',
@@ -1663,7 +1663,7 @@ class PastEventCreation(SetupTest, SetupAdditionalTimeRecords, TestCase):
                 'datetime_end': datetime_end,
                 'event_date': '2018-04-09',
                 'event_coordinator': self.npf_admin.id,
-                'datetime_start': datetime_start
+                'datetime_start': datetime_start,
             }
         )
 
@@ -1679,18 +1679,15 @@ class PastEventCreation(SetupTest, SetupAdditionalTimeRecords, TestCase):
             target_status_code=200
         )
 
-        add_attendees_past_event_ulr = reverse(
-            'invite-volunteers-past',
-            urlconf=urls,
-            kwargs={'event_ids': last_event_id}
-        )
+        add_vols_to_past_event_url = testing_urls.add_vols_to_past_event_url(int(last_event_id))
         response = self.client.post(
-            add_attendees_past_event_ulr,
+            add_vols_to_past_event_url,
             {
                 'bulk-vol': '',
                 'vol-email-1': self.new_user_email,
                 'vol-name-1': 'test_user',
-                'count-vol': '1'
+                'count-vol': '1',
+                'personal_message': '',
             }
         )
         expected_url = '/org-admin/1/'
@@ -1755,6 +1752,7 @@ class PastEventCreation(SetupTest, SetupAdditionalTimeRecords, TestCase):
                 'vol-name-2': self.new_user_email2,
                 'count-vol': '2',
                 'test_mode': '1',
+                'personal_message': '',
             }
         )
 
@@ -1833,6 +1831,7 @@ class PastEventCreation(SetupTest, SetupAdditionalTimeRecords, TestCase):
                 'vol-name-2': self.new_user_email2,
                 'count-vol': '2',
                 'test_mode': '1',
+                'personal_message': '',
             }
         )
 

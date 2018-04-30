@@ -3166,7 +3166,24 @@ class InviteVolunteersPastView(InviteVolunteersView):
         user = self.request.user
         admin_id = user.id
         admin_org = OrgUserInfo(admin_id).get_org()
-        event = Event.objects.get(id=self.kwargs['event_ids'])
+        # event = Event.objects.get(id=int(self.kwargs['event_ids']))
+
+        try:
+            event_ids = kwargs.pop('event_ids')
+            if type(json.loads(event_ids)) == list:
+                pass
+            else:
+                event_ids = [int(event_ids)]
+                event_ids = unicode(event_ids)
+            if event_ids:
+                event = Event.objects.filter(
+                    id__in=json.loads(event_ids)
+                ).first()
+                if not event:
+                    raise KeyError
+        except KeyError:
+            pass
+
         event_duration = common.diffInHours(event.datetime_start, event.datetime_end)
 
         register_vols = self._register_volunteers()
@@ -3268,7 +3285,7 @@ class InviteVolunteersPastView(InviteVolunteersView):
         # sending invitations to the new users if 'Invite volunteer to
         # openCurrents' checkbox is checked
         if self.post_data['personal_message'] != '':
-            message = '<pre>' + self.post_data['personal_message'] + '</pre>'
+            message = '<pre>' + self.post_data[u'personal_message'] + '</pre>'
             email_template_merge_vars.append({
                 'name': 'PERSONAL_MESSAGE',
                 'content': message
