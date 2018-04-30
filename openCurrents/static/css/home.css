@@ -132,11 +132,11 @@
 }
 
 .messages-framework {
-  background-color: #ffffff;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
   position: fixed;
   top: 60px;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  background-color: #ffffff;
   z-index: 3;
 }
 
