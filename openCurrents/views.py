@@ -1,4 +1,5 @@
 """App views."""
+from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
@@ -13,6 +14,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.utils.safestring import mark_safe
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from django.db.models import F, Q, Max
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.template.context_processors import csrf
@@ -4168,10 +4170,16 @@ def process_signup(
         isExisting = False
         try:
             if org_name and Org.objects.filter(name=org_name).exists():
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    mark_safe('Organization named {} already exists!'.format(
+                        org_name,
+                    )),
+                    extra_tags='alert'
+                )
                 return redirect(
-                    'openCurrents:login',
-                    status_msg='Organization named %s already exists!' % org_name,
-                    msg_type='alert'
+                    reverse('openCurrents:home') + '#signup'
                 )
             else:
                 user = OcUser().setup_user(
@@ -4187,11 +4195,11 @@ def process_signup(
             user = User.objects.get(username=user_email)
 
             update_name = False
-            if user_firstname:
+            if user_firstname and user.first_name == '':
                 user.first_name = user_firstname
                 update_name = True
 
-            if user_lastname:
+            if user_lastname and user.last_name == '':
                 user.last_name = user_lastname
                 update_name = True
 
@@ -4201,13 +4209,37 @@ def process_signup(
             if endpoint and not verify_email:
                 return HttpResponse(user.id, status=200)
 
-            elif user.has_usable_password() and not endpoint:
+            if not endpoint and user.has_usable_password():
                 logger.info('user %s already verified', user_email)
+
                 return redirect(
                     'openCurrents:login',
                     status_msg='User with this email already exists',
                     msg_type='alert'
                 )
+
+            else:
+                # check if user is an org/biz admin
+                oc_user = OcUser(user.id)
+
+                try:
+                    oc_user_org = oc_user.get_org()
+                except InvalidUserException:
+                    oc_user_org = False
+
+                if oc_user_org:
+                    messages.add_message(
+                        request,
+                        messages.ERROR,
+                        mark_safe('{} is associated to {}. Please use a separate email to create another organization, or <a href="javascript:void(Tawk_API.toggle())">contact us</a>  to edit the organization name.'.format(
+                            user_email,
+                            str(oc_user_org.name)
+                        )),
+                        extra_tags='alert'
+                    )
+                    return redirect(
+                        reverse('openCurrents:home') + '#signup'
+                    )
 
         # user org association requested
         if org_name:
@@ -4820,10 +4852,13 @@ def process_email_confirmation(request, user_email):
         }
         glogger.log_struct(glogger_struct, labels=glogger_labels)
 
+        master_offer_id = OcUser(user.id).get_master_offer().id
+
         # send verification email
         confirm_email_vars = [
             {'name': 'FIRSTNAME', 'content': user.first_name},
-            {'name': 'REFERRER', 'content': user.username}
+            {'name': 'REFERRER', 'content': user.username},
+            {'name': 'MASTER_ID', 'content': master_offer_id},
         ]
 
         # define NPF email variable
