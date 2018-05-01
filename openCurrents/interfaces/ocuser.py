@@ -268,6 +268,12 @@ class OcUser(object):
 
         return num_redeemed
 
+    def get_master_offer(self):
+        """Return master offer id."""
+        master_offer = Offer.objects.get(is_master=True)
+
+        return master_offer
+
     def get_master_offer_remaining(self):
         '''
         return cumulative user's redemption amount towards the master offer

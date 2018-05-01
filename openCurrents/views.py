@@ -4928,10 +4928,13 @@ def process_email_confirmation(request, user_email):
         }
         glogger.log_struct(glogger_struct, labels=glogger_labels)
 
+        master_offer_id = OcUser(user.id).get_master_offer().id
+
         # send verification email
         confirm_email_vars = [
             {'name': 'FIRSTNAME', 'content': user.first_name},
-            {'name': 'REFERRER', 'content': user.username}
+            {'name': 'REFERRER', 'content': user.username},
+            {'name': 'MASTER_ID', 'content': master_offer_id},
         ]
 
         # define NPF email variable
