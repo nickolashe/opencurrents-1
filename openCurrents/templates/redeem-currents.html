@@ -12,23 +12,23 @@
   <div class="row two-margin-top two-margin-bottom">
     <div class="small-12 medium-9 small-centered columns">
       <div class="row collapse">
-        <!-- <div class="small-4 columns">
+        <div class="small-4 columns">
           <div id="progress-1" class="progress-counter progress-highlight">
             <h6>1</h6>
           </div>
           <label class="small-text blue">Add receipt</label>
-        </div> -->
-
-        <div class="small-6 columns">
-          <div id="progress-1" class="progress-counter progress-highlight">
-            <h6>1</h6>
-          </div>
-          <label class="small-text blue">Record price</label>
         </div>
 
-        <div class="small-6 columns">
+        <div class="small-4 columns">
           <div id="progress-2" class="progress-counter">
             <h6>2</h6>
+          </div>
+          <label class="small-text">Record price</label>
+        </div>
+
+        <div class="small-4 columns">
+          <div id="progress-3" class="progress-counter">
+            <h6>3</h6>
           </div>
           <label class="small-text">Confirm</label>
         </div>
@@ -50,62 +50,60 @@
       </div>
     {% endif %}
 
-    {% comment %}
-      <div id="offer-1">
-        <div class="row">
-          <div class="small-12 medium-8 small-centered columns">
-            <h4 class="one-margin-bottom">Upload receipt or proof of purchase</h4>
-            <!-- <p class="three-halves-margin-bottom">
+    <div id="offer-1">
+      <div class="row">
+        <div class="small-12 medium-8 small-centered columns">
+          <h4 class="one-margin-bottom">Upload receipt or proof of purchase</h4>
+          <!-- <p class="three-halves-margin-bottom">
 
-              To exchange Currents for dollars with {{ offer.org.name }},
-              you <strong>must</strong> upload your receipt as proof of purchase. Other forms, such
-              as an image of your bank statement or description of your
-              purchase, may or may not be accepted.
+            To exchange Currents for dollars with {{ offer.org.name }},
+            you <strong>must</strong> upload your receipt as proof of purchase. Other forms, such
+            as an image of your bank statement or description of your
+            purchase, may or may not be accepted.
 
-              <a class="redeem-info-popup_open no-wrap">
-                Why do I pay full price?
-              </a>
-            </p> -->
+            <a class="redeem-info-popup_open no-wrap">
+              Why do I pay full price?
+            </a>
+          </p> -->
 
-            <!--  form.redeem_receipt_if_checked -->
+          <!--  form.redeem_receipt_if_checked -->
 
-            <!-- <input type="checkbox" name="receipt-if-checked" id="receipt-if-checked" class="hidden" checked /> -->
-            <div id="offer-details" class="three-halves-margin-bottom">
-              <!-- Use Currents for up to {{ offer.currents_share }}% of your purchase with
-              <strong>
-                <div id="master-biz-name" class="navy hidden"></div>
-                <div id="biz-name-db" class="navy">{{ offer.org.name }}</div>
-              </strong> -->
-              {{ form.biz_name }}
-            </div>
-
-            {{ form.redeem_receipt }}
-            <!--input type="file" accept="image/*" capture="camera" id="upload-receipt" name="upload-receipt" class="hidden-file" /-->
-
-            <label for="upload-receipt" id="receipt-label"
-            class="upload-receipt-label button round small secondary">
-              <i class="one-margin-right fa fa-upload"></i>
-              <span>Choose an image...</span>
-            </label>
-
-            <p class="small-text grey">PNG, JPEG, and GIF accepted</p>
-            <p class="half-margin-top">
-              <a class="no-receipt-popup_open">
-                Add description of purchase
-              </a>
-            </p>
-
-            {{ form.redeem_no_proof }}
+          <!-- <input type="checkbox" name="receipt-if-checked" id="receipt-if-checked" class="hidden" checked /> -->
+          <div id="offer-details" class="three-halves-margin-bottom">
+            <!-- Use Currents for up to {{ offer.currents_share }}% of your purchase with
+            <strong>
+              <div id="master-biz-name" class="navy hidden"></div>
+              <div id="biz-name-db" class="navy">{{ offer.org.name }}</div>
+            </strong> -->
+            {{ form.biz_name }}
           </div>
-        </div>
 
-        <div class="row half-margin-top">
-          <a class="next-offer button round">Next</a>
+          {{ form.redeem_receipt }}
+          <!--input type="file" accept="image/*" capture="camera" id="upload-receipt" name="upload-receipt" class="hidden-file" /-->
+
+          <label for="upload-receipt" id="receipt-label"
+          class="upload-receipt-label button round small secondary">
+            <i class="one-margin-right fa fa-upload"></i>
+            <span>Choose an image...</span>
+          </label>
+
+          <p class="small-text grey">PNG, JPEG, and GIF accepted</p>
+          <p class="half-margin-top">
+            <a class="no-receipt-popup_open">
+              Add description of purchase
+            </a>
+          </p>
+
+          {{ form.redeem_no_proof }}
         </div>
       </div>
-    {% endcomment %}
 
-    <div id="offer-1">
+      <div class="row half-margin-top">
+        <a class="next-offer button round">Next</a>
+      </div>
+    </div>
+
+    <div id="offer-2">
       <div class="row">
         <div class="small-12 medium-8 small-centered columns">
           <h4 class="">Record price</h4>
@@ -124,12 +122,12 @@
       </div>
 
       <div class="row one-margin-top">
-        <!-- <a class="prev-offer button round secondary">Back</a> -->
+        <a class="prev-offer button round secondary">Back</a>
         <a class="next-offer button round">Next</a>
       </div>
     </div>
 
-    <div id="offer-2">
+    <div id="offer-3">
       <div class="row">
         <div class="small-12 medium-8 small-centered columns">
           <h4 class="one-margin-bottom">Confirm exchange</h4>
@@ -263,7 +261,7 @@
 
       $('.next-offer').click(function() {
 
-        if (page < 2) {
+        if (page < 3) {
           var $lefty = $('#offer-'+page+'');
           var $righty = $('#offer-'+(page+1)+'');
 
@@ -422,7 +420,7 @@
       });
 
       // Display current and dollar totals based on price input
-      $('#offer-1').on('input', function(){
+      $('#offer-2').on('input', function(){
         setConfirmationVariables();
       });
     });
