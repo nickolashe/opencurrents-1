@@ -2228,7 +2228,7 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
                             },
                             {
                                 'name': 'DATE',
-                                'content': datetime.now(pytz.timezone(tz))
+                                'content': datetime.now(pytz.timezone(tz)).strftime('%m-%d-%Y')
                             }
                         ]
                     )
