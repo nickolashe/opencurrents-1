@@ -2156,7 +2156,7 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
         context['bonus_amount'] = common._SIGNUP_BONUS
 
         context['has_volunteered'] = context['hours_by_org']
-        context['active_npfs'] = OcOrg().get_top_issued_npfs('all-time')
+        context['active_npfs'] = OcOrg().get_top_issued_npfs('all-time', active=True)
 
         return context
 
