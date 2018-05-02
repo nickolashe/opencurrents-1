@@ -32,6 +32,7 @@ from openCurrents.interfaces.ocuser import \
 
 from openCurrents.tests.interfaces.common import (
     SetUpTests,
+    SetupAdditionalTimeRecords,
     _create_test_user,
     _create_project,
     _setup_volunteer_hours,
@@ -39,6 +40,8 @@ from openCurrents.tests.interfaces.common import (
     _setup_user_event_registration,
     _create_org
 )
+
+from openCurrents.tests.interfaces import testing_urls
 
 from openCurrents import views, urls
 
@@ -161,6 +164,41 @@ class SetupTest(object):
             self.assertEqual(
                 len(response.context['registered_users']),
                 registered_users_num
+            )
+
+    def _assert_get_balance(
+        self,
+        user_enitity_id_npf_adm,
+        expected_amount_admin,
+
+        user_enitity_id_vol_1,
+        expected_amount_vol_1,
+
+        user_enitity_id_vol_2,
+        expected_amount_vol_2,
+
+        new_user_entity_id=None,
+        expected_amount_new_user=None,
+    ):
+
+        # assert get_balance()
+        self.assertEqual(
+            expected_amount_admin,
+            OcLedger().get_balance(user_enitity_id_npf_adm)
+        )
+        self.assertEqual(
+            expected_amount_vol_1,
+            OcLedger().get_balance(user_enitity_id_vol_1)
+        )
+        self.assertEqual(
+            expected_amount_vol_2,
+            OcLedger().get_balance(user_enitity_id_vol_2)
+        )
+
+        if new_user_entity_id and expected_amount_new_user:
+            self.assertEqual(
+                expected_amount_new_user,
+                OcLedger().get_balance(new_user_entity_id)
             )
 
     # [helpers End]
@@ -379,9 +417,17 @@ class CurrentEventCheckIn(SetupTest, TestCase):
         self.assertEqual(0, len(ledger_query.filter(action__usertimelog__user=self.volunteer_2)))
 
         # assert get_balance()
-        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_npf_adm))
-        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_1))
-        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_2))
+        self._assert_get_balance(
+            self.user_enitity_id_npf_adm, 0,
+            self.user_enitity_id_vol_1, 0,
+            self.user_enitity_id_vol_2, 0
+        )
+
+        self._assert_get_balance(
+            self.user_enitity_id_npf_adm, 0,
+            self.user_enitity_id_vol_1, 0,
+            self.user_enitity_id_vol_2, 0
+        )
 
         # logging in
         self.client.login(username=self.npf_admin.username, password='password')
@@ -433,9 +479,11 @@ class CurrentEventCheckIn(SetupTest, TestCase):
         self._asserting_user_ledger(self.volunteer_2, ledger_query, 0, 0)
 
         # assert get_balance()
-        self.assertEqual(Decimal('48'), OcLedger().get_balance(self.user_enitity_id_npf_adm))
-        self.assertEqual(Decimal('48'), OcLedger().get_balance(self.user_enitity_id_vol_1))
-        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_2))
+        self._assert_get_balance(
+            self.user_enitity_id_npf_adm, Decimal('48'),
+            self.user_enitity_id_vol_1, Decimal('48'),
+            self.user_enitity_id_vol_2, 0
+        )
 
         # checking the second volunteer
         time_now = timezone.now()
@@ -479,9 +527,11 @@ class CurrentEventCheckIn(SetupTest, TestCase):
         self._asserting_user_ledger(self.volunteer_2, ledger_query, 1, 48)
 
         # assert get_balance()
-        self.assertEqual(48, OcLedger().get_balance(self.user_enitity_id_npf_adm))
-        self.assertEqual(48, OcLedger().get_balance(self.user_enitity_id_vol_1))
-        self.assertEqual(48, OcLedger().get_balance(self.user_enitity_id_vol_2))
+        self._assert_get_balance(
+            self.user_enitity_id_npf_adm, 48,
+            self.user_enitity_id_vol_1, 48,
+            self.user_enitity_id_vol_2, 48
+        )
 
     def test_current_event_uncheck_user(self):
 
@@ -686,12 +736,12 @@ class CurrentEventInvite(SetupTest, TestCase):
         self._asserting_user_ledger(new_user, ledger_query, 1, 48)
 
         # assert get_balance()
-        self.assertEqual(48, OcLedger().get_balance(self.user_enitity_id_npf_adm))
-        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_1))
-        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_2))
-
-        new_user_entity_id = UserEntity.objects.get(user=new_user).id
-        self.assertEqual(48, OcLedger().get_balance(new_user_entity_id))
+        self._assert_get_balance(
+            self.user_enitity_id_npf_adm, 48,
+            self.user_enitity_id_vol_1, 0,
+            self.user_enitity_id_vol_2, 0,
+            UserEntity.objects.get(user=new_user).id, 48
+        )
 
     def test_current_event_invite_new_user_invitation_opt_in(self):
         """
@@ -790,12 +840,12 @@ class CurrentEventInvite(SetupTest, TestCase):
         self._asserting_user_ledger(new_user, ledger_query, 1, 48)
 
         # assert get_balance()
-        self.assertEqual(48, OcLedger().get_balance(self.user_enitity_id_npf_adm))
-        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_1))
-        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_2))
-
-        new_user_entity_id = UserEntity.objects.get(user=new_user).id
-        self.assertEqual(48, OcLedger().get_balance(new_user_entity_id))
+        self._assert_get_balance(
+            self.user_enitity_id_npf_adm, 48,
+            self.user_enitity_id_vol_1, 0,
+            self.user_enitity_id_vol_2, 0,
+            UserEntity.objects.get(user=new_user).id, 48
+        )
 
         # asserting existing user was checked-in
         response = self.client.get('/live-dashboard/2/')
@@ -901,12 +951,12 @@ class CurrentEventInviteExisting(SetupTest, TransactionTestCase):
         self._asserting_user_ledger(self.volunteer_3, ledger_query, 1, 48)
 
         # assert get_balance()
-        self.assertEqual(48, OcLedger().get_balance(self.user_enitity_id_npf_adm))
-        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_1))
-        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_2))
-
-        new_user_entity_id = UserEntity.objects.get(user=self.volunteer_3).id
-        self.assertEqual(48, OcLedger().get_balance(new_user_entity_id))
+        self._assert_get_balance(
+            self.user_enitity_id_npf_adm, 48,
+            self.user_enitity_id_vol_1, 0,
+            self.user_enitity_id_vol_2, 0,
+            UserEntity.objects.get(user=self.volunteer_3).id, 48
+        )
 
         # asserting existing user was checked-in
         response = self.client.get('/live-dashboard/2/')
@@ -1003,12 +1053,12 @@ class PastEventInvite(SetupTest, TestCase):
         self._asserting_user_ledger(new_user, ledger_query, 1, 24)
 
         # assert get_balance()
-        self.assertEqual(24, OcLedger().get_balance(self.user_enitity_id_npf_adm))
-        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_1))
-        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_2))
-
-        new_user_entity_id = UserEntity.objects.get(user=new_user).id
-        self.assertEqual(24, OcLedger().get_balance(new_user_entity_id))
+        self._assert_get_balance(
+            self.user_enitity_id_npf_adm, 24,
+            self.user_enitity_id_vol_1, 0,
+            self.user_enitity_id_vol_2, 0,
+            UserEntity.objects.get(user=new_user).id, 24
+        )
 
         # checking that invite button is disabled
         response = self.client.get('/live-dashboard/3/')
@@ -1112,12 +1162,12 @@ class PastEventInvite(SetupTest, TestCase):
         self._asserting_user_ledger(new_user, ledger_query, 1, 24)
 
         # assert get_balance()
-        self.assertEqual(24, OcLedger().get_balance(self.user_enitity_id_npf_adm))
-        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_1))
-        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_2))
-
-        new_user_entity_id = UserEntity.objects.get(user=new_user).id
-        self.assertEqual(24, OcLedger().get_balance(new_user_entity_id))
+        self._assert_get_balance(
+            self.user_enitity_id_npf_adm, 24,
+            self.user_enitity_id_vol_1, 0,
+            self.user_enitity_id_vol_2, 0,
+            UserEntity.objects.get(user=new_user).id, 24
+        )
 
         # checking that invite button is disabled
         response = self.client.get('/live-dashboard/3/')
@@ -1175,7 +1225,7 @@ class PastEventInviteExisting(SetupTest, TransactionTestCase):
                 'user_email': self.volunteer_3.email,
                 'org_admin_id': self.npf_admin.id,
                 'org_name': '',
-                'org_status': ''
+                'org_status': '',
             }
         )
 
@@ -1279,9 +1329,11 @@ class PastEventCheckIn(SetupTest, TestCase):
         self._asserting_user_ledger(self.volunteer_2, ledger_query, 0, 0)
 
         # assert get_balance()
-        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_npf_adm))
-        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_1))
-        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_2))
+        self._assert_get_balance(
+            self.user_enitity_id_npf_adm, 0,
+            self.user_enitity_id_vol_1, 0,
+            self.user_enitity_id_vol_2, 0,
+        )
 
         # logging in
         self.client.login(username=self.npf_admin.username, password='password')
@@ -1328,9 +1380,11 @@ class PastEventCheckIn(SetupTest, TestCase):
         self._asserting_user_ledger(self.volunteer_2, ledger_query, 0, 0)
 
         # assert get_balance()
-        self.assertEqual(24, OcLedger().get_balance(self.user_enitity_id_npf_adm))
-        self.assertEqual(24, OcLedger().get_balance(self.user_enitity_id_vol_1))
-        self.assertEqual(0, OcLedger().get_balance(self.user_enitity_id_vol_2))
+        self._assert_get_balance(
+            self.user_enitity_id_npf_adm, 24,
+            self.user_enitity_id_vol_1, 24,
+            self.user_enitity_id_vol_2, 0,
+        )
 
         # checking the second volunteer
         post_response = self.client.post(
@@ -1369,9 +1423,11 @@ class PastEventCheckIn(SetupTest, TestCase):
         self._asserting_user_ledger(self.volunteer_2, ledger_query, 1, 24)
 
         # assert get_balance()
-        self.assertEqual(24, OcLedger().get_balance(self.user_enitity_id_npf_adm))
-        self.assertEqual(24, OcLedger().get_balance(self.user_enitity_id_vol_1))
-        self.assertEqual(24, OcLedger().get_balance(self.user_enitity_id_vol_2))
+        self._assert_get_balance(
+            self.user_enitity_id_npf_adm, 24,
+            self.user_enitity_id_vol_1, 24,
+            self.user_enitity_id_vol_2, 24,
+        )
 
     def test_past_event_uncheck_user(self):
         """
@@ -1451,7 +1507,7 @@ class PastEventCheckIn(SetupTest, TestCase):
         self.assertEqual(len(response.context['checkedin_users']), 2)
 
         # asserting the first volunteer has grey icon
-        self.assertIn('name="vol-checkin-2" value="2" class="hidden checkin-checkbox" checked', re.sub(r'\s+', ' ', response.content )) # THIS ASSERTION FAILS !!!
+        self.assertIn('name="vol-checkin-2" value="2" class="hidden checkin-checkbox" checked', re.sub(r'\s+', ' ', response.content))  # THIS ASSERTION FAILS !!!
 
         # general assertion
         self.assertEqual(2, len(UserTimeLog.objects.all()))
@@ -1569,10 +1625,11 @@ class FutureEventAddition(SetupTest, TestCase):
         self.assertEqual(0, len(Ledger.objects.all()))
 
 
-class PastEventCreation(SetupTest, TestCase):
+class PastEventCreation(SetupTest, SetupAdditionalTimeRecords, TestCase):
     """Test cases for past events creation."""
 
     new_user_email = 'test_user@test.aa'
+    new_user_email2 = 'test_user2@test.aa'
 
     def test_create_past_event_redirection(self):
         """
@@ -1588,14 +1645,14 @@ class PastEventCreation(SetupTest, TestCase):
         datetime_start = self.past_date - timedelta(days=1)
         datetime_end = self.past_date
 
-        create_past_event_ulr = reverse(
-            'create-event',
-            urlconf=urls,
-            kwargs={'org_id': self.org.id}
-        )
+        # create_past_event_ulr = reverse(
+        #     'create-event',
+        #     urlconf=urls,
+        #     kwargs={'org_id': self.org.id}
+        # )
 
         response = self.client.post(
-            create_past_event_ulr,
+            testing_urls.create_event_url(self.org.id),
             {
                 'event_privacy': '1',
                 'event_description': 'test event description',
@@ -1606,7 +1663,7 @@ class PastEventCreation(SetupTest, TestCase):
                 'datetime_end': datetime_end,
                 'event_date': '2018-04-09',
                 'event_coordinator': self.npf_admin.id,
-                'datetime_start': datetime_start
+                'datetime_start': datetime_start,
             }
         )
 
@@ -1622,18 +1679,15 @@ class PastEventCreation(SetupTest, TestCase):
             target_status_code=200
         )
 
-        add_attendees_past_event_ulr = reverse(
-            'invite-volunteers-past',
-            urlconf=urls,
-            kwargs={'event_ids': last_event_id}
-        )
+        add_vols_to_past_event_url = testing_urls.add_vols_to_past_event_url(int(last_event_id))
         response = self.client.post(
-            add_attendees_past_event_ulr,
+            add_vols_to_past_event_url,
             {
                 'bulk-vol': '',
                 'vol-email-1': self.new_user_email,
                 'vol-name-1': 'test_user',
-                'count-vol': '1'
+                'count-vol': '1',
+                'personal_message': '',
             }
         )
         expected_url = '/org-admin/1/'
@@ -1658,3 +1712,157 @@ class PastEventCreation(SetupTest, TestCase):
             ),
             1
         )
+
+    def test_past_event_invitation_opt_in(self):
+        """
+        Invite new user to a past w invite event checkbox checked.
+
+        Expected:
+        - all users are registered to an event
+        - new users get invite-user email
+        - all users are checked-in to the event
+        """
+        self.client.login(username=self.npf_admin.username, password='password')
+
+        event_id = self.event_past.id
+        add_vols_to_past_event_url = testing_urls.add_vols_to_past_event_url(int(event_id))
+
+        response = self.client.get(
+            add_vols_to_past_event_url
+        )
+        self.assertEqual(response.status_code, 200)
+        session = self.client.session
+
+        # check initial state
+        self.assertEqual(len(UserTimeLog.objects.all()), 0)
+        self.assertEqual(len(AdminActionUserTime.objects.all()), 0)
+        self.assertEqual(len(UserEventRegistration.objects.filter(user=self.npf_admin)), 3)
+        self.assertEqual(len(UserEventRegistration.objects.filter(user__email=self.new_user_email)), 0)
+
+        # adding volunteers to the past event
+
+        response = self.client.post(
+            add_vols_to_past_event_url,
+            {
+                'invite-volunteers-past': 'on',
+                'bulk-vol': '',
+                'vol-email-1': self.new_user_email,
+                'vol-name-1': self.new_user_email,
+                'vol-email-2': self.new_user_email2,
+                'vol-name-2': self.new_user_email2,
+                'count-vol': '2',
+                'test_mode': '1',
+                'personal_message': '',
+            }
+        )
+
+        expected_url = '/org-admin/2/'
+        self.assertRedirects(
+            response,
+            expected_url,
+            status_code=302,
+            target_status_code=200
+        )
+
+        # check post state:
+        # - Admin and new user get currents;
+        # - user is registered to an event;
+        # - user wo password receives an email;
+        # - ledger is created
+        self.assertEqual(len(UserTimeLog.objects.all()), 3)
+        self.assertEqual(len(AdminActionUserTime.objects.all()), 3)
+        self.assertEqual(len(UserEventRegistration.objects.filter(user=self.npf_admin)), 3)  # admin is register already, no changes
+        self.assertEqual(len(UserEventRegistration.objects.filter(user__email=self.new_user_email)), 1)
+        self.assertEqual(len(UserEventRegistration.objects.filter(user__email=self.new_user_email2)), 1)
+        # asserting email vars values
+        expected_list = [
+            self.npf_admin.first_name, 'ADMIN_FIRSTNAME',
+            self.npf_admin.last_name, 'ADMIN_LASTNAME',
+            self.org.name, 'ORG_NAME'
+        ]
+        self._assert_merge_vars(session['merge_vars'], expected_list)
+
+        # assert we pass emails to mandril
+        self.assertEqual(len(self.client.session['recepient']), 2)
+        self.assertIn(self.new_user_email, self.client.session['recepient'][0]['email'])
+        self.assertIn(self.new_user_email2, self.client.session['recepient'][1]['email'])
+
+        new_user_1_entity_id = UserEntity.objects.get(user__email=self.new_user_email).id
+        new_user_2_entity_id = UserEntity.objects.get(user__email=self.new_user_email).id
+        self.assertEqual(24, OcLedger().get_balance(new_user_1_entity_id))
+        self.assertEqual(24, OcLedger().get_balance(new_user_2_entity_id))
+        self.assertEqual(24, OcLedger().get_balance(self.user_enitity_id_npf_adm))
+
+    def test_past_event_invitation_opt_out(self):
+        """
+        Invite new/existing users to a past w invite event checkbox UNchecked.
+
+        Expected:
+        - all users are registered to an event
+        - nobody gets email
+        - all users are checked-in to the event
+        """
+        self.client.login(username=self.npf_admin.username, password='password')
+
+        event_id = self.event_past.id
+        add_vols_to_past_event_url = testing_urls.add_vols_to_past_event_url(int(event_id))
+
+        response = self.client.get(
+            add_vols_to_past_event_url
+        )
+        self.assertEqual(response.status_code, 200)
+        session = self.client.session
+
+        # check initial state
+        self.assertEqual(len(UserTimeLog.objects.all()), 0)
+        self.assertEqual(len(AdminActionUserTime.objects.all()), 0)
+        self.assertEqual(len(UserEventRegistration.objects.filter(user=self.npf_admin)), 3)
+        self.assertEqual(len(UserEventRegistration.objects.filter(user__email=self.new_user_email)), 0)
+
+        # adding volunteers to the past event
+
+        response = self.client.post(
+            add_vols_to_past_event_url,
+            {
+                'bulk-vol': '',
+                'vol-email-1': self.new_user_email,
+                'vol-name-1': self.new_user_email,
+                'vol-email-2': self.new_user_email2,
+                'vol-name-2': self.new_user_email2,
+                'count-vol': '2',
+                'test_mode': '1',
+                'personal_message': '',
+            }
+        )
+
+        expected_url = '/org-admin/2/'
+        self.assertRedirects(
+            response,
+            expected_url,
+            status_code=302,
+            target_status_code=200
+        )
+
+        # check post state:
+        # - Admin and new user get currents;
+        # - user is registered to an event;
+        # - nobody receives email;
+        # - ledger is created
+        self.assertEqual(len(UserTimeLog.objects.all()), 3)
+        self.assertEqual(len(AdminActionUserTime.objects.all()), 3)
+        self.assertEqual(len(UserEventRegistration.objects.filter(user=self.npf_admin)), 3)  # admin is register already, no changes
+        self.assertEqual(len(UserEventRegistration.objects.filter(user__email=self.new_user_email)), 1)
+        self.assertEqual(len(UserEventRegistration.objects.filter(user__email=self.new_user_email2)), 1)
+
+        # asserting that bulk email function didn't launch
+        self.assertNotIn('bulk', self.client.session)
+        # asserting user not is in recepients
+        self.assertNotIn('recepient', self.client.session)
+        # asserting email vars didn't get to session
+        self.assertNotIn('merge_vars', self.client.session)
+
+        new_user_1_entity_id = UserEntity.objects.get(user__email=self.new_user_email).id
+        new_user_2_entity_id = UserEntity.objects.get(user__email=self.new_user_email).id
+        self.assertEqual(24, OcLedger().get_balance(new_user_1_entity_id))
+        self.assertEqual(24, OcLedger().get_balance(new_user_2_entity_id))
+        self.assertEqual(24, OcLedger().get_balance(self.user_enitity_id_npf_adm))

@@ -1347,6 +1347,11 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
 
         # send bizdev notification
         try:
+            # adding flag to not call Mandrill during unittests
+            test_time_tracker_mode = self.request.POST.get(
+                'test_time_tracker_mode', None
+            )
+
             email_biz_name = data['biz_name'] if data['biz_name'] else self.offer.org.name
             email_vars_transactional = [
                 {'name': 'FNAME', 'content': self.user.first_name},
@@ -1363,6 +1368,10 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
                 None,
                 email_vars_transactional,
                 'bizdev@opencurrents.com',
+                # markers for testing purpose
+                session=self.request.session,
+                marker='1',
+                test_time_tracker_mode=test_time_tracker_mode
             )
         except Exception as e:
                 logger.error(
@@ -3249,11 +3258,179 @@ class InviteVolunteersPastView(InviteVolunteersView):
     def post(self, request, *args, **kwargs):
         """Process post request."""
         self.post_data = self.request.POST
+        user = self.request.user
+        admin_id = user.id
+        admin_org = OrgUserInfo(admin_id).get_org()
+        # event = Event.objects.get(id=int(self.kwargs['event_ids']))
+
+        try:
+            event_ids = kwargs.pop('event_ids')
+            if type(json.loads(event_ids)) == list:
+                pass
+            else:
+                event_ids = [int(event_ids)]
+                event_ids = unicode(event_ids)
+            if event_ids:
+                event = Event.objects.filter(
+                    id__in=json.loads(event_ids)
+                ).first()
+                if not event:
+                    raise KeyError
+        except KeyError:
+            pass
+
+        event_duration = common.diffInHours(event.datetime_start, event.datetime_end)
 
         register_vols = self._register_volunteers()
-        num_vols = register_vols[0]
+        test_mode = self.post_data.get('test_mode')
+        email_template_merge_vars = []
 
-        return redirect('openCurrents:org-admin', num_vols)
+        # number of new users (wo passwords)
+        new_volunteers = register_vols[1]
+
+        # number of existing users (wo passwords)
+        old_volunteers = register_vols[2]
+
+        # all invited volunteers
+        all_volunteers = new_volunteers + old_volunteers
+
+        # checking in users to event
+        vol_users = []
+        for vol in all_volunteers:
+            try:
+                vol_user = User.objects.get(email=vol['email'])
+                vol_users.append(vol_user)
+            except User.DoesNotExist:
+                logger.warning('invalid user requested')
+
+        for vol_user in vol_users:
+            clogger = logger.getChild(
+                'user %s; event %s' % (admin_id, event.project.name)
+            )
+            glogger_struct = {
+                'msg': 'event user checkin',
+                'admin_email': user.email,
+                'username': vol_user.email,
+                'eventid': event.id,
+                'eventname': event.project.name,
+                'orgname': event.project.org.name,
+                'event_startime': event.datetime_start.strftime('%m/%d/%Y %H:%M:%S')
+            }
+
+            # volunteer checkin
+            try:
+                with transaction.atomic():
+                    usertimelog = UserTimeLog.objects.create(
+                        user=vol_user,
+                        event=event,
+                        is_verified=True,
+                        datetime_start=datetime.now(tz=pytz.UTC)
+                    )
+
+                    # admin action record
+                    adminaction = AdminActionUserTime.objects.create(
+                        user_id=admin_id,
+                        usertimelog=usertimelog,
+                        action_type='app'
+                    )
+
+                    OcLedger().issue_currents(
+                        admin_org.orgentity.id,
+                        vol_user.userentity.id,
+                        adminaction,
+                        event_duration
+                    )
+                    clogger.debug(
+                        '%s: user checkin',
+                        usertimelog.datetime_start.strftime('%m/%d/%Y %H:%M:%S')
+                    )
+                    glogger.log_struct(glogger_struct, labels=self.glogger_labels)
+
+                    status = 201
+            except Exception as e:
+                clogger.debug('%s: user already checked in', e.message)
+
+            # check in admin/coordinator
+            try:
+                with transaction.atomic():
+                    usertimelog = UserTimeLog.objects.create(
+                        user=user,
+                        event=event,
+                        is_verified=True,
+                        datetime_start=datetime.now(tz=pytz.UTC)
+                    )
+
+                    # admin action record
+                    adminaction = AdminActionUserTime.objects.create(
+                        user_id=admin_id,
+                        usertimelog=usertimelog,
+                        action_type='app'
+                    )
+
+                    OcLedger().issue_currents(
+                        admin_org.orgentity.id,
+                        user.userentity.id,
+                        adminaction,
+                        event_duration
+                    )
+                    status = 201
+                    glogger_struct['msg'] = 'event admin checkin'
+                    glogger.log_struct(glogger_struct, labels=self.glogger_labels)
+
+            except Exception as e:
+                clogger.debug(
+                    'event admin %s already checked in',
+                    user.email
+                )
+
+        # sending invitations to the new users if 'Invite volunteer to
+        # openCurrents' checkbox is checked
+        if self.post_data['personal_message'] != '':
+            message = '<pre>' + self.post_data[u'personal_message'] + '</pre>'
+            email_template_merge_vars.append({
+                'name': 'PERSONAL_MESSAGE',
+                'content': message
+            })
+
+        if 'invite-volunteers-past' in self.post_data.keys():
+            try:
+                # inviting volunteers
+                email_template_merge_vars.extend([
+                    {
+                        'name': 'ADMIN_FIRSTNAME',
+                        'content': user.first_name
+                    },
+                    {
+                        'name': 'ADMIN_LASTNAME',
+                        'content': user.last_name
+                    },
+                    {
+                        'name': 'ORG_NAME',
+                        'content': self.Organisation
+                    },
+                ])
+
+                # sending emails to the new users and existing users with no passw
+                if new_volunteers:
+                    sendBulkEmail(
+                        'invite-volunteer',
+                        None,
+                        email_template_merge_vars,
+                        new_volunteers,
+                        user.email,
+                        session=self.request.session,
+                        marker='1',
+                        test_mode=test_mode
+                    )
+
+            except Exception as e:
+                logger.error(
+                    'unable to send email: %s (%s)',
+                    e,
+                    type(e)
+                )
+
+        return redirect('openCurrents:org-admin', len(all_volunteers))
 
 
 class EventCreatedView(TemplateView):
@@ -5245,7 +5422,8 @@ def sendTransactionalEmail(
             )
     else:
         logger.debug('test mode: mocking mandrill call')
-
+        sess['recepient'] = recipient_email
+        sess['merge_vars'] = merge_vars
 
 def sendBulkEmail(
     template_name,
