@@ -3191,11 +3191,17 @@ class InviteVolunteersPastView(InviteVolunteersView):
         email_template_merge_vars = []
 
         # number of new users (wo passwords)
-        volunteers = register_vols[1]
+        new_volunteers = register_vols[1]
+
+        # number of existing users (wo passwords)
+        old_volunteers = register_vols[2]
+
+        # all invited volunteers
+        all_volunteers = new_volunteers + old_volunteers
 
         # checking in users to event
         vol_users = []
-        for vol in volunteers:
+        for vol in all_volunteers:
             try:
                 vol_user = User.objects.get(email=vol['email'])
                 vol_users.append(vol_user)
@@ -3310,12 +3316,12 @@ class InviteVolunteersPastView(InviteVolunteersView):
                 ])
 
                 # sending emails to the new users and existing users with no passw
-                if volunteers:
+                if new_volunteers:
                     sendBulkEmail(
                         'invite-volunteer',
                         None,
                         email_template_merge_vars,
-                        volunteers,
+                        new_volunteers,
                         user.email,
                         session=self.request.session,
                         marker='1',
@@ -3329,7 +3335,7 @@ class InviteVolunteersPastView(InviteVolunteersView):
                     type(e)
                 )
 
-        return redirect('openCurrents:org-admin', len(volunteers))
+        return redirect('openCurrents:org-admin', len(all_volunteers))
 
 
 class EventCreatedView(TemplateView):
