@@ -37,7 +37,7 @@ from openCurrents.interfaces.bizadmin import BizAdmin
 from openCurrents.interfaces.ledger import OcLedger
 from openCurrents.interfaces.common import diffInHours
 from openCurrents.interfaces.community import OcCommunity
-from openCurrents.interfaces.convert import _TR_FEE
+from openCurrents.interfaces import convert
 
 from openCurrents.tests.interfaces.common import (
     _create_test_user,
@@ -215,7 +215,6 @@ class TestUserProfileView(TestCase):
 
     def setUp(self):
         self.test_curr_per_tr = 12
-        self.curr_to_usd = 20
 
         # dates
         future_date = timezone.now() + timedelta(days=1)
@@ -445,7 +444,7 @@ class TestUserProfileView(TestCase):
 
         self.assertEqual(
             response.context['balance_available_usd'],
-            self.test_curr_per_tr * self.curr_to_usd + 30.3
+            convert.cur_to_usd(self.test_curr_per_tr, fee=True) + 30.3
         )
 
         # checking transaction action, related transaction and ledger entries
@@ -458,7 +457,7 @@ class TestUserProfileView(TestCase):
         self.assertEqual(
             len(Ledger.objects.filter(
                 transaction=app_tra_query[0]).filter(
-                    amount=self.test_curr_per_tr * self.curr_to_usd
+                    amount=convert.cur_to_usd(self.test_curr_per_tr, fee=True)
                 )),
             1
         )
@@ -491,7 +490,7 @@ class TestUserProfileView(TestCase):
 
         self.assertEqual(
             response.context['balance_pending_usd'],
-            self.test_curr_per_tr * self.curr_to_usd
+            convert.cur_to_usd(self.test_curr_per_tr, fee=True)
         )
 
     def test_user_offers_redemed(self):
