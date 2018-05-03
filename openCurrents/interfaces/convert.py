@@ -1,5 +1,5 @@
 _USDCUR = 20
-_TR_FEE = 10.0
+_TR_FEE = 0.10
 
 def usd_to_cur(amount_usd):
     return 1.0 / _USDCUR * amount_usd
