@@ -138,7 +138,7 @@ class OcOrg(object):
         Group.objects.create(name='admin_%s' % org.id)
         return org
 
-    def get_top_issued_npfs(self, period, quantity=10):
+    def get_top_issued_npfs(self, period, quantity=10, active=False):
         result = list()
         orgs = Org.objects.filter(status='npf')
 
@@ -146,7 +146,9 @@ class OcOrg(object):
             issued_cur_amount = OcLedger().get_issued_cur_amount(org.id, period)['total']
             if not issued_cur_amount:
                 issued_cur_amount = 0
-            result.append({'name': org.name, 'total': issued_cur_amount})
+
+            if not active or (active and issued_cur_amount > 0):
+                result.append({'name': org.name, 'total': issued_cur_amount})
 
         result.sort(key=lambda org_dict: org_dict['total'], reverse=True)
 
