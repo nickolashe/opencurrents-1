@@ -1737,10 +1737,10 @@ class PastEventCreation(SetupTest, SetupAdditionalTimeRecords, TestCase):
         self.assertEqual(len(UserTimeLog.objects.all()), 0)
         self.assertEqual(len(AdminActionUserTime.objects.all()), 0)
         self.assertEqual(len(UserEventRegistration.objects.filter(user=self.npf_admin)), 3)
+        self.assertEqual(len(UserEventRegistration.objects.filter(user__email=self.volunteer_3.email)), 0)
         self.assertEqual(len(UserEventRegistration.objects.filter(user__email=self.new_user_email)), 0)
 
         # adding volunteers to the past event
-
         response = self.client.post(
             add_vols_to_past_event_url,
             {
@@ -1750,13 +1750,15 @@ class PastEventCreation(SetupTest, SetupAdditionalTimeRecords, TestCase):
                 'vol-name-1': self.new_user_email,
                 'vol-email-2': self.new_user_email2,
                 'vol-name-2': self.new_user_email2,
-                'count-vol': '2',
+                'vol-email-3': self.volunteer_3.email,
+                'vol-name-3': self.volunteer_3.email,
+                'count-vol': '3',
                 'test_mode': '1',
                 'personal_message': '',
             }
         )
 
-        expected_url = '/org-admin/2/'
+        expected_url = '/org-admin/3/'
         self.assertRedirects(
             response,
             expected_url,
@@ -1769,11 +1771,12 @@ class PastEventCreation(SetupTest, SetupAdditionalTimeRecords, TestCase):
         # - user is registered to an event;
         # - user wo password receives an email;
         # - ledger is created
-        self.assertEqual(len(UserTimeLog.objects.all()), 3)
-        self.assertEqual(len(AdminActionUserTime.objects.all()), 3)
+        self.assertEqual(len(UserTimeLog.objects.all()), 4)
+        self.assertEqual(len(AdminActionUserTime.objects.all()), 4)
         self.assertEqual(len(UserEventRegistration.objects.filter(user=self.npf_admin)), 3)  # admin is register already, no changes
         self.assertEqual(len(UserEventRegistration.objects.filter(user__email=self.new_user_email)), 1)
         self.assertEqual(len(UserEventRegistration.objects.filter(user__email=self.new_user_email2)), 1)
+        self.assertEqual(len(UserEventRegistration.objects.filter(user__email=self.volunteer_3.email)), 1)
         # asserting email vars values
         expected_list = [
             self.npf_admin.first_name, 'ADMIN_FIRSTNAME',
@@ -1791,6 +1794,9 @@ class PastEventCreation(SetupTest, SetupAdditionalTimeRecords, TestCase):
         new_user_2_entity_id = UserEntity.objects.get(user__email=self.new_user_email).id
         self.assertEqual(24, OcLedger().get_balance(new_user_1_entity_id))
         self.assertEqual(24, OcLedger().get_balance(new_user_2_entity_id))
+        self.assertEqual(
+            24, OcLedger().get_balance(self.user_enitity_id_vol_3)
+        )
         self.assertEqual(24, OcLedger().get_balance(self.user_enitity_id_npf_adm))
 
     def test_past_event_invitation_opt_out(self):
@@ -1829,13 +1835,15 @@ class PastEventCreation(SetupTest, SetupAdditionalTimeRecords, TestCase):
                 'vol-name-1': self.new_user_email,
                 'vol-email-2': self.new_user_email2,
                 'vol-name-2': self.new_user_email2,
-                'count-vol': '2',
+                'vol-email-3': self.volunteer_3.email,
+                'vol-name-3': self.volunteer_3.email,
+                'count-vol': '3',
                 'test_mode': '1',
                 'personal_message': '',
             }
         )
 
-        expected_url = '/org-admin/2/'
+        expected_url = '/org-admin/3/'
         self.assertRedirects(
             response,
             expected_url,
@@ -1848,11 +1856,12 @@ class PastEventCreation(SetupTest, SetupAdditionalTimeRecords, TestCase):
         # - user is registered to an event;
         # - nobody receives email;
         # - ledger is created
-        self.assertEqual(len(UserTimeLog.objects.all()), 3)
-        self.assertEqual(len(AdminActionUserTime.objects.all()), 3)
+        self.assertEqual(len(UserTimeLog.objects.all()), 4)
+        self.assertEqual(len(AdminActionUserTime.objects.all()), 4)
         self.assertEqual(len(UserEventRegistration.objects.filter(user=self.npf_admin)), 3)  # admin is register already, no changes
         self.assertEqual(len(UserEventRegistration.objects.filter(user__email=self.new_user_email)), 1)
         self.assertEqual(len(UserEventRegistration.objects.filter(user__email=self.new_user_email2)), 1)
+        self.assertEqual(len(UserEventRegistration.objects.filter(user__email=self.volunteer_3.email)), 1)
 
         # asserting that bulk email function didn't launch
         self.assertNotIn('bulk', self.client.session)
@@ -1865,4 +1874,7 @@ class PastEventCreation(SetupTest, SetupAdditionalTimeRecords, TestCase):
         new_user_2_entity_id = UserEntity.objects.get(user__email=self.new_user_email).id
         self.assertEqual(24, OcLedger().get_balance(new_user_1_entity_id))
         self.assertEqual(24, OcLedger().get_balance(new_user_2_entity_id))
+        self.assertEqual(
+            24, OcLedger().get_balance(self.user_enitity_id_vol_3)
+        )
         self.assertEqual(24, OcLedger().get_balance(self.user_enitity_id_npf_adm))
