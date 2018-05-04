@@ -1,6 +1,6 @@
 *.pyc
 db.sqlite3
-log/
+log/views.log
 .DS_Store
 oc/staticfiles
 oc/mediafiles
