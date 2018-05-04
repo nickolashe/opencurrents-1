@@ -103,11 +103,13 @@ class TransactionResource(resources.ModelResource):
             'user__id',
             'user__email',
             'offer__id',
+            'offer__org__name',
             'price_reported',
             'currents_amount',
             'pop_image',
             'pop_no_proof',
-            'pop_type'
+            'pop_type',
+            'biz_name',
             'date_created'
         )
         exort_order = fields
