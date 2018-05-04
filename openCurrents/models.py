@@ -8,8 +8,6 @@ from datetime import datetime, timedelta
 
 from openCurrents.interfaces.common import one_week_from_now, diffInHours
 from openCurrents.interfaces import convert
-from openCurrents.interfaces.ocuser import OcUser
-from openCurrents.views import sendTransactionalEmail
 
 import os
 import pytz
@@ -643,6 +641,9 @@ class TransactionAction(models.Model):
     # trigger ledger record on approve action
     def save(self, *args, **kwargs):
         super(TransactionAction, self).save(*args, **kwargs)
+
+        from openCurrents.interfaces.ocuser import OcUser
+        from openCurrents.views import sendTransactionalEmail
 
         # check if the transaction action for selected transaction exists
         tr = self.transaction
