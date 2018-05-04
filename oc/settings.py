@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'openCurrents.apps.OpencurrentsConfig',
     'macros',
     'django_extensions',
-    'import_export'
+    'import_export',
+    'django_admin_listfilter_dropdown'
 ]
 
 MIDDLEWARE = [
