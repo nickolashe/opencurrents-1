@@ -111,17 +111,18 @@
       });
 
       $('#vol-signup').click(function(){
-        $('#npf-name').slideUp();
-        $('#biz-name').slideUp();
+        $('#npf-name').slideUp().val('');
+        $('#biz-name').slideUp().val('');
+
       });
 
       $('#npf-signup').click(function(){
-        $('#biz-name').slideUp();
+        $('#biz-name').slideUp().val('');
         $('#npf-name').slideDown();
       });
 
       $('#biz-signup').click(function(){
-        $('#npf-name').slideUp();
+        $('#npf-name').slideUp().val('');
         $('#biz-name').slideDown();
       });
     });
