@@ -1,30 +1,28 @@
 {% load staticfiles %}
 
 <div class="row">
-  <div class="small-12 small-centered columns">
-    <div class="row half-margin-top collapse">
-      <div class="medium-10 small-centered columns">
-        <div class="row">
-          <div class="small-6 medium-4 columns">
-            <a href="{% url 'openCurrents:event-detail' 342 %}">
-              <img class="biz-logos" src="{% static 'img/red-cross.png' %}">
-            </a>
-            <p>Thurs May 17</p>
-          </div>
-          <div class="small-6 medium-4 columns">
-            <a href="{% url 'openCurrents:event-detail' 349 %}">
-              <img class="biz-logos" src="{% static 'img/ms150.png' %}">
-            </a>
-            <p>Sat May 19</p>
-          </div>
-          <div class="small-6 medium-4 small-offset-3 medium-offset-0 columns end">
-            <a href="{% url 'openCurrents:event-detail' 366 %}">
-              <img class="biz-logos" src="{% static 'img/earth-day.png' %}">
-            </a>
-            <p>Sun May 27</p>
-          </div>
-        </div>
-      </div>
-    </div>
+  <div class="small-6 medium-3 columns">
+    <a href="{% url 'openCurrents:event-detail' 342 %}">
+      <img class="biz-logos" src="{% static 'img/red-cross.png' %}">
+    </a>
+    <p>Thurs May 17</p>
+  </div>
+  <div class="small-6 medium-3 columns">
+    <a href="{% url 'openCurrents:event-detail' 349 %}">
+      <img class="biz-logos" src="{% static 'img/ms150.png' %}">
+    </a>
+    <p>Sat May 19</p>
+  </div>
+  <div class="small-6 medium-3 columns end">
+    <a href="{% url 'openCurrents:event-detail' 366 %}">
+      <img class="biz-logos" src="{% static 'img/earth-day.png' %}">
+    </a>
+    <p>Sun May 27</p>
+  </div>
+  <div class="small-6 medium-3 columns end">
+    <a href="{% url 'openCurrents:event-detail' 366 %}">
+      <img class="biz-logos" src="{% static 'img/earth-day.png' %}">
+    </a>
+    <p>Weds May 30</p>
   </div>
 </div>

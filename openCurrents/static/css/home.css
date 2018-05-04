@@ -159,35 +159,6 @@ h1, h2, h3 {
   height: 2.875rem;
 }
 
-.home-input {
-  background-color: transparent;
-  border-color: #ffffff;
-  color: #ffffff;
-}
-
-input.home-input::-webkit-input-placeholder {
-  color: #ffffff; }
-
-input.home-input::-moz-placeholder {
-  color: #ffffff;
-}
-
-input.home-input:-ms-input-placeholder {
-  color: #ffffff; }
-
-input.home-input::placeholder {
-  color: #ffffff; }
-
-.home-input:hover {
-  background-color: transparent;
-  border-color: #ffffff;
-}
-
-.home-input:focus {
-  background-color: transparent;
-  border-color: #24b2e7;
-}
-
 /* small home */
 
 #home-logo {
@@ -214,6 +185,91 @@ input.home-input::placeholder {
 
 #home-email {
   height: 2.875rem;
+}
+
+#signup-options {
+  padding: 0.5rem 0;
+  font-size: 0.9375rem;
+  transition: background-color 0.25s ease-in-out;
+  box-shadow: 0 3px #147db6;
+  border-radius: 40px;
+  border: 1px solid #147db6;
+}
+
+form.white #signup-options {
+  border: 1px solid #ffffff;
+  box-shadow: 0 3px #cccccc;
+}
+
+label.signup-button {
+  padding: 0.5rem 1rem;
+  font-size: 0.9375rem;
+  border-radius: 40px;
+  color: #169ccd;
+  border: 1px solid transparent;
+  display: inline;
+  cursor: pointer;
+  transition: border 0.25s ease-in-out;
+}
+
+.signup-button:hover {
+  border: 1px solid #147db6;
+  color: #147db6;
+}
+
+form.white input {
+  background-color: transparent;
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+form.white input:focus {
+  border-color: #24b2e7;
+  background-color: transparent;
+}
+
+form.white input[type='submit'] {
+  background-color: #24b2e7;
+  border-color: #24b2e7;
+}
+
+form.white input[type='submit']:hover {
+  background-color: #169ccd;
+  border-color: #169ccd;
+}
+
+form.white input::placeholder {
+  color: #ffffff;
+}
+
+form.white #question-link {
+  color: #ffffff;
+}
+
+form.white #question-link:hover {
+  color: #ffffff;
+  font-weight: 500;
+}
+
+form.white label.signup-button {
+  color: #ffffff;
+}
+
+form.white label.signup-button.selected {
+  border: 1px solid #ffffff;
+}
+
+form.white label.signup-button:hover {
+  border: 1px solid #ffffff;
+}
+
+.signup-button.selected {
+  background-color: #24b2e7;
+  color: #ffffff;
+}
+
+.signup-button.selected:hover {
+  border: 1px solid transparent;
 }
 
 .benefit-icon #home-symbol {
@@ -262,10 +318,6 @@ input.home-input::placeholder {
 .splash .button.clear:focus {
   background-color: #24b2e7;
   border-color: #24b2e7;
-}
-
-.splash .white {
-  filter: drop-shadow(0 0 30px black);
 }
 
 .splash .alert {
