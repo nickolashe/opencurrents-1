@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.core.exceptions import ValidationError
 from import_export.admin import ImportExportModelAdmin
 from import_export import resources
+from django_admin_listfilter_dropdown.filters import DropdownFilter, RelatedDropdownFilter
 
 from openCurrents.models import (
     Org,
@@ -41,9 +42,42 @@ class AdminActionUserTimeAdmin(ImportExportModelAdmin):
     )
 
 
+class EventAdmin(admin.ModelAdmin):
+    class Meta:
+        model = Event
+
+    list_filter = (
+        ('location', DropdownFilter)
+    )
+
+
 class LedgerResource(resources.ModelResource):
     class Meta:
         model = Ledger
+        fields = (
+            'id',
+            'entity_from',
+            'entity_to',
+            'currency',
+            'amount',
+            'is_issued',
+            'is_bonus',
+            'transaction__id',
+            'date_created'
+        )
+        export_order = fields
+
+    def dehydrate_entity_from(self, ledger):
+        try:
+            return ledger.entity_from.userentity.user.email
+        except:
+            return ledger.entity_from.orgentity.org.name
+
+    def dehydrate_entity_to(self, ledger):
+        try:
+            return ledger.entity_to.userentity.user.email
+        except:
+            return ledger.entity_to.orgentity.org.name
 
 
 class LedgerAdmin(ImportExportModelAdmin):
@@ -64,6 +98,19 @@ class OrgAdmin(ImportExportModelAdmin):
 class TransactionResource(resources.ModelResource):
     class Meta:
         model = Transaction
+        fields = (
+            'id',
+            'user__id',
+            'user__email',
+            'offer__id',
+            'price_reported',
+            'currents_amount',
+            'pop_image',
+            'pop_no_proof',
+            'pop_type'
+            'date_created'
+        )
+        exort_order = fields
 
 
 class TransactionAdmin(ImportExportModelAdmin):
