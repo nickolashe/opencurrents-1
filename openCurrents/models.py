@@ -8,6 +8,8 @@ from datetime import datetime, timedelta
 
 from openCurrents.interfaces.common import one_week_from_now, diffInHours
 from openCurrents.interfaces import convert
+from openCurrents.interfaces.ocuser import OcUser
+from openCurrents.views import sendTransactionalEmail
 
 import os
 import pytz
@@ -183,7 +185,7 @@ class Ledger(models.Model):
         'TransactionAction',
         on_delete=models.CASCADE,
         null=True,
-        blank=True        
+        blank=True
     )
 
     # created / updated timestamps
@@ -642,16 +644,13 @@ class TransactionAction(models.Model):
     def save(self, *args, **kwargs):
         super(TransactionAction, self).save(*args, **kwargs)
 
-        from openCurrents.views import sendTransactionalEmail
-        from openCurrents.interfaces.ocuser import OcUser
-
         # check if the transaction action for selected transaction exists
         tr = self.transaction
 
         if self.action_type == 'app':
             oc_user = OcUser(tr.user.id)
 
-            usd_amount = convert.cur_to_usd(tr.currents_amount, True)
+            usd_amount = round(convert.cur_to_usd(tr.currents_amount, True), 2)
 
             # transact cur from user to org
             Ledger.objects.create(
@@ -686,15 +685,15 @@ class TransactionAction(models.Model):
                     },
                     {
                         'name': 'CURRENTS_REDEEMED',
-                        'content': str(tr.currents_amount)
+                        'content': round(tr.currents_amount, 3)
                     },
                     {
                         'name': 'CURRENTS_AVAILABLE',
-                        'content': oc_user.get_balance_available()
+                        'content': round(oc_user.get_balance_available(), 3)
                     },
                     {
                         'name': 'DOLLARS_AVAILABLE',
-                        'content': oc_user.get_balance_available_usd()
+                        'content': round(oc_user.get_balance_available_usd(), 2)
                     },
                 ]
 
@@ -702,7 +701,7 @@ class TransactionAction(models.Model):
                     'transaction-approved',
                     None,
                     email_vars_transactional,
-                    tr.user,
+                    tr.user.email,
                 )
             except Exception as e:
                 logger.error(
