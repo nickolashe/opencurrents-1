@@ -67,6 +67,7 @@ urlpatterns = [
     url(r'^hours-approved/$', views.HoursApprovedView.as_view(), name='hours-approved'),
     url(r'^hours-detail/$', views.HoursDetailView.as_view(), name='hours-detail'),
     url(r'^inventory/$', views.InventoryView.as_view(), name='inventory'),
+    url(r'^member-activity/$', views.MemberActivityView.as_view(), name='member-activity'),
     url(r'^mission/$', views.MissionView.as_view(), name='mission'),
     url(r'^nominate/$', views.NominateView.as_view(), name='nominate'),
     url(r'^nomination-confirmed/$', views.NominationConfirmedView.as_view(), name='nomination-confirmed'),

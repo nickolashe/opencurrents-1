@@ -1196,6 +1196,10 @@ class MarketplaceView(ListView):
         return context
 
 
+class MemberActivityView(TemplateView):
+    template_name = 'member-activity.html'
+
+
 class MissionView(TemplateView):
     template_name = 'mission.html'
 

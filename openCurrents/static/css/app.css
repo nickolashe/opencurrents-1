@@ -1257,6 +1257,10 @@ i:hover ~ .addtocalendar {
 
 /* profile */
 
+#profile-gear {
+  line-height: 0rem;
+}
+
 #community-feed {
   border: 1px solid #cccccc;
   border-radius: 4px;
