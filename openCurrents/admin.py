@@ -63,6 +63,7 @@ class LedgerResource(resources.ModelResource):
             'is_issued',
             'is_bonus',
             'transaction__id',
+            'action__user__id',
             'date_created'
         )
         export_order = fields
@@ -112,13 +113,38 @@ class TransactionResource(resources.ModelResource):
             'biz_name',
             'date_created'
         )
-        exort_order = fields
+        export_order = fields
 
 
 class TransactionAdmin(ImportExportModelAdmin):
     resource_class = TransactionResource
     search_fields = (
         'user__id', 'user__email', 'offer__id', 'offer__org__name', 'biz_name'
+    )
+
+
+class TransactionActionResource(resources.ModelResource):
+    class Meta:
+        model = TransactionAction
+        fields = (
+            'id',
+            'transaction__id',
+            'transaction__user__id',
+            'transaction__user__email',
+            'transaction__offer__id',
+            'transaction__offer__org__name',
+            'action_type',
+            'date_created'
+        )
+        export_order = fields
+
+
+class TransactionActionAdmin(ImportExportModelAdmin):
+    resource_class = TransactionActionResource
+    search_fields = (
+        'transaction__id',
+        'transaction__user__email',
+        'transaction__offer__org__name'
     )
 
 
@@ -161,7 +187,7 @@ admin.site.register(AdminActionUserTime, AdminActionUserTimeAdmin)
 admin.site.register(Offer)
 admin.site.register(Transaction, TransactionAdmin)
 admin.site.register(Item)
-admin.site.register(TransactionAction)
+admin.site.register(TransactionAction, TransactionActionAdmin)
 admin.site.register(Entity)
 admin.site.register(UserEntity)
 admin.site.register(OrgEntity)
