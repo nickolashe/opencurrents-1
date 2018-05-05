@@ -651,7 +651,7 @@ class TransactionAction(models.Model):
         if self.action_type == 'app':
             oc_user = OcUser(tr.user.id)
 
-            usd_amount = round(convert.cur_to_usd(tr.currents_amount, True), 2)
+            usd_amount = convert.cur_to_usd(tr.currents_amount, True)
 
             # transact cur from user to org
             Ledger.objects.create(
@@ -682,19 +682,19 @@ class TransactionAction(models.Model):
                     },
                     {
                         'name': 'DOLLARS_REDEEMED',
-                        'content': usd_amount
+                        'content': '%.2f' % usd_amount
                     },
                     {
                         'name': 'CURRENTS_REDEEMED',
-                        'content': round(tr.currents_amount, 3)
+                        'content': '%.2f' % tr.currents_amount
                     },
                     {
                         'name': 'CURRENTS_AVAILABLE',
-                        'content': round(oc_user.get_balance_available(), 3)
+                        'content': '%.2f' % oc_user.get_balance_available()
                     },
                     {
                         'name': 'DOLLARS_AVAILABLE',
-                        'content': round(oc_user.get_balance_available_usd(), 2)
+                        'content': '%.2f' % oc_user.get_balance_available_usd()
                     },
                 ]
 
