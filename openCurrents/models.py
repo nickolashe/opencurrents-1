@@ -682,19 +682,19 @@ class TransactionAction(models.Model):
                     },
                     {
                         'name': 'DOLLARS_REDEEMED',
-                        'content': '%.2f' % usd_amount
+                        'content': '%.2f' % float(usd_amount)
                     },
                     {
                         'name': 'CURRENTS_REDEEMED',
-                        'content': '%.2f' % tr.currents_amount
+                        'content': '%.2f' % float(tr.currents_amount)
                     },
                     {
                         'name': 'CURRENTS_AVAILABLE',
-                        'content': '%.2f' % oc_user.get_balance_available()
+                        'content': '%.2f' % float(oc_user.get_balance_available())
                     },
                     {
                         'name': 'DOLLARS_AVAILABLE',
-                        'content': '%.2f' % oc_user.get_balance_available_usd()
+                        'content': '%.2f' % float(oc_user.get_balance_available_usd())
                     },
                 ]
 
