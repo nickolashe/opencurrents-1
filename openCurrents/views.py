@@ -2855,28 +2855,41 @@ class UpcomingEventsView(ListView):
     }
 
     def get_context_data(self, **kwargs):
-        """Get context data."""
-        # skip context param determines whether we show skip button or not
+        '''
+        context data:
+            - user timezone
+        '''
         context = super(UpcomingEventsView, self).get_context_data(**kwargs)
-        # context['timezone'] = self.request.user.account.timezone
         context['timezone'] = 'America/Chicago'
 
         glogger_struct = {
             'msg': 'upcoming events accessed',
-            'username': self.user.email,
         }
+
+        user = self.request.user
+        if user.is_authenticated():
+            # context['timezone'] = self.request.user.account.timezone
+            glogger_struct['username'] = user.username
+
         glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
         return context
 
     def get_queryset(self):
-        """Get the list of items for this view."""
-        # show all public events plus private event for orgs the user is admin for
-        userid = self.request.user.id
-
+        '''
+        show non-past events with the following privacy settings:
+            - all public events
+            - private event for the org the user is admin for
+        '''
         event_query_filter = Q(is_public=True)
-        if self.ocauth.is_admin_org():
-            event_query_filter |= Q(is_public=False, project__org__id=self.org.id)
+
+        user = self.request.user
+        if user.is_authenticated():
+            ocauth = OcAuth(user.id)
+            org = OrgUserInfo(user.id).get_org()
+
+            if ocauth.is_admin_org():
+                event_query_filter |= Q(is_public=False, project__org__id=org.id)
 
         return Event.objects.filter(
             datetime_end__gte=datetime.now(tz=pytz.utc)
