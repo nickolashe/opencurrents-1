@@ -269,6 +269,10 @@
     {% include "popups/no-cash-popup.html" %}
   </div>
 
+  <div id="donate-cash-popup" class="modal center small-12 medium-9 small-centered columns">
+    {% include "popups/donate-cash-popup.html" %}
+  </div>
+
   <div id="volunteer-for-cash-popup" class="modal center small-12 medium-9 small-centered columns">
     {% include "popups/volunteer-for-cash-popup.html" %}
   </div>
@@ -329,7 +333,7 @@
         var open = false;
       }
 
-      $('#rsvp-popup, #earn-currents-popup, #balance-popup, #no-cash-popup, #cash-out-popup, #volunteer-for-cash-popup').popup({
+      $('#rsvp-popup, #earn-currents-popup, #balance-popup, #no-cash-popup, #cash-out-popup, #donate-cash-popup, #volunteer-for-cash-popup').popup({
         vertical: 'top',
         transition: 'all 0.75s',
         scrolllock: true,

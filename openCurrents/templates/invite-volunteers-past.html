@@ -8,12 +8,24 @@
   <p>who attended <strong>{{ event_project_name }}</strong></p>
 {% endblock subtitle %}
 
-{% block send_button_name %}
-Submit
-{% endblock send_button_name %}
+{% block invite-volunteer-checkbox %}
+  <div class="row half-margin-bottom">
+    <input
+      type="checkbox"
+      name="invite-volunteers-past"
+      id="invite-volunteers-past"
+      class="custom-checkbox"
+      checked
+    />
+      <label for="invite-volunteers-past" class="half-margin-bottom">
+        Invite new members to openCurrents
+      </label>
+  </div>
+{% endblock invite-volunteer-checkbox %}
 
-{% block add_email_block %}
-{% endblock add_email_block %}
+{% block send_button_name %}
+  Submit
+{% endblock send_button_name %}
 
 {% block preview_email %}
 {% endblock preview_email %}

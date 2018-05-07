@@ -13,15 +13,21 @@
       account. You will receive an email in the next 48 hours inviting
       you to transfer your full balance of
       ${{ balance_available_usd|round_number:2 }}.
-      If you have any questions, don't hesitate to reach out.
     </p>
 
-    <button onClick="ga('send', 'event', 'Redemption', 'ConfirmCashOut');"
-    type="submit" class="button round">
-      Send dollars
-    </button>
-    <a href="javascript:void(Tawk_API.toggle())" class="button round secondary">
-      Contact us
-    </a>
+    <p>
+      Alternatively, "give twice" by donating cash back to the nonprofit of your
+      choice.
+    </p>
+
+    <div class="row three-halves-margin-top">
+      <button onClick="ga('send', 'event', 'Redemption', 'ConfirmCashOut');"
+      type="submit" class="button round secondary">
+        Send to bank account
+      </button>
+      <a class="cash-out-popup_close donate-cash-popup_open button round">
+        Donate to nonprofit
+      </a>
+    </div>
   </form>
 {% endblock content %}

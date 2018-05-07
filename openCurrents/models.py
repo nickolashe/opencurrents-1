@@ -12,19 +12,24 @@ from openCurrents.interfaces import convert
 import os
 import pytz
 import re
+import logging
 
 # Notes:
 # *) unverified users are still created as User objects but with unusable password
+
+logging.basicConfig(level=logging.DEBUG, filename='log/models.log')
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 # org model
 class Org(models.Model):
     name = models.CharField(max_length=100, unique=True)
     website = models.CharField(max_length=100, null=True, blank=True)
-    phone = models.CharField(max_length=10, null=True)
-    email = models.EmailField(null=True)
-    address = models.CharField(max_length=1024, null=True)
-    intro = models.CharField(max_length=16192, null=True)
+    phone = models.CharField(max_length=10, null=True, blank=True)
+    email = models.EmailField(null=True, blank=True)
+    address = models.CharField(max_length=1024, null=True, blank=True)
+    intro = models.CharField(max_length=16192, null=True, blank=True)
 
     org_types = (
         ('biz', 'business'),
@@ -178,7 +183,7 @@ class Ledger(models.Model):
         'TransactionAction',
         on_delete=models.CASCADE,
         null=True,
-        blank=True        
+        blank=True
     )
 
     # created / updated timestamps
@@ -637,8 +642,16 @@ class TransactionAction(models.Model):
     def save(self, *args, **kwargs):
         super(TransactionAction, self).save(*args, **kwargs)
 
+        from openCurrents.interfaces.ocuser import OcUser
+        from openCurrents.views import sendTransactionalEmail
+
+        # check if the transaction action for selected transaction exists
+        tr = self.transaction
+
         if self.action_type == 'app':
-            tr = self.transaction
+            oc_user = OcUser(tr.user.id)
+
+            usd_amount = convert.cur_to_usd(tr.currents_amount, True)
 
             # transact cur from user to org
             Ledger.objects.create(
@@ -654,9 +667,52 @@ class TransactionAction(models.Model):
                 entity_from=OrgEntity.objects.get(org__name='openCurrents'),
                 entity_to=tr.user.userentity,
                 currency='usd',
-                amount=convert.cur_to_usd(tr.currents_amount, True),
+                amount=usd_amount,
                 transaction=self
             )
+
+            # sending email to user about transaction approvment
+            bizname = tr.biz_name if tr.biz_name else tr.offer.org.name
+
+            try:
+                email_vars_transactional = [
+                    {
+                        'name': 'BIZ_NAME',
+                        'content': bizname
+                    },
+                    {
+                        'name': 'DOLLARS_REDEEMED',
+                        'content': '%.2f' % float(usd_amount)
+                    },
+                    {
+                        'name': 'CURRENTS_REDEEMED',
+                        'content': '%.2f' % float(tr.currents_amount)
+                    },
+                    {
+                        'name': 'CURRENTS_AVAILABLE',
+                        'content': '%.2f' % float(oc_user.get_balance_available())
+                    },
+                    {
+                        'name': 'DOLLARS_AVAILABLE',
+                        'content': '%.2f' % float(oc_user.get_balance_available_usd())
+                    },
+                ]
+
+                sendTransactionalEmail(
+                    'transaction-approved',
+                    None,
+                    email_vars_transactional,
+                    tr.user.email,
+                )
+            except Exception as e:
+                logger.error(
+                    'unable to send transactional email: %s',
+                    {
+                        'message': e.message,
+                        'error': e,
+                        'template_name': 'transaction-approved'
+                    }
+                )
 
     def __unicode__(self):
         return ' '.join([
