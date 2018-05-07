@@ -1196,6 +1196,10 @@ class MarketplaceView(ListView):
         return context
 
 
+class MemberActivityView(TemplateView):
+    template_name = 'member-activity.html'
+
+
 class MissionView(TemplateView):
     template_name = 'mission.html'
 
@@ -2276,6 +2280,10 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
                 status_msg='You need to have positive amount of dollars on your balance to be able to cash out or donate',
                 msg_type='alert'
             )
+
+
+class ProfileTwoView(ProfileView):
+    template_name = 'profile2.html'
 
 
 class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView):

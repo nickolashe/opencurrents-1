@@ -8,6 +8,11 @@
 {% block content %}
   You have ${{ balance_available_usd|round_number:2 }} available in your account,
   but you will need to volunteer for Currents before you can to cash out.
+  <span class="no-wrap">
+    <a href="{% url 'openCurrents:volunteer-opportunities' %}">
+      Find a volunteer opportunity
+    </a>
+  </span>
 
   <div class="three-halves-margin-top">
     <a class="volunteer-for-cash-popup_close button round">Got it</a>

@@ -1,0 +1,135 @@
+{% extends "layouts/user-hour-request-list.html" %}
+
+{% load macros %}
+{% load tags %}
+{% load staticfiles %}
+
+{% block heading %}
+  <div class="row">
+    <div class="small-12 columns">
+      <h3 class="title-sub">
+        {{ user.first_name }} {{ user.last_name }}
+      </h3>
+
+      <h5>
+        {% block title %}
+          {% block name %}
+            Community activity
+          {% endblock name %}
+        {% endblock title %}
+      </h5>
+    </div>
+  </div>
+{% endblock heading %}
+
+
+{% block content %}
+  <div class="row collapse one-margin-top left">
+    <div class="small-11 medium-10 small-centered columns">
+      <h6 class="half-margin-bottom">My volunteer hours</h6>
+      {% for org, hours in hours_by_org.items %}
+        <a href="{% url 'openCurrents:hours-detail' %}?user_id={{user.id}}&amp;org_id={{org.id}}&amp;type=approved"
+        class="button round tiny secondary">
+          {{org.name}}: {{hours}}
+        </a>
+      {% empty %}
+        <p>No hours have been approved.
+          <a href="{% url 'openCurrents:time-tracker' %}">
+            Record hours to create Currents!
+          </a>
+        </p>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% macro user_hour_request_list_macro arg_list arg_status arg_timezone %}
+    {% block user_hour_request_list %}
+      {% with hours_list=arg_list hours_status=arg_status timezone=arg_timezone %}
+        {{ block.super }}
+      {% endwith %}
+    {% endblock %}
+  {% endmacro %}
+
+  <div class="left row one-margin-top collapse">
+    <div class="small-11 medium-10 small-centered columns">
+      <div class="row">
+        <div class="small-9 columns">
+          <h6 class="half-margin-bottom">My hours requested</h6>
+        </div>
+      </div>
+
+      {% usemacro user_hour_request_list_macro hours_requested 'requested' timezone %}
+    </div>
+  </div>
+
+  <div class="row collapse one-margin-top left">
+    <div class="small-11 medium-10 small-centered columns">
+      <div class="row">
+        <div class="small-8 columns">
+          <h6 class="half-margin-bottom">My redeemed offers</h6>
+        </div>
+
+        <div class="right small-4 columns">
+          {% if offers_redeemed %}
+            <h6 class="half-margin-bottom">Status</h6>
+          {% endif %}
+        </div>
+      </div>
+
+      {% if offers_redeemed %}
+        {% for offer_redeemed in offers_redeemed %}
+          {% with transaction=offer_redeemed.transaction status=offer_redeemed.get_action_type_display %}
+            <div class="row half-margin-bottom">
+              <div class="left small-9 columns">
+                {{ offer_redeemed.date_updated|day:timezone }} -
+                You
+                {% with amount_cur=transaction.currents_amount %}
+                  {% with amount_usd=amount_cur|current_to_usd:'with_fee' %}
+                    {% if status == 'pending' %}
+                      requested
+                    {% elif status == 'approved' %}
+                      will receive
+                    {% elif status == 'redeemed' %}
+                      received
+                    {% elif status == 'declined' %}
+                      request of
+                    {% endif %}
+
+                    ${{ amount_usd|floatformat:2 }} for
+                    <span class="no-wrap">
+                      <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
+                      {{ amount_cur|floatformat:3 }}
+                    </span>
+                    from
+                    <strong>
+                      {{ transaction.offer.org.name }}
+                    </strong>
+                    {% if status == 'declined' %}
+                      has been declined
+                    {% endif %}
+                  {% endwith %}
+                {% endwith %}
+              </div>
+
+              <div class="right relative small-3 columns">
+                {{ status }}
+              </div>
+            </div>
+          {% endwith %}
+        {% endfor %}
+      {% else %}
+        <p>You have not yet redeemed any offers.
+          <a href="{% url 'openCurrents:marketplace' %}">
+            Check out the marketplace!
+          </a>
+        </p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row one-margin-top">
+    <a href="{% url 'openCurrents:profile' %}" class="button round secondary">
+      Back to profile
+    </a>
+  </div>
+{% endblock content %}
