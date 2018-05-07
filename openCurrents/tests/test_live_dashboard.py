@@ -239,6 +239,7 @@ class SetupTest(object):
 
         # creating a future event  (event duration: 24 hrs)
         future_date2 = future_date + timedelta(days=1)
+        self.future_event_duration_hrs = diffInHours(future_date, future_date2)
         self.event_future = _create_event(
             self.project_1,
             self.npf_admin.id,
@@ -251,6 +252,7 @@ class SetupTest(object):
         )
 
         # creating an event that's happening now (event duration: 48 hrs)
+        self.current_event_duration_hrs = diffInHours(self.past_date, future_date)
         self.event_current = _create_event(
             self.project_1,
             self.npf_admin.id,
@@ -264,6 +266,7 @@ class SetupTest(object):
 
         # creating a past event (event duration: 24 hrs)
         past_date_2 = self.past_date - timedelta(days=1)
+        self.past_event_duration_hrs = diffInHours(past_date_2, self.past_date)
         self.event_past = _create_event(
             self.project_1,
             self.npf_admin.id,
@@ -463,25 +466,28 @@ class CurrentEventCheckIn(SetupTest, TestCase):
         self.assertEqual(0, len(self.oc_vol_2.get_hours_approved()))
 
         # assert approved hours from npf admin perspective
-        self.assertEqual(96.0, self.org_npf_adm.get_total_hours_issued())
+        self.assertEqual(
+            self.current_event_duration_hrs * 2,
+            self.org_npf_adm.get_total_hours_issued()
+        )
 
         # checking ledger records
         ledger_query = Ledger.objects.all()
         self.assertEqual(2, len(ledger_query))
 
         # asserting npf_admin user
-        self._asserting_user_ledger(self.npf_admin, ledger_query, 1, 48)
+        self._asserting_user_ledger(self.npf_admin, ledger_query, 1, self.current_event_duration_hrs)
 
         # asserting the first user
-        self._asserting_user_ledger(self.volunteer_1, ledger_query, 1, 48)
+        self._asserting_user_ledger(self.volunteer_1, ledger_query, 1, self.current_event_duration_hrs)
 
         # asserting the 2nd user
         self._asserting_user_ledger(self.volunteer_2, ledger_query, 0, 0)
 
         # assert get_balance()
         self._assert_get_balance(
-            self.user_enitity_id_npf_adm, Decimal('48'),
-            self.user_enitity_id_vol_1, Decimal('48'),
+            self.user_enitity_id_npf_adm, self.current_event_duration_hrs,
+            self.user_enitity_id_vol_1, self.current_event_duration_hrs,
             self.user_enitity_id_vol_2, 0
         )
 
@@ -511,26 +517,29 @@ class CurrentEventCheckIn(SetupTest, TestCase):
         self.assertEqual(1, len(self.oc_vol_2.get_hours_approved()))
 
         # assert approved hours from npf admin perspective
-        self.assertEqual(144.0, self.org_npf_adm.get_total_hours_issued())
+        self.assertEqual(
+            self.current_event_duration_hrs * 3,
+            self.org_npf_adm.get_total_hours_issued()
+        )
 
         # checking ledger records
         ledger_query = Ledger.objects.all()
         self.assertEqual(3, len(ledger_query))
 
         # asserting npf_admin user
-        self._asserting_user_ledger(self.npf_admin, ledger_query, 1, 48)
+        self._asserting_user_ledger(self.npf_admin, ledger_query, 1, self.current_event_duration_hrs)
 
         # asserting the first user
-        self._asserting_user_ledger(self.volunteer_1, ledger_query, 1, 48)
+        self._asserting_user_ledger(self.volunteer_1, ledger_query, 1, self.current_event_duration_hrs)
 
         # asserting the 2nd user
-        self._asserting_user_ledger(self.volunteer_2, ledger_query, 1, 48)
+        self._asserting_user_ledger(self.volunteer_2, ledger_query, 1, self.current_event_duration_hrs)
 
         # assert get_balance()
         self._assert_get_balance(
-            self.user_enitity_id_npf_adm, 48,
-            self.user_enitity_id_vol_1, 48,
-            self.user_enitity_id_vol_2, 48
+            self.user_enitity_id_npf_adm, self.current_event_duration_hrs,
+            self.user_enitity_id_vol_1, self.current_event_duration_hrs,
+            self.user_enitity_id_vol_2, self.current_event_duration_hrs
         )
 
     def test_current_event_uncheck_user(self):
@@ -583,15 +592,27 @@ class CurrentEventCheckIn(SetupTest, TestCase):
         self.assertEqual(0, len(self.oc_vol_2.get_hours_approved()))
 
         # assert approved hours from npf admin perspective
-        self.assertEqual(96.0, self.org_npf_adm.get_total_hours_issued())
+        self.assertEqual(
+            self.current_event_duration_hrs * 2,
+            self.org_npf_adm.get_total_hours_issued()
+        )
 
         # asserting the first user
         ledger_query = Ledger.objects.all()
-        self._asserting_user_ledger(self.volunteer_1, ledger_query, 1, 48)
+        self._asserting_user_ledger(
+            self.volunteer_1, ledger_query, 1,
+            self.current_event_duration_hrs
+        )
 
         # assert get_balance()
-        self.assertEqual(48, OcLedger().get_balance(self.user_enitity_id_npf_adm))
-        self.assertEqual(48, OcLedger().get_balance(self.user_enitity_id_vol_1))
+        self.assertEqual(
+            self.current_event_duration_hrs,
+            OcLedger().get_balance(self.user_enitity_id_npf_adm)
+        )
+        self.assertEqual(
+            self.current_event_duration_hrs,
+            OcLedger().get_balance(self.user_enitity_id_vol_1)
+        )
 
         # checking OUT the first volunteer
         time_now = timezone.now()
@@ -630,15 +651,29 @@ class CurrentEventCheckIn(SetupTest, TestCase):
         self.assertEqual(0, len(self.oc_vol_2.get_hours_approved()))
 
         # assert approved hours from npf admin perspective
-        self.assertEqual(96.0, self.org_npf_adm.get_total_hours_issued())
+        self.assertEqual(
+            self.current_event_duration_hrs * 2,
+            self.org_npf_adm.get_total_hours_issued()
+        )
 
         # asserting the first user
         ledger_query = Ledger.objects.all()
-        self._asserting_user_ledger(self.volunteer_1, ledger_query, 1, 48)
+        self._asserting_user_ledger(
+            self.volunteer_1,
+            ledger_query,
+            1,
+            self.current_event_duration_hrs
+        )
 
         # assert get_balance()
-        self.assertEqual(48, OcLedger().get_balance(self.user_enitity_id_npf_adm))
-        self.assertEqual(48, OcLedger().get_balance(self.user_enitity_id_vol_1))
+        self.assertEqual(
+            self.current_event_duration_hrs,
+            OcLedger().get_balance(self.user_enitity_id_npf_adm)
+        )
+        self.assertEqual(
+            self.current_event_duration_hrs,
+            OcLedger().get_balance(self.user_enitity_id_vol_1)
+        )
 
     def test_current_event_add_existing_nonregistered_user(self):
         """
@@ -717,14 +752,22 @@ class CurrentEventInvite(SetupTest, TestCase):
         self.assertEqual(1, len(oc_new_user.get_hours_approved()))
 
         # assert approved hours from npf admin perspective
-        self.assertEqual(96.0, self.org_npf_adm.get_total_hours_issued())
+        self.assertEqual(
+            self.current_event_duration_hrs * 2,
+            self.org_npf_adm.get_total_hours_issued()
+        )
 
         # checking ledger records
         ledger_query = Ledger.objects.all()
         self.assertEqual(2, len(ledger_query))
 
         # asserting npf_admin user
-        self._asserting_user_ledger(self.npf_admin, ledger_query, 1, 48)
+        self._asserting_user_ledger(
+            self.npf_admin,
+            ledger_query,
+            1,
+            self.current_event_duration_hrs
+            )
 
         # asserting the first user
         self._asserting_user_ledger(self.volunteer_1, ledger_query, 0, 0)
@@ -733,14 +776,21 @@ class CurrentEventInvite(SetupTest, TestCase):
         self._asserting_user_ledger(self.volunteer_2, ledger_query, 0, 0)
 
         # asserting the 2nd user
-        self._asserting_user_ledger(new_user, ledger_query, 1, 48)
+        self._asserting_user_ledger(
+            new_user,
+            ledger_query,
+            1,
+            self.current_event_duration_hrs
+        )
 
         # assert get_balance()
         self._assert_get_balance(
-            self.user_enitity_id_npf_adm, 48,
+            self.user_enitity_id_npf_adm,
+            self.current_event_duration_hrs,
             self.user_enitity_id_vol_1, 0,
             self.user_enitity_id_vol_2, 0,
-            UserEntity.objects.get(user=new_user).id, 48
+            UserEntity.objects.get(user=new_user).id,
+            self.current_event_duration_hrs
         )
 
     def test_current_event_invite_new_user_invitation_opt_in(self):
@@ -821,14 +871,22 @@ class CurrentEventInvite(SetupTest, TestCase):
         self.assertEqual(1, len(oc_new_user.get_hours_approved()))
 
         # assert approved hours from npf admin perspective
-        self.assertEqual(96.0, self.org_npf_adm.get_total_hours_issued())
+        self.assertEqual(
+            self.current_event_duration_hrs * 2,
+            self.org_npf_adm.get_total_hours_issued()
+        )
 
         # checking ledger records
         ledger_query = Ledger.objects.all()
         self.assertEqual(2, len(ledger_query))
 
         # asserting npf_admin user
-        self._asserting_user_ledger(self.npf_admin, ledger_query, 1, 48)
+        self._asserting_user_ledger(
+            self.npf_admin,
+            ledger_query,
+            1,
+            self.current_event_duration_hrs
+        )
 
         # asserting the first user
         self._asserting_user_ledger(self.volunteer_1, ledger_query, 0, 0)
@@ -837,14 +895,20 @@ class CurrentEventInvite(SetupTest, TestCase):
         self._asserting_user_ledger(self.volunteer_2, ledger_query, 0, 0)
 
         # asserting the 2nd user
-        self._asserting_user_ledger(new_user, ledger_query, 1, 48)
+        self._asserting_user_ledger(
+            new_user,
+            ledger_query,
+            1,
+            self.current_event_duration_hrs
+        )
 
         # assert get_balance()
         self._assert_get_balance(
-            self.user_enitity_id_npf_adm, 48,
+            self.user_enitity_id_npf_adm, self.current_event_duration_hrs,
             self.user_enitity_id_vol_1, 0,
             self.user_enitity_id_vol_2, 0,
-            UserEntity.objects.get(user=new_user).id, 48
+            UserEntity.objects.get(user=new_user).id,
+            self.current_event_duration_hrs
         )
 
         # asserting existing user was checked-in
@@ -1034,14 +1098,21 @@ class PastEventInvite(SetupTest, TestCase):
         self.assertEqual(1, len(oc_new_user.get_hours_approved()))
 
         # assert approved hours from npf admin perspective
-        self.assertEqual(48.0, self.org_npf_adm.get_total_hours_issued())
+        self.assertEqual(self.past_event_duration_hrs * 2,
+            self.org_npf_adm.get_total_hours_issued()
+        )
 
         # checking ledger records
         ledger_query = Ledger.objects.all()
         self.assertEqual(2, len(ledger_query))
 
         # asserting npf_admin user
-        self._asserting_user_ledger(self.npf_admin, ledger_query, 1, 24)
+        self._asserting_user_ledger(
+            self.npf_admin,
+            ledger_query,
+            1,
+            self.past_event_duration_hrs
+        )
 
         # asserting the first user
         self._asserting_user_ledger(self.volunteer_1, ledger_query, 0, 0)
@@ -1050,14 +1121,20 @@ class PastEventInvite(SetupTest, TestCase):
         self._asserting_user_ledger(self.volunteer_2, ledger_query, 0, 0)
 
         # asserting new user
-        self._asserting_user_ledger(new_user, ledger_query, 1, 24)
+        self._asserting_user_ledger(
+            new_user,
+            ledger_query,
+            1,
+            self.past_event_duration_hrs
+            )
 
         # assert get_balance()
         self._assert_get_balance(
-            self.user_enitity_id_npf_adm, 24,
+            self.user_enitity_id_npf_adm, self.past_event_duration_hrs,
             self.user_enitity_id_vol_1, 0,
             self.user_enitity_id_vol_2, 0,
-            UserEntity.objects.get(user=new_user).id, 24
+            UserEntity.objects.get(user=new_user).id,
+            self.past_event_duration_hrs
         )
 
         # checking that invite button is disabled
@@ -1143,14 +1220,22 @@ class PastEventInvite(SetupTest, TestCase):
         self.assertEqual(1, len(oc_new_user.get_hours_approved()))
 
         # assert approved hours from npf admin perspective
-        self.assertEqual(48.0, self.org_npf_adm.get_total_hours_issued())
+        self.assertEqual(
+            self.past_event_duration_hrs * 2,
+            self.org_npf_adm.get_total_hours_issued()
+        )
 
         # checking ledger records
         ledger_query = Ledger.objects.all()
         self.assertEqual(2, len(ledger_query))
 
         # asserting npf_admin user
-        self._asserting_user_ledger(self.npf_admin, ledger_query, 1, 24)
+        self._asserting_user_ledger(
+            self.npf_admin,
+            ledger_query,
+            1,
+            self.past_event_duration_hrs
+        )
 
         # asserting the first user
         self._asserting_user_ledger(self.volunteer_1, ledger_query, 0, 0)
@@ -1159,14 +1244,20 @@ class PastEventInvite(SetupTest, TestCase):
         self._asserting_user_ledger(self.volunteer_2, ledger_query, 0, 0)
 
         # asserting new user
-        self._asserting_user_ledger(new_user, ledger_query, 1, 24)
+        self._asserting_user_ledger(
+            new_user,
+            ledger_query,
+            1,
+            self.past_event_duration_hrs
+        )
 
         # assert get_balance()
         self._assert_get_balance(
-            self.user_enitity_id_npf_adm, 24,
+            self.user_enitity_id_npf_adm, self.past_event_duration_hrs,
             self.user_enitity_id_vol_1, 0,
             self.user_enitity_id_vol_2, 0,
-            UserEntity.objects.get(user=new_user).id, 24
+            UserEntity.objects.get(user=new_user).id,
+            self.past_event_duration_hrs
         )
 
         # checking that invite button is disabled
@@ -1364,26 +1455,40 @@ class PastEventCheckIn(SetupTest, TestCase):
         self.assertEqual(0, len(self.oc_vol_2.get_hours_approved()))
 
         # assert approved hours from npf admin perspective
-        self.assertEqual(48.0, self.org_npf_adm.get_total_hours_issued())
+        self.assertEqual(
+            self.past_event_duration_hrs * 2,
+            self.org_npf_adm.get_total_hours_issued()
+        )
 
         # checking ledger records
         ledger_query = Ledger.objects.all()
         self.assertEqual(2, len(ledger_query))
 
         # asserting npf_admin user
-        self._asserting_user_ledger(self.npf_admin, ledger_query, 1, 24)
+        self._asserting_user_ledger(
+            self.npf_admin, ledger_query,
+            1,
+            self.past_event_duration_hrs
+        )
 
         # asserting the first user
-        self._asserting_user_ledger(self.volunteer_1, ledger_query, 1, 24)
+        self._asserting_user_ledger(
+            self.volunteer_1, ledger_query,
+            1,
+            self.past_event_duration_hrs
+        )
 
         # asserting the 2nd user
         self._asserting_user_ledger(self.volunteer_2, ledger_query, 0, 0)
 
         # assert get_balance()
         self._assert_get_balance(
-            self.user_enitity_id_npf_adm, 24,
-            self.user_enitity_id_vol_1, 24,
-            self.user_enitity_id_vol_2, 0,
+            self.user_enitity_id_npf_adm,
+            self.past_event_duration_hrs,
+            self.user_enitity_id_vol_1,
+            self.past_event_duration_hrs,
+            self.user_enitity_id_vol_2,
+            0
         )
 
         # checking the second volunteer
@@ -1407,26 +1512,44 @@ class PastEventCheckIn(SetupTest, TestCase):
         self.assertEqual(1, len(self.oc_vol_2.get_hours_approved()))
 
         # assert approved hours from npf admin perspective
-        self.assertEqual(72.0, self.org_npf_adm.get_total_hours_issued())
+        self.assertEqual(
+            self.past_event_duration_hrs * 3,
+            self.org_npf_adm.get_total_hours_issued()
+        )
 
         # checking ledger records
         ledger_query = Ledger.objects.all()
         self.assertEqual(3, len(ledger_query))
 
         # asserting npf_admin user
-        self._asserting_user_ledger(self.npf_admin, ledger_query, 1, 24)
+        self._asserting_user_ledger(
+            self.npf_admin,
+            ledger_query,
+            1,
+            self.past_event_duration_hrs
+        )
 
         # asserting the first user
-        self._asserting_user_ledger(self.volunteer_1, ledger_query, 1, 24)
+        self._asserting_user_ledger(
+            self.volunteer_1,
+            ledger_query,
+            1,
+            self.past_event_duration_hrs
+        )
 
         # asserting the 2nd user
-        self._asserting_user_ledger(self.volunteer_2, ledger_query, 1, 24)
+        self._asserting_user_ledger(
+            self.volunteer_2,
+            ledger_query,
+            1,
+            self.past_event_duration_hrs
+        )
 
         # assert get_balance()
         self._assert_get_balance(
-            self.user_enitity_id_npf_adm, 24,
-            self.user_enitity_id_vol_1, 24,
-            self.user_enitity_id_vol_2, 24,
+            self.user_enitity_id_npf_adm, self.past_event_duration_hrs,
+            self.user_enitity_id_vol_1, self.past_event_duration_hrs,
+            self.user_enitity_id_vol_2, self.past_event_duration_hrs,
         )
 
     def test_past_event_uncheck_user(self):
@@ -1481,15 +1604,29 @@ class PastEventCheckIn(SetupTest, TestCase):
         self.assertEqual(0, len(self.oc_vol_2.get_hours_approved()))
 
         # assert approved hours from npf admin perspective
-        self.assertEqual(48.0, self.org_npf_adm.get_total_hours_issued())
+        self.assertEqual(
+            self.past_event_duration_hrs * 2,
+            self.org_npf_adm.get_total_hours_issued()
+        )
 
         # asserting the first user
         ledger_query = Ledger.objects.all()
-        self._asserting_user_ledger(self.volunteer_1, ledger_query, 1, 24)
+        self._asserting_user_ledger(
+            self.volunteer_1,
+            ledger_query,
+            1,
+            self.past_event_duration_hrs
+        )
 
         # assert get_balance()
-        self.assertEqual(24, OcLedger().get_balance(self.user_enitity_id_npf_adm))
-        self.assertEqual(24, OcLedger().get_balance(self.user_enitity_id_vol_1))
+        self.assertEqual(
+            self.past_event_duration_hrs,
+            OcLedger().get_balance(self.user_enitity_id_npf_adm)
+        )
+        self.assertEqual(
+            self.past_event_duration_hrs,
+            OcLedger().get_balance(self.user_enitity_id_vol_1)
+        )
 
         # UN-checking the first volunteer
         post_response = self.client.post(
@@ -1519,15 +1656,29 @@ class PastEventCheckIn(SetupTest, TestCase):
         self.assertEqual(0, len(self.oc_vol_2.get_hours_approved()))
 
         # assert approved hours from npf admin perspective
-        self.assertEqual(48.0, self.org_npf_adm.get_total_hours_issued())
+        self.assertEqual(
+            self.past_event_duration_hrs * 2,
+            self.org_npf_adm.get_total_hours_issued()
+        )
 
         # asserting the first user
         ledger_query = Ledger.objects.all()
-        self._asserting_user_ledger(self.volunteer_1, ledger_query, 1, 24)
+        self._asserting_user_ledger(
+            self.volunteer_1,
+            ledger_query,
+            1,
+            self.past_event_duration_hrs
+        )
 
         # assert get_balance()
-        self.assertEqual(24, OcLedger().get_balance(self.user_enitity_id_npf_adm))
-        self.assertEqual(24, OcLedger().get_balance(self.user_enitity_id_vol_1))
+        self.assertEqual(
+            self.past_event_duration_hrs,
+            OcLedger().get_balance(self.user_enitity_id_npf_adm)
+        )
+        self.assertEqual(
+            self.past_event_duration_hrs,
+            OcLedger().get_balance(self.user_enitity_id_vol_1)
+        )
 
     def test_past_event_add_existing_nonregistered_user(self):
         """
@@ -1792,12 +1943,22 @@ class PastEventCreation(SetupTest, SetupAdditionalTimeRecords, TestCase):
 
         new_user_1_entity_id = UserEntity.objects.get(user__email=self.new_user_email).id
         new_user_2_entity_id = UserEntity.objects.get(user__email=self.new_user_email).id
-        self.assertEqual(24, OcLedger().get_balance(new_user_1_entity_id))
-        self.assertEqual(24, OcLedger().get_balance(new_user_2_entity_id))
         self.assertEqual(
-            24, OcLedger().get_balance(self.user_enitity_id_vol_3)
+            self.future_event_duration_hrs,
+            OcLedger().get_balance(new_user_1_entity_id)
         )
-        self.assertEqual(24, OcLedger().get_balance(self.user_enitity_id_npf_adm))
+        self.assertEqual(
+            self.future_event_duration_hrs,
+            OcLedger().get_balance(new_user_2_entity_id)
+        )
+        self.assertEqual(
+            self.future_event_duration_hrs,
+            OcLedger().get_balance(self.user_enitity_id_vol_3)
+        )
+        self.assertEqual(
+            self.future_event_duration_hrs,
+            OcLedger().get_balance(self.user_enitity_id_npf_adm)
+        )
 
     def test_past_event_invitation_opt_out(self):
         """
@@ -1872,9 +2033,19 @@ class PastEventCreation(SetupTest, SetupAdditionalTimeRecords, TestCase):
 
         new_user_1_entity_id = UserEntity.objects.get(user__email=self.new_user_email).id
         new_user_2_entity_id = UserEntity.objects.get(user__email=self.new_user_email).id
-        self.assertEqual(24, OcLedger().get_balance(new_user_1_entity_id))
-        self.assertEqual(24, OcLedger().get_balance(new_user_2_entity_id))
         self.assertEqual(
-            24, OcLedger().get_balance(self.user_enitity_id_vol_3)
+            self.future_event_duration_hrs,
+            OcLedger().get_balance(new_user_1_entity_id)
         )
-        self.assertEqual(24, OcLedger().get_balance(self.user_enitity_id_npf_adm))
+        self.assertEqual(
+            self.future_event_duration_hrs,
+            OcLedger().get_balance(new_user_2_entity_id)
+        )
+        self.assertEqual(
+            self.future_event_duration_hrs,
+            OcLedger().get_balance(self.user_enitity_id_vol_3)
+        )
+        self.assertEqual(
+            self.future_event_duration_hrs,
+            OcLedger().get_balance(self.user_enitity_id_npf_adm)
+        )
