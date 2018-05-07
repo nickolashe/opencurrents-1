@@ -1,0 +1,107 @@
+{% extends "profile.html" %}
+{% load staticfiles %}
+{% load tags %}
+
+{% block content %}
+  <div class="row one-margin-bottom">
+    <div class="small-12 medium-6 columns">
+      <h6 class="inline-block qtr-margin-bottom">
+        Currents available:
+      </h6>
+      <img class="h6-symbol" src="{% static 'img/symbol.svg' %}"/>
+      <h6 class="inline-block no-margin-bottom">
+        {{ balance_available|round_number:3 }}
+      </h6>
+      <p class="grey half-margin-bottom">Pending:
+        <img class="med-text-symbol" src="{% static 'img/symbol.svg' %}"/>
+        {{ balance_pending|round_number:3 }}
+      </p>
+      <p class="no-margin-bottom">
+        <a href="{% url 'openCurrents:marketplace' %}" class="button round secondary tiny">
+          Marketplace
+        </a>
+      </p>
+    </div>
+
+    <div class="small-12 medium-6 columns">
+      <h6 class="qtr-margin-bottom">
+        Dollars available: ${{ balance_available_usd|round_number:2 }}
+      </h6>
+      <p class="grey half-margin-bottom">
+        Pending: ${{ balance_pending_usd|round_number:2 }}
+      </p>
+
+      <a onClick="ga('send', 'event', 'Redemption', 'AttemptCashOut');" class="
+        {% if balance_available_usd|str_to_num > 0 %}
+          {% if has_volunteered %}
+            cash-out-popup_open
+          {% else %}
+            volunteer-for-cash-popup_open
+          {% endif %}
+        {% else %}
+          no-cash-popup_open
+        {% endif %}
+         button round secondary tiny">
+        Cash out
+      </a>
+    </div>
+  </div>
+
+  {% if events_upcoming %}
+    <div class="row collapse three-halves-margin-top left">
+      <div class="small-11 medium-10 small-centered columns">
+        <h6 class="half-margin-bottom">
+          My upcoming events
+        </h6>
+
+        {% for event in events_upcoming %}
+          {% if event.project.name != "ManualTracking" %}
+            <div class="row half-margin-bottom">
+              <div class="left small-9 columns">
+                <strong>{{event.project.name}}</strong>
+                with {{event.project.org.name}}
+                on {{event.datetime_start|day:timezone}}
+                from {{event.datetime_start|time:timezone}}
+                to {{event.datetime_end|time:timezone}}
+                at {{event.location}}
+              </div>
+
+              <div class="right relative small-3 columns">
+                <a class="mini-open">
+                  <i class="blue half-margin-right fa-chevron-circle-down fa fa-lg"></i>
+                </a>
+                <ul class="mini-menu">
+                  <a href="{% url 'openCurrents:event-detail' event.id %}">
+                    <li>View event details</li>
+                  </a>
+                </ul>
+              </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="row collapse three-halves-margin-top left">
+    <div class="small-11 medium-10 small-centered columns">
+      <h6 class="half-margin-bottom">
+        Featured businesses
+      </h6>
+
+      {% include "partials/featured-bizzes.html" %}
+
+    </div>
+  </div>
+
+  <div class="row collapse three-halves-margin-top left">
+    <div class="small-11 medium-10 small-centered columns">
+      <h6 class="half-margin-bottom">
+        Featured events
+      </h6>
+
+      {% include "partials/featured-npfs.html" %}
+
+    </div>
+  </div>
+{% endblock content %}

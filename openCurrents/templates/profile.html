@@ -3,6 +3,21 @@
 {% load tags %}
 {% load staticfiles %}
 
+{% block profile-link %}
+  {% if is_admin_org %}
+    <a href="{% url 'openCurrents:org-admin' %}">
+      {{ orgname }}
+    </a>
+  {% elif is_admin_biz %}
+    <a href="{% url 'openCurrents:biz-admin' %}">
+      {{ orgname }}
+    </a>
+  {% else %}
+    <a href="{% url 'openCurrents:profile' %}">
+      {{ user.first_name }} {{ user.last_name }}
+    </a>
+  {% endif %}
+{% endblock profile-link %}
 
 {% block status %}
   {% if status_msg %}

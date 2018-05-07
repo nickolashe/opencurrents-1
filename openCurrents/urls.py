@@ -103,6 +103,7 @@ urlpatterns = [
     url(r'^profile/$', views.ProfileView.as_view(), name='profile'),
     url(r'^profile/(?P<status_msg>.*)/$', views.ProfileView.as_view(), name='profile'),
     url(r'^profile/(?P<status_msg>[^/]*)/(?P<msg_type>[^/]*)', views.ProfileView.as_view(), name='profile'),
+    url(r'^profile2/$', views.ProfileTwoView.as_view(), name='profile2'),
     url(r'^org-admin/$', views.OrgAdminView.as_view(), name='org-admin'),
     url(r'^org-admin/(?P<num_vols>\d+)/$', views.OrgAdminView.as_view(), name='org-admin'),
     url(r'^org-admin/(?P<vols_approved>\d+)/(?P<vols_declined>\d+)/$', views.OrgAdminView.as_view(), name='org-admin'),

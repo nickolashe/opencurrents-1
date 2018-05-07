@@ -2282,6 +2282,10 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
             )
 
 
+class ProfileTwoView(ProfileView):
+    template_name = 'profile2.html'
+
+
 class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView):
     template_name = 'org-admin.html'
     glogger_labels = {
