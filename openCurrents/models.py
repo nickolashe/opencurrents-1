@@ -26,10 +26,10 @@ logger.setLevel(logging.DEBUG)
 class Org(models.Model):
     name = models.CharField(max_length=100, unique=True)
     website = models.CharField(max_length=100, null=True, blank=True)
-    phone = models.CharField(max_length=10, null=True)
-    email = models.EmailField(null=True)
-    address = models.CharField(max_length=1024, null=True)
-    intro = models.CharField(max_length=16192, null=True)
+    phone = models.CharField(max_length=10, null=True, blank=True)
+    email = models.EmailField(null=True, blank=True)
+    address = models.CharField(max_length=1024, null=True, blank=True)
+    intro = models.CharField(max_length=16192, null=True, blank=True)
 
     org_types = (
         ('biz', 'business'),
@@ -183,7 +183,7 @@ class Ledger(models.Model):
         'TransactionAction',
         on_delete=models.CASCADE,
         null=True,
-        blank=True        
+        blank=True
     )
 
     # created / updated timestamps
@@ -642,8 +642,8 @@ class TransactionAction(models.Model):
     def save(self, *args, **kwargs):
         super(TransactionAction, self).save(*args, **kwargs)
 
-        from openCurrents.views import sendTransactionalEmail
         from openCurrents.interfaces.ocuser import OcUser
+        from openCurrents.views import sendTransactionalEmail
 
         # check if the transaction action for selected transaction exists
         tr = self.transaction
@@ -682,19 +682,19 @@ class TransactionAction(models.Model):
                     },
                     {
                         'name': 'DOLLARS_REDEEMED',
-                        'content': usd_amount
+                        'content': '%.2f' % float(usd_amount)
                     },
                     {
                         'name': 'CURRENTS_REDEEMED',
-                        'content': str(tr.currents_amount)
+                        'content': '%.2f' % float(tr.currents_amount)
                     },
                     {
                         'name': 'CURRENTS_AVAILABLE',
-                        'content': oc_user.get_balance_available()
+                        'content': '%.2f' % float(oc_user.get_balance_available())
                     },
                     {
                         'name': 'DOLLARS_AVAILABLE',
-                        'content': oc_user.get_balance_available_usd()
+                        'content': '%.2f' % float(oc_user.get_balance_available_usd())
                     },
                 ]
 
@@ -702,7 +702,7 @@ class TransactionAction(models.Model):
                     'transaction-approved',
                     None,
                     email_vars_transactional,
-                    tr.user,
+                    tr.user.email,
                 )
             except Exception as e:
                 logger.error(
