@@ -1,28 +1,51 @@
+{% extends "layouts/featured-orgs.html" %}
+
 {% load staticfiles %}
 
-<div class="row">
-  <div class="small-6 medium-3 columns">
-    <a href="{% url 'openCurrents:event-detail' 530 %}">
-      <img class="biz-logos" src="{% static 'img/fbff.png' %}">
-    </a>
-    <p class="center no-margin-bottom">Sat May 12</p>
-  </div>
-  <div class="small-6 medium-3 columns">
-    <a href="{% url 'openCurrents:event-detail' 531 %}">
-      <img class="biz-logos" src="{% static 'img/sbca.png' %}">
-    </a>
-    <p class="center no-margin-bottom">Sat May 19</p>
-  </div>
-  <div class="small-6 medium-3 columns end">
-    <a href="{% url 'openCurrents:event-detail' 529 %}">
-      <img class="biz-logos" src="{% static 'img/kaf.png' %}">
-    </a>
-    <p class="center no-margin-bottom">Sun May 20</p>
-  </div>
-  <div class="small-6 medium-3 columns end">
-    <a href="{% url 'openCurrents:event-detail' 528 %}">
-      <img class="biz-logos" src="{% static 'img/casa.png' %}">
-    </a>
-    <p class="center no-margin-bottom">Sun May 27</p>
-  </div>
-</div>
+{% block url-1 %}
+  {% url 'openCurrents:event-detail' 530 %}
+{% endblock url-1 %}">
+
+{% block img-1 %}
+  {% static 'img/fbff.png' %}
+{% endblock img-1 %}
+
+{% block caption-1 %}
+  Sat May 12
+{% endblock caption-1 %}
+
+{% block url-2 %}
+  {% url 'openCurrents:event-detail' 531 %}
+{% endblock url-2 %}">
+
+{% block img-2 %}
+  {% static 'img/sbca.png' %}
+{% endblock img-2 %}
+
+{% block caption-2 %}
+  Sat May 19
+{% endblock caption-2 %}
+
+{% block url-3 %}
+  {% url 'openCurrents:event-detail' 529 %}
+{% endblock url-3 %}
+
+{% block img-3 %}
+  {% static 'img/kaf.png' %}
+{% endblock img-3 %}
+
+{% block caption-3 %}
+  Sun May 20
+{% endblock caption-3 %}
+
+{% block url-4 %}
+  {% url 'openCurrents:event-detail' 528 %}
+{% endblock url-4 %}
+
+{% block img-4 %}
+  {% static 'img/casa.png' %}
+{% endblock img-4 %}
+
+{% block caption-4 %}
+  Sun May 27
+{% endblock caption-4 %}
