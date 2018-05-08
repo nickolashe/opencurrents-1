@@ -138,8 +138,11 @@
         </div>
       </div>
 
-      {% include "partials/featured-bizzes-home.html" %}
-
+      <div class="row">
+        <div class="medium-11 small-centered columns">
+          {% include "partials/featured-bizzes-home.html" %}
+        </div>
+      </div>
 
       <div class="row center two-margin-top">
         <a href="{% url 'openCurrents:marketplace' %}" class="button round">
@@ -169,18 +172,20 @@
       </div>
 
       <div class="row center one-margin-top">
-        <h6 class="half-margin-bottom white center">
-          Earn your first Currents at these featured events:
-        </h6>
+        <div class="medium-11 small-centered columns">
+          <h6 class="half-margin-bottom white center">
+            Earn your first Currents at these featured events:
+          </h6>
 
-        {% include "partials/featured-npfs.html" %}
+          {% include "partials/featured-npfs.html" %}
 
-        <p class="two-margin-top">
-          <a href="{% url 'openCurrents:volunteer-opportunities' %}"
-            class="button round">
-            Find another opportunity
-          </a>
-        </p>
+          <p class="two-margin-top">
+            <a href="{% url 'openCurrents:volunteer-opportunities' %}"
+              class="button round">
+              Find another opportunity
+            </a>
+          </p>
+        </div>
       </div>
 
       <!-- <div class="row center half-margin-top collapse">
