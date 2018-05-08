@@ -2847,7 +2847,7 @@ class EditEventView(CreateEventView):
         return kwargs
 
 
-class UpcomingEventsView(LoginRequiredMixin, SessionContextView, ListView):
+class UpcomingEventsView(ListView):
     template_name = 'upcoming-events.html'
     context_object_name = 'events'
     glogger_labels = {
