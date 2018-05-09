@@ -1275,7 +1275,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
                 status_msg = ' '.join([
                     'You have already redeemed the maximum of',
                     str(common._MASTER_OFFER_LIMIT),
-                    'Currents for this special offer.'
+                    'Currents for this special offer. Check back soon!'
                 ])
                 msg_type = 'alert'
                 glogger_struct['reject_reason'] = 'master offer limit reached'

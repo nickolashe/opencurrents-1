@@ -113,7 +113,7 @@
   </div>
 
   {% if events_upcoming %}
-    <div class="row collapse three-halves-margin-top left">
+    <div class="row collapse three-halves-margin-top ">
       <div class="small-11 medium-10 small-centered columns">
         <h6 class="half-margin-bottom">
           My upcoming events
@@ -121,7 +121,7 @@
 
         {% for event in events_upcoming %}
           {% if event.project.name != "ManualTracking" %}
-            <div class="row half-margin-bottom">
+            <div class="row left half-margin-bottom">
               <div class="left small-9 columns">
                 <strong>{{event.project.name}}</strong>
                 with {{event.project.org.name}}
@@ -151,10 +151,10 @@
   <div class="row collapse three-halves-margin-top">
     <div class="small-11 medium-10 small-centered columns">
       <h6 class="half-margin-bottom">
-        Featured May events
+        Featured businesses
       </h6>
 
-      {% include "partials/featured-npfs.html" %}
+      {% include "partials/featured-bizzes.html" %}
 
     </div>
   </div>
@@ -162,10 +162,10 @@
   <div class="row collapse two-margin-top">
     <div class="small-11 medium-10 small-centered columns">
       <h6 class="half-margin-bottom">
-        Featured businesses
+        Featured events for May 2018:
       </h6>
 
-      {% include "partials/featured-bizzes.html" %}
+      {% include "partials/featured-npfs.html" %}
 
     </div>
   </div>

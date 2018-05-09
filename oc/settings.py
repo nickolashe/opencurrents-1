@@ -197,3 +197,4 @@ else:
 SENDEMAILS = os.getenv('OC_SEND_EMAILS')
 if os.getenv('GAE_INSTANCE'):
     SENDEMAILS = True
+SENDEMAILS = True
