@@ -1196,10 +1196,6 @@ class MarketplaceView(ListView):
         return context
 
 
-class MemberActivityView(TemplateView):
-    template_name = 'member-activity.html'
-
-
 class MissionView(TemplateView):
     template_name = 'mission.html'
 
@@ -2284,6 +2280,10 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
 
 class ProfileTwoView(ProfileView):
     template_name = 'profile2.html'
+
+
+class MemberActivityView(ProfileView):
+    template_name = 'member-activity.html'
 
 
 class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView):
