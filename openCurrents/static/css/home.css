@@ -159,6 +159,35 @@ h1, h2, h3 {
   height: 2.875rem;
 }
 
+.home-input {
+  background-color: transparent;
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+input.home-input::-webkit-input-placeholder {
+  color: #ffffff; }
+
+input.home-input::-moz-placeholder {
+  color: #ffffff;
+}
+
+input.home-input:-ms-input-placeholder {
+  color: #ffffff; }
+
+input.home-input::placeholder {
+  color: #ffffff; }
+
+.home-input:hover {
+  background-color: transparent;
+  border-color: #ffffff;
+}
+
+.home-input:focus {
+  background-color: transparent;
+  border-color: #24b2e7;
+}
+
 /* small home */
 
 #home-logo {
