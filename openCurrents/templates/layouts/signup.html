@@ -23,11 +23,11 @@
     </span>
 
     <div class="hidden">
-      <input type="radio" id="vol-radio" name="signup-status" value="vol"
+      <input type="radio" id="vol-radio" name="signup_status" value="vol"
         {% block vol-check %}{% endblock vol-check %} />
-      <input type="radio" id="npf-radio" name="signup-status" value="npf"
+      <input type="radio" id="npf-radio" name="signup_status" value="npf"
         {% block npf-check %}{% endblock npf-check %} />
-      <input type="radio" id="biz-radio" name="signup-status" value="biz"
+      <input type="radio" id="biz-radio" name="signup_status" value="biz"
         {% block biz-check %}{% endblock biz-check %} />
     </div>
   </div>
@@ -89,14 +89,8 @@
       onClick="ga('send', 'event', 'NewUser', 'JoinOcSignup');"
       type="submit"
       class="button large round"
-      value="I'm in!"
+      value="Create account"
     />
-    <a href="javascript:void(Tawk_API.toggle())" class="large-text">
-      <p id="question-link">
-        I have a question
-        <i class="half-margin-left fa fa-angle-right"></i>
-      </p>
-    </a>
   </div>
 </form>
 
