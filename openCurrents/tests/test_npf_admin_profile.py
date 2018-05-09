@@ -439,7 +439,7 @@ class NpfAdminView(TestCase):
         # check if user sees 2 urls to npf admin page
         self.assertContains(response, '<a href="/org-admin/">', count=2)
         # check if the 2nd npf admin url has an icon
-        self.assertContains(response, '<i class="fa fa-lg fa-gear"></i>',)
+        self.assertContains(response, '<i id="profile-info" class="fa fa-lg fa-info-circle">',)
 
     def test_npf_profile_page(self):
         """Test the content of an NPF org profile page."""
