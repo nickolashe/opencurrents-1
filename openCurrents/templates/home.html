@@ -134,23 +134,25 @@
         <div class="small-12 medium-10 small-centered columns">
           <h6 class="half-margin-bottom navy">
             It's Volunteer Appreciation Month - Get $40 credit on us with these businesses!
-
           </h6>
         </div>
       </div>
 
-      {% include "partials/featured-bizzes-home.html" %}
+      <div class="row">
+        <div class="medium-11 small-centered columns">
+          {% include "partials/featured-bizzes-home.html" %}
+        </div>
+      </div>
 
-      {% include "partials/featured-npfs-home.html" %}
 
-      <!-- <div class="row">
+      <div class="row center two-margin-top">
         <a href="{% url 'openCurrents:marketplace' %}" class="button round">
           See who's accepting Currents
         </a>
-      </div> -->
+      </div>
 
 
-      <div class="row center three-halves-margin-top">
+      <div class="row center one-margin-top">
         <div class="medium-6 large-4 small-centered columns">
           <a href="#3" class="large-text"><p class="no-margin-bottom">Our vision</p><i class="two-margin-bottom fa fa-lg fa-angle-down"></i></a>
         </div>
@@ -162,19 +164,29 @@
 
       <div class="row center one-margin-top">
         <div class="medium-10 small-centered columns">
-          <h3 class="white title">What if we could all earn a living <br class="hide-for-small-only">on the good we are giving?</h3>
+          <h3 class="white title">What if we could all earn a living
+            <br class="hide-for-small-only">
+            on the good we are giving?
+          </h3>
         </div>
       </div>
 
-      <div class="row center half-margin-top collapse">
-        <div class="medium-10 small-centered columns">
-          <h3 class="home-quote white half-margin-bottom">"No one is useless in this world who <br class="hide-for-small-only">lightens the burdens of another."</h3>
-          <h3 class="home-quote white">- Charles Dickens</h3>
+      <div class="row">
+        <div class="medium-11 small-centered columns">
+          <h6 class="half-margin-bottom center white">
+            Earn your first Currents at these featured events:
+          </h6>
+          {% include "partials/featured-npfs.html" %}
         </div>
       </div>
 
       <div class="row center three-halves-margin-top two-margin-bottom">
-        <a href="#4" class="home-link white"><p class="no-margin-bottom">Who benefits?</p><i class="two-margin-bottom fa fa-lg fa-angle-down"></i></a>
+        <a href="#4" class="home-link white">
+          <p class="no-margin-bottom">
+            Who benefits?
+          </p>
+          <i class="two-margin-bottom fa fa-lg fa-angle-down"></i>
+        </a>
       </div>
     </div>
 

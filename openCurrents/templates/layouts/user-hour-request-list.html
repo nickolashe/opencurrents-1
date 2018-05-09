@@ -5,45 +5,47 @@
 {% block main %}
   {% block user_hour_request_list %}
 
-        {% if hours_list %}
-          {% for record in hours_list %}
-            <div class="row half-margin-bottom">
-              <div class="left input-left small-9 columns">
-                {% with tl=record.usertimelog %}
-                  {{ tl.event.datetime_start|day_only:timezone }} -
+    {% if hours_list %}
+      {% for record in hours_list %}
+        <div class="row half-margin-bottom">
+          <div class="left input-left small-9 columns">
+            {% with tl=record.usertimelog %}
+              {{ tl.event.datetime_start|day_only:timezone }} -
 
-                  {% if hours_status == 'requested' %}
-                    You volunteered
-                  {% else %}
-                    Your
-                  {% endif %}
+              {% if hours_status == 'requested' %}
+                You volunteered
+              {% else %}
+                Your
+              {% endif %}
 
-                  {{ tl.event.datetime_start|get_hours_total:tl.event.datetime_end|floatformat:2 }}
-                  hours for {{ tl.event.description }}
+              {{ tl.event.datetime_start|get_hours_total:tl.event.datetime_end|floatformat:2 }}
+              hours for {{ tl.event.description }}
 
-                  {% if hours_status == 'requested' %}
-                    at <strong> {{ tl.event.project.org.name }} </strong>
-                  {% else %}
-                    have been {{ hours_status }} by
-                    <strong>
-                      {{ tl.event.project.org.name }}
-                    </strong>
-                  {% endif %}
-                {% endwith %}
-              </div>
-
-            </div>
-          {% endfor %}
-        {% else %}
-          <div class="row half-margin-bottom">
-            <div class="left input-left small-9 columns">
-              No hours have been {{ hours_status }}.
-              <a href="{% url 'openCurrents:volunteer-opportunities' %}">
-                Find a volunteering opportunity!
-              </a>
-            </div>
+              {% if hours_status == 'requested' %}
+                at <strong> {{ tl.event.project.org.name }} </strong>
+              {% else %}
+                have been {{ hours_status }} by
+                <strong>
+                  {{ tl.event.project.org.name }}
+                </strong>
+              {% endif %}
+            {% endwith %}
           </div>
-        {% endif %}
+
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="row">
+        <div class="left input-left small-9 columns">
+          <p>
+            No hours have been {{ hours_status }}.
+            <a href="{% url 'openCurrents:volunteer-opportunities' %}">
+              Find a volunteering opportunity!
+            </a>
+          </p>
+        </div>
+      </div>
+    {% endif %}
 
   {% endblock %}
 {% endblock %}
