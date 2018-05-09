@@ -1257,8 +1257,9 @@ i:hover ~ .addtocalendar {
 
 /* profile */
 
-#profile-gear {
+#profile-info {
   line-height: 0rem;
+  font-size: 1.5rem;
 }
 
 #community-feed {
