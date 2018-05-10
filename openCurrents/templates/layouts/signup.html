@@ -65,8 +65,8 @@
       </div>
       <div class="small-12 columns">
         <input
-          id="npf-name"
-          name="npf-name"
+          id="npf_name"
+          name="npf_name"
           class="lead center hidden"
           type="text"
           placeholder="Nonprofit name"
@@ -74,8 +74,8 @@
       </div>
       <div class="small-12 columns">
         <input
-          id="biz-name"
-          name="biz-name"
+          id="biz_name"
+          name="biz_name"
           class="lead center hidden"
           type="text"
           placeholder="Business name"
@@ -105,19 +105,19 @@
       });
 
       $('#vol-signup').click(function(){
-        $('#npf-name').slideUp().val('');
-        $('#biz-name').slideUp().val('');
+        $('#npf_name').slideUp().val('');
+        $('#biz_name').slideUp().val('');
 
       });
 
       $('#npf-signup').click(function(){
-        $('#biz-name').slideUp().val('');
-        $('#npf-name').slideDown();
+        $('#biz_name').slideUp().val('');
+        $('#npf_name').slideDown();
       });
 
       $('#biz-signup').click(function(){
-        $('#npf-name').slideUp().val('');
-        $('#biz-name').slideDown();
+        $('#npf_name').slideUp().val('');
+        $('#biz_name').slideDown();
       });
     });
   </script>
