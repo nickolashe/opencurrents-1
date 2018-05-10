@@ -4366,30 +4366,27 @@ def process_signup(
         logger.debug('user %s sign up request', user_email)
 
         # setting org-related vars, org_name is mandatory for biz/org
-        if not endpoint:
 
-            if signup_status != 'vol':
-                if (biz_name != '' or npf_name != ''):
-                    org_status = signup_status
-                    if signup_status == 'biz':
-                        org_name = biz_name
-                    else:
-                        org_name = npf_name
+        org_name = ''
 
+        if signup_status != 'vol':
+            if (biz_name != '' or npf_name != ''):
+                org_status = signup_status
+                if signup_status == 'biz':
+                    org_name = biz_name
                 else:
-                    messages.add_message(
-                        request,
-                        messages.ERROR,
-                        'You need to specify organization name!',
-                        extra_tags='alert'
-                    )
-                    return redirect(
-                        reverse('openCurrents:home') + '#signup'
-                    )
+                    org_name = npf_name
+
             else:
-                org_name = ''
-        else:
-            org_name = ''
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    'You need to specify organization name!',
+                    extra_tags='alert'
+                )
+                return redirect(
+                    reverse('openCurrents:home') + '#signup'
+                )
 
         # try saving the user without password at this point
         user = None
