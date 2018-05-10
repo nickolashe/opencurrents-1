@@ -39,6 +39,7 @@ from openCurrents.interfaces.common import diffInHours
 from openCurrents.interfaces.community import OcCommunity
 from openCurrents.interfaces import convert
 
+from openCurrents.tests.interfaces import testing_urls
 from openCurrents.tests.interfaces.common import (
     _create_test_user,
     _create_project,
@@ -357,7 +358,7 @@ class TestUserProfileView(TestCase):
         """
         oc_user = User.objects.get(username="volunteer_1")
         self.client.login(username=oc_user.username, password='password')
-        response = self.client.get('/profile/')
+        response = self.client.get(testing_urls.member_activity_url)
 
         processed_content = re.sub(r'\s+', ' ', response.content)
 
@@ -615,7 +616,7 @@ class TestUserProfileView(TestCase):
         oc_user = User.objects.get(username="volunteer_2")
         self.client.login(username=oc_user.username, password='password')
 
-        response = self.client.get('/profile/')
+        response = self.client.get(testing_urls.member_activity_url)
         self.assertEqual(response.status_code, 200)
 
         processed_content = re.sub(r'\s+', ' ', response.content)
@@ -632,6 +633,9 @@ class TestUserProfileView(TestCase):
         self.assertIn('No hours have been requested', processed_content)
         self.assertIn('You have not yet redeemed any offers', processed_content)
 
+        response = self.client.get(testing_urls.profile_url)
+        self.assertEqual(response.status_code, 200)
+        processed_content = re.sub(r'\s+', ' ', response.content)
         # assert the popup code in the page source
         self.assertIn('id="no-cash-popup"', processed_content)
 

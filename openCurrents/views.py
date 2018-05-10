@@ -1196,10 +1196,6 @@ class MarketplaceView(ListView):
         return context
 
 
-class MemberActivityView(TemplateView):
-    template_name = 'member-activity.html'
-
-
 class MissionView(TemplateView):
     template_name = 'mission.html'
 
@@ -1279,7 +1275,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
                 status_msg = ' '.join([
                     'You have already redeemed the maximum of',
                     str(common._MASTER_OFFER_LIMIT),
-                    'Currents for this special offer.'
+                    'Currents for the special offer this week. Check back soon!'
                 ])
                 msg_type = 'alert'
                 glogger_struct['reject_reason'] = 'master offer limit reached'
@@ -2284,6 +2280,10 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
 
 class ProfileTwoView(ProfileView):
     template_name = 'profile2.html'
+
+
+class MemberActivityView(ProfileView):
+    template_name = 'member-activity.html'
 
 
 class OrgAdminView(OrgAdminPermissionMixin, OrgSessionContextView, TemplateView):

@@ -264,6 +264,10 @@ input.home-input::placeholder {
   border-color: #24b2e7;
 }
 
+.splash .white {
+  filter: drop-shadow(0 0 30px black);
+}
+
 .splash .alert {
   background-color: #ffffff;
   border-radius: 4px;

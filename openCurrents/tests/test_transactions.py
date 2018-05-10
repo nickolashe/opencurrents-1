@@ -131,7 +131,7 @@ approval%20by%20{}/'.format(self.org_biz.name),
         # {{ redemption_date }} - You requested {{ commissioned_amount_usd }}
         # for {{ current_share_amount }} from {{ orgname }}
         response = self.client.get(
-            testing_urls.profile_url
+            testing_urls.member_activity_url
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
