@@ -19,7 +19,7 @@
       {% endblock subtitle %}
 
       <a id="add-bulk-emails" class="button round tiny secondary">
-        Add email list
+        Copy/paste email list
       </a>
       <a id="add-single-emails" class="hidden button round tiny secondary">
         Add single emails
@@ -78,8 +78,20 @@
           </div>
         </div>
 
-        {% block invite-volunteer-checkbox %}
-        {% endblock invite-volunteer-checkbox %}
+        {% if event_ids %}
+          <div class="row half-margin-bottom">
+            <input
+              type="checkbox"
+              name="invite-volunteers-past"
+              id="invite-volunteers-past"
+              class="custom-checkbox"
+              checked
+            />
+              <label for="invite-volunteers-past" class="half-margin-bottom">
+                Invite new members to openCurrents
+              </label>
+          </div>
+        {% endif %}
 
         {% block add_email_block %}
           <div id="personal-message-div" class="left hidden">
