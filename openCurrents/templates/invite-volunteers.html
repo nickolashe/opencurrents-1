@@ -5,7 +5,16 @@
   <div class="row">
     <div class="small-12 columns">
       <h3 class="title-sub">
-        {% block title %} Invite volunteers {% endblock title %}
+        {% block name %}
+          {% block title %}
+            {% if event_ids %}
+              Add
+            {% else %}
+              Invite
+            {% endif %}
+            volunteers
+          {% endblock title %}
+        {% endblock name %}
       </h3>
 
       {% block subtitle %}
@@ -82,13 +91,15 @@
           <div class="row half-margin-bottom">
             <input
               type="checkbox"
-              name="invite-volunteers-past"
-              id="invite-volunteers-past"
+              name="invite-volunteers-checkbox"
+              id="invite-volunteers-checkbox"
               class="custom-checkbox"
               checked
             />
-              <label for="invite-volunteers-past" class="half-margin-bottom">
-                Invite new members to openCurrents
+              <label for="invite-volunteers-checkbox" class="half-margin-bottom">
+                {% block invite-type %}
+                  Invite members to event
+                {% endblock invite-type %}
               </label>
           </div>
         {% endif %}
