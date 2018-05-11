@@ -76,6 +76,14 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
             email='test_user_3@e.com',
         )
 
+        # volunteer user 4 (has_usable_password)
+        self.volunteer4 = OcUser().setup_user(
+            username='test_user_4',
+            email='test_user_4@e.com',
+        )
+        self.volunteer4.set_unusable_password()
+        self.volunteer4.save()
+
         # setting up client
         self.client = Client()
 
@@ -96,7 +104,7 @@ class TestIvniteVolunteersNoEvent(SetupAdditionalTimeRecords, TestCase):
                 'bulk-vol': '',
                 'count-vol': '1',
                 'personal_message': '',
-                'test_mode': '1'  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+                'test_mode': '1',  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
             }
         )
 
@@ -647,7 +655,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         self.client = Client()
 
     def test_invite_new_single_no_message(self):
-        """Test invitation of a new volunteer without a personal message to future event."""
+        """Test invitation of a new volunteer Without a personal message to future event  and invite checkbox on."""
         self.client.login(username=self.npf_admin_1.username, password='password')
         self.response = self.client.get(invite_volunteers_url + '1/')
         session = self.client.session
@@ -665,7 +673,8 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
                 'bulk-vol': '',
                 'count-vol': '1',
                 'personal_message': '',
-                'test_mode': '1'  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+                'test_mode': '1',  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+                'invite-volunteers-checkbox': 'on'
             }
         )
 
@@ -703,7 +712,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertEqual(len(UserEventRegistration.objects.filter(user=u)), 1)
 
     def test_invite_new_bulk_no_message(self):
-        """Test invitation of a bunch of new volunteers without a personal message to future event."""
+        """Test invitation of a bunch of new volunteers without a personal message to future event  and invite checkbox on."""
         self.client.login(username=self.npf_admin_1.username, password='password')
         self.response = self.client.get(invite_volunteers_url + '1/')
         session = self.client.session
@@ -716,7 +725,8 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
             {
                 'bulk-vol': 'bulk_test_guest_1@e.cc, bulk_test_guest_2@e.cc, bulk_test_guest_3@e.cc, bulk_test_guest_4@e.cc',
                 'personal_message': '',
-                'test_mode': '1'  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+                'test_mode': '1',  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+                'invite-volunteers-checkbox': 'on'
             }
         )
 
@@ -767,11 +777,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         )
 
     def test_invite_new_single_with_message(self):
-        """
-        Test invitation of a volunteer.
-
-        with personal message to future event
-        """
+        """Test invitation of a volunteer with personal message to future event  and invite checkbox on."""
         self.client.login(username=self.npf_admin_1.username, password='password')
         self.response = self.client.get(invite_volunteers_url + '1/')
         session = self.client.session
@@ -788,7 +794,8 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
                 'bulk-vol': '',
                 'count-vol': '1',
                 'personal_message': personal_message,
-                'test_mode': '1'  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+                'test_mode': '1',  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+                'invite-volunteers-checkbox': 'on'
             }
         )
 
@@ -836,11 +843,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertEqual(len(UserEventRegistration.objects.filter(user=u)), 1)
 
     def test_invite_new_bulk_with_message(self):
-        """
-        Test invitation of a bunch of volunteers.
-
-        without a personal message to future event
-        """
+        """Test invitation of a bunch of volunteers without a personal message to future event  and invite checkbox on."""
         self.client.login(username=self.npf_admin_1.username, password='password')
         self.response = self.client.get(invite_volunteers_url + '1/')
         session = self.client.session
@@ -854,7 +857,8 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
             {
                 'bulk-vol': 'bulk_test_guest_1@e.cc, bulk_test_guest_2@e.cc, bulk_test_guest_3@e.cc, bulk_test_guest_4@e.cc',
                 'personal_message': personal_message,
-                'test_mode': '1'  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+                'test_mode': '1',  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+                'invite-volunteers-checkbox': 'on'
             }
         )
 
@@ -901,11 +905,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertEqual(len(UserEventRegistration.objects.filter(user__username__contains='bulk_test_guest_')), 4)
 
     def test_invite_to_event_single_existing_no_message(self):
-        """
-        Test invitation of a registered single volunteer.
-
-        without a personal message to future event
-        """
+        """Test invitation of a registered single volunteer without a personal message to future event  and invite checkbox on."""
         self.client.login(username=self.npf_admin_1.username, password='password')
         self.response = self.client.get(invite_volunteers_url + '1/')
         session = self.client.session
@@ -927,7 +927,8 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
                 'bulk-vol': '',
                 'count-vol': '1',
                 'personal_message': '',
-                'test_mode': '1'  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+                'test_mode': '1',  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+                'invite-volunteers-checkbox': 'on'
             }
         )
 
@@ -976,12 +977,8 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         )
 
     def test_invite_to_event_single_existing_nopass_with_message(self):
-        """
-        Test invitation of a registered single volunteer.
-
-        with a personal message to future event
-        Expected: users wo pass invited to event should receive email
-        """
+        """Test invitation of a registered single volunteer with a personal message to future event  and invite checkbox on."""
+        # Expected: users wo pass invited to event should receive email
         self.client.login(username=self.npf_admin_1.username, password='password')
         self.response = self.client.get(invite_volunteers_url + '1/')
         session = self.client.session
@@ -1004,7 +1001,8 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
                 'bulk-vol': '',
                 'count-vol': '1',
                 'personal_message': personal_message,
-                'test_mode': '1'  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+                'test_mode': '1',  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+                'invite-volunteers-checkbox': 'on'
             }
         )
 
@@ -1044,12 +1042,8 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         )
 
     def test_invite_to_event_single_existing_nopass_no_message(self):
-        """
-        Test invitation of a registered single volunteer.
-
-        with a personal message to future event
-        Expected: users wo pass invited to event should receive email
-        """
+        """Test invitation of a registered single volunteer with a personal message to future event  and invite checkbox on."""
+        # Expected: users wo pass invited to event should receive email
         self.client.login(username=self.npf_admin_1.username, password='password')
         self.response = self.client.get(invite_volunteers_url + '1/')
         session = self.client.session
@@ -1071,7 +1065,8 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
                 'bulk-vol': '',
                 'count-vol': '1',
                 'personal_message': '',
-                'test_mode': '1'  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+                'test_mode': '1',  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+                'invite-volunteers-checkbox': 'on'
             }
         )
 
@@ -1110,11 +1105,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         )
 
     def test_invite_to_event_single_existing_with_message(self):
-        """
-        Test invitation of a registered single volunteer.
-
-        with a personal message to future event
-        """
+        """Test invitation of a registered single volunteer with a personal message to future event and invite checkbox on."""
         self.client.login(username=self.npf_admin_1.username, password='password')
         self.response = self.client.get(invite_volunteers_url + '1/')
         session = self.client.session
@@ -1137,7 +1128,8 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
                 'bulk-vol': '',
                 'count-vol': '1',
                 'personal_message': personal_message,
-                'test_mode': '1'  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+                'test_mode': '1',  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+                'invite-volunteers-checkbox': 'on'
             }
         )
 
@@ -1175,11 +1167,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertEqual(len(UserEventRegistration.objects.filter(user=self.volunteer1)), 1)
 
     def test_invite_bulk_existing_with_personal_message(self):
-        """
-        Test invitation of a bunch of existing volunteers.
-
-        with personal message to future event
-        """
+        """Test invitation of a bunch of existing volunteers with personal message to future event  and invite checkbox on."""
         self.client.login(username=self.npf_admin_1.username, password='password')
         self.response = self.client.get(invite_volunteers_url + '1/')
         session = self.client.session
@@ -1203,7 +1191,8 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
             {
                 'bulk-vol': self.volunteer1.email + ", " + self.volunteer2.email,
                 'personal_message': personal_message,
-                'test_mode': '1'  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+                'test_mode': '1',  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+                'invite-volunteers-checkbox': 'on'
             }
         )
 
@@ -1243,11 +1232,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         )
 
     def test_invite_bulk_existing_users_no_message(self):
-        """
-        Test invitation of a bunch of existing volunteers.
-
-        with personal message to future event
-        """
+        """Test invitation of a bunch of existing volunteers with personal message to future event  and invite checkbox on."""
         self.client.login(username=self.npf_admin_1.username, password='password')
         self.response = self.client.get(invite_volunteers_url + '1/')
         session = self.client.session
@@ -1270,7 +1255,8 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
             {
                 'bulk-vol': self.volunteer1.email + ", " + self.volunteer2.email,
                 'personal_message': '',
-                'test_mode': '1'  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+                'test_mode': '1',  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+                'invite-volunteers-checkbox': 'on'
             }
         )
 
@@ -1312,11 +1298,8 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         )
 
     def test_invite_bulk_existing_nopass_no_message(self):
-        """
-        Test invitation of a bunch of new volunteers without a personal message to future event.
-
-        Expected: users wo pass invited to event should receive email
-        """
+        """Test invitation of a bunch of new volunteers without a personal message to future event."""
+        # Expected: users wo pass invited to event should receive email
         self.client.login(username=self.npf_admin_1.username, password='password')
         self.response = self.client.get(invite_volunteers_url + '1/')
         session = self.client.session
@@ -1329,7 +1312,8 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
             {
                 'bulk-vol': self.volunteer3.email + ", " + self.volunteer4.email,
                 'personal_message': '',
-                'test_mode': '1'  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+                'test_mode': '1',  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+                'invite-volunteers-checkbox': 'on'
             }
         )
 
@@ -1378,11 +1362,7 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         )
 
     def test_invite_bulk_existing_nopass_with_personal_message(self):
-        """
-        Test invitation of a bunch of existing volunteers.
-
-        with personal message to future event
-        """
+        """Test invitation of a bunch of existing volunteers with personal message to future event  and invite checkbox on."""
         self.client.login(username=self.npf_admin_1.username, password='password')
         self.response = self.client.get(invite_volunteers_url + '1/')
         session = self.client.session
@@ -1406,7 +1386,8 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
             {
                 'bulk-vol': self.volunteer3.email + ", " + self.volunteer4.email,
                 'personal_message': personal_message,
-                'test_mode': '1'  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+                'test_mode': '1',  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+                'invite-volunteers-checkbox': 'on'
             }
         )
 
@@ -1456,3 +1437,132 @@ class TestIvniteVolunteersToEvent(SetupAdditionalTimeRecords, TestCase):
         self.assertEqual(
             len(UserEventRegistration.objects.filter(user=self.volunteer4)), 1
         )
+
+    def test_invite_existing_vol_checkbox_off(self):
+        """Test invitation of an existing single volunteer to a future event and invite checkbox OFF. Expected no email sent."""
+        self.client.login(username=self.npf_admin_1.username, password='password')
+        self.response = self.client.get(invite_volunteers_url + '1/')
+        session = self.client.session
+
+        self.assertEqual(self.response.status_code, 200)
+
+        # assert a user exists
+        self.assertTrue(
+            User.objects.get(username=self.volunteer1.username),
+            self.volunteer1.username
+        )
+
+        # posting form
+        personal_message = _get_random_string()
+        response = self.client.post(
+            invite_volunteers_url + '1/',
+            {
+                'vol-name-1': self.volunteer1.username,
+                'vol-email-1': self.volunteer1.email,
+                'bulk-vol': '',
+                'count-vol': '1',
+                'personal_message': personal_message,
+                'test_mode': '1',  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+            }
+        )
+
+        # assert if we've been redirected
+        self.assertRedirects(response, org_admin_url + '1/', status_code=302)
+
+        # asserting that bulk email function has been launched
+        self.assertNotIn('bulk', session)
+
+        # asserting user is not in recepients
+        self.assertNotIn('recepient', session)
+
+        # asserting email vars didn't get to session
+        self.assertNotIn('merge_vars', session)
+
+        # asserting user has been registered to event
+        self.assertEqual(len(UserEventRegistration.objects.filter(user=self.volunteer1)), 1)
+
+    def test_invite_existing_vol_unusable_pass_checkbox_off(self):
+        """Test invitation of an existing single volunteer WO usable_password to a future event and invite checkbox OFF. Expected no email sent."""
+        self.client.login(username=self.npf_admin_1.username, password='password')
+        self.response = self.client.get(invite_volunteers_url + '1/')
+        session = self.client.session
+
+        self.assertEqual(self.response.status_code, 200)
+
+        # assert a user exists
+        self.assertTrue(
+            User.objects.get(username=self.volunteer4.username),
+            self.volunteer4.username
+        )
+
+        # posting form
+        personal_message = _get_random_string()
+        response = self.client.post(
+            invite_volunteers_url + '1/',
+            {
+                'vol-name-1': self.volunteer4.username,
+                'vol-email-1': self.volunteer4.email,
+                'bulk-vol': '',
+                'count-vol': '1',
+                'personal_message': personal_message,
+                'test_mode': '1',  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+            }
+        )
+
+        # assert if we've been redirected
+        self.assertRedirects(response, org_admin_url + '1/', status_code=302)
+
+        # asserting that bulk email function has been launched
+        self.assertNotIn('bulk', session)
+
+        # asserting user is not in recepients
+        self.assertNotIn('recepient', session)
+
+        # asserting email vars didn't get to session
+        self.assertNotIn('merge_vars', session)
+
+        # asserting user has been registered to event
+        self.assertEqual(len(UserEventRegistration.objects.filter(user=self.volunteer4)), 1)
+
+    def test_invite_new_vol_checkbox_off(self):
+        """Test invitation of a new single volunteer to a future event and invite checkbox OFF. Expected no email sent."""
+        self.client.login(username=self.npf_admin_1.username, password='password')
+        self.response = self.client.get(invite_volunteers_url + '1/')
+        session = self.client.session
+
+        self.assertEqual(self.response.status_code, 200)
+
+        # assert a user exists
+        self.assertTrue(
+            User.objects.get(username=self.volunteer1.username),
+            self.volunteer1.username
+        )
+
+        # posting form
+        personal_message = _get_random_string()
+        response = self.client.post(
+            invite_volunteers_url + '1/',
+            {
+                'vol-name-1': 'test_guest_1',
+                'vol-email-1': 'single_test_guest_1@mail.cc',
+                'bulk-vol': '',
+                'count-vol': '1',
+                'personal_message': personal_message,
+                'test_mode': '1',  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+            }
+        )
+
+        # assert if we've been redirected
+        self.assertRedirects(response, org_admin_url + '1/', status_code=302)
+
+        # asserting that bulk email function has been launched
+        self.assertNotIn('bulk', session)
+
+        # asserting user is not in recepients
+        self.assertNotIn('recepient', session)
+
+        # asserting email vars didn't get to session
+        self.assertNotIn('merge_vars', session)
+
+        # asserting user has been registered to event
+        self.assertEqual(len(UserEventRegistration.objects.filter(user__email='single_test_guest_1@mail.cc')), 1)
