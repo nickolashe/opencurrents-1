@@ -19,7 +19,7 @@ class AutoLogout(MiddlewareMixin):
             time_sess = datetime.strptime(request.session['last_touch'], "%Y-%m-%d %H:%M:%S.%f")
             iddle_time = time_now - time_sess
 
-            if iddle_time > timedelta(0, settings.AUTO_LOGOUT_DELAY * 60, 0):
+            if iddle_time > timedelta(minutes=settings.AUTO_LOGOUT_DELAY):
                 requested_page = request.META.get('PATH_INFO')
 
                 request.session.pop('last_touch')
