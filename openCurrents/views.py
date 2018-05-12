@@ -3284,6 +3284,7 @@ class InviteVolunteersPastView(InviteVolunteersView):
         user = self.request.user
         admin_id = user.id
         admin_org = OrgUserInfo(admin_id).get_org()
+        invite_volunteers_checkbox = self.post_data.get('invite-volunteers-checkbox')
         # event = Event.objects.get(id=int(self.kwargs['event_ids']))
 
         try:
@@ -3415,7 +3416,7 @@ class InviteVolunteersPastView(InviteVolunteersView):
                 'content': message
             })
 
-        if 'invite-volunteers-past' in self.post_data.keys():
+        if invite_volunteers_checkbox:
             try:
                 # inviting volunteers
                 email_template_merge_vars.extend([
