@@ -1895,7 +1895,7 @@ class PastEventCreation(SetupTest, SetupAdditionalTimeRecords, TestCase):
         response = self.client.post(
             add_vols_to_past_event_url,
             {
-                'invite-volunteers-past': 'on',
+                'invite-volunteers-checkbox': 'on',
                 'bulk-vol': '',
                 'vol-email-1': self.new_user_email,
                 'vol-name-1': self.new_user_email,
