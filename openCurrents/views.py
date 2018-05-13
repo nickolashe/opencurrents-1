@@ -3128,6 +3128,7 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
         self.post_data = self.request.POST
         self.event_create_id = None
         test_mode = self.post_data.get('test_mode')
+        invite_volunteers_checkbox = self.post_data.get('invite-volunteers-checkbox')
 
         register_vols = self._register_volunteers()
         num_vols = register_vols[0]
@@ -3146,76 +3147,78 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
             })
 
         try:
-            # inviting volunteers (event-based)
+            # inviting volunteers (event-based) and if invite checkbox is checked
             event = Event.objects.get(id=self.event_create_id[0])
             events = Event.objects.filter(id__in=self.event_create_id)
             loc = [str(i.location).split(',')[0] for i in events]
             tz = event.project.org.timezone
-            email_template_merge_vars.extend([
-                {
-                    'name': 'ADMIN_FIRSTNAME',
-                    'content': user.first_name
-                },
-                {
-                    'name': 'ADMIN_LASTNAME',
-                    'content': user.last_name
-                },
-                {
-                    'name': 'EVENT_TITLE',
-                    'content': event.project.name
-                },
-                {
-                    'name': 'ORG_NAME',
-                    'content': self.Organisation
-                },
-                {
-                    'name': 'EVENT_LOCATION',
-                    'content': event.location
-                },
-                {
-                    'name': 'EVENT_DATE',
-                    'content': event.datetime_start.astimezone(pytz.timezone(tz)).date().strftime('%b %d, %Y')
-                },
-                {
-                    'name': 'EVENT_START_TIME',
-                    'content': event.datetime_start.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p')
-                },
-                {
-                    'name': 'EVENT_END_TIME',
-                    'content': event.datetime_end.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p')
-                },
-            ])
 
-            try:
-                if k:
-                    sendBulkEmail(
-                        'invite-volunteer-event-new',
-                        None,
-                        email_template_merge_vars,
-                        k,
-                        user.email,
-                        session=self.request.session,
-                        marker='1',
-                        test_mode=test_mode
-                    )
-                if k_old:
-                    sendBulkEmail(
-                        'invite-volunteer-event-existing',
-                        None,
-                        email_template_merge_vars,
-                        k_old,
-                        user.email,
-                        session=self.request.session,
-                        marker='1',
-                        test_mode=test_mode
-                    )
+            if invite_volunteers_checkbox and self.event_create_id:
+                email_template_merge_vars.extend([
+                    {
+                        'name': 'ADMIN_FIRSTNAME',
+                        'content': user.first_name
+                    },
+                    {
+                        'name': 'ADMIN_LASTNAME',
+                        'content': user.last_name
+                    },
+                    {
+                        'name': 'EVENT_TITLE',
+                        'content': event.project.name
+                    },
+                    {
+                        'name': 'ORG_NAME',
+                        'content': self.Organisation
+                    },
+                    {
+                        'name': 'EVENT_LOCATION',
+                        'content': event.location
+                    },
+                    {
+                        'name': 'EVENT_DATE',
+                        'content': event.datetime_start.astimezone(pytz.timezone(tz)).date().strftime('%b %d, %Y')
+                    },
+                    {
+                        'name': 'EVENT_START_TIME',
+                        'content': event.datetime_start.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p')
+                    },
+                    {
+                        'name': 'EVENT_END_TIME',
+                        'content': event.datetime_end.astimezone(pytz.timezone(tz)).time().strftime('%I:%M %p')
+                    },
+                ])
 
-            except Exception as e:
-                logger.error(
-                    'unable to send email: %s (%s)',
-                    e,
-                    type(e)
-                )
+                try:
+                    if k:
+                        sendBulkEmail(
+                            'invite-volunteer-event-new',
+                            None,
+                            email_template_merge_vars,
+                            k,
+                            user.email,
+                            session=self.request.session,
+                            marker='1',
+                            test_mode=test_mode
+                        )
+                    if k_old:
+                        sendBulkEmail(
+                            'invite-volunteer-event-existing',
+                            None,
+                            email_template_merge_vars,
+                            k_old,
+                            user.email,
+                            session=self.request.session,
+                            marker='1',
+                            test_mode=test_mode
+                        )
+
+                except Exception as e:
+                    logger.error(
+                        'unable to send email: %s (%s)',
+                        e,
+                        type(e)
+                    )
         except Exception as e:
             try:
                 # inviting volunteers (non-event-based)
@@ -3236,7 +3239,6 @@ class InviteVolunteersView(OrgAdminPermissionMixin, SessionContextView, Template
 
                 # sending emails to the new users and existing users with no passw
                 to_send = k + k_old
-
                 if to_send:
                     sendBulkEmail(
                         'invite-volunteer',
@@ -3282,6 +3284,7 @@ class InviteVolunteersPastView(InviteVolunteersView):
         user = self.request.user
         admin_id = user.id
         admin_org = OrgUserInfo(admin_id).get_org()
+        invite_volunteers_checkbox = self.post_data.get('invite-volunteers-checkbox')
         # event = Event.objects.get(id=int(self.kwargs['event_ids']))
 
         try:
@@ -3413,7 +3416,7 @@ class InviteVolunteersPastView(InviteVolunteersView):
                 'content': message
             })
 
-        if 'invite-volunteers-past' in self.post_data.keys():
+        if invite_volunteers_checkbox:
             try:
                 # inviting volunteers
                 email_template_merge_vars.extend([
