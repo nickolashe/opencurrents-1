@@ -17,7 +17,7 @@
   </head>
 
   <body>
-    
+
     {% block header %}
       <header id="header" class="full-width row collapse js-close-any" canvas>
         <div class="relative small-7 medium-6 small-offset-1 columns">
@@ -63,6 +63,17 @@
 
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
+        {% if messages %}
+          <div class="row center full-width collapse messages-framework">
+            <div class="small-12 medium-8 small-centered columns">
+              {% for message in messages %}
+                <span{% if message.tags %} class="{{ message.tags }}"{% endif %}>
+                  {{ message }}
+                </span>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
         {% block status %}
           <div class="{% if msg_type %}{{msg_type}}{% else %} success {% endif %} row one-margin-top">
             <div class="columns">

@@ -5,7 +5,16 @@
   <div class="row">
     <div class="small-12 columns">
       <h3 class="title-sub">
-        {% block title %} Invite volunteers {% endblock title %}
+        {% block name %}
+          {% block title %}
+            {% if event_ids %}
+              Add
+            {% else %}
+              Invite
+            {% endif %}
+            volunteers
+          {% endblock title %}
+        {% endblock name %}
       </h3>
 
       {% block subtitle %}
@@ -19,7 +28,7 @@
       {% endblock subtitle %}
 
       <a id="add-bulk-emails" class="button round tiny secondary">
-        Add email list
+        Copy/paste email list
       </a>
       <a id="add-single-emails" class="hidden button round tiny secondary">
         Add single emails
@@ -78,8 +87,22 @@
           </div>
         </div>
 
-        {% block invite-volunteer-checkbox %}
-        {% endblock invite-volunteer-checkbox %}
+        {% if event_ids %}
+          <div class="row half-margin-bottom">
+            <input
+              type="checkbox"
+              name="invite-volunteers-checkbox"
+              id="invite-volunteers-checkbox"
+              class="custom-checkbox"
+              checked
+            />
+              <label for="invite-volunteers-checkbox" class="half-margin-bottom">
+                {% block invite-type %}
+                  Invite members to event
+                {% endblock invite-type %}
+              </label>
+          </div>
+        {% endif %}
 
         {% block add_email_block %}
           <div id="personal-message-div" class="left hidden">
