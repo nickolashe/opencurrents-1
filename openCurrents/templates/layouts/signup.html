@@ -63,20 +63,18 @@
           required
         />
       </div>
-      <div class="small-12 columns">
+      <div id="npf-name-div" class="small-12 columns hidden">
         <input
-          id="npf-name"
           name="npf-name"
-          class="lead center hidden"
+          class="lead center"
           type="text"
           placeholder="Nonprofit name"
         />
       </div>
-      <div class="small-12 columns">
+      <div id="biz-name-div" class="small-12 columns hidden">
         <input
-          id="biz-name"
           name="biz-name"
-          class="lead center hidden"
+          class="lead center"
           type="text"
           placeholder="Business name"
         />
@@ -105,19 +103,19 @@
       });
 
       $('#vol-signup').click(function(){
-        $('#npf-name').hide().val('');
-        $('#biz-name').hide().val('');
+        $('#npf-name-div').slideUp().val('');
+        $('#biz-name-div').slideUp().val('');
 
       });
 
       $('#npf-signup').click(function(){
-        $('#biz-name').hide().val('');
-        $('#npf-name').slideDown();
+        $('#biz-name-div').slideUp().val('');
+        $('#npf-name-div').slideDown();
       });
 
       $('#biz-signup').click(function(){
-        $('#npf-name').hide().val('');
-        $('#biz-name').slideDown();
+        $('#npf-name-div').slideUp().val('');
+        $('#biz-name-div').slideDown();
       });
     });
   </script>
