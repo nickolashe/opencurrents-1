@@ -302,9 +302,15 @@ class OrgAdminPermissionMixin(AdminPermissionMixin):
 class BizAdminPermissionMixin(AdminPermissionMixin):
     def dispatch(self, request, *args, **kwargs):
         """Process request and args and return HTTP response."""
+
+        if not self.request.user.is_authenticated():
+            return redirect('openCurrents:login')
+
         user_id = self.request.user.id
-        if not user_id:
-            return redirect('openCurrents:404')
+
+        oc_auth = OcAuth(user_id)
+        if not oc_auth.is_admin_biz():
+            return redirect('openCurrents:403')
 
         userorgs = OrgUserInfo(user_id)
         org = userorgs.get_org()
