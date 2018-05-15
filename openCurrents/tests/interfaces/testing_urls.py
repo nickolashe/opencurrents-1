@@ -28,6 +28,11 @@ member_activity_url = reverse(
     urlconf=urls
 )
 
+biz_admin_url = reverse(
+    'biz-admin',
+    urlconf=urls
+)
+
 
 def _get_url(id, url_string='', param_name_string=''):
     """

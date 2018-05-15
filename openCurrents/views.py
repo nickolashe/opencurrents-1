@@ -3656,6 +3656,43 @@ class OfferCreateView(SessionContextView, FormView):
         }
         glogger.log_struct(glogger_struct, labels=self.glogger_labels)
 
+        # sending email to biz
+        try:
+            user = self.user
+        except:
+            user = User.objects.get(email=user_email)
+
+        # checking monthly limit
+        if offer.limit == -1:
+            limit = 'None'
+        else:
+            limit = offer.limit
+
+        # adding flag to not call Mandrill during unittests
+        test_time_tracker_mode = self.request.POST.get('test_time_tracker_mode')
+
+        email_vars = [
+            {'name': 'ORG_NAME', 'content': self.org.name},
+            {'name': 'FNAME', 'content': user.first_name},
+            {'name': 'LNAME', 'content': user.last_name},
+            {'name': 'EMAIL', 'content': user_email},
+            {'name': 'ITEM_NAME', 'content': offer_item.name},
+            {'name': 'CURRENT_SHARE', 'content': offer.currents_share},
+            {'name': 'MONTHLY_LIMIT', 'content': limit}
+        ]
+        self.request.session['email_vars'] = email_vars
+
+        sendTransactionalEmail(
+            'offer-posted',
+            None,
+            email_vars,
+            'bizdev@opencurrents.com',
+            # markers for testing purpose
+            session=self.request.session,
+            marker='1',
+            test_time_tracker_mode=test_time_tracker_mode
+        )
+
         # if self.request.user.is_authenticated():
         if 'new_biz_registration' not in self.request.session.keys():
             return redirect(
@@ -3665,7 +3702,7 @@ class OfferCreateView(SessionContextView, FormView):
         else:
             return redirect(
                 'openCurrents:biz-details',
-                "You have posted an offer for in the marketplace. Nice!"
+                "You have posted an offer in the marketplace. Nice!"
             )
 
     def form_invalid(self, form):
