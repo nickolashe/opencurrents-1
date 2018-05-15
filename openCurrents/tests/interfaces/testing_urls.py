@@ -40,6 +40,16 @@ url_signup_endpoint = reverse(
     kwargs={'mock_emails': 1, 'endpoint': True}
 )
 
+biz_admin_url = reverse(
+    'biz-admin',
+    urlconf=urls
+)
+
+create_offer_url = reverse(
+    'offer',
+    urlconf=urls
+)
+
 
 def _get_url(id, url_string='', param_name_string=''):
     """
