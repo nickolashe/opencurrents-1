@@ -107,21 +107,26 @@ class UserSignupForm(UserEmailForm):
         })
     )
 
-    org_name = forms.CharField(required=False, min_length=2)
+    # org_name = forms.CharField(required=False, min_length=2)
+    npf_name = forms.CharField(required=False, min_length=2)
+    biz_name = forms.CharField(required=False, min_length=2)
 
-    org_status = forms.ChoiceField(
-        choices=[
-            ('npf', 'nonprofit'),
-            ('biz', 'business'),
-        ],
-        required=False
-    )
+    # org_status = forms.ChoiceField(
+    #     choices=[
+    #         ('npf', 'nonprofit'),
+    #         ('biz', 'business'),
+    #     ],
+    #     required=False
+    # )
 
     org_admin_id = forms.IntegerField(required=False)
+
+    signup_status = forms.CharField(required=True, max_length=3)
 
 
 class PasswordResetRequestForm(UserEmailForm):
     pass
+
 
 class UserLoginForm(UserEmailForm):
     user_password = forms.CharField(min_length=1)

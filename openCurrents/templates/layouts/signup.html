@@ -1,0 +1,121 @@
+{% load staticfiles %}
+
+<form
+  method="post"
+  action="{% url 'openCurrents:process_signup' %}"
+  class="{% block white-form %}{% endblock white-form %}"
+>
+  {% csrf_token %}
+  <div class="row center">
+    <span id="signup-options">
+      <label id="vol-signup" for="vol-radio" class="signup-button
+        {% block vol-select %}{% endblock vol-select %}">
+        volunteer
+      </label>
+      <label id="npf-signup" for="npf-radio" class="signup-button
+        {% block npf-select %}{% endblock npf-select %}">
+        nonprofit
+      </label>
+      <label id="biz-signup" for="biz-radio" class="signup-button
+        {% block biz-select %}{% endblock biz-select %}">
+        business
+      </label>
+    </span>
+
+    <div class="hidden">
+      <input type="radio" id="vol-radio" name="signup_status" value="vol"
+        {% block vol-check %}{% endblock vol-check %} />
+      <input type="radio" id="npf-radio" name="signup_status" value="npf"
+        {% block npf-check %}{% endblock npf-check %} />
+      <input type="radio" id="biz-radio" name="signup_status" value="biz"
+        {% block biz-check %}{% endblock biz-check %} />
+    </div>
+  </div>
+
+  <div class="row collapse three-halves-margin-bottom two-margin-top">
+    <div class="center small-12 medium-8 small-centered columns">
+
+      <div class="small-6 columns">
+        <input
+          class="lead center"
+          type="text"
+          name="user_firstname"
+          placeholder="First name"
+          required
+        />
+      </div>
+
+      <div class="small-6 columns">
+        <input
+          class="lead center"
+          type="text"
+          name="user_lastname"
+          placeholder="Last name"
+          required
+        />
+      </div>
+      <div class="small-12 columns">
+        <input
+          class="lead center"
+          type="email"
+          name="user_email"
+          placeholder="Email address"
+          required
+        />
+      </div>
+      <div id="npf-name-div" class="small-12 columns hidden">
+        <input
+          name="npf-name"
+          class="lead center"
+          type="text"
+          placeholder="Nonprofit name"
+        />
+      </div>
+      <div id="biz-name-div" class="small-12 columns hidden">
+        <input
+          name="biz-name"
+          class="lead center"
+          type="text"
+          placeholder="Business name"
+        />
+      </div>
+    </div>
+  </div>
+
+  <div class="row center one-margin-top">
+    <input
+      onClick="ga('send', 'event', 'NewUser', 'JoinOcSignup');"
+      type="submit"
+      class="button large round"
+      value="Create account"
+    />
+  </div>
+</form>
+
+{% block js %}
+  <script type="text/javascript">
+    $(document).ready(function(){
+
+      // Select signup type
+      $('.signup-button').click(function(){
+        $('.signup-button').removeClass('selected');
+        $(this).addClass('selected');
+      });
+
+      $('#vol-signup').click(function(){
+        $('#npf-name-div').slideUp().val('');
+        $('#biz-name-div').slideUp().val('');
+      });
+
+      $('#npf-signup').click(function(){
+        $('#biz-name-div').slideUp().val('');
+        $('#npf-name-div').slideDown();
+      });
+
+      $('#biz-signup').click(function(){
+        $('#npf-name-div').slideUp().val('');
+        $('#biz-name-div').slideDown();
+      });
+    });
+  </script>
+{% endblock js %}
