@@ -18,10 +18,62 @@
 
   <body>
 
-    {% include "partials/header.html" %}
+    {% block header %}
+      <header id="header" class="full-width row collapse js-close-any" canvas>
+        <div class="relative small-7 medium-6 small-offset-1 columns">
+          {% if is_admin_org %}
+            <a href="{% url 'openCurrents:org-admin' %}">
+          {% elif is_admin_biz %}
+            <a href="{% url 'openCurrents:biz-admin' %}">
+          {% elif request.user.is_authenticated %}
+            <a href="{% url 'openCurrents:profile' %}">
+          {% else %}
+            <a href="{% url 'openCurrents:root' %}">
+          {% endif %}
+
+          	<img id="header-logo" src="{% static 'img/logo.svg' %}" />
+          </a>
+
+          <div class="inline-block relative">
+            <a id="beta-home" class="beta-popup_open">Beta</a>
+          </div>
+        </div>
+
+        <div class="small-3 medium-4 columns relative right end">
+          <div id="header-profile" class="hide-for-small-only trim-text">
+
+            {% block profile-link %}
+              <a href="{% url 'openCurrents:profile' %}">
+                {{ user.first_name }} {{ user.last_name }}
+              </a>
+            {% endblock profile-link %}
+
+          </div>
+
+          <div>
+            <a class="toggle-menu">
+            {% include 'partials/tilde-menu.html' %}
+            </a>
+          </div>
+        </div>
+      </header>
+
+      {% include "popups/beta-popup.html" %}
+    {% endblock header %}
 
     <div id="container" class="js-close-any" canvas="container">
       <div id="wrapper">
+        {% if messages %}
+          <div class="row center full-width collapse messages-framework">
+            <div class="small-12 medium-8 small-centered columns">
+              {% for message in messages %}
+                <span{% if message.tags %} class="{{ message.tags }}"{% endif %}>
+                  {{ message }}
+                </span>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
         {% block status %}
           <div class="{% if msg_type %}{{msg_type}}{% else %} success {% endif %} row one-margin-top">
             <div class="columns">
