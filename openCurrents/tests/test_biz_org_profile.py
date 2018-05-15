@@ -42,10 +42,13 @@ from openCurrents.tests.interfaces.common import (
     _create_event,
     _setup_user_event_registration,
     _create_org,
-    _setup_transactions
+    _setup_transactions,
+    SetupAdditionalTimeRecords,
 )
 
 import re
+import random
+import string
 
 from unittest import skip
 
@@ -87,6 +90,54 @@ class SetupAll(TestCase):
 
         # setting up client
         self.client = Client()
+
+        self.offer_limit = random.randint(1, 100)
+        self.offer_limit_choice = random.choice([0, 1])
+        self.offer_item_name = ''.join(random.choice(string.ascii_letters) for x in range(15))
+        self.offer_share = random.randint(1, 50)
+        self.biz_dev_email = 'bizdev@opencurrents.com'
+
+
+class TestCreateOfferEmail(SetupAll, SetupAdditionalTimeRecords):
+    """Test sending email to bizdev after creating an offer by biz admin."""
+
+    def test_new_offer_email_send(self):
+        """Test bizdev email after an offer creation by existing biz admin."""
+        self.client.login(
+            username=self.biz_admin_1.username,
+            password='password'
+        )
+
+        response = self.client.post(
+            '/offer/',
+            {
+                'offer_limit_value': str(self.offer_limit),
+                'offer_limit_choice': str(self.offer_limit_choice),
+                'offer_item': str(self.offer_item_name),
+                'offer_current_share': str(self.offer_share),
+                'test_time_tracker_mode': '1'  # letting know the app that we're testing, so it shouldnt send emails via Mandrill
+            }
+        )
+        session = self.client.session
+
+        # asserting email vars values
+        expected_list = [
+            'ORG_NAME', 'FNAME', 'LNAME', 'EMAIL', 'ITEM_NAME',
+            'CURRENT_SHARE', 'MONTHLY_LIMIT'
+        ]
+        self._assert_merge_vars(session['email_vars'], expected_list)
+        # assert we pass emails to mandril with correct recepient with email vars
+        self.assertEqual(self.biz_dev_email, session['recepient'])
+        all_values = [d['content'] for d in session['email_vars']]
+        self.assertIn(self.biz_org.name, all_values)
+        self.assertIn(self.biz_admin_1.first_name, all_values)
+        self.assertIn(self.biz_admin_1.last_name, all_values)
+        self.assertIn(self.biz_admin_1.email, all_values)
+        self.assertIn(self.offer_item_name, all_values)
+        self.assertIn(self.offer_share, all_values)
+        # if there is a limit choice, check limit value
+        if self.offer_limit_choice != 0:
+            self.assertIn(self.offer_limit, all_values)
 
 
 class TestOfferDelete(SetupAll):
