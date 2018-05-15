@@ -65,8 +65,12 @@ class OrgUserInfo(object):
 
         return admin_org_group
 
-    def is_org_admin(self, orgid):
-        admin_group = self.get_admin_group(orgid)
+    def is_org_admin(self, orgid=None):
+        if orgid:
+            admin_group = self.get_admin_group(orgid)
+        else:
+            admin_group = self.get_admin_group(self.get_org_id())
+
         if admin_group and admin_group.user_set.filter(id=self.userid):
             return True
         else:

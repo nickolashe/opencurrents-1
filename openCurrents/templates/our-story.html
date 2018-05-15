@@ -35,7 +35,7 @@
 
       <div class="row center">
         <div class="medium-8 small-centered columns">
-          <h5 class="white one-margin-bottom">Danny, Nicko, Max, and Ashley cofounded openCurrents in 2017 to give the world a way to value social action.</h5>
+          <h5 class="white one-margin-bottom">Danny and Nicko cofounded openCurrents in 2017 to give the world a way to value social action.</h5>
           <h5 class="white">We believe that the time we invest for the greater good is extremely valuable and that society as a whole needs more of its awesomeness.</h5>
 
           <h5 class="one-margin-top white">The evolution begins from the heart of the Lone Star State: Austin, Texas.</h5>
@@ -91,16 +91,90 @@
     <div id="intro-5">
       <div id="signup" class="header-spacer"></div>
 
-      <div class="row center">
-        <h2 class="title-sub white">Join openCurrents</h2>
-        <h5 class="white one-margin-bottom">as a...</h5>
+      <div class="row collapse center">
+        <div class="small-11 medium-6 small-centered columns">
+          <h2 class="title-sub white">Join openCurrents</h2>
+          <div class="one-margin-top">
+            <a href="{% url 'openCurrents:nonprofit' %}#signup" class="tag button round tiny clear">
+              Register a nonprofit
+            </a>
+            <a href="{% url 'openCurrents:business' %}#signup" class="tag button round tiny clear">
+              Register a business
+            </a>
+          </div>
+        </div>
       </div>
 
-      {% include "partials/vol-signup-white.html" %}
+      <form method="post" action="{% url 'openCurrents:process_signup' %}">
+      {% csrf_token %}
+        <div class="row collapse half-margin-bottom">
+          <div class="center small-12 medium-8 small-centered columns">
 
+            <div class="input-left small-6 columns">
+              <input class="lead center home-input" type="text" name="user_firstname" placeholder="First name" required />
+            </div>
+
+            <div class="input-right small-6 columns">
+              <input class="lead center home-input" type="text" name="user_lastname" placeholder="Last name" required />
+            </div>
+
+            <div class="input-left small-12 columns">
+              <input class="lead center home-input" type="email" name="user_email" placeholder="Email address" required />
+            </div>
+          </div>
+        </div>
+
+        <div class="row center one-margin-top">
+          <div class="medium-6 small-centered columns">
+            <input type="submit" class="button large round" value="Create account"/>
+            <a href="javascript:void(Tawk_API.toggle())" class="large-text home-link white"><p class="two-margin-bottom">I have a question<i class="half-margin-left fa fa-angle-right"></i></p></a>
+          </div>
+        </div>
+      </form>
     </div>
   </div>
 {% endblock content %}
+
+
+{% block popups %}
+  <div id="signup-box" class="modal center small-12 medium-9 large-7 small-centered columns">
+    <div class="row center">
+      <h2 class="one-margin-top">Join openCurrents</h2>
+      <div class="one-margin-top">
+        <a href="{% url 'openCurrents:nonprofit' %}#signup" class="tag button round tiny secondary">
+          Register a nonprofit
+        </a>
+        <a href="{% url 'openCurrents:business' %}#signup" class="tag button round tiny secondary">
+          Register a business
+        </a>
+      </div>
+    </div>
+
+    <form method="post" action="{% url 'openCurrents:process_signup' %}">
+    {% csrf_token %}
+      <div class="row three-halves-margin-bottom half-margin-top">
+        <div class="center small-12 medium-9 small-centered columns">
+
+          <div class="input-left small-6 columns">
+            <input type="text" name="user_firstname" placeholder="First name" class="large-text center" tabindex="0" required />
+          </div>
+
+          <div class="input-right small-6 columns">
+            <input type="text" name="user_lastname" placeholder="Last name" class="large-text center" tabindex="0" required />
+          </div>
+          <div class="small-12 columns">
+            <input type="email" name="user_email" placeholder="Email address" class="large-text center" tabindex="0" required />
+          </div>
+        </div>
+      </div>
+
+      <div class="row center half-margin-top">
+        <input type="submit" class="button large round" value="Create account"/>
+        <p class="grey">Existing member? <a href="{% url 'openCurrents:login' %}">Log in</a></p>
+      </div>
+    </form>
+  </div>
+{% endblock popups %}
 
 
 {% block js %}
