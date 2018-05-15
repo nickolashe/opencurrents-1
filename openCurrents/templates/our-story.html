@@ -91,46 +91,20 @@
     <div id="intro-5">
       <div id="signup" class="header-spacer"></div>
 
-      <div class="row collapse center">
-        <div class="small-11 medium-6 small-centered columns">
-          <h2 class="title-sub white">Join openCurrents</h2>
-          <div class="one-margin-top">
-            <a href="{% url 'openCurrents:nonprofit' %}#signup" class="tag button round tiny clear">
-              Register a nonprofit
-            </a>
-            <a href="{% url 'openCurrents:business' %}#signup" class="tag button round tiny clear">
-              Register a business
-            </a>
-          </div>
-        </div>
+      <div class="row center">
+        <h2 class="title-sub white">Join openCurrents</h2>
+        <h5 class="white one-margin-bottom">as a...</h5>
       </div>
 
-      <form method="post" action="{% url 'openCurrents:process_signup' %}">
-      {% csrf_token %}
-        <div class="row collapse half-margin-bottom">
-          <div class="center small-12 medium-8 small-centered columns">
+      {% include "partials/vol-signup-white.html" %}
 
-            <div class="input-left small-6 columns">
-              <input class="lead center home-input" type="text" name="user_firstname" placeholder="First name" required />
-            </div>
-
-            <div class="input-right small-6 columns">
-              <input class="lead center home-input" type="text" name="user_lastname" placeholder="Last name" required />
-            </div>
-
-            <div class="input-left small-12 columns">
-              <input class="lead center home-input" type="email" name="user_email" placeholder="Email address" required />
-            </div>
-          </div>
-        </div>
-
-        <div class="row center one-margin-top">
-          <div class="medium-6 small-centered columns">
-            <input type="submit" class="button large round" value="Create account"/>
-            <a href="javascript:void(Tawk_API.toggle())" class="large-text home-link white"><p class="two-margin-bottom">I have a question<i class="half-margin-left fa fa-angle-right"></i></p></a>
-          </div>
-        </div>
-      </form>
+      <div class="row center">
+        <a href="javascript:void(Tawk_API.toggle())"
+        class="large-text home-link white">
+          I have a question
+          <i class="half-margin-left fa fa-angle-right"></i>
+        </a>
+      </div>
     </div>
   </div>
 {% endblock content %}

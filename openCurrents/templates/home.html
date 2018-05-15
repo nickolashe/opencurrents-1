@@ -144,7 +144,6 @@
         </div>
       </div>
 
-
       <div class="row center two-margin-top">
         <a href="{% url 'openCurrents:marketplace' %}" class="button round">
           See who's accepting Currents
@@ -171,12 +170,14 @@
         </div>
       </div>
 
-      <div class="row">
+      <div class="row one-margin-top center">
         <div class="medium-11 small-centered columns">
-          <h6 class="half-margin-bottom center white">
+          <h6 class="half-margin-bottom white">
             Earn your first Currents at these featured events:
           </h6>
+
           {% include "partials/featured-npfs.html" %}
+
         </div>
       </div>
 
@@ -366,49 +367,17 @@
 
       <div class="row center">
         <h2 class="title-sub">Join openCurrents</h2>
-        <div class="one-margin-top">
-          <a href="{% url 'openCurrents:nonprofit' %}#signup" class="tag button round tiny secondary">
-            Register a nonprofit
-          </a>
-          <a href="{% url 'openCurrents:business' %}#signup" class="tag button round tiny secondary">
-            Register a business
-          </a>
-        </div>
+        <h5 class="one-margin-bottom">as a...</h5>
       </div>
 
-      <form method="post" action="{% url 'openCurrents:process_signup' %}">
-        {% csrf_token %}
-        <div class="row collapse three-halves-margin-bottom half-margin-top">
-          <div class="center small-12 medium-8 small-centered columns">
+      {% include "partials/vol-signup.html" %}
 
-            <div class="small-6 columns">
-              <input class="lead center" type="text" name="user_firstname" placeholder="First name" required />
-            </div>
-
-            <div class="small-6 columns">
-              <input class="lead center" type="text" name="user_lastname" placeholder="Last name" required />
-            </div>
-            <div class="small-12 columns">
-              <input class="lead center" type="email" name="user_email" placeholder="Email address" required />
-            </div>
-          </div>
-        </div>
-
-        <div class="row center one-margin-top">
-          <input
-            onClick="ga('send', 'event', 'NewUser', 'JoinOcSignup');"
-            type="submit"
-            class="button large round"
-            value="I'm in!"
-          />
-          <a href="javascript:void(Tawk_API.toggle())" class="large-text">
-            <p>
-              I have a question
-              <i class="half-margin-left fa fa-angle-right"></i>
-            </p>
-          </a>
-        </div>
-      </form>
+      <div class="row center">
+        <a href="javascript:void(Tawk_API.toggle())" class="large-text">
+          I have a question
+          <i class="half-margin-left fa fa-angle-right"></i>
+        </a>
+      </div>
     </div>
   </div>
 {% endblock content %}

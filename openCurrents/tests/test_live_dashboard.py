@@ -717,8 +717,7 @@ class CurrentEventInvite(SetupTest, TestCase):
                 'user_lastname': 'newuser_lastname',
                 'user_email': 'newuser@ccc.cc',
                 'org_admin_id': '',
-                'org_name': '',
-                'org_status': ''
+                'signup_status': 'vol'
             }
         )
 
@@ -825,13 +824,13 @@ class CurrentEventInvite(SetupTest, TestCase):
                 'user_lastname': 'newuser2_lastname',
                 'user_email': 'newuser2@ccc.cc',
                 'org_admin_id': self.npf_admin.id,
-                'org_name': '',
-                'org_status': ''
+                'signup_status': 'vol'
             }
         )
 
         # asserting response after signing up
         self.assertEqual(post_signup.status_code, 201)
+
         self.assertEqual(
             post_signup.content,
             str(User.objects.get(email='newuser2@ccc.cc').id)
@@ -1063,7 +1062,7 @@ class PastEventInvite(SetupTest, TestCase):
                 'user_email': 'newuser@ccc.cc',
                 'org_admin_id': '',
                 'org_name': '',
-                'org_status': ''
+                'signup_status': 'vol'
             }
         )
 
@@ -1182,7 +1181,7 @@ class PastEventInvite(SetupTest, TestCase):
                 'user_email': 'newuser2@ccc.cc',
                 'org_admin_id': self.npf_admin.id,
                 'org_name': '',
-                'org_status': ''
+                'signup_status': 'vol'
             }
         )
 
