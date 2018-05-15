@@ -28,6 +28,18 @@ member_activity_url = reverse(
     urlconf=urls
 )
 
+url_signup = reverse(
+    'process_signup',
+    urlconf=urls,
+    kwargs={'mock_emails': 1}
+)
+
+url_signup_endpoint = reverse(
+    'process_signup',
+    urlconf=urls,
+    kwargs={'mock_emails': 1, 'endpoint': True}
+)
+
 
 def _get_url(id, url_string='', param_name_string=''):
     """

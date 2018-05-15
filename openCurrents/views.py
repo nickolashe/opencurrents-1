@@ -3527,7 +3527,7 @@ class LiveDashboardView(OrgAdminPermissionMixin, SessionContextView, TemplateVie
     def get_context_data(self, **kwargs):
         """Get context data."""
         context = super(LiveDashboardView, self).get_context_data(**kwargs)
-        context['form'] = UserSignupForm()
+        context['form'] = UserSignupForm(initial={'signup_status': 'vol'})
 
         # event
         event_id = kwargs.pop('event_id')
@@ -4357,11 +4357,36 @@ def process_signup(
         user_firstname = form.cleaned_data['user_firstname']
         user_lastname = form.cleaned_data['user_lastname']
         user_email = form.cleaned_data['user_email']
-        org_name = form.cleaned_data.get('org_name', '')
+        npf_name = form.cleaned_data.get('npf_name', '')
+        biz_name = form.cleaned_data.get('biz_name', '')
         org_status = form.cleaned_data.get('org_status', '')
         org_admin_id = form.cleaned_data.get('org_admin_id', '')
+        signup_status = form.cleaned_data.get('signup_status', '')
 
         logger.debug('user %s sign up request', user_email)
+
+        # setting org-related vars, org_name is mandatory for biz/org
+
+        org_name = ''
+
+        if signup_status != 'vol':
+            if (biz_name != '' or npf_name != ''):
+                org_status = signup_status
+                if signup_status == 'biz':
+                    org_name = biz_name
+                else:
+                    org_name = npf_name
+
+            else:
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    'You need to specify organization name!',
+                    extra_tags='alert'
+                )
+                return redirect(
+                    reverse('openCurrents:home') + '#signup'
+                )
 
         # try saving the user without password at this point
         user = None
@@ -4440,7 +4465,7 @@ def process_signup(
                     )
 
         # user org association requested
-        if org_name:
+        if (signup_status == 'biz' or signup_status == 'npf') and org_name:
             org = None
             try:
                 org = OcOrg().setup_org(
