@@ -44,7 +44,7 @@ class OrgAdmin(object):
 
         return admin_actions
 
-    def get_total_hours_pending (self):
+    def get_total_hours_pending(self):
         """
         returns admin's pending hour total
         """
@@ -59,16 +59,18 @@ class OrgAdmin(object):
         return round(hours_pending_admin, 2)
 
 
-    def get_total_hours_issued (self):
+    def get_total_hours_issued(self):
         """
         returns admin's issued hour total
         """
+        hours_app = self.get_hours_approved()
+
         hours_issued_admin = sum([
             common.diffInHours(
                 x.usertimelog.event.datetime_start,
                 x.usertimelog.event.datetime_end
             )
-            for x in self.get_hours_approved()
+            for x in hours_app
         ])
 
         return round(hours_issued_admin, 2)
@@ -104,7 +106,7 @@ class OrgAdmin(object):
             ]
         ).filter(
             action_type=action_type
-        )
+        ).order_by('-date_created')
 
         return admin_actions
 
