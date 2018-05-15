@@ -46,6 +46,8 @@ from openCurrents.tests.interfaces.common import (
     SetupAdditionalTimeRecords,
 )
 
+from openCurrents.tests.interfaces import testing_urls
+
 import re
 import random
 import string
@@ -138,6 +140,11 @@ class TestCreateOfferEmail(SetupAll, SetupAdditionalTimeRecords):
         # if there is a limit choice, check limit value
         if self.offer_limit_choice != 0:
             self.assertIn(self.offer_limit, all_values)
+
+        self.assertRedirects(
+            response,
+            testing_urls.biz_admin_url + 'Your%20offer%20for%20{}%20is%20now%20live!/'.format(self.offer_item_name),
+            status_code=302)
 
 
 class TestOfferDelete(SetupAll):
