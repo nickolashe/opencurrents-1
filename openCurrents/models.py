@@ -554,7 +554,8 @@ class Transaction(models.Model):
     # text description
     pop_no_proof = models.CharField(
         max_length=8096,
-        null=True
+        null=True,
+        blank=True
     )
 
     pop_type = models.CharField(
