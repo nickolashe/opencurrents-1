@@ -489,6 +489,22 @@ class BizDetailsView(BizSessionContextView, FormView):
                     status_msg='Thank you for adding %s\'s details' % self.org.name
                 )
 
+    def form_invalid(self, form):
+        """Handle errors, show alerts to users."""
+        if len(form.data['phone']) < 10:
+            error_msg = "Please enter phone area code"
+        else:
+            error_msg = "Invalid phone number"
+
+        messages.add_message(
+            self.request,
+            messages.ERROR,
+            mark_safe(error_msg),
+            extra_tags='alert'
+        )
+        return redirect(
+            'openCurrents:biz-details',
+        )
 
 class BusinessView(HomeView):
     template_name = 'business.html'
