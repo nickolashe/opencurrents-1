@@ -1983,7 +1983,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                     elif field_name == 'org':
                         context['org_stat_id'] = int(field_val)
                     elif field_name == 'admin':
-                        if field_val != '':
+                        if field_val != '' and field_val != 'other-admin':
                             context['admin_id'] = int(field_val)
                         else:
                             context['admin_id'] = 'sel-admin'
