@@ -302,7 +302,17 @@ class OrgAdminPermissionMixin(AdminPermissionMixin):
 class BizAdminPermissionMixin(AdminPermissionMixin):
     def dispatch(self, request, *args, **kwargs):
         """Process request and args and return HTTP response."""
-        userorgs = OrgUserInfo(self.request.user.id)
+
+        if not self.request.user.is_authenticated():
+            return redirect('openCurrents:login')
+
+        user_id = self.request.user.id
+
+        oc_auth = OcAuth(user_id)
+        if not oc_auth.is_admin_biz():
+            return redirect('openCurrents:403')
+
+        userorgs = OrgUserInfo(user_id)
         org = userorgs.get_org()
 
         # check if user is an admin of an org
@@ -1607,9 +1617,9 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                     elif OrgUser.objects.filter(user__email=admin_email).exists():
 
                         # checkig if he's not a biz admin
-                        npf_user = OrgUser.objects.get(user__email=admin_email)
+                        npf_org_user = OrgUser.objects.get(user__email=admin_email)
 
-                        if npf_user.org.status == 'npf':
+                        if npf_org_user.org.status == 'npf':
                             is_biz_admin = False
 
                         else:
@@ -1619,14 +1629,14 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                     elif not OrgUser.objects.filter(user__email=admin_email).exists():
                         # finding a user in system
                         try:
-                            npf_user = User.objects.get(username=admin_email)
+                            npf_org_user = User.objects.get(username=admin_email)
                         except:
-                            npf_user = None
+                            npf_org_user = None
 
-                        if not npf_user:
+                        if not npf_org_user:
                             # creating a new user
                             try:
-                                npf_user = OcUser().setup_user(
+                                npf_org_user = OcUser().setup_user(
                                     username=admin_email,
                                     email=admin_email,
                                     first_name=admin_name,
@@ -1637,9 +1647,9 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
 
                         # setting up new NPF user
                         try:
-                            OrgUserInfo(npf_user.id).setup_orguser(org)
+                            OrgUserInfo(npf_org_user.id).setup_orguser(org)
                         except InvalidOrgUserException:
-                            logger.debug('Cannot setup NPF user: %s', npf_user)
+                            logger.debug('Cannot setup NPF user: %s', npf_org_user)
                             msg_type = 'alert'
                             return False, 'Couldn\'t setup NPF admin', msg_type
 
@@ -1649,6 +1659,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                         msg_type = 'alert'
                         return False, 'The user with provided email is an organization admin. You can also invite new admins to the platform.', msg_type
                     else:
+                        npf_user = User.objects.get(email=admin_email)
                         # sending invitations
                         new_npf_admin_user = self.invite_new_admin(
                             org,
@@ -1982,7 +1993,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                     elif field_name == 'org':
                         context['org_stat_id'] = int(field_val)
                     elif field_name == 'admin':
-                        if field_val != '':
+                        if field_val != '' and field_val != 'other-admin':
                             context['admin_id'] = int(field_val)
                         else:
                             context['admin_id'] = 'sel-admin'
@@ -3530,7 +3541,7 @@ class LiveDashboardView(OrgAdminPermissionMixin, SessionContextView, TemplateVie
     def get_context_data(self, **kwargs):
         """Get context data."""
         context = super(LiveDashboardView, self).get_context_data(**kwargs)
-        context['form'] = UserSignupForm()
+        context['form'] = UserSignupForm(initial={'signup_status': 'vol'})
 
         # event
         event_id = kwargs.pop('event_id')
@@ -4397,11 +4408,36 @@ def process_signup(
         user_firstname = form.cleaned_data['user_firstname']
         user_lastname = form.cleaned_data['user_lastname']
         user_email = form.cleaned_data['user_email']
-        org_name = form.cleaned_data.get('org_name', '')
+        npf_name = form.cleaned_data.get('npf_name', '')
+        biz_name = form.cleaned_data.get('biz_name', '')
         org_status = form.cleaned_data.get('org_status', '')
         org_admin_id = form.cleaned_data.get('org_admin_id', '')
+        signup_status = form.cleaned_data.get('signup_status', '')
 
         logger.debug('user %s sign up request', user_email)
+
+        # setting org-related vars, org_name is mandatory for biz/org
+
+        org_name = ''
+
+        if signup_status != 'vol':
+            if (biz_name != '' or npf_name != ''):
+                org_status = signup_status
+                if signup_status == 'biz':
+                    org_name = biz_name
+                else:
+                    org_name = npf_name
+
+            else:
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    'You need to specify organization name!',
+                    extra_tags='alert'
+                )
+                return redirect(
+                    reverse('openCurrents:home') + '#signup'
+                )
 
         # try saving the user without password at this point
         user = None
@@ -4480,7 +4516,7 @@ def process_signup(
                     )
 
         # user org association requested
-        if org_name:
+        if (signup_status == 'biz' or signup_status == 'npf') and org_name:
             org = None
             try:
                 org = OcOrg().setup_org(

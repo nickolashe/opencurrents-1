@@ -111,7 +111,7 @@ class TestCreateOfferEmail(SetupAll, SetupAdditionalTimeRecords):
         )
 
         response = self.client.post(
-            '/offer/',
+            testing_urls.create_offer_url,
             {
                 'offer_limit_value': str(self.offer_limit),
                 'offer_limit_choice': str(self.offer_limit_choice),
