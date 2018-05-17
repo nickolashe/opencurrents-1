@@ -1626,7 +1626,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                             is_biz_admin = True
 
                     # if ORG user doesn't exist
-                    elif not OrgUser.objects.filter(user__email=admin_email).exists():
+                    else:
                         # finding a user in system
                         try:
                             npf_org_user = User.objects.get(username=admin_email)
