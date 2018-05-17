@@ -1635,16 +1635,15 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                                 first_name=admin_name,
                             )
                         except UserExistsException:
-                            npf_org_user = None
+                            npf_org_user = User.objects.get(email=admin_email)
                             logger.debug('Org user %s already exists', admin_email)
 
                         # setting up new NPF user
                         try:
                             OrgUserInfo(npf_org_user.id).setup_orguser(org)
-                        except InvalidOrgUserException:
+                        except InvalidOrgException:
                             logger.debug('Cannot setup NPF user: %s', npf_org_user)
-                            msg_type = 'alert'
-                            return False, 'Couldn\'t setup NPF admin', msg_type
+                            return redirect('openCurrents:500')
 
                         is_biz_admin = False
 
