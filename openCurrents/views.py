@@ -1617,9 +1617,9 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                     elif OrgUser.objects.filter(user__email=admin_email).exists():
 
                         # checkig if he's not a biz admin
-                        npf_user = OrgUser.objects.get(user__email=admin_email)
+                        npf_org_user = OrgUser.objects.get(user__email=admin_email)
 
-                        if npf_user.org.status == 'npf':
+                        if npf_org_user.org.status == 'npf':
                             is_biz_admin = False
 
                         else:
@@ -1629,14 +1629,14 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                     elif not OrgUser.objects.filter(user__email=admin_email).exists():
                         # finding a user in system
                         try:
-                            npf_user = User.objects.get(username=admin_email)
+                            npf_org_user = User.objects.get(username=admin_email)
                         except:
-                            npf_user = None
+                            npf_org_user = None
 
-                        if not npf_user:
+                        if not npf_org_user:
                             # creating a new user
                             try:
-                                npf_user = OcUser().setup_user(
+                                npf_org_user = OcUser().setup_user(
                                     username=admin_email,
                                     email=admin_email,
                                     first_name=admin_name,
@@ -1647,9 +1647,9 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
 
                         # setting up new NPF user
                         try:
-                            OrgUserInfo(npf_user.id).setup_orguser(org)
+                            OrgUserInfo(npf_org_user.id).setup_orguser(org)
                         except InvalidOrgUserException:
-                            logger.debug('Cannot setup NPF user: %s', npf_user)
+                            logger.debug('Cannot setup NPF user: %s', npf_org_user)
                             msg_type = 'alert'
                             return False, 'Couldn\'t setup NPF admin', msg_type
 
@@ -1659,6 +1659,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                         msg_type = 'alert'
                         return False, 'The user with provided email is an organization admin. You can also invite new admins to the platform.', msg_type
                     else:
+                        npf_user = User.objects.get(email=admin_email)
                         # sending invitations
                         new_npf_admin_user = self.invite_new_admin(
                             org,
@@ -1992,7 +1993,7 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                     elif field_name == 'org':
                         context['org_stat_id'] = int(field_val)
                     elif field_name == 'admin':
-                        if field_val != '':
+                        if field_val != '' and field_val != 'other-admin':
                             context['admin_id'] = int(field_val)
                         else:
                             context['admin_id'] = 'sel-admin'
