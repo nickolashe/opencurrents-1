@@ -32,7 +32,8 @@ from interfaces.orgs import (
     OcOrg,
     OrgUserInfo,
     OrgExistsException,
-    InvalidOrgUserException
+    InvalidOrgUserException,
+    InvalidOrgException
 )
 
 from openCurrents.interfaces import common
