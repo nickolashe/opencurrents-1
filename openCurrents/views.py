@@ -1609,16 +1609,20 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                     except (User.DoesNotExist, InvalidOrgUserException):
                         is_admin = False
 
-                    if OrgUser.objects.filter(user__email=admin_email).exists() and is_admin:
+                    # get the OrgUser with new admin email
+                    try:
+                        npf_org_user = OrgUser.objects.get(user__email=admin_email)
+                    except OrgUser.DoesNotExist:
+                        npf_org_user = None
+
+                    if npf_org_user and is_admin:
                         msg_type = 'alert'
                         return False, '{user} is already associated with another organization and cannot approve hours for {org}'.format(org=org.name, user=admin_email), msg_type
 
                     # if ORG user exists
-                    elif OrgUser.objects.filter(user__email=admin_email).exists():
+                    elif npf_org_user:
 
                         # checkig if he's not a biz admin
-                        npf_org_user = OrgUser.objects.get(user__email=admin_email)
-
                         if npf_org_user.org.status == 'npf':
                             is_biz_admin = False
 
