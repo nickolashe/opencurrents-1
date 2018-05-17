@@ -28,7 +28,7 @@ class AutoLogout(MiddlewareMixin):
                 messages.add_message(
                     request,
                     messages.ERROR,
-                    "You've been logged out after {} minutes of inactivity".format(settings.AUTO_LOGOUT_DELAY),
+                    "You've been logged out after {} hours of inactivity".format(settings.AUTO_LOGOUT_DELAY / 60),
                     extra_tags='alert'
                 )
 
