@@ -1628,9 +1628,6 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                     # if ORG user doesn't exist
                     else:
                         try:
-                            # finding a user in system
-                            npf_org_user = User.objects.get(username=admin_email)
-
                             # creating a new user
                             npf_org_user = OcUser().setup_user(
                                 username=admin_email,
