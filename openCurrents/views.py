@@ -1433,6 +1433,10 @@ class DonationConfirmedView(TemplateView):
     template_name = 'donation-confirmed.html'
 
 
+class PurchaseConfirmedView(TemplateView):
+    template_name = 'purchase-confirmed.html'
+
+
 class ConfirmPurchaseView(TemplateView):
     template_name = 'confirm-purchase.html'
 

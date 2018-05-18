@@ -1,0 +1,48 @@
+{% extends "layouts/base.html" %}
+{% load staticfiles %}
+
+{% block name %}
+  Purchase confirmed
+{% endblock name %}
+
+
+{% block heading %}
+  <div class="row center one-margin-bottom">
+    <div class="medium-6 small-centered columns">
+      <img class="confirmation-image "src="{% static 'img/whole-foods.png' %}"/>
+    </div>
+  </div>
+
+  <h4>
+    Thank you for your purchase!
+  </h4>
+{% endblock heading %}
+
+
+{% block content %}
+  <form name="confirm-donation" method="post">
+    <div class="row one-margin-top">
+      <div class="medium-8 small-centered columns">
+        <p>You have purchased a [$25] [Whole Foods] online gift card for
+          <span class="no-wrap">
+            <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
+            [1.25]</span>.
+          We have sent your gift card to <strong>[yourname@email.com]</strong>.
+          Please [show the barcode to your cashier / enter the Gift card code] at checkout.
+        </p>
+        <p>
+          Your confirmation number is <strong>[1234567]</strong>.
+        </p>
+        <p>
+          Thank you for all your hard work!
+        </p>
+      </div>
+    </div>
+
+    <div class="row one-margin-top">
+      <a href="{% url 'openCurrents:profile' %}" class="button round">
+        Back to profile
+      </a>
+    </div>
+  </form>
+{% endblock content %}
