@@ -1,0 +1,56 @@
+{% extends "layouts/base.html" %}
+{% load staticfiles %}
+
+{% block name %}
+  Donation confirmed
+{% endblock name %}
+
+
+{% block heading %}
+  <div class="row center one-margin-bottom">
+    <div class="right small-5 medium-3 medium-offset-2 columns">
+      <img class="confirmation-image "src="{% static 'img/whole-foods.png' %}"/>
+    </div>
+    <div class="three-margin-top small-2 columns">
+      <i class="grey fa fa-lg fa-arrow-right"></i>
+    </div>
+    <div class="left small-5 medium-3 columns end">
+      <img class="confirmation-image" src="{% static 'img/fbff.png' %}"/>
+    </div>
+  </div>
+
+  <h4>
+    Thank you for your donation!
+  </h4>
+{% endblock heading %}
+
+
+{% block content %}
+  <form name="confirm-donation" method="post">
+    <div class="row one-margin-top">
+      <div class="medium-8 small-centered columns">
+        <p>You have donated a [$25] [Whole Foods] online gift card to
+          <strong>[Festival Beach Food Forest]</strong> for
+          <span class="no-wrap">
+            <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
+            [1.25]</span>.
+          Your donation is complete and will be sent to the organization at the
+          end of the month. We have sent a confirmation email to
+          <strong>[yourname@email.com]</strong>.
+        </p>
+        <p>
+          Your confirmation number is <strong>[1234567]</strong>.
+        </p>
+        <p>
+          Thank you for all your hard work and generosity!
+        </p>
+      </div>
+    </div>
+
+    <div class="row one-margin-top">
+      <a href="{% url 'openCurrents:profile' %}" class="button round">
+        Back to profile
+      </a>
+    </div>
+  </form>
+{% endblock content %}

@@ -1,0 +1,47 @@
+{% extends "layouts/base.html" %}
+{% load staticfiles %}
+
+
+{% block name %}
+  Purchase options
+{% endblock name %}
+
+
+{% block heading %}
+  <div class="row center">
+    <div class="small-6 medium-3 small-centered columns">
+      <img class="confirmation-image" src="{% static 'img/whole-foods.png' %}"/>
+    </div>
+  </div>
+  {% block title %}
+    <h4>How would you like to buy?</h4>
+  {% endblock title %}
+{% endblock heading %}
+
+
+{% block content %}
+  <div class="row center two-margin-top">
+    <div class="medium-4 medium-offset-1 large-3 large-offset-2 columns">
+      <a href="{% url 'openCurrents:confirm-purchase' %}" class="button option">
+        <h4 class="white">Buy now</h4>
+        $25 gift card
+      </a>
+    </div>
+    <div class="medium-2 columns">
+      <div class="two-margin-top hide-for-small-only"></div>
+      <h6>or</h6>
+    </div>
+    <div class="medium-4 large-3 columns end">
+      <a href="{% url 'openCurrents:redeem-currents' 1 %}" class="button option">
+        <h4 class="white">Get $25 back</h4>
+        Upload receipt
+      </a>
+    </div>
+  </div>
+  <div class="row center one-margin-top">
+    <a href="{% url 'openCurrents:profile' %}" class="button round secondary tiny">
+      Cancel
+    </a>
+    <p>[fix urls]</p>
+  </div>
+{% endblock content %}

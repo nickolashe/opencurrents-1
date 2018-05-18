@@ -1,0 +1,85 @@
+{% extends "layouts/base.html" %}
+{% load staticfiles %}
+
+{% block name %}
+  Confirm donation
+{% endblock name %}
+
+
+{% block heading %}
+  <div class="row center one-margin-bottom">
+    <div class="small-6 medium-3 small-centered columns">
+      <img class="confirmation-image "src="{% static 'img/whole-foods.png' %}"/>
+    </div>
+  </div>
+
+  <h4>
+    To which nonprofit would you like to donate?
+  </h4>
+{% endblock heading %}
+
+
+{% block content %}
+  <form name="confirm_donation" method="post">
+  {% csrf_token %}
+    <div class="row three-halves-margin-top">
+      <div class="small-10 medium-6 small-centered columns">
+        <select id="id_select_nonprofit" name="select_nonprofit">
+          <!-- NOTE option values need to contain full npf names to be passed
+          into confirmation message. -->
+          <option selected disabled>Select nonprofit</option>
+          <option value="Most active nonprofit">Most active nonprofit</option>
+          <option value="2nd Most active nonprofit">2nd Most active nonprofit</option>
+          <option value="3rd Most active nonprofit">3rd Most active nonprofit</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="cancel-donation" class="row one-margin-top">
+      <a href="{% url 'openCurrents:confirm-purchase' %}" class="button round secondary">
+        Cancel
+      </a>
+    </div>
+
+    <div id="confirm-donation-text" class="row hidden">
+      <div class="row one-margin-top">
+        <div class="medium-8 small-centered columns">
+          <p>You are donating a [$25] [Whole Foods] online gift card to
+            <span id="selected-nonprofit"></span>.
+            <span class="no-wrap">
+              <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
+              [1.25]
+            </span>
+            will be deducted from your account. We will send a
+            confirmation email to <strong>[yourname@email.com]</strong>.
+          </p>
+        </div>
+      </div>
+
+      <div class="row one-margin-top">
+        <input type="submit" class="button round" value="Confirm donation" />
+        <a href="{% url 'openCurrents:confirm-purchase' %}" class="button round secondary">
+          Cancel
+        </a>
+      </div>
+    </div>
+  </form>
+{% endblock content %}
+
+{% block js %}
+  <script type="text/javascript">
+    $(document).ready(function(){
+      $('select').change(function(){
+        $('#selected-nonprofit').text($(this).val());
+        $('#cancel-donation').hide();
+        $('#confirm-donation-text').slideDown(777);
+      });
+
+      if ($('select').val()) {
+        $('#selected-nonprofit').text($(this).val());
+        $('#cancel-donation').hide();
+        $('#confirm-donation-text').slideDown(777);
+      }
+    });
+  </script>
+{% endblock js %}

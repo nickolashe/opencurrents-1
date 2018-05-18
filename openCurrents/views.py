@@ -1421,6 +1421,22 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         return kwargs
 
 
+class RedeemOptionView(TemplateView):
+    template_name = 'redeem-option.html'
+
+
+class ConfirmDonationView(TemplateView):
+    template_name = 'confirm-donation.html'
+
+
+class DonationConfirmedView(TemplateView):
+    template_name = 'donation-confirmed.html'
+
+
+class ConfirmPurchaseView(TemplateView):
+    template_name = 'confirm-purchase.html'
+
+
 class RequestCurrentsView(TemplateView):
     template_name = 'request-currents.html'
 
