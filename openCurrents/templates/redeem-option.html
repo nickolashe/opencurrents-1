@@ -13,9 +13,10 @@
       <img class="confirmation-image" src="{% static 'img/whole-foods.png' %}"/>
     </div>
   </div>
-  {% block title %}
-    <h4>How would you like to buy?</h4>
-  {% endblock title %}
+
+  <h4>
+    Use your Currents for...
+  </h4>
 {% endblock heading %}
 
 
@@ -23,8 +24,8 @@
   <div class="row center two-margin-top">
     <div class="medium-4 medium-offset-1 large-3 large-offset-2 columns">
       <a href="{% url 'openCurrents:confirm-purchase' %}" class="button option">
-        <h4 class="white">Buy now</h4>
-        $25 gift card
+        <h4 class="white">$25 gift card</h4>
+        Buy now
       </a>
     </div>
     <div class="medium-2 columns">
@@ -33,7 +34,7 @@
     </div>
     <div class="medium-4 large-3 columns end">
       <a href="{% url 'openCurrents:redeem-currents' 1 %}" class="button option">
-        <h4 class="white">Get $25 back</h4>
+        <h4 class="white">$25 cash back</h4>
         Upload receipt
       </a>
     </div>
