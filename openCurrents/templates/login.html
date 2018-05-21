@@ -18,7 +18,11 @@
         {% if next %}
             <input type="hidden" name="next" value="{{ next }}" />
         {% endif %}
-          <input type="email" name="user_email" class="center" placeholder="Email address"/>
+          <input type="email" name="user_email" class="center" {% if user_login_email %}
+             value="{{user_login_email}}"
+          {%else%}
+            placeholder="Email address"
+          {% endif %}/>
           <input type="password" name="user_password" class="center" placeholder="Password"/>
           <a class="forgotpassword-box_open">Forgot password?</a>
         </div>
