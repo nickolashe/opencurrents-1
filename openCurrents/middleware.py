@@ -29,7 +29,7 @@ class AutoLogout(MiddlewareMixin):
                     request,
                     messages.ERROR,
                     "You've been logged out after {} hours of inactivity".format(settings.AUTO_LOGOUT_DELAY / 60),
-                    extra_tags='alert'
+                    extra_tags='alert logout_message'
                 )
 
                 # setting next page URL after login

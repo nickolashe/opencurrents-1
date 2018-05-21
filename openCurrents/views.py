@@ -362,6 +362,9 @@ class HomeView(TemplateView):
         except Exception as e:
             pass
 
+        context['is_home'] = True
+        print context
+
         return context
 
 

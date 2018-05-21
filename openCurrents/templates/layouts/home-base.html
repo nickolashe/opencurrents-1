@@ -58,9 +58,11 @@
         <div class="row center full-width collapse messages-framework js-close-any" canvas>
           <div class="small-12 medium-8 small-centered columns">
             {% for message in messages %}
-              <span{% if message.tags %} class="{{ message.tags }} alert"{% endif %}>
-                {{ message }}
-              </span>
+                {% if not is_home and 'logout_message' in message.tags %}
+                  <span{% if message.tags %} class="{{ message.tags }} alert"{% endif %}>
+                    {{ message }}
+                  </span>
+                {% endif %}
             {% endfor %}
           </div>
         </div>
