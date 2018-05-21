@@ -767,7 +767,7 @@ class UserCashOut(models.Model):
     def save(self, *args, **kwargs):
         super(UserCashOut, self).save(*args, **kwargs)
 
-        if self.get_status_display() == 'redeemed':
+        if self.get_status_display() == 'processed':
             org = Org.objects.get(name=self.get_system_display())
             ledger_rec, created = Ledger.objects.get_or_create(
                 entity_from=self.user.userentity,
@@ -778,7 +778,7 @@ class UserCashOut(models.Model):
             )
 
             if not created:
-                raise Exception('Cashout already redeemed')
+                raise Exception('Cashout already processed')
 
     def __unicode__(self):
         return ' '.join([
