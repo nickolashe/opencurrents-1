@@ -516,7 +516,8 @@ class TimeTrackerForm(forms.Form):
         widget=forms.TextInput(attrs={
             'id': 'volunteer-date',
             'name':'volunteer-date',
-            'placeholder': 'yyyy-mm-dd'
+            'placeholder': 'yyyy-mm-dd',
+            'onfocus': 'blur();'
         })
     )
     time_start = forms.CharField(
@@ -525,7 +526,8 @@ class TimeTrackerForm(forms.Form):
         widget=forms.TextInput(attrs={
             'id': 'start-time',
             'name':'',
-            'value': '12:00:00'
+            'value': '12:00:00',
+            'onfocus': 'blur();'
         })
     )
     time_end = forms.CharField(
@@ -534,7 +536,8 @@ class TimeTrackerForm(forms.Form):
         widget=forms.TextInput(attrs={
             'id': 'end-time',
             'name':'',
-            'value': '13:00:00'
+            'value': '13:00:00',
+            'onfocus': 'blur();'
         })
     )
     new_org = forms.CharField(
