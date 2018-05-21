@@ -28,8 +28,25 @@ member_activity_url = reverse(
     urlconf=urls
 )
 
+url_signup = reverse(
+    'process_signup',
+    urlconf=urls,
+    kwargs={'mock_emails': 1}
+)
+
+url_signup_endpoint = reverse(
+    'process_signup',
+    urlconf=urls,
+    kwargs={'mock_emails': 1, 'endpoint': True}
+)
+
 biz_admin_url = reverse(
     'biz-admin',
+    urlconf=urls
+)
+
+create_offer_url = reverse(
+    'offer',
     urlconf=urls
 )
 

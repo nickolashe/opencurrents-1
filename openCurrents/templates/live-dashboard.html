@@ -257,6 +257,8 @@
             process_signup_url = "{% url 'openCurrents:process_signup' endpoint=True verify_email=False %}"
           }
 
+          form_data['signup_status'] = 'vol'
+
           $.ajax({
             url: process_signup_url,
             type: 'POST',

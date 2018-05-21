@@ -10,6 +10,7 @@
 
 {% block head %}
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAGfdpv-Vg_rskfib8jzp-a6VI92QuC2I0&v=3.exp&types=address&libraries=places"></script>
+  <script type="text/javascript" src="{% static 'js/jquery.mask.min.js' %}"></script>
 {% endblock head %}
 
 {% block heading %}
@@ -68,5 +69,7 @@
 
   <script type="text/javascript">
       initAutoComplete();
+
+      $('#id_phone').mask('000-000-0000');
   </script>
 {% endblock js %}

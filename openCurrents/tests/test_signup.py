@@ -13,6 +13,7 @@ import pytz
 import uuid
 
 from datetime import datetime, timedelta
+from openCurrents.tests.interfaces import testing_urls
 
 
 class TestSignup(TransactionTestCase):
@@ -21,19 +22,6 @@ class TestSignup(TransactionTestCase):
     def setUp(self):
         """Set up test fixtures."""
         _TEST_UUID = uuid.uuid4()
-
-        # urls tested
-        self.url_signup = reverse(
-            'process_signup',
-            urlconf=urls,
-            kwargs={'mock_emails': 1}
-        )
-
-        self.url_signup_endpoint = reverse(
-            'process_signup',
-            urlconf=urls,
-            kwargs={'mock_emails': 1, 'endpoint': True}
-        )
 
         self.client = Client()
 
@@ -210,8 +198,6 @@ class TestSignup(TransactionTestCase):
         else:
             self.assertFalse(groups.exists())
 
-
-
     def test_signup_user_new(self):
         '''
         test signup successful for a new user
@@ -224,11 +210,13 @@ class TestSignup(TransactionTestCase):
         self._assert_token_valid(self.test_email, False)
 
         response = self.client.post(
-            self.url_signup,
+            testing_urls.url_signup,
             data={
                 'user_email': self.test_email,
                 'user_firstname': 'test_firstname',
-                'user_lastname': 'test_lastname'
+                'user_lastname': 'test_lastname',
+                'signup_status': 'vol'
+
             }
         )
         self._assert_user(self.test_email, True)
@@ -256,11 +244,13 @@ class TestSignup(TransactionTestCase):
         self._assert_user_has_usable_password(self.userReg.username, False)
 
         response = self.client.post(
-            self.url_signup,
+            testing_urls.url_signup,
             data={
                 'user_email': self.userReg.email,
                 'user_firstname': 'test_firstname',
-                'user_lastname': 'test_lastname'
+                'user_lastname': 'test_lastname',
+                'signup_status': 'vol'
+
             }
         )
         user = self._assert_user(self.userReg.email, True)
@@ -298,11 +288,12 @@ class TestSignup(TransactionTestCase):
         self._assert_user_has_usable_password(self.userReg.username, True)
 
         response = self.client.post(
-            self.url_signup,
+            testing_urls.url_signup,
             data={
                 'user_email': self.userReg.email,
                 'user_firstname': 'test_firstname',
-                'user_lastname': 'test_lastname'
+                'user_lastname': 'test_lastname',
+                'signup_status': 'vol'
             }
         )
 
@@ -332,13 +323,13 @@ class TestSignup(TransactionTestCase):
         self._assert_user(self.test_email, False)
 
         response = self.client.post(
-            self.url_signup,
+            testing_urls.url_signup,
             data={
                 'user_email': self.test_email,
                 'user_firstname': 'test_firstname',
                 'user_lastname': 'test_lastname',
-                'org_name': self.test_org_name,
-                'org_status': 'npf'
+                'npf_name': self.test_org_name,
+                'signup_status': 'npf'
             }
         )
 
@@ -372,13 +363,13 @@ class TestSignup(TransactionTestCase):
         self._assert_user(self.test_email, False)
 
         response = self.client.post(
-            self.url_signup,
+            testing_urls.url_signup,
             data={
                 'user_email': self.test_email,
                 'user_firstname': 'test_firstname',
                 'user_lastname': 'test_lastname',
-                'org_name': self.test_org_name,
-                'org_status': 'biz'
+                'biz_name': self.test_org_name,
+                'signup_status': 'biz'
             }
         )
 
@@ -417,13 +408,13 @@ class TestSignup(TransactionTestCase):
         self._assert_org(self.orgTest.name, 'npf', True)
 
         response = self.client.post(
-            self.url_signup,
+            testing_urls.url_signup,
             data={
                 'user_email': self.test_email,
                 'user_firstname': 'test_firstname',
                 'user_lastname': 'test_lastname',
-                'org_name': self.orgTest.name,
-                'org_status': 'npf'
+                'npf_name': self.orgTest.name,
+                'signup_status': 'npf'
             }
         )
 
@@ -455,12 +446,13 @@ class TestSignup(TransactionTestCase):
         self._assert_token_valid(self.test_email, False)
 
         response = self.client.post(
-            self.url_signup_endpoint,
+            testing_urls.url_signup_endpoint,
             data={
                 'user_email': self.test_email,
                 'user_firstname': 'test_firstname',
                 'user_lastname': 'test_lastname',
-                'org_admin_id': self.userOrg.id
+                'org_admin_id': self.userOrg.id,
+                'signup_status': 'vol'
             }
         )
         user = self._assert_user(self.test_email, True)

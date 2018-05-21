@@ -8,8 +8,9 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.models import User
 from django.core import mail
 from django.shortcuts import redirect
+from django.db import transaction
 
-from django.test import Client, TestCase
+from django.test import Client, TransactionTestCase
 
 from django.utils import timezone
 
@@ -31,7 +32,23 @@ from openCurrents.models import \
 import pytz
 
 
-class TestTimeTracker(TestCase):
+class TestTimeTracker(TransactionTestCase):
+
+    def assert_admin_action_user_time(
+        self,
+        new_admin_user,
+        expected_entries_num
+    ):
+        """
+        Assert admin action user time entry.
+
+        new_admin_user - user object
+        expected_entries_num - expected number of entries in db
+        """
+        self.assertEqual(
+            len(AdminActionUserTime.objects.filter(user=new_admin_user)),
+            expected_entries_num
+        )
 
     def setUp(self):
 
@@ -45,9 +62,15 @@ class TestTimeTracker(TestCase):
         )
 
         # volunteer user
+        # with transaction.atomic():
         self.volunteer2 = OcUser().setup_user(
             username='test_user_2@e.com',
             email='test_user_2@e.com',
+        )
+
+        self.volunteer3 = OcUser().setup_user(
+            username='test_user_3',
+            email='test_user_3@e.com',
         )
 
         # npf admin 1
@@ -125,6 +148,10 @@ class TestTimeTracker(TestCase):
         # assert there are no approved actions
         self.assertEqual(len(AdminActionUserTime.objects.filter(action_type='app')), 0)
 
+        # assert that AdminActionUserTime is on new admin
+        new_admin_user = User.objects.get(email=self.npf_admin_1.email)
+        self.assert_admin_action_user_time(new_admin_user, 1)
+
     def test_vol_hours_existing_org_new_adm(self):
         self.client.login(username=self.volunteer1.username, password='password')
         session = self.client.session
@@ -189,6 +216,7 @@ class TestTimeTracker(TestCase):
             len(AdminActionUserTime.objects.filter(action_type='req')),
             1
         )
+
         self.assertEqual(
             len(
                 AdminActionUserTime.objects.filter(usertimelog__user=self.volunteer1).filter(action_type='req')
@@ -200,8 +228,12 @@ class TestTimeTracker(TestCase):
             0
         )
 
+        # assert that AdminActionUserTime is on new admin
+        new_admin_user = User.objects.get(email='new_npf_admin@e.co')
+        self.assert_admin_action_user_time(new_admin_user, 1)
+
         # assert creation of a new NPF user with new name, email, no password
-        self.assertEqual(len(User.objects.all()), 5)
+        self.assertEqual(len(User.objects.all()), 6)
         self.assertEqual(
             len(User.objects.filter(username='new_npf_admin@e.co')),
             1
@@ -251,6 +283,12 @@ class TestTimeTracker(TestCase):
         # assert new usertimelog wasn't created
         self.assertEqual(len(UserTimeLog.objects.all()), 0)
 
+        # assert new user wasn't created
+        self.assertEqual(
+            len(User.objects.filter(email='new_npf_admin@e.co')),
+            0
+        )
+
     def test_vol_hours_existing_org_existing_adm_as_someone_else(self):
 
         self.client.login(username=self.volunteer1.username, password='password')
@@ -291,6 +329,10 @@ class TestTimeTracker(TestCase):
             len(AdminActionUserTime.objects.filter(action_type='app')),
             0
         )
+
+        # assert that AdminActionUserTime is on new admin
+        new_admin_user = User.objects.get(email=self.npf_admin_1.email)
+        self.assert_admin_action_user_time(new_admin_user, 0)
 
     def test_vol_hours_existing_org_existing_non_approved_adm_as_someone_else(self):
 
@@ -343,16 +385,20 @@ class TestTimeTracker(TestCase):
             1
         )
 
+        # assert that AdminActionUserTime is on new admin
+        new_admin_user = User.objects.get(email=self.npf_admin_2.email)
+        self.assert_admin_action_user_time(new_admin_user, 1)
+
     def test_vol_hours_existing_org_existing_volunteer_as_someone_else(self):
 
-        self.client.login(username=self.volunteer1.username, password='password')
+        self.client.login(username=self.volunteer3.username, password='password')
         session = self.client.session
 
         self.response = self.client.get('/time-tracker/')
 
         self.assertEqual(self.response.status_code, 200)
 
-        # assert tehre is no npf admin with volunteer email
+        # assert there is no npf admin with volunteer email
         self.assertEqual(
             len(OrgUser.objects.filter(user__email=self.volunteer2.email)),
             0
@@ -396,9 +442,13 @@ class TestTimeTracker(TestCase):
         # asserting adminaction
         self.assertEqual(
             len(AdminActionUserTime.objects.filter(
-                usertimelog__user=self.volunteer1)),
+                usertimelog__user=self.volunteer3)),
             1
         )
+
+        # assert that AdminActionUserTime is on new admin
+        new_admin_user = User.objects.get(email=self.volunteer2.email)
+        self.assert_admin_action_user_time(new_admin_user, 1)
 
         # assert new npf admin was created
         self.assertEqual(
@@ -448,3 +498,7 @@ class TestTimeTracker(TestCase):
             len(AdminActionUserTime.objects.filter(action_type='app')),
             0
         )
+
+        # assert that AdminActionUserTime is on new admin
+        new_admin_user = User.objects.get(email=self.npf_admin_1.email)
+        self.assert_admin_action_user_time(new_admin_user, 0)

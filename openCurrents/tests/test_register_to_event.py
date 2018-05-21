@@ -151,7 +151,8 @@ class TestNewUserEventRegistration(SetupTests, TestCase):
             data={
                 'user_email': 'new@user.cc',
                 'user_firstname': 'test_firstname',
-                'user_lastname': 'test_lastname'
+                'user_lastname': 'test_lastname',
+                'signup_status': 'vol'
             }
         )
         user_registrations = UserEventRegistration.objects.all()
