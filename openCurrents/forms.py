@@ -275,7 +275,7 @@ class CreateEventForm(forms.Form):
         widget=widgets.TextWidget(attrs={
             'id': 'event-date',
             'class': ' center',
-            'placeholder': 'yyyy-mm-dd',,
+            'placeholder': 'yyyy-mm-dd',
             'onfocus': 'blur();'
         })
     )
