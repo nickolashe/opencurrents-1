@@ -363,7 +363,6 @@ class HomeView(TemplateView):
             pass
 
         context['is_home'] = True
-        print context
 
         return context
 
