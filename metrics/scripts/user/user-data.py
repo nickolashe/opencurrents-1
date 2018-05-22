@@ -25,7 +25,7 @@ for user in users:
     hours_req = ocuser.get_hours_requested()
     hours_app = ocuser.get_hours_approved()
 
-
+    print user.id
     data[user.id] = {
         'email': user.email,
         'first_name': user.first_name.encode('utf-8'),
