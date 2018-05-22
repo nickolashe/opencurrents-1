@@ -1459,6 +1459,10 @@ class SignupView(FormView):
         context = {'form': UserSignupForm()}
 
         user_email = request.GET.get('user_email')
+        print "\nHERE"
+        print context['form'].fields
+        print user_email
+        print "HERE\n"
         if user_email:
             context['form'].fields['user_email'].widget.attrs['value'] = user_email
 
