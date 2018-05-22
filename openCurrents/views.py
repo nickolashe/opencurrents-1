@@ -1455,7 +1455,6 @@ class SignupView(FormView):
     form_class = UserSignupForm
 
     def get(self, request, *args, **kwargs):
-        context = dict()
         context = {'form': UserSignupForm()}
 
         user_email = request.GET.get('user_email')
