@@ -8,6 +8,11 @@ html {
   overflow: scroll;
 }
 
+/* fix disappearing input issue */
+input {
+  -webkit-transform: translateZ(0px);
+}
+
 /* Foundation revisions */
 
 a {
