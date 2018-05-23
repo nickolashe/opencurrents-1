@@ -3,6 +3,16 @@
 from django.core.urlresolvers import reverse
 from openCurrents import views, urls
 
+home_url = reverse(
+    'home',
+    urlconf=urls
+)
+
+signup_page_url = reverse(
+    'signup',
+    urlconf=urls
+)
+
 org_admin_url = reverse(
     'org-admin',
     urlconf=urls

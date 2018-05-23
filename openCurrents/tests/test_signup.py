@@ -11,6 +11,7 @@ from openCurrents.models import Org, OrgUser, Token
 
 import pytz
 import uuid
+import re
 
 from datetime import datetime, timedelta
 from openCurrents.tests.interfaces import testing_urls
@@ -197,6 +198,47 @@ class TestSignup(TransactionTestCase):
             return groups[0]
         else:
             self.assertFalse(groups.exists())
+
+    def _assert_signup_form(self, response, expected_findall):
+        """Assert existance of signup form fields."""
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(
+            len(re.findall(r'name="user_email"', response.content)),
+            expected_findall
+        )
+        self.assertEqual(
+            len(re.findall(r'name="user_firstname"', response.content)),
+            expected_findall
+        )
+        self.assertEqual(
+            len(re.findall(r'name="user_lastname"', response.content)),
+            expected_findall
+        )
+
+        self.assertEqual(
+            len(re.findall(r'name="npf_name"', response.content)),
+            1
+        )
+        self.assertEqual(
+            len(re.findall(r'name="biz_name"', response.content)),
+            1
+        )
+
+    def test_signup_form_homepage(self):
+        """Test signup form on home page."""
+        response = self.client.get(
+            testing_urls.home_url
+        )
+        self._assert_signup_form(response, 2)
+        # expected_findall = 2 since we're duplicating some form fields in a modal window on home page
+
+    def test_signup_form_signup_page(self):
+        """Test signup form on signup page."""
+        response = self.client.get(
+            testing_urls.signup_page_url
+        )
+        self._assert_signup_form(response, 1)
 
     def test_signup_user_new(self):
         '''
