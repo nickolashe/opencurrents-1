@@ -82,7 +82,7 @@ class UserEmailForm(forms.Form):
         widget=forms.EmailInput(attrs={
             'id': 'new-email',
             'placeholder': 'Email address',
-            'class': 'center'
+            'class': 'lead center'
         })
     )
 

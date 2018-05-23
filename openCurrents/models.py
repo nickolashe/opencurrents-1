@@ -185,6 +185,12 @@ class Ledger(models.Model):
         null=True,
         blank=True
     )
+    cashout = models.ForeignKey(
+        'UserCashOut',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
 
     # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)
@@ -212,6 +218,7 @@ class Ledger(models.Model):
             name_to,
             'in the amount of',
             str(self.amount),
+            self.currency,
             'on',
             self.date_created.strftime(
                 '%Y-%m-%d %I-%M %p'
@@ -734,16 +741,53 @@ class UserCashOut(models.Model):
 
     balance = models.DecimalField(max_digits=12, decimal_places=2)
 
+    status = models.CharField(
+        max_length=7,
+        choices=[
+            ('req', 'requested'),
+            ('prc', 'processed'),
+            ('red', 'redeemed')
+        ],
+        default='req'
+    )
+
+    system = models.CharField(
+        max_length=7,
+        choices=[
+            ('dwl', 'Dwolla'),
+            ('ppl', 'Paypal')
+        ],
+        default='ppl'
+    )
+
     # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)
     date_updated = models.DateTimeField('date updated', auto_now=True)
 
+    def save(self, *args, **kwargs):
+        super(UserCashOut, self).save(*args, **kwargs)
+
+        if self.get_status_display() == 'processed':
+            org = Org.objects.get(name=self.get_system_display())
+            ledger_rec, created = Ledger.objects.get_or_create(
+                entity_from=self.user.userentity,
+                entity_to=org.orgentity,
+                cashout=self,
+                currency='usd',
+                amount=self.balance
+            )
+
+            if not created:
+                raise Exception('Cashout already processed')
+
     def __unicode__(self):
         return ' '.join([
-            'User',
+            'User\'s',
             '%s' % self.user.username,
-            'requested cashout in the amount of',
+            'cashout in the amount of',
             '%.3f' % self.balance,
             'on',
             self.date_created.strftime('%m/%d/%Y %H:%M:%S'),
+            'has been',
+            self.get_status_display()
         ])

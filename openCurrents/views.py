@@ -32,7 +32,8 @@ from interfaces.orgs import (
     OcOrg,
     OrgUserInfo,
     OrgExistsException,
-    InvalidOrgUserException
+    InvalidOrgUserException,
+    InvalidOrgException
 )
 
 from openCurrents.interfaces import common
@@ -499,6 +500,22 @@ class BizDetailsView(BizSessionContextView, FormView):
                     status_msg='Thank you for adding %s\'s details' % self.org.name
                 )
 
+    def form_invalid(self, form):
+        """Handle errors, show alerts to users."""
+        if len(form.data['phone']) < 10:
+            error_msg = "Please enter phone area code"
+        else:
+            error_msg = "Invalid phone number"
+
+        messages.add_message(
+            self.request,
+            messages.ERROR,
+            mark_safe(error_msg),
+            extra_tags='alert'
+        )
+        return redirect(
+            'openCurrents:biz-details',
+        )
 
 class BusinessView(HomeView):
     template_name = 'business.html'
@@ -1458,7 +1475,6 @@ class SignupView(FormView):
     form_class = UserSignupForm
 
     def get(self, request, *args, **kwargs):
-        context = dict()
         context = {'form': UserSignupForm()}
 
         user_email = request.GET.get('user_email')
@@ -1626,52 +1642,51 @@ class TimeTrackerView(LoginRequiredMixin, SessionContextView, FormView):
                     try:
                         user_to_check = User.objects.get(email=admin_email)
                         is_admin = OrgUserInfo(user_to_check.id).is_user_in_org_group()
-                    except:
+                    except User.DoesNotExist:
+                        user_to_check = None
+                        is_admin = False
+                    except InvalidOrgUserException:
                         is_admin = False
 
-                    if OrgUser.objects.filter(user__email=admin_email).exists() and is_admin:
+                    # get the OrgUser with new admin email
+                    try:
+                        org_user = OrgUser.objects.get(user__email=admin_email)
+                    except OrgUser.DoesNotExist:
+                        org_user = None
+
+                    if org_user and is_admin:
                         msg_type = 'alert'
                         return False, '{user} is already associated with another organization and cannot approve hours for {org}'.format(org=org.name, user=admin_email), msg_type
 
                     # if ORG user exists
-                    elif OrgUser.objects.filter(user__email=admin_email).exists():
+                    elif org_user:
 
                         # checkig if he's not a biz admin
-                        npf_org_user = OrgUser.objects.get(user__email=admin_email)
-
-                        if npf_org_user.org.status == 'npf':
+                        if org_user.org.status == 'npf':
                             is_biz_admin = False
 
                         else:
                             is_biz_admin = True
 
                     # if ORG user doesn't exist
-                    elif not OrgUser.objects.filter(user__email=admin_email).exists():
-                        # finding a user in system
+                    else:
                         try:
-                            npf_org_user = User.objects.get(username=admin_email)
-                        except:
-                            npf_org_user = None
-
-                        if not npf_org_user:
                             # creating a new user
-                            try:
-                                npf_org_user = OcUser().setup_user(
-                                    username=admin_email,
-                                    email=admin_email,
-                                    first_name=admin_name,
-                                )
-
-                            except UserExistsException:
-                                logger.debug('Org user %s already exists', admin_email)
+                            new_npf_user = OcUser().setup_user(
+                                username=admin_email,
+                                email=admin_email,
+                                first_name=admin_name,
+                            )
+                        except UserExistsException:
+                            new_npf_user = user_to_check
+                            logger.debug('Org user %s already exists', admin_email)
 
                         # setting up new NPF user
                         try:
-                            OrgUserInfo(npf_org_user.id).setup_orguser(org)
-                        except InvalidOrgUserException:
-                            logger.debug('Cannot setup NPF user: %s', npf_org_user)
-                            msg_type = 'alert'
-                            return False, 'Couldn\'t setup NPF admin', msg_type
+                            OrgUserInfo(new_npf_user.id).setup_orguser(org)
+                        except InvalidOrgException:
+                            logger.debug('Cannot setup NPF user: %s', new_npf_user)
+                            return redirect('openCurrents:500')
 
                         is_biz_admin = False
 
