@@ -309,6 +309,7 @@ class CreateEventForm(forms.Form):
 
     event_description = forms.CharField(
         label='Description',
+        help_text='What should volunteers know? What should they bring?',
         widget=forms.Textarea(attrs={
             'rows': '3'
         }),
