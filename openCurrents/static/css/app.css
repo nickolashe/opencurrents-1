@@ -5,7 +5,12 @@ body {
 /* Slidebar scroll fix */
 
 html {
-  /* overflow: scroll; */
+  overflow: scroll;
+}
+
+/* fix disappearing input issue */
+input, textarea {
+  -webkit-transform: translateZ(0px);
 }
 
 /* Foundation revisions */
