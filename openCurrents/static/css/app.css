@@ -8,6 +8,15 @@ html {
   overflow: scroll;
 }
 
+/* input fix */
+
+input {
+  -webkit-user-select: text;
+     -moz-user-select: text;
+      -ms-user-select: text;
+          user-select: text; 
+}
+
 /* Foundation revisions */
 
 a {
