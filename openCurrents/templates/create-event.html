@@ -121,11 +121,9 @@
       <div class="small-12 medium-6 small-centered columns">
         {{ form.event_description.errors }}
         <h6 class="navy no-margin-bottom">{{ form.event_description.label }}</h6>
-        {% if form.event_description.help_text %}
           <p class="small-text grey no-margin-bottom">
-            {{ form.event_description.help_text|safe }}
+            What should volunteers know? What should they bring?
           </p>
-        {% endif %}
         <span class="input-sizer"> {{ form.event_description }} </span>
       </div>
     </div>
