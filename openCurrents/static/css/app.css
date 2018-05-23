@@ -5,13 +5,7 @@ body {
 /* Slidebar scroll fix */
 
 html {
-  overflow: scroll;
-}
-
-/* input fix */
-
-input {
-  position: relative;
+  /* overflow: scroll; */
 }
 
 /* Foundation revisions */
