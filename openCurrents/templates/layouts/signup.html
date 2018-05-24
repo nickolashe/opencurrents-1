@@ -36,42 +36,20 @@
     <div class="center small-12 medium-8 small-centered columns">
 
       <div class="small-6 columns">
-        <input
-          class="lead center"
-          type="text"
-          name="user_firstname"
-          placeholder="First name"
-          required
-        />
+        {{form.user_firstname}}
       </div>
 
       <div class="small-6 columns">
-        <input
-          class="lead center"
-          type="text"
-          name="user_lastname"
-          placeholder="Last name"
-          required
-        />
+        {{form.user_lastname}}
       </div>
       <div class="small-12 columns">
         {{form.user_email}}
       </div>
       <div id="npf-name-div" class="small-12 columns hidden">
-        <input
-          name="npf_name"
-          class="lead center"
-          type="text"
-          placeholder="Nonprofit name"
-        />
+         {{form.npf_name}}
       </div>
       <div id="biz-name-div" class="small-12 columns hidden">
-        <input
-          name="biz_name"
-          class="lead center"
-          type="text"
-          placeholder="Business name"
-        />
+        {{form.biz_name}}
       </div>
     </div>
   </div>

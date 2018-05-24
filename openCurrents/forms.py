@@ -95,7 +95,7 @@ class UserSignupForm(UserEmailForm):
         widget=forms.TextInput(attrs={
             'id': 'new-firstname',
             'placeholder': 'First name',
-            'class': 'center'
+            'class': 'lead center'
         })
     )
 
@@ -103,13 +103,27 @@ class UserSignupForm(UserEmailForm):
         widget=forms.TextInput(attrs={
             'id': 'new-lastname',
             'placeholder': 'Last name',
-            'class': 'center'
+            'class': 'lead center'
         })
     )
 
     # org_name = forms.CharField(required=False, min_length=2)
-    npf_name = forms.CharField(required=False, min_length=2)
-    biz_name = forms.CharField(required=False, min_length=2)
+    npf_name = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'id': 'npf-name',
+            'placeholder': 'Nonprofit name',
+            'class': 'lead center'
+        })
+    )
+    biz_name = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'id': 'biz-name',
+            'placeholder': 'Business name',
+            'class': 'lead center'
+        })
+    )
 
     # org_status = forms.ChoiceField(
     #     choices=[

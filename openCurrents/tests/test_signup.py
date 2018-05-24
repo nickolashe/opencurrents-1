@@ -203,27 +203,19 @@ class TestSignup(TransactionTestCase):
         """Assert existance of signup form fields."""
         self.assertEqual(response.status_code, 200)
 
-        self.assertEqual(
-            len(re.findall(r'name="user_email"', response.content)),
-            expected_findall
-        )
-        self.assertEqual(
-            len(re.findall(r'name="user_firstname"', response.content)),
-            expected_findall
-        )
-        self.assertEqual(
-            len(re.findall(r'name="user_lastname"', response.content)),
-            expected_findall
-        )
+        input_names_2 = [
+            'user_email', 'user_firstname', 'user_lastname',
+            'npf_name', 'biz_name'
+        ]
+        input_names_1 = ['npf_name', 'biz_name']
 
-        self.assertEqual(
-            len(re.findall(r'name="npf_name"', response.content)),
-            1
-        )
-        self.assertEqual(
-            len(re.findall(r'name="biz_name"', response.content)),
-            1
-        )
+        for i in input_names_2:
+            if i in input_names_1:
+                expected_findall = 1
+            self.assertEqual(
+                len(re.findall(r'name="{}"'.format(i), response.content)),
+                expected_findall
+            )
 
     def test_signup_form_homepage(self):
         """Test signup form on home page."""
