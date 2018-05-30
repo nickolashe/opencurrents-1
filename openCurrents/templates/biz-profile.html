@@ -4,8 +4,115 @@
 {% block heading %}
   <div class="row">
     <div class="small-12 columns">
-      <img src="{% static 'img/whole-foods.png' %}">
-      <h4>[bizname]</h4>
+      <img class="biz-header-image" src="{% static 'img/whole-foods.png' %}">
+      <h4>
+        {% block name %}
+          Whole Foods
+        {% endblock name %}
+      </h4>
     </div>
   </div>
 {% endblock heading %}
+
+
+{% block content %}
+  <div class="row">
+    <div class="small-11 medium-8 small-centered columns">
+      <!-- if biz.intro -->
+      <p class="half-margin-bottom">We're not 'Whole Paycheck' anymore!</p>
+      <!-- if biz.website, add in href attribute and in text -->
+      <p><a href="{{ biz.website }}">www.wholefoods.com</a></p>
+    </div>
+  </div>
+
+  <div class="row">
+     <!-- if biz.address -->
+    <a id="address-btn" class="biz-btn button round secondary small" title="Address">
+      <i class="fa fa-lg fa-map-marker"></i>
+    </a>
+
+    <!-- if biz.phone -->
+    <a id="phone-btn" class="biz-btn button round secondary small" title="Phone number">
+      <i class="fa fa-lg fa-phone"></i>
+    </a>
+
+    <!-- if biz.email -->
+    <a id="email-btn" class="biz-btn button round secondary small" title="Email">
+      <i class="fa fa-lg fa-envelope"></i>
+    </a>
+  </div>
+
+  <div class="row">
+    <p id="address" class="hidden biz-info">
+      <!-- add address in href and text. Note Google Maps handles spaces in address -->
+      <a href="https://www.google.com/maps/place/1234 5th St, Austin, TX 78701" target="_blank">
+        1234 5th St, Austin, TX 78701
+      </a>
+    </p>
+    <p id="phone" class="hidden biz-info">
+      <!-- add phone in href and text -->
+      <a href="tel:512-345-6789">512-345-6789</a>
+    </p>
+    <p id="email" class="hidden biz-info">
+      <!-- add email in href and text -->
+      <a href="mailto:hello@wholefoods.com">
+        hello@wholefoods.com
+      </a>
+    </p>
+  </div>
+
+  <div class="row left three-halves-margin-top">
+    <div class="small-11 medium-8 small-centered columns">
+      <h6 class="left">Our offers</h6>
+
+      <!-- create for loop for biz's offers, add href link to redeem-currents with offer.id -->
+      <a href="#">
+        <div class="linked-box">
+          Use Currents for [30%] of [salad bar, Taco Alley, or smoothie purchases
+          - up to $25 a week]
+        </div>
+      </a>
+
+      <!-- delete after forloop created -->
+      <a href="#">
+        <div class="linked-box">
+          Use Currents for [20%] of [orders over $100]
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <div class="row center one-margin-top">
+    <a href="{% url 'openCurrents:marketplace' %}" class="button round secondary tiny">
+      Visit marketplace
+    </a>
+  </div>
+{% endblock content %}
+
+
+{% block js %}
+  <script type="text/javascript">
+    $(document).ready(function(){
+      $('#address-btn').click(function(){
+        $('.biz-btn').css('background-color', '#ffffff').css('color', '#147db6');
+        $(this).css('background-color', '#169ccd').css('color', '#ffffff');
+        $('.biz-info').slideUp();
+        $('#address').slideDown();
+      });
+
+      $('#phone-btn').click(function(){
+        $('.biz-btn').css('background-color', '#ffffff').css('color', '#147db6');
+        $(this).css('background-color', '#169ccd').css('color', '#ffffff');
+        $('.biz-info').slideUp();
+        $('#phone').slideDown();
+      });
+
+      $('#email-btn').click(function(){
+        $('.biz-btn').css('background-color', '#ffffff').css('color', '#147db6');
+        $(this).css('background-color', '#169ccd').css('color', '#ffffff');
+        $('.biz-info').slideUp();
+        $('#email').slideDown();
+      });
+    });
+  </script>
+{% endblock js %}
