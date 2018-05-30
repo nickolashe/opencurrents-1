@@ -518,6 +518,11 @@ class BizDetailsView(BizSessionContextView, FormView):
             'openCurrents:biz-details',
         )
 
+
+class BizProfileView(TemplateView):
+    template_name = 'biz-profile.html'
+
+
 class BusinessView(HomeView):
     template_name = 'business.html'
 

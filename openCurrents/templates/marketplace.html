@@ -4,133 +4,63 @@
 {% load tags %}
 
 {% block heading %}
-  <div class="row">
-    <div class="small-12 medium-9 small-centered columns">
-      <h3 class="title-sub">
-        {% block title %} Marketplace {% endblock title %}
-      </h3>
+  <div class="row two-margin-top three-halves-margin-bottom">
+    <div class="left small-6 medium-6 medium-offset-1 columns">
+      <h5 class="half-margin-top">
+        {% block name %}
+          Marketplace
+        {% endblock name %}
+      </h5>
+    </div>
+
+    <div class="right small-6 medium-4 columns end">
+      <select class="" name="biz-type">
+        <option value="featured">Featured</option>
+        <option value="all">All</option>
+        <option value="clothing">Clothing</option>
+        <option value="food">Food & drink</option>
+        <option value="health">Health & wellness</option>
+        <option value="misc">Miscellaneous</option>
+      </select>
     </div>
   </div>
 {% endblock heading %}
 
 {% block content %}
   <div class="row">
-    <div class="small-12 medium-11 large-9 small-centered columns">
-      <h6 class="navy">Use up to 2 Currents each week with these businesses:</h6>
+    <div class="small-12 medium-10 small-centered columns">
       {% include "partials/featured-bizzes.html" %}
     </div>
   </div>
 
   <div class="row one-margin-bottom center">
     <div class="small-12 medium-10 small-centered columns">
-      {% if offers %}
-        <h6 class="half-margin-bottom one-margin-top navy">
-          Check out these offers from the community:
-        </h6>
-        {% for offer in offers %}
-          {% with num_remaining=offer.limit|less:offer.num_redeemed %}
-            <div class="row one-margin-top">
-              <div class="left input-left small-9 columns">
-                <p class="no-margin-bottom">
-                  <a class="show-biz-deets">
-                    <strong> {{ offer.org.name }} </strong>
-                  </a>
-                  accepts Currents for
-                  <a href="{% url 'openCurrents:redeem-currents' offer.id %}">
-                    {{ offer.currents_share }}% of {{ offer.item.name }}
-                  </a>
-
-                  <span class="grey small-text">
-                    {% if offer.limit != -1 %}
-                      {% if num_remaining > 0 %}
-                        ({{ num_remaining }}
-                      {% else %}
-                        (0
-                      {% endif %}
-                      remaining this month)
-                    {% endif %}
-                  </span>
-                </p>
-              </div>
-
-              <div class="relative right input-right small-3 columns">
-                <a class="mini-open">
-                  <i class="blue half-margin-right fa-chevron-circle-down fa fa-lg"></i>
+      <div class="row">
+        {% if offers %}
+          <!-- this should become 'for businesses of selected biz-type with active offers,
+          show biz logo' (once per biz). -->
+          {% for offer in offers %}
+            {% with num_remaining=offer.limit|less:offer.num_redeemed %}
+              <div class="one-margin-top small-6 medium-3 columns">
+                <a href="{% url 'openCurrents:biz-profile' %}">
+                  <img class="biz-logos" src="{% static 'img/whole-foods.png' %}"/>
                 </a>
-                <ul class="mini-menu">
-                  <a
-                    href="{% url 'openCurrents:redeem-currents' offer.id %}"
-
-                    {% if offer.limit != -1 and num_remaining <= 0 %} disabled {% endif %}>
-                    <li>Redeem offer</li>
-                  </a>
-                  <a class="show-biz-deets">
-                    <li><span>Show</span> business details</li>
-                  </a>
-                </ul>
-              </div>
-            </div>
-
-            {% with org=offer.org %}
-              <div class="biz-deets half-margin-top left row hidden">
-                <div class="small-12 columns">
-                  {% if org.website %}
-                    <p class="biz-deets-item">
-                      <i class="half-margin-right fa-fw fa fa-link"></i>
-                      <a href="{{ org.website }}" target="_blank">
-                        {{ org.website }}
-                      </a>
-                    </p>
-                  {% endif %}
-
-                  {% if org.address %}
-                    <p class="biz-deets-item">
-                      <i class="half-margin-right fa-fw fa fa-home"></i>
-                      {{ org.address }}
-                    </p>
-                  {% endif %}
-
-                  {% if org.phone %}
-                    <p class="biz-deets-item">
-                      <i class="half-margin-right fa-fw fa fa-phone"></i>
-                      {{ org.phone }}
-                    </p>
-                  {% endif %}
-
-                  {% if org.email %}
-                    <p class="biz-deets-item">
-                      <i class="half-margin-right fa-fw fa fa-envelope-open-o"></i>
-                      {{ org.email }}
-                    </p>
-                  {% endif %}
-
-                  {% if org.intro %}
-                    <p class="biz-deets-item">
-                      <i class="half-margin-right fa-fw fa fa-comment"></i>
-                      {{ org.intro }}
-                    </p>
-                  {% endif %}
-
-                  {% if not org.intro and not org.email and not org.phone and not org.address and not org.website %}
-                    <p class="biz-deets-item">No details added.</p>
-                  {% endif %}
-                </div>
               </div>
             {% endwith %}
-          {% endwith %}
-        {% endfor %}
-      {% endif %}
-
-      {% if request.user.is_authenticated %}
-        <p>
-          <a href="{% url 'openCurrents:profile' %}"
-          class="one-margin-top button round tiny secondary">
-            Back to profile
-          </a>
-        </p>
-      {% endif %}
+          {% endfor %}
+        {% endif %}
+      </div>
     </div>
   </div>
+
+  {% if request.user.is_authenticated %}
+    <div class="row">
+      <a href="{% url 'openCurrents:profile' %}"
+      class="one-margin-top button round tiny secondary">
+        Back to profile
+      </a>
+    </div>
+  {% endif %}
 {% endblock content %}
 
 
