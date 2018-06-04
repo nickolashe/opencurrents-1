@@ -45,6 +45,12 @@ jobs:
             - ./virtualenv
           key: v1-dependencies-{{ checksum "requirements.txt" }}
 
+      # create gcloud service key file
+      - run:
+          name: gcloud auth
+          command: |
+            echo $GCLOUD_SERVICE_KEY > ${HOME}/gcloud-service-key.json
+
       # run tests!
       - run:
           name: run tests
