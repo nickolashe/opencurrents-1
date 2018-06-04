@@ -52,6 +52,7 @@ jobs:
             . virtualenv/bin/activate
             echo '*** writing gcloud service key ***'
             echo $GCLOUD_SERVICE_KEY > ${HOME}/gcloud-service-key.json
+            cat ${HOME}/gcloud-service-key.json
             python manage.py test -v2 openCurrents/tests/
 
       - store_artifacts:
