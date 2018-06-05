@@ -301,7 +301,7 @@ class OcUser(object):
             ]
         )
 
-        remaining = common._MASTER_OFFER_LIMIT - common._get_redemption_total(transaction_actions)
+        remaining = common._MASTER_OFFER_LIMIT - float(common._get_redemption_total(transaction_actions))
 
         if remaining < 0:
             logger.warning(
