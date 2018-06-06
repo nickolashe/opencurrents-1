@@ -55,7 +55,7 @@ jobs:
             echo $GCLOUD_SERVICE_KEY > ${HOME}/gcloud-service-key.json
             cat ${HOME}/gcloud-service-key.json
             echo ${HOME}
-            echo ${CWD}
+            echo ${PWD}
             python manage.py test -v2 openCurrents/tests/
 
       - store_artifacts:
