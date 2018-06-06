@@ -276,6 +276,7 @@ class CreateEventForm(forms.Form):
             'id': 'event-date',
             'class': ' center',
             'placeholder': 'yyyy-mm-dd',
+            'onfocus': 'blur();'
         })
     )
 
@@ -284,7 +285,8 @@ class CreateEventForm(forms.Form):
         widget=widgets.TextWidget(attrs={
             'id': 'event-starttime',
             'class': ' center',
-            'placeholder': '12:00 pm'
+            'placeholder': '12:00 pm',
+            'onfocus': 'blur();'
         })
     )
 
@@ -294,6 +296,7 @@ class CreateEventForm(forms.Form):
             'id': 'event-endtime',
             'class': ' center',
             'placeholder': '1:00 pm',
+            'onfocus': 'blur();'
         })
     )
 
@@ -516,7 +519,8 @@ class TimeTrackerForm(forms.Form):
         widget=forms.TextInput(attrs={
             'id': 'volunteer-date',
             'name':'volunteer-date',
-            'placeholder': 'yyyy-mm-dd'
+            'placeholder': 'yyyy-mm-dd',
+            'onfocus': 'blur();'
         })
     )
     time_start = forms.CharField(
@@ -525,7 +529,8 @@ class TimeTrackerForm(forms.Form):
         widget=forms.TextInput(attrs={
             'id': 'start-time',
             'name':'',
-            'value': '12:00:00'
+            'value': '12:00:00',
+            'onfocus': 'blur();'
         })
     )
     time_end = forms.CharField(
@@ -534,7 +539,8 @@ class TimeTrackerForm(forms.Form):
         widget=forms.TextInput(attrs={
             'id': 'end-time',
             'name':'',
-            'value': '13:00:00'
+            'value': '13:00:00',
+            'onfocus': 'blur();'
         })
     )
     new_org = forms.CharField(
