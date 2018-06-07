@@ -791,3 +791,27 @@ class UserCashOut(models.Model):
             'has been',
             self.get_status_display()
         ])
+
+class GiftCardInventory(models.Model):
+    code = models.CharField(max_length=512)
+    biz = models.ForeignKey(
+        Org,
+        on_delete=models.CASCADE
+    )
+    amount = models.DecimalField(
+        decimal_places=2,
+        max_digits=12
+    ),
+    redeemed = models.BooleanField(default=False)
+
+    def __unicode__(self):
+        return ' '.join([
+            'User\'s',
+            '%s' % self.user.username,
+            'cashout in the amount of',
+            '%.3f' % self.balance,
+            'on',
+            self.date_created.strftime('%m/%d/%Y %H:%M:%S'),
+            'has been',
+            self.get_status_display()
+        ])

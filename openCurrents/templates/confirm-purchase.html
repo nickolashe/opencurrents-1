@@ -4,7 +4,18 @@
 {% block heading %}
   <div class="row center one-margin-bottom">
     <div class="small-6 medium-3 small-centered columns">
-      <img class="biz-header-image" src="{% static 'img/whole-foods.png' %}"/>
+      <img
+        class="biz-header-image"
+        {% if biz_name == "Whole Foods" %}
+          src="{% static 'img/whole-foods.png' %}"
+        {% elif biz_name == 'Amazon' %}
+          src="{% static 'img/amazon.png' %}"
+        {% elif biz_name == 'HEB' %}
+          src="{% static 'img/heb.png' %}"
+        {% elif biz_name == 'Central Market' %}
+          src="{% static 'img/central-market.png' %}"
+        {% endif %}
+      />
     </div>
   </div>
 
@@ -23,10 +34,12 @@
       <div class="medium-8 small-centered columns">
         <p>Exchange
           <span class="no-wrap">
-            <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
-            [1.25]
+            <strong>
+              <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
+              1.25
+            </strong>
           </span>
-          for [$25] at [Whole Foods]. Alternatively, donate to the nonprofit of your choice.
+          for <strong> $25 </strong> at {{biz_name}}. Alternatively, donate to the nonprofit of your choice.
         </p>
       </div>
     </div>
