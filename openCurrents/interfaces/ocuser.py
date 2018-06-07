@@ -278,16 +278,18 @@ class OcUser(object):
         '''
         return cumulative user's redemption amount towards the master offer
         '''
-        master_offer = None
+        master_offers = None
         try:
-            master_offer = Offer.objects.get(is_master=True)
+            master_offers = Offer.objects.filter(is_master=True)
         except Offer.DoesNotExist:
             logger.info('No existent master offer')
             return 0
 
+        dt_week_ago_from_now = datetime.now(tz=pytz.utc) - timedelta(days=7)
         transactions = Transaction.objects.filter(
             user=self.user,
-            offer=master_offer
+            offer__in=master_offers,
+            date_created__gte=dt_week_ago_from_now
         ).annotate(
             last_action_created=Max('transactionaction__date_created')
         )
@@ -299,7 +301,7 @@ class OcUser(object):
             ]
         )
 
-        remaining = 2 - common._get_redemption_total(transaction_actions)
+        remaining = common._MASTER_OFFER_LIMIT - float(common._get_redemption_total(transaction_actions))
 
         if remaining < 0:
             logger.warning(
@@ -363,7 +365,7 @@ class OcUser(object):
 
         if 'org_id' in kwargs:
             usertimelogs = usertimelogs.filter(
-                event__project__org_id = kwargs['org_id']
+                event__project__org_id=kwargs['org_id']
             )
 
         return usertimelogs
@@ -391,7 +393,7 @@ class OcUser(object):
                 timelog = rec
 
             event = timelog.event
-            if not event.id in event_user:
+            if event.id not in event_user:
                 event_user.add(event.id)
                 balance += (event.datetime_end - event.datetime_start).total_seconds() / 3600
 
@@ -410,7 +412,7 @@ class OcUser(object):
             )
 
             if approved_hours > 0:
-                if not org in temp_orgs_set:
+                if org not in temp_orgs_set:
                     temp_orgs_set.add(org)
                     hours_by_org[org] = approved_hours
                 else:
