@@ -337,8 +337,9 @@ class RobotsView(TemplateView):
     template_name = 'robots.txt'
 
 
-class HomeView(TemplateView):
+class HomeView(FormView):
     template_name = 'home.html'
+    form_class = UserSignupForm
 
     def dispatch(self, *args, **kwargs):
         """Process request and args and return HTTP response."""
@@ -1441,6 +1442,12 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
 class RedeemOptionView(TemplateView):
     template_name = 'redeem-option.html'
 
+    def get(self, request, *args, **kwargs):
+        biz_name = request.GET.get('biz_name', '')
+        context = {'biz_name': biz_name}
+
+        return render(request, self.template_name, context)
+
 
 class ConfirmDonationView(TemplateView):
     template_name = 'confirm-donation.html'
@@ -1457,6 +1464,18 @@ class PurchaseConfirmedView(TemplateView):
 class ConfirmPurchaseView(TemplateView):
     template_name = 'confirm-purchase.html'
 
+    def get(self, request, *args, **kwargs):
+        biz_name = request.GET.get('biz_name', '')
+        context = {'biz_name': biz_name}
+
+        return render(request, self.template_name, context)
+
+    def post(self, request, *args, **kwargs):
+
+        return redirect(
+            'openCurrents:profile',
+            status_msg='Please check your email for your {} gift card'.format(biz_name)
+        )
 
 class RequestCurrentsView(TemplateView):
     template_name = 'request-currents.html'
@@ -1475,7 +1494,6 @@ class SignupView(FormView):
     form_class = UserSignupForm
 
     def get(self, request, *args, **kwargs):
-        context = dict()
         context = {'form': UserSignupForm()}
 
         user_email = request.GET.get('user_email')

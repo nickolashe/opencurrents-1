@@ -16,6 +16,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='transaction',
             name='pop_image',
-            field=models.ImageField(max_length=512, null=True, upload_to=openCurrents.models.path_and_rename),
+            field=models.ImageField(max_length=512, null=True, upload_to=openCurrents.models.path_and_rename_receipt),
         ),
     ]

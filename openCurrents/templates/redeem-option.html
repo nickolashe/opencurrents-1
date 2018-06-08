@@ -8,11 +8,22 @@
 
 
 {% block heading %}
-  <div class="row center">
-    <div class="small-6 medium-3 small-centered columns">
-      <img class="biz-header-image" src="{% static 'img/whole-foods.png' %}"/>
-    </div>
+<div class="row center">
+  <div class="small-6 medium-3 small-centered columns">
+    <img
+      class="biz-header-image"
+      {% if biz_name == "Whole Foods" %}
+        src="{% static 'img/whole-foods.png' %}"
+      {% elif biz_name == 'Amazon' %}
+        src="{% static 'img/amazon.png' %}"
+      {% elif biz_name == 'HEB' %}
+        src="{% static 'img/heb.png' %}"
+      {% elif biz_name == 'Central Market' %}
+        src="{% static 'img/central-market.png' %}"
+      {% endif %}
+    />
   </div>
+</div>
 
   <h4>
     Use your Currents for...
@@ -23,7 +34,7 @@
 {% block content %}
   <div class="row center two-margin-top">
     <div class="medium-4 medium-offset-1 columns">
-      <a href="{% url 'openCurrents:confirm-purchase' %}" class="button option">
+      <a href="{% url 'openCurrents:confirm-purchase' %}?biz_name={{biz_name}}" class="button option">
         <h4 class="white">$25 gift card</h4>
         Buy now
       </a>
@@ -33,7 +44,7 @@
       <h6>or</h6>
     </div>
     <div class="medium-4 columns end">
-      <a href="{% url 'openCurrents:redeem-currents' 1 %}" class="button option">
+      <a href="{% url 'openCurrents:redeem-currents' 1 %}?biz_name={{biz_name}}" class="button option">
         <h4 class="white">$25 cash back</h4>
         Upload receipt
       </a>
