@@ -55,7 +55,8 @@ from openCurrents.models import (
     Transaction,
     TransactionAction,
     UserCashOut,
-    Ledger
+    Ledger,
+    GiftCardInventory
 )
 
 from openCurrents.forms import (
@@ -78,8 +79,8 @@ from openCurrents.forms import (
     OfferEditForm,
     RedeemCurrentsForm,
     PublicRecordsForm,
-    PopUpAnswer
-    # HoursDetailsForm
+    PopUpAnswer,
+    ConfirmGiftCardPurchaseForm
 )
 
 import json
@@ -1466,16 +1467,90 @@ class ConfirmPurchaseView(TemplateView):
 
     def get(self, request, *args, **kwargs):
         biz_name = request.GET.get('biz_name', '')
-        context = {'biz_name': biz_name}
+        context = {
+            'biz_name': biz_name,
+            'form': ConfirmGiftCardPurchaseForm(
+                initial={'biz_name': biz_name}
+            )
+        }
 
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
+        form = ConfirmGiftCardPurchaseForm(request.POST)
 
-        return redirect(
-            'openCurrents:profile',
-            status_msg='Please check your email for your {} gift card'.format(biz_name)
-        )
+        if form.is_valid():
+            biz_name = form.cleaned_data['biz_name']
+            denomination = form.cleaned_data['denomination']
+
+            giftcard = GiftCardInventory.objects.filter(
+                offer__org__name=biz_name,
+                amount=denomination,
+                is_redeemed=False
+            ).first()
+
+            if giftcard:
+                offer = giftcard.offer
+            else:
+                try:
+                    offer = Offer.objects.get(
+                        org__name=biz_name,
+                        offer_type='gft'
+                    )
+                except Offer.DoesNotExist:
+                    logger.exception(
+                        'critical error: no gift card offer for %s',
+                        biz_name
+                    )
+                    return redirect('openCurrents:500')
+
+            with transaction.atomic():
+                # create redeemed transaction action
+                tr = Transaction(
+                    user=self.request.user,
+                    offer=offer,
+                    price_reported=denomination,
+                    currents_amount=convert.usd_to_cur(float(denomination))
+                )
+                tr.save()
+
+                if giftcard:
+                    action = TransactionAction(
+                        transaction=tr,
+                        action_type='red',
+                        giftcard=giftcard
+                    )
+                    action.save()
+
+                    # send email with giftcard to user
+
+                    # mark giftcard as redeemed
+                    giftcard.is_redeemed = True
+                    giftcard.save()
+
+                    return redirect(
+                        'openCurrents:profile',
+                        status_msg='Your <strong>{}</strong> gift card has been emailed to you'.format(biz_name)
+                    )
+                else:
+                    # create pending transaction action
+                    action = TransactionAction(
+                        transaction=tr,
+                        action_type='req',
+                        giftcard=giftcard
+                    )
+                    action.save()
+
+                    # send email to bizdev
+
+                    return redirect(
+                        'openCurrents:profile',
+                        status_msg='Expect to receive your <strong>{}</strong> gift card within 48 hours'.format(biz_name)
+                    )
+        else:
+            logger.exception('critical error: invalid ConfirmGiftCardPurchaseForm form')
+            return redirect('openCurrents:500')
+
 
 class RequestCurrentsView(TemplateView):
     template_name = 'request-currents.html'

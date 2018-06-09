@@ -22,7 +22,8 @@ from openCurrents.models import (
     Entity,
     UserEntity,
     OrgEntity,
-    Ledger
+    Ledger,
+    GiftCardInventory
 )
 
 from django import forms
@@ -208,4 +209,5 @@ admin.site.register(TransactionAction, TransactionActionAdmin)
 admin.site.register(Entity)
 admin.site.register(UserEntity)
 admin.site.register(OrgEntity)
-admin.site.register(Ledger, LedgerAdmin)
+admin.site.register(Ledger, LedgerAdmin),
+admin.site.register(GiftCardInventory)

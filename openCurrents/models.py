@@ -867,5 +867,5 @@ class GiftCardInventory(models.Model):
             '%.2f' % self.amount,
             'created on',
             self.date_created.strftime('%m/%d/%Y %H:%M:%S'),
-            '(%s)' % 'redeemed' if self.is_redeemed else 'available'
+            '(%s)' % ('redeemed' if self.is_redeemed else 'available')
         ])
