@@ -14,7 +14,6 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.utils.safestring import mark_safe
 from django.utils import timezone
-from django.utils.safestring import mark_safe
 from django.db.models import F, Q, Max
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.template.context_processors import csrf
@@ -518,6 +517,7 @@ class BizDetailsView(BizSessionContextView, FormView):
         return redirect(
             'openCurrents:biz-details',
         )
+
 
 class BusinessView(HomeView):
     template_name = 'business.html'
@@ -1462,7 +1462,7 @@ class PurchaseConfirmedView(TemplateView):
     template_name = 'purchase-confirmed.html'
 
 
-class ConfirmPurchaseView(TemplateView):
+class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'confirm-purchase.html'
 
     def get(self, request, *args, **kwargs):
@@ -1474,6 +1474,25 @@ class ConfirmPurchaseView(TemplateView):
             )
         }
 
+        hours_approved = self.ocuser.get_hours_approved()
+
+        if not hours_approved:
+            status_msg = ' '.join([
+                'You need to volunteer to redeem gift cards.<br/>',
+                '<a href="/volunteer-opportunities/">',
+                'Find a volunteer opportunity!',
+                '</a>'
+            ])
+
+            messages.add_message(
+                request,
+                messages.ERROR,
+                mark_safe(status_msg),
+                extra_tags='alert'
+            )
+
+            return redirect('openCurrents:redeem-option')
+
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
@@ -1482,6 +1501,24 @@ class ConfirmPurchaseView(TemplateView):
         if form.is_valid():
             biz_name = form.cleaned_data['biz_name']
             denomination = form.cleaned_data['denomination']
+
+            balance_available = self.ocuser.get_balance_available()
+            if convert.cur_to_usd(balance_available, fee=True) < denomination:
+                status_msg = ' '.join([
+                    'Insufficient balance for the transaction.<br/>',
+                    '<a href="/volunteer-opportunities/">',
+                    'Find a volunteer opportunity to earn more Currents!',
+                    '</a>'
+                ])
+
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    mark_safe(status_msg),
+                    extra_tags='alert'
+                )
+
+                return redirect('openCurrents:redeem-option')
 
             giftcard = GiftCardInventory.objects.filter(
                 offer__org__name=biz_name,
@@ -1505,7 +1542,7 @@ class ConfirmPurchaseView(TemplateView):
                     return redirect('openCurrents:500')
 
             with transaction.atomic():
-                # create redeemed transaction action
+                # create transaction
                 tr = Transaction(
                     user=self.request.user,
                     offer=offer,
@@ -1514,26 +1551,25 @@ class ConfirmPurchaseView(TemplateView):
                 )
                 tr.save()
 
+                # create transaction action
                 if giftcard:
+                    # approved if giftcard in stock
                     action = TransactionAction(
                         transaction=tr,
-                        action_type='red',
+                        action_type='app',
                         giftcard=giftcard
                     )
                     action.save()
-
-                    # send email with giftcard to user
 
                     # mark giftcard as redeemed
                     giftcard.is_redeemed = True
                     giftcard.save()
 
-                    return redirect(
-                        'openCurrents:profile',
-                        status_msg='Your <strong>{}</strong> gift card has been emailed to you'.format(biz_name)
+                    status_msg = 'Your <strong>{}</strong> gift card has been emailed to you'.format(
+                        biz_name
                     )
                 else:
-                    # create pending transaction action
+                    # pending if giftcard not in stock
                     action = TransactionAction(
                         transaction=tr,
                         action_type='req',
@@ -1541,14 +1577,13 @@ class ConfirmPurchaseView(TemplateView):
                     )
                     action.save()
 
-                    # send email to bizdev
-
-                    return redirect(
-                        'openCurrents:profile',
-                        status_msg='Expect to receive your <strong>{}</strong> gift card within 48 hours'.format(biz_name)
+                    status_msg = 'Expect to receive your <strong>{}</strong> gift card within 48 hours'.format(
+                        biz_name
                     )
+
+                return redirect('openCurrents:profile', status_msg=status_msg)
         else:
-            logger.exception('critical error: invalid ConfirmGiftCardPurchaseForm form')
+            logger.exception('critical error: invalid ConfirmGiftCardPurchaseForm')
             return redirect('openCurrents:500')
 
 
@@ -5650,6 +5685,7 @@ def sendTransactionalEmail(
         logger.debug('test mode: mocking mandrill call')
         sess['recepient'] = recipient_email
         sess['merge_vars'] = merge_vars
+
 
 def sendBulkEmail(
     template_name,

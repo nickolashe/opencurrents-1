@@ -691,11 +691,20 @@ class TransactionAction(models.Model):
 
         # check if the transaction action for selected transaction exists
         tr = self.transaction
+        bizname = tr.biz_name if tr.biz_name else tr.offer.org.name
 
-        if self.action_type == 'app':
-            if tr.offer.offer_type == 'gft' and not self.giftcard:
-                raise Exception('Approved action must be linked to a gift card')
+        if self.action_type == 'req':
+            # TODO: send email to bizdev
+            pass
 
+            # gift card not in stock
+            template_name = 'gift-card-pending'
+            email_vars = [
+                {'name': 'ORG_NAME', 'content': bizname},
+                {'name': 'AMOUNT', 'content': '%.2f' % tr.price_reported},
+            ]
+
+        elif self.action_type == 'app':
             oc_user = OcUser(tr.user.id)
 
             # transact cur from user to org
@@ -721,47 +730,57 @@ class TransactionAction(models.Model):
                 )
 
                 # sending email to user about transaction approvment
-                bizname = tr.biz_name if tr.biz_name else tr.offer.org.name
+                template_name = 'transaction-approved'
+                email_vars = [
+                    {
+                        'name': 'BIZ_NAME',
+                        'content': bizname
+                    },
+                    {
+                        'name': 'DOLLARS_REDEEMED',
+                        'content': '%.2f' % float(usd_amount)
+                    },
+                    {
+                        'name': 'CURRENTS_REDEEMED',
+                        'content': '%.2f' % float(tr.currents_amount)
+                    },
+                    {
+                        'name': 'CURRENTS_AVAILABLE',
+                        'content': '%.2f' % float(oc_user.get_balance_available())
+                    },
+                    {
+                        'name': 'DOLLARS_AVAILABLE',
+                        'content': '%.2f' % float(oc_user.get_balance_available_usd())
+                    },
+                ]
+            elif tr.offer.offer_type == 'gft':
+                if not self.giftcard:
+                    raise Exception('Approved action must be linked to a gift card')
 
-                try:
-                    email_vars_transactional = [
-                        {
-                            'name': 'BIZ_NAME',
-                            'content': bizname
-                        },
-                        {
-                            'name': 'DOLLARS_REDEEMED',
-                            'content': '%.2f' % float(usd_amount)
-                        },
-                        {
-                            'name': 'CURRENTS_REDEEMED',
-                            'content': '%.2f' % float(tr.currents_amount)
-                        },
-                        {
-                            'name': 'CURRENTS_AVAILABLE',
-                            'content': '%.2f' % float(oc_user.get_balance_available())
-                        },
-                        {
-                            'name': 'DOLLARS_AVAILABLE',
-                            'content': '%.2f' % float(oc_user.get_balance_available_usd())
-                        },
-                    ]
+                template_name = 'gift-card'
+                email_vars = [
+                    {'name': 'ORG_NAME', 'content': bizname},
+                    {'name': 'AMOUNT', 'content': '%.2f' % tr.price_reported},
+                    {'name': 'CODE', 'content': self.giftcard.code}
+                ]
 
-                    sendTransactionalEmail(
-                        'transaction-approved',
-                        None,
-                        email_vars_transactional,
-                        tr.user.email,
-                    )
-                except Exception as e:
-                    logger.error(
-                        'unable to send transactional email: %s',
-                        {
-                            'message': e.message,
-                            'error': e,
-                            'template_name': 'transaction-approved'
-                        }
-                    )
+        # send transaction action email
+        try:
+            sendTransactionalEmail(
+                template_name,
+                None,
+                email_vars,
+                tr.user.email,
+            )
+        except Exception as e:
+            logger.error(
+                'unable to send transaction action email: %s',
+                {
+                    'message': e.message,
+                    'error': e,
+                    'template_name': template_name
+                }
+            )
 
     def __unicode__(self):
         return ' '.join([
