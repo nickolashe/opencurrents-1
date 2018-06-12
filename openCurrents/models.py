@@ -764,23 +764,24 @@ class TransactionAction(models.Model):
                     {'name': 'CODE', 'content': self.giftcard.code}
                 ]
 
-        # send transaction action email
-        try:
-            sendTransactionalEmail(
-                template_name,
-                None,
-                email_vars,
-                tr.user.email,
-            )
-        except Exception as e:
-            logger.error(
-                'unable to send transaction action email: %s',
-                {
-                    'message': e.message,
-                    'error': e,
-                    'template_name': template_name
-                }
-            )
+        if self.action_type in ['req', 'app']:
+            # send transaction action email
+            try:
+                sendTransactionalEmail(
+                    template_name,
+                    None,
+                    email_vars,
+                    tr.user.email,
+                )
+            except Exception as e:
+                logger.error(
+                    'unable to send transaction action email: %s',
+                    {
+                        'message': e.message,
+                        'error': e,
+                        'template_name': template_name
+                    }
+                )
 
     def __unicode__(self):
         return ' '.join([
