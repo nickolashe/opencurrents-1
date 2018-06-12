@@ -1,0 +1,62 @@
+{% extends "layouts/base.html" %}
+{% load staticfiles %}
+
+{% block heading %}
+  <div class="row center one-margin-bottom">
+    <div class="small-6 medium-3 small-centered columns">
+      <img
+        class="biz-header-image"
+        {% if biz_name == "Whole Foods" %}
+          src="{% static 'img/whole-foods.png' %}"
+        {% elif biz_name == 'Amazon' %}
+          src="{% static 'img/amazon.png' %}"
+        {% elif biz_name == 'HEB' %}
+          src="{% static 'img/heb.png' %}"
+        {% elif biz_name == 'Central Market' %}
+          src="{% static 'img/central-market.png' %}"
+        {% endif %}
+      />
+    </div>
+  </div>
+
+  <h4>
+    {% block name %}
+      Confirm purchase
+    {% endblock name %}
+  </h4>
+{% endblock heading %}
+
+
+{% block content %}
+  <form name="confirm_purchase" method="post">
+  {% csrf_token %}
+    <div class="row one-margin-top">
+      <div class="medium-8 small-centered columns">
+        <p>Exchange
+          <span class="no-wrap">
+            <strong>
+              <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
+              1.25
+            </strong>
+          </span>
+          for <strong> $25 </strong> at {{biz_name}}. Alternatively, donate to the nonprofit of your choice.
+        </p>
+      </div>
+    </div>
+
+    {{ form.denomination }}
+    {{ form.biz_name}}
+
+    <div class="row one-margin-top">
+      <input type="submit" class="button round" value="Confirm purchase" />
+      <a href="{% url 'openCurrents:confirm-donation' %}" class="button round orange">
+        Donate to nonprofit
+      </a>
+      <p>
+        <a href="{% url 'openCurrents:profile' %}" class="button round tiny secondary">
+          Cancel
+        </a>
+      </p>
+    </div>
+  </form>
+{% endblock content %}

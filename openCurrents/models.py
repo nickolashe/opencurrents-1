@@ -508,6 +508,14 @@ class Offer(models.Model):
     currents_share = models.IntegerField()
     limit = models.IntegerField(default=-1)
     is_active = models.BooleanField(default=True)
+    offer_type = models.CharField(
+        max_length=4,
+        choices=[
+            ('gft', 'giftcard'),
+            ('cbk', 'cashback')
+        ],
+        default='cbk'
+    )
 
     # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)
@@ -524,7 +532,7 @@ class Offer(models.Model):
         ])
 
 
-def path_and_rename(instance, filename):
+def path_and_rename_receipt(instance, filename):
         upload_to = 'receipts/{}/'.format(datetime.now().strftime('%Y/%m'))
         ext = filename.split('.')[-1]
 
@@ -547,13 +555,34 @@ def path_and_rename(instance, filename):
         return os.path.join(upload_to, filename)
 
 
+def path_and_rename_giftcard(instance, filename):
+        upload_to = 'giftcards/{}/'.format(instance.offer.org.name)
+        ext = filename.split('.')[-1]
+
+        # get filename
+        if instance:
+            filename = '{}_${}_{}_{}_id_{}.{}'.format(
+                instance.offer.org.name,
+                instance.amount,
+                datetime.now().strftime('%Y-%m-%d'),
+                datetime.now().strftime('%H-%M-%S.%f'),
+                instance.id,
+                ext
+            )
+        else:
+            # set filename as random string
+            filename = '{}.{}'.format(uuid4().hex, ext)
+
+        # return the whole path to the file
+        return os.path.join(upload_to, filename)
+
+
 class Transaction(models.Model):
     user = models.ForeignKey(User)
-
     offer = models.ForeignKey(Offer)
 
     pop_image = models.ImageField(
-        upload_to=path_and_rename,
+        upload_to=path_and_rename_receipt,
         max_length=512,
         null=True
     )
@@ -574,7 +603,8 @@ class Transaction(models.Model):
         default='rec'
     )
 
-    # price paid as reported in the form
+    # - price paid as reported in the form
+    # - for gift card transaction this stores the card denomination
     price_reported = models.DecimalField(
         decimal_places=2,
         max_digits=10
@@ -609,16 +639,16 @@ class Transaction(models.Model):
 
     def __unicode__(self):
         return ' '.join([
-            'Transaction initiated by user',
+            'Transaction by user',
             self.user.username,
-            'for',
+            'for %s\'s' % self.offer.org.name,
             'master' if self.offer.is_master else '',
-            'offer',
+            '%s offer' % self.offer.get_offer_type_display(),
             str(self.offer.id),
             'in the amount of',
-            str(self.currents_amount),
-            'currents at',
-            self.date_updated.strftime('%m/%d/%Y %H:%M:%S'),
+            '%.3f' % float(self.currents_amount),
+            'currents (initiated at',
+            '%s)' % self.date_updated.strftime('%m/%d/%Y %H:%M:%S')
         ])
 
 
@@ -636,6 +666,12 @@ class TransactionAction(models.Model):
             ('dec', 'declined')
         ],
         default='req'
+    )
+    giftcard = models.ForeignKey(
+        'GiftCardInventory',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
     )
 
     # created / updated timestamps
@@ -655,11 +691,21 @@ class TransactionAction(models.Model):
 
         # check if the transaction action for selected transaction exists
         tr = self.transaction
+        bizname = tr.biz_name if tr.biz_name else tr.offer.org.name
 
-        if self.action_type == 'app':
+        if self.action_type == 'req':
+            # TODO: send email to bizdev
+            pass
+
+            # gift card not in stock
+            template_name = 'gift-card-pending'
+            email_vars = [
+                {'name': 'ORG_NAME', 'content': bizname},
+                {'name': 'AMOUNT', 'content': '%.2f' % tr.price_reported},
+            ]
+
+        elif self.action_type == 'app':
             oc_user = OcUser(tr.user.id)
-
-            usd_amount = convert.cur_to_usd(tr.currents_amount, True)
 
             # transact cur from user to org
             Ledger.objects.create(
@@ -670,20 +716,22 @@ class TransactionAction(models.Model):
                 transaction=self
             )
 
-            # transact usd from oC to user
-            Ledger.objects.create(
-                entity_from=OrgEntity.objects.get(org__name='openCurrents'),
-                entity_to=tr.user.userentity,
-                currency='usd',
-                amount=usd_amount,
-                transaction=self
-            )
+            # for cashback transactions, fiat ledger rec and confirmation email
+            if tr.offer.offer_type == 'cbk':
+                usd_amount = convert.cur_to_usd(tr.currents_amount, True)
 
-            # sending email to user about transaction approvment
-            bizname = tr.biz_name if tr.biz_name else tr.offer.org.name
+                # transact usd from oC to user
+                Ledger.objects.create(
+                    entity_from=OrgEntity.objects.get(org__name='openCurrents'),
+                    entity_to=tr.user.userentity,
+                    currency='usd',
+                    amount=usd_amount,
+                    transaction=self
+                )
 
-            try:
-                email_vars_transactional = [
+                # sending email to user about transaction approvment
+                template_name = 'transaction-approved'
+                email_vars = [
                     {
                         'name': 'BIZ_NAME',
                         'content': bizname
@@ -705,20 +753,33 @@ class TransactionAction(models.Model):
                         'content': '%.2f' % float(oc_user.get_balance_available_usd())
                     },
                 ]
+            elif tr.offer.offer_type == 'gft':
+                if not self.giftcard:
+                    raise Exception('Approved action must be linked to a gift card')
 
+                template_name = 'gift-card'
+                email_vars = [
+                    {'name': 'ORG_NAME', 'content': bizname},
+                    {'name': 'AMOUNT', 'content': '%.2f' % tr.price_reported},
+                    {'name': 'CODE', 'content': self.giftcard.code}
+                ]
+
+        if self.action_type in ['req', 'app']:
+            # send transaction action email
+            try:
                 sendTransactionalEmail(
-                    'transaction-approved',
+                    template_name,
                     None,
-                    email_vars_transactional,
+                    email_vars,
                     tr.user.email,
                 )
             except Exception as e:
                 logger.error(
-                    'unable to send transactional email: %s',
+                    'unable to send transaction action email: %s',
                     {
                         'message': e.message,
                         'error': e,
-                        'template_name': 'transaction-approved'
+                        'template_name': template_name
                     }
                 )
 
@@ -790,4 +851,41 @@ class UserCashOut(models.Model):
             self.date_created.strftime('%m/%d/%Y %H:%M:%S'),
             'has been',
             self.get_status_display()
+        ])
+
+
+class GiftCardInventory(models.Model):
+    code = models.CharField(max_length=512, null=True, blank=True)
+    image = models.ImageField(
+        upload_to=path_and_rename_giftcard,
+        max_length=512,
+        null=True,
+        blank=True
+    )
+
+    offer = models.ForeignKey(Offer)
+    amount = models.DecimalField(
+        decimal_places=2,
+        max_digits=12
+    )
+    is_redeemed = models.BooleanField(default=False)
+
+    # created / updated timestamps
+    date_created = models.DateTimeField('date created', auto_now_add=True)
+    date_updated = models.DateTimeField('date updated', auto_now=True)
+
+    def save(self, *args, **kwargs):
+        super(GiftCardInventory, self).save(*args, **kwargs)
+
+        if not self.code and not self.image:
+            raise Exception('Gift card code or image required')
+
+    def __unicode__(self):
+        return ' '.join([
+            self.offer.org.name,
+            'gift card for',
+            '%.2f' % self.amount,
+            'created on',
+            self.date_created.strftime('%m/%d/%Y %H:%M:%S'),
+            '(%s)' % ('redeemed' if self.is_redeemed else 'available')
         ])

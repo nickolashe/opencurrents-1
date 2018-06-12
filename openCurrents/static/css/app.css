@@ -178,6 +178,17 @@ h1, h2, h3, h4, h5, h6 {
   color: #ffffff;
 }
 
+.button.orange {
+  background-color: #f5a412;
+  border-color: #f5a412;
+  box-shadow: 0 3px #b37608;
+}
+
+.button.orange:hover {
+  background-color: #d78d09;
+  border-color: #d78d09;
+}
+
 .button.clear {
   background-color: transparent;
   color: #ffffff;
@@ -218,6 +229,11 @@ h1, h2, h3, h4, h5, h6 {
 .button.tag {
   margin-left: 0.5rem;
   margin-right: 0.5rem;
+}
+
+.button.option {
+  min-width: 230px;
+  white-space: nowrap;
 }
 
 .round {
@@ -1286,12 +1302,12 @@ i:hover ~ .addtocalendar {
 }
 
 .biz-logos {
-  /* border: 1px solid #cccccc; */
   background-color: #ffffff;
   padding: 7px;
   margin: 0.25rem;
+  border: 1px solid transparent;
   border-radius: 5px;
-  filter: grayscale(30%);
+  filter: grayscale(15%);
   transition: filter 0.25s ease-in-out, border-color 0.25s ease-in-out;
   box-shadow:
     inset 0 2px 9px  rgba(255,255,255,0.3),
@@ -1299,13 +1315,31 @@ i:hover ~ .addtocalendar {
 }
 
 .biz-logos:hover {
-  filter: grayscale(0%) saturate(111%);
+  border-color: #24b2e7;
 }
 
 .biz-logos:active {
    box-shadow:
     inset 0 2px 9px #999,
     inset 0 -2px 6px #999;
+}
+
+.price-circle {
+  position: absolute;
+  top: 0;
+  left: 1rem;
+  height: 30px;
+  width: 30px;
+  border-radius: 40px;
+  background-color: #24b2e7;
+  color: #ffffff;
+  font-size: 0.875rem;
+  padding: 5px 0 0;
+  text-align: center;
+}
+
+.biz-header-image {
+  width: 165px;
 }
 
 /* small */
