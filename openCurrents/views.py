@@ -1561,10 +1561,6 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, TemplateView):
                     )
                     action.save()
 
-                    # mark giftcard as redeemed
-                    giftcard.is_redeemed = True
-                    giftcard.save()
-
                     status_msg = 'Your <strong>{}</strong> gift card has been emailed to you'.format(
                         biz_name
                     )
