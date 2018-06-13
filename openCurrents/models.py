@@ -789,7 +789,7 @@ class TransactionAction(models.Model):
                 template_name = 'gift-card'
 
         # send transaction action email to user
-        if self.action_type in ['req', 'app']:
+        if (self.action_type == 'req' and tr.offer.offer_type == 'gft') or self.action_type == 'app':
             try:
                 sendTransactionalEmail(
                     template_name,
