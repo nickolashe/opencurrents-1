@@ -561,10 +561,9 @@ def path_and_rename_giftcard(instance, filename):
 
         # get filename
         if instance:
-            filename = '{}_${}_id_{}_{}_{}.{}'.format(
+            filename = '{}_${}_{}_{}.{}'.format(
                 instance.offer.org.name,
                 instance.amount,
-                instance.id,
                 datetime.now().strftime('%Y-%m-%d'),
                 datetime.now().strftime('%H-%M-%S.%f'),
                 ext
