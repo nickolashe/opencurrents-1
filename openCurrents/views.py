@@ -1503,7 +1503,7 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, TemplateView):
             denomination = form.cleaned_data['denomination']
 
             balance_available = self.ocuser.get_balance_available()
-            if convert.cur_to_usd(balance_available, fee=True) < denomination:
+            if convert.cur_to_usd(balance_available, fee=False) < denomination:
                 status_msg = ' '.join([
                     'Insufficient balance for the transaction.<br/>',
                     '<a href="/volunteer-opportunities/">',
@@ -1551,31 +1551,26 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, TemplateView):
                 )
                 tr.save()
 
-                # create transaction action
                 if giftcard:
                     # approved if giftcard in stock
-                    action = TransactionAction(
-                        transaction=tr,
-                        action_type='app',
-                        giftcard=giftcard
-                    )
-                    action.save()
-
+                    action_type = 'app'
                     status_msg = 'Your <strong>{}</strong> gift card has been emailed to you'.format(
                         biz_name
                     )
                 else:
                     # pending if giftcard not in stock
-                    action = TransactionAction(
-                        transaction=tr,
-                        action_type='req',
-                        giftcard=giftcard
-                    )
-                    action.save()
-
+                    action_type = 'req'
                     status_msg = 'Expect to receive your <strong>{}</strong> gift card within 48 hours'.format(
                         biz_name
                     )
+
+                # create transaction action record
+                action = TransactionAction(
+                    transaction=tr,
+                    action_type=action_type,
+                    giftcard=giftcard
+                )
+                action.save()
 
                 return redirect('openCurrents:profile', status_msg=status_msg)
         else:
