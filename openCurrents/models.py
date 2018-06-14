@@ -692,7 +692,7 @@ class TransactionAction(models.Model):
         tr = self.transaction
         bizname = tr.biz_name if tr.biz_name else tr.offer.org.name
 
-        # transaction action email data
+        # common transaction action email data
         email_vars = [
             {'name': 'ORG_NAME', 'content': bizname},
             {'name': 'AMOUNT', 'content': '%.2f' % tr.price_reported},
@@ -701,7 +701,7 @@ class TransactionAction(models.Model):
         template_name = None
 
         if self.action_type == 'req' and tr.offer.offer_type == 'gft':
-            # send email to bizdev
+            # send gift card out of stock email to bizdev
             try:
                 sendTransactionalEmail(
                     'add-gift-card',
@@ -719,7 +719,8 @@ class TransactionAction(models.Model):
                     }
                 )
 
-            # gift card not in stock
+            # merge vars and template name
+            # for gift card out of stock to user
             template_name = 'gift-card-pending'
 
         elif self.action_type == 'app':
@@ -747,7 +748,8 @@ class TransactionAction(models.Model):
                     transaction=self
                 )
 
-                # sending cashback transaction approved email to user
+                # merge vars and template name
+                # for cashback transaction approved email to user
                 template_name = 'transaction-approved'
                 email_vars = [
                     {
@@ -775,17 +777,18 @@ class TransactionAction(models.Model):
                 if not self.giftcard:
                     raise Exception('Approved action must be linked to a gift card')
 
-                    email_vars.extend([
-                        {'name': 'CODE', 'content': self.giftcard.code},
-                        {'name': 'IMAGE', 'content': self.giftcard.image}
-                    ])
-
                 if self.giftcard.is_redeemed:
                     raise Exception('Gift card has already been redeemed')
                 else:
                     self.giftcard.is_redeemed = True
                     self.giftcard.save()
 
+                # merge vars and template name
+                # for giftcard email to user
+                email_vars.extend([
+                    {'name': 'CODE', 'content': self.giftcard.code},
+                    {'name': 'GIFT_IMAGE_URL', 'content': self.giftcard.image.url}
+                ])
                 template_name = 'gift-card'
 
         # send transaction action email to user

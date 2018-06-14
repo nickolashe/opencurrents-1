@@ -1554,8 +1554,8 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, TemplateView):
                 if giftcard:
                     # approved if giftcard in stock
                     action_type = 'app'
-                    status_msg = 'Your <strong>{}</strong> gift card has been emailed to you'.format(
-                        biz_name
+                    status_msg = 'Your {} <strong>{}</strong> gift card has been emailed to you'.format(
+                        giftcard.image, biz_name
                     )
                 else:
                     # pending if giftcard not in stock
