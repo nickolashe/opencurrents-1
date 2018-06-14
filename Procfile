@@ -1,1 +1,2 @@
-web: gunicorn oc.wsgi
+release: ./heroku-release-tasks.sh
+web: gunicorn oc.wsgi --log-file -
