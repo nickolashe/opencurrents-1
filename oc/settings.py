@@ -121,7 +121,7 @@ MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'mediafiles')
 CONTENT_TYPES = ['image', 'video']
 MAX_UPLOAD_SIZE = 15 * 1024 * 1024
 
-if os.getenv('GAE_INSTANCE') or os.getenv('GOOGLE_CLOUD_PROXY'):
+if os.getenv('GAE_INSTANCE') or os.getenv('GOOGLE_CLOUD_PROXY') or os.getenv('OC_HEROKU_DEV'):
     # Production
     DEBUG = False
     STATIC_URL = 'https://storage.googleapis.com/opencurrents-194003.appspot.com/static/'
@@ -132,6 +132,8 @@ if os.getenv('GAE_INSTANCE') or os.getenv('GOOGLE_CLOUD_PROXY'):
     GS_BUCKET_NAME = 'opencurrents-194003.appspot.com'
     GS_PROJECT_ID = 'opencurrents-194003'
 
+    if os.getenv('OC_HEROKU_DEV'):
+        DEBUG = True
 else:
     # Local Development
     # SECURITY WARNING: don't run with debug turned on in production!
