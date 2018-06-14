@@ -137,11 +137,11 @@ else:
     # SECURITY WARNING: don't run with debug turned on in production!
     # TODO: change back once internal testing is complete
     DEBUG = True
-    STATIC_URL = 'https://storage.googleapis.com/opencurrents-194003.appspot.com/static/'
-    MEDIA_URL = 'https://storage.googleapis.com/opencurrents-194003.appspot.com/'
+    # STATIC_URL = 'https://storage.googleapis.com/opencurrents-194003.appspot.com/static/'
+    # MEDIA_URL = 'https://storage.googleapis.com/opencurrents-194003.appspot.com/'
 
-    # STATIC_URL = '/static/'
-    # MEDIA_URL = '/media/'
+    STATIC_URL = '/static/'
+    MEDIA_URL = '/media/'
 
 
 APPEND_SLASH = True
