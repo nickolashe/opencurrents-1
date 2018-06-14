@@ -1,2 +1,3 @@
 release: ./heroku-release-tasks.sh
-web: gunicorn oc.wsgi --log-file -
+web: echo $GOOGLE_APPLICATION_CREDENTIALS_KEY > ./gcloud-key.json &&
+gunicorn oc.wsgi --log-file -
