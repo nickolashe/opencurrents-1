@@ -556,17 +556,16 @@ def path_and_rename_receipt(instance, filename):
 
 
 def path_and_rename_giftcard(instance, filename):
-        upload_to = 'giftcards/{}/'.format(instance.offer.org.name)
+        upload_to = 'images/giftcards/'
         ext = filename.split('.')[-1]
 
         # get filename
         if instance:
-            filename = '{}_${}_{}_{}_id_{}.{}'.format(
+            filename = '{}_${}_{}_{}.{}'.format(
                 instance.offer.org.name,
                 instance.amount,
                 datetime.now().strftime('%Y-%m-%d'),
                 datetime.now().strftime('%H-%M-%S.%f'),
-                instance.id,
                 ext
             )
         else:
@@ -639,7 +638,7 @@ class Transaction(models.Model):
 
     def __unicode__(self):
         return ' '.join([
-            'Transaction by user',
+            'Transaction %d by user' % self.id,
             self.user.username,
             'for %s\'s' % self.offer.org.name,
             'master' if self.offer.is_master else '',
@@ -693,16 +692,42 @@ class TransactionAction(models.Model):
         tr = self.transaction
         bizname = tr.biz_name if tr.biz_name else tr.offer.org.name
 
-        if self.action_type == 'req':
-            # TODO: send email to bizdev
-            pass
+        email_vars = [
+            {'name': 'ORG_NAME', 'content': bizname},
+            {'name': 'AMOUNT', 'content': '%.2f' % tr.price_reported},
+            {'name': 'TRANSACTION_ID', 'content': str(tr.id)}
+        ]
 
-            # gift card not in stock
-            template_name = 'gift-card-pending'
-            email_vars = [
-                {'name': 'ORG_NAME', 'content': bizname},
-                {'name': 'AMOUNT', 'content': '%.2f' % tr.price_reported},
-            ]
+        if tr.offer.offer_type == 'gft':
+            if not self.giftcard:
+                raise Exception('Approved action must be linked to a gift card')
+
+            if self.giftcard.code:
+                email_vars['CODE'] = self.giftcard.code
+            else:
+                email_vars['GIFT_CARD'] = self.giftcard.image
+
+            if self.action_type == 'req':
+                # send email to bizdev
+                try:
+                    sendTransactionalEmail(
+                        'add-gift-card',
+                        None,
+                        email_vars,
+                        'bizdev@opencurrents.com',
+                    )
+                except Exception as e:
+                    logger.error(
+                        'unable to send transaction action email: %s',
+                        {
+                            'message': e.message,
+                            'error': e,
+                            'template_name': 'add-gift-card'
+                        }
+                    )
+
+                # gift card not in stock
+                template_name = 'gift-card-pending'
 
         elif self.action_type == 'app':
             oc_user = OcUser(tr.user.id)
@@ -729,7 +754,7 @@ class TransactionAction(models.Model):
                     transaction=self
                 )
 
-                # sending email to user about transaction approvment
+                # sending cashback transaction approved email to user
                 template_name = 'transaction-approved'
                 email_vars = [
                     {
@@ -754,18 +779,16 @@ class TransactionAction(models.Model):
                     },
                 ]
             elif tr.offer.offer_type == 'gft':
-                if not self.giftcard:
-                    raise Exception('Approved action must be linked to a gift card')
+                if self.giftcard.is_redeemed:
+                    raise Exception('Gift card has already been redeemed')
+                else:
+                    self.giftcard.is_redeemed = True
+                    self.giftcard.save()
 
                 template_name = 'gift-card'
-                email_vars = [
-                    {'name': 'ORG_NAME', 'content': bizname},
-                    {'name': 'AMOUNT', 'content': '%.2f' % tr.price_reported},
-                    {'name': 'CODE', 'content': self.giftcard.code}
-                ]
 
-        if self.action_type in ['req', 'app']:
-            # send transaction action email
+        # send transaction action email to user
+        if (self.action_type == 'req' and tr.offer.offer_type == 'gft') or self.action_type == 'app':
             try:
                 sendTransactionalEmail(
                     template_name,
