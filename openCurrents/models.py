@@ -692,42 +692,36 @@ class TransactionAction(models.Model):
         tr = self.transaction
         bizname = tr.biz_name if tr.biz_name else tr.offer.org.name
 
+        # common transaction action email data
         email_vars = [
             {'name': 'ORG_NAME', 'content': bizname},
             {'name': 'AMOUNT', 'content': '%.2f' % tr.price_reported},
             {'name': 'TRANSACTION_ID', 'content': str(tr.id)}
         ]
+        template_name = None
 
-        if tr.offer.offer_type == 'gft':
-            if not self.giftcard:
-                raise Exception('Approved action must be linked to a gift card')
+        if self.action_type == 'req' and tr.offer.offer_type == 'gft':
+            # send gift card out of stock email to bizdev
+            try:
+                sendTransactionalEmail(
+                    'add-gift-card',
+                    None,
+                    email_vars,
+                    'bizdev@opencurrents.com',
+                )
+            except Exception as e:
+                logger.error(
+                    'unable to send transaction action email: %s',
+                    {
+                        'message': e.message,
+                        'error': e,
+                        'template_name': 'add-gift-card'
+                    }
+                )
 
-            if self.giftcard.code:
-                email_vars['CODE'] = self.giftcard.code
-            else:
-                email_vars['GIFT_CARD'] = self.giftcard.image
-
-            if self.action_type == 'req':
-                # send email to bizdev
-                try:
-                    sendTransactionalEmail(
-                        'add-gift-card',
-                        None,
-                        email_vars,
-                        'bizdev@opencurrents.com',
-                    )
-                except Exception as e:
-                    logger.error(
-                        'unable to send transaction action email: %s',
-                        {
-                            'message': e.message,
-                            'error': e,
-                            'template_name': 'add-gift-card'
-                        }
-                    )
-
-                # gift card not in stock
-                template_name = 'gift-card-pending'
+            # merge vars and template name
+            # for gift card out of stock to user
+            template_name = 'gift-card-pending'
 
         elif self.action_type == 'app':
             oc_user = OcUser(tr.user.id)
@@ -754,7 +748,8 @@ class TransactionAction(models.Model):
                     transaction=self
                 )
 
-                # sending cashback transaction approved email to user
+                # merge vars and template name
+                # for cashback transaction approved email to user
                 template_name = 'transaction-approved'
                 email_vars = [
                     {
@@ -779,16 +774,25 @@ class TransactionAction(models.Model):
                     },
                 ]
             elif tr.offer.offer_type == 'gft':
+                if not self.giftcard:
+                    raise Exception('Approved action must be linked to a gift card')
+
                 if self.giftcard.is_redeemed:
                     raise Exception('Gift card has already been redeemed')
                 else:
                     self.giftcard.is_redeemed = True
                     self.giftcard.save()
 
+                # merge vars and template name
+                # for giftcard email to user
+                email_vars.extend([
+                    {'name': 'CODE', 'content': self.giftcard.code},
+                    {'name': 'GIFT_IMAGE_URL', 'content': self.giftcard.image.url}
+                ])
                 template_name = 'gift-card'
 
         # send transaction action email to user
-        if (self.action_type == 'req' and tr.offer.offer_type == 'gft') or self.action_type == 'app':
+        if template_name:
             try:
                 sendTransactionalEmail(
                     template_name,
