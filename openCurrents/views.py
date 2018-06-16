@@ -5482,6 +5482,12 @@ def process_reset_password(request, user_email):
 
             user.set_password(new_password)
             user.save()
+
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                mark_safe('Your password has been reset'),
+            )
             return redirect('openCurrents:login')
 
         else:
