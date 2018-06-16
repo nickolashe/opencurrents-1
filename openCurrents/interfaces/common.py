@@ -5,8 +5,8 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 import re
 
-_MASTER_OFFER_LIMIT = 2
-_SIGNUP_BONUS = 2.0
+_MASTER_OFFER_LIMIT = 1.25
+_SIGNUP_BONUS = 1.0
 
 
 def one_week_from_now():

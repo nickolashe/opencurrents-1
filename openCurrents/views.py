@@ -337,8 +337,9 @@ class RobotsView(TemplateView):
     template_name = 'robots.txt'
 
 
-class HomeView(TemplateView):
+class HomeView(FormView):
     template_name = 'home.html'
+    form_class = UserSignupForm
 
     def dispatch(self, *args, **kwargs):
         """Process request and args and return HTTP response."""
@@ -1456,7 +1457,6 @@ class SignupView(FormView):
     form_class = UserSignupForm
 
     def get(self, request, *args, **kwargs):
-        context = dict()
         context = {'form': UserSignupForm()}
 
         user_email = request.GET.get('user_email')
