@@ -7,9 +7,7 @@
 
 
 {% block status %}
-  {% if status_msg %}
-    {{ block.super }}
-  {% else %}
+  {% if not messages %}
     <div class="status-highlight row full-width">
       <div class="small-12 column">
         Create your account to get $40 credit

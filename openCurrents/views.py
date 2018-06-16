@@ -5352,19 +5352,24 @@ def password_reset_request(request):
     if form.is_valid():
         user_email = form.cleaned_data['user_email']
 
-    # try to locate the verified user object by email
+        # try to locate the user object by email
         user = None
         try:
             user = User.objects.get(email=user_email)
         except Exception:
-            error_msg = 'Email %s has not been registered'
+            error_msg = 'Email %s has not yet been registered'
             logger.error(error_msg, user_email)
-            return redirect(
-                'openCurrents:signup',
-                status_msg=error_msg % user_email
+
+            messages.add_message(
+                request,
+                messages.ERROR,
+                mark_safe(error_msg % user_email),
+                extra_tags='alert'
             )
+            return redirect('openCurrents:signup')
 
         if user.has_usable_password():
+            # verified user
             logger.debug('verified user %s, send password reset email', user_email)
             glogger_struct = {
                 'msg': 'user password reset request',
@@ -5385,34 +5390,48 @@ def password_reset_request(request):
 
             token_record.save()
 
+            email_merge_vars = [
+                {'name': 'EMAIL', 'content': user_email},
+                {'name': 'TOKEN', 'content': str(token)}
+            ]
             try:
                 sendTransactionalEmail(
                     'password-email',
                     None,
-                    [
-                        {
-                            'name': 'EMAIL',
-                            'content': user_email
-                        },
-                        {
-                            'name': 'TOKEN',
-                            'content': str(token)
-                        }
-                    ],
+                    email_merge_vars,
                     user_email
                 )
+                return redirect('openCurrents:check-email-password', user_email)
+
             except Exception as e:
-                logger.error(
-                    'unable to send password email: %s (%s)',
-                    e.message,
-                    type(e)
+                error = {
+                    'template_name': 'password-email',
+                    'error': e,
+                    'message': e.message
+                }
+                logger.error('unable to send email: %s', error)
+
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    mark_safe('There was a problem on our end - please try resetting your password again'),
+                    extra_tags='alert'
                 )
-            return redirect('openCurrents:check-email-password', user_email)
+                return redirect('openCurrents:login')
+
         else:
-            logger.warning('user %s has not been verified', user_email)
+            # unverified user
+            logger.warning('password reset by unverified user %s', user_email)
+
+            messages.add_message(
+                request,
+                messages.ERROR,
+                mark_safe('You must complete signup before resetting your password'),
+                extra_tags='alert'
+            )
             return redirect('openCurrents:signup')
 
-    # could not read email
+    # invalid form
     else:
         # report the first validation error
         errors = [
@@ -5420,7 +5439,15 @@ def password_reset_request(request):
             for field, le in form.errors.as_data().iteritems()
             for error in le
         ]
-        status_msg = errors[0]
+
+        for error in errors:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                mark_safe(error),
+                extra_tags='alert'
+            )
+
         return redirect('openCurrents:login')
 
 
@@ -5432,40 +5459,56 @@ def process_reset_password(request, user_email):
 
     # valid form data received
     if form.is_valid():
-
         new_password = form.cleaned_data['new_password']
 
-        # first, try to locate the verified user object by email
+        # try to locate the user object by email
         user = None
         try:
             user = User.objects.get(email=user_email)
         except Exception:
             error_msg = 'Email %s has not been registered'
             logger.error(error_msg, user_email)
-            return redirect(
-                'openCurrents:signup',
-                status_msg=error_msg % user_email
-            )
 
-        # second, make sure the verification token and user email match
+            messages.add_message(
+                request,
+                messages.ERROR,
+                mark_safe(error_msg % user_email),
+                extra_tags='alert'
+            )
+            return redirect('openCurrents:signup')
+
+        # validate the verification token
         token_record = None
-        token = form.cleaned_data['verification_token']
+        token = form.cleaned_data['verification_token,']
         try:
-            token_record = Token.objects.get(
-                email=user_email,
-                token=token
-            )
+            token_record = Token.objects.get(email=user_email, token=token)
         except Exception:
-            error_msg = 'Invalid verification token for %s'
-            logger.error(error_msg, user_email)
-            return redirect(
-                'openCurrents:signup',
-                status_msg=error_msg % user_email
+            error_msg = 'invalid password request token: %s'
+            error = {
+                'user_email': user_email,
+                'token': token,
+                'message': 'invalid password request token'
+            }
+            logger.error(error_msg, error)
+
+            messages.add_message(
+                request,
+                messages.ERROR,
+                mark_safe('This link has expired - try resetting your password again'),
+                extra_tags='alert'
             )
+            return redirect('openCurrents:login')
 
         if token_record.is_verified:
             logger.warning('token for %s has already been verified', user_email)
-            return redirect('openCurrents:profile')
+
+            messages.add_message(
+                request,
+                messages.WARNING,
+                mark_safe('You have already reset your password using this link'),
+                extra_tags='alert'
+            )
+            return redirect('openCurrents:login')
 
         # mark the verification record as verified
         token_record.is_verified = True
@@ -5491,7 +5534,17 @@ def process_reset_password(request, user_email):
             return redirect('openCurrents:login')
 
         else:
-            logger.warning('user %s has not been verified', user_email)
+            logger.warning(
+                'password reset: user %s has not been verified',
+                user_email
+            )
+
+            messages.add_message(
+                request,
+                messages.WARNING,
+                mark_safe('We need to confirm your email first'),
+                extra_tags='alert'
+            )
             return redirect('openCurrents:signup')
 
     # re-enter valid matching passwords
