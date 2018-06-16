@@ -570,6 +570,7 @@ class LoginView(TemplateView):
         """Get context data."""
         context = super(LoginView, self).get_context_data(**kwargs)
         context['next'] = self.request.GET.get('next', None)
+        context['user_login_email'] = self.kwargs.get('user_login_email')
 
         # adding 'next' to session
         self.request.session['next'] = context['next']
@@ -5166,11 +5167,19 @@ def process_login(request):
             }
             glogger.log_struct(glogger_struct, labels=glogger_labels)
 
-            return redirect(
-                'openCurrents:login',
-                status_msg='Invalid login/password.',
-                msg_type='alert'
-            )
+            if User.objects.filter(email=user_name).exists():
+                return redirect(
+                    'openCurrents:login',
+                    status_msg ='Invalid login or password.',
+                    msg_type ='alert',
+                    user_login_email = user_name
+                )
+            else:
+                return redirect(
+                    'openCurrents:login',
+                    status_msg ='Invalid login or password.',
+                    msg_type ='alert'
+                )
     else:
         logger.error(
             'Invalid login: %s',
