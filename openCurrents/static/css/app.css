@@ -1308,8 +1308,6 @@ i:hover ~ .addtocalendar {
     inset 0 -2px 6px #999;
 }
 
-<<<<<<< HEAD
-=======
 .featured-overlay {
   position: absolute;
   top: 0;
@@ -1332,7 +1330,6 @@ i:hover ~ .addtocalendar {
   width: 165px;
 }
 
->>>>>>> c9ae310... fixed width date overlay
 /* small */
 #profile-img {
   display: inline-block;
