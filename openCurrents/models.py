@@ -650,6 +650,24 @@ class Transaction(models.Model):
             '%s)' % self.date_updated.strftime('%m/%d/%Y %H:%M:%S')
         ])
 
+def sendTransactionalEmailUser(template_name, merge_vars, recipient_email):
+    try:
+        sendTransactionalEmail(
+            template_name,
+            None,
+            merge_vars,
+            recipient_email
+        )
+    except Exception as e:
+        error = {
+            'error': e,
+            'message': e.message,
+            'template_name': template_name
+        }
+        logger.exception('unable to send transactional email: %s', e)
+
+def sendTransactionalBizDev(template_name, merge_vars):
+    sendTransactionalEmailUser(template_name, merge_vars, 'bizdev@opencurrents.com')
 
 class TransactionAction(models.Model):
     transaction = models.ForeignKey(
@@ -696,28 +714,15 @@ class TransactionAction(models.Model):
         email_vars = [
             {'name': 'ORG_NAME', 'content': bizname},
             {'name': 'AMOUNT', 'content': '%.2f' % tr.price_reported},
-            {'name': 'TRANSACTION_ID', 'content': str(tr.id)}
+            {'name': 'TRANSACTION_ID', 'content': str(tr.id)},
+            {'name': 'FNAME', 'content': tr.user.first_name},
+            {'name': 'LNAME', 'content': tr.user.last_name}
         ]
         template_name = None
 
         if self.action_type == 'req' and tr.offer.offer_type == 'gft':
             # send gift card out of stock email to bizdev
-            try:
-                sendTransactionalEmail(
-                    'add-gift-card',
-                    None,
-                    email_vars,
-                    'bizdev@opencurrents.com',
-                )
-            except Exception as e:
-                logger.error(
-                    'unable to send transaction action email: %s',
-                    {
-                        'message': e.message,
-                        'error': e,
-                        'template_name': 'add-gift-card'
-                    }
-                )
+            sendTransactionalEmailBizDev('add-gift-card', email_vars)
 
             # merge vars and template name
             # for gift card out of stock to user
@@ -783,6 +788,8 @@ class TransactionAction(models.Model):
                     self.giftcard.is_redeemed = True
                     self.giftcard.save()
 
+                sendTransactionalBizDev('gift-card-purchased', email_vars)
+
                 # merge vars and template name
                 # for giftcard email to user
                 email_vars.extend([
@@ -793,22 +800,7 @@ class TransactionAction(models.Model):
 
         # send transaction action email to user
         if template_name:
-            try:
-                sendTransactionalEmail(
-                    template_name,
-                    None,
-                    email_vars,
-                    tr.user.email,
-                )
-            except Exception as e:
-                logger.error(
-                    'unable to send transaction action email: %s',
-                    {
-                        'message': e.message,
-                        'error': e,
-                        'template_name': template_name
-                    }
-                )
+            sendTransactionalEmailUser(template_name, email_vars, tr.user.email)
 
     def __unicode__(self):
         return ' '.join([
