@@ -1572,8 +1572,8 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, TemplateView):
                 else:
                     # pending if giftcard not in stock
                     action_type = 'req'
-                    status_msg = 'Expect to receive your <strong>{}</strong> gift card within 48 hours'.format(
-                        biz_name
+                    status_msg = 'We are currently out of stock - your <strong>{}</strong> gift card will be sent to {} in the next 48 hours'.format(
+                        biz_name, tr.user.email
                     )
 
                 # create transaction action record
