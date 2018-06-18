@@ -650,7 +650,10 @@ class Transaction(models.Model):
             '%s)' % self.date_updated.strftime('%m/%d/%Y %H:%M:%S')
         ])
 
+
 def sendTransactionalEmailUser(template_name, merge_vars, recipient_email):
+    from openCurrents.views import sendTransactionalEmail
+
     try:
         sendTransactionalEmail(
             template_name,
@@ -666,8 +669,10 @@ def sendTransactionalEmailUser(template_name, merge_vars, recipient_email):
         }
         logger.exception('unable to send transactional email: %s', e)
 
-def sendTransactionalBizDev(template_name, merge_vars):
+
+def sendTransactionalEmailBizDev(template_name, merge_vars):
     sendTransactionalEmailUser(template_name, merge_vars, 'bizdev@opencurrents.com')
+
 
 class TransactionAction(models.Model):
     transaction = models.ForeignKey(
@@ -704,7 +709,6 @@ class TransactionAction(models.Model):
         super(TransactionAction, self).save(*args, **kwargs)
 
         from openCurrents.interfaces.ocuser import OcUser
-        from openCurrents.views import sendTransactionalEmail
 
         # check if the transaction action for selected transaction exists
         tr = self.transaction
@@ -788,7 +792,7 @@ class TransactionAction(models.Model):
                     self.giftcard.is_redeemed = True
                     self.giftcard.save()
 
-                sendTransactionalBizDev('gift-card-purchased', email_vars)
+                sendTransactionalEmailBizDev('gift-card-purchased', email_vars)
 
                 # merge vars and template name
                 # for giftcard email to user
