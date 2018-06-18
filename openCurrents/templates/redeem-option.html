@@ -44,7 +44,7 @@
       <h5>or</h5>
     </div>
     <div class="medium-4 columns end">
-      <a href="{% url 'openCurrents:redeem-currents' 1 %}?biz_name={{biz_name}}" class="button option">
+      <a href="{% url 'openCurrents:redeem-currents' master_offer.id %}?biz_name={{biz_name}}" class="button option">
         <h4 class="white">$25 cash back</h4>
         Upload receipt
       </a>
@@ -54,6 +54,5 @@
     <a href="{% url 'openCurrents:profile' %}" class="button round secondary tiny">
       Cancel
     </a>
-    <p>[fix urls]</p>
   </div>
 {% endblock content %}

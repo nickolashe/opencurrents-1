@@ -1446,7 +1446,8 @@ class RedeemOptionView(TemplateView):
     def get(self, request, *args, **kwargs):
         biz_name = request.GET.get('biz_name', '')
         context = {'biz_name': biz_name}
-
+        context['master_offer'] = Offer.objects.filter(is_master=True).first()
+        
         return render(request, self.template_name, context)
 
 
