@@ -1286,7 +1286,7 @@ i:hover ~ .addtocalendar {
 }
 
 .biz-logos {
-  /* border: 1px solid #cccccc; */
+  border: 1px solid transparent;
   background-color: #ffffff;
   padding: 7px;
   margin: 0.25rem;
@@ -1299,7 +1299,7 @@ i:hover ~ .addtocalendar {
 }
 
 .biz-logos:hover {
-  filter: grayscale(0%) saturate(111%);
+  border-color: #24b2e7;
 }
 
 .biz-logos:active {
