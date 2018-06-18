@@ -1308,6 +1308,31 @@ i:hover ~ .addtocalendar {
     inset 0 -2px 6px #999;
 }
 
+<<<<<<< HEAD
+=======
+.featured-overlay {
+  position: absolute;
+  top: 0;
+  left: 1rem;
+  height: 33px;
+  font-weight: bold;
+  border-radius: 40px;
+  background-color: #f5a412;
+  color: #ffffff;
+  font-size: 0.875rem;
+  padding: 5px;
+  text-align: center;
+}
+
+.featured-overlay.date {
+  width: 55px;
+}
+
+.biz-header-image {
+  width: 165px;
+}
+
+>>>>>>> c9ae310... fixed width date overlay
 /* small */
 #profile-img {
   display: inline-block;
