@@ -1476,6 +1476,7 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, TemplateView):
         }
 
         hours_approved = self.ocuser.get_hours_approved()
+        status_msg = None
 
         if not hours_approved:
             status_msg = ' '.join([
@@ -1485,16 +1486,25 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, TemplateView):
                 '</a>'
             ])
 
+        balance_weekly = self.ocuser.get_giftcard_offer_remaining()
+
+        if balance_weekly <= 0:
+            status_msg = ' '.join([
+                'You have already redeemed a maximum of',
+                '$%d' % convert.cur_to_usd(common._GIFT_CARD_OFFER_LIMIT),
+                'in gift cards this week',
+            ])
+
+        if status_msg:
             messages.add_message(
                 request,
                 messages.ERROR,
                 mark_safe(status_msg),
                 extra_tags='alert'
             )
-
             return redirect('openCurrents:redeem-option')
-
-        return render(request, self.template_name, context)
+        else:
+            return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
         form = ConfirmGiftCardPurchaseForm(request.POST)
