@@ -1447,7 +1447,7 @@ class RedeemOptionView(TemplateView):
         biz_name = request.GET.get('biz_name', '')
         context = {'biz_name': biz_name}
         context['master_offer'] = Offer.objects.filter(is_master=True).first()
-        
+
         return render(request, self.template_name, context)
 
 
@@ -1503,15 +1503,26 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, TemplateView):
             biz_name = form.cleaned_data['biz_name']
             denomination = form.cleaned_data['denomination']
 
+            canRedeem = True
             balance_available = self.ocuser.get_balance_available()
-            if convert.cur_to_usd(balance_available, fee=False) < denomination:
+            if balance_available == 0:
                 status_msg = ' '.join([
-                    'Insufficient balance for the transaction.<br/>',
+                    'You don\'t have any Currents yet.<br/>',
                     '<a href="/volunteer-opportunities/">',
                     'Find a volunteer opportunity to earn more Currents!',
                     '</a>'
                 ])
+                canRedeem = False
+            elif convert.cur_to_usd(balance_available, fee=False) < denomination:
+                status_msg = ' '.join([
+                    'Not enough Currents to buy a gift card - please try cash back redemption instead.<br/>',
+                    '<a href="/volunteer-opportunities/">',
+                    'Find a volunteer opportunity to earn more Currents!',
+                    '</a>'
+                ])
+                canRedeem = False
 
+            if not canRedeem:
                 messages.add_message(
                     request,
                     messages.ERROR,
