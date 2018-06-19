@@ -25,24 +25,8 @@
   {% else %}
     <div class="status-highlight row full-width">
       <div class="small-12 column white">
-        {% if balance_available > 0 %}
-          {% if has_bonus and balance_available == bonus_amount %}
-            You have ${{ balance_available|current_to_usd:"no_fee"|round_number:0 }} credit in Currents.
-          {% else %}
-            You've got Currents.
-          {% endif %}
-
-          <a href="{% url 'openCurrents:marketplace' %}" class="white-link">
-            Redeem now
-          </a>
-
-        {% else %}
-          Let's create Currents!
-          <a class="earn-currents-popup_open white-link">
-            Volunteer now
-          </a>
-        {% endif %}
-
+        Not sure what's next?
+        <a class="how-to-popup_open white-link">Here's how it works</a>
       </div>
     </div>
   {% endif %}
@@ -181,6 +165,10 @@
     {% include "popups/welcome-popup.html" %}
   </div>
 
+  <div id="how-to-popup" class="modal center small-12 medium-10 large-8 small-centered columns">
+    {% include "popups/how-to-popup.html" %}
+  </div>
+
   <div id="earn-currents-popup" class="modal center small-12 medium-10 large-8 small-centered columns">
     {% include "popups/earn-currents-popup.html" %}
   </div>
@@ -253,7 +241,7 @@
         var open = false;
       }
 
-      $('#rsvp-popup, #earn-currents-popup, #balance-popup, #no-cash-popup, #cash-out-popup, #donate-cash-popup, #volunteer-for-cash-popup').popup({
+      $('#rsvp-popup, #how-to-popup, #earn-currents-popup, #balance-popup, #no-cash-popup, #cash-out-popup, #donate-cash-popup, #volunteer-for-cash-popup').popup({
         vertical: 'top',
         transition: 'all 0.75s',
         scrolllock: true,
