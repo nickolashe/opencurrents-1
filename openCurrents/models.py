@@ -651,6 +651,29 @@ class Transaction(models.Model):
         ])
 
 
+def sendTransactionalEmailUser(template_name, merge_vars, recipient_email):
+    from openCurrents.views import sendTransactionalEmail
+
+    try:
+        sendTransactionalEmail(
+            template_name,
+            None,
+            merge_vars,
+            recipient_email
+        )
+    except Exception as e:
+        error = {
+            'error': e,
+            'message': e.message,
+            'template_name': template_name
+        }
+        logger.exception('unable to send transactional email: %s', e)
+
+
+def sendTransactionalEmailBizDev(template_name, merge_vars):
+    sendTransactionalEmailUser(template_name, merge_vars, 'bizdev@opencurrents.com')
+
+
 class TransactionAction(models.Model):
     transaction = models.ForeignKey(
         Transaction,
@@ -686,48 +709,28 @@ class TransactionAction(models.Model):
         super(TransactionAction, self).save(*args, **kwargs)
 
         from openCurrents.interfaces.ocuser import OcUser
-        from openCurrents.views import sendTransactionalEmail
 
         # check if the transaction action for selected transaction exists
         tr = self.transaction
         bizname = tr.biz_name if tr.biz_name else tr.offer.org.name
 
+        # common transaction action email data
         email_vars = [
             {'name': 'ORG_NAME', 'content': bizname},
             {'name': 'AMOUNT', 'content': '%.2f' % tr.price_reported},
-            {'name': 'TRANSACTION_ID', 'content': str(tr.id)}
+            {'name': 'TRANSACTION_ID', 'content': str(tr.id)},
+            {'name': 'FNAME', 'content': tr.user.first_name},
+            {'name': 'LNAME', 'content': tr.user.last_name}
         ]
+        template_name = None
 
-        if tr.offer.offer_type == 'gft':
-            if not self.giftcard:
-                raise Exception('Approved action must be linked to a gift card')
+        if self.action_type == 'req' and tr.offer.offer_type == 'gft':
+            # send gift card out of stock email to bizdev
+            sendTransactionalEmailBizDev('add-gift-card', email_vars)
 
-            if self.giftcard.code:
-                email_vars['CODE'] = self.giftcard.code
-            else:
-                email_vars['GIFT_CARD'] = self.giftcard.image
-
-            if self.action_type == 'req':
-                # send email to bizdev
-                try:
-                    sendTransactionalEmail(
-                        'add-gift-card',
-                        None,
-                        email_vars,
-                        'bizdev@opencurrents.com',
-                    )
-                except Exception as e:
-                    logger.error(
-                        'unable to send transaction action email: %s',
-                        {
-                            'message': e.message,
-                            'error': e,
-                            'template_name': 'add-gift-card'
-                        }
-                    )
-
-                # gift card not in stock
-                template_name = 'gift-card-pending'
+            # merge vars and template name
+            # for gift card out of stock to user
+            template_name = 'gift-card-pending'
 
         elif self.action_type == 'app':
             oc_user = OcUser(tr.user.id)
@@ -754,7 +757,8 @@ class TransactionAction(models.Model):
                     transaction=self
                 )
 
-                # sending cashback transaction approved email to user
+                # merge vars and template name
+                # for cashback transaction approved email to user
                 template_name = 'transaction-approved'
                 email_vars = [
                     {
@@ -779,32 +783,28 @@ class TransactionAction(models.Model):
                     },
                 ]
             elif tr.offer.offer_type == 'gft':
+                if not self.giftcard:
+                    raise Exception('Approved action must be linked to a gift card')
+
                 if self.giftcard.is_redeemed:
                     raise Exception('Gift card has already been redeemed')
                 else:
                     self.giftcard.is_redeemed = True
                     self.giftcard.save()
 
+                sendTransactionalEmailBizDev('gift-card-purchased', email_vars)
+
+                # merge vars and template name
+                # for giftcard email to user
+                email_vars.extend([
+                    {'name': 'CODE', 'content': self.giftcard.code},
+                    {'name': 'GIFT_IMAGE_URL', 'content': self.giftcard.image.url}
+                ])
                 template_name = 'gift-card'
 
         # send transaction action email to user
-        if (self.action_type == 'req' and tr.offer.offer_type == 'gft') or self.action_type == 'app':
-            try:
-                sendTransactionalEmail(
-                    template_name,
-                    None,
-                    email_vars,
-                    tr.user.email,
-                )
-            except Exception as e:
-                logger.error(
-                    'unable to send transaction action email: %s',
-                    {
-                        'message': e.message,
-                        'error': e,
-                        'template_name': template_name
-                    }
-                )
+        if template_name:
+            sendTransactionalEmailUser(template_name, email_vars, tr.user.email)
 
     def __unicode__(self):
         return ' '.join([

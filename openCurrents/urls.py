@@ -43,6 +43,7 @@ urlpatterns = [
     url(r'^delete-offer/(?P<pk>\d+)/$', views.DeleteOfferView.as_view(), name='delete-offer'),
     url(r'^login/$', views.LoginView.as_view(), name='login'),
     url(r'^login/(?P<status_msg>.*)/$', views.LoginView.as_view(), name='login'),
+    url(r'^login/(?P<status_msg>.*)/(?P<msg_type>.*)/(?P<user_login_email>[\w\.@\+\-]+)$', views.LoginView.as_view(), name='login'),
     url(r'^login/(?P<status_msg>.*)/(?P<msg_type>.*)$', views.LoginView.as_view(), name='login'),
     url(r'^invite-friends/(?P<referrer>[\w\.@\+\-]*)/$',
         views.InviteFriendsView.as_view(), name='invite-friends'),
