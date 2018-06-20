@@ -1503,7 +1503,12 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, TemplateView):
                 mark_safe(status_msg),
                 extra_tags='alert'
             )
-            return redirect('openCurrents:redeem-option')
+            return redirect(
+                '?'.join([
+                    reverse('openCurrents:redeem-option'),
+                    'biz_name=%s' % biz_name
+                ])
+            )
         else:
             return render(request, self.template_name, context)
 
@@ -1541,7 +1546,12 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, TemplateView):
                     extra_tags='alert'
                 )
 
-                return redirect('openCurrents:redeem-option')
+                return redirect(
+                    '?'.join([
+                        reverse('openCurrents:redeem-option'),
+                        'biz_name=%s' % biz_name
+                    ])
+                )
 
             giftcard = GiftCardInventory.objects.filter(
                 offer__org__name=biz_name,
