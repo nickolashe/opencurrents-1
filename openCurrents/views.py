@@ -14,7 +14,6 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.utils.safestring import mark_safe
 from django.utils import timezone
-from django.utils.safestring import mark_safe
 from django.db.models import F, Q, Max
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.template.context_processors import csrf
@@ -55,7 +54,8 @@ from openCurrents.models import (
     Transaction,
     TransactionAction,
     UserCashOut,
-    Ledger
+    Ledger,
+    GiftCardInventory
 )
 
 from openCurrents.forms import (
@@ -78,8 +78,8 @@ from openCurrents.forms import (
     OfferEditForm,
     RedeemCurrentsForm,
     PublicRecordsForm,
-    PopUpAnswer
-    # HoursDetailsForm
+    PopUpAnswer,
+    ConfirmGiftCardPurchaseForm
 )
 
 import json
@@ -517,6 +517,7 @@ class BizDetailsView(BizSessionContextView, FormView):
         return redirect(
             'openCurrents:biz-details',
         )
+
 
 class BusinessView(HomeView):
     template_name = 'business.html'
@@ -1438,6 +1439,176 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         kwargs.update({'user': self.request.user})
 
         return kwargs
+
+
+class RedeemOptionView(TemplateView):
+    template_name = 'redeem-option.html'
+
+    def get(self, request, *args, **kwargs):
+        biz_name = request.GET.get('biz_name', '')
+        context = {'biz_name': biz_name}
+        context['master_offer'] = Offer.objects.filter(is_master=True).first()
+
+        return render(request, self.template_name, context)
+
+
+class ConfirmDonationView(TemplateView):
+    template_name = 'confirm-donation.html'
+
+
+class DonationConfirmedView(TemplateView):
+    template_name = 'donation-confirmed.html'
+
+
+class PurchaseConfirmedView(TemplateView):
+    template_name = 'purchase-confirmed.html'
+
+
+class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, TemplateView):
+    template_name = 'confirm-purchase.html'
+
+    def get(self, request, *args, **kwargs):
+        biz_name = request.GET.get('biz_name', '')
+        context = {
+            'biz_name': biz_name,
+            'form': ConfirmGiftCardPurchaseForm(
+                initial={'biz_name': biz_name}
+            )
+        }
+
+        hours_approved = self.ocuser.get_hours_approved()
+        status_msg = None
+
+        if not hours_approved:
+            status_msg = ' '.join([
+                'You need to volunteer to redeem gift cards.<br/>',
+                '<a href="/volunteer-opportunities/">',
+                'Find a volunteer opportunity!',
+                '</a>'
+            ])
+
+        balance_weekly = self.ocuser.get_giftcard_offer_remaining()
+
+        if balance_weekly <= 0:
+            status_msg = ' '.join([
+                'You have already redeemed a maximum of',
+                '$%d' % convert.cur_to_usd(common._GIFT_CARD_OFFER_LIMIT),
+                'in gift cards this week',
+            ])
+
+        if status_msg:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                mark_safe(status_msg),
+                extra_tags='alert'
+            )
+            return redirect(
+                '?'.join([
+                    reverse('openCurrents:redeem-option'),
+                    'biz_name=%s' % biz_name
+                ])
+            )
+        else:
+            return render(request, self.template_name, context)
+
+    def post(self, request, *args, **kwargs):
+        form = ConfirmGiftCardPurchaseForm(request.POST)
+
+        if form.is_valid():
+            biz_name = form.cleaned_data['biz_name']
+            denomination = form.cleaned_data['denomination']
+
+            canRedeem = True
+            balance_available = self.ocuser.get_balance_available()
+            if balance_available == 0:
+                status_msg = ' '.join([
+                    'You don\'t have any Currents yet.<br/>',
+                    '<a href="/volunteer-opportunities/">',
+                    'Find a volunteer opportunity to earn more Currents!',
+                    '</a>'
+                ])
+                canRedeem = False
+            elif convert.cur_to_usd(balance_available, fee=False) < denomination:
+                status_msg = ' '.join([
+                    'Not enough Currents to buy a gift card - please try cash back redemption instead.<br/>',
+                    '<a href="/volunteer-opportunities/">',
+                    'Find a volunteer opportunity to earn more Currents!',
+                    '</a>'
+                ])
+                canRedeem = False
+
+            if not canRedeem:
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    mark_safe(status_msg),
+                    extra_tags='alert'
+                )
+
+                return redirect(
+                    '?'.join([
+                        reverse('openCurrents:redeem-option'),
+                        'biz_name=%s' % biz_name
+                    ])
+                )
+
+            giftcard = GiftCardInventory.objects.filter(
+                offer__org__name=biz_name,
+                amount=denomination,
+                is_redeemed=False
+            ).first()
+
+            if giftcard:
+                offer = giftcard.offer
+            else:
+                try:
+                    offer = Offer.objects.get(
+                        org__name=biz_name,
+                        offer_type='gft'
+                    )
+                except Offer.DoesNotExist:
+                    logger.exception(
+                        'critical error: no gift card offer for %s',
+                        biz_name
+                    )
+                    return redirect('openCurrents:500')
+
+            with transaction.atomic():
+                # create transaction
+                tr = Transaction(
+                    user=self.request.user,
+                    offer=offer,
+                    price_reported=denomination,
+                    currents_amount=convert.usd_to_cur(float(denomination))
+                )
+                tr.save()
+
+                if giftcard:
+                    # approved if giftcard in stock
+                    action_type = 'app'
+                    status_msg = 'Your <strong>{}</strong> gift card has been emailed to you'.format(
+                        biz_name
+                    )
+                else:
+                    # pending if giftcard not in stock
+                    action_type = 'req'
+                    status_msg = 'We are currently out of stock - your <strong>{}</strong> gift card will be sent to {} in the next 48 hours'.format(
+                        biz_name, tr.user.email
+                    )
+
+                # create transaction action record
+                action = TransactionAction(
+                    transaction=tr,
+                    action_type=action_type,
+                    giftcard=giftcard
+                )
+                action.save()
+
+                return redirect('openCurrents:profile', status_msg=status_msg)
+        else:
+            logger.exception('critical error: invalid ConfirmGiftCardPurchaseForm')
+            return redirect('openCurrents:500')
 
 
 class RequestCurrentsView(TemplateView):
@@ -5546,6 +5717,7 @@ def sendTransactionalEmail(
         logger.debug('test mode: mocking mandrill call')
         sess['recepient'] = recipient_email
         sess['merge_vars'] = merge_vars
+
 
 def sendBulkEmail(
     template_name,

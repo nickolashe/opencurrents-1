@@ -269,17 +269,6 @@ input.home-input::placeholder {
   border-radius: 4px;
 }
 
-.button.orange {
-  background-color: #f5a412;
-  border-color: #f5a412;
-  box-shadow: 0 3px #b37608;
-}
-
-.button.orange:hover {
-  background-color: #d78d09;
-  border-color: #d78d09;
-}
-
 .accordion-title {
   background-color: transparent;
 }
