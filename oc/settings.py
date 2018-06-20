@@ -111,7 +111,7 @@ USE_L10N = True
 USE_TZ = True
 
 # sessions and auto-logout
-AUTO_LOGOUT_DELAY = 180  # in minutes
+AUTO_LOGOUT_DELAY = 1  # in minutes
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
