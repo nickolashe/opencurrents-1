@@ -427,7 +427,7 @@ class AdminActionUserTime(models.Model):
         if self.action_type == 'req':
             return ' '.join([
                 self.usertimelog.user.username,
-                'requested approval of',
+                'REQUESTED approval of',
                 str(hours),
                 'hours starting on',
                 self.usertimelog.datetime_start.astimezone(pytz.timezone(tz)).strftime('%Y-%m-%d %I-%M %p'),
@@ -437,16 +437,11 @@ class AdminActionUserTime(models.Model):
                 self.user.username,
             ])
         else:
-            if self.action_type == 'app':
-                act = 'approved'
-            elif self.action_type == 'dec':
-                act = 'declined'
-
             return ' '.join([
                 self.usertimelog.event.project.org.name,
                 'admin',
                 self.user.email,
-                act,
+                self.get_action_type_display().upper(),
                 str(hours),
                 'hours by',
                 self.usertimelog.user.email,
@@ -523,9 +518,9 @@ class Offer(models.Model):
 
     def __unicode__(self):
         return ' '.join([
-            'Master offer' if self.is_master else 'Offer',
-            'for',
-            str(self.currents_share) + '% on',
+            'Master' if self.is_master else self.get_offer_type_display(),
+            'offer for',
+            str(self.currents_share) + '% share on',
             self.item.name,
             'by',
             self.org.name
@@ -641,8 +636,7 @@ class Transaction(models.Model):
             'Transaction %d by user' % self.id,
             self.user.username,
             'for %s\'s' % self.offer.org.name,
-            'master' if self.offer.is_master else '',
-            '%s offer' % self.offer.get_offer_type_display(),
+            'master' if self.offer.is_master else '%s offer' % self.offer.get_offer_type_display(),
             str(self.offer.id),
             'in the amount of',
             '%.3f' % float(self.currents_amount),
@@ -809,7 +803,7 @@ class TransactionAction(models.Model):
     def __unicode__(self):
         return ' '.join([
             'Action',
-            '[%s]' % self.action_type,
+            self.get_action_type_display().upper(),
             'taken at',
             self.date_updated.strftime('%m/%d/%Y %H:%M:%S'),
             'for',
@@ -873,7 +867,7 @@ class UserCashOut(models.Model):
             'on',
             self.date_created.strftime('%m/%d/%Y %H:%M:%S'),
             'has been',
-            self.get_status_display()
+            self.get_status_display().upper()
         ])
 
 
@@ -910,5 +904,5 @@ class GiftCardInventory(models.Model):
             '%.2f' % self.amount,
             'created on',
             self.date_created.strftime('%m/%d/%Y %H:%M:%S'),
-            '(%s)' % ('redeemed' if self.is_redeemed else 'available')
+            '(%s)' % ('REDEEMED' if self.is_redeemed else 'AVAILABLE')
         ])
