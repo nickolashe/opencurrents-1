@@ -121,30 +121,74 @@ MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'mediafiles')
 CONTENT_TYPES = ['image', 'video']
 MAX_UPLOAD_SIZE = 15 * 1024 * 1024
 
-if os.getenv('GAE_INSTANCE') or os.getenv('GOOGLE_CLOUD_PROXY') or os.getenv('OC_HEROKU_DEV'):
+# Conditional production / dev / local env setup
+GS_PROJECT_ID = 'opencurrents-194003'
+if os.getenv('GAE_INSTANCE') or os.getenv('GOOGLE_CLOUD_PROXY'):
     # Production
+    # SECURITY WARNING: don't run with debug turned on in production!
     DEBUG = False
-    STATIC_URL = 'https://storage.googleapis.com/opencurrents-194003.appspot.com/static/'
-    MEDIA_URL = 'https://storage.googleapis.com/opencurrents-194003.appspot.com/media/'
+    GS_BUCKET_NAME = 'opencurrents-194003.appspot.com'
+    GS_URL_PREFIX = 'https://storage.googleapis.com/{}'.format(GS_BUCKET_NAME)
 
     # django-storages
     DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
-    GS_BUCKET_NAME = 'opencurrents-194003.appspot.com'
-    GS_PROJECT_ID = 'opencurrents-194003'
 
-    if os.getenv('OC_HEROKU_DEV'):
-        DEBUG = True
-else:
-    # Local Development
-    # SECURITY WARNING: don't run with debug turned on in production!
-    # TODO: change back once internal testing is complete
+    # db config
+    DATABASES = {
+        'default': {
+            # If you are using Cloud SQL for MySQL rather than PostgreSQL, set
+            # 'ENGINE': 'django.db.backends.mysql' instead of the following.
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'opencurrents',
+            'USER': os.getenv('GS_DB_USER'),
+            'PASSWORD': os.getenv('GS_DB_PASS'),
+            # For MySQL, set 'PORT': '3306' instead of the following. Any Cloud
+            # SQL Proxy instances running locally must also be set to tcp:3306.
+            'PORT': '5432',
+        }
+    }
+
+    # In the flexible environment, you connect to CloudSQL using a unix socket.
+    # Locally, you can use the CloudSQL proxy to proxy a localhost connection
+    # to the instance
+    if os.getenv('GAE_INSTANCE'):
+        DATABASES['default']['HOST'] = '/cloudsql/opencurrents-194003:us-central1:oc-pg'
+    elif os.getenv('GOOGLE_CLOUD_PROXY'):
+        # when using CloudSQL proxy to forward connections to remote db
+        DATABASES['default']['HOST'] = '127.0.0.1'
+    else:
+        raise Exception('Database configuration not defined in the run environment')
+
+elif os.getenv('OC_HEROKU_DEV'):
+    # dev server
     DEBUG = True
-    # STATIC_URL = 'https://storage.googleapis.com/opencurrents-194003.appspot.com/static/'
-    # MEDIA_URL = 'https://storage.googleapis.com/opencurrents-194003.appspot.com/'
+    GS_PROJECT_ID = 'opencurrents-194003'
+    GS_BUCKET_NAME = 'dev.opencurrents.com'
+    GS_URL_PREFIX = 'https://storage.googleapis.com/{}'.format(GS_BUCKET_NAME)
 
-    STATIC_URL = '/static/'
-    MEDIA_URL = '/media/'
+    # django-storages
+    DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 
+    # db config
+    # updates database configuration with $DATABASE_URL
+    db_from_env = dj_database_url.config(conn_max_age=500)
+    DATABASES = {'default': db_from_env}
+else:
+    # local dev env
+    DEBUG = True
+    GS_URL_PREFIX = ''
+
+    # db config
+    # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
+    }
+
+STATIC_URL = '{}/static/'.format(GS_URL_PREFIX)
+MEDIA_URL = '{}/media/'.format(GS_URL_PREFIX)
 
 APPEND_SLASH = True
 
@@ -155,51 +199,8 @@ STATICFILES_DIRS = (
 
 LOGIN_URL = 'openCurrents:login'
 
-# [START dbconfig]
-if os.getenv('OC_HEROKU_DEV'):
-    # Update database configuration with $DATABASE_URL.
-    db_from_env = dj_database_url.config(conn_max_age=500)
-    DATABASES = {
-        'default': db_from_env
-    }
-elif os.getenv('GAE_INSTANCE') or os.getenv('GOOGLE_CLOUD_PROXY'):
-    DATABASES = {
-        'default': {
-            # If you are using Cloud SQL for MySQL rather than PostgreSQL, set
-            # 'ENGINE': 'django.db.backends.mysql' instead of the following.
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'opencurrents',
-            'USER': 'oc_admin',
-            'PASSWORD': '0pencu44',
-            # For MySQL, set 'PORT': '3306' instead of the following. Any Cloud
-            # SQL Proxy instances running locally must also be set to tcp:3306.
-            'PORT': '5432',
-        }
-    }
-
-    # In the flexible environment, you connect to CloudSQL using a unix socket.
-    # Locally, you can use the CloudSQL proxy to proxy a localhost connection
-    # to the instance
-    DATABASES['default']['HOST'] = '/cloudsql/opencurrents-194003:us-central1:oc-pg'
-    if os.getenv('GAE_INSTANCE'):
-        # when running on Google App Engine
-        pass
-    elif os.getenv('GOOGLE_CLOUD_PROXY'):
-        # when using CloudSQL proxy to forward connections to remote db
-        DATABASES['default']['HOST'] = '127.0.0.1'
-
-# local db (sqlite)
-else:
-    # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        }
-    }
-# [END dbconfig]
-
-# do not send emails from local servers
+# this setting allows bypassing sending mandrill emails
 SENDEMAILS = os.getenv('OC_SEND_EMAILS')
 if os.getenv('GAE_INSTANCE'):
+    # override to True in production even if env var is not set
     SENDEMAILS = True
