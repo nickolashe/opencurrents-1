@@ -555,10 +555,16 @@ class DeleteOfferView(BizAdminPermissionMixin, TemplateView):
                 offer.is_active = False
                 offer.save()
 
-                status_msg = 'Offer \'{}\' has been removed'.format(offer)
+                status_msg = '{} has been removed'.format(offer)
                 msg_type = ''
-            except:
-                logger.error('Couldn\'t process the offer {}'.format(offer))
+            except Exception as e:
+                error = {
+                    'error': e,
+                    'message': e.message,
+                    'offer_id': kwargs['pk']
+                }
+                logger.exception('unable to delete offer: %s', error)
+                return redirect('openCurrents:500')
 
         return redirect('openCurrents:biz-admin', status_msg, msg_type)
 
