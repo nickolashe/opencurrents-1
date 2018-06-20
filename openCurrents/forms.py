@@ -928,6 +928,21 @@ class RedeemCurrentsForm(forms.Form):
         return cleaned_data
 
 
+class ConfirmGiftCardPurchaseForm(forms.Form):
+    denomination = forms.DecimalField(
+        widget=forms.NumberInput(attrs={
+            'class': 'hidden'
+        }),
+        initial=25.0
+    )
+
+    biz_name = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'class': 'hidden',
+        })
+    )
+
+
 class PublicRecordsForm(forms.Form):
     periods = (
         ('all-time', 'All-time'),

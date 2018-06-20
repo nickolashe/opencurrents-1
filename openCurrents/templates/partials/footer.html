@@ -2,10 +2,19 @@
 
 <!-- <!DOCTYPE html> -->
 <footer id="footer">
-  <div class="small-12 columns center">
-    <a href="javascript:void(Tawk_API.toggle())" class="button round clear" tabindex="0">Contact us</a>
+  <div class="row">
+    <div class="left small-4 columns">
+      <a alt="Share on Facebook" class="button round clear" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent('https://www.opencurrents.com/time-tracked'),'facebook-share-dialog','width=626,height=436'); return false;">
+        <i class="fa fa-lg fa-facebook"></i>
+      </a>
+
+      {% include 'scripts/fbshare.html' %}
+    </div>
+    <div class="small-4 columns center end">
+      <a href="javascript:void(Tawk_API.toggle())" class="button round clear" tabindex="0">Contact us</a>
+    </div>
   </div>
-  
+
   <!--Start of Tawk.to Script-->
   <script type="text/javascript">
   var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
@@ -19,8 +28,8 @@
   })();
   </script>
   <!--End of Tawk.to Script-->
-  
+
   <!--<div class="small-12 medium-6 columns right">
-    
+
   </div>-->
 </footer>
