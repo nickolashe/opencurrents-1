@@ -210,6 +210,7 @@ h1, h2, h3, h4, h5, h6 {
   background-color: #555555;
   border-color: #555555;
   color: #ffffff;
+  box-shadow: none;
 }
 
 .button:active {

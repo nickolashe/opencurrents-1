@@ -34,7 +34,13 @@
 {% block content %}
   <div class="row center two-margin-top">
     <div class="medium-4 medium-offset-1 columns">
-      <a href="{% url 'openCurrents:confirm-purchase' %}?biz_name={{biz_name}}" class="button option">
+      <a
+        href="{% url 'openCurrents:confirm-purchase' %}?biz_name={{biz_name}}"
+        class="button option"
+        {% if gift_card_disabled %}
+          disabled
+        {% endif %}
+        >
         <h4 class="white">$25 gift card</h4>
         Buy now
       </a>
@@ -44,7 +50,9 @@
       <h5>or</h5>
     </div>
     <div class="medium-4 columns end">
-      <a href="{% url 'openCurrents:redeem-currents' master_offer.id %}?biz_name={{biz_name}}" class="button option">
+      <a
+        href="{% url 'openCurrents:redeem-currents' master_offer.id %}?biz_name={{biz_name}}"
+        class="button option">
         <h4 class="white">$25 cash back</h4>
         Upload receipt
       </a>
