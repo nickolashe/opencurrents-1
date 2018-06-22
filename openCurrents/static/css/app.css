@@ -666,6 +666,11 @@ label {
   color: #e7b708;
 }
 
+.mont {
+  font-family: 'Montserrat', "Questrial", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 700;
+}
+
 .center {
   text-align: center;
   display: block;
