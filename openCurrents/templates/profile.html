@@ -3,6 +3,10 @@
 {% load tags %}
 {% load staticfiles %}
 
+{% block fonts %}
+  <link href='https://fonts.googleapis.com/css?family=Questrial|Montserrat:700' rel='stylesheet' type='text/css'>
+{% endblock fonts %}
+
 {% block profile-link %}
   {% if is_admin_org %}
     <a href="{% url 'openCurrents:org-admin' %}">

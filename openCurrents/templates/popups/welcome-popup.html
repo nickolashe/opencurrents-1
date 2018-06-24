@@ -1,26 +1,48 @@
 {% extends "layouts/popup.html" %}
 {% load staticfiles  %}
 
-{% block title %}
-  A new way to earn Currents
-{% endblock title %}
+{% block heading %}{% endblock heading %}
 
 {% block content %}
   <div class="row one-margin-top one-margin-bottom">
+    <div class="medium-10 small-centered columns">
+      <h3 class="one-margin-top mont navy">Got Currents?</h3>
+      <h6>Introducing Instant Gift card Redemption</h6>
+    </div>
+  </div>
+
+  <div class="row one-margin-top three-halves-margin-bottom">
     <div class="medium-8 small-centered columns">
+      <img src="{% static 'img/got-currents.png' %}">
+    </div>
+  </div>
+
+  <div class="row one-margin-top one-margin-bottom">
+    <div class="medium-10 small-centered columns">
+      <h3 class="one-margin-top mont navy">Need Currents?</h3>
+      <h6>A new way to earn</h6>
+    </div>
+  </div>
+
+  <div class="row one-margin-top one-margin-bottom">
+    <div class="medium-6 small-centered columns">
       <img src="{% static 'img/selfie.png' %}">
+    </div>
+  </div>
+
+  <div class="row one-margin-top">
+    <div class="medium-10 small-centered columns">
+      <p>
+        Tag <strong>@opencurrents</strong> on Instagram or Facebook when
+        volunteering to earn Currents. Of course you can always record hours
+        and earn Currents the usual way too!
+      </p>
     </div>
   </div>
 
   <form method='post' action="{% url 'openCurrents:edit-profile' %}">
   {% csrf_token %}
     <p>
-      Now you can take a picture while you volunteer to earn Currents! Just tag
-      <strong>@opencurrents</strong> on Instagram or Facebook to get credit.
-      Of course you can always record hours the usual way too!
-    </p>
-
-    <p class="three-halves-margin-top">
       <button type="submit" name='no' class="button round">Got it</button>
       <button type="submit" name='no' class="button round secondary">Record hours</button>
     </p>
