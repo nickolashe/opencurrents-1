@@ -1299,7 +1299,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
                 reqForbidden = True
                 status_msg = ' '.join([
                     'You need Currents to redeem an offer.<br/>',
-                    '<a href="/volunteer-opportunities/">',
+                    '<a href="/upcoming-events/">',
                     'Find a volunteer opportunity!',
                     '</a>'
                 ])
@@ -1488,7 +1488,7 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, TemplateView):
         if not hours_approved:
             status_msg = ' '.join([
                 'You need to volunteer to redeem gift cards.<br/>',
-                '<a href="/volunteer-opportunities/">',
+                '<a href="/upcoming-events/">',
                 'Find a volunteer opportunity!',
                 '</a>'
             ])
@@ -1530,7 +1530,7 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, TemplateView):
             if balance_available == 0:
                 status_msg = ' '.join([
                     'You don\'t have any Currents yet.<br/>',
-                    '<a href="/volunteer-opportunities/">',
+                    '<a href="/upcoming-events/">',
                     'Find a volunteer opportunity to earn more Currents!',
                     '</a>'
                 ])
@@ -1538,7 +1538,7 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, TemplateView):
             elif convert.cur_to_usd(balance_available, fee=False) < denomination:
                 status_msg = ' '.join([
                     'Not enough Currents to buy a gift card - please try cash back redemption instead.<br/>',
-                    '<a href="/volunteer-opportunities/">',
+                    '<a href="/upcoming-events/">',
                     'Find a volunteer opportunity to earn more Currents!',
                     '</a>'
                 ])
