@@ -32,44 +32,60 @@
       </div>
     </div>
   {% else %}
-    <p>
-      Thank you for helping {{ event.project.org.name }} at
-      <strong>
-        {{ event.project.name }}
-      </strong>
-      on {{ event.datetime_start|day }}. Enjoy the event!
-    </p>
+    <div class="row">
+      <div class="small-11 medium-8 small-centered columns">
+        <p>
+          Thank you for helping {{ event.project.org.name }} at
+          <strong>
+            {{ event.project.name }}
+          </strong>
+          on {{ event.datetime_start|day }}.
+        </p>
 
-    {% with timezone=request.user.usersettings.timezone %}
-      <span class="addtocalendar one-margin-bottom">
-        <var class="atc_event">
-          <var class="atc_date_start">
-              {{ event.datetime_start|datetime_cal:timezone }}
-          </var>
-          <var class="atc_date_end">
-              {{ event.datetime_end|datetime_cal:timezone }}
-          </var>
-          <var class="atc_timezone">
-              {{ timezone }}
-          </var>
-          <var class="atc_title">
-              {{ event.project.name }}
-          </var>
-          <var class="atc_description">
-              {{ event.description }}
-          </var>
-          <var class="atc_location">
-              {{ event.location }}
-          </var>
-          <var class="atc_organizer">
-              {{ event.coordinator_firstname }}
-          </var>
-          <var class="atc_organizer_email">
-              {{ event.coordinator_email }}
-          </var>
-        </var>
-      </span>
-    {% endwith %}
+        <p>
+          To earn Currents for the event, either record hours from your profile or
+          tag <strong>@opencurrents</strong> on Instagram or Facebook while
+          volunteering. It's that simple!
+        </p>
+
+        {% with timezone=request.user.usersettings.timezone %}
+          <span class="addtocalendar one-margin-bottom">
+            <var class="atc_event">
+              <var class="atc_date_start">
+                  {{ event.datetime_start|datetime_cal:timezone }}
+              </var>
+              <var class="atc_date_end">
+                  {{ event.datetime_end|datetime_cal:timezone }}
+              </var>
+              <var class="atc_timezone">
+                  {{ timezone }}
+              </var>
+              <var class="atc_title">
+                  {{ event.project.name }}
+              </var>
+              <var class="atc_description">
+                  {{ event.description }}
+              </var>
+              <var class="atc_location">
+                  {{ event.location }}
+              </var>
+              <var class="atc_organizer">
+                  {{ event.coordinator_firstname }}
+              </var>
+              <var class="atc_organizer_email">
+                  {{ event.coordinator_email }}
+              </var>
+            </var>
+          </span>
+        {% endwith %}
+      </div>
+    </div>
+
+    <div class="row one-margin-top three-halves-margin-bottom center">
+      <div class="small-11 medium-6 large-5 small-centered columns">
+        <img src="{% static 'img/selfie.png' %}">
+      </div>
+    </div>
 
     <div class="row three-halves-margin-top center">
       <div class="small-12 medium-8 small-centered columns">
