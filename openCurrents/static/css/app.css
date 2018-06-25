@@ -666,6 +666,11 @@ label {
   color: #e7b708;
 }
 
+.mont {
+  font-family: 'Montserrat', "Questrial", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 700;
+}
+
 .center {
   text-align: center;
   display: block;
@@ -891,10 +896,6 @@ a.list-group-item {
   transition: color 0.25s ease-in-out;
 }
 
-#beta-home:hover {
-  color: #147db6;
-}
-
 #home-menu {
   color: #24b2e7;
   background-color: #ffffff;
@@ -911,6 +912,17 @@ a.list-group-item {
 #home-menu .list-group-item:hover {
   background-color: #24b2e7;
   color: #ffffff;
+}
+
+#fb-share {
+  position: absolute;
+  bottom: 0px;
+  left: 10px;
+}
+
+#fb-share:active {
+  top: auto;
+  bottom: -3px;
 }
 
 

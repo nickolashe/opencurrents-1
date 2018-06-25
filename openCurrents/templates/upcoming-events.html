@@ -5,20 +5,10 @@
 {% block heading %}
   <div class="row">
     <div class="small-12 columns">
-      <h3 class="title-sub">
+      <h3 class="title">
         {% block title %} Volunteer events {% endblock title %}
       </h3>
     </div>
-  </div>
-
-  <div class="row half-margin-top half-margin-bottom">
-    <!-- <a href="{% url 'openCurrents:volunteer-opportunities' %}"
-    class="button round tiny">
-      View organizations
-    </a> -->
-    <a class="other-opportunities-popup_open button round tiny secondary">
-      Other opportunities
-    </a>
   </div>
 {% endblock heading %}
 
@@ -63,20 +53,14 @@
   </div>
 
   <div class="row">
-    <a href="{% url 'openCurrents:profile' %}" class="button round secondary">
-      Back to profile
+    <a
+      href="https://www.givepulse.com/group/events/129038"
+      class="button round secondary"
+      target="_blank">
+      See more opportunities
     </a>
   </div>
 {% endblock content %}
-
-{% block popups %}
-  <div id="other-opportunities-popup"
-  class="modal center small-12 medium-9 large-7 small-centered columns">
-
-    {% include "popups/other-opportunities-popup.html" %}
-
-  </div>
-{% endblock popups %}
 
 {% block js %}
 

@@ -173,7 +173,7 @@ class TestOfferDelete(SetupAll):
         response = self.client.post('/delete-offer/1/')
         self.assertRedirects(
             response,
-            '/biz-admin/Offer%20\'Offer%20for%2040%25%20on%20Test%20Item1%20by%20BIZ_org_1\'%20has%20been%20removed//',
+            '/biz-admin/cashback%20offer%20for%2040%25%20share%20on%20Test%20Item1%20by%20BIZ_org_1%20has%20been%20removed//',
             status_code=302,
             target_status_code=200
         )
