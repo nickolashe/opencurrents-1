@@ -4,18 +4,7 @@
 {% block head %}
   {{ block.super }}
 
-  <link href="{% static "css/video-button.css" %}" rel="stylesheet" type="text/css">
-  <meta name="description" content="openCurrents lets anyone create currency
-  by volunteering. Create 1 Current for each hour you work, and use Currents
-  for purchases with businesses. It's like getting paid for doing good.">
-  <meta property="og:url" content="http://www.opencurrents.com" />
-  <meta property="og:title" content="Get paid for doing good."/>
-  <meta property="og:description" content="openCurrents lets anyone create
-  currency by volunteering. Give time, create Currents." />
-  <meta property="og:image" content="{% static "img/fb-share-img.png" %}" />
-
-  <title>Create currency by volunteering for the greater good &bull; openCurrents</title>
-
+  <title>The currency you earn by volunteering &bull; openCurrents</title>
 {% endblock head %}
 
 
@@ -34,9 +23,10 @@
 
       <!-- <a id="fb-share" alt="Share on Facebook" class="button round secondary" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent('https://www.opencurrents.com/time-tracked'),'facebook-share-dialog','width=626,height=436'); return false;">
         <i class="fa fa-lg fa-facebook"></i>
-      </a>
+        <span class="qtr-margin-left">Share</span>
+      </a> -->
 
-      {% include 'scripts/fbshare.html' %} -->
+      {% include 'scripts/fbshare.html' %}
 
       <div class="row center">
         <div class="medium-8 small-centered columns">
