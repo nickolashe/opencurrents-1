@@ -3,6 +3,10 @@
 {% load tags %}
 {% load staticfiles %}
 
+{% block fonts %}
+  <link href='https://fonts.googleapis.com/css?family=Questrial|Montserrat:700' rel='stylesheet' type='text/css'>
+{% endblock fonts %}
+
 {% block profile-link %}
   {% if is_admin_org %}
     <a href="{% url 'openCurrents:org-admin' %}">
@@ -25,24 +29,8 @@
   {% else %}
     <div class="status-highlight row full-width">
       <div class="small-12 column white">
-        {% if balance_available > 0 %}
-          {% if has_bonus and balance_available == bonus_amount %}
-            You have ${{ balance_available|current_to_usd:"no_fee"|round_number:0 }} credit in Currents.
-          {% else %}
-            You've got Currents.
-          {% endif %}
-
-          <a href="{% url 'openCurrents:marketplace' %}" class="white-link">
-            Redeem now
-          </a>
-
-        {% else %}
-          Let's create Currents!
-          <a class="earn-currents-popup_open white-link">
-            Volunteer now
-          </a>
-        {% endif %}
-
+        Volunteer anywhere to earn Currents -
+        <a class="how-to-popup_open white-link">Here's how</a>
       </div>
     </div>
   {% endif %}
@@ -55,7 +43,7 @@
         {% block title %} {{ user.first_name }} {{ user.last_name }} {% endblock title %}
       </h5>
       <a href="{% url 'openCurrents:member-activity' %}">
-        <i id="profile-info" class="fa fa-lg fa-info-circle"></i>
+        <i id="profile-icon" class="fa fa-lg fa-info-circle"></i>
       </a>
 
       <p class="half-margin-top half-margin-bottom">
@@ -151,22 +139,32 @@
   <div class="row collapse three-halves-margin-top">
     <div class="small-11 medium-10 small-centered columns">
       <h6 class="half-margin-bottom">
-        Featured businesses
+        Got Currents? Get up to $25 per week with these businesses
       </h6>
 
       {% include "partials/featured-bizzes.html" %}
 
+      <p class="one-margin-top">
+        <a href="{% url 'openCurrents:marketplace' %}" class="button round secondary">
+          Visit the marketplace
+        </a>
+      </p>
     </div>
   </div>
 
-  <div class="row collapse two-margin-top">
+  <div class="row collapse one-margin-top">
     <div class="small-11 medium-10 small-centered columns">
       <h6 class="half-margin-bottom">
-        Featured events for May 2018:
+        Need Currents? Earn them at these featured events
       </h6>
 
       {% include "partials/featured-npfs.html" %}
 
+      <p class="one-margin-top">
+        <a href="{% url 'openCurrents:upcoming-events' %}" class="button round secondary">
+          See other upcoming events
+        </a>
+      </p>
     </div>
   </div>
 {% endblock content %}
@@ -174,6 +172,10 @@
 {% block popups %}
   <div id="welcome-popup" class="modal center small-12 medium-10 large-8 small-centered columns">
     {% include "popups/welcome-popup.html" %}
+  </div>
+
+  <div id="how-to-popup" class="modal center small-12 medium-10 large-8 small-centered columns">
+    {% include "popups/how-to-popup.html" %}
   </div>
 
   <div id="earn-currents-popup" class="modal center small-12 medium-10 large-8 small-centered columns">
@@ -248,7 +250,7 @@
         var open = false;
       }
 
-      $('#rsvp-popup, #earn-currents-popup, #balance-popup, #no-cash-popup, #cash-out-popup, #donate-cash-popup, #volunteer-for-cash-popup').popup({
+      $('#rsvp-popup, #how-to-popup, #earn-currents-popup, #balance-popup, #no-cash-popup, #cash-out-popup, #donate-cash-popup, #volunteer-for-cash-popup').popup({
         vertical: 'top',
         transition: 'all 0.75s',
         scrolllock: true,

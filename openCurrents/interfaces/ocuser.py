@@ -118,7 +118,7 @@ class OcUser(object):
             - minus redeemed offers
         '''
         if not self.userid:
-            raise InvalidUserException
+            raise InvalidUserException()
 
         current_balance = OcLedger().get_balance(
             entity_id=self.user.userentity.id,
@@ -126,23 +126,11 @@ class OcUser(object):
         )
 
         # offer redemption requests
-        redemption_reqs = Transaction.objects.filter(
-            user__id=self.userid
-        ).annotate(
-            last_action_created=Max('transactionaction__date_created')
+        transactions = self._get_transactions_annotated()
+        actions = self._get_actions_for_annotated_transactions(
+            transactions, 'req'
         )
-
-        active_redemption_reqs = TransactionAction.objects.filter(
-            date_created__in=[
-                req.last_action_created for req in redemption_reqs
-            ]
-        ).filter(
-            action_type='req'
-        )
-
-        total_req_redemptions = common._get_redemption_total(
-            active_redemption_reqs
-        )
+        total_req_redemptions = common._get_redemption_total(actions)
 
         return round(current_balance - total_req_redemptions, 3)
 
@@ -154,26 +142,10 @@ class OcUser(object):
         if not self.userid:
             raise InvalidUserException
 
-        usertimelogs = UserTimeLog.objects.filter(
-            user_id=self.userid
-        ).filter(
-            is_verified=False
-        ).annotate(
-            last_action_created=Max('adminactionusertime__date_created')
-        )
-
-        # pending requests
-        active_hour_reqs = AdminActionUserTime.objects.filter(
-            date_created__in=[
-                utl.last_action_created for utl in usertimelogs
-            ]
-        ).filter(
-            action_type='req'
-        )
-
+        usertimelogs = self._get_usertimelogs(is_verified=False)
+        actions = self._get_adminactions_for_usertimelogs(usertimelogs, 'req')
         total_hour = self._get_unique_hour_total(
-            active_hour_reqs,
-            from_admin_actions=True
+            actions, from_admin_actions=True
         )
 
         return total_hour
@@ -197,24 +169,10 @@ class OcUser(object):
             - requested redemptions
             - redemptions in status redeemed and accepted do not count
         '''
-        redemption_reqs = Transaction.objects.filter(
-            user__id=self.userid
-        ).annotate(
-            last_action_created=Max('transactionaction__date_created')
-        )
-
-        active_redemption_reqs = TransactionAction.objects.filter(
-            date_created__in=[
-                req.last_action_created for req in redemption_reqs
-            ]
-        ).filter(
-            action_type__in=['req']
-        )
-
-        total_redemptions = common._get_redemption_total(
-            active_redemption_reqs,
-            'usd'
-        )
+        # user's transations
+        transactions = self._get_transactions_annotated()
+        actions = self._get_actions_for_annotated_transactions(transactions, 'req')
+        total_redemptions = common._get_redemption_total(actions, 'usd')
 
         return round(total_redemptions, 2)
 
@@ -222,28 +180,21 @@ class OcUser(object):
         if not self.userid:
             raise InvalidUserException
 
-        # user's transcations
-        transactions = Transaction.objects.filter(
-            user=self.userid
-        ).annotate(
-            last_action_created=Max('transactionaction__date_created')
-        )
+        # user's transations
+        transactions = self._get_transactions_annotated()
 
-        # latest transaction status
-        transaction_actions = TransactionAction.objects.filter(
-            date_created__in=[
-                tr.last_action_created for tr in transactions
-            ]
-        ).order_by('-date_created')
-
-        return transaction_actions
+        return self._get_actions_for_annotated_transactions(transactions)
 
     def get_offers_marketplace(self):
         '''
         get all offers in the marketplace
             - annotated by number of redeemed for given timeframe
         '''
-        offers_all = Offer.objects.filter(is_master=False).filter(is_active=True).order_by('-date_updated')
+        offers_all = Offer.objects.filter(
+            is_master=False,
+            is_active=True,
+            offer_type='cbk'
+        ).order_by('-date_updated')
 
         for offer in offers_all:
             # logger.debug('%d: %d', offer.id, num_redeemed)
@@ -270,40 +221,36 @@ class OcUser(object):
 
     def get_master_offer(self):
         """Return master offer id."""
-        master_offer = Offer.objects.get(is_master=True)
-
-        return master_offer
+        return Offer.objects.get(is_master=True)
 
     def get_master_offer_remaining(self):
         '''
         return cumulative user's redemption amount towards the master offer
         '''
-        master_offer = None
-        try:
-            master_offer = Offer.objects.get(is_master=True)
-        except Offer.DoesNotExist:
-            logger.info('No existent master offer')
-            return 0
-
-        transactions = Transaction.objects.filter(
-            user=self.user,
-            offer=master_offer
-        ).annotate(
-            last_action_created=Max('transactionaction__date_created')
-        )
-
-        # latest transaction status
-        transaction_actions = TransactionAction.objects.filter(
-            date_created__in=[
-                tr.last_action_created for tr in transactions
-            ]
-        )
-
-        remaining = 2 - common._get_redemption_total(transaction_actions)
+        dt_week_ago_from_now = datetime.now(tz=pytz.utc) - timedelta(days=7)
+        actions = self._get_transactions_master_timeframe(dt_week_ago_from_now)
+        remaining = common._MASTER_OFFER_LIMIT - float(common._get_redemption_total(actions))
 
         if remaining < 0:
             logger.warning(
                 'user %s has redeemed above master offer limit',
+                self.user.username
+            )
+            remaining = 0
+
+        return remaining
+
+    def get_giftcard_offer_remaining(self):
+        '''
+        return cumulative user's redemption amount towards the gift offers
+        '''
+        dt_week_ago_from_now = datetime.now(tz=pytz.utc) - timedelta(days=7)
+        actions = self._get_transactions_giftcard_timeframe(dt_week_ago_from_now)
+        remaining = common._GIFT_CARD_OFFER_LIMIT - float(common._get_redemption_total(actions))
+
+        if remaining < 0:
+            logger.warning(
+                'user %s has redeemed above giftcard offer limit',
                 self.user.username
             )
             remaining = 0
@@ -363,7 +310,7 @@ class OcUser(object):
 
         if 'org_id' in kwargs:
             usertimelogs = usertimelogs.filter(
-                event__project__org_id = kwargs['org_id']
+                event__project__org_id=kwargs['org_id']
             )
 
         return usertimelogs
@@ -391,7 +338,7 @@ class OcUser(object):
                 timelog = rec
 
             event = timelog.event
-            if not event.id in event_user:
+            if event.id not in event_user:
                 event_user.add(event.id)
                 balance += (event.datetime_end - event.datetime_start).total_seconds() / 3600
 
@@ -410,13 +357,55 @@ class OcUser(object):
             )
 
             if approved_hours > 0:
-                if not org in temp_orgs_set:
+                if org not in temp_orgs_set:
                     temp_orgs_set.add(org)
                     hours_by_org[org] = approved_hours
                 else:
                     hours_by_org[org] += approved_hours
 
         return hours_by_org
+
+    def _get_transactions_timeframe(self, timeframe):
+        transactions = Transaction.objects.filter(
+            user=self.user,
+            date_created__gte=timeframe
+        ).annotate(
+            last_action_created=Max('transactionaction__date_created')
+        )
+
+        return transactions
+
+    def _get_transactions_master_timeframe(self, timeframe):
+        transactions = self._get_transactions_timeframe(timeframe)
+        transactions = transactions.filter(offer__is_master=True)
+
+        return self._get_actions_for_annotated_transactions(transactions)
+
+    def _get_transactions_giftcard_timeframe(self, timeframe):
+        transactions = self._get_transactions_timeframe(timeframe)
+        transactions = transactions.filter(offer__offer_type='gft')
+
+        return self._get_actions_for_annotated_transactions(transactions)
+
+    def _get_transactions_annotated(self):
+        return Transaction.objects.filter(
+            user=self.userid
+        ).annotate(
+            last_action_created=Max('transactionaction__date_created')
+        )
+
+    def _get_actions_for_annotated_transactions(self, transactions, action_type=None):
+        # transactions annotated by latest action
+        actions = TransactionAction.objects.filter(
+            date_created__in=[
+                tr.last_action_created for tr in transactions
+            ]
+        )
+
+        if action_type:
+            actions = actions.filter(action_type=action_type)
+
+        return actions.order_by('-date_created')
 
 
 class UserExistsException(Exception):

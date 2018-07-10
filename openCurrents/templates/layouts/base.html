@@ -6,11 +6,15 @@
 
     {% include "partials/head.html" %}
 
+    {% block fonts %}
+      <link href='https://fonts.googleapis.com/css?family=Questrial' rel='stylesheet' type='text/css'>
+    {% endblock fonts %}
+
     {% block head %}{% endblock head %}
 
     <title>
       {% block name %}
-        Get paid for doing good
+        Earn currency by volunteering
       {% endblock name %}
       &bull; openCurrents
     </title>

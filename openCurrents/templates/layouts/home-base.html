@@ -10,6 +10,8 @@
       <link href="{% static "css/signup.css" %}" rel="stylesheet" type="text/css">
       <link href="https://fonts.googleapis.com/css?family=Alegreya+Sans+SC:300|Montserrat:700"
       rel="stylesheet">
+
+      <title>Welcome to openCurrents</title>
     {% endblock head %}
 
   </head>
@@ -26,11 +28,9 @@
           {% endblock logo %}
 
           <div class="inline-block relative">
-            <a id="beta-home" class="beta-popup_open">Beta</a>
+            <span id="beta-home">Beta</span>
           </div>
         </div>
-
-        {% include "popups/beta-popup.html" %}
 
         <div class="show-for-large one-margin-top medium-8 right columns end">
           {% block large-links %}

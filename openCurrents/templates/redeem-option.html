@@ -1,0 +1,58 @@
+{% extends "layouts/base.html" %}
+{% load staticfiles %}
+
+
+{% block name %}
+  Purchase options
+{% endblock name %}
+
+
+{% block heading %}
+<div class="row center">
+  <div class="small-6 medium-3 small-centered columns">
+    <img
+      class="biz-header-image"
+      {% if biz_name == "Whole Foods" %}
+        src="{% static 'img/whole-foods.png' %}"
+      {% elif biz_name == 'Juiceland' %}
+        src="{% static 'img/juiceland.png' %}"
+      {% elif biz_name == 'HEB' %}
+        src="{% static 'img/heb.png' %}"
+      {% elif biz_name == 'Alamo' %}
+        src="{% static 'img/alamo.png' %}"
+      {% endif %}
+    />
+  </div>
+</div>
+
+  <h4>
+    Use your Currents for...
+  </h4>
+{% endblock heading %}
+
+
+{% block content %}
+  <div class="row center two-margin-top">
+    <div class="medium-4 medium-offset-1 columns">
+      <a href="{% url 'openCurrents:confirm-purchase' %}?biz_name={{biz_name}}" class="button option">
+        <h4 class="white">$25 gift card</h4>
+        Buy now
+      </a>
+    </div>
+    <div class="medium-2 columns">
+      <div class="two-margin-top hide-for-small-only"></div>
+      <h5>or</h5>
+    </div>
+    <div class="medium-4 columns end">
+      <a href="{% url 'openCurrents:redeem-currents' master_offer.id %}?biz_name={{biz_name}}" class="button option">
+        <h4 class="white">$25 cash back</h4>
+        Upload receipt
+      </a>
+    </div>
+  </div>
+  <div class="row center one-margin-top">
+    <a href="{% url 'openCurrents:profile' %}" class="button round secondary tiny">
+      Cancel
+    </a>
+  </div>
+{% endblock content %}

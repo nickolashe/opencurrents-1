@@ -4,18 +4,7 @@
 {% block head %}
   {{ block.super }}
 
-  <link href="{% static "css/video-button.css" %}" rel="stylesheet" type="text/css">
-  <meta name="description" content="openCurrents lets anyone create currency
-  by volunteering. Create 1 Current for each hour you work, and use Currents
-  for purchases with businesses. It's like getting paid for doing good.">
-  <meta property="og:url" content="http://www.opencurrents.com" />
-  <meta property="og:title" content="Get paid for doing good."/>
-  <meta property="og:description" content="openCurrents lets anyone create
-  currency by volunteering. Give time, create Currents." />
-  <meta property="og:image" content="{% static "img/fb-share-img.png" %}" />
-
-  <title>Create currency by volunteering for the greater good &bull; openCurrents</title>
-
+  <title>The currency you earn by volunteering &bull; openCurrents</title>
 {% endblock head %}
 
 
@@ -29,8 +18,15 @@
 {% block content %}
   <div class="js-close-any" canvas>
 
-    <div id="intro-1">
+    <div id="intro-1" class="relative">
       <div id="1" class="header-spacer"></div>
+
+      <a id="fb-share" alt="Share on Facebook" class="button round secondary" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent('https://www.opencurrents.com/time-tracked'),'facebook-share-dialog','width=626,height=436'); return false;">
+        <i class="fa fa-lg fa-facebook"></i>
+        <span class="qtr-margin-left">Share</span>
+      </a>
+
+      {% include 'scripts/fbshare.html' %}
 
       <div class="row center">
         <div class="medium-8 small-centered columns">
@@ -133,7 +129,7 @@
       <div class="row center two-margin-top">
         <div class="small-12 medium-10 small-centered columns">
           <h6 class="half-margin-bottom navy">
-            It's Volunteer Appreciation Month - Get $40 credit on us with these businesses!
+            Volunteer and get $25 per week with these businesses!
           </h6>
         </div>
       </div>

@@ -22,7 +22,8 @@ from openCurrents.models import (
     Entity,
     UserEntity,
     OrgEntity,
-    Ledger
+    Ledger,
+    GiftCardInventory
 )
 
 from django import forms
@@ -158,6 +159,23 @@ class UserCashOutAdmin(ImportExportModelAdmin):
     search_fields = ('user__email',)
 
 
+class UserEventRegistrationResource(resources.ModelResource):
+    class Meta:
+        model = UserEventRegistration
+
+
+class UserEventRegistrationAdmin(ImportExportModelAdmin):
+    resource_class = UserEventRegistrationResource
+    search_fields = (
+        'user__email',
+        'event__id',
+        'event__project__name',
+        'event__project__org__name',
+        'event__location',
+        'event__datetime_start'
+    )
+
+
 class UserTimeLogResource(resources.ModelResource):
     class Meta:
         model = UserTimeLog
@@ -180,7 +198,7 @@ admin.site.register(Token)
 admin.site.register(Project)
 admin.site.register(Event)
 admin.site.register(UserCashOut, UserCashOutAdmin)
-admin.site.register(UserEventRegistration)
+admin.site.register(UserEventRegistration, UserEventRegistrationAdmin)
 admin.site.register(UserSettings)
 admin.site.register(UserTimeLog, UserTimeLogAdmin)
 admin.site.register(AdminActionUserTime, AdminActionUserTimeAdmin)
@@ -191,4 +209,5 @@ admin.site.register(TransactionAction, TransactionActionAdmin)
 admin.site.register(Entity)
 admin.site.register(UserEntity)
 admin.site.register(OrgEntity)
-admin.site.register(Ledger, LedgerAdmin)
+admin.site.register(Ledger, LedgerAdmin),
+admin.site.register(GiftCardInventory)

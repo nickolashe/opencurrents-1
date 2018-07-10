@@ -8,8 +8,9 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.models import User
 from django.core import mail
 from django.shortcuts import redirect
+from django.db import transaction
 
-from django.test import Client, TestCase
+from django.test import Client, TransactionTestCase
 
 from django.utils import timezone
 
@@ -31,7 +32,7 @@ from openCurrents.models import \
 import pytz
 
 
-class TestTimeTracker(TestCase):
+class TestTimeTracker(TransactionTestCase):
 
     def assert_admin_action_user_time(
         self,
@@ -61,6 +62,7 @@ class TestTimeTracker(TestCase):
         )
 
         # volunteer user
+        # with transaction.atomic():
         self.volunteer2 = OcUser().setup_user(
             username='test_user_2@e.com',
             email='test_user_2@e.com',

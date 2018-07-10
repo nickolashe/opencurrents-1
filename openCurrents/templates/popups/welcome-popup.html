@@ -1,28 +1,50 @@
 {% extends "layouts/popup.html" %}
+{% load staticfiles  %}
 
-{% block heading %}
-  <div class="row center">
-    <h4 class="popup-title">
-      {% block title %}
-        Would you like to be a community connector?
-      {% endblock title %}
-    </h4>
-  </div>
-{% endblock heading %}
-
+{% block heading %}{% endblock heading %}
 
 {% block content %}
+  <div class="row one-margin-top one-margin-bottom">
+    <div class="medium-10 small-centered columns">
+      <h3 class="one-margin-top mont navy">Got Currents?</h3>
+      <h6>Introducing Instant Gift card Redemption</h6>
+    </div>
+  </div>
+
+  <div class="row one-margin-top three-halves-margin-bottom">
+    <div class="medium-8 small-centered columns">
+      <img src="{% static 'img/got-currents.png' %}">
+    </div>
+  </div>
+
+  <div class="row one-margin-top one-margin-bottom">
+    <div class="medium-10 small-centered columns">
+      <h3 class="one-margin-top mont navy">Need Currents?</h3>
+      <h6>A new way to earn</h6>
+    </div>
+  </div>
+
+  <div class="row one-margin-top one-margin-bottom">
+    <div class="medium-6 small-centered columns">
+      <img src="{% static 'img/selfie.png' %}">
+    </div>
+  </div>
+
+  <div class="row one-margin-top">
+    <div class="medium-10 small-centered columns">
+      <p>
+        Tag <strong>@opencurrents</strong> on Instagram when
+        volunteering to earn Currents. Of course you can always record hours
+        and earn Currents the usual way too!
+      </p>
+    </div>
+  </div>
+
   <form method='post' action="{% url 'openCurrents:edit-profile' %}">
   {% csrf_token %}
-    <p>Community connectors actively seek to grow this movement and get special
-      benefits for doing so. You could bring massive value to the community by
-      simply asking your favorite business, "Do you accept Currents?"</p>
-
-    <p>What do you say, do you want to help us create Currents in the world?</p>
-
-    <p class="three-halves-margin-top">
-      <button type="submit" name='yes' class="button round">Yes, count me in</button>
-      <button type="submit" name='no' class="button round secondary">Not now</button>
+    <p>
+      <button type="submit" name='no' class="button round">Got it</button>
+      <button type="submit" name='no' class="button round secondary">Record hours</button>
     </p>
   </form>
 {% endblock content %}

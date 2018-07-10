@@ -10,7 +10,8 @@
   but you will need to volunteer for Currents before you can to cash out or
   donate to a nonprofit.
   <span class="no-wrap">
-    <a href="{% url 'openCurrents:volunteer-opportunities' %}">
+    <a onClick="ga('send', 'event', 'Redemption', 'NeedToVolunteer');"
+      href="{% url 'openCurrents:upcoming-events' %}">
       Find a volunteer opportunity
     </a>
   </span>
