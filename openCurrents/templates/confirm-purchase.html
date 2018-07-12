@@ -1,5 +1,6 @@
 {% extends "layouts/base.html" %}
 {% load staticfiles %}
+{% load tags %}
 
 {% block heading %}
   <div class="row center one-margin-bottom">
@@ -36,10 +37,10 @@
           <span class="no-wrap">
             <strong>
               <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
-              1.25
+              {{ denomination|usd_to_current }}
             </strong>
           </span>
-          for <strong> $25 gift card </strong> at {{biz_name}}.
+          for <strong> ${{ denomination }} gift card </strong> at {{biz_name}}.
           <!--Alternatively, donate $25 to the nonprofit of your choice.-->
         </p>
       </div>
