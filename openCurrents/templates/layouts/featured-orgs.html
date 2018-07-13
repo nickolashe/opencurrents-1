@@ -38,12 +38,12 @@
   <div class="relative small-6 medium-3 columns">
     <a href="
       {% block url-3 %}
-        {% url 'openCurrents:redeem-option' %}?biz_name=Juiceland
+        {% url 'openCurrents:redeem-currents' 65 %}
       {% endblock url-3 %}
     ">
       <img class="biz-logos" src="
         {% block img-3 %}
-          {% static 'img/juiceland.png' %}
+          {% static 'img/native.png' %}
         {% endblock img-3 %}
       "/>
       {% block overlay-3 %}{% endblock overlay-3 %}
