@@ -38,7 +38,7 @@ while dt < datetime.now(tz=utc):
 
 print sum(d.values())
 
-with open('./metrics/scripts/currents/currents_issued_all.csv', 'w') as f:
+with open('./metrics/scripts/kpi/currents/currents_issued_all.csv', 'w') as f:
     wr = writer(f)
     for key, val in d.iteritems():
         wr.writerow([key, val])

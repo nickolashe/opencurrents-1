@@ -32,7 +32,7 @@ while dt < datetime.now(tz=utc):
 
 print len(sorted(m))
 
-with open('./metrics/scripts/hours/hours_users_all_new.csv', 'w') as f:
+with open('./metrics/scripts/kpi/hours/hours_users_all_new.csv', 'w') as f:
     wr = writer(f)
     for key, val in d.iteritems():
         wr.writerow([key, val])
