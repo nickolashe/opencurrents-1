@@ -37,7 +37,7 @@ while dt < datetime.now(tz=utc):
 # print sorted(m)
 print len(m)
 
-with open('./metrics/scripts/hours/hours_users_verified_new.csv', 'w') as f:
+with open('./metrics/scripts/kpi/hours/hours_users_verified_new.csv', 'w') as f:
     wr = writer(f)
     for key, val in d.iteritems():
         wr.writerow([key, val])
