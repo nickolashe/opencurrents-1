@@ -929,11 +929,38 @@ class RedeemCurrentsForm(forms.Form):
 
 
 class ConfirmGiftCardPurchaseForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        '''
+        form init method:
+            - set gift card denomination conditional on biz name
+        '''
+        biz_name = None
+        # biz_name can be passed in from view
+        try:
+            biz_name = kwargs.pop('biz_name')
+        except KeyError:
+            pass
+
+        super(ConfirmGiftCardPurchaseForm, self).__init__(*args, **kwargs)
+
+        # if the form is unbound, we want to set the fields
+        # otherwise, we do not modify (already bound) form
+        if biz_name:
+            # parent init needs to be called first to get access to self.fields
+            # logger.info(self.fields['biz_name'].initial)
+
+            if biz_name == 'HEB':
+               self.fields['denomination'].initial = 15
+
+            self.fields['biz_name'].initial = biz_name
+
+
+    # form field declarations
     denomination = forms.DecimalField(
         widget=forms.NumberInput(attrs={
             'class': 'hidden'
         }),
-        initial=25.0
+        initial=25
     )
 
     biz_name = forms.CharField(
