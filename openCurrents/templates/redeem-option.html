@@ -35,7 +35,7 @@
   <div class="row center two-margin-top">
     <div class="medium-4 medium-offset-1 columns">
       <a href="{% url 'openCurrents:confirm-purchase' %}?biz_name={{biz_name}}" class="button option">
-        <h4 class="white">$25 gift card</h4>
+        <h4 class="white">${{ denomination }} gift card</h4>
         Buy now
       </a>
     </div>
@@ -45,7 +45,7 @@
     </div>
     <div class="medium-4 columns end">
       <a href="{% url 'openCurrents:redeem-currents' master_offer.id %}?biz_name={{biz_name}}" class="button option">
-        <h4 class="white">$25 cash back</h4>
+        <h4 class="white">${{ denomination }} cash back</h4>
         Upload receipt
       </a>
     </div>
