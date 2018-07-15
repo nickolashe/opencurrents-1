@@ -17,10 +17,6 @@
         See upcoming events
       </a>
     {% endif %}
-
-    <a class="other-opportunities-popup_open button round tiny secondary">
-      Other opportunities
-    </a>
   </div>
 {% endblock heading %}
 
@@ -178,15 +174,6 @@
     </a>
   </div>
 {% endblock content %}
-
-{% block popups %}
-  <div id="other-opportunities-popup"
-  class="modal center small-12 medium-9 small-centered columns">
-
-    {% include "popups/other-opportunities-popup.html" %}
-
-  </div>
-{% endblock popups %}
 
 {% block js %}
   <script type="text/javascript">

@@ -151,7 +151,13 @@ class OcOrg(object):
             if not issued_cur_amount:
                 issued_cur_amount = 0
 
-            if not active or (active and issued_cur_amount > 0):
+            has_approved_admins = False
+            try:
+                has_approved_admins = OcOrg(org.id).get_admins().exists()
+            except InvalidOrgException:
+                pass
+
+            if not active or (active and has_approved_admins and issued_cur_amount > 0):
                 result.append({'name': org.name, 'total': issued_cur_amount})
 
         result.sort(key=lambda org_dict: org_dict['total'], reverse=True)

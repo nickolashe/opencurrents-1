@@ -1299,7 +1299,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
                 reqForbidden = True
                 status_msg = ' '.join([
                     'You need Currents to redeem an offer.<br/>',
-                    '<a href="/volunteer-opportunities/">',
+                    '<a href="/upcoming-events/">',
                     'Find a volunteer opportunity!',
                     '</a>'
                 ])
@@ -1453,6 +1453,12 @@ class RedeemOptionView(TemplateView):
     def get(self, request, *args, **kwargs):
         biz_name = request.GET.get('biz_name', '')
         context = {'biz_name': biz_name}
+
+        if biz_name == 'HEB':
+            context['denomination'] = 15
+        else:
+            context['denomination'] = 25
+
         context['master_offer'] = Offer.objects.filter(is_master=True).first()
 
         return render(request, self.template_name, context)
@@ -1470,17 +1476,13 @@ class PurchaseConfirmedView(TemplateView):
     template_name = 'purchase-confirmed.html'
 
 
-class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, TemplateView):
+class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, FormView):
     template_name = 'confirm-purchase.html'
+    form_class = ConfirmGiftCardPurchaseForm
 
-    def get(self, request, *args, **kwargs):
-        biz_name = request.GET.get('biz_name', '')
-        context = {
-            'biz_name': biz_name,
-            'form': ConfirmGiftCardPurchaseForm(
-                initial={'biz_name': biz_name}
-            )
-        }
+    def dispatch(self, request, *args, **kwargs):
+        self.ocuser = OcUser(self.request.user.id)
+        self.biz_name = request.GET.get('biz_name', '')
 
         hours_approved = self.ocuser.get_hours_approved()
         status_msg = None
@@ -1488,7 +1490,7 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, TemplateView):
         if not hours_approved:
             status_msg = ' '.join([
                 'You need to volunteer to redeem gift cards.<br/>',
-                '<a href="/volunteer-opportunities/">',
+                '<a href="/upcoming-events/">',
                 'Find a volunteer opportunity!',
                 '</a>'
             ])
@@ -1512,11 +1514,14 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, TemplateView):
             return redirect(
                 '?'.join([
                     reverse('openCurrents:redeem-option'),
-                    'biz_name=%s' % biz_name
+                    'biz_name=%s' % self.biz_name
                 ])
             )
         else:
-            return render(request, self.template_name, context)
+            return super(ConfirmPurchaseView, self).dispatch(
+                request, *args, **kwargs
+            )
+
 
     def post(self, request, *args, **kwargs):
         form = ConfirmGiftCardPurchaseForm(request.POST)
@@ -1530,7 +1535,7 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, TemplateView):
             if balance_available == 0:
                 status_msg = ' '.join([
                     'You don\'t have any Currents yet.<br/>',
-                    '<a href="/volunteer-opportunities/">',
+                    '<a href="/upcoming-events/">',
                     'Find a volunteer opportunity to earn more Currents!',
                     '</a>'
                 ])
@@ -1538,7 +1543,7 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, TemplateView):
             elif convert.cur_to_usd(balance_available, fee=False) < denomination:
                 status_msg = ' '.join([
                     'Not enough Currents to buy a gift card - please try cash back redemption instead.<br/>',
-                    '<a href="/volunteer-opportunities/">',
+                    '<a href="/upcoming-events/">',
                     'Find a volunteer opportunity to earn more Currents!',
                     '</a>'
                 ])
@@ -1615,6 +1620,18 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, TemplateView):
         else:
             logger.exception('critical error: invalid ConfirmGiftCardPurchaseForm')
             return redirect('openCurrents:500')
+
+    def get_form_kwargs(self):
+        '''
+        Get form kwargs.
+
+        pass down to (ConfirmGiftCardPurchaseForm) form
+            - biz_name
+        '''
+        kwargs = super(ConfirmPurchaseView, self).get_form_kwargs()
+        kwargs.update({'biz_name': self.biz_name})
+
+        return kwargs
 
 
 class RequestCurrentsView(TemplateView):
@@ -2370,7 +2387,7 @@ class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
         context['bonus_amount'] = common._SIGNUP_BONUS
 
         context['has_volunteered'] = context['hours_by_org']
-        context['active_npfs'] = OcOrg().get_top_issued_npfs('all-time', active=True)
+        context['active_npfs'] = OcOrg().get_top_issued_npfs('all-time', quantity=1e6, active=True)
 
         return context
 

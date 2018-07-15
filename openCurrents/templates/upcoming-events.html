@@ -5,19 +5,9 @@
 {% block heading %}
   <div class="row">
     <div class="small-12 columns">
-      <h3 class="title-sub">
+      <h3 class="title">
         {% block title %} Volunteer events {% endblock title %}
       </h3>
-    </div>
-  </div>
-
-  <div class="row half-margin-top half-margin-bottom">
-    <div class="small-11 medium-9 small-centered columns">
-      To earn Currents, register at the events below and either record your hours
-      from your profile or tag <strong>@opencurrents</strong> on Facebook or
-      Instagram when volunteering. It's that simple! Remember to check other
-      opportunities with
-      <a href="https://www.givepulse.com/group/events/129038">our affiliates on GivePulse</a>.
     </div>
   </div>
 {% endblock heading %}
@@ -63,8 +53,11 @@
   </div>
 
   <div class="row">
-    <a href="{% url 'openCurrents:profile' %}" class="button round secondary">
-      Back to profile
+    <a
+      href="https://opencurrents.givepulse.com/group/129038-openCurrents"
+      class="button round secondary"
+      target="_blank">
+      See more opportunities
     </a>
   </div>
 {% endblock content %}

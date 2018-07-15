@@ -714,7 +714,8 @@ class TransactionAction(models.Model):
             {'name': 'AMOUNT', 'content': '%.2f' % tr.price_reported},
             {'name': 'TRANSACTION_ID', 'content': str(tr.id)},
             {'name': 'FNAME', 'content': tr.user.first_name},
-            {'name': 'LNAME', 'content': tr.user.last_name}
+            {'name': 'LNAME', 'content': tr.user.last_name},
+            {'name': 'USER_EMAIL', 'content': tr.user.email}
         ]
         template_name = None
 
@@ -754,27 +755,16 @@ class TransactionAction(models.Model):
                 # merge vars and template name
                 # for cashback transaction approved email to user
                 template_name = 'transaction-approved'
+                amount_usd = '%.2f' % float(usd_amount)
+                amound_cur = '%.2f' % float(tr.currents_amount)
+                balance_cur = '%.2f' % float(oc_user.get_balance_available())
+                balance_usd = '%.2f' % float(oc_user.get_balance_available_usd())
                 email_vars = [
-                    {
-                        'name': 'BIZ_NAME',
-                        'content': bizname
-                    },
-                    {
-                        'name': 'DOLLARS_REDEEMED',
-                        'content': '%.2f' % float(usd_amount)
-                    },
-                    {
-                        'name': 'CURRENTS_REDEEMED',
-                        'content': '%.2f' % float(tr.currents_amount)
-                    },
-                    {
-                        'name': 'CURRENTS_AVAILABLE',
-                        'content': '%.2f' % float(oc_user.get_balance_available())
-                    },
-                    {
-                        'name': 'DOLLARS_AVAILABLE',
-                        'content': '%.2f' % float(oc_user.get_balance_available_usd())
-                    },
+                    {'name': 'BIZ_NAME', 'content': bizname},
+                    {'name': 'DOLLARS_REDEEMED', 'content': amount_usd},
+                    {'name': 'CURRENTS_REDEEMED', 'content': amound_cur},
+                    {'name': 'CURRENTS_AVAILABLE', 'content': balance_cur},
+                    {'name': 'DOLLARS_AVAILABLE', 'content': balance_usd}
                 ]
             elif tr.offer.offer_type == 'gft':
                 if not self.giftcard:
