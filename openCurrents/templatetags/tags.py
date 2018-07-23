@@ -15,6 +15,14 @@ logger.setLevel(logging.DEBUG)
 register = template.Library()
 
 @register.filter
+def subtract(val1, val2):
+    return val1 - val2
+
+@register.filter
+def transform_stripe(val):
+    return str(val).replace('.', '')
+
+@register.filter
 def day(val, tz='UTC'):
     return val.astimezone(pytz.timezone(tz)).strftime('%b %d, %Y')
 
@@ -107,3 +115,14 @@ def round_number(value, decimals):
 @register.filter
 def jsonify_list_id(value):
     return json.dumps([value])
+
+@register.filter('get_img_name_for_biz')
+def get_img_name_for_biz(biz_name):
+    if len(biz_name.split()) > 1:
+        img_name = '-'.join(map(lambda s: s.lower(), biz_name.split()))
+    else:
+        img_name = biz_name.lower()
+
+    return '/'.join([
+        'img', '.'.join([img_name, 'png'])
+    ])

@@ -89,12 +89,14 @@ import logging
 import os
 import pytz
 import socket
+import stripe
 import re
 import uuid
 import decimal
 import csv
 import xlwt
 
+stripe.api_key = config.STRIPE_API_SKEY
 
 logging.basicConfig(level=logging.DEBUG, filename='log/views.log')
 logger = logging.getLogger(__name__)
@@ -1454,6 +1456,19 @@ class RedeemOptionView(TemplateView):
         biz_name = request.GET.get('biz_name', '')
         context = {'biz_name': biz_name}
 
+        try:
+            self.offer = Offer.objects.get(
+                org__name=biz_name,
+                offer_type='gft'
+            )
+            context['fiat_share_percent'] = (100 - self.offer.currents_share) * 0.01
+        except Offer.DoesNotExist:
+            logger.exception(
+                'critical error: no gift card offer for %s',
+                biz_name
+            )
+            return redirect('openCurrents:500')
+
         if biz_name == 'HEB':
             context['denomination'] = 15
         else:
@@ -1483,6 +1498,20 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, FormView):
     def dispatch(self, request, *args, **kwargs):
         self.ocuser = OcUser(self.request.user.id)
         self.biz_name = request.GET.get('biz_name', '')
+
+        # currently, we only support a single giftcard offer per biz
+        # TODO: redesign to support multiple giftcard offers per biz
+        try:
+            self.offer = Offer.objects.get(
+                org__name=self.biz_name,
+                offer_type='gft'
+            )
+        except Offer.DoesNotExist:
+            logger.exception(
+                'critical error: no gift card offer for %s',
+                self.biz_name
+            )
+            return redirect('openCurrents:500')
 
         hours_approved = self.ocuser.get_hours_approved()
         status_msg = None
@@ -1529,6 +1558,8 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, FormView):
         if form.is_valid():
             biz_name = form.cleaned_data['biz_name']
             denomination = form.cleaned_data['denomination']
+            stripe_token = form.cleaned_data['stripe_token']
+            logger.debug('stripe_token: %s', stripe_token)
 
             canRedeem = True
             balance_available = self.ocuser.get_balance_available()
@@ -1570,56 +1601,77 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, FormView):
                 is_redeemed=False
             ).first()
 
-            if giftcard:
-                offer = giftcard.offer
-            else:
-                try:
-                    offer = Offer.objects.get(
-                        org__name=biz_name,
-                        offer_type='gft'
+            try:
+                with transaction.atomic():
+                    # create transaction
+                    tr = Transaction(
+                        user=self.request.user,
+                        offer=self.offer,
+                        price_reported=denomination,
+                        currents_amount=convert.usd_to_cur(float(denomination))
                     )
-                except Offer.DoesNotExist:
-                    logger.exception(
-                        'critical error: no gift card offer for %s',
-                        biz_name
-                    )
-                    return redirect('openCurrents:500')
+                    tr.save()
 
-            with transaction.atomic():
-                # create transaction
-                tr = Transaction(
-                    user=self.request.user,
-                    offer=offer,
-                    price_reported=denomination,
-                    currents_amount=convert.usd_to_cur(float(denomination))
+                    if giftcard:
+                        # approved if giftcard in stock
+                        action_type = 'app'
+                        status_msg = 'Your <strong>{}</strong> gift card has been emailed to you'.format(
+                            biz_name
+                        )
+                    else:
+                        # pending if giftcard not in stock
+                        action_type = 'req'
+                        status_msg = 'We are currently out of stock - your <strong>{}</strong> gift card will be sent to {} in the next 48 hours'.format(
+                            biz_name, tr.user.email
+                        )
+
+                    # create transaction action record
+                    action = TransactionAction(
+                        transaction=tr,
+                        action_type=action_type,
+                        giftcard=giftcard
+                    )
+                    action.save()
+
+                    # create stripe charge
+                    curr_share = self.offer.currents_share
+                    fiat_charge = denomination * (100 - curr_share)
+                    if curr_share < 100:
+                        charge = stripe.Charge.create(
+                          amount=int(denomination * (100 - curr_share)),
+                          currency='usd',
+                          source=stripe_token,
+                          receipt_email=tr.user.email
+                        )
+                        status_msg = '. '.join([
+                            status_msg,
+                            'We\'ve charged your card for $%.2f' % (float(fiat_charge) * 0.01)
+                        ])
+
+            # TODO: implement stripe error-specific exception handling
+            except Exception as e:
+                logger.warning(
+                    'error processing transaction request: %s',
+                    {
+                        'error': e,
+                        'offer': self.offer.id,
+                        'user': tr.user.email
+                    }
                 )
-                tr.save()
-
-                if giftcard:
-                    # approved if giftcard in stock
-                    action_type = 'app'
-                    status_msg = 'Your <strong>{}</strong> gift card has been emailed to you'.format(
-                        biz_name
-                    )
-                else:
-                    # pending if giftcard not in stock
-                    action_type = 'req'
-                    status_msg = 'We are currently out of stock - your <strong>{}</strong> gift card will be sent to {} in the next 48 hours'.format(
-                        biz_name, tr.user.email
-                    )
-
-                # create transaction action record
-                action = TransactionAction(
-                    transaction=tr,
-                    action_type=action_type,
-                    giftcard=giftcard
+                status_msg = 'There was an error processing this transaction: {}'.format(
+                    e.message
                 )
-                action.save()
 
-                return redirect('openCurrents:profile', status_msg=status_msg)
+            return redirect('openCurrents:profile', status_msg=status_msg)
         else:
             logger.exception('critical error: invalid ConfirmGiftCardPurchaseForm')
             return redirect('openCurrents:500')
+
+    # def get_context_data(self, **kwargs):
+    #     context = super(ConfirmPurchaseView, self).get_context_data(**kwargs)
+    #     context['offer'] = self.offer
+    #
+    #     return context
 
     def get_form_kwargs(self):
         '''
@@ -1629,7 +1681,10 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, FormView):
             - biz_name
         '''
         kwargs = super(ConfirmPurchaseView, self).get_form_kwargs()
-        kwargs.update({'biz_name': self.biz_name})
+        kwargs.update({
+            'biz_name': self.biz_name,
+            'currents_share': self.offer.currents_share
+        })
 
         return kwargs
 
