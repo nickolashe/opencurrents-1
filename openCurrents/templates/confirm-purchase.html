@@ -48,6 +48,7 @@
           {{ form.denomination }}
           {{ form.currents_share }}
           {{ form.stripe_token }}
+          {{ form.stripe_api_pkey }}
 
           <div class="row one-margin-top">
             <!--script
@@ -68,7 +69,7 @@
 
             <script>
               var handler = StripeCheckout.configure({
-                key: 'pk_test_U8kAbl7nWJXH5QMLIDhkSXJW',
+                key: "{{ form.stripe_api_pkey.value }}",
                 image: "{% static form.biz_name.value|get_img_name_for_biz %}",
                 locale: 'auto',
                 token: function(token) {

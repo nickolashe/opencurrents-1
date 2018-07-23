@@ -7,6 +7,7 @@ from django.core.validators import MinLengthValidator
 from django.template.defaultfilters import filesizeformat
 from django.utils.translation import ugettext as _
 
+from openCurrents import config
 from openCurrents.models import (
     Org,
     OrgUser,
@@ -21,8 +22,8 @@ from openCurrents.interfaces.ledger import OcLedger
 from datetime import datetime, timedelta
 
 import logging
-import re
 import pytz
+import re
 import string
 import widgets
 
@@ -982,6 +983,13 @@ class ConfirmGiftCardPurchaseForm(forms.Form):
             'class': 'hidden',
             'id': 'frm_fld_stripe_token'
         })
+    )
+
+    stripe_api_pkey = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'class': 'hidden',
+        }),
+        initial=config.STRIPE_API_PKEY
     )
 
 class PublicRecordsForm(forms.Form):

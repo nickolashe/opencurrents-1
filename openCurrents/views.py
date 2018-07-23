@@ -96,7 +96,7 @@ import decimal
 import csv
 import xlwt
 
-stripe.api_key = config.STRIPE_API_KEY
+stripe.api_key = config.STRIPE_API_SKEY
 
 logging.basicConfig(level=logging.DEBUG, filename='log/views.log')
 logger = logging.getLogger(__name__)
