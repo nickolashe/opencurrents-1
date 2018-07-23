@@ -112,6 +112,10 @@ def round_number(value, decimals):
     s = "%."+ str(decimals) +"f"
     return s % round(value, decimals)
 
+@register.filter
+def jsonify_list_id(value):
+    return json.dumps([value])
+
 @register.filter('get_img_name_for_biz')
 def get_img_name_for_biz(biz_name):
     if len(biz_name.split()) > 1:
