@@ -1,26 +1,17 @@
 {% extends "layouts/base.html" %}
 {% load staticfiles %}
-
+{% load tags %}
 
 {% block name %}
   Purchase options
 {% endblock name %}
-
 
 {% block heading %}
 <div class="row center">
   <div class="small-6 medium-3 small-centered columns">
     <img
       class="biz-header-image"
-      {% if biz_name == "Whole Foods" %}
-        src="{% static 'img/whole-foods.png' %}"
-      {% elif biz_name == 'Juiceland' %}
-        src="{% static 'img/juiceland.png' %}"
-      {% elif biz_name == 'HEB' %}
-        src="{% static 'img/heb.png' %}"
-      {% elif biz_name == 'Alamo' %}
-        src="{% static 'img/alamo.png' %}"
-      {% endif %}
+      src="{% static biz_name|get_img_name_for_biz %}"
     />
   </div>
 </div>
@@ -36,7 +27,7 @@
     <div class="medium-4 medium-offset-1 columns">
       <a href="{% url 'openCurrents:confirm-purchase' %}?biz_name={{biz_name}}" class="button option">
         <h4 class="white">${{ denomination }} gift card</h4>
-        Buy now
+        Buy now for ${{ denomination|mult:fiat_share_percent|round_number:2 }}
       </a>
     </div>
     <div class="medium-2 columns">
@@ -56,16 +47,4 @@
     </a>
   </div>
 
-  <form action="your-server-side-code" method="POST">
-    <script
-      src="https://checkout.stripe.com/checkout.js" class="stripe-button"
-      data-key="pk_test_U8kAbl7nWJXH5QMLIDhkSXJW"
-      data-amount="999"
-      data-zip-code="true"
-      data-name="openCurrents Nonprofit"
-      data-description="Widget"
-      data-image="https://stripe.com/img/documentation/checkout/marketplace.png"
-      data-locale="auto">
-    </script>
-  </form>
 {% endblock content %}

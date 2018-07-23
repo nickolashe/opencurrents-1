@@ -938,6 +938,7 @@ class ConfirmGiftCardPurchaseForm(forms.Form):
         # biz_name can be passed in from view
         try:
             biz_name = kwargs.pop('biz_name')
+            currents_share = kwargs.pop('currents_share')
         except KeyError:
             pass
 
@@ -953,9 +954,16 @@ class ConfirmGiftCardPurchaseForm(forms.Form):
                self.fields['denomination'].initial = 15
 
             self.fields['biz_name'].initial = biz_name
+            self.fields['currents_share'].initial = currents_share
 
 
     # form field declarations
+    biz_name = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'class': 'hidden',
+        })
+    )
+
     denomination = forms.DecimalField(
         widget=forms.NumberInput(attrs={
             'class': 'hidden'
@@ -963,12 +971,18 @@ class ConfirmGiftCardPurchaseForm(forms.Form):
         initial=25
     )
 
-    biz_name = forms.CharField(
-        widget=forms.TextInput(attrs={
-            'class': 'hidden',
+    currents_share = forms.IntegerField(
+        widget=forms.NumberInput(attrs={
+            'class': 'hidden'
         })
     )
 
+    stripe_token = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'class': 'hidden',
+            'id': 'frm_fld_stripe_token'
+        })
+    )
 
 class PublicRecordsForm(forms.Form):
     periods = (
