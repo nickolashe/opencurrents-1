@@ -71,4 +71,8 @@
         'Thanks for logging in, ' + response.name + '!';
     });
   }
+
+  FB.login(function(response) {
+    // handle the response
+  }, {scope: 'email'});
 </script>
