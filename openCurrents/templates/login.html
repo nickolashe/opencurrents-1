@@ -36,12 +36,17 @@
         <button type="submit" class="button round" onclick="this.disabled=true,this.form.submit();">Enter</button>
       </div>
 
+      <fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
+      </fb:login-button>
+
       <div class="row center half-margin-top">
         <p class="grey">
           New member?<br/>
           <a href="{% url 'openCurrents:signup' %}">Join openCurrents</a>
         </p>
       </div>
+
+      {% include "scripts/fb-login.html" %}
   </form>
 {% endblock content %}
 
