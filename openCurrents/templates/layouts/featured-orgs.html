@@ -19,18 +19,15 @@
     </p>
   </div>
   <div class="relative small-6 medium-3 columns">
-    <!-- <a href="
-      {% block url-2 %}
-        {% url 'openCurrents:redeem-option' %}?biz_name=Whole Foods
-      {% endblock url-2 %}
-    "> -->
+    <a href="{% block url-2 %}{% endblock url-2 %}"
+      class="{% block class-2 %}{% endblock class-2 %}">
       <img class="biz-logos" src="
         {% block img-2 %}
           {% static 'img/whole-foods-disabled.png' %}
         {% endblock img-2 %}
       "/>
       {% block overlay-2 %}{% endblock overlay-2 %}
-    <!-- </a> -->
+    </a>
     <p class="center no-margin-bottom">
       {% block caption-2 %}{% endblock caption-2 %}
     </p>
@@ -53,20 +50,21 @@
     </p>
   </div>
   <div class="relative small-6 medium-3 columns">
-    <!-- <a href="
-      {% block url-4 %}
-        {% url 'openCurrents:redeem-option' %}?biz_name=Alamo
-      {% endblock url-4 %}
-    "> -->
+    <a href="{% block url-4 %}{% endblock url-4 %}"
+      class="{% block class-4 %}{% endblock class-4 %}">
       <img class="biz-logos" src="
         {% block img-4 %}
           {% static 'img/alamo-disabled.png' %}
         {% endblock img-4 %}
       "/>
       {% block overlay-4 %}{% endblock overlay-4 %}
-    <!-- </a> -->
+    </a>
     <p class="center no-margin-bottom">
       {% block caption-4 %}{% endblock caption-4 %}
     </p>
   </div>
 </div>
+
+{% block popups %}{% endblock popups %}
+
+{% block js %}{% endblock js %}

@@ -19,3 +19,27 @@
     20%
   </span>
 {% endblock overlay-3 %}
+
+{% block class-2 %}
+  {% block class-4 %}
+    sold-out-popup_open
+  {% endblock class-4 %}
+{% endblock class-2 %}
+
+{% block popups %}
+  <div id="sold-out-popup" class="modal center small-12 medium-9 small-centered columns">
+    {% include "popups/sold-out-popup.html" %}
+  </div>
+{% endblock popups %}
+
+{% block js %}
+  <script type="text/javascript">
+    $(document).ready(function(){
+      $('#sold-out-popup').popup({
+        vertical: 'top',
+        transition: 'all 0.75s',
+        scrolllock: true,
+      });
+    });
+  </script>
+{% endblock js %}
