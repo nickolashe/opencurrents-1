@@ -105,7 +105,7 @@ class TestMarketplaceNonLogged(SetupAll):
         )
 
         # assert user sees public marketplace page
-        for biz_name in ['Alamo', 'HEB', 'Whole Foods']:
+        for biz_name in ['HEB']:
             self.assertIn(
                 '/redeem-option/?biz_name={}'.format(biz_name),
                 response.content
