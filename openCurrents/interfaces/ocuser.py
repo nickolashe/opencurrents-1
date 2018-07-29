@@ -240,22 +240,22 @@ class OcUser(object):
 
         return remaining
 
-    def get_giftcard_offer_remaining(self):
+    def get_giftcard_offer_redeemed(self):
         '''
         return cumulative user's redemption amount towards the gift offers
         '''
         dt_week_ago_from_now = datetime.now(tz=pytz.utc) - timedelta(days=7)
         actions = self._get_transactions_giftcard_timeframe(dt_week_ago_from_now)
-        remaining = common._GIFT_CARD_OFFER_LIMIT - float(common._get_redemption_total(actions))
+        redeemed = float(common._get_redemption_total(actions))
 
-        if remaining < 0:
-            logger.warning(
-                'user %s has redeemed above giftcard offer limit',
-                self.user.username
-            )
-            remaining = 0
+        # if remaining < 0:
+        #     logger.warning(
+        #         'user %s has redeemed above giftcard offer limit',
+        #         self.user.username
+        #     )
+        #     remaining = 0
 
-        return remaining
+        return redeemed
 
     def get_hours_requested(self, **kwargs):
         usertimelogs = self._get_usertimelogs()
