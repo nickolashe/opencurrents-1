@@ -19,11 +19,14 @@
     </p>
   </div>
   <div class="relative small-6 medium-3 columns">
-    <a href="{% block url-2 %}{% endblock url-2 %}"
+    <a href="
+      {% block url-2 %}
+        {% url 'openCurrents:redeem-option' %}?biz_name=Juiceland
+      {% endblock url-2 %}"
       class="{% block class-2 %}{% endblock class-2 %}">
       <img class="biz-logos" src="
         {% block img-2 %}
-          {% static 'img/whole-foods-disabled.png' %}
+          {% static 'img/juiceland.png' %}
         {% endblock img-2 %}
       "/>
       {% block overlay-2 %}{% endblock overlay-2 %}
@@ -35,12 +38,12 @@
   <div class="relative small-6 medium-3 columns">
     <a href="
       {% block url-3 %}
-        {% url 'openCurrents:redeem-currents' 65 %}
+        {% url 'openCurrents:redeem-currents' 56 %}
       {% endblock url-3 %}
     ">
       <img class="biz-logos" src="
         {% block img-3 %}
-          {% static 'img/native.png' %}
+          {% static 'img/tacodeli.png' %}
         {% endblock img-3 %}
       "/>
       {% block overlay-3 %}{% endblock overlay-3 %}
@@ -50,11 +53,14 @@
     </p>
   </div>
   <div class="relative small-6 medium-3 columns">
-    <a href="{% block url-4 %}{% endblock url-4 %}"
+    <a href="
+      {% block url-4 %}
+        {% url 'openCurrents:redeem-currents' 66 %}
+      {% endblock url-4 %}"
       class="{% block class-4 %}{% endblock class-4 %}">
       <img class="biz-logos" src="
         {% block img-4 %}
-          {% static 'img/alamo-disabled.png' %}
+          {% static 'img/torchys.png' %}
         {% endblock img-4 %}
       "/>
       {% block overlay-4 %}{% endblock overlay-4 %}
