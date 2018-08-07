@@ -1603,7 +1603,7 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, FormView):
 
             curr_share = self.offer.currents_share
             fiat_charge = denomination * (100 - curr_share)
-            curr_charge = float(denomination * curr_share) / 100.0
+            curr_charge = convert.usd_to_cur(float(denomination) * curr_share * 0.01)
 
             # create transaction
             try:
@@ -1620,15 +1620,16 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, FormView):
                     if giftcard:
                         # approved if giftcard in stock
                         action_type = 'app'
-                        status_msg = 'Your <strong>{}</strong> gift card has been emailed to you'.format(
-                            biz_name
-                        )
+                        status_msg = 'has been emailed to you at {}'
                     else:
                         # pending if giftcard not in stock
                         action_type = 'req'
-                        status_msg = 'We are currently out of stock - your <strong>{}</strong> gift card will be sent to {} in the next 48 hours'.format(
-                            biz_name, tr_user_biz.user.email
-                        )
+                        status_msg = 'will be sent to {} in the next 48 hours'
+
+                    status_msg = ' '.join([
+                        'Transaction approved - your <strong>{}</strong> gift card'.format(biz_name),
+                        status_msg.format(tr_user_biz.user.email)
+                    ])
 
                     # create transaction action record
                     action_user_biz = TransactionAction(
