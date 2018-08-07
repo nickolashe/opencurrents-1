@@ -1601,16 +1601,21 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, FormView):
                 is_redeemed=False
             ).first()
 
+            curr_share = self.offer.currents_share
+            fiat_charge = denomination * (100 - curr_share)
+            curr_charge = float(denomination * curr_share) / 100.0
+
+            # create transaction
             try:
                 with transaction.atomic():
-                    # create transaction
-                    tr = Transaction(
+                    # create transaction from user to biz in currents
+                    tr_user_biz = Transaction(
                         user=self.request.user,
                         offer=self.offer,
                         price_reported=denomination,
-                        currents_amount=convert.usd_to_cur(float(denomination))
+                        currents_amount=curr_charge
                     )
-                    tr.save()
+                    tr_user_biz.save()
 
                     if giftcard:
                         # approved if giftcard in stock
@@ -1622,31 +1627,36 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, FormView):
                         # pending if giftcard not in stock
                         action_type = 'req'
                         status_msg = 'We are currently out of stock - your <strong>{}</strong> gift card will be sent to {} in the next 48 hours'.format(
-                            biz_name, tr.user.email
+                            biz_name, tr_user_biz.user.email
                         )
 
                     # create transaction action record
-                    action = TransactionAction(
-                        transaction=tr,
+                    action_user_biz = TransactionAction(
+                        transaction=tr_user_biz,
                         action_type=action_type,
                         giftcard=giftcard
                     )
-                    action.save()
+                    action_user_biz.save()
 
                     # create stripe charge
-                    curr_share = self.offer.currents_share
-                    fiat_charge = denomination * (100 - curr_share)
                     if curr_share < 100:
                         charge = stripe.Charge.create(
-                          amount=int(denomination * (100 - curr_share)),
+                          amount=int(fiat_charge),
                           currency='usd',
                           source=stripe_token,
-                          receipt_email=tr.user.email
+                          receipt_email=tr_user_biz.user.email
                         )
                         status_msg = '. '.join([
                             status_msg,
                             'We\'ve charged your card for $%.2f' % (float(fiat_charge) * 0.01)
                         ])
+
+                        # create transaction from user to biz in currents
+                        OcLedger().transact_usd_user_oc(
+                            tr_user_biz.user.id,
+                            float(fiat_charge) * 0.01,
+                            action_user_biz
+                        )
 
             # TODO: implement stripe error-specific exception handling
             except Exception as e:
@@ -1655,7 +1665,7 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, FormView):
                     {
                         'error': e,
                         'offer': self.offer.id,
-                        'user': tr.user.email
+                        'user': tr_user_biz.user.email
                     }
                 )
                 status_msg = 'There was an error processing this transaction: {}'.format(
