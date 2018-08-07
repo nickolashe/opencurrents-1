@@ -3,6 +3,7 @@ from itertools import chain
 
 from django.db.models import Q, Sum
 from openCurrents.models import (
+    Org,
     Entity,
     UserEntity,
     OrgEntity,
@@ -10,6 +11,8 @@ from openCurrents.models import (
     AdminActionUserTime,
     TransactionAction
 )
+
+from django.contrib.auth.models import User
 
 import logging
 import pytz
@@ -77,7 +80,6 @@ class OcLedger(object):
             is_bonus=is_bonus
         )
 
-        # TODO: refactor using a joint table for actions
         if isinstance(action, AdminActionUserTime):
             ledger_rec.action = action
         elif isinstance(action, TransactionAction):
@@ -107,11 +109,35 @@ class OcLedger(object):
             is_bonus=is_bonus
         )
 
-    def add_fiat(self, id_to, type='usd'):
-        pass
+    def transact_fiat(
+        self,
+        entity_from,
+        entity_to,
+        amount,
+        tr_action=None,
+        currency='usd'
+    ):
+        ledger_rec = Ledger(
+            entity_from=entity_from,
+            entity_to=entity_to,
+            amount=amount,
+            currency=currency,
+        )
 
-    def remove_fiat(self, id_from, type='usd'):
-        pass
+        logger.info(tr_action)
+
+        if tr_action and not isinstance(tr_action, TransactionAction):
+            raise Exception('Invalid transaction reference')
+        else:
+            ledger_rec.tr_action = tr_action
+
+        ledger_rec.save()
+
+    def transact_usd_user_oc(self, userid, amount, tr_action=None):
+        entity_user = User.objects.get(id=userid).userentity
+        entity_oc = Org.objects.get(name='openCurrents').orgentity
+
+        self.transact_fiat(entity_user, entity_oc, amount, tr_action)
 
     def get_balance(self, entity_id, entity_type='user', currency='cur'):
         entity = self._get_entity(entity_id, entity_type)

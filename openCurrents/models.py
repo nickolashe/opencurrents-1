@@ -218,7 +218,7 @@ class Ledger(models.Model):
             name_to,
             'in the amount of',
             str(self.amount),
-            self.currency,
+            self.currency.upper(),
             'on',
             self.date_created.strftime(
                 '%Y-%m-%d %I-%M %p'
