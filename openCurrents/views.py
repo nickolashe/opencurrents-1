@@ -1429,6 +1429,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         context['master_funds_available'] = self.ocuser.get_master_offer_remaining()
 
         biz_name = self.request.GET.get('biz_name')
+        context['biz_name'] = biz_name
         if biz_name:
             context['form'] = RedeemCurrentsForm(
                 offer_id=self.kwargs['offer_id'],
