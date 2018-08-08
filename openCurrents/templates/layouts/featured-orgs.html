@@ -39,7 +39,7 @@
   <div class="relative small-6 medium-3 columns">
     <a
       {% block url-3 %}
-        href="{% url 'openCurrents:redeem-currents' 66 %}"
+        href="{% url 'openCurrents:redeem-currents' master_offer.id %}?biz_name=Torchys"
       {% endblock url-3 %}
     >
       <img class="biz-logos" src="
@@ -57,7 +57,7 @@
   <div class="relative small-6 medium-3 columns">
     <a
       {% block url-4 %}
-        href="{% url 'openCurrents:redeem-currents' 56 %}"
+        href="{% url 'openCurrents:redeem-currents' master_offer.id %}?biz_name=Tacodeli"
       {% endblock url-4 %}>
       <img class="biz-logos" src="
         {% block img-4 %}
