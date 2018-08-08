@@ -1456,7 +1456,7 @@ class RedeemOptionView(TemplateView):
         context = {'biz_name': biz_name}
 
         if biz_name == 'HEB':
-            context['denomination'] = 15
+            context['denomination'] = 20
         else:
             context['denomination'] = 25
 
