@@ -12,6 +12,17 @@
   <div class="row two-margin-top two-margin-bottom">
     <div class="small-12 medium-9 small-centered columns">
       <div class="row collapse">
+        <img
+          class="biz-header-image"
+          src="{% static biz_name|get_img_name_for_biz %}"
+        />
+      </div>
+    </div>
+  </div>
+
+  <div class="row two-margin-top two-margin-bottom">
+    <div class="small-12 medium-9 small-centered columns">
+      <div class="row collapse">
         <div class="small-4 columns">
           <div id="progress-1" class="progress-counter progress-highlight">
             <h6>1</h6>
@@ -126,7 +137,14 @@
             Exchange
             <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
             <span class="currents-total">0.00</span> for
-            $<span class="dollars-received">0.00</span> with {{ offer.org.name }}.
+            $<span class="dollars-received">0.00</span> with
+              <strong>
+                {% if offer.is_master and biz_name %}
+                  {{ biz_name }}
+                {% else %}
+                  {{ offer.org.name }}
+                {% endif %}
+              </strong>.
             <span id="master-offer-limit" class="hidden">
               (You have up to
               <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
@@ -137,7 +155,13 @@
           {{ form.biz_name }}
 
           <p>
-            Dollars will become available once {{ offer.org.name }} validates
+            Dollars will become available once
+            {% if offer.is_master and biz_name %}
+              {{ biz_name }}
+            {% else %}
+              {{ offer.org.name }}
+            {% endif %}
+            validates
             the transaction. You can then transfer Available Dollars to your bank
             account or donate it back to nonprofits in the community.
           </p>

@@ -129,7 +129,7 @@ class OcLedger(object):
         if tr_action and not isinstance(tr_action, TransactionAction):
             raise Exception('Invalid transaction reference')
         else:
-            ledger_rec.tr_action = tr_action
+            ledger_rec.transaction = tr_action
 
         ledger_rec.save()
 
@@ -145,7 +145,9 @@ class OcLedger(object):
         debit = Ledger.objects.filter(
             entity_from__id=entity.id,
             is_issued=False,
-            currency=currency
+            currency=currency,
+        ).exclude(
+            transaction__transaction__offer__offer_type='gft'
         ).aggregate(total=Sum('amount'))
 
         debit_total = debit['total'] if debit['total'] else 0

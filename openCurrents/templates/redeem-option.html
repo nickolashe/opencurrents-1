@@ -23,28 +23,29 @@
 
 
 {% block content %}
-  <div class="row center two-margin-top">
-    <div class="medium-4 medium-offset-1 columns">
-      <a href="{% url 'openCurrents:confirm-purchase' %}?biz_name={{biz_name}}" class="button option">
-        <h4 class="white">${{ denomination }} gift card</h4>
-        Buy now for ${{ denomination|mult:fiat_share_percent|round_number:2 }}
+  {% with fiat_amount=denomination|mult:fiat_share_percent|round_number:2 %}
+    <div class="row center two-margin-top">
+      <div class="medium-4 medium-offset-1 columns">
+        <a href="{% url 'openCurrents:confirm-purchase' %}?biz_name={{biz_name}}" class="button option">
+          <h4 class="white">${{ denomination }} gift card</h4>
+          Buy now for ${{ fiat_amount }}
+        </a>
+      </div>
+      <div class="medium-2 columns">
+        <div class="two-margin-top hide-for-small-only"></div>
+        <h5>or</h5>
+      </div>
+      <div class="medium-4 columns end">
+        <a href="{% url 'openCurrents:redeem-currents' master_offer.id %}?biz_name={{biz_name}}" class="button option">
+          <h4 class="white">Upload receipt</h4>
+          For up to {{ fiat_amount }} in cash back
+        </a>
+      </div>
+    </div>
+    <div class="row center one-margin-top">
+      <a href="{% url 'openCurrents:profile' %}" class="button round secondary tiny">
+        Cancel
       </a>
     </div>
-    <div class="medium-2 columns">
-      <div class="two-margin-top hide-for-small-only"></div>
-      <h5>or</h5>
-    </div>
-    <div class="medium-4 columns end">
-      <a href="{% url 'openCurrents:redeem-currents' master_offer.id %}?biz_name={{biz_name}}" class="button option">
-        <h4 class="white">${{ denomination }} cash back</h4>
-        Upload receipt
-      </a>
-    </div>
-  </div>
-  <div class="row center one-margin-top">
-    <a href="{% url 'openCurrents:profile' %}" class="button round secondary tiny">
-      Cancel
-    </a>
-  </div>
-
+  {% endwith %}
 {% endblock content %}

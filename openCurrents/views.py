@@ -1284,6 +1284,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
             self.offer = Offer.objects.get(id=offer_id)
             self.userid = request.user.id
             self.ocuser = OcUser(self.userid)
+            self.biz_name = request.GET.get('biz_name', '')
 
             glogger_struct = {
                 'msg': 'offer redemption request',
@@ -1310,10 +1311,14 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
 
             if self.offer.is_master and user_master_offer_remaining <= 0:
                 reqForbidden = True
+                # status_msg = ' '.join([
+                #     'You have already redeemed the maximum of',
+                #     str(common._MASTER_OFFER_LIMIT),
+                #     'Currents for the special offer this week. Check back soon!'
+                # ])
                 status_msg = ' '.join([
-                    'You have already redeemed the maximum of',
-                    str(common._MASTER_OFFER_LIMIT),
-                    'Currents for the special offer this week. Check back soon!'
+                    'You have already redeemed our limited time offer this week.',
+                    'Come back next week or see other offers from the community.'
                 ])
                 msg_type = 'alert'
                 glogger_struct['reject_reason'] = 'master offer limit reached'
@@ -1446,6 +1451,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         kwargs = super(RedeemCurrentsView, self).get_form_kwargs()
         kwargs.update({'offer_id': self.kwargs['offer_id']})
         kwargs.update({'user': self.request.user})
+        # kwargs.update({'biz_name': self.biz_name})
 
         return kwargs
 
@@ -1527,10 +1533,14 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, FormView):
 
         balance_redeemed = self.ocuser.get_giftcard_offer_redeemed()
         if balance_redeemed > 0:
+            # status_msg = ' '.join([
+            #     'You have already redeemed a maximum of',
+            #     # '$%d' % convert.cur_to_usd(balance_redeemed),
+            #     '1 gift card this week',
+            # ])
             status_msg = ' '.join([
-                'You have already redeemed a maximum of',
-                '$%d' % convert.cur_to_usd(balance_redeemed),
-                'in gift cards this week',
+                'You have already redeemed our limited time offer this week.',
+                'Come back next week or visit the marketplace for offers from other businesses.'
             ])
 
         if status_msg:

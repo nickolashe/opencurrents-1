@@ -195,7 +195,12 @@ approval%20by%20{}/'.format(self.org_biz.name),
         # logging in as a volunteer 1
         self.client.login(username=self.volunteer_1.username,
                           password='password')
-        response = self.client.get(testing_urls.redeem_currents_url(1))
+        response = self.client.get(
+            '?'.join([
+                testing_urls.redeem_currents_url(1),
+                'biz_name=HEB'
+            ])
+        )
         self.assertEqual(response.status_code, 200)
 
         redeem_currents_amount = self.redeem_price * _SHARE / _USDCUR
@@ -257,7 +262,10 @@ approval%20by%20{}/'.format(self.org_biz.name),
                           password='password')
         session = self.client.session
 
-        redeem_currents_url = testing_urls.redeem_currents_url(1)
+        redeem_currents_url ='?'.join([
+            testing_urls.redeem_currents_url(1),
+            'biz_name=HEB'
+        ])
         response = self.client.get(redeem_currents_url)
         self.assertEqual(response.status_code, 200)
 
