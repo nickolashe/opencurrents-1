@@ -952,7 +952,7 @@ class ConfirmGiftCardPurchaseForm(forms.Form):
             # logger.info(self.fields['biz_name'].initial)
 
             if biz_name == 'HEB':
-               self.fields['denomination'].initial = 15
+               self.fields['denomination'].initial = 20
 
             self.fields['biz_name'].initial = biz_name
             self.fields['currents_share'].initial = currents_share
