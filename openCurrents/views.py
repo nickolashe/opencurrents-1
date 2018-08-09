@@ -1529,8 +1529,8 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, FormView):
         if balance_redeemed > 0:
             status_msg = ' '.join([
                 'You have already redeemed a maximum of',
-                '$%d' % convert.cur_to_usd(balance_redeemed),
-                'in gift cards this week',
+                # '$%d' % convert.cur_to_usd(balance_redeemed),
+                '1 gift card this week',
             ])
 
         if status_msg:
