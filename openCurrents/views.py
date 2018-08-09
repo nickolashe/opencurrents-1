@@ -1431,6 +1431,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         context['master_funds_available'] = self.ocuser.get_master_offer_remaining()
 
         biz_name = self.request.GET.get('biz_name')
+        context['biz_name'] = biz_name
         if biz_name:
             context['form'] = RedeemCurrentsForm(
                 offer_id=self.kwargs['offer_id'],
@@ -1470,7 +1471,7 @@ class RedeemOptionView(TemplateView):
             return redirect('openCurrents:500')
 
         if biz_name == 'HEB':
-            context['denomination'] = 15
+            context['denomination'] = 20
         else:
             context['denomination'] = 25
 
@@ -1524,12 +1525,11 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, FormView):
                 '</a>'
             ])
 
-        balance_weekly = self.ocuser.get_giftcard_offer_remaining()
-
-        if balance_weekly <= 0:
+        balance_redeemed = self.ocuser.get_giftcard_offer_redeemed()
+        if balance_redeemed > 0:
             status_msg = ' '.join([
                 'You have already redeemed a maximum of',
-                '$%d' % convert.cur_to_usd(common._GIFT_CARD_OFFER_LIMIT),
+                '$%d' % convert.cur_to_usd(balance_redeemed),
                 'in gift cards this week',
             ])
 

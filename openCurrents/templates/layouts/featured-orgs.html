@@ -2,71 +2,77 @@
 
 <div class="row">
   <div class="relative small-6 medium-3 columns">
-    <a href="
+    <a
       {% block url-1 %}
-        {% url 'openCurrents:redeem-option' %}?biz_name=HEB
+        href="{% url 'openCurrents:redeem-option' %}?biz_name=HEB"
       {% endblock url-1 %}
-    ">
+    >
       <img class="biz-logos" src="
         {% block img-1 %}
           {% static 'img/heb.png' %}
         {% endblock img-1 %}
       "/>
       {% block overlay-1 %}{% endblock overlay-1 %}
+      {% block banner-1 %}{% endblock banner-1 %}
     </a>
     <p class="center no-margin-bottom">
       {% block caption-1 %}{% endblock caption-1 %}
     </p>
   </div>
   <div class="relative small-6 medium-3 columns">
-    <a href="
+    <a
       {% block url-2 %}
-        {% url 'openCurrents:redeem-option' %}?biz_name=Whole Foods
-      {% endblock url-2 %}
-    ">
+        href="{% url 'openCurrents:redeem-option' %}?biz_name=Juiceland"
+      {% endblock url-2 %}>
       <img class="biz-logos" src="
         {% block img-2 %}
-          {% static 'img/whole-foods.png' %}
+          {% static 'img/juiceland.png' %}
         {% endblock img-2 %}
       "/>
       {% block overlay-2 %}{% endblock overlay-2 %}
+      {% block banner-2 %}{% endblock banner-2 %}
     </a>
     <p class="center no-margin-bottom">
       {% block caption-2 %}{% endblock caption-2 %}
     </p>
   </div>
   <div class="relative small-6 medium-3 columns">
-    <a href="
+    <a
       {% block url-3 %}
-        {% url 'openCurrents:redeem-currents' 65 %}
+        href="{% url 'openCurrents:redeem-currents' master_offer.id %}?biz_name=Torchys"
       {% endblock url-3 %}
-    ">
+    >
       <img class="biz-logos" src="
         {% block img-3 %}
-          {% static 'img/native.png' %}
+          {% static 'img/torchys.png' %}
         {% endblock img-3 %}
       "/>
       {% block overlay-3 %}{% endblock overlay-3 %}
+      {% block banner-3 %}{% endblock banner-3 %}
     </a>
     <p class="center no-margin-bottom">
       {% block caption-3 %}{% endblock caption-3 %}
     </p>
   </div>
   <div class="relative small-6 medium-3 columns">
-    <a href="
+    <a
       {% block url-4 %}
-        {% url 'openCurrents:redeem-option' %}?biz_name=Alamo
-      {% endblock url-4 %}
-    ">
+        href="{% url 'openCurrents:redeem-currents' master_offer.id %}?biz_name=Tacodeli"
+      {% endblock url-4 %}>
       <img class="biz-logos" src="
         {% block img-4 %}
-          {% static 'img/alamo.png' %}
+          {% static 'img/tacodeli.png' %}
         {% endblock img-4 %}
       "/>
       {% block overlay-4 %}{% endblock overlay-4 %}
+      {% block banner-4 %}{% endblock banner-4 %}
     </a>
     <p class="center no-margin-bottom">
       {% block caption-4 %}{% endblock caption-4 %}
     </p>
   </div>
 </div>
+
+{% block popups %}{% endblock popups %}
+
+{% block js %}{% endblock js %}
