@@ -1318,7 +1318,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
                 # ])
                 status_msg = ' '.join([
                     'You have already redeemed our limited time offer this week.',
-                    'Come back next week or visit the marketplace for offers from other businesses.'
+                    'Come back next week or see other offers from the community.'
                 ])
                 msg_type = 'alert'
                 glogger_struct['reject_reason'] = 'master offer limit reached'
@@ -1533,10 +1533,14 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, FormView):
 
         balance_redeemed = self.ocuser.get_giftcard_offer_redeemed()
         if balance_redeemed > 0:
+            # status_msg = ' '.join([
+            #     'You have already redeemed a maximum of',
+            #     # '$%d' % convert.cur_to_usd(balance_redeemed),
+            #     '1 gift card this week',
+            # ])
             status_msg = ' '.join([
-                'You have already redeemed a maximum of',
-                # '$%d' % convert.cur_to_usd(balance_redeemed),
-                '1 gift card this week',
+                'You have already redeemed our limited time offer this week.',
+                'Come back next week or visit the marketplace for offers from other businesses.'
             ])
 
         if status_msg:
