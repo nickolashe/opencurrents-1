@@ -53,33 +53,28 @@
     <div id="offer-1">
       <div class="row">
         <div class="small-12 medium-8 small-centered columns">
-          <h4 class="one-margin-bottom">Upload receipt or proof of purchase</h4>
-          <!-- <p class="three-halves-margin-bottom">
+          <h4 class="one-margin-bottom">
+            Upload receipt or proof of purchase
+          </h4>
 
-            To exchange Currents for dollars with {{ offer.org.name }},
-            you <strong>must</strong> upload your receipt as proof of purchase. Other forms, such
-            as an image of your bank statement or description of your
-            purchase, may or may not be accepted.
-
-            <a class="redeem-info-popup_open no-wrap">
-              Why do I pay full price?
-            </a>
-          </p> -->
-
-          <!--  form.redeem_receipt_if_checked -->
-
-          <!-- <input type="checkbox" name="receipt-if-checked" id="receipt-if-checked" class="hidden" checked /> -->
-          <div id="offer-details" class="three-halves-margin-bottom">
-            <!-- Use Currents for up to {{ offer.currents_share }}% of your purchase with
-            <strong>
-              <div id="master-biz-name" class="navy hidden"></div>
-              <div id="biz-name-db" class="navy">{{ offer.org.name }}</div>
-            </strong> -->
-            {{ form.biz_name }}
+          <div class="row three-halves-margin-bottom">
+            <div id="offer-details" class="medium-9 small-centered columns">
+              <strong>
+                {% if offer.is_master %}
+                  {{ biz_name }}
+                {% else %}
+                  {{ offer.org.name }}
+                {% endif %}
+              </strong>
+              accepts Currents for
+              <div class="">
+                {{ offer.currents_share }}% of {{ offer.item }}
+              </div>
+            </div>
           </div>
 
+          {{ form.biz_name }}
           {{ form.redeem_receipt }}
-          <!--input type="file" accept="image/*" capture="camera" id="upload-receipt" name="upload-receipt" class="hidden-file" /-->
 
           <label for="upload-receipt" id="receipt-label"
           class="upload-receipt-label button round small secondary">
@@ -88,11 +83,6 @@
           </label>
 
           <p class="small-text grey">PNG, JPEG, and GIF accepted</p>
-          <!-- <p class="half-margin-top">
-            <a id="add-description">
-              No receipt? Add description of purchase
-            </a>
-          </p> -->
 
           {{ form.redeem_no_proof }}
         </div>
