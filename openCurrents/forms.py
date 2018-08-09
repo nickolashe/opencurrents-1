@@ -832,7 +832,20 @@ class RedeemCurrentsForm(forms.Form):
         self.offer = Offer.objects.get(id=offer_id)
         self.user = kwargs.pop('user')
 
+        biz_name = None
+        # # biz_name can be passed in from view
+        # try:
+        #     biz_name = kwargs.pop('biz_name')
+        # except KeyError:
+        #     pass
+
         super(RedeemCurrentsForm, self).__init__(*args, **kwargs)
+
+        if biz_name:
+            # parent init needs to be called first to get access to self.fields
+            # logger.info(self.fields['biz_name'].initial)
+
+            self.fields['biz_name'].initial = biz_name
 
     redeem_receipt = forms.ImageField(
          widget=forms.ClearableFileInput(attrs={

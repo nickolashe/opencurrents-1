@@ -1284,6 +1284,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
             self.offer = Offer.objects.get(id=offer_id)
             self.userid = request.user.id
             self.ocuser = OcUser(self.userid)
+            self.biz_name = request.GET.get('biz_name', '')
 
             glogger_struct = {
                 'msg': 'offer redemption request',
@@ -1446,6 +1447,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         kwargs = super(RedeemCurrentsView, self).get_form_kwargs()
         kwargs.update({'offer_id': self.kwargs['offer_id']})
         kwargs.update({'user': self.request.user})
+        # kwargs.update({'biz_name': self.biz_name})
 
         return kwargs
 
