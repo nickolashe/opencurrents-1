@@ -1,21 +1,20 @@
 {% extends "layouts/featured-orgs.html" %}
 {% load staticfiles %}
+{% load tags %}
 
-{% block img-1 %}
-  {% static 'img/woodies.png' %}
-{% endblock img-1 %}
+  {% block url-1 %}
+    {% with biz_offer=featured_unlimited_offers|keyvalue:"Woodies" %}
+      href="{% url 'openCurrents:redeem-currents' biz_offer.id %}"
+    {% endwith %}
+  {% endblock url-1 %}
 
-{% block url-1 %}
-  href="{% url 'openCurrents:redeem-currents' 35 %}"
-{% endblock url-1 %}
-
-{% block overlay-1 %}
-  {% block overlay-3 %}
-    <span class="featured-overlay">
-      50%
-    </span>
-  {% endblock overlay-3 %}
-{% endblock overlay-1 %}
+  {% block overlay-1 %}
+    {% block overlay-3 %}
+      <span class="featured-overlay">
+        {{ biz_offer.currents_share }}%
+      </span>
+    {% endblock overlay-3 %}
+  {% endblock overlay-1 %}
 
 {% block img-2 %}
   {% static 'img/treecradle.png' %}

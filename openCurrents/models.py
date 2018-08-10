@@ -30,6 +30,8 @@ class Org(models.Model):
     email = models.EmailField(null=True, blank=True)
     address = models.CharField(max_length=1024, null=True, blank=True)
     intro = models.CharField(max_length=16192, null=True, blank=True)
+    is_featured_master_biz = models.BooleanField(default=False)
+    is_featured_master_biz_giftcard = models.BooleanField(default=False)
 
     org_types = (
         ('biz', 'business'),
@@ -230,6 +232,7 @@ class Ledger(models.Model):
 class Project(models.Model):
     name = models.CharField(max_length=1024)
     org = models.ForeignKey(Org)
+    is_open = models.BooleanField(default=False)
 
     # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)
@@ -248,6 +251,7 @@ class Event(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     description = models.CharField(max_length=8192)
     location = models.CharField(max_length=1024)
+    url = models.CharField(max_length=2048, null=True, blank=True)
 
     # coordinator
     coordinator = models.ForeignKey(User, null=True)
@@ -270,6 +274,7 @@ class Event(models.Model):
     )
 
     is_public = models.BooleanField(default=False)
+    is_featured = models.BooleanField(default=False)
 
     # start / end timestamps of the project
     datetime_start = models.DateTimeField('start datetime')
@@ -308,7 +313,6 @@ class Event(models.Model):
 class ProjectTemplate(models.Model):
     user = models.ForeignKey(User)
     event = models.ForeignKey(Event)
-
 
 class UserEventRegistration(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -503,6 +507,7 @@ class Offer(models.Model):
     currents_share = models.IntegerField()
     limit = models.IntegerField(default=-1)
     is_active = models.BooleanField(default=True)
+    is_featured = models.BooleanField(default=False)
     offer_type = models.CharField(
         max_length=4,
         choices=[
