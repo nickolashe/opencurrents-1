@@ -356,6 +356,7 @@ class FeaturedOffersContextMixin(object):
         ]
         # logger.info(context['featured_unlimited_offers'])
 
+        context['master_offer'] = Offer.objects.get(is_master=True)
         return context
 
 
@@ -394,6 +395,7 @@ class HomeView(FeaturedOffersContextMixin, FormView):
         except Exception as e:
             pass
 
+        logger.info(context)
         return context
 
 
