@@ -8,7 +8,7 @@
     {% elif biz_offer.is_master %}
       <a href="{% url 'openCurrents:redeem-currents' biz_offer.id %}?biz_name={{ biz_name }}">
     {% else %}
-      <a href="{% url 'openCurrents:redeem-currents' biz_offer.id %}
+      <a href="{% url 'openCurrents:redeem-currents' biz_offer.id %}">
     {% endif %}
 
     <!-- ex-block img-n -->

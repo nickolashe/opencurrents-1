@@ -1494,7 +1494,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         return kwargs
 
 
-class RedeemOptionView(TemplateView):
+class RedeemOptionView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'redeem-option.html'
 
     def get(self, request, *args, **kwargs):
