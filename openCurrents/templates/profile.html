@@ -142,8 +142,8 @@
         Got Currents? Redeem 1 offer per week these businesses
       </h6>
       <div class="row">
-        {% for biz in featured_master_bizzes %}
-          {% include "layouts/featured-biz.html" with biz_name=biz.name biz_offer=master_offer %}
+        {% for biz, biz_offer in featured_master_bizzes.items %}
+            {% include "layouts/featured-biz.html" with biz_name=biz.name %}
         {% endfor %}
       </div>
 
