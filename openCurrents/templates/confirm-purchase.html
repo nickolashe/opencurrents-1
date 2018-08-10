@@ -85,10 +85,11 @@
                 function(e) {
                   // Open Checkout with further options:
                   handler.open({
-                    name: "Purchase Gift Card",
-                    description: "{{ form.biz_name.value }}",
+                    name: "Purchase on openCurrents",
+                    description: "${{ fiat_charge }} {{ form.biz_name.value }} Gift Card",
                     amount: "{{ fiat_charge|transform_stripe }}",
-                    email: "{{ request.user.email }}"
+                    email: "{{ request.user.email }}",
+                    zipCode: true
                   });
                   e.preventDefault();
                 }

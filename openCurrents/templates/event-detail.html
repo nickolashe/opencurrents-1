@@ -4,16 +4,35 @@
 {% load tags %}
 
 {% block heading %}
+  <div class="row center">
+    <div class="small-6 medium-3 small-centered columns">
+      <img
+        class="biz-header-image"
+        src="{% static event.project.org.name|get_img_name_for_biz %}"
+      />
+    </div>
+  </div>
+
   <div class="row">
     <h4 class="title-sub">
-      {% block title %}{{ event.project.name }}{% endblock title %}
+      {% block title %}
+      <a href="{{ event.url }}">
+        {{ event.project.name }}
+      </a>
+      {% endblock title %}
     </h4>
     <p>with <strong>{{ event.project.org.name }}</strong> </p>
   </div>
 {% endblock heading %}
 
 {% block content %}
-  <form method="post" action="{% url 'openCurrents:event_register' event.id %}">
+  <form
+    method="post"
+    action="{% url 'openCurrents:event_register' event.id %}"
+    {% if event.url %}
+      target="_blank"
+    {% endif %}
+  >
     {% csrf_token %}
 
     <div class="row center">
@@ -41,6 +60,13 @@
       <div class="small-10 medium-6 small-centered columns">
         <h6 class="navy">Event description</h6>
         <p class="grey"> {{ event.description|safe|linebreaks }}</p>
+      </div>
+    </div>
+
+    <div class="row left">
+      <div class="small-10 medium-6 small-centered columns">
+        <h6 class="navy">Event URL</h6>
+        <a href="{{ event.url }}" target="_blank">{{ event.url }}</a>
       </div>
     </div>
 

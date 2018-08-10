@@ -141,14 +141,20 @@
       <h6 class="half-margin-bottom">
         Got Currents? Redeem 1 offer per week these businesses
       </h6>
-
-      {% include "partials/featured-bizzes.html" %}
+      <div class="row">
+        {% for biz in featured_master_bizzes %}
+          {% include "layouts/featured-biz.html" with biz_name=biz.name biz_offer=master_offer %}
+        {% endfor %}
+      </div>
 
       <h6 class="one-margin-top half-margin-bottom">
         Unlimited offers
       </h6>
-
-      {% include "partials/featured-bizzes-2.html" %}
+      <div class="row">
+        {% for biz_offer in featured_unlimited_offers %}
+          {% include "layouts/featured-biz.html" with biz_name=biz_offer.org.name %}
+        {% endfor %}
+      </div>
 
       <p class="one-margin-top">
         <a href="{% url 'openCurrents:marketplace' %}" class="button round secondary">
@@ -163,8 +169,11 @@
       <h6 class="half-margin-bottom">
         Need Currents? Earn them at these featured events
       </h6>
-
-      {% include "partials/featured-npfs.html" %}
+      <div class="row">
+        {% for event in featured_events %}
+          {% include "layouts/featured-npf.html" with org_name=event.project.org.name %}
+        {% endfor %}
+      </div>
 
       <p class="one-margin-top">
         <a href="{% url 'openCurrents:upcoming-events' %}" class="button round secondary">
