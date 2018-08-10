@@ -26,7 +26,13 @@
 {% endblock heading %}
 
 {% block content %}
-  <form method="post" action="{% url 'openCurrents:event_register' event.id %}">
+  <form
+    method="post"
+    action="{% url 'openCurrents:event_register' event.id %}"
+    {% if event.url %}
+      target="_blank"
+    {% endif %}
+  >
     {% csrf_token %}
 
     <div class="row center">

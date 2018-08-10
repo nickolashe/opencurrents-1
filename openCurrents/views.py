@@ -4538,7 +4538,10 @@ def event_register(request, pk):
                 )
 
         # TODO: add a redirect for coordinator who doesn't register
-        return redirect('openCurrents:registration-confirmed', event.id)
+        if event.url:
+            return redirect(event.url)
+        else:
+            return redirect('openCurrents:registration-confirmed', event.id)
     else:
         logger.error('Invalid form: %s', form.errors.as_data())
         return redirect('openCurrents:event-detail', event.id)
