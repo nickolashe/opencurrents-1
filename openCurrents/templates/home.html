@@ -133,8 +133,8 @@
 
       <div class="row">
         <div class="medium-11 small-centered columns">
-          {% for biz_offer in featured_unlimited_offers %}
-            {% include "layouts/featured-biz.html" with biz_name=biz_offer.org.name %}
+          {% for biz in featured_master_bizzes %}
+            {% include "layouts/featured-biz.html" with biz_name=biz.name biz_offer=master_offer %}
           {% endfor %}
         </div>
       </div>
