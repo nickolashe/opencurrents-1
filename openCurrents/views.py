@@ -330,6 +330,7 @@ class BizAdminPermissionMixin(AdminPermissionMixin):
             request, *args, **kwargs
         )
 
+
 class FeaturedOffersContextMixin(object):
     '''
     Pass in offers from featured orgs in the community
@@ -338,10 +339,17 @@ class FeaturedOffersContextMixin(object):
     def get_context_data(self, **kwargs):
         context = super(FeaturedOffersContextMixin, self).get_context_data(**kwargs)
 
-        context['featured_master_bizzes'] = [
-            org
-            for org in Org.objects.filter(is_featured_master_biz=True).order_by('name')
-        ]
+        master_offer = Offer.objects.get(is_master=True)
+        context['master_offer'] = master_offer
+
+        context['featured_master_bizzes'] = {}
+        for org in Org.objects.filter(is_featured_master_biz=True).order_by('name'):
+            if Offer.objects.filter(org__name=org.name, offer_type='gft').exists():
+                context['featured_master_bizzes'][org] = Offer.objects.get(
+                    org__name=org.name, offer_type='gft'
+                )
+            else:
+                context['featured_master_bizzes'][org] = master_offer
         # logger.info(context['featured_master_bizzes'])
 
         context['featured_unlimited_offers'] = [
@@ -356,7 +364,6 @@ class FeaturedOffersContextMixin(object):
         ]
         # logger.info(context['featured_unlimited_offers'])
 
-        context['master_offer'] = Offer.objects.get(is_master=True)
         return context
 
 
@@ -1543,6 +1550,10 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, FormView):
     def dispatch(self, request, *args, **kwargs):
         self.ocuser = OcUser(self.request.user.id)
         self.biz_name = request.GET.get('biz_name', '')
+        is_master_biz = Org.objects.filter(
+            name=self.biz_name,
+            is_featured_master_biz=True
+        ).exists()
 
         # currently, we only support a single giftcard offer per biz
         # TODO: redesign to support multiple giftcard offers per biz
@@ -1598,7 +1609,6 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, FormView):
             return super(ConfirmPurchaseView, self).dispatch(
                 request, *args, **kwargs
             )
-
 
     def post(self, request, *args, **kwargs):
         form = ConfirmGiftCardPurchaseForm(request.POST)
@@ -5342,15 +5352,15 @@ def process_login(request):
             if User.objects.filter(email=user_name).exists():
                 return redirect(
                     'openCurrents:login',
-                    status_msg ='Invalid login or password.',
-                    msg_type ='alert',
-                    user_login_email = user_name
+                    status_msg='Invalid login or password.',
+                    msg_type='alert',
+                    user_login_email=user_name
                 )
             else:
                 return redirect(
                     'openCurrents:login',
-                    status_msg ='Invalid login or password.',
-                    msg_type ='alert'
+                    status_msg='Invalid login or password.',
+                    msg_type='alert'
                 )
     else:
         logger.error(

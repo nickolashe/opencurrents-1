@@ -19,8 +19,8 @@
       <h6 class="one-margin-bottom one-margin-top navy">
         Redeem 1 offer each week with these businesses:
       </h6>
-      {% for biz in featured_master_bizzes %}
-        {% include "layouts/featured-biz.html" with biz_name=biz.name biz_offer=master_offer %}
+      {% for biz, biz_offer in featured_master_bizzes.items %}
+          {% include "layouts/featured-biz.html" with biz_name=biz.name %}
       {% endfor %}
     </div>
   </div>
