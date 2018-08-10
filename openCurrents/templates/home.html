@@ -171,7 +171,9 @@
             Earn your first Currents at these featured events:
           </h6>
 
-          {% include "layouts/featured-npf.html" %}
+          {% for event in featured_events %}
+            {% include "layouts/featured-npf.html" with org_name=event.project.org.name %}
+          {% endfor %}
 
         </div>
       </div>
