@@ -7,15 +7,7 @@
     <div class="small-6 medium-3 small-centered columns">
       <img
         class="biz-header-image"
-        {% if biz_name == "Whole Foods" %}
-          src="{% static 'img/whole-foods.png' %}"
-        {% elif biz_name == 'Juiceland' %}
-          src="{% static 'img/juiceland.png' %}"
-        {% elif biz_name == 'HEB' %}
-          src="{% static 'img/heb.png' %}"
-        {% elif biz_name == 'Alamo' %}
-          src="{% static 'img/alamo.png' %}"
-        {% endif %}
+        src="{% static form.biz_name.value|get_img_name_for_biz %}"
       />
     </div>
   </div>
@@ -29,37 +21,97 @@
 
 
 {% block content %}
-  <form name="confirm_purchase" method="post">
-  {% csrf_token %}
-    <div class="row one-margin-top">
-      <div class="medium-8 small-centered columns">
-        <p>Exchange
-          <span class="no-wrap">
-            <strong>
-              <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
-              {{ form.denomination.value|add:"0"|usd_to_current }}
-            </strong>
-          </span>
-          for <strong> ${{ form.denomination.value }} gift card </strong>
-          at <strong>{{ form.biz_name.value }}</strong>.
-          <!--Alternatively, donate $25 to the nonprofit of your choice.-->
-        </p>
-      </div>
-    </div>
+  {% with denom=form.denomination.value curr_share=form.currents_share.value %}
+    {% with fiat_share=100|subtract:curr_share %}
+      {% with fiat_charge=denom|mult:fiat_share|mult:0.01|round_number:2 %}
+        <form id="frm_confirm_purchase" method="post">
+        {% csrf_token %}
+          <div class="row one-margin-top">
+            <div class="medium-8 small-centered columns">
+              <p>Purchase
+                <span class="no-wrap">
+                    <strong> ${{ denom }} {{ form.biz_name.value }} </strong> gift card for
+                    <strong>
+                      <img class="med-text-symbol" src="{% static 'img/symbol-navy.svg' %}"/>
+                      {{ denom|mult:curr_share|mult:0.01|usd_to_current|round_number:2 }}
+                    </strong>
+                </span>
+                  and <strong>
+                    ${{ fiat_charge }}
+                  </strong>
+                <!--Alternatively, donate $25 to the nonprofit of your choice.-->
+              </p>
+            </div>
+          </div>
 
-    {{ form.denomination }}
-    {{ form.biz_name}}
+          {{ form.biz_name }}
+          {{ form.denomination }}
+          {{ form.currents_share }}
+          {{ form.stripe_token }}
+          {{ form.stripe_api_pkey }}
 
-    <div class="row one-margin-top">
-      <input type="submit" class="button round" value="Confirm purchase" />
-      <!--a href="{% url 'openCurrents:confirm-donation' %}" class="button round orange">
-        Donate to nonprofit
-      </a-->
-      <p>
-        <a href="{% url 'openCurrents:profile' %}" class="button round tiny secondary">
-          Cancel
-        </a>
-      </p>
-    </div>
-  </form>
+          <div class="row one-margin-top">
+            <!--script
+              src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+              data-key=""
+              data-amount="005"
+              data-zip-code="true"
+              data-name="Purchase Gift Card"
+              data-description="{{ biz_name }}"
+              data-email="{{ request.user.email }}"
+              data-image="{% static form.biz_name.value|get_img_name_for_biz %}"
+              data-locale="auto">
+            </script-->
+
+            <script src="https://checkout.stripe.com/checkout.js"></script>
+
+            <button id="btn-stripe-checkout" class="button round">Purchase</button>
+
+            <script>
+              var handler = StripeCheckout.configure({
+                key: "{{ form.stripe_api_pkey.value }}",
+                image: "{% static form.biz_name.value|get_img_name_for_biz %}",
+                locale: 'auto',
+                token: function(token) {
+                  // You can access the token ID with `token.id`.
+                  // Get the token ID to your server-side code for use.
+                  $('#frm_fld_stripe_token').val(token.id);
+                  $('#frm_confirm_purchase').submit();
+                }
+              });
+
+              document.getElementById('btn-stripe-checkout').addEventListener(
+                'click',
+                function(e) {
+                  // Open Checkout with further options:
+                  handler.open({
+                    name: "Purchase on openCurrents",
+                    description: "${{ fiat_charge }} {{ form.biz_name.value }} Gift Card",
+                    amount: "{{ fiat_charge|transform_stripe }}",
+                    email: "{{ request.user.email }}",
+                    zipCode: true
+                  });
+                  e.preventDefault();
+                }
+              );
+
+              // Close Checkout on page navigation:
+              window.addEventListener('popstate', function() {
+                handler.close();
+              });
+            </script>
+            <!--input type="submit" class="button round" value="Confirm purchase" /-->
+            <!--a href="{% url 'openCurrents:confirm-donation' %}" class="button round orange">
+              Donate to nonprofit
+            </a-->
+            <p>
+              <a href="{% url 'openCurrents:profile' %}" class="button round tiny secondary">
+                Cancel
+              </a>
+            </p>
+          </div>
+        </form>
+      {% endwith %}
+    {% endwith %}
+  {% endwith %}
 {% endblock content %}

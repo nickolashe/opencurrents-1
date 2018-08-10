@@ -89,12 +89,14 @@ import logging
 import os
 import pytz
 import socket
+import stripe
 import re
 import uuid
 import decimal
 import csv
 import xlwt
 
+stripe.api_key = config.STRIPE_API_SKEY
 
 logging.basicConfig(level=logging.DEBUG, filename='log/views.log')
 logger = logging.getLogger(__name__)
@@ -329,6 +331,42 @@ class BizAdminPermissionMixin(AdminPermissionMixin):
         )
 
 
+class FeaturedOffersContextMixin(object):
+    '''
+    Pass in offers from featured orgs in the community
+    '''
+
+    def get_context_data(self, **kwargs):
+        context = super(FeaturedOffersContextMixin, self).get_context_data(**kwargs)
+
+        master_offer = Offer.objects.get(is_master=True)
+        context['master_offer'] = master_offer
+
+        context['featured_master_bizzes'] = {}
+        for org in Org.objects.filter(is_featured_master_biz=True).order_by('name'):
+            if Offer.objects.filter(org__name=org.name, offer_type='gft').exists():
+                context['featured_master_bizzes'][org] = Offer.objects.get(
+                    org__name=org.name, offer_type='gft'
+                )
+            else:
+                context['featured_master_bizzes'][org] = master_offer
+        # logger.info(context['featured_master_bizzes'])
+
+        context['featured_unlimited_offers'] = [
+            offer
+            for offer in Offer.objects.filter(is_featured=True).order_by('org__name')
+        ]
+        # logger.info(context['featured_unlimited_offers'])
+
+        context['featured_events'] = [
+            event
+            for event in Event.objects.filter(is_featured=True).order_by('datetime_start')
+        ]
+        # logger.info(context['featured_unlimited_offers'])
+
+        return context
+
+
 class SitemapView(TemplateView):
     template_name = 'sitemap.xml'
 
@@ -337,7 +375,7 @@ class RobotsView(TemplateView):
     template_name = 'robots.txt'
 
 
-class HomeView(FormView):
+class HomeView(FeaturedOffersContextMixin, FormView):
     template_name = 'home.html'
     form_class = UserSignupForm
 
@@ -364,6 +402,7 @@ class HomeView(FormView):
         except Exception as e:
             pass
 
+        logger.info(context)
         return context
 
 
@@ -1190,7 +1229,7 @@ class PublicRecordView(LoginRequiredMixin, SessionContextView, TemplateView):
         return render(request, self.template_name, context)
 
 
-class MarketplaceView(ListView):
+class MarketplaceView(FeaturedOffersContextMixin, ListView):
     template_name = 'marketplace.html'
     context_object_name = 'offers'
     glogger_labels = {
@@ -1280,8 +1319,10 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         if request.user.is_authenticated:
             offer_id = kwargs.get('offer_id')
             self.offer = Offer.objects.get(id=offer_id)
+            # logger.info(self.offer)
             self.userid = request.user.id
             self.ocuser = OcUser(self.userid)
+            self.biz_name = request.GET.get('biz_name', '')
 
             glogger_struct = {
                 'msg': 'offer redemption request',
@@ -1308,19 +1349,25 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
 
             if self.offer.is_master and user_master_offer_remaining <= 0:
                 reqForbidden = True
+                # status_msg = ' '.join([
+                #     'You have already redeemed the maximum of',
+                #     str(common._MASTER_OFFER_LIMIT),
+                #     'Currents for the special offer this week. Check back soon!'
+                # ])
                 status_msg = ' '.join([
-                    'You have already redeemed the maximum of',
-                    str(common._MASTER_OFFER_LIMIT),
-                    'Currents for the special offer this week. Check back soon!'
+                    'You have already redeemed our limited time offer this week.',
+                    'Come back next week or see other offers from the community.'
                 ])
                 msg_type = 'alert'
                 glogger_struct['reject_reason'] = 'master offer limit reached'
 
-            offer_num_redeemed = self.ocuser.get_offer_num_redeemed(self.offer)
-            # logger.debug(offer_num_redeemed)
-
             offer_has_limit = self.offer.limit != -1
-            offer_limit_exceeded = self.offer.limit - offer_num_redeemed <= 0
+            if offer_has_limit:
+                offer_num_redeemed = self.ocuser.get_offer_num_redeemed(self.offer)
+                # logger.debug(offer_num_redeemed)
+
+                offer_limit_exceeded = self.offer.limit - offer_num_redeemed <= 0
+
             if not reqForbidden and offer_has_limit and offer_limit_exceeded:
                 reqForbidden = True
                 status_msg = ' '.join([
@@ -1428,13 +1475,19 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         context['master_offer'] = Offer.objects.filter(is_master=True).first()
         context['master_funds_available'] = self.ocuser.get_master_offer_remaining()
 
-        biz_name = self.request.GET.get('biz_name')
+        biz_name = self.biz_name
+        if not biz_name:
+            biz_name = self.offer.org.name
+
+        context['biz_name'] = biz_name
         if biz_name:
             context['form'] = RedeemCurrentsForm(
                 offer_id=self.kwargs['offer_id'],
                 user=self.user
             )
-            context['form'].fields['biz_name'].widget.attrs['value'] = biz_name
+
+            if self.offer.is_master:
+                context['form'].fields['biz_name'].widget.attrs['value'] = biz_name
 
         return context
 
@@ -1443,19 +1496,33 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         kwargs = super(RedeemCurrentsView, self).get_form_kwargs()
         kwargs.update({'offer_id': self.kwargs['offer_id']})
         kwargs.update({'user': self.request.user})
+        # kwargs.update({'biz_name': self.biz_name})
 
         return kwargs
 
 
-class RedeemOptionView(TemplateView):
+class RedeemOptionView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'redeem-option.html'
 
     def get(self, request, *args, **kwargs):
         biz_name = request.GET.get('biz_name', '')
         context = {'biz_name': biz_name}
 
+        try:
+            self.offer = Offer.objects.get(
+                org__name=biz_name,
+                offer_type='gft'
+            )
+            context['fiat_share_percent'] = (100 - self.offer.currents_share) * 0.01
+        except Offer.DoesNotExist:
+            logger.exception(
+                'critical error: no gift card offer for %s',
+                biz_name
+            )
+            return redirect('openCurrents:500')
+
         if biz_name == 'HEB':
-            context['denomination'] = 15
+            context['denomination'] = 20
         else:
             context['denomination'] = 25
 
@@ -1483,6 +1550,24 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, FormView):
     def dispatch(self, request, *args, **kwargs):
         self.ocuser = OcUser(self.request.user.id)
         self.biz_name = request.GET.get('biz_name', '')
+        is_master_biz = Org.objects.filter(
+            name=self.biz_name,
+            is_featured_master_biz=True
+        ).exists()
+
+        # currently, we only support a single giftcard offer per biz
+        # TODO: redesign to support multiple giftcard offers per biz
+        try:
+            self.offer = Offer.objects.get(
+                org__name=self.biz_name,
+                offer_type='gft'
+            )
+        except Offer.DoesNotExist:
+            logger.exception(
+                'critical error: no gift card offer for %s',
+                self.biz_name
+            )
+            return redirect('openCurrents:500')
 
         hours_approved = self.ocuser.get_hours_approved()
         status_msg = None
@@ -1497,10 +1582,14 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, FormView):
 
         balance_redeemed = self.ocuser.get_giftcard_offer_redeemed()
         if balance_redeemed > 0:
+            # status_msg = ' '.join([
+            #     'You have already redeemed a maximum of',
+            #     # '$%d' % convert.cur_to_usd(balance_redeemed),
+            #     '1 gift card this week',
+            # ])
             status_msg = ' '.join([
-                'You have already redeemed a maximum of',
-                '$%d' % convert.cur_to_usd(balance_redeemed),
-                'in gift cards this week',
+                'You have already redeemed our limited time offer this week.',
+                'Come back next week or visit the marketplace for offers from other businesses.'
             ])
 
         if status_msg:
@@ -1521,13 +1610,14 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, FormView):
                 request, *args, **kwargs
             )
 
-
     def post(self, request, *args, **kwargs):
         form = ConfirmGiftCardPurchaseForm(request.POST)
 
         if form.is_valid():
             biz_name = form.cleaned_data['biz_name']
             denomination = form.cleaned_data['denomination']
+            stripe_token = form.cleaned_data['stripe_token']
+            logger.debug('stripe_token: %s', stripe_token)
 
             canRedeem = True
             balance_available = self.ocuser.get_balance_available()
@@ -1569,56 +1659,88 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, FormView):
                 is_redeemed=False
             ).first()
 
-            if giftcard:
-                offer = giftcard.offer
-            else:
-                try:
-                    offer = Offer.objects.get(
-                        org__name=biz_name,
-                        offer_type='gft'
-                    )
-                except Offer.DoesNotExist:
-                    logger.exception(
-                        'critical error: no gift card offer for %s',
-                        biz_name
-                    )
-                    return redirect('openCurrents:500')
+            curr_share = self.offer.currents_share
+            fiat_charge = denomination * (100 - curr_share)
+            curr_charge = convert.usd_to_cur(float(denomination) * curr_share * 0.01)
 
-            with transaction.atomic():
-                # create transaction
-                tr = Transaction(
-                    user=self.request.user,
-                    offer=offer,
-                    price_reported=denomination,
-                    currents_amount=convert.usd_to_cur(float(denomination))
+            # create transaction
+            try:
+                with transaction.atomic():
+                    # create transaction from user to biz in currents
+                    tr_user_biz = Transaction(
+                        user=self.request.user,
+                        offer=self.offer,
+                        price_reported=denomination,
+                        currents_amount=curr_charge
+                    )
+                    tr_user_biz.save()
+
+                    if giftcard:
+                        # approved if giftcard in stock
+                        action_type = 'app'
+                        status_msg = 'has been emailed to you at {}'
+                    else:
+                        # pending if giftcard not in stock
+                        action_type = 'req'
+                        status_msg = 'will be sent to {} in the next 48 hours'
+
+                    status_msg = ' '.join([
+                        'Transaction approved - your <strong>{}</strong> gift card'.format(biz_name),
+                        status_msg.format(tr_user_biz.user.email)
+                    ])
+
+                    # create transaction action record
+                    action_user_biz = TransactionAction(
+                        transaction=tr_user_biz,
+                        action_type=action_type,
+                        giftcard=giftcard
+                    )
+                    action_user_biz.save()
+
+                    # create stripe charge
+                    if curr_share < 100:
+                        charge = stripe.Charge.create(
+                          amount=int(fiat_charge),
+                          currency='usd',
+                          source=stripe_token,
+                          receipt_email=tr_user_biz.user.email
+                        )
+                        status_msg = '. '.join([
+                            status_msg,
+                            'We\'ve charged your card for $%.2f' % (float(fiat_charge) * 0.01)
+                        ])
+
+                        # create transaction from user to biz in currents
+                        OcLedger().transact_usd_user_oc(
+                            tr_user_biz.user.id,
+                            float(fiat_charge) * 0.01,
+                            action_user_biz
+                        )
+
+            # TODO: implement stripe error-specific exception handling
+            except Exception as e:
+                logger.warning(
+                    'error processing transaction request: %s',
+                    {
+                        'error': e,
+                        'offer': self.offer.id,
+                        'user': tr_user_biz.user.email
+                    }
                 )
-                tr.save()
-
-                if giftcard:
-                    # approved if giftcard in stock
-                    action_type = 'app'
-                    status_msg = 'Your <strong>{}</strong> gift card has been emailed to you'.format(
-                        biz_name
-                    )
-                else:
-                    # pending if giftcard not in stock
-                    action_type = 'req'
-                    status_msg = 'We are currently out of stock - your <strong>{}</strong> gift card will be sent to {} in the next 48 hours'.format(
-                        biz_name, tr.user.email
-                    )
-
-                # create transaction action record
-                action = TransactionAction(
-                    transaction=tr,
-                    action_type=action_type,
-                    giftcard=giftcard
+                status_msg = 'There was an error processing this transaction: {}'.format(
+                    e.message
                 )
-                action.save()
 
-                return redirect('openCurrents:profile', status_msg=status_msg)
+            return redirect('openCurrents:profile', status_msg=status_msg)
         else:
             logger.exception('critical error: invalid ConfirmGiftCardPurchaseForm')
             return redirect('openCurrents:500')
+
+    # def get_context_data(self, **kwargs):
+    #     context = super(ConfirmPurchaseView, self).get_context_data(**kwargs)
+    #     context['offer'] = self.offer
+    #
+    #     return context
 
     def get_form_kwargs(self):
         '''
@@ -1628,7 +1750,10 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, FormView):
             - biz_name
         '''
         kwargs = super(ConfirmPurchaseView, self).get_form_kwargs()
-        kwargs.update({'biz_name': self.biz_name})
+        kwargs.update({
+            'biz_name': self.biz_name,
+            'currents_share': self.offer.currents_share
+        })
 
         return kwargs
 
@@ -2301,7 +2426,7 @@ class VolunteersInvitedView(LoginRequiredMixin, SessionContextView, TemplateView
         return context
 
 
-class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
+class ProfileView(LoginRequiredMixin, SessionContextView, FeaturedOffersContextMixin, FormView):
     template_name = 'profile.html'
     # login_url = '/home'
     redirect_unauthenticated_users = True
@@ -4425,7 +4550,10 @@ def event_register(request, pk):
                 )
 
         # TODO: add a redirect for coordinator who doesn't register
-        return redirect('openCurrents:registration-confirmed', event.id)
+        if event.url:
+            return redirect(event.url)
+        else:
+            return redirect('openCurrents:registration-confirmed', event.id)
     else:
         logger.error('Invalid form: %s', form.errors.as_data())
         return redirect('openCurrents:event-detail', event.id)
@@ -5224,15 +5352,15 @@ def process_login(request):
             if User.objects.filter(email=user_name).exists():
                 return redirect(
                     'openCurrents:login',
-                    status_msg ='Invalid login or password.',
-                    msg_type ='alert',
-                    user_login_email = user_name
+                    status_msg='Invalid login or password.',
+                    msg_type='alert',
+                    user_login_email=user_name
                 )
             else:
                 return redirect(
                     'openCurrents:login',
-                    status_msg ='Invalid login or password.',
-                    msg_type ='alert'
+                    status_msg='Invalid login or password.',
+                    msg_type='alert'
                 )
     else:
         logger.error(

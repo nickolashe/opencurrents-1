@@ -7,6 +7,7 @@ from django.core.validators import MinLengthValidator
 from django.template.defaultfilters import filesizeformat
 from django.utils.translation import ugettext as _
 
+from openCurrents import config
 from openCurrents.models import (
     Org,
     OrgUser,
@@ -21,8 +22,8 @@ from openCurrents.interfaces.ledger import OcLedger
 from datetime import datetime, timedelta
 
 import logging
-import re
 import pytz
+import re
 import string
 import widgets
 
@@ -831,7 +832,20 @@ class RedeemCurrentsForm(forms.Form):
         self.offer = Offer.objects.get(id=offer_id)
         self.user = kwargs.pop('user')
 
+        biz_name = None
+        # # biz_name can be passed in from view
+        # try:
+        #     biz_name = kwargs.pop('biz_name')
+        # except KeyError:
+        #     pass
+
         super(RedeemCurrentsForm, self).__init__(*args, **kwargs)
+
+        if biz_name:
+            # parent init needs to be called first to get access to self.fields
+            # logger.info(self.fields['biz_name'].initial)
+
+            self.fields['biz_name'].initial = biz_name
 
     redeem_receipt = forms.ImageField(
          widget=forms.ClearableFileInput(attrs={
@@ -938,6 +952,7 @@ class ConfirmGiftCardPurchaseForm(forms.Form):
         # biz_name can be passed in from view
         try:
             biz_name = kwargs.pop('biz_name')
+            currents_share = kwargs.pop('currents_share')
         except KeyError:
             pass
 
@@ -950,12 +965,19 @@ class ConfirmGiftCardPurchaseForm(forms.Form):
             # logger.info(self.fields['biz_name'].initial)
 
             if biz_name == 'HEB':
-               self.fields['denomination'].initial = 15
+               self.fields['denomination'].initial = 20
 
             self.fields['biz_name'].initial = biz_name
+            self.fields['currents_share'].initial = currents_share
 
 
     # form field declarations
+    biz_name = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'class': 'hidden',
+        })
+    )
+
     denomination = forms.DecimalField(
         widget=forms.NumberInput(attrs={
             'class': 'hidden'
@@ -963,12 +985,25 @@ class ConfirmGiftCardPurchaseForm(forms.Form):
         initial=25
     )
 
-    biz_name = forms.CharField(
-        widget=forms.TextInput(attrs={
-            'class': 'hidden',
+    currents_share = forms.IntegerField(
+        widget=forms.NumberInput(attrs={
+            'class': 'hidden'
         })
     )
 
+    stripe_token = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'class': 'hidden',
+            'id': 'frm_fld_stripe_token'
+        })
+    )
+
+    stripe_api_pkey = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'class': 'hidden',
+        }),
+        initial=config.STRIPE_API_PKEY
+    )
 
 class PublicRecordsForm(forms.Form):
     periods = (
