@@ -37,12 +37,20 @@
 
     <div class="row center">
       <div class="small-12 medium-8 small-centered columns">
-        <h6 class="no-margin-bottom">
-          on {{ event.datetime_start|day:event.project.org.timezone }}
-        </h6>
-        <h6 class="no-margin-bottom">
-          from {{ event.datetime_start|time:event.project.org.timezone }} to {{ event.datetime_end|time:event.project.org.timezone }}
-        </h6>
+        {% if event.project.is_open %}
+          <h6 class="no-margin-bottom">
+            Open opportunity
+          </h6>
+        {% else %}
+          <h6 class="no-margin-bottom">
+            on {{ event.datetime_start|day:event.project.org.timezone }}
+          </h6>
+          <h6 class="no-margin-bottom">
+            from {{ event.datetime_start|time:event.project.org.timezone }}
+            to {{ event.datetime_end|time:event.project.org.timezone }}
+          </h6>
+        {% endif %}
+
         <h6 class="half-margin-bottom">at {{ event.location }}</h6>
         <p>
           {% if event.is_public %}
