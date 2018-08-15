@@ -7,10 +7,10 @@
       <a onClick="ga('send', 'event', 'Redemption', 'FeaturedBizGC');"
         href="{% url 'openCurrents:redeem-option' %}?biz_name={{ biz_name }}">
     {% elif biz_offer.is_master %}
-      <a onClick="ga('send', 'event', 'Redemption', 'FeaturedBizRebate');"
+      <a onClick="ga('send', 'event', 'Redemption', 'FeaturedBizRebateOnly');"
         href="{% url 'openCurrents:redeem-currents' biz_offer.id %}?biz_name={{ biz_name }}">
     {% else %}
-      <a onClick="ga('send', 'event', 'Redemption', 'FeaturedBizRebate');"
+      <a onClick="ga('send', 'event', 'Redemption', 'FeaturedBizRebateOnly');"
         href="{% url 'openCurrents:redeem-currents' biz_offer.id %}">
     {% endif %}
 
