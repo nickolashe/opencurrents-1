@@ -4,11 +4,14 @@
 <div class="relative small-6 medium-3 columns">
   <!-- ex-block url-n -->
     {% if biz_offer.offer_type == 'gft' or biz.is_featured_master_biz_giftcard %}
-      <a href="{% url 'openCurrents:redeem-option' %}?biz_name={{ biz_name }}">
+      <a onClick="ga('send', 'event', 'Redemption', 'FeaturedBizGC');"
+        href="{% url 'openCurrents:redeem-option' %}?biz_name={{ biz_name }}">
     {% elif biz_offer.is_master %}
-      <a href="{% url 'openCurrents:redeem-currents' biz_offer.id %}?biz_name={{ biz_name }}">
+      <a onClick="ga('send', 'event', 'Redemption', 'FeaturedBizRebate');"
+        href="{% url 'openCurrents:redeem-currents' biz_offer.id %}?biz_name={{ biz_name }}">
     {% else %}
-      <a href="{% url 'openCurrents:redeem-currents' biz_offer.id %}">
+      <a onClick="ga('send', 'event', 'Redemption', 'FeaturedBizRebate');"
+        href="{% url 'openCurrents:redeem-currents' biz_offer.id %}">
     {% endif %}
 
     <!-- ex-block img-n -->
