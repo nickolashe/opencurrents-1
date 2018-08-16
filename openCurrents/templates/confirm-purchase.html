@@ -65,7 +65,12 @@
 
             <script src="https://checkout.stripe.com/checkout.js"></script>
 
-            <button id="btn-stripe-checkout" class="button round">Purchase</button>
+            <button id="btn-stripe-checkout"
+              class="button round"
+              onClick="ga('send', 'event', 'Redemption', 'ConfirmGCPurchase');"
+              >
+              Purchase
+            </button>
 
             <script>
               var handler = StripeCheckout.configure({

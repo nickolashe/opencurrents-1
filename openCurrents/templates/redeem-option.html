@@ -26,7 +26,8 @@
   {% with fiat_amount=denomination|mult:fiat_share_percent|round_number:2 %}
     <div class="row center two-margin-top">
       <div class="medium-4 medium-offset-1 columns">
-        <a href="{% url 'openCurrents:confirm-purchase' %}?biz_name={{biz_name}}" class="button option">
+        <a onClick="ga('send', 'event', 'Redemption', 'GiftCardOption');"
+          href="{% url 'openCurrents:confirm-purchase' %}?biz_name={{biz_name}}" class="button option">
           <h4 class="white">${{ denomination }} gift card</h4>
           Buy now for ${{ fiat_amount }}
         </a>
@@ -36,7 +37,8 @@
         <h5>or</h5>
       </div>
       <div class="medium-4 columns end">
-        <a href="{% url 'openCurrents:redeem-currents' master_offer.id %}?biz_name={{biz_name}}" class="button option">
+        <a onClick="ga('send', 'event', 'Redemption', 'CashBackOption');"
+          href="{% url 'openCurrents:redeem-currents' master_offer.id %}?biz_name={{biz_name}}" class="button option">
           <h4 class="white">Upload receipt</h4>
           For up to ${{ fiat_amount }} cash back
         </a>
