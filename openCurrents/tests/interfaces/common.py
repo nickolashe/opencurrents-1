@@ -596,7 +596,7 @@ class SetupAdditionalTimeRecords():
     def setUp(self):
         """Set testing environment."""
         biz_orgs_list = ['BIZ_org_1']
-        npf_orgs_list = ['NPF_org_1', 'NPF_org_2']
+        npf_orgs_list = ['NPF_org_1', 'NPF_org_2', 'openCurrents']
         volunteers_list = ['volunteer_1']
 
         test_setup = SetUpTests()
@@ -640,8 +640,15 @@ class SetupAdditionalTimeRecords():
         self.offer = _create_offer(
             self.org_biz, currents_share=_SHARE * 100)
 
+        # create master offer
+        _create_offer(
+            Org.objects.get(name='openCurrents'),
+            currents_share=100,
+            is_master=1
+        )
         # getting item
         self.purchased_item = Item.objects.filter(offer__id=self.offer.id)[0]
+
 
         # setting up client
         self.client = Client()
