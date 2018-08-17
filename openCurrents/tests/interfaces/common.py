@@ -641,11 +641,11 @@ class SetupAdditionalTimeRecords():
             self.org_biz, currents_share=_SHARE * 100)
 
         # create master offer
-        _create_offer(
-            Org.objects.get(name='openCurrents'),
-            currents_share=100,
-            is_master=1
-        )
+        # _create_offer(
+        #     Org.objects.get(name='openCurrents'),
+        #     currents_share=100,
+        #     is_master=1
+        # )
         # getting item
         self.purchased_item = Item.objects.filter(offer__id=self.offer.id)[0]
 
