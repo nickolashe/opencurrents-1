@@ -5,8 +5,8 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 import re
 
-_MASTER_OFFER_LIMIT = 1.25
-_GIFT_CARD_OFFER_LIMIT = 1.25
+_MASTER_OFFER_LIMIT = 0.625
+_GIFT_CARD_OFFER_LIMIT = 0.625
 _SIGNUP_BONUS = 1.0
 
 
