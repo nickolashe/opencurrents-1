@@ -1,5 +1,6 @@
 {% extends "layouts/home-base.html" %}
 {% load staticfiles %}
+{% load tags %}
 
 {% block head %}
   {{ block.super }}
@@ -133,7 +134,9 @@
 
       <div class="row">
         <div class="medium-11 small-centered columns">
-          {% include "partials/featured-bizzes-home.html" %}
+          {% for biz, biz_offer in featured_master_bizzes.items %}
+              {% include "layouts/featured-biz.html" with biz_name=biz.name %}
+          {% endfor %}
         </div>
       </div>
 
@@ -169,7 +172,9 @@
             Earn your first Currents at these featured events:
           </h6>
 
-          {% include "partials/featured-npfs.html" %}
+          {% for event in featured_events %}
+            {% include "layouts/featured-npf.html" with org_name=event.project.org.name %}
+          {% endfor %}
 
         </div>
       </div>

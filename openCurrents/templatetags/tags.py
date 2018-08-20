@@ -126,3 +126,7 @@ def get_img_name_for_biz(biz_name):
     return '/'.join([
         'img', '.'.join([img_name, 'png'])
     ])
+
+@register.filter
+def is_num(value):
+    return isinstance(value, int)

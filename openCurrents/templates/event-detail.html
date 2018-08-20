@@ -4,26 +4,53 @@
 {% load tags %}
 
 {% block heading %}
+  <div class="row center">
+    <div class="small-6 medium-3 small-centered columns">
+      <img
+        class="biz-header-image"
+        src="{% static event.project.org.name|get_img_name_for_biz %}"
+      />
+    </div>
+  </div>
+
   <div class="row">
     <h4 class="title-sub">
-      {% block title %}{{ event.project.name }}{% endblock title %}
+      {% block title %}
+      <a href="{{ event.url }}">
+        {{ event.project.name }}
+      </a>
+      {% endblock title %}
     </h4>
     <p>with <strong>{{ event.project.org.name }}</strong> </p>
   </div>
 {% endblock heading %}
 
 {% block content %}
-  <form method="post" action="{% url 'openCurrents:event_register' event.id %}">
+  <form
+    method="post"
+    action="{% url 'openCurrents:event_register' event.id %}"
+    {% if event.url %}
+      target="_blank"
+    {% endif %}
+  >
     {% csrf_token %}
 
     <div class="row center">
       <div class="small-12 medium-8 small-centered columns">
-        <h6 class="no-margin-bottom">
-          on {{ event.datetime_start|day:event.project.org.timezone }}
-        </h6>
-        <h6 class="no-margin-bottom">
-          from {{ event.datetime_start|time:event.project.org.timezone }} to {{ event.datetime_end|time:event.project.org.timezone }}
-        </h6>
+        {% if event.project.is_open %}
+          <h6 class="no-margin-bottom">
+            Open opportunity
+          </h6>
+        {% else %}
+          <h6 class="no-margin-bottom">
+            on {{ event.datetime_start|day:event.project.org.timezone }}
+          </h6>
+          <h6 class="no-margin-bottom">
+            from {{ event.datetime_start|time:event.project.org.timezone }}
+            to {{ event.datetime_end|time:event.project.org.timezone }}
+          </h6>
+        {% endif %}
+
         <h6 class="half-margin-bottom">at {{ event.location }}</h6>
         <p>
           {% if event.is_public %}
@@ -41,6 +68,13 @@
       <div class="small-10 medium-6 small-centered columns">
         <h6 class="navy">Event description</h6>
         <p class="grey"> {{ event.description|safe|linebreaks }}</p>
+      </div>
+    </div>
+
+    <div class="row left">
+      <div class="small-10 medium-6 small-centered columns">
+        <h6 class="navy">Event URL</h6>
+        <a href="{{ event.url }}" target="_blank">{{ event.url }}</a>
       </div>
     </div>
 

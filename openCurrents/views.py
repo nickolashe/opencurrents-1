@@ -331,6 +331,42 @@ class BizAdminPermissionMixin(AdminPermissionMixin):
         )
 
 
+class FeaturedOffersContextMixin(object):
+    '''
+    Pass in offers from featured orgs in the community
+    '''
+
+    def get_context_data(self, **kwargs):
+        context = super(FeaturedOffersContextMixin, self).get_context_data(**kwargs)
+
+        master_offer = Offer.objects.get(is_master=True)
+        context['master_offer'] = master_offer
+
+        context['featured_master_bizzes'] = {}
+        for org in Org.objects.filter(is_featured_master_biz=True).order_by('name'):
+            if Offer.objects.filter(org__name=org.name, offer_type='gft').exists():
+                context['featured_master_bizzes'][org] = Offer.objects.get(
+                    org__name=org.name, offer_type='gft'
+                )
+            else:
+                context['featured_master_bizzes'][org] = master_offer
+        # logger.info(context['featured_master_bizzes'])
+
+        context['featured_unlimited_offers'] = [
+            offer
+            for offer in Offer.objects.filter(is_featured=True).order_by('org__name')
+        ]
+        # logger.info(context['featured_unlimited_offers'])
+
+        context['featured_events'] = [
+            event
+            for event in Event.objects.filter(is_featured=True).order_by('datetime_start')
+        ]
+        # logger.info(context['featured_unlimited_offers'])
+
+        return context
+
+
 class SitemapView(TemplateView):
     template_name = 'sitemap.xml'
 
@@ -339,7 +375,7 @@ class RobotsView(TemplateView):
     template_name = 'robots.txt'
 
 
-class HomeView(FormView):
+class HomeView(FeaturedOffersContextMixin, FormView):
     template_name = 'home.html'
     form_class = UserSignupForm
 
@@ -366,6 +402,7 @@ class HomeView(FormView):
         except Exception as e:
             pass
 
+        logger.info(context)
         return context
 
 
@@ -1192,7 +1229,7 @@ class PublicRecordView(LoginRequiredMixin, SessionContextView, TemplateView):
         return render(request, self.template_name, context)
 
 
-class MarketplaceView(ListView):
+class MarketplaceView(FeaturedOffersContextMixin, ListView):
     template_name = 'marketplace.html'
     context_object_name = 'offers'
     glogger_labels = {
@@ -1282,6 +1319,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         if request.user.is_authenticated:
             offer_id = kwargs.get('offer_id')
             self.offer = Offer.objects.get(id=offer_id)
+            # logger.info(self.offer)
             self.userid = request.user.id
             self.ocuser = OcUser(self.userid)
             self.biz_name = request.GET.get('biz_name', '')
@@ -1323,11 +1361,13 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
                 msg_type = 'alert'
                 glogger_struct['reject_reason'] = 'master offer limit reached'
 
-            offer_num_redeemed = self.ocuser.get_offer_num_redeemed(self.offer)
-            # logger.debug(offer_num_redeemed)
-
             offer_has_limit = self.offer.limit != -1
-            offer_limit_exceeded = self.offer.limit - offer_num_redeemed <= 0
+            if offer_has_limit:
+                offer_num_redeemed = self.ocuser.get_offer_num_redeemed(self.offer)
+                # logger.debug(offer_num_redeemed)
+
+                offer_limit_exceeded = self.offer.limit - offer_num_redeemed <= 0
+
             if not reqForbidden and offer_has_limit and offer_limit_exceeded:
                 reqForbidden = True
                 status_msg = ' '.join([
@@ -1435,14 +1475,19 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         context['master_offer'] = Offer.objects.filter(is_master=True).first()
         context['master_funds_available'] = self.ocuser.get_master_offer_remaining()
 
-        biz_name = self.request.GET.get('biz_name')
+        biz_name = self.biz_name
+        if not biz_name:
+            biz_name = self.offer.org.name
+
         context['biz_name'] = biz_name
         if biz_name:
             context['form'] = RedeemCurrentsForm(
                 offer_id=self.kwargs['offer_id'],
                 user=self.user
             )
-            context['form'].fields['biz_name'].widget.attrs['value'] = biz_name
+
+            if self.offer.is_master:
+                context['form'].fields['biz_name'].widget.attrs['value'] = biz_name
 
         return context
 
@@ -1456,7 +1501,7 @@ class RedeemCurrentsView(LoginRequiredMixin, SessionContextView, FormView):
         return kwargs
 
 
-class RedeemOptionView(TemplateView):
+class RedeemOptionView(LoginRequiredMixin, SessionContextView, TemplateView):
     template_name = 'redeem-option.html'
 
     def get(self, request, *args, **kwargs):
@@ -1505,6 +1550,10 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, FormView):
     def dispatch(self, request, *args, **kwargs):
         self.ocuser = OcUser(self.request.user.id)
         self.biz_name = request.GET.get('biz_name', '')
+        is_master_biz = Org.objects.filter(
+            name=self.biz_name,
+            is_featured_master_biz=True
+        ).exists()
 
         # currently, we only support a single giftcard offer per biz
         # TODO: redesign to support multiple giftcard offers per biz
@@ -1560,7 +1609,6 @@ class ConfirmPurchaseView(LoginRequiredMixin, SessionContextView, FormView):
             return super(ConfirmPurchaseView, self).dispatch(
                 request, *args, **kwargs
             )
-
 
     def post(self, request, *args, **kwargs):
         form = ConfirmGiftCardPurchaseForm(request.POST)
@@ -2378,7 +2426,7 @@ class VolunteersInvitedView(LoginRequiredMixin, SessionContextView, TemplateView
         return context
 
 
-class ProfileView(LoginRequiredMixin, SessionContextView, FormView):
+class ProfileView(LoginRequiredMixin, SessionContextView, FeaturedOffersContextMixin, FormView):
     template_name = 'profile.html'
     # login_url = '/home'
     redirect_unauthenticated_users = True
@@ -4502,7 +4550,10 @@ def event_register(request, pk):
                 )
 
         # TODO: add a redirect for coordinator who doesn't register
-        return redirect('openCurrents:registration-confirmed', event.id)
+        if event.url:
+            return redirect(event.url)
+        else:
+            return redirect('openCurrents:registration-confirmed', event.id)
     else:
         logger.error('Invalid form: %s', form.errors.as_data())
         return redirect('openCurrents:event-detail', event.id)
@@ -5301,15 +5352,15 @@ def process_login(request):
             if User.objects.filter(email=user_name).exists():
                 return redirect(
                     'openCurrents:login',
-                    status_msg ='Invalid login or password.',
-                    msg_type ='alert',
-                    user_login_email = user_name
+                    status_msg='Invalid login or password.',
+                    msg_type='alert',
+                    user_login_email=user_name
                 )
             else:
                 return redirect(
                     'openCurrents:login',
-                    status_msg ='Invalid login or password.',
-                    msg_type ='alert'
+                    status_msg='Invalid login or password.',
+                    msg_type='alert'
                 )
     else:
         logger.error(

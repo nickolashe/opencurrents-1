@@ -65,7 +65,12 @@
 
             <script src="https://checkout.stripe.com/checkout.js"></script>
 
-            <button id="btn-stripe-checkout" class="button round">Purchase</button>
+            <button id="btn-stripe-checkout"
+              class="button round"
+              onClick="ga('send', 'event', 'Redemption', 'ConfirmGCPurchase');"
+              >
+              Purchase
+            </button>
 
             <script>
               var handler = StripeCheckout.configure({
@@ -85,10 +90,11 @@
                 function(e) {
                   // Open Checkout with further options:
                   handler.open({
-                    name: "Purchase Gift Card",
-                    description: "{{ form.biz_name.value }}",
+                    name: "Purchase on openCurrents",
+                    description: "${{ fiat_charge }} {{ form.biz_name.value }} Gift Card",
                     amount: "{{ fiat_charge|transform_stripe }}",
-                    email: "{{ request.user.email }}"
+                    email: "{{ request.user.email }}",
+                    zipCode: true
                   });
                   e.preventDefault();
                 }

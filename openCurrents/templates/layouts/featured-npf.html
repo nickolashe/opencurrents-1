@@ -1,0 +1,31 @@
+{% load staticfiles %}
+{% load tags %}
+
+<div class="relative small-6 medium-3 columns">
+  <!-- ex-block url-n -->
+
+  <a href="{% url 'openCurrents:event-detail' event.id %}">
+
+    <!-- ex-block img-n -->
+    <img class="biz-logos" src="{% static org_name|get_img_name_for_biz %}"/>
+
+    <!-- ex-block overlay-n -->
+    {% if event.project.is_open %}
+      <span class="featured-overlay">
+        Open
+      </span>
+    {% else %}
+      <span class="featured-overlay">
+        {{ event.datetime_start|day_only:'America/Chicago' }}
+      </span>
+    {% endif %}
+  </a>
+
+  <!-- ex-block caption-n -->
+  <p class="center no-margin-bottom">
+  </p>
+</div>
+
+{% block popups %}{% endblock popups %}
+
+{% block js %}{% endblock js %}
