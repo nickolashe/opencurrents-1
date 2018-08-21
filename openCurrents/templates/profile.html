@@ -145,6 +145,16 @@
         {% for biz, biz_offer in featured_master_bizzes.items %}
             {% include "layouts/featured-biz.html" with biz_name=biz.name %}
         {% endfor %}
+
+        <div class="relative small-6 medium-3 columns">
+          <a class="sold-out-popup_open">
+            <img class="biz-logos disabled" src="{% static 'img/juiceland.png' %}"/>
+
+            <span class="featured-overlay">
+              Sold out
+            </span>
+          </a>
+        </div>
       </div>
 
       <h6 class="one-margin-top half-margin-bottom">
@@ -213,6 +223,10 @@
     {% include "popups/volunteer-for-cash-popup.html" %}
   </div>
 
+  <div id="sold-out-popup" class="modal center small-12 medium-9 small-centered columns">
+    {% include "popups/sold-out-popup.html" %}
+  </div>
+
   <div id="rsvp-popup" class="modal center small-12 medium-9 large-7 small-centered columns">
     <div class="row center">
       <h3 class="popup-title">Change RSVP</h3>
@@ -265,7 +279,7 @@
         var open = false;
       }
 
-      $('#rsvp-popup, #how-to-popup, #earn-currents-popup, #balance-popup, #no-cash-popup, #cash-out-popup, #donate-cash-popup, #volunteer-for-cash-popup').popup({
+      $('#rsvp-popup, #how-to-popup, #earn-currents-popup, #balance-popup, #no-cash-popup, #cash-out-popup, #donate-cash-popup, #volunteer-for-cash-popup, #sold-out-popup').popup({
         vertical: 'top',
         transition: 'all 0.75s',
         scrolllock: true,
