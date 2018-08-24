@@ -71,12 +71,15 @@
       </div>
     </div>
 
-    <div class="row left">
-      <div class="small-10 medium-6 small-centered columns">
-        <h6 class="navy">Event URL</h6>
-        <a href="{{ event.url }}" target="_blank">{{ event.url }}</a>
+
+    {% if event.url %}
+      <div class="row left">
+        <div class="small-10 medium-6 small-centered columns">
+          <h6 class="navy">Event URL</h6>
+          <a href="{{ event.url }}" target="_blank">{{ event.url }}</a>
+        </div>
       </div>
-    </div>
+    {% endif %}
 
     <div class="three-halves-margin-top row left
     {% if not request.user.is_authenticated %}
