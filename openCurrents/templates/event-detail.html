@@ -4,14 +4,16 @@
 {% load tags %}
 
 {% block heading %}
-  <div class="row center">
-    <div class="small-6 medium-3 small-centered columns">
-      <img
-        class="biz-header-image"
-        src="{% static event.project.org.name|get_img_name_for_biz %}"
-      />
+  {% if event.project.org.logo %}
+    <div class="row center">
+      <div class="small-6 medium-3 small-centered columns">
+        <img
+          class="biz-header-image"
+          src="{% static event.project.org.name|get_img_name_for_biz %}"
+        />
+      </div>
     </div>
-  </div>
+  {% endif %}
 
   <div class="row">
     <h4 class="title-sub">
