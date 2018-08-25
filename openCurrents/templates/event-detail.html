@@ -4,7 +4,7 @@
 {% load tags %}
 
 {% block heading %}
-  {% if event.project.org.logo %}
+  {% if event.project.org.name|get_img_name_for_biz %}
     <div class="row center">
       <div class="small-6 medium-3 small-centered columns">
         <img
