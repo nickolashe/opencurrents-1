@@ -1,3 +1,5 @@
+.env
+.editrc
 *.pyc
 db.sqlite3
 log/
@@ -7,3 +9,4 @@ oc/mediafiles
 env/
 lib/
 metrics/scripts/*/*.csv
+metrics/scripts/kpi/*/*.csv
