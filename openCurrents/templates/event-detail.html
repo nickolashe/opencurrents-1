@@ -1,15 +1,16 @@
 {% extends "layouts/base.html" %}
 
-{% load staticfiles %}
+{% load static %}
+{% get_media_prefix %}
 {% load tags %}
 
 {% block heading %}
-  {% if event.project.org.name|get_img_name_for_biz %}
+  {% if event.project.org.logo %}
     <div class="row center">
       <div class="small-6 medium-3 small-centered columns">
         <img
           class="biz-header-image"
-          src="{% static event.project.org.name|get_img_name_for_biz %}"
+          src="{{ event.project.org.logo }}"
         />
       </div>
     </div>
