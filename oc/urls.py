@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 import os
 from django.conf import settings
+from django.conf.urls.static import static
 
 admin.autodiscover()
 
@@ -29,4 +30,4 @@ urlpatterns = [
 urlpatterns += staticfiles_urlpatterns()
 
 if not (os.getenv('GAE_INSTANCE') or os.getenv('GOOGLE_CLOUD_PROXY') or os.getenv('OC_HEROKU_DEV')):
-    url(r'^mediafiles/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT, 'show_indexes': True})
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

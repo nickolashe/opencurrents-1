@@ -1,7 +1,6 @@
 {% extends "layouts/base.html" %}
 
 {% load static %}
-{% get_media_prefix %}
 {% load tags %}
 
 {% block heading %}
@@ -10,7 +9,7 @@
       <div class="small-6 medium-3 small-centered columns">
         <img
           class="biz-header-image"
-          src="{{ event.project.org.logo }}"
+          src="{% get_media_prefix %}{{ event.project.org.logo }}"
         />
       </div>
     </div>
