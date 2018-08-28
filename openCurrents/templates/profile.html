@@ -145,16 +145,6 @@
         {% for biz, biz_offer in featured_master_bizzes.items %}
             {% include "layouts/featured-biz.html" with biz_name=biz.name %}
         {% endfor %}
-
-        <div class="relative small-6 medium-3 columns">
-          <a class="sold-out-popup_open">
-            <img class="biz-logos disabled" src="{% static 'img/juiceland.png' %}"/>
-
-            <span class="featured-overlay">
-              Sold out
-            </span>
-          </a>
-        </div>
       </div>
 
       <h6 class="one-margin-top half-margin-bottom">
