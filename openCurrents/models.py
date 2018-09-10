@@ -21,6 +21,19 @@ logging.basicConfig(level=logging.DEBUG, filename='log/models.log')
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
+def path_and_rename_org_logo(instance, filename):
+        upload_to = 'logos'
+        ext = filename.split('.')[-1]
+
+        # get filename
+        if instance:
+            filename = '{}.{}'.format(instance.name, ext)
+        else:
+            # set filename as random string
+            filename = '{}.{}'.format(uuid4().hex, ext)
+
+        # return the whole path to the file
+        return os.path.join(upload_to, filename)
 
 # org model
 class Org(models.Model):
@@ -45,6 +58,12 @@ class Org(models.Model):
 
     users = models.ManyToManyField(User, through='OrgUser')
     timezone = models.CharField(max_length=128, default='America/Chicago')
+    logo = models.ImageField(
+        upload_to=path_and_rename_org_logo,
+        max_length=512,
+        null=True,
+        blank=True
+    )
 
     # created / updated timestamps
     date_created = models.DateTimeField('date created', auto_now_add=True)

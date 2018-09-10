@@ -16,6 +16,9 @@ Including another URLconf
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+import os
+from django.conf import settings
+from django.conf.urls.static import static
 
 admin.autodiscover()
 
@@ -25,3 +28,6 @@ urlpatterns = [
 ]
 
 urlpatterns += staticfiles_urlpatterns()
+
+if not (os.getenv('GAE_INSTANCE') or os.getenv('GOOGLE_CLOUD_PROXY') or os.getenv('OC_HEROKU_DEV')):
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

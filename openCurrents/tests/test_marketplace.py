@@ -15,7 +15,7 @@ from openCurrents.tests.interfaces.common import (
 
 import re
 
-# from unittest import skip
+from unittest import skip
 
 
 # @@@ TODO @@@
@@ -90,6 +90,7 @@ class SetupAll(TestCase):
 class TestMarketplaceNonLogged(SetupAll):
     """Set of tests for marketplace as non-logged user."""
 
+    @skip('Fix (#1568)')
     def test_access_marketplace_nonlogged(self):
         """
         Non logged in user visits marketplace page.
