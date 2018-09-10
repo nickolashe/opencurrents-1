@@ -1,4 +1,4 @@
-{% load static %}
+{% load staticfiles %}
 {% load tags %}
 
 <div class="relative small-6 medium-3 columns">
@@ -15,7 +15,7 @@
     {% endif %}
 
     <!-- ex-block img-n -->
-    <img class="biz-logos" src="{% get_media_prefix %}{{ biz_offer.org.logo }}"/>
+    <img class="biz-logos" src="{% static biz_name|get_img_name_for_biz %}"/>
 
     <!-- ex-block overlay-n -->
     <span class="featured-overlay">
