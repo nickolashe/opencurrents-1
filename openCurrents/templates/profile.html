@@ -138,17 +138,19 @@
 
   <div class="row collapse three-halves-margin-top">
     <div class="small-11 medium-10 small-centered columns">
-      <h6 class="half-margin-bottom">
-        Got Currents? Redeem 1 offer per week these businesses
-      </h6>
-      <div class="row">
-        {% for biz, biz_offer in featured_master_bizzes.items %}
-            {% include "layouts/featured-biz.html" with biz_name=biz.name %}
-        {% endfor %}
-      </div>
+      {% comment %}
+        <h6 class="half-margin-bottom">
+          Got Currents? Redeem 1 offer per week these businesses
+        </h6>
+        <div class="row">
+          {% for biz, biz_offer in featured_master_bizzes.items %}
+              {% include "layouts/featured-biz.html" with biz_name=biz.name %}
+          {% endfor %}
+        </div>
+      {% endcomment %}
 
       <h6 class="one-margin-top half-margin-bottom">
-        Unlimited offers
+        Got Currents? Redeem with businesses in the community:
       </h6>
       <div class="row">
         {% for biz_offer in featured_unlimited_offers %}
